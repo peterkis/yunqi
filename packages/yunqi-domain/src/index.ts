@@ -21,10 +21,13 @@ export type {
 export type { CalendarProvider } from './calendar/calendar-provider.js';
 
 export { formatBeijingDateTime, parseDateTimeInput } from './calendar/beijing-time.js';
+export { resolveYunQiYear } from './calendar/yunqi-year-resolver.js';
 export {
   defaultCalendarProvider,
   tymeCalendarProvider,
 } from './calendar/tyme-calendar-provider.js';
+export { calculateStemBranch } from './ganzhi/stem-branch.js';
+export { calculateSuiYun } from './wuyun/sui-yun.js';
 
 export {
   BRANCH_QI_RULES,
