@@ -27,6 +27,9 @@ export {
   tymeCalendarProvider,
 } from './calendar/tyme-calendar-provider.js';
 export { calculateStemBranch } from './ganzhi/stem-branch.js';
+export { calculateGuestQi, getHostQi } from './liuqi/host-guest.js';
+export { getSitianZaiquan } from './liuqi/sitian-zaiquan.js';
+export { calculateHostGuestRelation } from './relation/host-guest-relation.js';
 export { calculateSuiYun } from './wuyun/sui-yun.js';
 
 export {
