@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 
-import { createYearExplanations } from '../src/explanation/explanation-template.js';
 import * as publicApi from '../src/index.js';
 import {
   RULE_VERSION,
@@ -25,8 +24,7 @@ describe('stable package API', () => {
     const dated: YunQiResult = calculateYunQi('2024-05-20T21:00:00+08:00', provider);
     const step: SixQiStep = getCurrentStep('2024-05-20T21:00:00+08:00', provider);
 
-    expect(typeof createYearExplanations).toBe('function');
-    expect(publicApi.createYearExplanations).toBe(createYearExplanations);
+    expect('createYearExplanations' in publicApi).toBe(false);
     expect(typeof calculateYearYunQi).toBe('function');
     expect(typeof calculateYunQi).toBe('function');
     expect(typeof getCurrentStep).toBe('function');
