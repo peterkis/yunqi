@@ -49,4 +49,5 @@ export {
   SIXTY_CYCLE_ANCHOR,
   STEM_RULES,
   STEP_BOUNDARY_TERMS,
+  STEP_NAMES,
 } from './rules/phase1-rules.js';

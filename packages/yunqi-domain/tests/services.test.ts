@@ -6,7 +6,7 @@ import { buildSixQiSteps } from '../src/liuqi/six-qi.js';
 import { calculateYearYunQi } from '../src/services/calculate-year-yunqi.js';
 import { calculateYunQi } from '../src/services/calculate-yunqi.js';
 import { getCurrentStep } from '../src/services/get-current-step.js';
-import type { SixStepBoundaryTerm } from '../src/types.js';
+import type { BeijingDateTime, SixStepBoundaryTerm } from '../src/types.js';
 import * as publicApi from '../src/index.js';
 
 const REAL_2024_BOUNDARIES = [
@@ -44,6 +44,18 @@ function createRecordingProvider(): {
   return { provider, requests };
 }
 
+function createBoundaryOverrideProvider(
+  termToOverride: SixStepBoundaryTerm,
+  override: (boundary: BeijingDateTime) => BeijingDateTime,
+): CalendarProvider {
+  return {
+    getSolarTermTime(year, term) {
+      const boundary = tymeCalendarProvider.getSolarTermTime(year, term);
+      return term === termToOverride ? override(boundary) : boundary;
+    },
+  };
+}
+
 describe('six-step timeline', () => {
   it('builds the exact continuous 2024 timeline from real Provider seconds', () => {
     const result = calculateYearYunQi(2024);
@@ -71,6 +83,16 @@ describe('six-step timeline', () => {
     ]);
     expect(result.steps.map(({ start }) => start)).toEqual(REAL_2024_BOUNDARIES.slice(0, 6));
     expect(result.steps.map(({ end }) => end)).toEqual(REAL_2024_BOUNDARIES.slice(1));
+    expect(
+      result.steps.map(({ hostQi, guestQi, relation }) => [hostQi, guestQi, relation]),
+    ).toEqual([
+      ['厥阴风木', '少阳相火', 'HOST_GENERATES_GUEST'],
+      ['少阴君火', '阳明燥金', 'HOST_CONTROLS_GUEST'],
+      ['少阳相火', '太阳寒水', 'GUEST_CONTROLS_HOST'],
+      ['太阴湿土', '厥阴风木', 'GUEST_CONTROLS_HOST'],
+      ['阳明燥金', '少阴君火', 'GUEST_CONTROLS_HOST'],
+      ['太阳寒水', '太阴湿土', 'GUEST_CONTROLS_HOST'],
+    ]);
     expect(result.steps[2].guestQi).toBe(result.sitian);
     expect(result.steps[5].guestQi).toBe(result.zaiquan);
     expect(result.explanations).toEqual([]);
@@ -107,6 +129,44 @@ describe('six-step timeline', () => {
     };
 
     expect(() => buildSixQiSteps(2024, '太阳寒水', provider)).toThrow(/边界.*严格递增/);
+  });
+
+  it('rejects a Provider boundary with a non-finite epoch', () => {
+    const provider = createBoundaryOverrideProvider('春分', (boundary) => ({
+      ...boundary,
+      epochMilliseconds: Number.NaN,
+    }));
+
+    expect(() => buildSixQiSteps(2024, '太阳寒水', provider)).toThrow(/边界.*有限/);
+  });
+
+  it('rejects a Provider boundary with an invalid ISO value', () => {
+    const provider = createBoundaryOverrideProvider('春分', (boundary) => ({
+      ...boundary,
+      iso: 'not-a-date',
+    }));
+
+    expect(() => buildSixQiSteps(2024, '太阳寒水', provider)).toThrow(/边界.*ISO.*无效/);
+  });
+
+  it('rejects a same-instant Provider boundary outside canonical Beijing format', () => {
+    const provider = createBoundaryOverrideProvider('春分', (boundary) => ({
+      ...boundary,
+      iso: '2024-03-20T03:06:25Z',
+    }));
+
+    expect(() => buildSixQiSteps(2024, '太阳寒水', provider)).toThrow(
+      /边界.*规范.*北京时间/,
+    );
+  });
+
+  it('rejects a Provider boundary whose ISO and epoch represent different instants', () => {
+    const provider = createBoundaryOverrideProvider('春分', (boundary) => ({
+      ...boundary,
+      iso: REAL_2024_BOUNDARIES[0],
+    }));
+
+    expect(() => buildSixQiSteps(2024, '太阳寒水', provider)).toThrow(/边界.*不一致/);
   });
 });
 

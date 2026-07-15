@@ -6,6 +6,7 @@ import type {
   Qi,
   SitianZaiquan,
   SixStepBoundaryTerm,
+  StepName,
   SuiYun,
 } from '../types.js';
 
@@ -125,6 +126,15 @@ export const GUEST_QI_SEQUENCE = Object.freeze([
   '阳明燥金',
   '太阳寒水',
 ] as const satisfies readonly Qi[]);
+
+export const STEP_NAMES = Object.freeze([
+  '初之气',
+  '二之气',
+  '三之气',
+  '四之气',
+  '五之气',
+  '终之气',
+] as const satisfies readonly StepName[]);
 
 export const STEP_BOUNDARY_TERMS = Object.freeze([
   '大寒',

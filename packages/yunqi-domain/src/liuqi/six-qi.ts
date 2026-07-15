@@ -1,17 +1,29 @@
+import { formatBeijingDateTime } from '../calendar/beijing-time.js';
 import type { CalendarProvider } from '../calendar/calendar-provider.js';
 import { calculateHostGuestRelation } from '../relation/host-guest-relation.js';
-import { STEP_BOUNDARY_TERMS } from '../rules/phase1-rules.js';
-import type { Qi, SixQiStep, StepName } from '../types.js';
+import { STEP_BOUNDARY_TERMS, STEP_NAMES } from '../rules/phase1-rules.js';
+import type { BeijingDateTime, Qi, SixQiStep } from '../types.js';
 import { calculateGuestQi, getHostQi } from './host-guest.js';
 
-const STEP_NAMES = Object.freeze([
-  '初之气',
-  '二之气',
-  '三之气',
-  '四之气',
-  '五之气',
-  '终之气',
-] as const satisfies readonly StepName[]);
+function validateBoundary(boundary: BeijingDateTime): void {
+  if (!Number.isFinite(boundary.epochMilliseconds)) {
+    throw new RangeError('节气边界的纪元毫秒值必须是有限数值');
+  }
+
+  const parsedEpochMilliseconds = Date.parse(boundary.iso);
+
+  if (!Number.isFinite(parsedEpochMilliseconds)) {
+    throw new RangeError('节气边界的 ISO 时间无效');
+  }
+
+  if (parsedEpochMilliseconds !== boundary.epochMilliseconds) {
+    throw new RangeError('节气边界的 ISO 时间与纪元毫秒值不一致');
+  }
+
+  if (boundary.iso !== formatBeijingDateTime(boundary.epochMilliseconds)) {
+    throw new RangeError('节气边界必须使用规范的北京时间秒格式');
+  }
+}
 
 export function buildSixQiSteps(
   year: number,
@@ -23,11 +35,13 @@ export function buildSixQiSteps(
     provider.getSolarTermTime(year + 1, STEP_BOUNDARY_TERMS[0]),
   ];
 
-  for (let index = 0; index < boundaries.length; index += 1) {
-    const current = boundaries[index].epochMilliseconds;
-    const previous = boundaries[index - 1]?.epochMilliseconds;
+  boundaries.forEach(validateBoundary);
 
-    if (!Number.isFinite(current) || (previous !== undefined && current <= previous)) {
+  for (let index = 1; index < boundaries.length; index += 1) {
+    const current = boundaries[index].epochMilliseconds;
+    const previous = boundaries[index - 1].epochMilliseconds;
+
+    if (current <= previous) {
       throw new RangeError('六步边界必须按时间严格递增');
     }
   }

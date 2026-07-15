@@ -12,6 +12,7 @@ import {
   SIXTY_CYCLE_ANCHOR,
   STEM_RULES,
   STEP_BOUNDARY_TERMS,
+  STEP_NAMES,
 } from '../src/rules/phase1-rules.js';
 
 describe('Phase 1 rule tables', () => {
@@ -67,6 +68,9 @@ describe('Phase 1 rule tables', () => {
       '厥阴风木', '少阴君火', '太阴湿土',
       '少阳相火', '阳明燥金', '太阳寒水',
     ]);
+    expect(STEP_NAMES).toEqual([
+      '初之气', '二之气', '三之气', '四之气', '五之气', '终之气',
+    ]);
     expect(STEP_BOUNDARY_TERMS).toEqual(['大寒', '春分', '小满', '大暑', '秋分', '小雪']);
   });
 
@@ -111,6 +115,7 @@ describe('Phase 1 rule tables', () => {
       BRANCH_QI_RULES,
       HOST_QI_SEQUENCE,
       GUEST_QI_SEQUENCE,
+      STEP_NAMES,
       STEP_BOUNDARY_TERMS,
       QI_ELEMENT_MAP,
       ELEMENT_GENERATION_MAP,

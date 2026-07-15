@@ -12,6 +12,7 @@ import {
   SIXTY_CYCLE_ANCHOR,
   STEM_RULES,
   STEP_BOUNDARY_TERMS,
+  STEP_NAMES,
   type Element,
   type HostGuestRelation,
   type Qi,
@@ -34,6 +35,7 @@ describe('package source entrypoint', () => {
     expect(STEM_RULES.甲.tone).toBe('太宫');
     expect(BRANCH_QI_RULES.子.sitian).toBe('少阴君火');
     expect(GUEST_QI_SEQUENCE[2]).toBe('太阴湿土');
+    expect(STEP_NAMES[0]).toBe('初之气');
     expect(STEP_BOUNDARY_TERMS[0]).toBe('大寒');
     expect(ELEMENT_GENERATION_MAP.木).toBe('火');
     expect(ELEMENT_CONTROL_MAP.木).toBe('土');
@@ -43,6 +45,7 @@ describe('package source entrypoint', () => {
       BRANCH_QI_RULES,
       HOST_QI_SEQUENCE,
       GUEST_QI_SEQUENCE,
+      STEP_NAMES,
       STEP_BOUNDARY_TERMS,
       QI_ELEMENT_MAP,
       ELEMENT_GENERATION_MAP,
