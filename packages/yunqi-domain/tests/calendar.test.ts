@@ -17,6 +17,37 @@ describe('Beijing time', () => {
     expect(() => parseDateTimeInput(new Date(Number.NaN))).toThrow(/无效/);
   });
 
+  it.each([
+    '2024-02-30T00:00:00+08:00',
+    '2023-02-29T00:00:00+08:00',
+    '2024-04-31T00:00:00+08:00',
+    '2024-01-01T24:00:00+08:00',
+  ])('rejects overflowing calendar fields in %s', (input) => {
+    expect(() => parseDateTimeInput(input)).toThrowError(RangeError);
+    expect(() => parseDateTimeInput(input)).toThrow(/格式或日历字段无效/);
+  });
+
+  it('rejects non-contract syntax even when a timezone is present', () => {
+    expect(() => parseDateTimeInput('2024-02-29 00:00:00+08:00')).toThrowError(
+      RangeError,
+    );
+    expect(() => parseDateTimeInput('2024-02-29 00:00:00+08:00')).toThrow(
+      /格式或日历字段无效/,
+    );
+  });
+
+  it('accepts a valid leap day and one-to-three fractional second digits', () => {
+    expect(parseDateTimeInput('2024-02-29T00:00:00+08:00')).toBe(
+      Date.UTC(2024, 1, 28, 16, 0, 0),
+    );
+    expect(parseDateTimeInput('2024-03-20T03:06:25.987Z')).toBe(
+      Date.UTC(2024, 2, 20, 3, 6, 25, 987),
+    );
+    expect(parseDateTimeInput('2024-03-20T03:06:25.9Z')).toBe(
+      Date.UTC(2024, 2, 20, 3, 6, 25, 900),
+    );
+  });
+
   it('gets the 2024 Dahan instant from tyme4ts at second precision', () => {
     const dahan = tymeCalendarProvider.getSolarTermTime(2024, '大寒');
     expect(dahan.iso).toBe('2024-01-20T22:07:22+08:00');

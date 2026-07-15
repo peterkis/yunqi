@@ -78,6 +78,42 @@ describe('YunQi year resolution', () => {
     expect(resolveYunQiYear('2023-12-31T16:00:00Z', provider)).toBe(2023);
     expect(requests).toEqual([{ year: 2024, term: '大寒' }]);
   });
+
+  it.each([
+    [
+      'a non-finite epoch',
+      { iso: '2024-01-20T22:07:22+08:00', epochMilliseconds: Number.NaN },
+      /大寒.*有限/,
+    ],
+    [
+      'an invalid ISO value',
+      { iso: 'not-a-date', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
+      /大寒.*ISO.*无效/,
+    ],
+    [
+      'a same-instant noncanonical Z value',
+      { iso: '2024-01-20T14:07:22Z', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
+      /大寒.*规范.*北京时间/,
+    ],
+    [
+      'mismatched ISO and epoch representations',
+      { iso: '2024-01-20T22:07:21+08:00', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
+      /大寒.*不一致/,
+    ],
+  ] as const)('rejects a Dahan Provider result with %s', (_name, dahan, message) => {
+    const provider: CalendarProvider = {
+      getSolarTermTime() {
+        return dahan;
+      },
+    };
+
+    expect(() => resolveYunQiYear('2024-02-01T00:00:00+08:00', provider)).toThrowError(
+      RangeError,
+    );
+    expect(() => resolveYunQiYear('2024-02-01T00:00:00+08:00', provider)).toThrow(
+      message,
+    );
+  });
 });
 
 describe('annual calculator public API', () => {

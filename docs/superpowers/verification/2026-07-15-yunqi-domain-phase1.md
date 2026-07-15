@@ -70,10 +70,10 @@ docs/superpowers/verification/
 ## 实现说明
 
 1. `src/rules/phase1-rules.ts` 是代码中的唯一映射表，完整承载 60 甲子、十干岁运、十二支司天在泉、主客气序列、六步名/边界、五行及关系优先级；所有根导出的规则对象和集合均运行时冻结。
-2. `CalendarProvider` 隔离历法能力。默认冻结适配器以锁定的 `tyme4ts@1.5.2` 获取实际节气秒值，并验证请求、ISO、纪元毫秒和规范北京时间的一致性。
+2. `CalendarProvider` 隔离历法能力。默认冻结适配器以锁定的 `tyme4ts@1.5.2` 获取实际节气秒值。共享内部校验器在默认适配器、运气年 resolver 和六步构建器三个消费边界统一验证 finite epoch、可解析 ISO、同一瞬时和规范北京时间秒格式；该内部校验器不从包根导出。
 3. 纯计算器按“绝对瞬时 → 北京公历年 → 实际大寒 → 运气年 → 干支/岁运/司天在泉 → 六步 → 客主关系”组合；所有边界左闭右开。
 4. `calculateYearYunQi` 每次调用都新建并冻结一组确定性规则解释。解释覆盖实际年份起止、年干/岁运、年支/司天在泉、三之气等于司天和终之气等于在泉，不产生医疗判断。
-5. `calculateStemBranch` 与年度主服务均对非有限或非整数年份抛出 `RangeError('年份必须是有限整数')`，关闭了公共 helper 的诊断差异。
+5. `calculateStemBranch`、年度主服务与 `buildSixQiSteps` 均对非有限或非整数年份抛出 `RangeError('年份必须是有限整数')`；`buildSixQiSteps` 在调用 Provider 前完成校验。
 6. `src/index.ts` 保留 Tasks 1–5 已审查的入口，不删除或替换既有 API；解释模板仅供年度服务内部组合，并通过 `calculateYearYunQi`/`calculateYunQi` 的 `explanations` 结果公开事实，不把 helper 暴露为根 API。根入口继续公开三个主服务、Provider 类型/默认适配器、公共结果类型和 `RULE_VERSION`。
 
 ## Starter Prompt 逐项证据
@@ -82,14 +82,15 @@ docs/superpowers/verification/
 | --- | --- | --- | --- |
 | 只实现 `packages/yunqi-domain` | `packages/yunqi-domain/package.json`、本报告的范围审计 | `npm ls --omit=dev` 运行时仅 `tyme4ts@1.5.2`；禁止依赖 `rg` 无匹配 | 通过 |
 | 纯函数领域包 | `src/ganzhi`、`src/wuyun`、`src/liuqi`、`src/relation`；唯一外部能力经参数化 `CalendarProvider` 注入 | `services.test.ts` 的 injected Provider identity 三项测试 | 通过 |
-| 1. 运气年判断 | `calendar/yunqi-year-resolver.ts` | `year-and-suiyun.test.ts` 的 exact 2024 Dahan second；`services.test.ts` 七个边界行 | 通过 |
+| 严格时间输入 | `calendar/beijing-time.ts` 捕获固定语法字段，并按输入 offset 对本地字段 round-trip | `calendar.test.ts` 拒绝 02-30、非闰年 02-29、04-31、24:00 和非契约语法；接受 2024-02-29 与 `.987Z` | 通过 |
+| 1. 运气年判断 | `calendar/yunqi-year-resolver.ts` | `year-and-suiyun.test.ts` 的 exact 2024 Dahan second，以及 malformed Dahan Provider 的 finite/ISO/同瞬时/canonical 四项拒绝；`services.test.ts` 七个边界行 | 通过 |
 | 2. 年干支 | `ganzhi/stem-branch.ts` | `year-and-suiyun.test.ts` 的 60-cycle、2044 回环，以及 `calculateStemBranch` 在 1900–2100 的逐年干支规则循环测试 | 通过 |
 | 3. 岁运 | `wuyun/sui-yun.ts` | `year-and-suiyun.test.ts` 的 2024–2028 与 fresh-object 测试 | 通过 |
 | 4. 太过不及 | `STEM_RULES` 与 `calculateSuiYun` | `acceptance.test.ts` 的五个独立 scratch 年度行 | 通过 |
 | 5. 司天在泉 | `liuqi/sitian-zaiquan.ts` | `liuqi-rules.test.ts` 的十二支完整映射 | 通过 |
 | 6. 主气 | `liuqi/host-guest.ts#getHostQi` | `liuqi-rules.test.ts` 的六个 1-based 主气位置 | 通过 |
 | 7. 客气 | `liuqi/host-guest.ts#calculateGuestQi` | 十二支不变量及 `acceptance.test.ts` 的 2024–2028 六项客气序列 | 通过 |
-| 8. 六步 | `liuqi/six-qi.ts` | `services.test.ts` 的完整 2024 时间轴、七个边界前一秒/交界秒和冻结断言 | 通过 |
+| 8. 六步 | `liuqi/six-qi.ts` | `services.test.ts` 的完整 2024 时间轴、七个边界前一秒/交界秒、Provider 双表示、冻结断言，以及 invalid year 时 Provider 0 calls | 通过 |
 | 9. 客主关系 | `relation/host-guest-relation.ts` | 六类代表值、6×6 全组合，以及 2024–2028 独立关系序列 | 通过 |
 | Vitest：60 甲子 | `SIXTY_CYCLE` 完整 60 项冻结序列 | `rules.test.ts` 精确顺序/唯一性；`year-and-suiyun.test.ts` 完整循环 | 通过 |
 | Vitest：2024–2028 | 不从生产表生成验收期望 | `acceptance.test.ts` 内的 scratch 常量直接断言干支、岁运 element/state/tone、司天、在泉、六客气和六关系 | 通过 |
@@ -124,23 +125,49 @@ docs/superpowers/verification/
 - 解释模板仍由 `calculateYearYunQi` 内部使用；六条事实、安全词、新集合和冻结行为继续通过主服务结果测试。
 - 全仓 `rg` 措辞审计确认：README 与本报告的 1900–2100 均仅描述 `calculateStemBranch` 干支规则循环测试；完整年度服务验收均明确为 2024–2028。
 
+## 最终审查修复 TDD 证据
+
+### RED
+
+在任何生产代码修改前运行：
+
+```text
+npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.test.ts
+```
+
+结果为 exit 1；3 files failed，13 tests failed / 49 passed：
+
+- 5 个带时区但语法或字段溢出的字符串均未抛错，证明旧实现把 `Date.parse` 的宽松规范化误当成合法输入；
+- 4 个 malformed Dahan Provider（non-finite epoch、invalid ISO、同瞬时非规范 `Z`、ISO/epoch mismatch）均未抛错，证明 resolver 在年比较前没有校验 Provider 双表示；
+- `NaN`、`Infinity`、`-Infinity`、`2024.5` 四个六步年份均先触发测试 Provider 的 sentinel error，证明年份守卫发生在 Provider 调用之后。
+
+同一 RED 运行中，合法闰日和现有 `.987Z` 兼容性断言通过。
+
+### GREEN
+
+- 首次最小实现后，affected focused command exit 0；3 files / 62 tests passed。
+- 严格字符串解析只接受 `YYYY-MM-DDTHH:mm:ss`、可选 1–3 位毫秒及 `Z`/`±HH:mm`，使用捕获字段与 offset 后本地字段 round-trip 拒绝自动规范化。
+- Provider 双表示校验抽为 `beijing-time.ts` 的共享内部 utility，由默认 tyme adapter、resolver 和 six-qi 共同调用，但不从包根导出。
+- `buildSixQiSteps` 在任何 Provider 调用前拒绝非有限或非整数年份。
+- `rules/PHASE1_RULE_SOURCES.md` 的 EOF 额外空行已删除；formal-freeze 状态未改变。
+
 ## 命令与结果
 
-以下命令均在 `packages/yunqi-domain` 执行，记录的是独立审查修复及文档收紧完成后的 fresh 结果：
+以下命令均在 `packages/yunqi-domain` 执行（Git 命令在仓库根执行），记录的是最终审查修复后的 fresh 结果：
 
 | 命令 | 结果 |
 | --- | --- |
-| `npm test -- tests/public-api.test.ts tests/acceptance.test.ts` | exit 0；2 files / 10 tests passed |
-| `npm test -- tests/year-and-suiyun.test.ts` | exit 0；1 file / 15 tests passed |
-| `npm test -- tests/public-api.test.ts tests/acceptance.test.ts tests/year-and-suiyun.test.ts` | exit 0；3 files / 25 tests passed |
-| `npm test` | exit 0；8 files / 91 tests passed，0 failures |
+| `npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.test.ts` | exit 0；3 files / 62 tests passed |
+| `npm test` | exit 0；8 files / 105 tests passed，0 failures |
 | `npm run typecheck` | exit 0；`tsc -p tsconfig.json --noEmit` 无诊断 |
 | `npm run build` | exit 0；`tsc -p tsconfig.json` 成功生成声明与 ESM 输出 |
-| `npm run test:coverage` | exit 0；8 files / 91 tests；statements 92.24%，branches 85.48%，functions 100%，lines 92.18% |
-| `npm ls --all` | exit 0；完整开发树可解析；输出的 `UNMET OPTIONAL DEPENDENCY` 均为 Vitest/TypeScript/Vite 的可选平台或可选集成，无 `ELSPROBLEMS` |
+| `npm run test:coverage` | exit 0；8 files / 105 tests；statements 93.71%，branches 88.23%，functions 100%，lines 93.63% |
+| `npm ls --all` | exit 0；完整开发树可解析；68 行 `UNMET OPTIONAL DEPENDENCY` 均为可选平台或可选集成，无 `ELSPROBLEMS` |
 | `npm ls --omit=dev` | exit 0；运行时树只有 `tyme4ts@1.5.2` |
 | `git diff --check` | exit 0；无空白错误 |
-| `git diff --cached --check` | exit 0；4 个审查修复文件无空白错误，范围仅为根 API 测试/导出及 README/验证报告边界收紧 |
+| 禁止依赖键 `rg` 扫描 | exit 1；零匹配，符合预期 |
+| `git diff --cached --check` | exit 0；10 个最终审查修复文件无空白错误 |
+| `git diff --check fc97cbe9654ec2c38a65c236faab5b50bd215341..HEAD` | exit 0；从初始化基线至修复提交无空白错误，原 `PHASE1_RULE_SOURCES.md` EOF 额外空行已消除 |
 
 禁止依赖审计对 `package.json` 与 `package-lock.json` 的包键搜索 React、Fastify、数据库客户端、OpenAI/模型 SDK、HIS 和 EMR 标识；`rg` 原始退出码为 1（零匹配），符合预期。
 

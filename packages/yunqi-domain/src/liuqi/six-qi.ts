@@ -1,41 +1,25 @@
-import { formatBeijingDateTime } from '../calendar/beijing-time.js';
+import { validateBeijingDateTime } from '../calendar/beijing-time.js';
 import type { CalendarProvider } from '../calendar/calendar-provider.js';
 import { calculateHostGuestRelation } from '../relation/host-guest-relation.js';
 import { STEP_BOUNDARY_TERMS, STEP_NAMES } from '../rules/phase1-rules.js';
-import type { BeijingDateTime, Qi, SixQiStep } from '../types.js';
+import type { Qi, SixQiStep } from '../types.js';
 import { calculateGuestQi, getHostQi } from './host-guest.js';
-
-function validateBoundary(boundary: BeijingDateTime): void {
-  if (!Number.isFinite(boundary.epochMilliseconds)) {
-    throw new RangeError('节气边界的纪元毫秒值必须是有限数值');
-  }
-
-  const parsedEpochMilliseconds = Date.parse(boundary.iso);
-
-  if (!Number.isFinite(parsedEpochMilliseconds)) {
-    throw new RangeError('节气边界的 ISO 时间无效');
-  }
-
-  if (parsedEpochMilliseconds !== boundary.epochMilliseconds) {
-    throw new RangeError('节气边界的 ISO 时间与纪元毫秒值不一致');
-  }
-
-  if (boundary.iso !== formatBeijingDateTime(boundary.epochMilliseconds)) {
-    throw new RangeError('节气边界必须使用规范的北京时间秒格式');
-  }
-}
 
 export function buildSixQiSteps(
   year: number,
   sitian: Qi,
   provider: CalendarProvider,
 ): readonly SixQiStep[] {
+  if (!Number.isFinite(year) || !Number.isInteger(year)) {
+    throw new RangeError('年份必须是有限整数');
+  }
+
   const boundaries = [
     ...STEP_BOUNDARY_TERMS.map((term) => provider.getSolarTermTime(year, term)),
     provider.getSolarTermTime(year + 1, STEP_BOUNDARY_TERMS[0]),
   ];
 
-  boundaries.forEach(validateBoundary);
+  boundaries.forEach((boundary) => validateBeijingDateTime(boundary));
 
   for (let index = 1; index < boundaries.length; index += 1) {
     const current = boundaries[index].epochMilliseconds;

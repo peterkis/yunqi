@@ -115,6 +115,24 @@ describe('six-step timeline', () => {
     expect(requests).toHaveLength(7);
   });
 
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 2024.5])(
+    'rejects the invalid build year %s before calling the Provider',
+    (year) => {
+      let providerCalls = 0;
+      const provider: CalendarProvider = {
+        getSolarTermTime() {
+          providerCalls += 1;
+          throw new Error('Provider must not be called for an invalid year');
+        },
+      };
+
+      expect(() => buildSixQiSteps(year, '太阳寒水', provider)).toThrow(
+        /年份必须是有限整数/,
+      );
+      expect(providerCalls).toBe(0);
+    },
+  );
+
   it('freezes the six-item collection and every newly built step', () => {
     const first = buildSixQiSteps(2024, '太阳寒水', tymeCalendarProvider);
     const second = buildSixQiSteps(2024, '太阳寒水', tymeCalendarProvider);

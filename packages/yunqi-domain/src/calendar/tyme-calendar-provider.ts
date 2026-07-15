@@ -1,7 +1,7 @@
 import { SolarTerm } from 'tyme4ts';
 
 import type { BeijingDateTime, SixStepBoundaryTerm } from '../types.js';
-import { formatBeijingDateTime, formatBeijingFields } from './beijing-time.js';
+import { formatBeijingFields, validateBeijingDateTime } from './beijing-time.js';
 import type { CalendarProvider } from './calendar-provider.js';
 
 function getSolarTermTime(year: number, term: SixStepBoundaryTerm): BeijingDateTime {
@@ -26,12 +26,11 @@ function getSolarTermTime(year: number, term: SixStepBoundaryTerm): BeijingDateT
     solarTime.getSecond(),
   );
   const epochMilliseconds = Date.parse(iso);
+  const result = { iso, epochMilliseconds };
 
-  if (!Number.isFinite(epochMilliseconds) || formatBeijingDateTime(epochMilliseconds) !== iso) {
-    throw new RangeError(`节气时间无法转换为有效瞬时：${year} ${term}`);
-  }
+  validateBeijingDateTime(result, `${year} ${term}节气时间`);
 
-  return { iso, epochMilliseconds };
+  return result;
 }
 
 export const tymeCalendarProvider: CalendarProvider = Object.freeze({
