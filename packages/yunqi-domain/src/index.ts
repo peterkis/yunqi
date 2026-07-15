@@ -18,6 +18,14 @@ export type {
   YunState,
 } from './types.js';
 
+export type { CalendarProvider } from './calendar/calendar-provider.js';
+
+export { formatBeijingDateTime, parseDateTimeInput } from './calendar/beijing-time.js';
+export {
+  defaultCalendarProvider,
+  tymeCalendarProvider,
+} from './calendar/tyme-calendar-provider.js';
+
 export {
   BRANCH_QI_RULES,
   ELEMENT_CONTROL_MAP,
