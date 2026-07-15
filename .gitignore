@@ -1,0 +1,19 @@
+# Node.js dependencies and package-manager caches
+node_modules/
+.npm/
+
+# TypeScript and Vitest outputs
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local logs and editor state
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Superpowers transient execution artifacts
+.superpowers/
+
