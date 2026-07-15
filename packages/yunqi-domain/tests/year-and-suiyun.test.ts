@@ -50,6 +50,14 @@ describe('annual Ganzhi and SuiYun calculations', () => {
       expect(STEM_RULES[stemBranch.stem]).toBeDefined();
     }
   });
+
+  it.each([Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY, 2024.5])(
+    'rejects the non-finite or non-integer helper year %s descriptively',
+    (year) => {
+      expect(() => calculateStemBranch(year)).toThrowError(RangeError);
+      expect(() => calculateStemBranch(year)).toThrow(/年份必须是有限整数/);
+    },
+  );
 });
 
 describe('YunQi year resolution', () => {

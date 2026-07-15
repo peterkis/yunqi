@@ -26,6 +26,7 @@ export {
   defaultCalendarProvider,
   tymeCalendarProvider,
 } from './calendar/tyme-calendar-provider.js';
+export { createYearExplanations } from './explanation/explanation-template.js';
 export { calculateStemBranch } from './ganzhi/stem-branch.js';
 export { calculateGuestQi, getHostQi } from './liuqi/host-guest.js';
 export { buildSixQiSteps } from './liuqi/six-qi.js';

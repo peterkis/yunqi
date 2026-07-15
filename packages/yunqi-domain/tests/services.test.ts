@@ -95,7 +95,14 @@ describe('six-step timeline', () => {
     ]);
     expect(result.steps[2].guestQi).toBe(result.sitian);
     expect(result.steps[5].guestQi).toBe(result.zaiquan);
-    expect(result.explanations).toEqual([]);
+    expect(result.explanations).toEqual([
+      '2024 运气年以北京时间 2024 年大寒实际交节时刻为起点。',
+      '该运气年的实际区间为 2024-01-20T22:07:22+08:00 至 2025-01-20T04:00:08+08:00（左闭右开）。',
+      '年干甲按规则表对应土运太过（太宫）。',
+      '年支辰按规则表对应司天太阳寒水、在泉太阴湿土。',
+      '三之气客气与司天同为太阳寒水。',
+      '终之气客气与在泉同为太阴湿土。',
+    ]);
     expect(Object.isFrozen(result.explanations)).toBe(true);
   });
 
