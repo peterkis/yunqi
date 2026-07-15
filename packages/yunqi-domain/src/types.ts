@@ -1,3 +1,5 @@
+import type { YunQiInstant } from './calendar/time.js';
+
 export type Element = '木' | '火' | '土' | '金' | '水';
 export type YunState = '太过' | '不及';
 export type HeavenlyStem =
@@ -38,8 +40,6 @@ export type HostGuestRelation =
   | 'GUEST_GENERATES_HOST'
   | 'HOST_CONTROLS_GUEST'
   | 'GUEST_CONTROLS_HOST';
-export type SixStepBoundaryTerm = '大寒' | '春分' | '小满' | '大暑' | '秋分' | '小雪';
-export type DateTimeInput = string | Date;
 export type Tone =
   | '太角'
   | '少角'
@@ -52,11 +52,6 @@ export type Tone =
   | '太羽'
   | '少羽';
 export type StepName = '初之气' | '二之气' | '三之气' | '四之气' | '五之气' | '终之气';
-
-export interface BeijingDateTime {
-  iso: string;
-  epochMilliseconds: number;
-}
 
 export interface StemBranch {
   year: number;
@@ -79,16 +74,16 @@ export interface SitianZaiquan {
 export interface SixQiStep {
   index: 1 | 2 | 3 | 4 | 5 | 6;
   name: StepName;
-  start: string;
-  end: string;
+  start: YunQiInstant;
+  end: YunQiInstant;
   hostQi: Qi;
   guestQi: Qi;
   relation: HostGuestRelation;
 }
 
 export interface YunQiYearResult extends StemBranch {
-  start: string;
-  end: string;
+  start: YunQiInstant;
+  end: YunQiInstant;
   suiYun: SuiYun;
   sitian: Qi;
   zaiquan: Qi;
@@ -98,6 +93,6 @@ export interface YunQiYearResult extends StemBranch {
 }
 
 export interface YunQiResult extends YunQiYearResult {
-  input: string;
+  input: YunQiInstant;
   currentStep: SixQiStep;
 }

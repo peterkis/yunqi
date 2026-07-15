@@ -1,5 +1,4 @@
-import type { CalendarProvider } from '../calendar/calendar-provider.js';
-import { defaultCalendarProvider } from '../calendar/tyme-calendar-provider.js';
+import type { CalendarProvider } from '../calendar/provider.js';
 import { createYearExplanations } from '../explanation/explanation-template.js';
 import { calculateStemBranch } from '../ganzhi/stem-branch.js';
 import { buildSixQiSteps } from '../liuqi/six-qi.js';
@@ -10,7 +9,7 @@ import { calculateSuiYun } from '../wuyun/sui-yun.js';
 
 export function calculateYearYunQi(
   year: number,
-  provider: CalendarProvider = defaultCalendarProvider,
+  provider: CalendarProvider,
 ): YunQiYearResult {
   if (!Number.isFinite(year) || !Number.isInteger(year)) {
     throw new RangeError('年份必须是有限整数');

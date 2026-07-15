@@ -1,5 +1,5 @@
-import { validateBeijingDateTime } from '../calendar/beijing-time.js';
-import type { CalendarProvider } from '../calendar/calendar-provider.js';
+import type { CalendarProvider } from '../calendar/provider.js';
+import { assertYunQiInstant } from '../calendar/time.js';
 import { calculateHostGuestRelation } from '../relation/host-guest-relation.js';
 import { STEP_BOUNDARY_TERMS, STEP_NAMES } from '../rules/phase1-rules.js';
 import type { Qi, SixQiStep } from '../types.js';
@@ -15,11 +15,13 @@ export function buildSixQiSteps(
   }
 
   const boundaries = [
-    ...STEP_BOUNDARY_TERMS.map((term) => provider.getSolarTermTime(year, term)),
-    provider.getSolarTermTime(year + 1, STEP_BOUNDARY_TERMS[0]),
+    ...STEP_BOUNDARY_TERMS.map((term) => provider.getSolarTermInstant(year, term)),
+    provider.getSolarTermInstant(year + 1, STEP_BOUNDARY_TERMS[0]),
   ];
 
-  boundaries.forEach((boundary) => validateBeijingDateTime(boundary));
+  boundaries.forEach((boundary, index) =>
+    assertYunQiInstant(boundary, `六步边界 ${index + 1}`),
+  );
 
   for (let index = 1; index < boundaries.length; index += 1) {
     const current = boundaries[index].epochMilliseconds;
@@ -39,8 +41,8 @@ export function buildSixQiSteps(
     return Object.freeze({
       index,
       name,
-      start: boundaries[offset].iso,
-      end: boundaries[offset + 1].iso,
+      start: boundaries[offset],
+      end: boundaries[offset + 1],
       hostQi,
       guestQi: currentGuestQi,
       relation: calculateHostGuestRelation(hostQi, currentGuestQi),

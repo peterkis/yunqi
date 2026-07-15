@@ -1,3 +1,4 @@
+import type { SolarTerm } from '../calendar/provider.js';
 import type {
   EarthlyBranch,
   Element,
@@ -5,7 +6,6 @@ import type {
   HostGuestRelation,
   Qi,
   SitianZaiquan,
-  SixStepBoundaryTerm,
   StepName,
   SuiYun,
 } from '../types.js';
@@ -143,7 +143,7 @@ export const STEP_BOUNDARY_TERMS = Object.freeze([
   '大暑',
   '秋分',
   '小雪',
-] as const satisfies readonly SixStepBoundaryTerm[]);
+] as const satisfies readonly SolarTerm[]);
 
 export const QI_ELEMENT_MAP = Object.freeze({
   厥阴风木: '木',

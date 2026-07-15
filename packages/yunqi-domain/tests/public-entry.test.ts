@@ -13,9 +13,12 @@ import {
   STEM_RULES,
   STEP_BOUNDARY_TERMS,
   STEP_NAMES,
+  createYunQiInstant,
   type Element,
   type HostGuestRelation,
   type Qi,
+  type SolarTerm,
+  type YunQiInstant,
 } from '../src/index.js';
 
 describe('package source entrypoint', () => {
@@ -23,11 +26,18 @@ describe('package source entrypoint', () => {
     const element: Element = QI_ELEMENT_MAP['厥阴风木'];
     const qi: Qi = HOST_QI_SEQUENCE[0];
     const relation: HostGuestRelation = HOST_GUEST_RELATION_PRIORITY[0];
+    const term: SolarTerm = STEP_BOUNDARY_TERMS[0];
+    const instant: YunQiInstant = createYunQiInstant(1_705_759_642_000);
 
-    expect({ element, qi, relation }).toEqual({
+    expect({ element, qi, relation, term, instant }).toEqual({
       element: '木',
       qi: '厥阴风木',
       relation: 'SAME_QI',
+      term: '大寒',
+      instant: {
+        epochMilliseconds: 1_705_759_642_000,
+        timezone: 'Asia/Shanghai',
+      },
     });
     expect(RULE_VERSION).toBe('V1.0-2026.7.7-implementation.1');
     expect(SIXTY_CYCLE_ANCHOR.year).toBe(1984);

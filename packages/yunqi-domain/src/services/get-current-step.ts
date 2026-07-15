@@ -1,11 +1,11 @@
-import type { CalendarProvider } from '../calendar/calendar-provider.js';
-import { defaultCalendarProvider } from '../calendar/tyme-calendar-provider.js';
-import type { DateTimeInput, SixQiStep } from '../types.js';
+import type { CalendarProvider } from '../calendar/provider.js';
+import type { YunQiInstant } from '../calendar/time.js';
+import type { SixQiStep } from '../types.js';
 import { calculateYunQi } from './calculate-yunqi.js';
 
 export function getCurrentStep(
-  input: DateTimeInput,
-  provider: CalendarProvider = defaultCalendarProvider,
+  input: YunQiInstant,
+  provider: CalendarProvider,
 ): SixQiStep {
   return calculateYunQi(input, provider).currentStep;
 }

@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
-import type { CalendarProvider } from '../src/calendar/calendar-provider.js';
-import { tymeCalendarProvider } from '../src/calendar/tyme-calendar-provider.js';
+import type { CalendarProvider } from '../src/calendar/provider.js';
+import {
+  createYunQiInstant,
+  type YunQiInstant,
+} from '../src/calendar/time.js';
 import { resolveYunQiYear } from '../src/calendar/yunqi-year-resolver.js';
 import { calculateStemBranch } from '../src/ganzhi/stem-branch.js';
 import { STEM_RULES } from '../src/rules/phase1-rules.js';
 import { calculateSuiYun } from '../src/wuyun/sui-yun.js';
 import * as publicApi from '../src/index.js';
+import {
+  FIXED_2024_BOUNDARY_EPOCHS,
+  fixedCalendarProvider,
+} from './helpers/fixed-calendar-provider.js';
 
 describe('annual Ganzhi and SuiYun calculations', () => {
   it('cycles all 60 Ganzhi from the 1984 Jiazi anchor', () => {
@@ -62,57 +69,55 @@ describe('annual Ganzhi and SuiYun calculations', () => {
 
 describe('YunQi year resolution', () => {
   it('changes YunQi year at the exact 2024 Dahan second', () => {
-    expect(resolveYunQiYear('2024-01-20T22:07:21+08:00', tymeCalendarProvider)).toBe(2023);
-    expect(resolveYunQiYear('2024-01-20T22:07:22+08:00', tymeCalendarProvider)).toBe(2024);
+    expect(
+      resolveYunQiYear(
+        createYunQiInstant(FIXED_2024_BOUNDARY_EPOCHS[0] - 1_000),
+        fixedCalendarProvider,
+      ),
+    ).toBe(2023);
+    expect(
+      resolveYunQiYear(
+        createYunQiInstant(FIXED_2024_BOUNDARY_EPOCHS[0]),
+        fixedCalendarProvider,
+      ),
+    ).toBe(2024);
   });
 
   it('queries Dahan using the Beijing civil year of the absolute instant', () => {
     const requests: Array<{ year: number; term: string }> = [];
     const provider: CalendarProvider = {
-      getSolarTermTime(year, term) {
+      getSolarTermInstant(year, term) {
         requests.push({ year, term });
-        return tymeCalendarProvider.getSolarTermTime(year, term);
+        return fixedCalendarProvider.getSolarTermInstant(year, term);
       },
     };
 
-    expect(resolveYunQiYear('2023-12-31T16:00:00Z', provider)).toBe(2023);
+    expect(resolveYunQiYear(createYunQiInstant(1_704_038_400_000), provider)).toBe(2023);
     expect(requests).toEqual([{ year: 2024, term: '大寒' }]);
   });
 
   it.each([
     [
-      'a non-finite epoch',
-      { iso: '2024-01-20T22:07:22+08:00', epochMilliseconds: Number.NaN },
-      /大寒.*有限/,
+      'a non-safe epoch',
+      { epochMilliseconds: Number.NaN, timezone: 'Asia/Shanghai' },
+      /大寒.*安全整数/,
     ],
     [
-      'an invalid ISO value',
-      { iso: 'not-a-date', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
-      /大寒.*ISO.*无效/,
-    ],
-    [
-      'a same-instant noncanonical Z value',
-      { iso: '2024-01-20T14:07:22Z', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
-      /大寒.*规范.*北京时间/,
-    ],
-    [
-      'mismatched ISO and epoch representations',
-      { iso: '2024-01-20T22:07:21+08:00', epochMilliseconds: Date.parse('2024-01-20T22:07:22+08:00') },
-      /大寒.*不一致/,
+      'an incorrect timezone',
+      { epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[0], timezone: 'UTC' },
+      /大寒.*时区.*Asia\/Shanghai/,
     ],
   ] as const)('rejects a Dahan Provider result with %s', (_name, dahan, message) => {
     const provider: CalendarProvider = {
-      getSolarTermTime() {
-        return dahan;
+      getSolarTermInstant() {
+        return dahan as unknown as YunQiInstant;
       },
     };
 
-    expect(() => resolveYunQiYear('2024-02-01T00:00:00+08:00', provider)).toThrowError(
-      RangeError,
-    );
-    expect(() => resolveYunQiYear('2024-02-01T00:00:00+08:00', provider)).toThrow(
-      message,
-    );
+    const input = createYunQiInstant(1_706_716_800_000);
+
+    expect(() => resolveYunQiYear(input, provider)).toThrowError(RangeError);
+    expect(() => resolveYunQiYear(input, provider)).toThrow(message);
   });
 });
 

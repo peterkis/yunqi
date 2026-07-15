@@ -1,19 +1,22 @@
-import type { DateTimeInput } from '../types.js';
+import type { CalendarProvider } from './provider.js';
 import {
-  formatBeijingDateTime,
-  parseDateTimeInput,
-  validateBeijingDateTime,
-} from './beijing-time.js';
-import type { CalendarProvider } from './calendar-provider.js';
+  assertYunQiInstant,
+  getBeijingCivilYear,
+  type YunQiInstant,
+} from './time.js';
 
-export function resolveYunQiYear(input: DateTimeInput, provider: CalendarProvider): number {
-  const epochMilliseconds = parseDateTimeInput(input);
-  const beijingCivilYear = Number(formatBeijingDateTime(epochMilliseconds).slice(0, 4));
-  const dahan = provider.getSolarTermTime(beijingCivilYear, '大寒');
+export function resolveYunQiYear(
+  input: YunQiInstant,
+  provider: CalendarProvider,
+): number {
+  assertYunQiInstant(input, '输入时间');
 
-  validateBeijingDateTime(dahan, '大寒节气边界');
+  const beijingCivilYear = getBeijingCivilYear(input);
+  const dahan = provider.getSolarTermInstant(beijingCivilYear, '大寒');
 
-  return epochMilliseconds < dahan.epochMilliseconds
+  assertYunQiInstant(dahan, '大寒节气边界');
+
+  return input.epochMilliseconds < dahan.epochMilliseconds
     ? beijingCivilYear - 1
     : beijingCivilYear;
 }

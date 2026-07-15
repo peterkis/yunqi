@@ -1,20 +1,21 @@
-import { formatBeijingDateTime, parseDateTimeInput } from '../calendar/beijing-time.js';
-import type { CalendarProvider } from '../calendar/calendar-provider.js';
-import { defaultCalendarProvider } from '../calendar/tyme-calendar-provider.js';
+import type { CalendarProvider } from '../calendar/provider.js';
+import { assertYunQiInstant, type YunQiInstant } from '../calendar/time.js';
 import { resolveYunQiYear } from '../calendar/yunqi-year-resolver.js';
-import type { DateTimeInput, YunQiResult } from '../types.js';
+import type { YunQiResult } from '../types.js';
 import { calculateYearYunQi } from './calculate-year-yunqi.js';
 
 export function calculateYunQi(
-  input: DateTimeInput,
-  provider: CalendarProvider = defaultCalendarProvider,
+  input: YunQiInstant,
+  provider: CalendarProvider,
 ): YunQiResult {
-  const epochMilliseconds = parseDateTimeInput(input);
-  const year = resolveYunQiYear(new Date(epochMilliseconds), provider);
+  assertYunQiInstant(input, '输入时间');
+
+  const year = resolveYunQiYear(input, provider);
   const annual = calculateYearYunQi(year, provider);
   const currentStep = annual.steps.find(
     (step) =>
-      Date.parse(step.start) <= epochMilliseconds && epochMilliseconds < Date.parse(step.end),
+      step.start.epochMilliseconds <= input.epochMilliseconds &&
+      input.epochMilliseconds < step.end.epochMilliseconds,
   );
 
   if (currentStep === undefined) {
@@ -23,7 +24,7 @@ export function calculateYunQi(
 
   return {
     ...annual,
-    input: formatBeijingDateTime(epochMilliseconds),
+    input,
     currentStep,
   };
 }

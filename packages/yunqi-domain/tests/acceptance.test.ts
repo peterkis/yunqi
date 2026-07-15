@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { calculateYearYunQi } from '../src/index.js';
+import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
 // Scratch acceptance values copied from the independently verified matrix.
 // They are deliberately not derived from any production rule export.
@@ -84,7 +85,7 @@ describe('Phase 1 independent annual acceptance matrix', () => {
   it.each(ANNUAL_ACCEPTANCE_ROWS)(
     'accepts the complete $year annual row',
     ({ year, ganzhi, suiYun, sitian, zaiquan, guestQi, relations }) => {
-      const result = calculateYearYunQi(year);
+      const result = calculateYearYunQi(year, fixedCalendarProvider);
 
       expect({
         year: result.year,
@@ -101,10 +102,10 @@ describe('Phase 1 independent annual acceptance matrix', () => {
   );
 
   it('accepts exact factual explanations for the actual 2024 year start and mappings', () => {
-    const result = calculateYearYunQi(2024);
+    const result = calculateYearYunQi(2024, fixedCalendarProvider);
 
-    expect(result.start).toBe('2024-01-20T22:07:22+08:00');
-    expect(result.end).toBe('2025-01-20T04:00:08+08:00');
+    expect(result.start.epochMilliseconds).toBe(1_705_759_642_000);
+    expect(result.end.epochMilliseconds).toBe(1_737_316_808_000);
     expect(result.explanations).toEqual([
       '2024 运气年以北京时间 2024 年大寒实际交节时刻为起点。',
       '该运气年的实际区间为 2024-01-20T22:07:22+08:00 至 2025-01-20T04:00:08+08:00（左闭右开）。',
