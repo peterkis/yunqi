@@ -1,6 +1,8 @@
 import type {
   EarthlyBranch,
+  Element,
   HeavenlyStem,
+  HostGuestRelation,
   Qi,
   SitianZaiquan,
   SixStepBoundaryTerm,
@@ -9,7 +11,13 @@ import type {
 
 export const RULE_VERSION = 'V1.0-2026.7.7-implementation.1' as const;
 
-export const SIXTY_CYCLE = [
+export const SIXTY_CYCLE_ANCHOR = Object.freeze({
+  year: 1984,
+  ganzhi: '甲子',
+  index: 0,
+} as const);
+
+export const SIXTY_CYCLE = Object.freeze([
   '甲子',
   '乙丑',
   '丙寅',
@@ -70,59 +78,93 @@ export const SIXTY_CYCLE = [
   '辛酉',
   '壬戌',
   '癸亥',
-] as const;
+] as const);
 
-export const STEM_RULES = {
-  甲: { element: '土', state: '太过', tone: '太宫' },
-  乙: { element: '金', state: '不及', tone: '少商' },
-  丙: { element: '水', state: '太过', tone: '太羽' },
-  丁: { element: '木', state: '不及', tone: '少角' },
-  戊: { element: '火', state: '太过', tone: '太徵' },
-  己: { element: '土', state: '不及', tone: '少宫' },
-  庚: { element: '金', state: '太过', tone: '太商' },
-  辛: { element: '水', state: '不及', tone: '少羽' },
-  壬: { element: '木', state: '太过', tone: '太角' },
-  癸: { element: '火', state: '不及', tone: '少徵' },
-} as const satisfies Record<HeavenlyStem, SuiYun>;
+export const STEM_RULES = Object.freeze({
+  甲: Object.freeze({ element: '土', state: '太过', tone: '太宫' } as const),
+  乙: Object.freeze({ element: '金', state: '不及', tone: '少商' } as const),
+  丙: Object.freeze({ element: '水', state: '太过', tone: '太羽' } as const),
+  丁: Object.freeze({ element: '木', state: '不及', tone: '少角' } as const),
+  戊: Object.freeze({ element: '火', state: '太过', tone: '太徵' } as const),
+  己: Object.freeze({ element: '土', state: '不及', tone: '少宫' } as const),
+  庚: Object.freeze({ element: '金', state: '太过', tone: '太商' } as const),
+  辛: Object.freeze({ element: '水', state: '不及', tone: '少羽' } as const),
+  壬: Object.freeze({ element: '木', state: '太过', tone: '太角' } as const),
+  癸: Object.freeze({ element: '火', state: '不及', tone: '少徵' } as const),
+} satisfies Record<HeavenlyStem, SuiYun>);
 
-export const BRANCH_QI_RULES = {
-  子: { sitian: '少阴君火', zaiquan: '阳明燥金' },
-  丑: { sitian: '太阴湿土', zaiquan: '太阳寒水' },
-  寅: { sitian: '少阳相火', zaiquan: '厥阴风木' },
-  卯: { sitian: '阳明燥金', zaiquan: '少阴君火' },
-  辰: { sitian: '太阳寒水', zaiquan: '太阴湿土' },
-  巳: { sitian: '厥阴风木', zaiquan: '少阳相火' },
-  午: { sitian: '少阴君火', zaiquan: '阳明燥金' },
-  未: { sitian: '太阴湿土', zaiquan: '太阳寒水' },
-  申: { sitian: '少阳相火', zaiquan: '厥阴风木' },
-  酉: { sitian: '阳明燥金', zaiquan: '少阴君火' },
-  戌: { sitian: '太阳寒水', zaiquan: '太阴湿土' },
-  亥: { sitian: '厥阴风木', zaiquan: '少阳相火' },
-} as const satisfies Record<EarthlyBranch, SitianZaiquan>;
+export const BRANCH_QI_RULES = Object.freeze({
+  子: Object.freeze({ sitian: '少阴君火', zaiquan: '阳明燥金' } as const),
+  丑: Object.freeze({ sitian: '太阴湿土', zaiquan: '太阳寒水' } as const),
+  寅: Object.freeze({ sitian: '少阳相火', zaiquan: '厥阴风木' } as const),
+  卯: Object.freeze({ sitian: '阳明燥金', zaiquan: '少阴君火' } as const),
+  辰: Object.freeze({ sitian: '太阳寒水', zaiquan: '太阴湿土' } as const),
+  巳: Object.freeze({ sitian: '厥阴风木', zaiquan: '少阳相火' } as const),
+  午: Object.freeze({ sitian: '少阴君火', zaiquan: '阳明燥金' } as const),
+  未: Object.freeze({ sitian: '太阴湿土', zaiquan: '太阳寒水' } as const),
+  申: Object.freeze({ sitian: '少阳相火', zaiquan: '厥阴风木' } as const),
+  酉: Object.freeze({ sitian: '阳明燥金', zaiquan: '少阴君火' } as const),
+  戌: Object.freeze({ sitian: '太阳寒水', zaiquan: '太阴湿土' } as const),
+  亥: Object.freeze({ sitian: '厥阴风木', zaiquan: '少阳相火' } as const),
+} satisfies Record<EarthlyBranch, SitianZaiquan>);
 
-export const HOST_QI_SEQUENCE = [
+export const HOST_QI_SEQUENCE = Object.freeze([
   '厥阴风木',
   '少阴君火',
   '少阳相火',
   '太阴湿土',
   '阳明燥金',
   '太阳寒水',
-] as const satisfies readonly Qi[];
+] as const satisfies readonly Qi[]);
 
-export const GUEST_QI_SEQUENCE = [
+export const GUEST_QI_SEQUENCE = Object.freeze([
   '厥阴风木',
   '少阴君火',
   '太阴湿土',
   '少阳相火',
   '阳明燥金',
   '太阳寒水',
-] as const satisfies readonly Qi[];
+] as const satisfies readonly Qi[]);
 
-export const STEP_BOUNDARY_TERMS = [
+export const STEP_BOUNDARY_TERMS = Object.freeze([
   '大寒',
   '春分',
   '小满',
   '大暑',
   '秋分',
   '小雪',
-] as const satisfies readonly SixStepBoundaryTerm[];
+] as const satisfies readonly SixStepBoundaryTerm[]);
+
+export const QI_ELEMENT_MAP = Object.freeze({
+  厥阴风木: '木',
+  少阴君火: '火',
+  太阴湿土: '土',
+  少阳相火: '火',
+  阳明燥金: '金',
+  太阳寒水: '水',
+} as const satisfies Record<Qi, Element>);
+
+export const ELEMENT_GENERATION_MAP = Object.freeze({
+  木: '火',
+  火: '土',
+  土: '金',
+  金: '水',
+  水: '木',
+} as const satisfies Record<Element, Element>);
+
+export const ELEMENT_CONTROL_MAP = Object.freeze({
+  木: '土',
+  土: '水',
+  水: '火',
+  火: '金',
+  金: '木',
+} as const satisfies Record<Element, Element>);
+
+export const HOST_GUEST_RELATION_PRIORITY = Object.freeze([
+  'SAME_QI',
+  'SAME_ELEMENT_DIFFERENT_QI',
+  'HOST_GENERATES_GUEST',
+  'GUEST_GENERATES_HOST',
+  'HOST_CONTROLS_GUEST',
+  'GUEST_CONTROLS_HOST',
+] as const satisfies readonly HostGuestRelation[]);
