@@ -46,7 +46,20 @@ describe('Beijing time', () => {
     expect(parseDateTimeInput('2024-03-20T03:06:25.9Z')).toBe(
       Date.UTC(2024, 2, 20, 3, 6, 25, 900),
     );
+    expect(parseDateTimeInput('2024-03-20T03:06:25.01Z')).toBe(
+      Date.UTC(2024, 2, 20, 3, 6, 25, 10),
+    );
   });
+
+  it.each([
+    ['2024-03-20T08:36:25.01+05:30', Date.UTC(2024, 2, 20, 3, 6, 25, 10)],
+    ['2024-03-19T22:36:25.01-04:30', Date.UTC(2024, 2, 20, 3, 6, 25, 10)],
+  ] as const)(
+    'converts signed non-hour offset input %s to the exact instant',
+    (input, expected) => {
+      expect(parseDateTimeInput(input)).toBe(expected);
+    },
+  );
 
   it('gets the 2024 Dahan instant from tyme4ts at second precision', () => {
     const dahan = tymeCalendarProvider.getSolarTermTime(2024, '大寒');

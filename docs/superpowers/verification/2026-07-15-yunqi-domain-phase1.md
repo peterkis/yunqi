@@ -82,7 +82,7 @@ docs/superpowers/verification/
 | --- | --- | --- | --- |
 | 只实现 `packages/yunqi-domain` | `packages/yunqi-domain/package.json`、本报告的范围审计 | `npm ls --omit=dev` 运行时仅 `tyme4ts@1.5.2`；禁止依赖 `rg` 无匹配 | 通过 |
 | 纯函数领域包 | `src/ganzhi`、`src/wuyun`、`src/liuqi`、`src/relation`；唯一外部能力经参数化 `CalendarProvider` 注入 | `services.test.ts` 的 injected Provider identity 三项测试 | 通过 |
-| 严格时间输入 | `calendar/beijing-time.ts` 捕获固定语法字段，并按输入 offset 对本地字段 round-trip | `calendar.test.ts` 拒绝 02-30、非闰年 02-29、04-31、24:00 和非契约语法；接受 2024-02-29 与 `.987Z` | 通过 |
+| 严格时间输入 | `calendar/beijing-time.ts` 捕获固定语法字段，并按输入 offset 对本地字段 round-trip | `calendar.test.ts` 拒绝 02-30、非闰年 02-29、04-31、24:00 和非契约语法；接受 2024-02-29、1–3 位毫秒，以及正负/非整小时 offset | 通过 |
 | 1. 运气年判断 | `calendar/yunqi-year-resolver.ts` | `year-and-suiyun.test.ts` 的 exact 2024 Dahan second，以及 malformed Dahan Provider 的 finite/ISO/同瞬时/canonical 四项拒绝；`services.test.ts` 七个边界行 | 通过 |
 | 2. 年干支 | `ganzhi/stem-branch.ts` | `year-and-suiyun.test.ts` 的 60-cycle、2044 回环，以及 `calculateStemBranch` 在 1900–2100 的逐年干支规则循环测试 | 通过 |
 | 3. 岁运 | `wuyun/sui-yun.ts` | `year-and-suiyun.test.ts` 的 2024–2028 与 fresh-object 测试 | 通过 |
@@ -150,6 +150,7 @@ npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.
 - Provider 双表示校验抽为 `beijing-time.ts` 的共享内部 utility，由默认 tyme adapter、resolver 和 six-qi 共同调用，但不从包根导出。
 - `buildSixQiSteps` 在任何 Provider 调用前拒绝非有限或非整数年份。
 - `rules/PHASE1_RULE_SOURCES.md` 的 EOF 额外空行已删除；formal-freeze 状态未改变。
+- 整分支复审后的测试收口将 `.01Z`、`+05:30` 和 `-04:30` 固化为精确瞬时回归用例；该项是对已验证正确行为的 characterization coverage，生产代码未再改变。
 
 ## 命令与结果
 
@@ -157,16 +158,16 @@ npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.
 
 | 命令 | 结果 |
 | --- | --- |
-| `npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.test.ts` | exit 0；3 files / 62 tests passed |
-| `npm test` | exit 0；8 files / 105 tests passed，0 failures |
+| `npm test -- tests/calendar.test.ts tests/year-and-suiyun.test.ts tests/services.test.ts` | exit 0；3 files / 64 tests passed |
+| `npm test` | exit 0；8 files / 107 tests passed，0 failures |
 | `npm run typecheck` | exit 0；`tsc -p tsconfig.json --noEmit` 无诊断 |
 | `npm run build` | exit 0；`tsc -p tsconfig.json` 成功生成声明与 ESM 输出 |
-| `npm run test:coverage` | exit 0；8 files / 105 tests；statements 93.71%，branches 88.23%，functions 100%，lines 93.63% |
+| `npm run test:coverage` | exit 0；8 files / 107 tests；statements 93.71%，branches 89.41%，functions 100%，lines 93.63% |
 | `npm ls --all` | exit 0；完整开发树可解析；68 行 `UNMET OPTIONAL DEPENDENCY` 均为可选平台或可选集成，无 `ELSPROBLEMS` |
 | `npm ls --omit=dev` | exit 0；运行时树只有 `tyme4ts@1.5.2` |
 | `git diff --check` | exit 0；无空白错误 |
 | 禁止依赖键 `rg` 扫描 | exit 1；零匹配，符合预期 |
-| `git diff --cached --check` | exit 0；10 个最终审查修复文件无空白错误 |
+| `git diff --cached --check` | exit 0；2 个最终测试收口文件无空白错误 |
 | `git diff --check fc97cbe9654ec2c38a65c236faab5b50bd215341..HEAD` | exit 0；从初始化基线至修复提交无空白错误，原 `PHASE1_RULE_SOURCES.md` EOF 额外空行已消除 |
 
 禁止依赖审计对 `package.json` 与 `package-lock.json` 的包键搜索 React、Fastify、数据库客户端、OpenAI/模型 SDK、HIS 和 EMR 标识；`rg` 原始退出码为 1（零匹配），符合预期。
