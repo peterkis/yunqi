@@ -210,7 +210,7 @@ describe('Beijing time', () => {
 
   it('gets the 2024 Dahan instant from tyme4ts at second precision', () => {
     const dahan = tymeCalendarProvider.getSolarTermTime(2024, '大寒');
-    expect(dahan.iso).toBe('2024-01-20T22:07:08+08:00');
+    expect(dahan.iso).toBe('2024-01-20T22:07:22+08:00');
   });
 });
 ```
@@ -292,8 +292,8 @@ it.each([
 
 it('changes YunQi year at the exact Dahan second', () => {
   const provider = tymeCalendarProvider;
-  expect(resolveYunQiYear('2024-01-20T22:07:07+08:00', provider)).toBe(2023);
-  expect(resolveYunQiYear('2024-01-20T22:07:08+08:00', provider)).toBe(2024);
+  expect(resolveYunQiYear('2024-01-20T22:07:21+08:00', provider)).toBe(2023);
+  expect(resolveYunQiYear('2024-01-20T22:07:22+08:00', provider)).toBe(2024);
 });
 ```
 
@@ -401,7 +401,7 @@ Run: `git add packages/yunqi-domain && git commit -m "feat(domain): add host and
 it('builds six continuous left-closed/right-open steps', () => {
   const result = calculateYearYunQi(2024);
   expect(result.steps).toHaveLength(6);
-  expect(result.steps[0].start).toBe('2024-01-20T22:07:08+08:00');
+  expect(result.steps[0].start).toBe('2024-01-20T22:07:22+08:00');
   for (let index = 0; index < 5; index += 1) {
     expect(result.steps[index].end).toBe(result.steps[index + 1].start);
   }
