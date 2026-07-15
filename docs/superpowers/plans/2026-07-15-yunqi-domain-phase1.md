@@ -265,7 +265,7 @@ Run: `git add packages/yunqi-domain && git commit -m "feat(domain): add Beijing 
 - Test: `packages/yunqi-domain/tests/year-and-suiyun.test.ts`
 
 **Interfaces:**
-- Consumes: `SIXTY_CYCLE`, `STEM_RULES`, `CalendarProvider`, and absolute datetime parsing.
+- Consumes: `SIXTY_CYCLE`, `SIXTY_CYCLE_ANCHOR`, `STEM_RULES`, `CalendarProvider`, and absolute datetime parsing.
 - Produces: `calculateStemBranch(year)`, `resolveYunQiYear(input, provider)`, and `calculateSuiYun(stem)`.
 
 - [ ] **Step 1: Write failing 60-cycle, typical-year, and Dahan tests**
@@ -308,7 +308,8 @@ Expected: FAIL because the three calculators are missing.
 Use normalized modulo for years before 1984:
 
 ```ts
-const index = ((year - 1984) % 60 + 60) % 60;
+const cycleLength = SIXTY_CYCLE.length;
+const index = ((year - SIXTY_CYCLE_ANCHOR.year) % cycleLength + cycleLength) % cycleLength;
 const ganzhi = SIXTY_CYCLE[index];
 return { year, ganzhi, stem: ganzhi[0] as HeavenlyStem, branch: ganzhi[1] as EarthlyBranch };
 ```
