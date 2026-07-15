@@ -33,13 +33,22 @@ export type Qi =
   | '少阳相火'
   | '阳明燥金'
   | '太阳寒水';
-export type HostGuestRelation =
-  | 'SAME_QI'
-  | 'SAME_ELEMENT_DIFFERENT_QI'
+export type QiRelation = 'SAME_QI' | 'DIFFERENT_QI';
+export type ElementRelation = 'SAME_ELEMENT' | 'DIFFERENT_ELEMENT';
+export type HostGuestDirection =
+  | 'NONE'
   | 'HOST_GENERATES_GUEST'
   | 'GUEST_GENERATES_HOST'
   | 'HOST_CONTROLS_GUEST'
   | 'GUEST_CONTROLS_HOST';
+
+export interface HostGuestRelationResult {
+  readonly qiRelation: QiRelation;
+  readonly elementRelation: ElementRelation;
+  readonly direction: HostGuestDirection;
+  readonly traditionalLabel: string;
+}
+
 export type Tone =
   | '太角'
   | '少角'
@@ -78,7 +87,7 @@ export interface SixQiStep {
   end: YunQiInstant;
   hostQi: Qi;
   guestQi: Qi;
-  relation: HostGuestRelation;
+  relation: HostGuestRelationResult;
 }
 
 export interface YunQiYearResult extends StemBranch {

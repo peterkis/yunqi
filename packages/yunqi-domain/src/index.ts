@@ -1,9 +1,12 @@
 export type {
   EarthlyBranch,
   Element,
+  ElementRelation,
   HeavenlyStem,
-  HostGuestRelation,
+  HostGuestDirection,
+  HostGuestRelationResult,
   Qi,
+  QiRelation,
   SitianZaiquan,
   SixQiStep,
   StemBranch,

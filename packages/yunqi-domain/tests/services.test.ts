@@ -91,12 +91,66 @@ describe('six-step timeline', () => {
     expect(
       result.steps.map(({ hostQi, guestQi, relation }) => [hostQi, guestQi, relation]),
     ).toEqual([
-      ['厥阴风木', '少阳相火', 'HOST_GENERATES_GUEST'],
-      ['少阴君火', '阳明燥金', 'HOST_CONTROLS_GUEST'],
-      ['少阳相火', '太阳寒水', 'GUEST_CONTROLS_HOST'],
-      ['太阴湿土', '厥阴风木', 'GUEST_CONTROLS_HOST'],
-      ['阳明燥金', '少阴君火', 'GUEST_CONTROLS_HOST'],
-      ['太阳寒水', '太阴湿土', 'GUEST_CONTROLS_HOST'],
+      [
+        '厥阴风木',
+        '少阳相火',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'HOST_GENERATES_GUEST',
+          traditionalLabel: '主生客，相得',
+        },
+      ],
+      [
+        '少阴君火',
+        '阳明燥金',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'HOST_CONTROLS_GUEST',
+          traditionalLabel: '主克客',
+        },
+      ],
+      [
+        '少阳相火',
+        '太阳寒水',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'GUEST_CONTROLS_HOST',
+          traditionalLabel: '客克主',
+        },
+      ],
+      [
+        '太阴湿土',
+        '厥阴风木',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'GUEST_CONTROLS_HOST',
+          traditionalLabel: '客克主',
+        },
+      ],
+      [
+        '阳明燥金',
+        '少阴君火',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'GUEST_CONTROLS_HOST',
+          traditionalLabel: '客克主',
+        },
+      ],
+      [
+        '太阳寒水',
+        '太阴湿土',
+        {
+          qiRelation: 'DIFFERENT_QI',
+          elementRelation: 'DIFFERENT_ELEMENT',
+          direction: 'GUEST_CONTROLS_HOST',
+          traditionalLabel: '客克主',
+        },
+      ],
     ]);
     expect(result.steps[2].guestQi).toBe(result.sitian);
     expect(result.steps[5].guestQi).toBe(result.zaiquan);
@@ -145,6 +199,16 @@ describe('six-step timeline', () => {
     expect(first).not.toBe(second);
     expect(Object.isFrozen(first)).toBe(true);
     expect(first.every(Object.isFrozen)).toBe(true);
+    expect(
+      first.every(
+        (step) => typeof step.relation === 'object' && Object.isFrozen(step.relation),
+      ),
+    ).toBe(true);
+    expect(
+      second.every(
+        (step) => typeof step.relation === 'object' && Object.isFrozen(step.relation),
+      ),
+    ).toBe(true);
   });
 
   it('rejects Provider boundaries that are not strictly increasing', () => {

@@ -3,12 +3,17 @@ import type {
   EarthlyBranch,
   Element,
   HeavenlyStem,
-  HostGuestRelation,
+  HostGuestDirection,
   Qi,
   SitianZaiquan,
   StepName,
   SuiYun,
 } from '../types.js';
+
+type HostGuestRelationRule =
+  | 'SAME_QI'
+  | 'SAME_ELEMENT_DIFFERENT_QI'
+  | Exclude<HostGuestDirection, 'NONE'>;
 
 export const RULE_VERSION = 'V1.0-2026.7.7-implementation.1' as const;
 
@@ -177,4 +182,13 @@ export const HOST_GUEST_RELATION_PRIORITY = Object.freeze([
   'GUEST_GENERATES_HOST',
   'HOST_CONTROLS_GUEST',
   'GUEST_CONTROLS_HOST',
-] as const satisfies readonly HostGuestRelation[]);
+] as const satisfies readonly HostGuestRelationRule[]);
+
+export const HOST_GUEST_RELATION_LABELS = Object.freeze({
+  SAME_QI: '同气',
+  SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
+  HOST_GENERATES_GUEST: '主生客，相得',
+  GUEST_GENERATES_HOST: '客生主',
+  HOST_CONTROLS_GUEST: '主克客',
+  GUEST_CONTROLS_HOST: '客克主',
+} as const satisfies Readonly<Record<HostGuestRelationRule, string>>);

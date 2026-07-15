@@ -5,6 +5,45 @@ import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
 // Scratch acceptance values copied from the independently verified matrix.
 // They are deliberately not derived from any production rule export.
+const RELATION_EXPECTATIONS = {
+  sameQi: {
+    qiRelation: 'SAME_QI',
+    elementRelation: 'SAME_ELEMENT',
+    direction: 'NONE',
+    traditionalLabel: '同气',
+  },
+  sameElementDifferentQi: {
+    qiRelation: 'DIFFERENT_QI',
+    elementRelation: 'SAME_ELEMENT',
+    direction: 'NONE',
+    traditionalLabel: '同属火，六气不同',
+  },
+  hostGeneratesGuest: {
+    qiRelation: 'DIFFERENT_QI',
+    elementRelation: 'DIFFERENT_ELEMENT',
+    direction: 'HOST_GENERATES_GUEST',
+    traditionalLabel: '主生客，相得',
+  },
+  guestGeneratesHost: {
+    qiRelation: 'DIFFERENT_QI',
+    elementRelation: 'DIFFERENT_ELEMENT',
+    direction: 'GUEST_GENERATES_HOST',
+    traditionalLabel: '客生主',
+  },
+  hostControlsGuest: {
+    qiRelation: 'DIFFERENT_QI',
+    elementRelation: 'DIFFERENT_ELEMENT',
+    direction: 'HOST_CONTROLS_GUEST',
+    traditionalLabel: '主克客',
+  },
+  guestControlsHost: {
+    qiRelation: 'DIFFERENT_QI',
+    elementRelation: 'DIFFERENT_ELEMENT',
+    direction: 'GUEST_CONTROLS_HOST',
+    traditionalLabel: '客克主',
+  },
+} as const;
+
 const ANNUAL_ACCEPTANCE_ROWS = [
   {
     year: 2024,
@@ -14,12 +53,12 @@ const ANNUAL_ACCEPTANCE_ROWS = [
     zaiquan: '太阴湿土',
     guestQi: ['少阳相火', '阳明燥金', '太阳寒水', '厥阴风木', '少阴君火', '太阴湿土'],
     relations: [
-      'HOST_GENERATES_GUEST',
-      'HOST_CONTROLS_GUEST',
-      'GUEST_CONTROLS_HOST',
-      'GUEST_CONTROLS_HOST',
-      'GUEST_CONTROLS_HOST',
-      'GUEST_CONTROLS_HOST',
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.hostControlsGuest,
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestControlsHost,
     ],
   },
   {
@@ -30,12 +69,12 @@ const ANNUAL_ACCEPTANCE_ROWS = [
     zaiquan: '少阳相火',
     guestQi: ['阳明燥金', '太阳寒水', '厥阴风木', '少阴君火', '太阴湿土', '少阳相火'],
     relations: [
-      'GUEST_CONTROLS_HOST',
-      'GUEST_CONTROLS_HOST',
-      'GUEST_GENERATES_HOST',
-      'GUEST_GENERATES_HOST',
-      'GUEST_GENERATES_HOST',
-      'HOST_CONTROLS_GUEST',
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.hostControlsGuest,
     ],
   },
   {
@@ -46,12 +85,12 @@ const ANNUAL_ACCEPTANCE_ROWS = [
     zaiquan: '阳明燥金',
     guestQi: ['太阳寒水', '厥阴风木', '少阴君火', '太阴湿土', '少阳相火', '阳明燥金'],
     relations: [
-      'GUEST_GENERATES_HOST',
-      'GUEST_GENERATES_HOST',
-      'SAME_ELEMENT_DIFFERENT_QI',
-      'SAME_QI',
-      'GUEST_CONTROLS_HOST',
-      'GUEST_GENERATES_HOST',
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.sameElementDifferentQi,
+      RELATION_EXPECTATIONS.sameQi,
+      RELATION_EXPECTATIONS.guestControlsHost,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
     ],
   },
   {
@@ -61,7 +100,14 @@ const ANNUAL_ACCEPTANCE_ROWS = [
     sitian: '太阴湿土',
     zaiquan: '太阳寒水',
     guestQi: ['厥阴风木', '少阴君火', '太阴湿土', '少阳相火', '阳明燥金', '太阳寒水'],
-    relations: ['SAME_QI', 'SAME_QI', 'HOST_GENERATES_GUEST', 'GUEST_GENERATES_HOST', 'SAME_QI', 'SAME_QI'],
+    relations: [
+      RELATION_EXPECTATIONS.sameQi,
+      RELATION_EXPECTATIONS.sameQi,
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.guestGeneratesHost,
+      RELATION_EXPECTATIONS.sameQi,
+      RELATION_EXPECTATIONS.sameQi,
+    ],
   },
   {
     year: 2028,
@@ -71,12 +117,12 @@ const ANNUAL_ACCEPTANCE_ROWS = [
     zaiquan: '厥阴风木',
     guestQi: ['少阴君火', '太阴湿土', '少阳相火', '阳明燥金', '太阳寒水', '厥阴风木'],
     relations: [
-      'HOST_GENERATES_GUEST',
-      'HOST_GENERATES_GUEST',
-      'SAME_QI',
-      'HOST_GENERATES_GUEST',
-      'HOST_GENERATES_GUEST',
-      'HOST_GENERATES_GUEST',
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.sameQi,
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
+      RELATION_EXPECTATIONS.hostGeneratesGuest,
     ],
   },
 ] as const;

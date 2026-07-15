@@ -13,32 +13,58 @@ import {
   STEM_RULES,
   STEP_BOUNDARY_TERMS,
   STEP_NAMES,
+  calculateHostGuestRelation,
   createYunQiInstant,
   type Element,
-  type HostGuestRelation,
+  type ElementRelation,
+  type HostGuestDirection,
+  type HostGuestRelationResult,
   type Qi,
+  type QiRelation,
   type SolarTerm,
   type YunQiInstant,
 } from '../src/index.js';
+
+function compileTimeOnlyRelationContract(relation: HostGuestRelationResult): void {
+  const qiRelation: QiRelation = relation.qiRelation;
+  const elementRelation: ElementRelation = relation.elementRelation;
+  const direction: HostGuestDirection = relation.direction;
+  void { qiRelation, elementRelation, direction };
+
+  // @ts-expect-error Structured relation fields are readonly.
+  relation.direction = 'NONE';
+}
+
+void compileTimeOnlyRelationContract;
 
 describe('package source entrypoint', () => {
   it('re-exports public types and immutable runtime rule constants', () => {
     const element: Element = QI_ELEMENT_MAP['厥阴风木'];
     const qi: Qi = HOST_QI_SEQUENCE[0];
-    const relation: HostGuestRelation = HOST_GUEST_RELATION_PRIORITY[0];
+    const relation: HostGuestRelationResult = calculateHostGuestRelation(
+      '厥阴风木',
+      '少阴君火',
+    );
     const term: SolarTerm = STEP_BOUNDARY_TERMS[0];
     const instant: YunQiInstant = createYunQiInstant(1_705_759_642_000);
 
     expect({ element, qi, relation, term, instant }).toEqual({
       element: '木',
       qi: '厥阴风木',
-      relation: 'SAME_QI',
+      relation: {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'DIFFERENT_ELEMENT',
+        direction: 'HOST_GENERATES_GUEST',
+        traditionalLabel: '主生客，相得',
+      },
       term: '大寒',
       instant: {
         epochMilliseconds: 1_705_759_642_000,
         timezone: 'Asia/Shanghai',
       },
     });
+    expect(Object.isFrozen(relation)).toBe(true);
+    expect(HOST_GUEST_RELATION_PRIORITY[0]).toBe('SAME_QI');
     expect(RULE_VERSION).toBe('V1.0-2026.7.7-implementation.1');
     expect(SIXTY_CYCLE_ANCHOR.year).toBe(1984);
     expect(SIXTY_CYCLE[0]).toBe('甲子');

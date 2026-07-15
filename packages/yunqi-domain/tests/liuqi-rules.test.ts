@@ -5,7 +5,6 @@ import { getSitianZaiquan } from '../src/liuqi/sitian-zaiquan.js';
 import { calculateHostGuestRelation } from '../src/relation/host-guest-relation.js';
 import {
   GUEST_QI_SEQUENCE,
-  HOST_GUEST_RELATION_PRIORITY,
   QI_ELEMENT_MAP,
 } from '../src/rules/phase1-rules.js';
 import type { EarthlyBranch, Qi } from '../src/types.js';
@@ -71,26 +70,100 @@ describe('Sitian, Zaiquan, and host/guest qi', () => {
 
 describe('host/guest relation classification', () => {
   it.each([
-    ['厥阴风木', '厥阴风木', 'SAME_QI'],
-    ['少阴君火', '少阳相火', 'SAME_ELEMENT_DIFFERENT_QI'],
-    ['厥阴风木', '少阴君火', 'HOST_GENERATES_GUEST'],
-    ['少阴君火', '厥阴风木', 'GUEST_GENERATES_HOST'],
-    ['厥阴风木', '太阴湿土', 'HOST_CONTROLS_GUEST'],
-    ['太阴湿土', '厥阴风木', 'GUEST_CONTROLS_HOST'],
-  ] as const)('classifies %s / %s as %s', (host, guest, expected) => {
-    expect(calculateHostGuestRelation(host, guest)).toBe(expected);
+    [
+      '厥阴风木',
+      '厥阴风木',
+      {
+        qiRelation: 'SAME_QI',
+        elementRelation: 'SAME_ELEMENT',
+        direction: 'NONE',
+        traditionalLabel: '同气',
+      },
+    ],
+    [
+      '少阴君火',
+      '少阳相火',
+      {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'SAME_ELEMENT',
+        direction: 'NONE',
+        traditionalLabel: '同属火，六气不同',
+      },
+    ],
+    [
+      '厥阴风木',
+      '少阴君火',
+      {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'DIFFERENT_ELEMENT',
+        direction: 'HOST_GENERATES_GUEST',
+        traditionalLabel: '主生客，相得',
+      },
+    ],
+    [
+      '少阴君火',
+      '厥阴风木',
+      {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'DIFFERENT_ELEMENT',
+        direction: 'GUEST_GENERATES_HOST',
+        traditionalLabel: '客生主',
+      },
+    ],
+    [
+      '厥阴风木',
+      '太阴湿土',
+      {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'DIFFERENT_ELEMENT',
+        direction: 'HOST_CONTROLS_GUEST',
+        traditionalLabel: '主克客',
+      },
+    ],
+    [
+      '太阴湿土',
+      '厥阴风木',
+      {
+        qiRelation: 'DIFFERENT_QI',
+        elementRelation: 'DIFFERENT_ELEMENT',
+        direction: 'GUEST_CONTROLS_HOST',
+        traditionalLabel: '客克主',
+      },
+    ],
+  ] as const)('classifies %s / %s with the exact structured result', (host, guest, expected) => {
+    const result = calculateHostGuestRelation(host, guest);
+
+    expect(result).toEqual(expected);
+    expect(Object.isFrozen(result)).toBe(true);
   });
 
-  it('resolves the complete 6 x 6 qi cross-product to declared relations', () => {
+  it('resolves the complete 6 x 6 qi cross-product to frozen structured relations', () => {
     const qiValues = Object.keys(QI_ELEMENT_MAP) as Qi[];
     const results = qiValues.flatMap((host) =>
       qiValues.map((guest) => calculateHostGuestRelation(host, guest)),
     );
 
     expect(results).toHaveLength(36);
-    expect(results.every((relation) => HOST_GUEST_RELATION_PRIORITY.includes(relation))).toBe(
-      true,
-    );
+    expect(results.every(Object.isFrozen)).toBe(true);
+    expect(results.filter(({ qiRelation }) => qiRelation === 'SAME_QI')).toHaveLength(6);
+    expect(
+      results.filter(
+        ({ qiRelation, elementRelation }) =>
+          qiRelation === 'DIFFERENT_QI' && elementRelation === 'SAME_ELEMENT',
+      ),
+    ).toHaveLength(2);
+    expect(
+      results.filter(({ direction }) => direction === 'HOST_GENERATES_GUEST'),
+    ).toHaveLength(7);
+    expect(
+      results.filter(({ direction }) => direction === 'GUEST_GENERATES_HOST'),
+    ).toHaveLength(7);
+    expect(
+      results.filter(({ direction }) => direction === 'HOST_CONTROLS_GUEST'),
+    ).toHaveLength(7);
+    expect(
+      results.filter(({ direction }) => direction === 'GUEST_CONTROLS_HOST'),
+    ).toHaveLength(7);
   });
 });
 

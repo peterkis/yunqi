@@ -4,6 +4,7 @@ import {
   ELEMENT_CONTROL_MAP,
   ELEMENT_GENERATION_MAP,
   GUEST_QI_SEQUENCE,
+  HOST_GUEST_RELATION_LABELS,
   HOST_GUEST_RELATION_PRIORITY,
   HOST_QI_SEQUENCE,
   QI_ELEMENT_MAP,
@@ -105,6 +106,14 @@ describe('Phase 1 rule tables', () => {
       'HOST_CONTROLS_GUEST',
       'GUEST_CONTROLS_HOST',
     ]);
+    expect(HOST_GUEST_RELATION_LABELS).toEqual({
+      SAME_QI: '同气',
+      SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
+      HOST_GENERATES_GUEST: '主生客，相得',
+      GUEST_GENERATES_HOST: '客生主',
+      HOST_CONTROLS_GUEST: '主克客',
+      GUEST_CONTROLS_HOST: '客克主',
+    });
   });
 
   it('freezes every exported rule table at runtime', () => {
@@ -121,6 +130,7 @@ describe('Phase 1 rule tables', () => {
       ELEMENT_GENERATION_MAP,
       ELEMENT_CONTROL_MAP,
       HOST_GUEST_RELATION_PRIORITY,
+      HOST_GUEST_RELATION_LABELS,
     ];
 
     expect(ruleTables.every(Object.isFrozen)).toBe(true);

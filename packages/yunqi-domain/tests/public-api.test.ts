@@ -8,6 +8,10 @@ import {
   createYunQiInstant,
   getCurrentStep,
   type CalendarProvider,
+  type ElementRelation,
+  type HostGuestDirection,
+  type HostGuestRelationResult,
+  type QiRelation,
   type SixQiStep,
   type SolarTerm,
   type YunQiInstant,
@@ -28,6 +32,17 @@ function compileTimeOnlyPublicContracts(
   calculateYearYunQi(2024, provider);
   calculateYunQi(instant, provider);
   getCurrentStep(instant, provider);
+  const relation: HostGuestRelationResult = publicApi.calculateHostGuestRelation(
+    '厥阴风木',
+    '少阴君火',
+  );
+  const qiRelation: QiRelation = relation.qiRelation;
+  const elementRelation: ElementRelation = relation.elementRelation;
+  const direction: HostGuestDirection = relation.direction;
+  void { qiRelation, elementRelation, direction };
+
+  // @ts-expect-error Structured relation fields are readonly.
+  relation.traditionalLabel = 'mutable';
 
   // @ts-expect-error CalendarProvider injection is mandatory.
   calculateYearYunQi(2024);
@@ -46,6 +61,10 @@ describe('stable package API', () => {
     const annual: YunQiYearResult = calculateYearYunQi(2024, provider);
     const dated: YunQiResult = calculateYunQi(input, provider);
     const step: SixQiStep = getCurrentStep(input, provider);
+    const relation: HostGuestRelationResult = publicApi.calculateHostGuestRelation(
+      '厥阴风木',
+      '少阴君火',
+    );
 
     expect('createYearExplanations' in publicApi).toBe(false);
     expect(typeof calculateYearYunQi).toBe('function');
@@ -61,6 +80,13 @@ describe('stable package API', () => {
     expect(dated.input).toBe(input);
     expect(dated.currentStep).toBe(dated.steps[2]);
     expect(step.index).toBe(3);
+    expect(relation).toEqual({
+      qiRelation: 'DIFFERENT_QI',
+      elementRelation: 'DIFFERENT_ELEMENT',
+      direction: 'HOST_GENERATES_GUEST',
+      traditionalLabel: '主生客，相得',
+    });
+    expect(Object.isFrozen(relation)).toBe(true);
     expect(RULE_VERSION).toBe('V1.0-2026.7.7-implementation.1');
   });
 
