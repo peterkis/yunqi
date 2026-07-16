@@ -10,6 +10,7 @@ import {
   registerSwaggerUi,
 } from './plugins/openapi.js';
 import { healthRoutes } from './routes/health.js';
+import { yunqiRoutes } from './routes/yunqi.js';
 import { contractSchemas } from './schemas/index.js';
 
 export interface BuildAppOptions {
@@ -21,7 +22,10 @@ export interface BuildAppOptions {
 export async function buildApp(
   options: BuildAppOptions,
 ): Promise<FastifyInstance> {
-  const app = Fastify({ logger: options.logger ?? false })
+  const app = Fastify({
+    logger: options.logger ?? false,
+    ajv: { customOptions: { removeAdditional: false } },
+  })
     .withTypeProvider<TypeBoxTypeProvider>();
 
   await registerOpenApi(app);
@@ -30,6 +34,11 @@ export async function buildApp(
   }
   installErrorHandler(app);
   await app.register(healthRoutes);
+  await app.register(yunqiRoutes, {
+    prefix: '/api/v1/yunqi',
+    provider: options.provider,
+    now: options.now,
+  });
   await registerSwaggerUi(app);
 
   return app;

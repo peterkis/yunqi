@@ -1,5 +1,6 @@
 import type { FastifyError, FastifyInstance } from 'fastify';
 import type { ErrorResponse } from '../schemas/common.js';
+import { CalendarProviderUnavailableError } from '../services/provider-boundary.js';
 
 export function installErrorHandler(app: FastifyInstance): void {
   app.setErrorHandler<FastifyError>((error, request, reply) => {
@@ -15,6 +16,16 @@ export function installErrorHandler(app: FastifyInstance): void {
         details: { issues },
       };
       return reply.status(400).send(body);
+    }
+
+    if (error instanceof CalendarProviderUnavailableError) {
+      request.log.error({ err: error }, 'Calendar provider unavailable');
+      const body: ErrorResponse = {
+        code: 'CALENDAR_PROVIDER_UNAVAILABLE',
+        message: '历法服务暂时不可用',
+        details: {},
+      };
+      return reply.status(503).send(body);
     }
 
     if (error instanceof RangeError) {
