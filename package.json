@@ -9,6 +9,6 @@
     "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/service test:coverage",
     "openapi:generate": "pnpm build && pnpm --filter @yunqi/service openapi:generate",
     "openapi:validate": "pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
-    "schema:validate": "pnpm --filter @yunqi/service test -- tests/openapi-contract.test.ts"
+    "schema:validate": "pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"
   }
 }
