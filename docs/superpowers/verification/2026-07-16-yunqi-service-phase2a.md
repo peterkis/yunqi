@@ -178,4 +178,6 @@ rg -n "诊断|疾病判断|治疗建议|个体预测|处方|方剂|中药|剂量
 3. 远离支持范围的 `/calculate` 输入可能先访问 provider 并返回 503；现在先按 `Asia/Shanghai` civil year 做可解析范围检查，再调用 Domain，同时保留 Domain 结果 year 的后置断言。`2100-01-01T00:00:00+08:00` 映射到受支持的运气年 2099，仍返回 200。
 4. 根 `openapi:validate` 与 `schema:validate` 依赖已有 `dist`；现在两条命令均先执行根 build。删除三个 package 的精确 `dist` 目录后分别独立运行，两条命令均从缺失 `dist` 状态 exit 0。
 
-该修复按测试先行执行：聚焦 RED 为 4 files / 34 tests，其中 17 failed、17 passed；实现后 GREEN 为 4 files / 35 tests 全通过。随后重新运行 service 全套 10 files / 66 tests、source/test typecheck、六个根验收门、真实生产入口 smoke 和 Domain 零差异检查，均通过。最终独立复审将在修复提交后对增量 diff 再确认。
+该修复按测试先行执行：聚焦 RED 为 4 files / 34 tests，其中 17 failed、17 passed；实现后 GREEN 为 4 files / 35 tests 全通过。随后重新运行 service 全套 10 files / 66 tests、source/test typecheck、六个根验收门、真实生产入口 smoke 和 Domain 零差异检查，均通过。
+
+修复提交 `76bb7e2` 后，新的独立代理对 `e80ac2a..76bb7e2` 做只读复审，结论为 `APPROVED`，Critical 0、Important 0，并逐项确认上述 4 个 Important finding 及 safety detector 补强均已闭环。仅记录一项非阻断测试细节：名为 empty JSON document 的 regression case 使用 whitespace-only body，而不是 zero-length body；实现按 Fastify request 4xx 通用分类，缺失 body 仍由 schema validation 分类为 400，因此不影响验收。
