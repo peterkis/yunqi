@@ -1,3 +1,4 @@
 packages:
   - packages/yunqi-domain
   - packages/calendar-adapters/*
+  - packages/yunqi-service
