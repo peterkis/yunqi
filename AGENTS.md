@@ -110,11 +110,56 @@
 
 ## 4.1 时间标准
 
-统一：
+本项目五运六气计算统一采用：
 
-    Asia/Shanghai
+    固定北京时间 UTC+08:00
 
-作为展示和业务判断标准。
+领域标准字面量：
+
+    BeijingStandardTime+08:00
+
+必须明确：
+
+-   这里的“北京时间”不是 IANA `Asia/Shanghai` 历史时区规则；
+-   不应用 1986–1991 历史夏令时；
+-   不使用服务器本地时区；
+-   不使用 DST 调整；
+-   同一输入必须在不同运行环境得到完全一致结果。
+
+禁止使用：
+
+-   IANA `Asia/Shanghai` 作为业务计算依据；
+-   `Date`、Temporal 或 Intl 推导五运六气业务时间；
+-   服务器默认时区参与边界判断；
+-   将 `epochMilliseconds` 作为五运六气历法语义的唯一来源。
+
+`YunQiInstant` 不是 civil timezone instant。其
+`epochMilliseconds` 只用于固定北京时间模型下的排序、传输、持久化、审计、
+兼容与一致性校验；不得经 UTC、IANA 时区、服务器本地时区或 DST
+重新解释后作为运气年或六步边界依据。
+
+`CalendarProvider` 只提供节气瞬间，不得决定：
+
+-   运气年；
+-   六步归属；
+-   区间开闭或边界所有权；
+-   五运、六气、客主加临规则。
+
+所有 API 业务时间解析、归一化和格式化必须通过
+`packages/yunqi-service/src/modules/time-normalizer`。Controller、route、DTO
+mapper、serializer 不得为五运六气业务时间创建 `Date`、调用
+`Date.parse()`/`toISOString()`，或自行使用 Temporal、Intl、IANA
+时区完成转换。
+
+允许系统时钟只提供 epoch milliseconds，随后必须立即执行：
+
+    epochMilliseconds
+        ↓
+    YunQiCalendarTime
+        ↓
+    calculateYunQiByCalendarTime()
+
+以上固定时间标准同时用于展示和业务判断。
 
 ------------------------------------------------------------------------
 
@@ -145,7 +190,7 @@ Date
 推荐：
 
 ``` ts
-YunQiInstant
+YunQiCalendarTime
 ```
 
 或等价不可变时间对象。
@@ -157,6 +202,20 @@ YunQiInstant
 -   时区漂移；
 -   环境差异；
 -   边界计算错误。
+
+`YunQiInstant` 仅作为固定北京时间模型下的绝对表示，用于：
+
+-   排序；
+-   传输；
+-   持久化；
+-   审计；
+-   兼容。
+
+它不是权威历法语义，不得成为运气年或六步边界判断的唯一依据。
+
+长期架构依据：
+
+    docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md
 
 ------------------------------------------------------------------------
 

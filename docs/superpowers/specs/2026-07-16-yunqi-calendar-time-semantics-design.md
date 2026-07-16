@@ -163,6 +163,28 @@ export interface YunQiCalendarTime {
 }
 ```
 
+`YunQiInstant` is not a civil timezone instant. It is not a civil time-zone
+model and is not the authoritative calendar meaning. It is the fixed Beijing
+Standard Time model's absolute transport and audit representation.
+`epochMilliseconds` exists only for:
+
+- ordering;
+- transport;
+- persistence;
+- audit;
+- compatibility; and
+- consistency checks.
+
+It must not become the sole source for YunQi year or six-step boundary
+selection. In particular, consumers must not reinterpret
+`epochMilliseconds` through UTC, an IANA zone, the server local zone, or DST
+and then use that reinterpretation as YunQi calendar semantics.
+
+规范声明：
+
+> `epochMilliseconds` 仅作为固定北京时间模型下的绝对表示，用于排序、传输、
+> 持久化、审计与兼容，不作为五运六气边界判断的唯一依据。
+
 The old `timezone: 'Asia/Shanghai'` property is removed. Domain production
 code, Domain tests, and Domain fixtures must not use:
 
@@ -326,6 +348,18 @@ export interface CalendarProvider {
 
 No CalendarTime-returning provider is introduced in this phase.
 
+`CalendarProvider` supplies solar-term instants only. It must not decide:
+
+- the YunQi year;
+- the current six-qi step;
+- whether an input owns a boundary;
+- left-closed/right-open interval semantics; or
+- any five-movement, six-qi, or host/guest rule.
+
+Those decisions remain exclusively in Domain. A provider result is not the
+final business-time interpretation; Domain first projects it into fixed
+Beijing CalendarTime and then applies the unchanged YunQi rules.
+
 tyme4ts remains an external solar-term calculator, not a time-semantic manager.
 The adapter:
 
@@ -398,6 +432,19 @@ The module must not:
 - use the server local time zone; or
 - use `Date.parse()`.
 
+All API time conversion must pass through this module. Controllers, DTO
+mappers, serializers, and route handlers must not:
+
+- construct a `Date` object for YunQi business time;
+- call `Date.parse()`;
+- call `toISOString()` as a YunQi calendar conversion;
+- use Temporal or Intl for YunQi business-time interpretation; or
+- reconstruct local calendar fields independently.
+
+Mappers may call the normalizer's approved formatter/conversion API. They must
+not contain a second implementation. A static Service-layer gate covers
+controllers, routes, mappers, serializers, and DTO/schema production code.
+
 The approved implementation removes the Service dependency on
 `@js-temporal/polyfill`. The normalizer uses strict lexical parsing and
 deterministic Gregorian/fixed-offset arithmetic, not `Date`, Temporal, Intl, or
@@ -421,6 +468,18 @@ YYYY-MM-DDTHH:mm:ss.SSSZ
 
 Other numeric offsets are rejected in Phase 2-A.1. Fractional seconds, when
 present, contain exactly three digits.
+
+The following representative variants are explicitly rejected:
+
+```text
+2026-01-01T12:00:00+0800
+2026-01-01 12:00:00
+2026/01/01 12:00:00
+```
+
+The parser must not silently broaden the contract to basic ISO offsets, a
+space-separated date and time, slash-separated dates, locale formats, or
+implementation-defined input.
 
 These inputs must produce an identical CalendarTime:
 
@@ -449,9 +508,22 @@ Normalization rules:
 }
 ```
 
-`GET /api/v1/yunqi/current` converts the injected absolute clock to
-`YunQiInstant`, then to `YunQiCalendarTime`, and calls the same authoritative
-Domain entry. It must not retain a parallel calculation path.
+`GET /api/v1/yunqi/current` uses an isolated runtime clock. The process may
+obtain current epoch milliseconds from `Date.now` or an injected equivalent,
+but that is the clock's only responsibility. The epoch is immediately passed
+through the approved fixed-offset normalization path:
+
+```text
+runtime clock
+  -> epochMilliseconds
+  -> YunQiInstant
+  -> YunQiCalendarTime
+  -> calculateYunQiByCalendarTime()
+```
+
+No runtime time zone, `Date` calendar fields, IANA projection, or DST
+adjustment may participate. The current route must not retain a parallel
+calculation path.
 
 ## API time DTO
 
@@ -573,13 +645,13 @@ No new production model may contain `timezone: 'Asia/Shanghai'`.
 
 ## Documentation and governance
 
-Implementation creates:
+The architecture decision is registered as:
 
 ```text
-docs/architecture/time-semantics.md
+docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md
 ```
 
-That document records:
+That ADR records:
 
 - the normative fixed UTC+08:00 definition;
 - the distinction from IANA `Asia/Shanghai`;
@@ -604,7 +676,7 @@ Frontend guidance is documentation only:
 - render canonical `localTime`; and
 - do not display `Asia/Shanghai` as the business-time rule.
 
-`AGENTS.md` gains a mandatory project constraint:
+`AGENTS.md` contains the mandatory project constraint:
 
 > 本项目五运六气计算统一采用固定北京时间 UTC+08:00。禁止使用 IANA
 > `Asia/Shanghai` 历史时区规则、服务器本地时区或 DST 调整作为业务计算依据。
@@ -647,6 +719,18 @@ on:
 
 The gate is part of normal repository verification rather than an optional
 manual audit.
+
+### Service time-boundary purity gate
+
+A deterministic static gate scans production controllers, routes, DTO/schema
+code, mappers, serializers, and time-normalizer call sites. It fails when
+YunQi business-time conversion is implemented outside the normalizer,
+including construction of `Date` objects, `Date.parse()`, `toISOString()`,
+Temporal, Intl time-zone conversion, or IANA identifiers.
+
+The runtime clock composition may reference `Date.now` only as an epoch source.
+That allowed clock reference is narrowly excluded from the conversion ban and
+must feed immediately into `YunQiInstant` and `YunQiCalendarTime`.
 
 ### Calculation-entry tests
 
@@ -802,15 +886,24 @@ packages/yunqi-service/package.json
 packages/yunqi-service/README.md
 ```
 
-Repository documentation and root wiring:
+Already registered before production-code implementation:
 
 ```text
 AGENTS.md
-docs/architecture/time-semantics.md
+docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md
+docs/superpowers/specs/2026-07-16-yunqi-calendar-time-semantics-design.md
+```
+
+Implementation verification and root wiring:
+
+```text
 docs/superpowers/verification/2026-07-16-yunqi-calendar-time-semantics.md
 package.json
 pnpm-lock.yaml
 ```
+
+The implementation phase audits the three registered governance artifacts and
+changes them only if a later explicitly approved correction requires it.
 
 The exact implementation diff may be narrower. No unrelated route, module, or
 repository-layout migration is authorized.
@@ -828,6 +921,10 @@ Phase 2-A.1 is complete only when:
   IANA, and tzdb;
 - the provider contract remains unchanged apart from the approved
   `YunQiInstant` field shape;
+- `YunQiInstant.epochMilliseconds` remains transport/audit data and is not the
+  sole calendar comparison source;
+- CalendarProvider supplies solar-term instants and owns no YunQi year,
+  six-step, or interval-boundary semantics;
 - Phase 1 rules and tyme4ts solar-term epochs are unchanged;
 - 2024 大寒 before/exact/after behavior is unchanged;
 - 1991 local, `+08:00`, and `Z` inputs produce identical intermediate models
@@ -835,9 +932,13 @@ Phase 2-A.1 is complete only when:
 - `TZ=UTC` and `TZ=Asia/Shanghai` processes produce identical business
   snapshots;
 - API paths and request shape remain unchanged;
+- controllers, routes, mappers, serializers, and DTO/schema code perform no
+  independent Date/Temporal/IANA conversion;
+- the runtime clock is isolated to producing epoch milliseconds before
+  immediate CalendarTime normalization;
 - every public time DTO uses the new fixed Beijing shape;
 - OpenAPI and generated client are current with zero drift;
-- `docs/architecture/time-semantics.md` and `AGENTS.md` contain the project-wide
-  rule;
+- `docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md` and
+  `AGENTS.md` contain the project-wide rule;
 - all root acceptance gates pass; and
 - an independent review reports no unresolved critical or important finding.
