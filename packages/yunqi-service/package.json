@@ -21,7 +21,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "openapi:generate": "node scripts/generate-openapi.mjs && node scripts/run-openapi-typescript.mjs openapi/yunqi-service.openapi.yaml --output src/contracts/generated-client.ts --immutable --alphabetize",
+    "openapi:lint": "redocly lint openapi/yunqi-service.openapi.yaml --config redocly.yaml",
+    "openapi:check": "node scripts/check-generated.mjs"
   },
   "dependencies": {
     "@fastify/swagger": "9.8.1",
@@ -38,6 +41,7 @@
     "@vitest/coverage-v8": "4.1.10",
     "ajv": "8.20.0",
     "openapi-typescript": "7.13.0",
+    "openapi-typescript-ts": "npm:typescript@5.9.3",
     "typescript": "7.0.2",
     "vitest": "4.1.10",
     "yaml": "2.9.0"

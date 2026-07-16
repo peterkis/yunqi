@@ -177,19 +177,27 @@ export const YearParamsSchema = Type.Object(
   { $id: 'YearParams', additionalProperties: false },
 );
 
+export const CALCULATE_REQUEST_EXAMPLES = [
+  { dateTime: '2024-05-20T21:00:00' },
+  { dateTime: '2024-05-20T13:00:00Z' },
+  { dateTime: '2024-05-20T21:00:00+08:00' },
+] as const;
+
 export const CalculateRequestSchema = Type.Object(
   {
     dateTime: Type.String({
       pattern:
         '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})?$',
-      examples: [
-        '2024-05-20T21:00:00',
-        '2024-05-20T13:00:00Z',
-        '2024-05-20T21:00:00+08:00',
-      ],
+      examples: CALCULATE_REQUEST_EXAMPLES.map(
+        (example) => example.dateTime,
+      ),
     }),
   },
-  { $id: 'CalculateRequest', additionalProperties: false },
+  {
+    $id: 'CalculateRequest',
+    additionalProperties: false,
+    examples: CALCULATE_REQUEST_EXAMPLES,
+  },
 );
 
 export const YearSuccessSchema = Type.Object(

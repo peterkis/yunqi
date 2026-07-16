@@ -12,6 +12,14 @@ export const HealthDataSchema = Type.Object(
   { $id: 'HealthData', additionalProperties: false },
 );
 
+export const HEALTH_SUCCESS_EXAMPLES = [
+  {
+    code: 'SUCCESS',
+    message: '',
+    data: { status: 'ok', apiVersion: 'v1' },
+  },
+] as const;
+
 export const HealthSuccessSchema = Type.Object(
   {
     code: Type.Literal('SUCCESS'),
@@ -21,15 +29,27 @@ export const HealthSuccessSchema = Type.Object(
   {
     $id: 'HealthSuccessResponse',
     additionalProperties: false,
-    examples: [
-      {
-        code: 'SUCCESS',
-        message: '',
-        data: { status: 'ok', apiVersion: 'v1' },
-      },
-    ],
+    examples: HEALTH_SUCCESS_EXAMPLES,
   },
 );
+
+export const ERROR_RESPONSE_EXAMPLES = [
+  {
+    code: 'INVALID_ARGUMENT',
+    message: '请求参数无效',
+    details: {},
+  },
+  {
+    code: 'CALENDAR_PROVIDER_UNAVAILABLE',
+    message: '历法服务暂时不可用',
+    details: {},
+  },
+  {
+    code: 'INTERNAL_ERROR',
+    message: '服务内部错误',
+    details: {},
+  },
+] as const;
 
 export const ErrorResponseSchema = Type.Object(
   {
@@ -44,23 +64,7 @@ export const ErrorResponseSchema = Type.Object(
   {
     $id: 'ErrorResponse',
     additionalProperties: false,
-    examples: [
-      {
-        code: 'INVALID_ARGUMENT',
-        message: '请求参数无效',
-        details: {},
-      },
-      {
-        code: 'CALENDAR_PROVIDER_UNAVAILABLE',
-        message: '历法服务暂时不可用',
-        details: {},
-      },
-      {
-        code: 'INTERNAL_ERROR',
-        message: '服务内部错误',
-        details: {},
-      },
-    ],
+    examples: ERROR_RESPONSE_EXAMPLES,
   },
 );
 

@@ -1,0 +1,696 @@
+openapi: 3.1.0
+info:
+  title: YunQi Service API
+  version: 1.0.0
+  description: Versioned YunQi time-fact and rule-mapping contract.
+components:
+  schemas:
+    HealthData:
+      type: object
+      required:
+        - status
+        - apiVersion
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+        apiVersion:
+          type: string
+          enum:
+            - v1
+      additionalProperties: false
+    YunQiInstantDto:
+      type: object
+      required:
+        - epochMilliseconds
+        - timezone
+      properties:
+        epochMilliseconds:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        timezone:
+          type: string
+          enum:
+            - Asia/Shanghai
+      additionalProperties: false
+    HostGuestRelationDto:
+      type: object
+      required:
+        - qiRelation
+        - elementRelation
+        - direction
+        - traditionalLabel
+      properties:
+        qiRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_QI
+            - type: string
+              enum:
+                - DIFFERENT_QI
+        elementRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_ELEMENT
+            - type: string
+              enum:
+                - DIFFERENT_ELEMENT
+        direction:
+          anyOf:
+            - type: string
+              enum:
+                - NONE
+            - type: string
+              enum:
+                - HOST_GENERATES_GUEST
+            - type: string
+              enum:
+                - GUEST_GENERATES_HOST
+            - type: string
+              enum:
+                - HOST_CONTROLS_GUEST
+            - type: string
+              enum:
+                - GUEST_CONTROLS_HOST
+        traditionalLabel:
+          type: string
+      additionalProperties: false
+    SixQiStepDto:
+      type: object
+      required:
+        - index
+        - name
+        - start
+        - end
+        - hostQi
+        - guestQi
+        - relation
+      properties:
+        index:
+          type: integer
+          minimum: 1
+          maximum: 6
+        name:
+          anyOf:
+            - type: string
+              enum:
+                - 初之气
+            - type: string
+              enum:
+                - 二之气
+            - type: string
+              enum:
+                - 三之气
+            - type: string
+              enum:
+                - 四之气
+            - type: string
+              enum:
+                - 五之气
+            - type: string
+              enum:
+                - 终之气
+        start:
+          $ref: "#/components/schemas/YunQiInstantDto"
+        end:
+          $ref: "#/components/schemas/YunQiInstantDto"
+        hostQi:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        guestQi:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        relation:
+          $ref: "#/components/schemas/HostGuestRelationDto"
+      additionalProperties: false
+    StemBranchDto:
+      type: object
+      required:
+        - ganzhi
+        - stem
+        - branch
+      properties:
+        ganzhi:
+          type: string
+          minLength: 2
+          maxLength: 2
+        stem:
+          anyOf:
+            - type: string
+              enum:
+                - 甲
+            - type: string
+              enum:
+                - 乙
+            - type: string
+              enum:
+                - 丙
+            - type: string
+              enum:
+                - 丁
+            - type: string
+              enum:
+                - 戊
+            - type: string
+              enum:
+                - 己
+            - type: string
+              enum:
+                - 庚
+            - type: string
+              enum:
+                - 辛
+            - type: string
+              enum:
+                - 壬
+            - type: string
+              enum:
+                - 癸
+        branch:
+          anyOf:
+            - type: string
+              enum:
+                - 子
+            - type: string
+              enum:
+                - 丑
+            - type: string
+              enum:
+                - 寅
+            - type: string
+              enum:
+                - 卯
+            - type: string
+              enum:
+                - 辰
+            - type: string
+              enum:
+                - 巳
+            - type: string
+              enum:
+                - 午
+            - type: string
+              enum:
+                - 未
+            - type: string
+              enum:
+                - 申
+            - type: string
+              enum:
+                - 酉
+            - type: string
+              enum:
+                - 戌
+            - type: string
+              enum:
+                - 亥
+      additionalProperties: false
+    SuiYunDto:
+      type: object
+      required:
+        - element
+        - state
+        - tone
+      properties:
+        element:
+          anyOf:
+            - type: string
+              enum:
+                - 木
+            - type: string
+              enum:
+                - 火
+            - type: string
+              enum:
+                - 土
+            - type: string
+              enum:
+                - 金
+            - type: string
+              enum:
+                - 水
+        state:
+          anyOf:
+            - type: string
+              enum:
+                - 太过
+            - type: string
+              enum:
+                - 不及
+        tone:
+          anyOf:
+            - type: string
+              enum:
+                - 太角
+            - type: string
+              enum:
+                - 少角
+            - type: string
+              enum:
+                - 太徵
+            - type: string
+              enum:
+                - 少徵
+            - type: string
+              enum:
+                - 太宫
+            - type: string
+              enum:
+                - 少宫
+            - type: string
+              enum:
+                - 太商
+            - type: string
+              enum:
+                - 少商
+            - type: string
+              enum:
+                - 太羽
+            - type: string
+              enum:
+                - 少羽
+      additionalProperties: false
+    YunQiIntervalDto:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          $ref: "#/components/schemas/YunQiInstantDto"
+        end:
+          $ref: "#/components/schemas/YunQiInstantDto"
+      additionalProperties: false
+    SixQiDto:
+      type: object
+      required:
+        - sitian
+        - zaiquan
+        - steps
+      properties:
+        sitian:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        zaiquan:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/SixQiStepDto"
+          minItems: 6
+          maxItems: 6
+      additionalProperties: false
+    YunQiYearDto:
+      type: object
+      required:
+        - ruleVersion
+        - year
+        - stemBranch
+        - interval
+        - suiYun
+        - sixQi
+        - explanations
+      properties:
+        ruleVersion:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 1901
+          maximum: 2099
+        stemBranch:
+          $ref: "#/components/schemas/StemBranchDto"
+        interval:
+          $ref: "#/components/schemas/YunQiIntervalDto"
+        suiYun:
+          $ref: "#/components/schemas/SuiYunDto"
+        sixQi:
+          $ref: "#/components/schemas/SixQiDto"
+        explanations:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    YunQiCalculationDto:
+      type: object
+      required:
+        - ruleVersion
+        - year
+        - stemBranch
+        - interval
+        - suiYun
+        - sixQi
+        - explanations
+        - input
+        - currentStep
+      properties:
+        ruleVersion:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 1901
+          maximum: 2099
+        stemBranch:
+          $ref: "#/components/schemas/StemBranchDto"
+        interval:
+          $ref: "#/components/schemas/YunQiIntervalDto"
+        suiYun:
+          $ref: "#/components/schemas/SuiYunDto"
+        sixQi:
+          $ref: "#/components/schemas/SixQiDto"
+        explanations:
+          type: array
+          items:
+            type: string
+        input:
+          $ref: "#/components/schemas/YunQiInstantDto"
+        currentStep:
+          $ref: "#/components/schemas/SixQiStepDto"
+      additionalProperties: false
+    CalculateRequest:
+      type: object
+      required:
+        - dateTime
+      properties:
+        dateTime:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})?$
+          example: 2024-05-20T21:00:00
+      additionalProperties: false
+      examples:
+        - dateTime: 2024-05-20T21:00:00
+        - dateTime: 2024-05-20T13:00:00Z
+        - dateTime: 2024-05-20T21:00:00+08:00
+    YearParams:
+      type: object
+      required:
+        - year
+      properties:
+        year:
+          type: integer
+          minimum: 1901
+          maximum: 2099
+      additionalProperties: false
+    HealthSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/HealthData"
+      additionalProperties: false
+      examples:
+        - code: SUCCESS
+          message: ""
+          data:
+            status: ok
+            apiVersion: v1
+    YearSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiYearDto"
+      additionalProperties: false
+    CalculationSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiCalculationDto"
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - details
+      properties:
+        code:
+          anyOf:
+            - type: string
+              enum:
+                - INVALID_ARGUMENT
+            - type: string
+              enum:
+                - CALENDAR_PROVIDER_UNAVAILABLE
+            - type: string
+              enum:
+                - INTERNAL_ERROR
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+      examples:
+        - code: INVALID_ARGUMENT
+          message: 请求参数无效
+          details: {}
+        - code: CALENDAR_PROVIDER_UNAVAILABLE
+          message: 历法服务暂时不可用
+          details: {}
+        - code: INTERNAL_ERROR
+          message: 服务内部错误
+          details: {}
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Get service health
+      tags:
+        - system
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthSuccessResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/year/{year}:
+    get:
+      operationId: getYunQiYear
+      summary: Get a YunQi year
+      tags:
+        - yunqi
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1901
+            maximum: 2099
+          in: path
+          name: year
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YearSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/current:
+    get:
+      operationId: getCurrentYunQi
+      summary: Get YunQi facts for the current instant
+      tags:
+        - yunqi
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalculationSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/calculate:
+    post:
+      operationId: calculateYunQi
+      summary: Calculate YunQi facts for a date-time
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalculationSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+servers:
+  - url: http://localhost:3000
+    description: Local server
+tags:
+  - name: system
+    description: Service status endpoints
+  - name: yunqi
+    description: YunQi contract endpoints
