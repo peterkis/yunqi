@@ -1,4 +1,7 @@
-import type { YunQiInstant } from './calendar/time.js';
+import type {
+  YunQiCalendarTime,
+  YunQiInstant,
+} from './calendar/time.js';
 
 export type Element = '木' | '火' | '土' | '金' | '水';
 export type YunState = '太过' | '不及';
@@ -104,4 +107,9 @@ export interface YunQiYearResult extends StemBranch {
 export interface YunQiResult extends YunQiYearResult {
   input: YunQiInstant;
   currentStep: SixQiStep;
+}
+
+export interface YunQiCalendarResult extends YunQiYearResult {
+  readonly input: YunQiCalendarTime;
+  readonly currentStep: SixQiStep;
 }

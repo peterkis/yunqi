@@ -23,7 +23,7 @@ export async function registerOpenApi(
       openapi: '3.1.0',
       info: {
         title: 'YunQi Service API',
-        version: '1.0.0',
+        version: '1.1.0',
         description: 'Versioned YunQi time-fact and rule-mapping contract.',
       },
       servers: [

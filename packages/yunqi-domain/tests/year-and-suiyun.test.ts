@@ -2,10 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import type { CalendarProvider } from '../src/calendar/provider.js';
 import {
+  createYunQiCalendarTime,
   createYunQiInstant,
   type YunQiInstant,
 } from '../src/calendar/time.js';
-import { resolveYunQiYear } from '../src/calendar/yunqi-year-resolver.js';
+import {
+  resolveYunQiYear,
+  resolveYunQiYearByCalendarTime,
+} from '../src/calendar/yunqi-year-resolver.js';
 import { calculateStemBranch } from '../src/ganzhi/stem-branch.js';
 import { STEM_RULES } from '../src/rules/phase1-rules.js';
 import { calculateSuiYun } from '../src/wuyun/sui-yun.js';
@@ -68,6 +72,34 @@ describe('annual Ganzhi and SuiYun calculations', () => {
 });
 
 describe('YunQi year resolution', () => {
+  it('resolves the authoritative calendar input at the exact Dahan tuple', () => {
+    const before = createYunQiCalendarTime({
+      year: 2024,
+      month: 1,
+      day: 20,
+      hour: 22,
+      minute: 7,
+      second: 21,
+      millisecond: 999,
+    });
+    const exact = createYunQiCalendarTime({
+      year: 2024,
+      month: 1,
+      day: 20,
+      hour: 22,
+      minute: 7,
+      second: 22,
+      millisecond: 0,
+    });
+
+    expect(resolveYunQiYearByCalendarTime(before, fixedCalendarProvider)).toBe(
+      2023,
+    );
+    expect(resolveYunQiYearByCalendarTime(exact, fixedCalendarProvider)).toBe(
+      2024,
+    );
+  });
+
   it('changes YunQi year at the exact 2024 Dahan second', () => {
     expect(
       resolveYunQiYear(
@@ -99,13 +131,13 @@ describe('YunQi year resolution', () => {
   it.each([
     [
       'a non-safe epoch',
-      { epochMilliseconds: Number.NaN, timezone: 'Asia/Shanghai' },
+      { epochMilliseconds: Number.NaN, offset: '+08:00' },
       /大寒.*安全整数/,
     ],
     [
-      'an incorrect timezone',
-      { epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[0], timezone: 'UTC' },
-      /大寒.*时区.*Asia\/Shanghai/,
+      'an incorrect offset',
+      { epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[0], offset: 'Z' },
+      /大寒.*固定偏移.*\+08:00/,
     ],
   ] as const)('rejects a Dahan Provider result with %s', (_name, dahan, message) => {
     const provider: CalendarProvider = {

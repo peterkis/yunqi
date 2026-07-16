@@ -2,13 +2,20 @@ import { describe, expect, it } from 'vitest';
 
 import type { CalendarProvider, SolarTerm } from '../src/calendar/provider.js';
 import {
+  BEIJING_CALENDAR_TIME_STANDARD,
+  createYunQiCalendarTime,
+  createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
   formatYunQiInstant,
+  type YunQiCalendarTime,
   type YunQiInstant,
 } from '../src/calendar/time.js';
 import { buildSixQiSteps } from '../src/liuqi/six-qi.js';
 import { calculateYearYunQi } from '../src/services/calculate-year-yunqi.js';
-import { calculateYunQi } from '../src/services/calculate-yunqi.js';
+import {
+  calculateYunQi,
+  calculateYunQiByCalendarTime,
+} from '../src/services/calculate-yunqi.js';
 import { getCurrentStep } from '../src/services/get-current-step.js';
 import * as publicApi from '../src/index.js';
 import {
@@ -68,7 +75,7 @@ describe('six-step timeline', () => {
       suiYun: { element: '土', state: '太过', tone: '太宫' },
       sitian: '太阳寒水',
       zaiquan: '太阴湿土',
-      ruleVersion: 'V1.0-2026.7.7-implementation.1',
+      ruleVersion: 'YQ-MVP-RULES-1.0.0',
     });
     expect(result.steps[0].start).toEqual(
       createYunQiInstant(1_705_759_642_000),
@@ -232,17 +239,17 @@ describe('six-step timeline', () => {
       'a non-integer epoch',
       {
         epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[1] + 0.5,
-        timezone: 'Asia/Shanghai',
+        offset: '+08:00',
       },
       /边界.*安全整数/,
     ],
     [
-      'an incorrect timezone',
+      'an incorrect offset',
       {
         epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[1],
-        timezone: 'UTC',
+        offset: 'Z',
       },
-      /边界.*时区.*Asia\/Shanghai/,
+      /边界.*固定偏移.*\+08:00/,
     ],
   ] as const)(
     'rejects a Provider boundary with %s',
@@ -261,6 +268,62 @@ describe('six-step timeline', () => {
 });
 
 describe('left-closed and right-open selection', () => {
+  it.each([
+    [21, 2023, 6],
+    [22, 2024, 1],
+    [23, 2024, 1],
+  ] as const)(
+    'selects the specified 2024 Dahan second %i from calendar fields',
+    (second, expectedYear, expectedStep) => {
+      const input = createYunQiCalendarTime({
+        year: 2024,
+        month: 1,
+        day: 20,
+        hour: 22,
+        minute: 7,
+        second,
+        millisecond: 0,
+      });
+      const result = calculateYunQiByCalendarTime(
+        input,
+        fixedCalendarProvider,
+      );
+
+      expect([result.year, result.currentStep.index]).toEqual([
+        expectedYear,
+        expectedStep,
+      ]);
+      expect(result.input).toBe(input);
+    },
+  );
+
+  it.each([
+    [21, 999, 2023, 6],
+    [22, 0, 2024, 1],
+    [22, 1, 2024, 1],
+  ] as const)(
+    'uses millisecond-precise calendar tuple ownership at Dahan: %i.%i',
+    (second, millisecond, expectedYear, expectedStep) => {
+      const result = calculateYunQiByCalendarTime(
+        createYunQiCalendarTime({
+          year: 2024,
+          month: 1,
+          day: 20,
+          hour: 22,
+          minute: 7,
+          second,
+          millisecond,
+        }),
+        fixedCalendarProvider,
+      );
+
+      expect([result.year, result.currentStep.index]).toEqual([
+        expectedYear,
+        expectedStep,
+      ]);
+    },
+  );
+
   it.each([
     [0, 2023, 6, 2024, 1],
     [1, 2024, 1, 2024, 2],
@@ -289,6 +352,35 @@ describe('left-closed and right-open selection', () => {
 });
 
 describe('service composition', () => {
+  it('takes the candidate year and interval position from calendar fields', () => {
+    const requests: Array<readonly [number, SolarTerm]> = [];
+    const provider: CalendarProvider = {
+      getSolarTermInstant(year, term) {
+        requests.push([year, term]);
+        return fixedCalendarProvider.getSolarTermInstant(year, term);
+      },
+    };
+    const input = Object.freeze({
+      localDateTime: Object.freeze({
+        year: 2024,
+        month: 5,
+        day: 20,
+        hour: 21,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+      }),
+      calendarTimeStandard: BEIJING_CALENDAR_TIME_STANDARD,
+      instant: createYunQiInstant(1_748_000_000_000),
+    }) as YunQiCalendarTime;
+
+    const result = calculateYunQiByCalendarTime(input, provider);
+
+    expect([result.year, result.currentStep.index]).toEqual([2024, 3]);
+    expect(requests[0]).toEqual([2024, '大寒']);
+    expect(result.input).toBe(input);
+  });
+
   it('requires and uses the explicit Provider in every public service', () => {
     const year = calculateYearYunQi(2024, fixedCalendarProvider);
     const input = createYunQiInstant(FIXED_2024_BOUNDARY_EPOCHS[2]);
@@ -345,20 +437,38 @@ describe('service composition', () => {
     expect(result.currentStep).toBe(result.steps[1]);
   });
 
+  it('keeps one authoritative dated calculation with an instant compatibility adapter', () => {
+    const input = createYunQiInstant(FIXED_2024_BOUNDARY_EPOCHS[2] + 123);
+    const calendarInput = createYunQiCalendarTimeFromInstant(input);
+    const authoritative = calculateYunQiByCalendarTime(
+      calendarInput,
+      fixedCalendarProvider,
+    );
+    const compatibility = calculateYunQi(input, fixedCalendarProvider);
+
+    expect(compatibility).toEqual({
+      ...authoritative,
+      input,
+    });
+    expect(authoritative.input).toBe(calendarInput);
+    expect(compatibility.input).toBe(input);
+    expect(compatibility.currentStep).toBe(compatibility.steps[2]);
+  });
+
   it('rejects invalid instant values at the public service boundary', () => {
     const invalidEpoch = {
       epochMilliseconds: Number.NaN,
-      timezone: 'Asia/Shanghai',
+      offset: '+08:00',
     } as unknown as YunQiInstant;
-    const invalidTimezone = {
+    const invalidOffset = {
       epochMilliseconds: FIXED_2024_BOUNDARY_EPOCHS[2],
-      timezone: 'UTC',
+      offset: 'Z',
     } as unknown as YunQiInstant;
 
     expect(() => calculateYunQi(invalidEpoch, fixedCalendarProvider)).toThrowError(
       RangeError,
     );
-    expect(() => getCurrentStep(invalidTimezone, fixedCalendarProvider)).toThrowError(
+    expect(() => getCurrentStep(invalidOffset, fixedCalendarProvider)).toThrowError(
       RangeError,
     );
   });
@@ -367,6 +477,9 @@ describe('service composition', () => {
     expect(publicApi.buildSixQiSteps).toBe(buildSixQiSteps);
     expect(publicApi.calculateYearYunQi).toBe(calculateYearYunQi);
     expect(publicApi.calculateYunQi).toBe(calculateYunQi);
+    expect(publicApi.calculateYunQiByCalendarTime).toBe(
+      calculateYunQiByCalendarTime,
+    );
     expect(publicApi.getCurrentStep).toBe(getCurrentStep);
   });
 });

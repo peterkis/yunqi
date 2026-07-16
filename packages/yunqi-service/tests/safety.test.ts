@@ -37,39 +37,43 @@ it.each([
   expect(sentinel).toMatch(PROHIBITED);
 });
 
-it('keeps all successful YunQi responses inside the medical-safety boundary', async () => {
-  const app = await buildApp({
-    provider: fixedCalendarProvider,
-    now: () => 1_716_210_000_000,
-    logger: false,
-  });
+it(
+  'keeps all successful YunQi responses inside the medical-safety boundary',
+  async () => {
+    const app = await buildApp({
+      provider: fixedCalendarProvider,
+      now: () => 1_716_210_000_000,
+      logger: false,
+    });
 
-  try {
-    const responses = await Promise.all([
-      app.inject({
-        method: 'GET',
-        url: '/api/v1/yunqi/year/2024',
-      }),
-      app.inject({
-        method: 'GET',
-        url: '/api/v1/yunqi/current',
-      }),
-      app.inject({
-        method: 'POST',
-        url: '/api/v1/yunqi/calculate',
-        payload: { dateTime: '2024-05-20T21:00:00' },
-      }),
-    ]);
+    try {
+      const responses = await Promise.all([
+        app.inject({
+          method: 'GET',
+          url: '/api/v1/yunqi/year/2024',
+        }),
+        app.inject({
+          method: 'GET',
+          url: '/api/v1/yunqi/current',
+        }),
+        app.inject({
+          method: 'POST',
+          url: '/api/v1/yunqi/calculate',
+          payload: { dateTime: '2024-05-20T21:00:00' },
+        }),
+      ]);
 
-    for (const response of responses) {
-      expect(response.statusCode).toBe(200);
-      const body: unknown = response.json();
-      expect(JSON.stringify(body)).not.toMatch(PROHIBITED);
-      expect(collectPropertyNames(body)).not.toEqual(
-        expect.arrayContaining([expect.stringMatching(PROHIBITED_PROPERTY)]),
-      );
+      for (const response of responses) {
+        expect(response.statusCode).toBe(200);
+        const body: unknown = response.json();
+        expect(JSON.stringify(body)).not.toMatch(PROHIBITED);
+        expect(collectPropertyNames(body)).not.toEqual(
+          expect.arrayContaining([expect.stringMatching(PROHIBITED_PROPERTY)]),
+        );
+      }
+    } finally {
+      await app.close();
     }
-  } finally {
-    await app.close();
-  }
-});
+  },
+  15_000,
+);

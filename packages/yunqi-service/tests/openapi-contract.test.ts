@@ -23,7 +23,7 @@ describe('OpenAPI contract', () => {
     const document = app.swagger() as Record<string, any>;
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.0.0');
+    expect(document.info.version).toBe('1.1.0');
     expect(Object.keys(document.paths ?? {})).toEqual(
       expect.arrayContaining([
         '/health',
@@ -58,6 +58,13 @@ describe('OpenAPI contract', () => {
 
     const schemas = document.components.schemas;
     expect(schemas).toHaveProperty('ErrorResponse');
+    expect(schemas).toHaveProperty('YunQiCalendarTimeDto');
+    expect(schemas).not.toHaveProperty('YunQiInstantDto');
+    expect(JSON.stringify(document)).not.toContain('Asia/Shanghai');
+    expect(JSON.stringify(document)).not.toContain('"timezone"');
+    expect(schemas.CalculateRequest.properties.dateTime.pattern).toBe(
+      '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|\\+08:00)?$',
+    );
     expect(schemas.CalculateRequest.examples).toEqual([
       { dateTime: '2024-05-20T21:00:00' },
       { dateTime: '2024-05-20T13:00:00Z' },
@@ -103,6 +110,39 @@ describe('OpenAPI contract', () => {
     });
     const responseSchema =
       document.paths['/api/v1/yunqi/year/{year}'].get.responses['200']
+        .content['application/json'].schema;
+    const validate = ajv.compile({
+      $ref: rootId + responseSchema.$ref,
+    });
+
+    expect(validate(response.json()), JSON.stringify(validate.errors)).toBe(
+      true,
+    );
+  });
+
+  it('validates a live calculation response against its OpenAPI schema', async () => {
+    const app = await buildApp({
+      provider: fixedCalendarProvider,
+      now: () => 1_716_210_000_000,
+      logger: false,
+    });
+    apps.push(app);
+    await app.ready();
+    const document = app.swagger() as Record<string, any>;
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/yunqi/calculate',
+      payload: { dateTime: '2024-05-20T21:00:00' },
+    });
+    const schemas = document.components.schemas;
+    const ajv = new Ajv2020({ strict: false, allErrors: true });
+    const rootId = 'https://yunqi.local/openapi-calculation-contract.json';
+    ajv.addSchema({
+      $id: rootId,
+      components: { schemas },
+    });
+    const responseSchema =
+      document.paths['/api/v1/yunqi/calculate'].post.responses['200']
         .content['application/json'].schema;
     const validate = ajv.compile({
       $ref: rootId + responseSchema.$ref,

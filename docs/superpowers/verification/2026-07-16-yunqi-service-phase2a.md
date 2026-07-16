@@ -1,5 +1,12 @@
 # YunQi Service Phase 2-A Verification
 
+> [!IMPORTANT]
+> 本文是 Phase2-A 的历史验收记录。其 IANA `Asia/Shanghai`、历史 DST 和
+> instant-only 时间语义已由
+> `docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md` 取代，
+> 不再代表现行架构。Phase2-A.1 的当前验收证据见
+> `docs/superpowers/verification/2026-07-16-yunqi-calendar-time-semantics.md`。
+
 ## 审计范围与状态
 
 - 验证日期：2026-07-16（Asia/Shanghai）。

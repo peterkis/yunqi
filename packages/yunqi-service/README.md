@@ -34,18 +34,39 @@ Errors use:
 
 ## Date-time input
 
-The calculate endpoint accepts hospital-local `Asia/Shanghai` time:
+The calculate endpoint uses fixed Beijing Standard Time, UTC+08:00. Historical
+IANA `Asia/Shanghai` daylight-saving rules and the server's default time zone
+do not participate in YunQi calculation.
+
+It accepts suffix-free fixed Beijing time:
 
     { "dateTime": "2024-05-20T21:00:00" }
 
-It also accepts RFC 3339 absolute time:
+It also accepts the exact equivalent `Z` or `+08:00` forms:
 
     { "dateTime": "2024-05-20T13:00:00Z" }
     { "dateTime": "2024-05-20T21:00:00+08:00" }
 
-Nonexistent or ambiguous local wall times are rejected; send an explicit
-offset to identify the intended instant. The service converts all accepted
-input into an absolute `YunQiInstant` before calling Domain.
+Fractional seconds, when present, must contain exactly three digits. Other
+numeric offsets, basic offsets such as `+0800`, space-separated values, slash
+dates, and locale formats are rejected.
+
+All accepted values flow through the Business Time Normalizer into
+`YunQiCalendarTime`, then through the Domain's authoritative
+`calculateYunQiByCalendarTime()` entry. The runtime clock supplies epoch
+milliseconds only and is normalized through the same fixed-offset path.
+
+Public time values use:
+
+    {
+      "localTime": "2024-05-20T21:00:00+08:00",
+      "epochMilliseconds": 1716210000000,
+      "offset": "+08:00",
+      "calendarTimeStandard": "BeijingStandardTime+08:00"
+    }
+
+The OpenAPI dialect remains 3.1.0, the contract document release is 1.1.0,
+and API paths remain under `/api/v1`.
 
 ## Browser contract
 

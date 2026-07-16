@@ -15,13 +15,13 @@ import {
   YearParamsSchema,
   YearSuccessSchema,
   YunQiCalculationDtoSchema,
-  YunQiInstantDtoSchema,
+  YunQiCalendarTimeDtoSchema,
   YunQiYearDtoSchema,
 } from './yunqi.js';
 
 export const contractSchemas = [
   HealthDataSchema,
-  YunQiInstantDtoSchema,
+  YunQiCalendarTimeDtoSchema,
   HostGuestRelationDtoSchema,
   SixQiStepDtoSchema,
   StemBranchDtoSchema,

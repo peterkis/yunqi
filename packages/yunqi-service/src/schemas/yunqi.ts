@@ -66,15 +66,20 @@ const StepNameSchema = Type.Union([
   Type.Literal('终之气'),
 ]);
 
-export const YunQiInstantDtoSchema = Type.Object(
+export const YunQiCalendarTimeDtoSchema = Type.Object(
   {
+    localTime: Type.String({
+      pattern:
+        '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?\\+08:00$',
+    }),
     epochMilliseconds: Type.Integer({
       minimum: Number.MIN_SAFE_INTEGER,
       maximum: Number.MAX_SAFE_INTEGER,
     }),
-    timezone: Type.Literal('Asia/Shanghai'),
+    offset: Type.Literal('+08:00'),
+    calendarTimeStandard: Type.Literal('BeijingStandardTime+08:00'),
   },
-  { $id: 'YunQiInstantDto', additionalProperties: false },
+  { $id: 'YunQiCalendarTimeDto', additionalProperties: false },
 );
 
 export const HostGuestRelationDtoSchema = Type.Object(
@@ -103,8 +108,8 @@ export const SixQiStepDtoSchema = Type.Object(
   {
     index: Type.Integer({ minimum: 1, maximum: 6 }),
     name: StepNameSchema,
-    start: Type.Ref('YunQiInstantDto'),
-    end: Type.Ref('YunQiInstantDto'),
+    start: Type.Ref('YunQiCalendarTimeDto'),
+    end: Type.Ref('YunQiCalendarTimeDto'),
     hostQi: QiSchema,
     guestQi: QiSchema,
     relation: Type.Ref('HostGuestRelationDto'),
@@ -132,8 +137,8 @@ export const SuiYunDtoSchema = Type.Object(
 
 export const IntervalDtoSchema = Type.Object(
   {
-    start: Type.Ref('YunQiInstantDto'),
-    end: Type.Ref('YunQiInstantDto'),
+    start: Type.Ref('YunQiCalendarTimeDto'),
+    end: Type.Ref('YunQiCalendarTimeDto'),
   },
   { $id: 'YunQiIntervalDto', additionalProperties: false },
 );
@@ -166,7 +171,7 @@ export const YunQiYearDtoSchema = Type.Object(
 export const YunQiCalculationDtoSchema = Type.Object(
   {
     ...YunQiYearDtoSchema.properties,
-    input: Type.Ref('YunQiInstantDto'),
+    input: Type.Ref('YunQiCalendarTimeDto'),
     currentStep: Type.Ref('SixQiStepDto'),
   },
   { $id: 'YunQiCalculationDto', additionalProperties: false },
@@ -187,7 +192,7 @@ export const CalculateRequestSchema = Type.Object(
   {
     dateTime: Type.String({
       pattern:
-        '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?(?:Z|[+-]\\d{2}:\\d{2})?$',
+        '^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|\\+08:00)?$',
       examples: CALCULATE_REQUEST_EXAMPLES.map(
         (example) => example.dateTime,
       ),
@@ -219,7 +224,7 @@ export const CalculationSuccessSchema = Type.Object(
 );
 
 type YunQiSchemaContext = {
-  YunQiInstantDto: typeof YunQiInstantDtoSchema;
+  YunQiCalendarTimeDto: typeof YunQiCalendarTimeDtoSchema;
   HostGuestRelationDto: typeof HostGuestRelationDtoSchema;
   SixQiStepDto: typeof SixQiStepDtoSchema;
   StemBranchDto: typeof StemBranchDtoSchema;
@@ -230,8 +235,8 @@ type YunQiSchemaContext = {
   YunQiCalculationDto: typeof YunQiCalculationDtoSchema;
 };
 
-export type YunQiInstantDto = Static<
-  typeof YunQiInstantDtoSchema,
+export type YunQiCalendarTimeDto = Static<
+  typeof YunQiCalendarTimeDtoSchema,
   YunQiSchemaContext
 >;
 export type HostGuestRelationDto = Static<

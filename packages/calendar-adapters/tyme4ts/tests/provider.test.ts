@@ -14,10 +14,10 @@ afterEach(() => {
 });
 
 describe('toYunQiInstant', () => {
-  it('converts an explicitly zoned string to an Asia/Shanghai instant', () => {
+  it('converts an explicitly zoned string to a fixed Beijing instant', () => {
     expect(toYunQiInstant('2024-01-20T14:07:22Z')).toEqual({
       epochMilliseconds: 1_705_759_642_000,
-      timezone: 'Asia/Shanghai',
+      offset: '+08:00',
     });
   });
 
@@ -26,7 +26,7 @@ describe('toYunQiInstant', () => {
 
     expect(toYunQiInstant(input)).toEqual({
       epochMilliseconds: 1_705_759_642_000,
-      timezone: 'Asia/Shanghai',
+      offset: '+08:00',
     });
   });
 
@@ -83,7 +83,7 @@ describe('Tyme4tsCalendarProvider', () => {
   it('gets the exact 2024 Dahan instant from tyme4ts', () => {
     expect(tyme4tsCalendarProvider.getSolarTermInstant(2024, '大寒')).toEqual({
       epochMilliseconds: 1_705_759_642_000,
-      timezone: 'Asia/Shanghai',
+      offset: '+08:00',
     });
   });
 

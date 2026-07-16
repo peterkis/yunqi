@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { buildApp } from '../src/app.js';
 import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
@@ -28,7 +28,7 @@ describe('versioned YunQi routes', () => {
       code: 'SUCCESS',
       message: '',
       data: {
-        ruleVersion: 'V1.0-2026.7.7-implementation.1',
+        ruleVersion: 'YQ-MVP-RULES-1.0.0',
         year: 2024,
         stemBranch: { ganzhi: '甲辰', stem: '甲', branch: '辰' },
         sixQi: { sitian: '太阳寒水', zaiquan: '太阴湿土' },
@@ -61,19 +61,37 @@ describe('versioned YunQi routes', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.input.epochMilliseconds)
-      .toBe(1_716_210_000_000);
+    expect(response.json().data.input).toEqual({
+      localTime: '2024-05-20T21:00:00+08:00',
+      epochMilliseconds: 1_716_210_000_000,
+      offset: '+08:00',
+      calendarTimeStandard: 'BeijingStandardTime+08:00',
+    });
   });
 
-  it('uses the injected absolute clock for current', async () => {
+  it('uses the injected epoch-only clock exactly once for current', async () => {
+    const now = vi.fn(() => 1_705_759_642_000);
+    await app.close();
+    app = await buildApp({
+      provider: fixedCalendarProvider,
+      now,
+      logger: false,
+    });
     const response = await app.inject({
       method: 'GET',
       url: '/api/v1/yunqi/current',
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.input.epochMilliseconds)
-      .toBe(1_716_210_000_000);
+    expect(now).toHaveBeenCalledTimes(1);
+    expect(response.json().data.input).toEqual({
+      localTime: '2024-01-20T22:07:22+08:00',
+      epochMilliseconds: 1_705_759_642_000,
+      offset: '+08:00',
+      calendarTimeStandard: 'BeijingStandardTime+08:00',
+    });
+    expect(response.json().data.year).toBe(2024);
+    expect(response.json().data.currentStep.index).toBe(1);
   });
 
   it.each([
@@ -85,15 +103,19 @@ describe('versioned YunQi routes', () => {
     ['an invalid calendar date', { dateTime: '2024-02-30T21:00:00' }],
     [
       'unsupported fractional precision',
+      { dateTime: '2024-05-20T21:00:00.1' },
+    ],
+    [
+      'unsupported fractional precision',
       { dateTime: '2024-05-20T21:00:00.1234' },
     ],
     [
-      'a nonexistent hospital-local time',
-      { dateTime: '1991-04-14T02:30:00' },
+      'an unsupported positive offset',
+      { dateTime: '2024-05-20T22:00:00+09:00' },
     ],
     [
-      'an ambiguous hospital-local time',
-      { dateTime: '1991-09-15T01:30:00' },
+      'an unsupported negative offset',
+      { dateTime: '2024-05-20T09:00:00-04:00' },
     ],
   ])('rejects a request body with %s', async (_caseName, payload) => {
     const response = await app.inject({
@@ -104,5 +126,19 @@ describe('versioned YunQi routes', () => {
 
     expect(response.statusCode).toBe(400);
     expect(response.json().code).toBe('INVALID_ARGUMENT');
+  });
+
+  it.each([
+    '1991-04-14T02:30:00',
+    '1991-09-15T01:30:00',
+  ])('accepts historical fixed +08 local input %s', async (dateTime) => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/yunqi/calculate',
+      payload: { dateTime },
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().data.input.offset).toBe('+08:00');
   });
 });

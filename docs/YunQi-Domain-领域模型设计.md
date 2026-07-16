@@ -1,4 +1,9 @@
-# yunqi-domain 领域模型设计 V1.0
+# yunqi-domain 领域模型设计 V1.1
+
+本设计的时间语义受
+`docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md` 约束。
+任何旧文档中的 IANA `Asia/Shanghai`、历史 DST 或 instant-only 计算描述，
+均不得覆盖该 ADR。
 
 ## 1. 设计目标
 
@@ -36,16 +41,39 @@
 
 ## 3. 时间与历法端口
 
-领域层唯一接受的时间值是绝对瞬时 `YunQiInstant`：
+领域层权威的带日期计算模型是 `YunQiCalendarTime`：
 
 ```ts
 interface YunQiInstant {
   epochMilliseconds: number;
-  timezone: 'Asia/Shanghai';
+  offset: '+08:00';
+}
+
+interface BeijingLocalDateTime {
+  year: number;
+  month: number;
+  day: number;
+  hour: number;
+  minute: number;
+  second: number;
+  millisecond: number;
+}
+
+interface YunQiCalendarTime {
+  localDateTime: BeijingLocalDateTime;
+  calendarTimeStandard: 'BeijingStandardTime+08:00';
+  instant: YunQiInstant;
 }
 ```
 
-`timezone` 是 Phase 1 固定 UTC+08:00 语义的北京时间标签，不表示由领域层处理历史时区或夏令时规则。领域层不接收、解析或构造应用层的 `Date` 或时间字符串。
+`YunQiInstant` 不是 civil timezone instant。`epochMilliseconds` 只承担固定
+北京时间模型下的排序、传输、持久化、审计、兼容和一致性校验；它不是权威
+历法比较来源，不得经 UTC、IANA 时区、服务器本地时区或 DST 重新解释后
+决定运气年和六步归属。
+
+所有五运六气业务时间统一采用固定北京时间 UTC+08:00。1986–1991 历史
+夏令时不参与计算。领域包的源码、测试和夹具均不得使用 `Date`、Temporal、
+Intl、IANA 时区名或时区数据库完成时间解释。
 
 领域层只依赖以下历法端口：
 
@@ -57,14 +85,23 @@ interface CalendarProvider {
 }
 ```
 
-调用方必须向需要节气边界的服务显式注入 `CalendarProvider`，领域层不提供默认 Provider，也不依赖 `tyme4ts`。应用层的 `string | Date` 只能在外部包 `@yunqi/calendar-adapter-tyme4ts` 中通过 `toYunQiInstant` 转换，再将所得 `YunQiInstant` 传入领域层。
+调用方必须向需要节气边界的服务显式注入 `CalendarProvider`，领域层不提供
+默认 Provider，也不依赖 `tyme4ts`。`tyme4ts` 只负责天文节气计算，adapter
+只把节气结果转换为固定 UTC+08:00 的 `YunQiInstant`。Provider 和 adapter
+不得决定运气年、六步归属、区间开闭或其他五运六气规则。
+
+API 字符串输入由
+`packages/yunqi-service/src/modules/time-normalizer` 单向归一化为
+`YunQiCalendarTime` 后进入 Domain；不得让新 Domain 模型回退兼容旧 IANA
+或 DST 语义。
 
 时间边界遵循以下约定：
 
 1. 运气年从当年大寒实际交节时刻开始，到下一年大寒实际交节时刻结束。
 2. 六步分别以大寒、春分、小满、大暑、秋分、小雪的实际交节时刻为起点，终之气结束于下一年大寒实际交节时刻。
 3. 运气年与六步区间统一采用左闭右开 `[start, end)`；交节精确时刻属于新区间，前一毫秒仍属于旧区间。
-4. `epochMilliseconds` 保存绝对瞬时；所有领域展示和年份判定使用上述固定 UTC+08:00 北京时间语义。
+4. 年份和六步边界判断比较 `BeijingLocalDateTime`；`epochMilliseconds`
+   只保留为固定北京时间模型的绝对表示和一致性证据。
 5. 禁止用固定公历日期代替节气实际交节时刻。
 
 ------------------------------------------------------------------------
@@ -152,7 +189,17 @@ interface HostGuestRelationResult {
 
 ## 5. 核心服务
 
-所有依赖节气边界的服务都要求显式 Provider 注入：
+所有依赖节气边界的服务都要求显式 Provider 注入。唯一内部带日期计算入口
+是：
+
+```ts
+function calculateYunQiByCalendarTime(
+  input: YunQiCalendarTime,
+  provider: CalendarProvider,
+): YunQiCalendarResult;
+```
+
+旧 instant 入口仅为兼容 wrapper：
 
 ```ts
 function calculateYunQi(
@@ -171,9 +218,11 @@ function getCurrentStep(
 ): SixQiStep;
 ```
 
-- `calculateYunQi` 返回输入瞬时所属运气年的完整结构及当前六步。
+- `calculateYunQiByCalendarTime` 以固定北京时间字段执行权威边界判断。
+- `calculateYunQi` 必须先转换为 `YunQiCalendarTime`，再调用权威入口，
+  不得保留第二套 instant-only 算法。
 - `calculateYearYunQi` 返回指定运气年的年度结构；该年仍以实际大寒交节时刻为起点。
-- `getCurrentStep` 返回输入瞬时唯一所属的六步。
+- `getCurrentStep` 是兼容表面，最终仍进入同一权威计算实现。
 
 ------------------------------------------------------------------------
 
@@ -187,6 +236,10 @@ function getCurrentStep(
 4. `[year.start, year.end)` 内任意瞬时只能属于一个六步。
 5. 下一年大寒精确交节时刻只属于下一运气年。
 6. 君火和相火不可合并；二者仅在五行层面同属火。
+7. Domain 工厂的字段范围、闰年、固定偏移及本地字段与 instant
+   基础一致性校验永远开启。
+8. `assertYunQiCalendarTime()` 可用于测试、CI、调试或配置的深度一致性
+   检查，但不得改变计算语义。
 
 ------------------------------------------------------------------------
 

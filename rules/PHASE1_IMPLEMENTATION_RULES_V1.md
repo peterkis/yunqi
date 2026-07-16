@@ -2,7 +2,7 @@
 
 ## 元数据
 
-- 规则版本：`V1.0-2026.7.7-implementation.1`
+- 规则版本：`YQ-MVP-RULES-1.0.0`
 - 状态：实现基线，仍受 `RULE_FREEZE_NOTE.md` 的“待正式冻结”状态约束
 - 变更原因：`RULE_FREEZE_NOTE.md` 只给出规则类别，缺少代码可消费的映射；本文件将 Phase 1 所需映射显式化，禁止计算器自行推导或散落硬编码
 - 项目内依据：`codex/AGENTS.md`、`codex/CODEX-PHASE1-STARTER-PROMPT.md`、`docs/YunQi-Domain-领域模型设计.md`
@@ -12,11 +12,18 @@
 
 ## 时间语义
 
-1. 所有输入先解释为绝对时间，再转换为北京时间（UTC+08:00）。
-2. 字符串输入必须包含 `Z` 或显式 UTC 偏移；无时区字符串无效。
+1. 五运六气业务时间统一采用固定北京时间 UTC+08:00；权威历法语义是
+   `YunQiCalendarTime` 的本地公历字段，不使用 IANA `Asia/Shanghai`
+   历史规则、服务器本地时区或 DST。
+2. API 可接收精确格式的无后缀固定北京时间、`+08:00` 或等价 `Z`
+   输入；Service 必须通过 Business Time Normalizer 单向归一化为
+   `YunQiCalendarTime` 后调用 Domain。其他 offset 和宽松日期格式无效。
 3. 运气年 `Y` 的范围是 `Y` 年大寒实际交节时刻至 `Y+1` 年大寒实际交节时刻。
 4. 边界采用左闭右开：交节时刻本身属于新运气年或新六步。
 5. 节气时刻必须由 `CalendarProvider` 提供，默认适配 `tyme4ts`；禁止用固定公历日期替代。
+
+长期架构依据：
+`docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md`。
 
 ## 六十甲子
 
@@ -111,4 +118,3 @@
 6. 客气克主气：`GUEST_CONTROLS_HOST`
 
 君火与相火必须保留为不同气名；二者只在五行层面同属火。
-

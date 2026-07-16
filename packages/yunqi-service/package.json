@@ -1,6 +1,6 @@
 {
   "name": "@yunqi/service",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -22,7 +22,10 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage --maxWorkers=1",
+    "test:time-purity": "node scripts/check-time-purity.mjs",
+    "test:timezone": "node scripts/check-time-zone-independence.mjs",
+    "smoke:production-entry": "node scripts/smoke-production-entry.mjs",
     "openapi:generate": "node scripts/generate-openapi.mjs && node scripts/run-openapi-typescript.mjs openapi/yunqi-service.openapi.yaml --output src/contracts/generated-client.ts --immutable --alphabetize",
     "openapi:lint": "redocly lint openapi/yunqi-service.openapi.yaml --config redocly.yaml",
     "openapi:check": "node scripts/check-generated.mjs"
@@ -31,7 +34,6 @@
     "@fastify/swagger": "9.8.1",
     "@fastify/swagger-ui": "6.1.0",
     "@fastify/type-provider-typebox": "6.1.0",
-    "@js-temporal/polyfill": "0.5.1",
     "@yunqi/calendar-adapter-tyme4ts": "workspace:*",
     "@yunqi/domain": "workspace:*",
     "fastify": "5.10.0"

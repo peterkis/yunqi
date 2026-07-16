@@ -11,11 +11,11 @@ import {
   YearSuccessSchema,
   type CalculateRequest,
 } from '../schemas/yunqi.js';
-import { parseApiDateTime } from '../services/date-time.js';
+import { normalizeApiDateTime } from '../modules/time-normalizer/index.js';
 import {
   calculateAnnualDto,
   calculateAtDto,
-  currentInstant,
+  currentCalendarTime,
 } from '../services/yunqi-service.js';
 
 type YearParams = Static<typeof YearParamsSchema>;
@@ -56,7 +56,7 @@ export const yunqiRoutes: FastifyPluginAsyncTypebox<{
       code: 'SUCCESS',
       message: '',
       data: calculateAtDto(
-        currentInstant(options.now),
+        currentCalendarTime(options.now),
         options.provider,
       ),
     }),
@@ -77,7 +77,7 @@ export const yunqiRoutes: FastifyPluginAsyncTypebox<{
       code: 'SUCCESS',
       message: '',
       data: calculateAtDto(
-        parseApiDateTime(request.body.dateTime),
+        normalizeApiDateTime(request.body.dateTime),
         options.provider,
       ),
     }),

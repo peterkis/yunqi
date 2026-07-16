@@ -4,9 +4,12 @@
   "packageManager": "pnpm@10.32.1",
   "scripts": {
     "build": "pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build",
-    "test": "pnpm build && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
+    "test": "pnpm build && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/service test && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
     "typecheck": "pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck",
     "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/service test:coverage",
+    "test:time-purity": "pnpm --filter @yunqi/domain test:time-purity && pnpm --filter @yunqi/service test:time-purity",
+    "test:timezone": "pnpm build && pnpm --filter @yunqi/service test:timezone",
+    "smoke:production-entry": "pnpm build && pnpm --filter @yunqi/service smoke:production-entry",
     "openapi:generate": "pnpm build && pnpm --filter @yunqi/service openapi:generate",
     "openapi:validate": "pnpm build && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
     "schema:validate": "pnpm build && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"

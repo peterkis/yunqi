@@ -1,20 +1,18 @@
-import { Temporal } from '@js-temporal/polyfill';
 import {
   calculateYearYunQi,
-  calculateYunQi,
-  createYunQiInstant,
+  calculateYunQiByCalendarTime,
   type CalendarProvider,
-  type YunQiInstant,
+  type YunQiCalendarTime,
 } from '@yunqi/domain';
 import {
   mapCalculationResult,
   mapYearResult,
 } from '../mappers/yunqi-mapper.js';
+import { normalizeEpochMilliseconds } from '../modules/time-normalizer/index.js';
 import type {
   YunQiCalculationDto,
   YunQiYearDto,
 } from '../schemas/yunqi.js';
-import { HOSPITAL_TIME_ZONE } from './date-time.js';
 import { InvalidArgumentError } from './invalid-argument-error.js';
 import { protectCalendarProvider } from './provider-boundary.js';
 
@@ -42,10 +40,8 @@ function calculateWithProtectedProvider<T>(operation: () => T): T {
   }
 }
 
-function assertResolvableCivilYear(input: YunQiInstant): void {
-  const civilYear = Temporal.Instant.fromEpochMilliseconds(
-    input.epochMilliseconds,
-  ).toZonedDateTimeISO(HOSPITAL_TIME_ZONE).year;
+function assertResolvableCivilYear(input: YunQiCalendarTime): void {
+  const civilYear = input.localDateTime.year;
 
   if (
     civilYear < MIN_SUPPORTED_YEAR ||
@@ -70,18 +66,20 @@ export function calculateAnnualDto(
 }
 
 export function calculateAtDto(
-  input: YunQiInstant,
+  input: YunQiCalendarTime,
   provider: CalendarProvider,
 ): YunQiCalculationDto {
   assertResolvableCivilYear(input);
   const protectedProvider = protectCalendarProvider(provider);
   const result = calculateWithProtectedProvider(() =>
-    calculateYunQi(input, protectedProvider),
+    calculateYunQiByCalendarTime(input, protectedProvider),
   );
   assertSupportedYear(result.year);
   return mapCalculationResult(result);
 }
 
-export function currentInstant(now: () => number): YunQiInstant {
-  return createYunQiInstant(now());
+export function currentCalendarTime(
+  now: () => number,
+): YunQiCalendarTime {
+  return normalizeEpochMilliseconds(now());
 }

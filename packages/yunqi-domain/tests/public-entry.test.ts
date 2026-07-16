@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   BRANCH_QI_RULES,
+  BEIJING_CALENDAR_TIME_STANDARD,
+  BEIJING_STANDARD_OFFSET,
   ELEMENT_CONTROL_MAP,
   ELEMENT_GENERATION_MAP,
   GUEST_QI_SEQUENCE,
@@ -14,7 +16,12 @@ import {
   STEP_BOUNDARY_TERMS,
   STEP_NAMES,
   calculateHostGuestRelation,
+  calculateYunQiByCalendarTime,
+  createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
+  type BeijingLocalDateTime,
+  type BeijingStandardOffset,
+  type CalendarTimeStandard,
   type Element,
   type ElementRelation,
   type HostGuestDirection,
@@ -23,6 +30,8 @@ import {
   type QiRelation,
   type SolarTerm,
   type YunQiInstant,
+  type YunQiCalendarResult,
+  type YunQiCalendarTime,
 } from '../src/index.js';
 
 function compileTimeOnlyRelationContract(relation: HostGuestRelationResult): void {
@@ -47,6 +56,25 @@ describe('package source entrypoint', () => {
     );
     const term: SolarTerm = STEP_BOUNDARY_TERMS[0];
     const instant: YunQiInstant = createYunQiInstant(1_705_759_642_000);
+    const calendarTime: YunQiCalendarTime =
+      createYunQiCalendarTimeFromInstant(instant);
+    const localDateTime: BeijingLocalDateTime = calendarTime.localDateTime;
+    const offset: BeijingStandardOffset = BEIJING_STANDARD_OFFSET;
+    const standard: CalendarTimeStandard = BEIJING_CALENDAR_TIME_STANDARD;
+    const calendarContracts = {
+      calculateYunQiByCalendarTime,
+      localDateTime,
+      offset,
+      standard,
+    } satisfies {
+      calculateYunQiByCalendarTime: typeof calculateYunQiByCalendarTime;
+      localDateTime: BeijingLocalDateTime;
+      offset: BeijingStandardOffset;
+      standard: CalendarTimeStandard;
+    };
+    void calendarContracts;
+    type CalendarResultContract = YunQiCalendarResult;
+    void (undefined as unknown as CalendarResultContract);
 
     expect({ element, qi, relation, term, instant }).toEqual({
       element: '木',
@@ -60,12 +88,12 @@ describe('package source entrypoint', () => {
       term: '大寒',
       instant: {
         epochMilliseconds: 1_705_759_642_000,
-        timezone: 'Asia/Shanghai',
+        offset: '+08:00',
       },
     });
     expect(Object.isFrozen(relation)).toBe(true);
     expect(HOST_GUEST_RELATION_PRIORITY[0]).toBe('SAME_QI');
-    expect(RULE_VERSION).toBe('V1.0-2026.7.7-implementation.1');
+    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
     expect(SIXTY_CYCLE_ANCHOR.year).toBe(1984);
     expect(SIXTY_CYCLE[0]).toBe('甲子');
     expect(STEM_RULES.甲.tone).toBe('太宫');

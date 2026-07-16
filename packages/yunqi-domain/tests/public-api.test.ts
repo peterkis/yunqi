@@ -3,10 +3,17 @@ import { describe, expect, it } from 'vitest';
 import * as publicApi from '../src/index.js';
 import {
   RULE_VERSION,
+  assertYunQiCalendarTime,
   calculateYearYunQi,
   calculateYunQi,
+  calculateYunQiByCalendarTime,
+  createYunQiCalendarTime,
+  createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
   getCurrentStep,
+  type BeijingLocalDateTime,
+  type BeijingStandardOffset,
+  type CalendarTimeStandard,
   type CalendarProvider,
   type ElementRelation,
   type HostGuestDirection,
@@ -15,6 +22,8 @@ import {
   type SixQiStep,
   type SolarTerm,
   type YunQiInstant,
+  type YunQiCalendarResult,
+  type YunQiCalendarTime,
   type YunQiResult,
   type YunQiYearResult,
 } from '../src/index.js';
@@ -27,6 +36,26 @@ function compileTimeOnlyPublicContracts(
   provider: CalendarProvider,
   instant: YunQiInstant,
 ): void {
+  const localDateTime: BeijingLocalDateTime = {
+    year: 2024,
+    month: 5,
+    day: 20,
+    hour: 21,
+    minute: 0,
+    second: 0,
+    millisecond: 0,
+  };
+  const offset: BeijingStandardOffset = '+08:00';
+  const standard: CalendarTimeStandard = 'BeijingStandardTime+08:00';
+  const calendarTime: YunQiCalendarTime =
+    createYunQiCalendarTime(localDateTime);
+  const fromInstant: YunQiCalendarTime =
+    createYunQiCalendarTimeFromInstant(instant);
+  const calendarResult: YunQiCalendarResult =
+    calculateYunQiByCalendarTime(calendarTime, provider);
+  assertYunQiCalendarTime(calendarTime);
+  void { offset, standard, fromInstant, calendarResult };
+
   const term: SolarTerm = '大寒';
   void term;
   calculateYearYunQi(2024, provider);
@@ -43,6 +72,8 @@ function compileTimeOnlyPublicContracts(
 
   // @ts-expect-error Structured relation fields are readonly.
   relation.traditionalLabel = 'mutable';
+  // @ts-expect-error Calendar time fields are readonly.
+  calendarTime.localDateTime.year = 2025;
 
   // @ts-expect-error CalendarProvider injection is mandatory.
   calculateYearYunQi(2024);
@@ -58,8 +89,11 @@ describe('stable package API', () => {
   it('exports the approved services, pure contracts, public result types, and rule version', () => {
     const provider: CalendarProvider = fixedCalendarProvider;
     const input: YunQiInstant = createYunQiInstant(1_716_210_000_000);
+    const calendarInput = createYunQiCalendarTimeFromInstant(input);
     const annual: YunQiYearResult = calculateYearYunQi(2024, provider);
     const dated: YunQiResult = calculateYunQi(input, provider);
+    const calendarDated: YunQiCalendarResult =
+      calculateYunQiByCalendarTime(calendarInput, provider);
     const step: SixQiStep = getCurrentStep(input, provider);
     const relation: HostGuestRelationResult = publicApi.calculateHostGuestRelation(
       '厥阴风木',
@@ -69,15 +103,25 @@ describe('stable package API', () => {
     expect('createYearExplanations' in publicApi).toBe(false);
     expect(typeof calculateYearYunQi).toBe('function');
     expect(typeof calculateYunQi).toBe('function');
+    expect(typeof calculateYunQiByCalendarTime).toBe('function');
     expect(typeof getCurrentStep).toBe('function');
     expect(typeof publicApi.createYunQiInstant).toBe('function');
     expect(typeof publicApi.assertYunQiInstant).toBe('function');
+    expect(typeof publicApi.createYunQiCalendarTime).toBe('function');
+    expect(typeof publicApi.createYunQiCalendarTimeFromInstant).toBe('function');
+    expect(typeof publicApi.assertYunQiCalendarTime).toBe('function');
+    expect(publicApi.BEIJING_STANDARD_OFFSET).toBe('+08:00');
+    expect(publicApi.BEIJING_CALENDAR_TIME_STANDARD).toBe(
+      'BeijingStandardTime+08:00',
+    );
     expect(typeof publicApi.formatYunQiInstant).toBe('function');
     expect(typeof publicApi.getBeijingCivilYear).toBe('function');
     expect('tymeCalendarProvider' in publicApi).toBe(false);
     expect('defaultCalendarProvider' in publicApi).toBe(false);
     expect(annual.ruleVersion).toBe(RULE_VERSION);
     expect(dated.input).toBe(input);
+    expect(calendarDated.input).toBe(calendarInput);
+    expect(calendarDated.currentStep).toBe(calendarDated.steps[2]);
     expect(dated.currentStep).toBe(dated.steps[2]);
     expect(step.index).toBe(3);
     expect(relation).toEqual({
@@ -87,7 +131,7 @@ describe('stable package API', () => {
       traditionalLabel: '主生客，相得',
     });
     expect(Object.isFrozen(relation)).toBe(true);
-    expect(RULE_VERSION).toBe('V1.0-2026.7.7-implementation.1');
+    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
   });
 
   it('keeps every root-exported singleton object and collection runtime immutable', () => {

@@ -15,7 +15,7 @@ type HostGuestRelationRule =
   | 'SAME_ELEMENT_DIFFERENT_QI'
   | Exclude<HostGuestDirection, 'NONE'>;
 
-export const RULE_VERSION = 'V1.0-2026.7.7-implementation.1' as const;
+export const RULE_VERSION = 'YQ-MVP-RULES-1.0.0' as const;
 
 export const SIXTY_CYCLE_ANCHOR = Object.freeze({
   year: 1984,

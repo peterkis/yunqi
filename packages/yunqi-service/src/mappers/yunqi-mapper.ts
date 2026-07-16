@@ -1,23 +1,31 @@
 import type {
   HostGuestRelationResult,
   SixQiStep,
+  YunQiCalendarResult,
+  YunQiCalendarTime,
   YunQiInstant,
-  YunQiResult,
   YunQiYearResult,
 } from '@yunqi/domain';
+import {
+  formatYunQiCalendarTime,
+  normalizeYunQiInstant,
+} from '../modules/time-normalizer/index.js';
 import type {
   HostGuestRelationDto,
   SixQiStepDto,
   YunQiCalculationDto,
-  YunQiInstantDto,
+  YunQiCalendarTimeDto,
   YunQiYearDto,
 } from '../schemas/yunqi.js';
 
-function mapInstant(value: YunQiInstant): YunQiInstantDto {
-  return {
-    epochMilliseconds: value.epochMilliseconds,
-    timezone: value.timezone,
-  };
+function mapCalendarTime(
+  value: YunQiCalendarTime,
+): YunQiCalendarTimeDto {
+  return formatYunQiCalendarTime(value);
+}
+
+function mapInstant(value: YunQiInstant): YunQiCalendarTimeDto {
+  return mapCalendarTime(normalizeYunQiInstant(value));
 }
 
 function mapRelation(value: HostGuestRelationResult): HostGuestRelationDto {
@@ -65,11 +73,11 @@ export function mapYearResult(value: YunQiYearResult): YunQiYearDto {
 }
 
 export function mapCalculationResult(
-  value: YunQiResult,
+  value: YunQiCalendarResult,
 ): YunQiCalculationDto {
   return {
     ...mapYearResult(value),
-    input: mapInstant(value.input),
+    input: mapCalendarTime(value.input),
     currentStep: mapStep(value.currentStep),
   };
 }

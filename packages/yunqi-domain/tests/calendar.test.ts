@@ -13,12 +13,12 @@ import {
 } from './helpers/fixed-calendar-provider.js';
 
 describe('YunQi instant value', () => {
-  it('creates the exact immutable Asia/Shanghai value', () => {
+  it('creates the exact immutable fixed-offset value', () => {
     const instant = createYunQiInstant(1_705_759_642_000);
 
     expect(instant).toEqual({
       epochMilliseconds: 1_705_759_642_000,
-      timezone: 'Asia/Shanghai',
+      offset: '+08:00',
     });
     expect(Object.isFrozen(instant)).toBe(true);
     expect(fixedCalendarProvider.getSolarTermInstant(2024, '大寒')).toEqual(instant);
@@ -34,17 +34,17 @@ describe('YunQi instant value', () => {
     expect(() => createYunQiInstant(epochMilliseconds)).toThrowError(RangeError);
   });
 
-  it('rejects structurally invalid values and incorrect provider timezones', () => {
+  it('rejects structurally invalid values and incorrect provider offsets', () => {
     expect(() =>
       assertYunQiInstant({
         epochMilliseconds: 1_705_759_642_000,
-        timezone: 'UTC',
+        offset: 'Z',
       }),
     ).toThrowError(RangeError);
     expect(() =>
       assertYunQiInstant({
         epochMilliseconds: 1_705_759_642_000.5,
-        timezone: 'Asia/Shanghai',
+        offset: '+08:00',
       }),
     ).toThrowError(RangeError);
   });

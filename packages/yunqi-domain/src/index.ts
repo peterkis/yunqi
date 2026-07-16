@@ -13,17 +13,30 @@ export type {
   StepName,
   SuiYun,
   Tone,
+  YunQiCalendarResult,
   YunQiResult,
   YunQiYearResult,
   YunState,
 } from './types.js';
 
 export type { CalendarProvider, SolarTerm } from './calendar/provider.js';
-export type { YunQiInstant } from './calendar/time.js';
+export type {
+  BeijingLocalDateTime,
+  BeijingStandardOffset,
+  CalendarTimeStandard,
+  YunQiCalendarTime,
+  YunQiInstant,
+} from './calendar/time.js';
 
 export {
+  BEIJING_CALENDAR_TIME_STANDARD,
+  BEIJING_STANDARD_OFFSET,
+  assertYunQiCalendarTime,
   assertYunQiInstant,
+  createYunQiCalendarTime,
+  createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
+  formatYunQiCalendarTime,
   formatYunQiInstant,
   getBeijingCivilYear,
 } from './calendar/time.js';
@@ -34,7 +47,10 @@ export { buildSixQiSteps } from './liuqi/six-qi.js';
 export { getSitianZaiquan } from './liuqi/sitian-zaiquan.js';
 export { calculateHostGuestRelation } from './relation/host-guest-relation.js';
 export { calculateYearYunQi } from './services/calculate-year-yunqi.js';
-export { calculateYunQi } from './services/calculate-yunqi.js';
+export {
+  calculateYunQi,
+  calculateYunQiByCalendarTime,
+} from './services/calculate-yunqi.js';
 export { getCurrentStep } from './services/get-current-step.js';
 export { calculateSuiYun } from './wuyun/sui-yun.js';
 
