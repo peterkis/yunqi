@@ -67,6 +67,13 @@ interface YunQiCalendarTime {
 }
 ```
 
+The public `YunQiInstant` name is retained for compatibility, but its normative
+definition is:
+
+```text
+BeijingStandardTime+08:00 Absolute Representation
+```
+
 `YunQiInstant` is not a civil timezone instant and is not a civil time-zone
 model. Its `epochMilliseconds` is the fixed Beijing model's absolute
 representation for:
@@ -249,6 +256,54 @@ IANA identifiers, or a time-zone database.
 The same business input must produce identical CalendarTime and YunQi results
 when the process is launched with different default time zones, including
 `TZ=UTC` and `TZ=Asia/Shanghai`.
+
+## Persistence contract
+
+The persistence contract is frozen before Phase 3/4 storage work. Stored YunQi
+calendar meaning must be reconstructable without database, connection,
+session, server, IANA, or DST configuration.
+
+The minimum persisted tuple is:
+
+```text
+calendar_time_local varchar
+epoch_ms bigint
+offset char(6)
+calendar_time_standard varchar
+```
+
+The fields have distinct authority:
+
+- `calendar_time_local` stores the canonical fixed-Beijing value such as
+  `2026-06-19T12:00:00+08:00`;
+- `epoch_ms` stores the absolute transport/audit representation and is not the
+  authoritative calendar display meaning;
+- `offset` is constrained to `+08:00`; and
+- `calendar_time_standard` is constrained to
+  `BeijingStandardTime+08:00`.
+
+A `timestamp with time zone` or `timestamptz` column may exist only as a
+derived query/indexing aid. It must not be the sole or authoritative field and
+must not be required to reconstruct YunQi business calendar meaning.
+
+## React and browser display contract
+
+React/Next workbench code must render the canonical API `localTime`, or call a
+dedicated formatter that operates only on canonical fixed-Beijing
+fields/strings.
+
+The following is forbidden:
+
+```ts
+new Date(result.epochMilliseconds)
+```
+
+Components, hooks, selectors, mappers, serializers, and formatters must not
+reinterpret YunQi business time through Date, Temporal, `Intl.DateTimeFormat`,
+IANA identifiers, browser-local time, `toISOString()`, or locale formatting.
+Frontend `epochMilliseconds` usage is limited to ordering, cache keys, audit,
+and compatibility. The UI label is `北京时间 UTC+08`, never `Asia/Shanghai` as
+the business-time standard.
 
 ## Consequences
 

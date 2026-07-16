@@ -76,6 +76,9 @@ This phase does not:
 - restore historical civil-government DST adjustments; or
 - make Domain depend on an external calendar or time library.
 
+It does freeze the downstream persistence and React display contracts even
+though database and UI implementation remain outside Phase 2-A.1.
+
 ## Normative time semantics
 
 The project-wide business-time standard is:
@@ -163,9 +166,11 @@ export interface YunQiCalendarTime {
 }
 ```
 
-`YunQiInstant` is not a civil timezone instant. It is not a civil time-zone
-model and is not the authoritative calendar meaning. It is the fixed Beijing
-Standard Time model's absolute transport and audit representation.
+The public `YunQiInstant` name is retained, but its normative definition is
+`BeijingStandardTime+08:00 Absolute Representation`. It is not a civil
+timezone instant, is not a civil time-zone model, and is not the authoritative
+calendar meaning. It is the fixed Beijing Standard Time model's absolute
+transport and audit representation.
 `epochMilliseconds` exists only for:
 
 - ordering;
@@ -662,19 +667,33 @@ That ADR records:
 - database guidance; and
 - frontend display guidance.
 
-Database guidance is documentation only:
+The persistence contract is normative and frozen:
 
-- store the absolute input instant as epoch milliseconds or an equivalent
-  integer representation;
-- store canonical display time when required for audit;
-- do not make a database `timestamp with time zone` value the sole calendar
-  semantic.
+```text
+calendar_time_local varchar
+epoch_ms bigint
+offset char(6)
+calendar_time_standard varchar
+```
 
-Frontend guidance is documentation only:
+- `calendar_time_local` stores canonical fixed-Beijing display/audit meaning;
+- `epoch_ms` is the absolute transport/audit representation;
+- `offset` is constrained to `+08:00`;
+- `calendar_time_standard` is constrained to
+  `BeijingStandardTime+08:00`; and
+- `timestamp with time zone` or `timestamptz` may be only a derived query aid,
+  never the sole or authoritative calendar field.
+
+The React/Next display contract is normative and frozen:
 
 - display `北京时间 UTC+08`;
-- render canonical `localTime`; and
-- do not display `Asia/Shanghai` as the business-time rule.
+- render canonical `localTime` or use a formatter that operates only on
+  canonical fixed-Beijing fields/strings;
+- forbid `new Date(result.epochMilliseconds)`;
+- forbid Date, Temporal, Intl, IANA, browser-local, ISO, or locale
+  reinterpretation of YunQi business time; and
+- reserve frontend `epochMilliseconds` for ordering, cache keys, audit, and
+  compatibility.
 
 `AGENTS.md` contains the mandatory project constraint:
 
@@ -731,6 +750,15 @@ Temporal, Intl time-zone conversion, or IANA identifiers.
 The runtime clock composition may reference `Date.now` only as an epoch source.
 That allowed clock reference is narrowly excluded from the conversion ban and
 must feed immediately into `YunQiInstant` and `YunQiCalendarTime`.
+
+### Downstream governance gate
+
+A root Node.js gate verifies the normative ADR/AGENTS/Domain naming text and
+discovers future React/Next workspaces from package dependencies. Across each
+frontend workspace's source it rejects Date, Temporal, Intl, IANA,
+browser-local, ISO, or locale reinterpretation, including conversion hidden
+behind a helper that does not mention the DTO field name. Canonical
+`localTime` rendering and pure fixed-Beijing string formatting remain allowed.
 
 ### Calculation-entry tests
 
@@ -829,6 +857,7 @@ npm run build
 npm run test:coverage
 npm run openapi:validate
 npm run schema:validate
+npm run test:time-governance
 ```
 
 It also requires:
@@ -934,6 +963,10 @@ Phase 2-A.1 is complete only when:
 - API paths and request shape remain unchanged;
 - controllers, routes, mappers, serializers, and DTO/schema code perform no
   independent Date/Temporal/IANA conversion;
+- persistence uses the frozen four-field minimum tuple and no database
+  time-zone field is authoritative;
+- React/Next renders canonical `localTime` without runtime time-zone
+  reinterpretation;
 - the runtime clock is isolated to producing epoch milliseconds before
   immediate CalendarTime normalization;
 - every public time DTO uses the new fixed Beijing shape;

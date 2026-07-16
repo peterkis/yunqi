@@ -66,7 +66,9 @@ interface YunQiCalendarTime {
 }
 ```
 
-`YunQiInstant` 不是 civil timezone instant。`epochMilliseconds` 只承担固定
+`YunQiInstant` 保留公共命名，但其规范定义是
+`BeijingStandardTime+08:00 Absolute Representation`。它不是 civil
+timezone instant。`epochMilliseconds` 只承担固定
 北京时间模型下的排序、传输、持久化、审计、兼容和一致性校验；它不是权威
 历法比较来源，不得经 UTC、IANA 时区、服务器本地时区或 DST 重新解释后
 决定运气年和六步归属。

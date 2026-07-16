@@ -5,7 +5,10 @@
 ## 架构边界
 
 - `YunQiCalendarTime` 是有日期五运六气计算的权威输入。
-- `YunQiInstant` 仅承担传输、排序、持久化、审计和兼容职责，结构为 `{ epochMilliseconds, offset: '+08:00' }`。
+- `YunQiInstant` 保留公共命名，但其规范定义是
+  `BeijingStandardTime+08:00 Absolute Representation`。它仅承担传输、
+  排序、持久化、审计和兼容职责，结构为
+  `{ epochMilliseconds, offset: '+08:00' }`，不是普通 civil-time instant。
 - `calculateYunQiByCalendarTime()` 是唯一的有日期计算实现。
 - `calculateYunQi(YunQiInstant)` 是兼容包装器：先投影为 `YunQiCalendarTime`，再调用权威入口，最后保留原始 instant 对象作为兼容结果的 `input`。
 - `calculateYearYunQi`、两个有日期入口和 `getCurrentStep` 都要求显式注入 `CalendarProvider`，没有默认 Provider。

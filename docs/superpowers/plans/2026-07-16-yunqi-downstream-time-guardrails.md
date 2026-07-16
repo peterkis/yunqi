@@ -4,7 +4,7 @@
 
 **Goal:** Freeze the persistence and React display contracts for fixed Beijing Standard Time while preserving the public `YunQiInstant` name.
 
-**Architecture:** ADR-001 and `AGENTS.md` remain the normative project-wide sources. A root governance checker validates the required wording and automatically scans future React/Next workspace source for attempts to reinterpret YunQi business time through runtime date/time APIs.
+**Architecture:** ADR-001 and `AGENTS.md` remain the normative project-wide sources. A root governance checker validates the required wording and automatically scans future React/Next workspace source, where runtime date/time interpretation APIs are prohibited so cross-file helpers cannot bypass the fixed-Beijing contract.
 
 **Tech Stack:** TypeScript documentation, Node.js ESM, Node built-in test runner, pnpm workspace scripts.
 
@@ -66,10 +66,11 @@ display constraints.
 
 Discover package manifests under `apps/` and `packages/`. Treat a package as a
 frontend workspace when React or Next appears in dependencies,
-devDependencies, or peerDependencies. Scan `src` JavaScript/TypeScript source.
-When a file consumes YunQi time contract fields, reject Date, Temporal, Intl,
-locale/ISO conversion, IANA identifiers, or browser local-time
-reinterpretation.
+devDependencies, or peerDependencies. Scan all `src` JavaScript/TypeScript
+source and reject Date, Temporal, Intl, locale/ISO conversion, IANA
+identifiers, or browser local-time reinterpretation. This package-wide rule
+also catches a component that delegates `epochMilliseconds` to an indirectly
+named helper.
 
 - [ ] **Step 3: Wire the checker into root verification**
 

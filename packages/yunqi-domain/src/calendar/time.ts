@@ -6,10 +6,12 @@ export type BeijingStandardOffset = typeof BEIJING_STANDARD_OFFSET;
 export type CalendarTimeStandard = typeof BEIJING_CALENDAR_TIME_STANDARD;
 
 /**
- * Fixed Beijing Standard Time transport/audit representation.
+ * BeijingStandardTime+08:00 Absolute Representation.
  *
- * epochMilliseconds supports ordering, transport, persistence, audit, and
- * compatibility. It is not the authoritative calendar comparison source.
+ * This keeps the public YunQiInstant name while explicitly limiting the model
+ * to fixed Beijing Standard Time transport, ordering, persistence, audit, and
+ * compatibility. epochMilliseconds is not the authoritative calendar
+ * comparison source and must not be reinterpreted as civil timezone data.
  */
 export interface YunQiInstant {
   readonly epochMilliseconds: number;

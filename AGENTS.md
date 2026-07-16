@@ -133,7 +133,11 @@
 -   服务器默认时区参与边界判断；
 -   将 `epochMilliseconds` 作为五运六气历法语义的唯一来源。
 
-`YunQiInstant` 不是 civil timezone instant。其
+`YunQiInstant` 保留现有公共命名，但其规范定义必须写作：
+
+    BeijingStandardTime+08:00 Absolute Representation
+
+它不是 civil timezone instant。其
 `epochMilliseconds` 只用于固定北京时间模型下的排序、传输、持久化、审计、
 兼容与一致性校验；不得经 UTC、IANA 时区、服务器本地时区或 DST
 重新解释后作为运气年或六步边界依据。
@@ -216,6 +220,55 @@ YunQiCalendarTime
 长期架构依据：
 
     docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md
+
+------------------------------------------------------------------------
+
+## 4.4 持久化时间合同
+
+Phase3/Phase4 或任何后续持久化必须保证：不依赖数据库连接、会话或服务器
+时区配置，也能完整重建五运六气业务时间语义。
+
+最小持久化字段冻结为：
+
+```text
+calendar_time_local varchar
+epoch_ms bigint
+offset char(6)
+calendar_time_standard varchar
+```
+
+字段约束：
+
+- `calendar_time_local` 保存规范固定北京时间字符串，例如
+  `2026-06-19T12:00:00+08:00`；
+- `epoch_ms` 只承担排序、传输、审计、兼容和持久化绝对表示；
+- `offset` 必须为 `+08:00`；
+- `calendar_time_standard` 必须为
+  `BeijingStandardTime+08:00`。
+
+`timestamp with time zone` 或 `timestamptz` 只能作为派生查询辅助字段，不能
+成为唯一字段、权威字段或重建五运六气业务时间的必要前提。
+
+------------------------------------------------------------------------
+
+## 4.5 React 工作台时间合同
+
+React/Next 展示五运六气业务时间时，必须直接使用 API 返回的规范
+`localTime`，或者使用仅处理规范固定北京时间字段/字符串的专用 formatter。
+
+明确禁止：
+
+```ts
+new Date(result.epochMilliseconds)
+```
+
+React component、hook、selector、mapper、serializer 和 formatter 均不得
+通过 `Date`、Temporal、`Intl.DateTimeFormat`、IANA 时区、浏览器本地时区、
+`toISOString()` 或 locale formatter 重新解释五运六气业务时间。
+
+`epochMilliseconds` 在前端只允许用于排序、缓存键、审计和兼容，不得作为
+展示日历含义的来源。UI 文案显示“北京时间 UTC+08”，不得显示
+`Asia/Shanghai` 作为业务时间标准。
 
 ------------------------------------------------------------------------
 
