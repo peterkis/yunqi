@@ -5,10 +5,10 @@
 - 验证日期：2026-07-16（Asia/Shanghai）。
 - 分支：`main`。
 - Phase 2-A 起点：`54872c1`。
-- 本轮权威审计基线：`bf76655b77d3df3da48520ec451ce3a081465b5f`。
-- 已审计实现范围：`54872c1..bf76655b77d3df3da48520ec451ce3a081465b5f`，共 46 个路径：1 个实施计划、3 个根工作区文件和 42 个 `packages/yunqi-service` 文件。
-- Task 8 最小修复范围：根 `package.json` 的 `schema:validate` 命令，以及本验证文档。
-- 本文记录当前 Phase 2-A 服务契约的 Task 8 验证证据；不替代后续独立最终审查，也不声明更广泛产品路线已经完成。
+- 最终审查前已提交基线：`e80ac2abc9877e45b93cfe8e2f70dc03f4562e7f`。
+- 已审计范围：`54872c1` 之后的 Phase 2-A 设计、计划、实现、Task 8 验证，以及最终独立审查修复；Domain 路径不在变更范围内。
+- 最终修复范围：根验收脚本自包含构建、Service 请求错误分类、输入年份前置边界、服务自有参数错误类型及对应测试。
+- 本文记录当前 Phase 2-A 服务契约的最终验证证据；不声明更广泛产品路线已经完成。
 
 ## 交付物清单
 
@@ -52,14 +52,14 @@ pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts
 
 | 精确命令 | Exit | Wall time | 结果 |
 |---|---:|---:|---|
-| `npm test` | 0 | 35.6 s | Domain 9 files / 103 tests；adapter 3 / 36；service 10 / 47；OpenAPI lint/check 完成 |
-| `npm run typecheck` | 0 | 19.3 s | 三个 package 均先 build；Domain、adapter、service 的 source/test TypeScript checks 均通过 |
-| `npm run build` | 0 | 7.2 s | Domain、tyme4ts adapter、service 均由 `tsc` 构建成功 |
-| `npm run test:coverage` | 0 | 28.4 s | Domain 9 / 103；service 10 / 47；均达到配置阈值 |
-| `npm run openapi:validate` | 0 | 9.5 s | Redocly 验证有效；3 个已知 warning；YAML/client drift check 通过 |
-| `npm run schema:validate` | 0 | 6.3 s | 精确运行 `tests/openapi-contract.test.ts`：1 file / 3 tests |
+| `npm test` | 0 | 15.8 s | Domain 9 files / 103 tests；adapter 3 / 36；service 10 / 66；OpenAPI lint/check 完成 |
+| `npm run typecheck` | 0 | 9.2 s | 三个 package 均先 build；Domain、adapter、service 的 source/test TypeScript checks 均通过 |
+| `npm run build` | 0 | 4.3 s | Domain、tyme4ts adapter、service 均由 `tsc` 构建成功 |
+| `npm run test:coverage` | 0 | 18.0 s | Domain 9 / 103；service 10 / 66；均达到配置阈值 |
+| `npm run openapi:validate` | 0 | 14.0 s | 先 clean-capable build；Redocly 验证有效；3 个已知 warning；YAML/client drift check 通过 |
+| `npm run schema:validate` | 0 | 8.4 s | 先 clean-capable build；精确运行 `tests/openapi-contract.test.ts`：1 file / 3 tests |
 
-`npm test` 合计执行 22 个 test files、186 项测试，均通过。
+`npm test` 合计执行 22 个 test files、205 项测试，均通过。
 
 ## 覆盖率
 
@@ -68,36 +68,36 @@ pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts
 | Package | Statements | Branches | Functions | Lines |
 |---|---:|---:|---:|---:|
 | `@yunqi/domain` | 96.27% (155/161) | 92.18% (59/64) | 100% (35/35) | 96.25% (154/160) |
-| `@yunqi/service` | 96.02% (145/151) | 85.41% (41/48) | 93.18% (41/44) | 97.29% (144/148) |
+| `@yunqi/service` | 96.51% (166/172) | 88.52% (54/61) | 94% (47/50) | 97.63% (165/169) |
 
 Service 配置阈值为 lines/statements/functions 90%，branches 85%；上述 totals 均达到阈值。生产进程入口 `src/server.ts` 和机器生成的 `generated-client.ts` 按配置不计入 service coverage。
 
 ## 真实生产入口 smoke
 
-修复后已存在 fresh build。随后通过 `TcpListener(..., 0)` 取得显式空闲 loopback 端口 `61623`，并使用以下等价启动方式运行真实构建产物：
+最终修复及六个根门禁完成后，通过 `TcpListener(..., 0)` 取得显式空闲 loopback 端口 `64157`，并使用以下等价启动方式运行真实构建产物：
 
 ```powershell
 $env:HOST = '127.0.0.1'
-$env:PORT = '61623'
+$env:PORT = '64157'
 Start-Process node -ArgumentList 'dist/server.js' `
   -WorkingDirectory 'packages/yunqi-service' `
   -WindowStyle Hidden -PassThru
 ```
 
-实际 PID 为 `19860`。`src/server.ts` 的生产组合是 `tyme4tsCalendarProvider` 与 `Date.now`；smoke 未注入测试 provider 或固定 clock。
+实际 PID 为 `54692`。`src/server.ts` 的生产组合是 `tyme4tsCalendarProvider` 与 `Date.now`；smoke 未注入测试 provider 或固定 clock。
 
 | 请求 | HTTP | 核验内容 |
 |---|---:|---|
-| `GET /health` | 200 | `SUCCESS`；空 message；`status=ok`；`apiVersion=v1` |
-| `GET /api/v1/yunqi/year/2024` | 200 | `SUCCESS`；`year=2024`；`ruleVersion=V1.0-2026.7.7-implementation.1`；6 steps |
-| `GET /api/v1/yunqi/current` | 200 | `SUCCESS`；`timezone=Asia/Shanghai`；运行时结果 year 2026 |
-| `POST /api/v1/yunqi/calculate` with `{"dateTime":"2024-05-20T21:00:00"}` | 200 | `SUCCESS`；input epoch `1716210000000`；`Asia/Shanghai`；`currentStep=三之气` |
-| `GET /docs/` | 200 | `text/html; charset=utf-8`；Swagger UI HTML |
-| `GET /docs/yaml` | 200 | `application/x-yaml`；17,037 bytes；`openapi: 3.1.0` |
+| `GET /health` | 200 | 真实生产入口可用 |
+| `GET /api/v1/yunqi/year/2024` | 200 | 年度契约可用 |
+| `GET /api/v1/yunqi/current` | 200 | 实时时间契约可用 |
+| `POST /api/v1/yunqi/calculate` with `{"dateTime":"2024-05-20T21:00:00"}` | 200 | hospital-local 输入成功，response `code=SUCCESS`、`data.year=2024` |
+| `GET /docs/` | 200 | Swagger UI 可用 |
+| `GET /docs/json` | 200 | 运行时 JSON OpenAPI 可用 |
+| `GET /docs/yaml` | 200 | 运行时 YAML OpenAPI 可用 |
+| malformed JSON `POST /api/v1/yunqi/calculate` | 400 | 统一 `INVALID_ARGUMENT`，message 为 `请求参数无效` |
 
-每个 JSON success route 均核验顶层字段精确为 `code`、`message`、`data`。完成请求后停止 PID `19860`，确认进程已退出；stderr 为空，stdout 包含 listen 记录。
-
-第一次 smoke harness 将 `application/x-yaml` 的 PowerShell `System.Byte[]` 内容直接按字符串匹配，因此产生一次 harness false negative；诊断读取确认 endpoint 为 HTTP 200 且首行为 `openapi: 3.1.0`。改为显式 UTF-8 解码后完整六路重跑通过；两轮启动的进程均已停止。
+完成请求后停止 PID `54692`，并确认 `HasExited=True`。
 
 ## OpenAPI、schema 与浏览器 client
 
@@ -145,13 +145,13 @@ rg -n "诊断|疾病判断|治疗建议|个体预测|处方|方剂|中药|剂量
 
 无匹配。扩展扫描 `因为.*所以|导致|造成|引发|必然|吉凶|疾病|诊断|治疗|处方|方剂|中药|剂量|用药|预后|individual prediction|diagnos|disease judgment|treatment advice|prescri|dosage|prognos`，同样无匹配。
 
-此外，`safety.test.ts` 对 year/current/calculate 的真实成功响应同时扫描中英文禁止词和禁止属性名。API 输出限定为时间事实、版本化规则映射、结构化客主关系和既有理论解释；本服务未新增诊断、疾病判断、治疗、处方、剂量、预后、个体预测或医学因果内容。
+此外，`safety.test.ts` 对 year/current/calculate 的真实成功响应同时扫描中英文禁止词和禁止属性名，并以 10 个 sentinel 锁定独立的“疾病/预测”、`disease/predict` 及“导致/造成/引发/必然/因为…所以/because…therefore”等因果措辞。API 输出限定为时间事实、版本化规则映射、结构化客主关系和既有理论解释；本服务未新增诊断、疾病判断、治疗、处方、剂量、预后、个体预测或医学因果内容。
 
 ## 输出卫生与受保护文件
 
 - `git ls-files` 对 `dist/`、`coverage/`、`node_modules/`、临时目录模式无匹配。
 - `.gitignore` 明确忽略 `dist/` 与 `coverage/`；当前构建/覆盖率输出未被跟踪。
-- Task 8 只修改根 `package.json` 并新增本验证文档；没有改动 Domain、生成工件或其他 Phase 2-A 源码。
+- 最终修复只修改根 `package.json`、Service 错误/时间边界实现及对应测试，并更新本验证文档；没有改动 Domain 或生成工件。
 - 以下三个原有未跟踪用户文件保持未跟踪，未加入 Task 8 commit：
 
 | 路径 | SHA-256 | 审计时 LastWriteTime |
@@ -166,10 +166,16 @@ rg -n "诊断|疾病判断|治疗建议|个体预测|处方|方剂|中药|剂量
 2. 无 offset 的 hospital-local input 以 `Asia/Shanghai` 解释；zone database 中不存在或有歧义的 wall time 返回 `INVALID_ARGUMENT`，调用方必须提供明确 RFC 3339 offset。
 3. Redocly validation 有 3 个非阻断 warning：local server URL、health operation 无 4XX、`YearParams` component 因 Fastify 将 path parameter 展开而显示 unused。Redocly 仍报告 API description valid，exit 0；本轮未为消除 warning 而改变真实 local docs、health contract 或 schema source。
 4. 仓库 service source/test 使用 TypeScript `7.0.2`。`openapi-typescript@7.13.0` 的生成进程通过 `openapi-typescript-ts` alias 隔离使用 TypeScript `5.9.3`；Node resolve hook 只重定向 generator 内部的 `typescript` import，不改变 Domain/service 的 TS7 build/typecheck。YAML 与生成 client 的字节级 drift gate 已通过。
-5. Phase 2-A 只建立服务与浏览器消费契约；不包含 React 页面、持久化、认证、问诊工作流、自动诊断、自动辨证、处方或治疗决策。
+5. 当前 contract suite 直接以 AJV 验证 annual 的真实运行时响应；其余成功/错误响应由共享 TypeBox schema、route schema、envelope assertions 和 OpenAPI drift gate 覆盖，尚未逐个对检入 OpenAPI schema 做直接 AJV runtime validation。这是非阻断的测试深度限制。
+6. Phase 2-A 只建立服务与浏览器消费契约；不包含 React 页面、持久化、认证、问诊工作流、自动诊断、自动辨证、处方或治疗决策。
 
 ## 最终 diff review
 
-按 `54872c1..bf76655b77d3df3da48520ec451ce3a081465b5f` 对照批准设计、实施计划与 Task 8 brief，复核了实际 source、schemas、routes、mappers、contracts、generation scripts、tests、README、OpenAPI 和根 scripts。由于本任务明确禁止创建 subagent，`requesting-code-review` 的 plan-alignment、architecture、error handling、type safety、testing、production readiness 清单由本审计直接执行。
+两轮独立最终审查对照批准规格、实施计划和实际 diff，发现 4 个重要问题，均已纳入同一修复波次：
 
-该复核未发现额外 P0–P2 correctness、contract、medical-safety 或 coverage gap。唯一复现的验收缺口是根 `schema:validate` 的参数转发，已以一行脚本修改修复，并在修复后重新执行全部六个根验收门。
+1. malformed/empty JSON 以及不支持 media type 的 Fastify 4xx 会落入 500；现在按 Fastify request error 统一映射为不泄漏 parser 文本的 400。
+2. 任意内部 `RangeError` 曾被当成客户端 400 并泄漏 message；现在只有服务自有 `InvalidArgumentError` 可映射 400，内部错误保持脱敏 500，provider 错误保持脱敏 503。
+3. 远离支持范围的 `/calculate` 输入可能先访问 provider 并返回 503；现在先按 `Asia/Shanghai` civil year 做可解析范围检查，再调用 Domain，同时保留 Domain 结果 year 的后置断言。`2100-01-01T00:00:00+08:00` 映射到受支持的运气年 2099，仍返回 200。
+4. 根 `openapi:validate` 与 `schema:validate` 依赖已有 `dist`；现在两条命令均先执行根 build。删除三个 package 的精确 `dist` 目录后分别独立运行，两条命令均从缺失 `dist` 状态 exit 0。
+
+该修复按测试先行执行：聚焦 RED 为 4 files / 34 tests，其中 17 failed、17 passed；实现后 GREEN 为 4 files / 35 tests 全通过。随后重新运行 service 全套 10 files / 66 tests、source/test typecheck、六个根验收门、真实生产入口 smoke 和 Domain 零差异检查，均通过。最终独立复审将在修复提交后对增量 diff 再确认。

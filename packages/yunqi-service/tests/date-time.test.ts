@@ -34,4 +34,15 @@ describe('parseApiDateTime', () => {
   ])('rejects a nonexistent or ambiguous Shanghai wall time %s', (value) => {
     expect(() => parseApiDateTime(value)).toThrow(RangeError);
   });
+
+  it('brands parser failures as service-owned invalid arguments', () => {
+    let thrown: unknown;
+    try {
+      parseApiDateTime('not-a-date');
+    } catch (error) {
+      thrown = error;
+    }
+
+    expect(thrown).toMatchObject({ name: 'InvalidArgumentError' });
+  });
 });

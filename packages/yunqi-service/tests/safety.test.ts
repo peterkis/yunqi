@@ -3,7 +3,7 @@ import { buildApp } from '../src/app.js';
 import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
 const PROHIBITED =
-  /诊断|疾病判断|治疗建议|个体预测|处方|方剂|中药|剂量|用药|预后|diagnos|prescri|dosage|treat|prognos/i;
+  /诊断|疾病|治疗建议|预测|处方|方剂|中药|剂量|用药|预后|导致|造成|引发|必然|因为.*所以|diagnos|disease|prescri|dosage|treat|prognos|predict|because.*therefore/i;
 const PROHIBITED_PROPERTY =
   /^(diagnosis|disease|treatment|prescription|dosage|prognosis|prediction)$/i;
 
@@ -21,6 +21,21 @@ function collectPropertyNames(value: unknown): string[] {
     ...collectPropertyNames(child),
   ]);
 }
+
+it.each([
+  '疾病',
+  '预测',
+  'disease',
+  'predict',
+  '导致',
+  '造成',
+  '引发',
+  '必然',
+  '因为存在某种理论对应，所以得出个体结论',
+  'because a pattern appears, therefore an outcome follows',
+])('detects prohibited response sentinel %s', (sentinel) => {
+  expect(sentinel).toMatch(PROHIBITED);
+});
 
 it('keeps all successful YunQi responses inside the medical-safety boundary', async () => {
   const app = await buildApp({
