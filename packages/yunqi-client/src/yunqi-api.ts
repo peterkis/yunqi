@@ -5,12 +5,12 @@ import type {
   YearSuccessResponse,
   YunQiCalculationDto,
   YunQiYearDto,
-} from './yunqi-types.js';
+} from '@yunqi/contracts';
 
 export interface TransportRequest {
-  method: 'GET' | 'POST';
-  path: string;
-  body?: unknown;
+  readonly method: 'GET' | 'POST';
+  readonly path: string;
+  readonly body?: unknown;
 }
 
 export interface YunQiTransport {
@@ -19,10 +19,10 @@ export interface YunQiTransport {
 
 export interface AxiosLike {
   request<T>(config: {
-    method: 'GET' | 'POST';
-    url: string;
-    data?: unknown;
-  }): Promise<{ data: T }>;
+    readonly method: 'GET' | 'POST';
+    readonly url: string;
+    readonly data?: unknown;
+  }): Promise<{ readonly data: T }>;
 }
 
 export class YunQiApiError extends Error {
@@ -42,8 +42,8 @@ export interface YunQiClient {
 }
 
 export interface FetchTransportOptions {
-  baseUrl: string;
-  fetchImpl?: typeof fetch;
+  readonly baseUrl: string;
+  readonly fetchImpl?: typeof fetch;
 }
 
 export function createFetchTransport(
@@ -70,12 +70,14 @@ export function createFetchTransport(
           : { body: JSON.stringify(request.body) }),
       });
       const payload: unknown = await response.json();
+
       if (!response.ok) {
         throw new YunQiApiError(
           response.status,
           payload as ApiErrorResponse,
         );
       }
+
       return payload as T;
     },
   };
@@ -94,7 +96,9 @@ export function createAxiosTransport(axios: AxiosLike): YunQiTransport {
   };
 }
 
-export function createYunQiClient(transport: YunQiTransport): YunQiClient {
+export function createYunQiClient(
+  transport: YunQiTransport,
+): YunQiClient {
   return {
     async getYear(year) {
       const response = await transport.request<YearSuccessResponse>({
@@ -140,4 +144,4 @@ export const yunqiQueryOptions = {
       queryFn: () => client.getCurrent(),
     };
   },
-};
+} as const;

@@ -1,6 +1,6 @@
 {
   "name": "@yunqi/service",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",
@@ -9,10 +9,6 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
-    },
-    "./contracts": {
-      "types": "./dist/contracts/index.d.ts",
-      "import": "./dist/contracts/index.js"
     }
   },
   "files": ["dist", "openapi"],
@@ -26,7 +22,7 @@
     "test:time-purity": "node scripts/check-time-purity.mjs",
     "test:timezone": "node scripts/check-time-zone-independence.mjs",
     "smoke:production-entry": "node scripts/smoke-production-entry.mjs",
-    "openapi:generate": "node scripts/generate-openapi.mjs && node scripts/run-openapi-typescript.mjs openapi/yunqi-service.openapi.yaml --output src/contracts/generated-client.ts --immutable --alphabetize",
+    "openapi:generate": "node scripts/generate-openapi.mjs",
     "openapi:lint": "redocly lint openapi/yunqi-service.openapi.yaml --config redocly.yaml",
     "openapi:check": "node scripts/check-generated.mjs"
   },

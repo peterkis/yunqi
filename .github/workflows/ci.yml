@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: quality-gates-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality-gates:
+    name: quality-gates
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install pnpm from packageManager
+        uses: pnpm/action-setup@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify fixed-time governance
+        run: pnpm test:time-governance
+
+      - name: Verify API contract freeze
+        run: pnpm contracts:check
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Run type checks
+        run: pnpm typecheck
+
+      - name: Enforce coverage
+        run: pnpm test:coverage
+
+      - name: Validate schemas
+        run: pnpm schema:validate

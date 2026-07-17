@@ -45,7 +45,7 @@ const FRONTEND_FRAMEWORK_DEPENDENCIES = new Set([
 const YUNQI_TIME_SIGNALS = [
   'epochMilliseconds',
   'calendarTimeStandard',
-  'YunQiCalendarTimeDto',
+  'YunQiTimeDto',
   'BeijingStandardTime+08:00',
 ];
 const FRONTEND_TIME_VIOLATIONS = [

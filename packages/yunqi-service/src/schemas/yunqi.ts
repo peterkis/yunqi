@@ -66,7 +66,7 @@ const StepNameSchema = Type.Union([
   Type.Literal('终之气'),
 ]);
 
-export const YunQiCalendarTimeDtoSchema = Type.Object(
+export const YunQiTimeDtoSchema = Type.Object(
   {
     localTime: Type.String({
       pattern:
@@ -79,7 +79,7 @@ export const YunQiCalendarTimeDtoSchema = Type.Object(
     offset: Type.Literal('+08:00'),
     calendarTimeStandard: Type.Literal('BeijingStandardTime+08:00'),
   },
-  { $id: 'YunQiCalendarTimeDto', additionalProperties: false },
+  { $id: 'YunQiTimeDto', additionalProperties: false },
 );
 
 export const HostGuestRelationDtoSchema = Type.Object(
@@ -108,8 +108,8 @@ export const SixQiStepDtoSchema = Type.Object(
   {
     index: Type.Integer({ minimum: 1, maximum: 6 }),
     name: StepNameSchema,
-    start: Type.Ref('YunQiCalendarTimeDto'),
-    end: Type.Ref('YunQiCalendarTimeDto'),
+    start: Type.Ref('YunQiTimeDto'),
+    end: Type.Ref('YunQiTimeDto'),
     hostQi: QiSchema,
     guestQi: QiSchema,
     relation: Type.Ref('HostGuestRelationDto'),
@@ -137,8 +137,8 @@ export const SuiYunDtoSchema = Type.Object(
 
 export const IntervalDtoSchema = Type.Object(
   {
-    start: Type.Ref('YunQiCalendarTimeDto'),
-    end: Type.Ref('YunQiCalendarTimeDto'),
+    start: Type.Ref('YunQiTimeDto'),
+    end: Type.Ref('YunQiTimeDto'),
   },
   { $id: 'YunQiIntervalDto', additionalProperties: false },
 );
@@ -171,7 +171,7 @@ export const YunQiYearDtoSchema = Type.Object(
 export const YunQiCalculationDtoSchema = Type.Object(
   {
     ...YunQiYearDtoSchema.properties,
-    input: Type.Ref('YunQiCalendarTimeDto'),
+    input: Type.Ref('YunQiTimeDto'),
     currentStep: Type.Ref('SixQiStepDto'),
   },
   { $id: 'YunQiCalculationDto', additionalProperties: false },
@@ -224,7 +224,7 @@ export const CalculationSuccessSchema = Type.Object(
 );
 
 type YunQiSchemaContext = {
-  YunQiCalendarTimeDto: typeof YunQiCalendarTimeDtoSchema;
+  YunQiTimeDto: typeof YunQiTimeDtoSchema;
   HostGuestRelationDto: typeof HostGuestRelationDtoSchema;
   SixQiStepDto: typeof SixQiStepDtoSchema;
   StemBranchDto: typeof StemBranchDtoSchema;
@@ -235,8 +235,8 @@ type YunQiSchemaContext = {
   YunQiCalculationDto: typeof YunQiCalculationDtoSchema;
 };
 
-export type YunQiCalendarTimeDto = Static<
-  typeof YunQiCalendarTimeDtoSchema,
+export type YunQiTimeDto = Static<
+  typeof YunQiTimeDtoSchema,
   YunQiSchemaContext
 >;
 export type HostGuestRelationDto = Static<

@@ -23,7 +23,10 @@ describe('OpenAPI contract', () => {
     const document = app.swagger() as Record<string, any>;
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.1.0');
+    expect(document.info.version).toBe('1.2.0');
+    expect(document['x-yunqi-contract-id']).toBe(
+      'YQ-API-CONTRACT-1.0.0',
+    );
     expect(Object.keys(document.paths ?? {})).toEqual(
       expect.arrayContaining([
         '/health',
@@ -58,8 +61,21 @@ describe('OpenAPI contract', () => {
 
     const schemas = document.components.schemas;
     expect(schemas).toHaveProperty('ErrorResponse');
-    expect(schemas).toHaveProperty('YunQiCalendarTimeDto');
+    expect(schemas).toHaveProperty('YunQiTimeDto');
+    expect(schemas).not.toHaveProperty('YunQiCalendarTimeDto');
     expect(schemas).not.toHaveProperty('YunQiInstantDto');
+    expect(schemas.YunQiCalculationDto.properties.input).toEqual({
+      $ref: '#/components/schemas/YunQiTimeDto',
+    });
+    expect(schemas.YunQiCalculationDto.properties).not.toHaveProperty(
+      'calendarTime',
+    );
+    expect(schemas.SixQiStepDto.properties.start).toEqual({
+      $ref: '#/components/schemas/YunQiTimeDto',
+    });
+    expect(schemas.SixQiStepDto.properties.end).toEqual({
+      $ref: '#/components/schemas/YunQiTimeDto',
+    });
     expect(JSON.stringify(document)).not.toContain('Asia/Shanghai');
     expect(JSON.stringify(document)).not.toContain('"timezone"');
     expect(schemas.CalculateRequest.properties.dateTime.pattern).toBe(
@@ -161,6 +177,14 @@ describe('OpenAPI contract', () => {
     const document = parse(source);
 
     expect(document.openapi).toBe('3.1.0');
+    expect(document.info.version).toBe('1.2.0');
+    expect(document['x-yunqi-contract-id']).toBe(
+      'YQ-API-CONTRACT-1.0.0',
+    );
     expect(document.paths).toHaveProperty('/api/v1/yunqi/calculate');
+    expect(document.components.schemas).toHaveProperty('YunQiTimeDto');
+    expect(document.components.schemas).not.toHaveProperty(
+      'YunQiCalendarTimeDto',
+    );
   });
 });

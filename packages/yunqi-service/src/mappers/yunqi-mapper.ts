@@ -14,17 +14,17 @@ import type {
   HostGuestRelationDto,
   SixQiStepDto,
   YunQiCalculationDto,
-  YunQiCalendarTimeDto,
+  YunQiTimeDto,
   YunQiYearDto,
 } from '../schemas/yunqi.js';
 
 function mapCalendarTime(
   value: YunQiCalendarTime,
-): YunQiCalendarTimeDto {
+): YunQiTimeDto {
   return formatYunQiCalendarTime(value);
 }
 
-function mapInstant(value: YunQiInstant): YunQiCalendarTimeDto {
+function mapInstant(value: YunQiInstant): YunQiTimeDto {
   return mapCalendarTime(normalizeYunQiInstant(value));
 }
 

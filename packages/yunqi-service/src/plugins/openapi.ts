@@ -23,7 +23,7 @@ export async function registerOpenApi(
       openapi: '3.1.0',
       info: {
         title: 'YunQi Service API',
-        version: '1.1.0',
+        version: '1.2.0',
         description: 'Versioned YunQi time-fact and rule-mapping contract.',
       },
       servers: [
@@ -45,6 +45,9 @@ export async function registerOpenApi(
       }
 
       const { openapiObject } = documentObject;
+      Object.assign(openapiObject, {
+        'x-yunqi-contract-id': 'YQ-API-CONTRACT-1.0.0',
+      });
       const schemas = openapiObject.components?.schemas;
       if (!schemas) return openapiObject;
 

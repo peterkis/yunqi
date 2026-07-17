@@ -364,10 +364,7 @@ function collectObjectFieldSets(tokens) {
 }
 
 function isTimeContractDeclaration(relativePath) {
-  return (
-    relativePath.startsWith('src/schemas/') ||
-    relativePath === 'src/contracts/generated-client.ts'
-  );
+  return relativePath.startsWith('src/schemas/');
 }
 
 function hasStableApiDateTimeBinding(tokens, relativePath) {

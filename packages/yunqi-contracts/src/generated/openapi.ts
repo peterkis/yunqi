@@ -157,13 +157,13 @@ export interface components {
             readonly zaiquan: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
         };
         readonly SixQiStepDto: {
-            readonly end: components["schemas"]["YunQiCalendarTimeDto"];
+            readonly end: components["schemas"]["YunQiTimeDto"];
             readonly guestQi: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly hostQi: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly index: number;
             readonly name: "初之气" | "二之气" | "三之气" | "四之气" | "五之气" | "终之气";
             readonly relation: components["schemas"]["HostGuestRelationDto"];
-            readonly start: components["schemas"]["YunQiCalendarTimeDto"];
+            readonly start: components["schemas"]["YunQiTimeDto"];
         };
         readonly StemBranchDto: {
             readonly branch: "子" | "丑" | "寅" | "卯" | "辰" | "巳" | "午" | "未" | "申" | "酉" | "戌" | "亥";
@@ -188,7 +188,7 @@ export interface components {
         readonly YunQiCalculationDto: {
             readonly currentStep: components["schemas"]["SixQiStepDto"];
             readonly explanations: readonly string[];
-            readonly input: components["schemas"]["YunQiCalendarTimeDto"];
+            readonly input: components["schemas"]["YunQiTimeDto"];
             readonly interval: components["schemas"]["YunQiIntervalDto"];
             readonly ruleVersion: string;
             readonly sixQi: components["schemas"]["SixQiDto"];
@@ -196,17 +196,17 @@ export interface components {
             readonly suiYun: components["schemas"]["SuiYunDto"];
             readonly year: number;
         };
-        readonly YunQiCalendarTimeDto: {
+        readonly YunQiIntervalDto: {
+            readonly end: components["schemas"]["YunQiTimeDto"];
+            readonly start: components["schemas"]["YunQiTimeDto"];
+        };
+        readonly YunQiTimeDto: {
             /** @enum {string} */
             readonly calendarTimeStandard: "BeijingStandardTime+08:00";
             readonly epochMilliseconds: number;
             readonly localTime: string;
             /** @enum {string} */
             readonly offset: "+08:00";
-        };
-        readonly YunQiIntervalDto: {
-            readonly end: components["schemas"]["YunQiCalendarTimeDto"];
-            readonly start: components["schemas"]["YunQiCalendarTimeDto"];
         };
         readonly YunQiYearDto: {
             readonly explanations: readonly string[];

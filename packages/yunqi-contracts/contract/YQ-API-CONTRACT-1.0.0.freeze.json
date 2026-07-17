@@ -1,0 +1,1016 @@
+{
+  "contractId": "YQ-API-CONTRACT-1.0.0",
+  "documentVersion": "1.2.0",
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/yunqi/calculate": {
+      "post": {
+        "operationId": "calculateYunQi",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/current": {
+      "get": {
+        "operationId": "getCurrentYunQi",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/year/{year}": {
+      "get": {
+        "operationId": "getYunQiYear",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "maximum": 2099,
+              "minimum": 1901,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YearSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "CalculateRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "dateTime": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|\\+08:00)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dateTime"
+      ],
+      "type": "object"
+    },
+    "CalculationSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/YunQiCalculationDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "ErrorResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "enum": [
+                "INVALID_ARGUMENT"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "CALENDAR_PROVIDER_UNAVAILABLE"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "INTERNAL_ERROR"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "details": {
+          "additionalProperties": {},
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "details",
+        "message"
+      ],
+      "type": "object"
+    },
+    "HostGuestRelationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "NONE"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_GENERATES_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_GENERATES_HOST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_CONTROLS_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_CONTROLS_HOST"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "elementRelation": {
+          "anyOf": [
+            {
+              "enum": [
+                "SAME_ELEMENT"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DIFFERENT_ELEMENT"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "qiRelation": {
+          "anyOf": [
+            {
+              "enum": [
+                "SAME_QI"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DIFFERENT_QI"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "traditionalLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "direction",
+        "elementRelation",
+        "qiRelation",
+        "traditionalLabel"
+      ],
+      "type": "object"
+    },
+    "SixQiDto": {
+      "additionalProperties": false,
+      "properties": {
+        "sitian": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/components/schemas/SixQiStepDto"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "type": "array"
+        },
+        "zaiquan": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "sitian",
+        "steps",
+        "zaiquan"
+      ],
+      "type": "object"
+    },
+    "SixQiStepDto": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "guestQi": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "hostQi": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "index": {
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "enum": [
+                "初之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "二之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "三之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "四之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "五之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "终之气"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "relation": {
+          "$ref": "#/components/schemas/HostGuestRelationDto"
+        },
+        "start": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        }
+      },
+      "required": [
+        "end",
+        "guestQi",
+        "hostQi",
+        "index",
+        "name",
+        "relation",
+        "start"
+      ],
+      "type": "object"
+    },
+    "StemBranchDto": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "anyOf": [
+            {
+              "enum": [
+                "子"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丑"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "寅"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "卯"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "辰"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "巳"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "午"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "未"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "申"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "酉"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "戌"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "亥"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "ganzhi": {
+          "maxLength": 2,
+          "minLength": 2,
+          "type": "string"
+        },
+        "stem": {
+          "anyOf": [
+            {
+              "enum": [
+                "甲"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "乙"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丙"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丁"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "戊"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "己"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "庚"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "辛"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "壬"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "癸"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "ganzhi",
+        "stem"
+      ],
+      "type": "object"
+    },
+    "SuiYunDto": {
+      "additionalProperties": false,
+      "properties": {
+        "element": {
+          "anyOf": [
+            {
+              "enum": [
+                "木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "state": {
+          "anyOf": [
+            {
+              "enum": [
+                "太过"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "不及"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "tone": {
+          "anyOf": [
+            {
+              "enum": [
+                "太角"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少角"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太徵"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少徵"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太宫"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少宫"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太商"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少商"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太羽"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少羽"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "element",
+        "state",
+        "tone"
+      ],
+      "type": "object"
+    },
+    "YearSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/YunQiYearDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "YunQiCalculationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "currentStep": {
+          "$ref": "#/components/schemas/SixQiStepDto"
+        },
+        "explanations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "input": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "interval": {
+          "$ref": "#/components/schemas/YunQiIntervalDto"
+        },
+        "ruleVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sixQi": {
+          "$ref": "#/components/schemas/SixQiDto"
+        },
+        "stemBranch": {
+          "$ref": "#/components/schemas/StemBranchDto"
+        },
+        "suiYun": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "year": {
+          "maximum": 2099,
+          "minimum": 1901,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "currentStep",
+        "explanations",
+        "input",
+        "interval",
+        "ruleVersion",
+        "sixQi",
+        "stemBranch",
+        "suiYun",
+        "year"
+      ],
+      "type": "object"
+    },
+    "YunQiIntervalDto": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "start": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        }
+      },
+      "required": [
+        "end",
+        "start"
+      ],
+      "type": "object"
+    },
+    "YunQiTimeDto": {
+      "additionalProperties": false,
+      "properties": {
+        "calendarTimeStandard": {
+          "enum": [
+            "BeijingStandardTime+08:00"
+          ],
+          "type": "string"
+        },
+        "epochMilliseconds": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "localTime": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?\\+08:00$",
+          "type": "string"
+        },
+        "offset": {
+          "enum": [
+            "+08:00"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendarTimeStandard",
+        "epochMilliseconds",
+        "localTime",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "YunQiYearDto": {
+      "additionalProperties": false,
+      "properties": {
+        "explanations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interval": {
+          "$ref": "#/components/schemas/YunQiIntervalDto"
+        },
+        "ruleVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sixQi": {
+          "$ref": "#/components/schemas/SixQiDto"
+        },
+        "stemBranch": {
+          "$ref": "#/components/schemas/StemBranchDto"
+        },
+        "suiYun": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "year": {
+          "maximum": 2099,
+          "minimum": 1901,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "explanations",
+        "interval",
+        "ruleVersion",
+        "sixQi",
+        "stemBranch",
+        "suiYun",
+        "year"
+      ],
+      "type": "object"
+    }
+  }
+}

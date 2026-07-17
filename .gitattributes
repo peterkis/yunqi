@@ -1,0 +1,3 @@
+packages/yunqi-service/openapi/*.yaml text eol=lf
+packages/yunqi-contracts/src/generated/*.ts text eol=lf
+packages/yunqi-contracts/contract/*.json text eol=lf

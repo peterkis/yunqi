@@ -217,10 +217,14 @@ Version meanings remain separate:
 
 ```text
 OpenAPI dialect: 3.1.0
-OpenAPI document release: 1.1.0
+OpenAPI document release: 1.2.0
 API path version: /api/v1
+API Contract ID: YQ-API-CONTRACT-1.0.0
 Rule version: YQ-MVP-RULES-1.0.0
 ```
+
+API contract identity and package ownership are governed by
+`docs/architecture/ADR-002-yunqi-contract-freeze.md`.
 
 ## One-way migration
 

@@ -8,7 +8,7 @@ import {
   type AxiosLike,
   type TransportRequest,
   type YunQiTransport,
-} from '../src/contracts/yunqi-api.js';
+} from '../src/index.js';
 
 function createRecordingTransport(payload: unknown): {
   readonly requests: TransportRequest[];
@@ -46,7 +46,7 @@ describe('browser YunQi client', () => {
     ]);
   });
 
-  it('gets the current calculation through the transport and unwraps its data', async () => {
+  it('gets the current calculation and unwraps its data', async () => {
     const calculation = { year: 2024, currentStep: { index: 3 } };
     const { requests, transport } = createRecordingTransport({
       code: 'SUCCESS',
@@ -64,7 +64,7 @@ describe('browser YunQi client', () => {
     ]);
   });
 
-  it('posts a calculation request through the transport and unwraps its data', async () => {
+  it('posts a calculation request and unwraps its data', async () => {
     const body = { dateTime: '2024-05-20T21:00:00' };
     const calculation = { year: 2024, currentStep: { index: 3 } };
     const { requests, transport } = createRecordingTransport({
@@ -115,6 +115,34 @@ describe('browser YunQi client', () => {
         body: JSON.stringify(request.body),
       },
     );
+  });
+
+  it('uses the runtime fetch implementation when none is injected', async () => {
+    const payload = {
+      code: 'SUCCESS',
+      message: '',
+      data: { year: 2024 },
+    };
+    const runtimeFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(Response.json(payload));
+    vi.stubGlobal('fetch', runtimeFetch);
+
+    try {
+      const transport = createFetchTransport({
+        baseUrl: 'https://yunqi.example',
+      });
+
+      await expect(
+        transport.request({
+          method: 'GET',
+          path: '/api/v1/yunqi/year/2024',
+        }),
+      ).resolves.toEqual(payload);
+      expect(runtimeFetch).toHaveBeenCalledOnce();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it('maps non-success Fetch responses to YunQiApiError', async () => {
@@ -178,8 +206,8 @@ describe('browser YunQi client', () => {
     });
   });
 
-  it('returns TanStack Query-compatible year and current options', () => {
-    const { transport } = createRecordingTransport({
+  it('returns executable TanStack Query-compatible options', async () => {
+    const { requests, transport } = createRecordingTransport({
       code: 'SUCCESS',
       message: '',
       data: { year: 2024 },
@@ -193,5 +221,17 @@ describe('browser YunQi client', () => {
     expect(yearOptions.queryFn).toBeTypeOf('function');
     expect(currentOptions.queryKey).toEqual(['yunqi', 'current']);
     expect(currentOptions.queryFn).toBeTypeOf('function');
+    await expect(yearOptions.queryFn()).resolves.toEqual({ year: 2024 });
+    await expect(currentOptions.queryFn()).resolves.toEqual({ year: 2024 });
+    expect(requests).toEqual([
+      {
+        method: 'GET',
+        path: '/api/v1/yunqi/year/2024',
+      },
+      {
+        method: 'GET',
+        path: '/api/v1/yunqi/current',
+      },
+    ]);
   });
 });

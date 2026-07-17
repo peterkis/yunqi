@@ -65,24 +65,34 @@ Public time values use:
       "calendarTimeStandard": "BeijingStandardTime+08:00"
     }
 
-The OpenAPI dialect remains 3.1.0, the contract document release is 1.1.0,
-and API paths remain under `/api/v1`.
+The OpenAPI dialect remains 3.1.0, the contract document release is 1.2.0,
+the business Contract ID is `YQ-API-CONTRACT-1.0.0`, and API paths remain
+under `/api/v1`.
 
-## Browser contract
+## Browser contracts and client
 
+    import {
+      type YunQiCalculationDto,
+      type YunQiTimeDto,
+    } from '@yunqi/contracts';
     import {
       createAxiosTransport,
       createYunQiClient,
       yunqiClient,
       yunqiQueryOptions,
-    } from '@yunqi/service/contracts';
+    } from '@yunqi/client';
 
     const annual = await yunqiClient.getYear(2024);
     const yearOptions = yunqiQueryOptions.year(2024);
     const axiosClient = createYunQiClient(createAxiosTransport(axios));
 
-`generated-client.ts` is generated from OpenAPI. Do not edit it by hand; run
-`pnpm openapi:generate`.
+`@yunqi/contracts` derives its public facade from an internal generated
+OpenAPI file. Do not edit the generated file by hand; run
+`pnpm contracts:generate`.
+
+The previous Service-owned contract subpath has no compatibility re-export.
+Phase3 consumers import DTOs from `@yunqi/contracts` and browser client
+behavior from `@yunqi/client`.
 
 ## Safety boundary
 

@@ -102,6 +102,61 @@
 
 ------------------------------------------------------------------------
 
+## 3.2 API Contract 与前端依赖边界
+
+Phase3 及后续前端只能通过以下公共包消费 YunQi API：
+
+```text
+@yunqi/contracts
+@yunqi/client
+```
+
+职责冻结：
+
+- `@yunqi/service` 是 Fastify 运行时和 TypeBox schema 的唯一来源；
+- `@yunqi/contracts` 从 OpenAPI 生成类型派生公共 DTO facade；
+- `@yunqi/client` 只依赖 `@yunqi/contracts`，提供浏览器安全 transport 和 client；
+- React/Next 不得自行声明、复制或扩展 YunQi DTO；
+- Service、Domain 和 calendar adapter 不得反向依赖 contracts 或 client。
+
+当前业务 API Contract ID：
+
+```text
+YQ-API-CONTRACT-1.0.0
+```
+
+该 Contract ID 精确冻结三个 `/api/v1/yunqi/**` 业务端点的路径、method、
+operationId、参数、请求体、响应状态码及其所有可达 schema，包括公共 schema
+名称、required、enum、validation constraints 和 `additionalProperties`。
+
+任何冻结投影变化都必须：
+
+1. 分配新的 Contract ID；
+2. 按兼容性选择 package SemVer；
+3. 更新 OpenAPI、冻结基线、契约文档和测试；
+4. 记录迁移影响。
+
+禁止直接更新 snapshot 绕过 Contract ID 变更。
+
+`main` 的合入门禁必须包含固定名称的 GitHub Actions job：
+
+```text
+quality-gates
+```
+
+该检查必须执行时间治理、契约生成/冻结漂移、测试、类型检查、覆盖率和 schema
+校验。仓库 ruleset 或 branch protection 必须阻止未通过检查的 PR 合并和绕过
+规则直接 push。
+
+长期架构依据：
+
+```text
+docs/architecture/ADR-002-yunqi-contract-freeze.md
+docs/contracts/YQ-API-CONTRACT-1.0.0.md
+```
+
+------------------------------------------------------------------------
+
 # 4. 时间处理规范
 
 五运六气最重要的工程风险是时间边界。

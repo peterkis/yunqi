@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: YunQi Service API
-  version: 1.1.0
+  version: 1.2.0
   description: Versioned YunQi time-fact and rule-mapping contract.
 components:
   schemas:
@@ -20,7 +20,7 @@ components:
           enum:
             - v1
       additionalProperties: false
-    YunQiCalendarTimeDto:
+    YunQiTimeDto:
       type: object
       required:
         - localTime
@@ -124,9 +124,9 @@ components:
               enum:
                 - 终之气
         start:
-          $ref: "#/components/schemas/YunQiCalendarTimeDto"
+          $ref: "#/components/schemas/YunQiTimeDto"
         end:
-          $ref: "#/components/schemas/YunQiCalendarTimeDto"
+          $ref: "#/components/schemas/YunQiTimeDto"
         hostQi:
           anyOf:
             - type: string
@@ -324,9 +324,9 @@ components:
         - end
       properties:
         start:
-          $ref: "#/components/schemas/YunQiCalendarTimeDto"
+          $ref: "#/components/schemas/YunQiTimeDto"
         end:
-          $ref: "#/components/schemas/YunQiCalendarTimeDto"
+          $ref: "#/components/schemas/YunQiTimeDto"
       additionalProperties: false
     SixQiDto:
       type: object
@@ -446,7 +446,7 @@ components:
           items:
             type: string
         input:
-          $ref: "#/components/schemas/YunQiCalendarTimeDto"
+          $ref: "#/components/schemas/YunQiTimeDto"
         currentStep:
           $ref: "#/components/schemas/SixQiStepDto"
       additionalProperties: false
@@ -703,3 +703,4 @@ tags:
     description: Service status endpoints
   - name: yunqi
     description: YunQi contract endpoints
+x-yunqi-contract-id: YQ-API-CONTRACT-1.0.0
