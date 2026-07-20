@@ -230,29 +230,157 @@ function hasContractDtoImport(source) {
   return false;
 }
 
+function findBalancedDelimiter(source, start, open, close) {
+  let depth = 0;
+  let quote = null;
+
+  for (let index = start; index < source.length; index += 1) {
+    const character = source[index];
+    const next = source[index + 1];
+
+    if (quote !== null) {
+      if (character === '\\') {
+        index += 1;
+      } else if (character === quote) {
+        quote = null;
+      }
+      continue;
+    }
+
+    if (character === '/' && next === '/') {
+      const lineEnd = source.indexOf('\n', index + 2);
+      if (lineEnd === -1) return -1;
+      index = lineEnd;
+      continue;
+    }
+
+    if (character === '/' && next === '*') {
+      const commentEnd = source.indexOf('*/', index + 2);
+      if (commentEnd === -1) return -1;
+      index = commentEnd + 1;
+      continue;
+    }
+
+    if (character === "'" || character === '"' || character === '`') {
+      quote = character;
+      continue;
+    }
+
+    if (character === open) {
+      depth += 1;
+    } else if (character === close) {
+      depth -= 1;
+      if (depth === 0) return index;
+    }
+  }
+
+  return -1;
+}
+
+function parameterObjectContainsMethod(parameters, method) {
+  const objectStart = parameters.search(/\S/);
+  if (objectStart === -1 || parameters[objectStart] !== '{') return false;
+
+  const objectEnd = findBalancedDelimiter(
+    parameters,
+    objectStart,
+    '{',
+    '}',
+  );
+  if (objectEnd === -1) return false;
+
+  return new RegExp(`\\b${method}\\b`).test(
+    parameters.slice(objectStart, objectEnd + 1),
+  );
+}
+
+function hasClientMethodVariableDestructuring(source, method) {
+  const declarationStart = /\b(?:const|let|var)\s*\{/g;
+
+  for (const match of source.matchAll(declarationStart)) {
+    const objectStart = source.indexOf('{', match.index);
+    const objectEnd = findBalancedDelimiter(
+      source,
+      objectStart,
+      '{',
+      '}',
+    );
+    if (objectEnd === -1) continue;
+
+    const afterPattern = source.slice(objectEnd + 1);
+    if (!/^\s*(?::\s*[^;=]+)?=/.test(afterPattern)) continue;
+
+    if (
+      new RegExp(`\\b${method}\\b`).test(
+        source.slice(objectStart, objectEnd + 1),
+      )
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasClientMethodParameter(source, method) {
+  const functionStart =
+    /\bfunction(?:\s+[A-Za-z_$][\w$]*)?\s*\(/g;
+
+  for (const match of source.matchAll(functionStart)) {
+    const openParenthesis = source.indexOf('(', match.index);
+    const closeParenthesis = findBalancedDelimiter(
+      source,
+      openParenthesis,
+      '(',
+      ')',
+    );
+    if (
+      closeParenthesis !== -1 &&
+      parameterObjectContainsMethod(
+        source.slice(openParenthesis + 1, closeParenthesis),
+        method,
+      )
+    ) {
+      return true;
+    }
+  }
+
+  for (const match of source.matchAll(/\(/g)) {
+    const openParenthesis = match.index;
+    const closeParenthesis = findBalancedDelimiter(
+      source,
+      openParenthesis,
+      '(',
+      ')',
+    );
+    if (closeParenthesis === -1) continue;
+
+    const afterParameters = source.slice(closeParenthesis + 1);
+    if (
+      /^\s*(?::\s*[^=]*?)?=>/.test(afterParameters) &&
+      parameterObjectContainsMethod(
+        source.slice(openParenthesis + 1, closeParenthesis),
+        method,
+      )
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function hasDirectClientMethodAccess(source) {
   const method =
     '(?:getCurrent|getYear|calculate)';
   const propertyAccess = new RegExp(
     `(?:\\b[A-Za-z_$][\\w$]*|\\)|\\])\\s*(?:(?:\\?\\.|\\.)\\s*${method}\\b|(?:\\?\\.)?\\s*\\[\\s*['"]${method}['"]\\s*\\])`,
   );
-  const destructuring = new RegExp(
-    `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=`,
-  );
-  const parameterObject =
-    `\\{[^}]*\\b${method}\\b[^}]*\\}`;
-  const functionParameter = new RegExp(
-    `\\bfunction(?:\\s+[A-Za-z_$][\\w$]*)?\\s*\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)]+)?(?:\\s*,[^)]*)?\\)`,
-  );
-  const arrowParameter = new RegExp(
-    `\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)]+)?(?:\\s*,[^)]*)?\\)\\s*(?::\\s*[^=\\r\\n]+)?=>`,
-  );
 
   return (
     propertyAccess.test(source) ||
-    destructuring.test(source) ||
-    functionParameter.test(source) ||
-    arrowParameter.test(source)
+    hasClientMethodVariableDestructuring(source, method) ||
+    hasClientMethodParameter(source, method)
   );
 }
 

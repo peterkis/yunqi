@@ -685,6 +685,43 @@ test('rejects an aliased client method from multiline arrow parameters', async (
   });
 });
 
+test('rejects a client method before an object default in component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export const Fixture = ({ getCurrent, style = {} }) => {
+        return <main style={style}>{getCurrent}</main>;
+      };
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method after an object default in component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ style = {}, getYear }) {
+        return <main style={style}>{getYear}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method beside an object default in local destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ api }) {
+        const { calculate, options = {} } = api;
+        return <main>{calculate}{options}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',
