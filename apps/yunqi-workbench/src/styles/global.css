@@ -318,6 +318,15 @@ button {
   margin-inline: auto;
 }
 
+.workbench-footer {
+  max-width: 74rem;
+  margin: clamp(3.5rem, 7vw, 6.5rem) auto 0;
+}
+
+.workbench-footer .contract-panel {
+  margin-top: 0;
+}
+
 .current-yunqi-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.8fr);
