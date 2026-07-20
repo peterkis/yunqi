@@ -23,7 +23,7 @@ V1.0 MVP
 - `@yunqi/service`: Fastify runtime and OpenAPI schema source;
 - `@yunqi/contracts`: generated, browser-safe public DTO facade;
 - `@yunqi/client`: Fetch/Axios-structural typed browser client.
-- `@yunqi/workbench`: Phase3-B Vite/React presentation foundation.
+- `@yunqi/workbench`: Phase3-C1 Vite/React read-only current YunQi view.
 
 The Phase3 business API is frozen as `YQ-API-CONTRACT-1.0.0`. React consumers
 must import DTOs from `@yunqi/contracts` and client behavior from
@@ -32,10 +32,12 @@ must import DTOs from `@yunqi/contracts` and client behavior from
 The Workbench dependency path is
 `@yunqi/workbench -> @yunqi/client -> @yunqi/contracts`. Provider
 infrastructure owns QueryClient, YunQiClient, and transport creation.
-Components do not perform transport, construct API paths, or call client
-methods. Phase3-B contains no router or business pages. Business time is
-rendered from canonical `localTime` and labelled `北京时间 UTC+08`; it is not
-reconstructed from `epochMilliseconds`.
+The `/current` result passes through a pure DTO-to-ViewModel mapper before
+rendering. Components do not import DTOs, perform transport, construct API
+paths, or call client methods. Phase3-C1 contains no router, input form, or
+runtime fixture. Business time is rendered from canonical `localTime` and
+labelled `北京时间 UTC+08`; `epochMilliseconds` is not copied into the
+presentation model or used for display.
 
 The Workbench runtime allowlist applies to dependencies, optional
 dependencies, and peer dependencies. Service, Domain, calendar adapter,
@@ -51,6 +53,8 @@ the supported boundary. Presentation components cannot runtime-import
 or runtime re-export `@yunqi/client`, or acquire its methods through optional
 access, references, brackets, or destructuring. Pure type-only imports and
 re-exports remain allowed; mixed type/runtime re-exports are rejected.
+Feature presentation mappers may derive types from `@yunqi/contracts`, but
+cannot depend on React, TanStack Query, transport, or `@yunqi/client`.
 
 ## Workbench development
 
