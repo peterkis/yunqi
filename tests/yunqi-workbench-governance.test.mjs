@@ -607,6 +607,31 @@ test('rejects a client method behind a TS angle-bracket assertion', async () => 
   });
 });
 
+test('rejects an asserted static client method key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        return client['getCurrent' as const]();
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a satisfies-wrapped client method destructuring key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        const { ['getCurrent' satisfies string]: load } = client;
+        return load;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('rejects a client method capability passed under a generic prop name', async () => {
   await assertMutationRejected({
     source: `

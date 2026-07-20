@@ -353,6 +353,13 @@ function hasDirectClientMethodAccess(source, fileName) {
       return staticStringValue(node.expression);
     }
     if (
+      ts.isAsExpression(node) ||
+      ts.isSatisfiesExpression(node) ||
+      ts.isTypeAssertionExpression(node)
+    ) {
+      return staticStringValue(node.expression);
+    }
+    if (
       ts.isBinaryExpression(node) &&
       node.operatorToken.kind === ts.SyntaxKind.PlusToken
     ) {
