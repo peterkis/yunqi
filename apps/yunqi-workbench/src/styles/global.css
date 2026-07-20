@@ -1,5 +1,5 @@
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
   font-family:
     "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   font-synthesis: none;
@@ -27,9 +27,11 @@ button {
 }
 
 .theme-root {
+  color-scheme: light;
   --paper: #f3eddf;
   --paper-raised: #faf6ec;
   --paper-muted: #e7dfcf;
+  --paper-grid: rgb(88 73 49 / 5%);
   --ink: #211e19;
   --ink-muted: #6f675b;
   --rule: #b8ad9a;
@@ -45,9 +47,11 @@ button {
 }
 
 .theme-root[data-theme="dark"] {
+  color-scheme: dark;
   --paper: #181714;
   --paper-raised: #22201c;
   --paper-muted: #2d2a24;
+  --paper-grid: rgb(238 224 197 / 3.5%);
   --ink: #eee6d6;
   --ink-muted: #bcb2a1;
   --rule: #514b41;
@@ -62,7 +66,11 @@ button {
   min-height: 100vh;
   margin-inline: auto;
   border-inline: 1px solid var(--rule);
-  background: var(--paper-raised);
+  background-color: var(--paper-raised);
+  background-image:
+    linear-gradient(var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+  background-size: 3rem 3rem;
   animation: shell-enter 280ms ease-out both;
 }
 

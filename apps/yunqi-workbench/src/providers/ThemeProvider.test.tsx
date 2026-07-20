@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -14,6 +15,21 @@ function ThemeControl() {
 }
 
 describe('ThemeProvider', () => {
+  it('keeps the UA color scheme aligned with the explicit theme', () => {
+    const stylesheet = readFileSync(
+      'src/styles/global.css',
+      'utf8',
+    );
+    const rootDeclarations = stylesheet.match(/:root\s*\{([^}]*)\}/s)?.[1];
+    const darkThemeDeclarations = stylesheet.match(
+      /\.theme-root\[data-theme="dark"\]\s*\{([^}]*)\}/s,
+    )?.[1];
+
+    expect(rootDeclarations).toContain('color-scheme: light;');
+    expect(rootDeclarations).not.toContain('color-scheme: light dark;');
+    expect(darkThemeDeclarations).toContain('color-scheme: dark;');
+  });
+
   it('starts in light mode and explicitly toggles to dark mode', async () => {
     const user = userEvent.setup();
     const { container } = render(
