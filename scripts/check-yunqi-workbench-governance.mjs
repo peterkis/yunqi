@@ -259,19 +259,23 @@ function hasContractDtoImport(source) {
       const bindings = ts.isImportDeclaration(node)
         ? node.importClause?.namedBindings
         : node.exportClause;
+      const defaultBinding = ts.isImportDeclaration(node)
+        ? node.importClause?.name
+        : undefined;
 
       if (
-        bindings !== undefined &&
-        (ts.isNamespaceImport(bindings) ||
-          ts.isNamespaceExport(bindings) ||
-          (ts.isNamedImports(bindings) &&
-            bindings.elements.some((element) =>
-              isDtoName(element),
-            )) ||
-          (ts.isNamedExports(bindings) &&
-            bindings.elements.some((element) =>
-              isDtoName(element),
-            )))
+        isDtoName(defaultBinding) ||
+        (bindings !== undefined &&
+          (ts.isNamespaceImport(bindings) ||
+            ts.isNamespaceExport(bindings) ||
+            (ts.isNamedImports(bindings) &&
+              bindings.elements.some((element) =>
+                isDtoName(element),
+              )) ||
+            (ts.isNamedExports(bindings) &&
+              bindings.elements.some((element) =>
+                isDtoName(element),
+              ))))
       ) {
         found = true;
         return;

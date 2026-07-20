@@ -889,6 +889,21 @@ test('rejects an escaped frozen DTO import type query', async () => {
   });
 });
 
+test('rejects a default frozen DTO import', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/DefaultDtoView.tsx',
+    source: `
+      import type YunQiCalculationDto from '@yunqi/contracts';
+      export type Props = {
+        readonly value: YunQiCalculationDto;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/DefaultDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
 for (const [label, source, expected] of [
   [
     'React',
