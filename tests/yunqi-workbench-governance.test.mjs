@@ -39,6 +39,7 @@ function writeFixtureFile(fixtureRoot, relativePath, source) {
 function createFixture({
   dependencies = allowedRuntimeDependencies,
   devDependencies = { vitest: '4.1.10' },
+  indexHtml,
   optionalDependencies,
   peerDependencies,
   relativeSourcePath = 'components/Fixture.tsx',
@@ -65,6 +66,13 @@ function createFixture({
     join('apps/yunqi-workbench/src', relativeSourcePath),
     source,
   );
+  if (indexHtml !== undefined) {
+    writeFixtureFile(
+      fixtureRoot,
+      'apps/yunqi-workbench/index.html',
+      indexHtml,
+    );
+  }
 
   return fixtureRoot;
 }
@@ -72,6 +80,7 @@ function createFixture({
 async function assertMutationRejected({
   dependencies,
   devDependencies,
+  indexHtml,
   optionalDependencies,
   peerDependencies,
   relativeSourcePath,
@@ -81,6 +90,7 @@ async function assertMutationRejected({
   const fixtureRoot = createFixture({
     dependencies,
     devDependencies,
+    indexHtml,
     optionalDependencies,
     peerDependencies,
     relativeSourcePath,
@@ -128,6 +138,107 @@ test('allows development-only dependencies without treating them as runtime', as
       typescript: '7.0.2',
       vitest: '4.1.10',
     },
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+for (const [label, source] of [
+  [
+    'static import',
+    "import helper from 'runtime-helper';\nexport { helper };",
+  ],
+  [
+    'dynamic import',
+    "export const helper = import('runtime-helper');",
+  ],
+  [
+    'require call',
+    "export const helper = require('runtime-helper');",
+  ],
+]) {
+  test(`rejects a devDependency-only bare runtime ${label} in production source`, async () => {
+    await assertMutationRejected({
+      devDependencies: {
+        'runtime-helper': '1.0.0',
+        vitest: '4.1.10',
+      },
+      relativeSourcePath: 'components/RuntimeHelper.ts',
+      source,
+      expected:
+        /components\/RuntimeHelper\.ts: runtime import runtime-helper is not in the Workbench allowlist/,
+    });
+  });
+}
+
+test('rejects an npm-aliased bare runtime import in production source', async () => {
+  await assertMutationRejected({
+    devDependencies: {
+      'runtime-helper': 'npm:react@19.2.7',
+      vitest: '4.1.10',
+    },
+    relativeSourcePath: 'features/runtime-helper.ts',
+    source: "import helper from 'runtime-helper';\nexport { helper };",
+    expected:
+      /features\/runtime-helper\.ts: runtime import runtime-helper is not in the Workbench allowlist/,
+  });
+});
+
+test('allows type-only bare imports in production source', async () => {
+  const fixtureRoot = createFixture({
+    devDependencies: {
+      'runtime-helper': '1.0.0',
+      vitest: '4.1.10',
+    },
+    relativeSourcePath: 'models/runtime-helper.ts',
+    source: `
+      import type Helper from 'runtime-helper';
+      export type { Helper as RuntimeHelper } from 'runtime-helper';
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('does not treat test source or root tool configuration as production runtime imports', async () => {
+  const fixtureRoot = createFixture({
+    devDependencies: {
+      'runtime-helper': '1.0.0',
+      vitest: '4.1.10',
+    },
+    relativeSourcePath: 'test/runtime-helper.ts',
+    source: "import helper from 'runtime-helper';\nexport { helper };",
+  });
+  writeFixtureFile(
+    fixtureRoot,
+    'apps/yunqi-workbench/vite.config.ts',
+    "import helper from 'runtime-helper';\nexport default helper;",
+  );
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('rejects a Workbench document language other than zh-CN', async () => {
+  await assertMutationRejected({
+    indexHtml: '<!doctype html><html lang="en"><body></body></html>',
+    expected:
+      /apps\/yunqi-workbench\/index\.html: document language must be zh-CN/,
+  });
+});
+
+test('allows a zh-CN Workbench document language', async () => {
+  const fixtureRoot = createFixture({
+    indexHtml:
+      '<!doctype html><html lang="zh-CN"><body></body></html>',
   });
 
   assert.deepEqual(
@@ -482,18 +593,20 @@ test('rejects a client method capability passed under a generic prop name', asyn
   });
 });
 
-test('rejects destructuring a client method in component source', async () => {
-  await assertMutationRejected({
-    source: `
-      export function Fixture() {
-        const { getCurrent } = client;
-        return getCurrent();
-      }
-    `,
-    expected:
-      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+for (const method of ['getCurrent', 'getYear', 'calculate']) {
+  test(`rejects destructuring ${method} from a generic receiver in component source`, async () => {
+    await assertMutationRejected({
+      source: `
+        export function Fixture({ api }) {
+          const { ${method} } = api;
+          return ${method};
+        }
+      `,
+      expected:
+        /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+    });
   });
-});
+}
 
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({

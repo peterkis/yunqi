@@ -1,8 +1,8 @@
 # Phase3-B React Workbench Foundation Design
 
-**Status:** Approved architecture, implementation-ready  
-**Date:** 2026-07-20  
-**Base:** Phase3-A API Contract Freeze  
+**Status:** Approved architecture, implementation-ready
+**Date:** 2026-07-20
+**Base:** Phase3-A API Contract Freeze
 **Application:** `apps/yunqi-workbench`
 
 ## 1. Purpose

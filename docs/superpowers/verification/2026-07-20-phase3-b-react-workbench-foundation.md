@@ -3,8 +3,10 @@
 - Date: 2026-07-20
 - Branch: `codex/phase3-b-react-workbench`
 - Explicit base commit: `54dcf99a926b3d88a4bfb7d5416b53608e7f6a22`
-- Verified implementation HEAD:
-  `2388104a96754513ef86f141f0059dd0e7bd7b2f`
+- Whole-branch review HEAD:
+  `afa96057528c5f5efec055b16aff020ad5d6e02b`
+- Final-review fixes verification HEAD: the fresh commit containing this
+  record, `fix(workbench): close final governance review`
 - Merge base: `54dcf99a926b3d88a4bfb7d5416b53608e7f6a22`
 - Contract ID: `YQ-API-CONTRACT-1.0.0`
 - OpenAPI document version: `1.2.0`
@@ -82,6 +84,93 @@ Workbench coverage:
 | Functions | 100% (27/27) | 90% |
 | Lines | 98.18% (54/55) | 90% |
 
+## Final governance review closure
+
+The final review identified three executable governance gaps plus one static
+HTML language correction. They were closed with a fresh RED/GREEN cycle on
+the final-review fixes tree.
+
+Initial RED command:
+
+```text
+node --test tests/yunqi-workbench-governance.test.mjs
+```
+
+Exact RED result: exit 1; 53 tests ran, 45 passed, and 8 failed for the
+expected missing behavior:
+
+- production static, dynamic, and `require` imports of a devDependency-only
+  `runtime-helper` were not rejected;
+- an npm alias named `runtime-helper` was not rejected when imported by that
+  non-allowlisted package root;
+- an `index.html` fixture with `lang="en"` was not rejected;
+- component ObjectPattern destructuring of `getCurrent`, `getYear`, and
+  `calculate` from a generic `api` receiver was not rejected.
+
+After the checker implementation but before changing the production HTML,
+the same command ran 53 tests with 52 passing and one expected failure:
+the production checker reported
+`apps/yunqi-workbench/index.html: document language must be zh-CN`.
+
+Final GREEN evidence:
+
+```text
+pnpm test:workbench-governance
+```
+
+Result: exit 0; 53/53 governance tests passed and the production governance
+CLI reported zero violations. The checker now extracts static imports and
+re-exports, dynamic imports, and `require` calls. In production `src` files,
+excluding `*.test.*`, `*.spec.*`, and `src/test/**`, every non-type-only bare
+runtime specifier is reduced to its package root and must match exactly one of
+the five frozen runtime packages. Development/test source and root tool
+configuration remain outside that runtime-source rule, and production
+type-only imports/re-exports remain allowed.
+
+Component responsibility paths now reject ObjectPattern destructuring of
+`getCurrent`, `getYear`, or `calculate` independently of the right-hand-side
+identifier. The ordinary DTO field-access fixture remains accepted.
+
+Workbench document-language evidence is static and executable:
+
+- source `apps/yunqi-workbench/index.html` line 2 is
+  `<html lang="zh-CN">`;
+- the fresh Vite build emitted the same `<html lang="zh-CN">` in
+  `apps/yunqi-workbench/dist/index.html`;
+- the wrong-language mutation fails governance while a `zh-CN` fixture and
+  fixtures without an index file pass.
+
+The browser interaction inspection below was not repeated for this static
+language-attribute-only change.
+
+Fresh final-review command matrix, all with exit code 0:
+
+```text
+pnpm test:workbench-governance
+pnpm --filter @yunqi/workbench test
+pnpm --filter @yunqi/workbench test:typecheck
+pnpm --filter @yunqi/workbench typecheck
+pnpm --filter @yunqi/workbench build
+pnpm --filter @yunqi/workbench test:coverage
+pnpm test:time-governance
+pnpm contracts:check
+pnpm schema:validate
+pnpm openapi:validate
+pnpm test
+pnpm typecheck
+pnpm test:coverage
+```
+
+The exact committed-range whitespace command was rerun after the final fixes
+commit:
+
+```text
+git diff --check 54dcf99..HEAD
+```
+
+Result: exit 0 with no output. This checks the complete Phase3-B committed
+range, not only the final working-tree delta.
+
 ## Browser inspection
 
 The Vite application was inspected at `http://127.0.0.1:4173`.
@@ -146,7 +235,7 @@ Selected exact results:
 | Client tests | 8 passed |
 | Service tests | 136 passed |
 | Workbench tests | 21 passed |
-| Workbench governance | 43 passed |
+| Workbench governance | 53 passed |
 | Contract governance | 12 passed |
 | Time governance | 8 passed |
 | OpenAPI schema contract | 4 passed |
@@ -202,7 +291,7 @@ only: active Home plus disabled YunQi and inquiry placeholders.
 | Browser build exists | Focused build passed; `dist/index.html` exists |
 | Shell, providers, queries, feedback, and time behavior | 12 Workbench files and 21 tests passed |
 | Public contract types only | Workbench `test:typecheck` passed; dependency governance passed |
-| Forbidden patterns rejected | Workbench governance 43/43 and time governance 8/8 mutation tests passed |
+| Forbidden patterns rejected | Workbench governance 53/53 and time governance 8/8 mutation tests passed |
 | Root gates pass | Install, contracts, tests, typecheck, coverage, schema, OpenAPI, and diff checks all passed |
 | Responsive/theme/runtime browser behavior | Desktop and mobile inspection passed with zero console warnings/errors, zero overflow, and zero business API requests |
 | Frozen inputs unchanged | Both explicit `54dcf99...HEAD` immutable diff commands returned zero diff |

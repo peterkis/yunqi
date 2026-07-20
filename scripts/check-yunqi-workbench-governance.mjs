@@ -102,21 +102,46 @@ async function collectSourceFiles(directory) {
   return files;
 }
 
-function importSpecifiers(source) {
-  const specifiers = [];
-  const patterns = [
-    /\b(?:import|export)\s+(?:type\s+)?(?:[\s\S]*?\s+from\s+)?['"]([^'"]+)['"]/g,
+function clauseHasRuntimeBinding(clause) {
+  const normalized = clause.trim();
+  if (normalized.startsWith('type ')) return false;
+
+  const namedBindings = normalized.match(/^\{([\s\S]*)\}$/);
+  if (!namedBindings) return true;
+
+  return namedBindings[1]
+    .split(',')
+    .filter((entry) => entry.trim() !== '')
+    .some((entry) => !entry.trim().startsWith('type '));
+}
+
+function importEntries(source) {
+  const entries = [];
+  const staticImports =
+    /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"]([^'"]+)['"]/g;
+  const sideEffectImports =
+    /\bimport\s*['"]([^'"]+)['"]/g;
+  const runtimeCalls = [
     /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
     /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
   ];
 
-  for (const pattern of patterns) {
+  for (const match of source.matchAll(staticImports)) {
+    entries.push({
+      runtime: clauseHasRuntimeBinding(match[1]),
+      specifier: match[2],
+    });
+  }
+  for (const match of source.matchAll(sideEffectImports)) {
+    entries.push({ runtime: true, specifier: match[1] });
+  }
+  for (const pattern of runtimeCalls) {
     for (const match of source.matchAll(pattern)) {
-      specifiers.push(match[1]);
+      entries.push({ runtime: true, specifier: match[1] });
     }
   }
 
-  return specifiers;
+  return entries;
 }
 
 function isRelativeImport(specifier) {
@@ -137,6 +162,13 @@ function isAbsoluteLocalImport(specifier) {
     posix.isAbsolute(normalized) ||
     win32.isAbsolute(specifier)
   );
+}
+
+function packageRoot(specifier) {
+  const segments = specifier.split('/');
+  return specifier.startsWith('@')
+    ? segments.slice(0, 2).join('/')
+    : segments[0];
 }
 
 function escapesDirectory(parent, target) {
@@ -205,25 +237,28 @@ function hasRuntimeClientImport(source) {
 }
 
 function hasDirectClientMethodAccess(source) {
-  const clientIdentifier =
-    '(?:client|[A-Za-z_$][\\w$]*Client)';
   const method =
     '(?:getCurrent|getYear|calculate)';
   const propertyAccess = new RegExp(
     `(?:\\b[A-Za-z_$][\\w$]*|\\)|\\])\\s*(?:(?:\\?\\.|\\.)\\s*${method}\\b|(?:\\?\\.)?\\s*\\[\\s*['"]${method}['"]\\s*\\])`,
   );
   const destructuring = new RegExp(
-    `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=\\s*${clientIdentifier}\\b`,
+    `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=`,
   );
 
   return propertyAccess.test(source) || destructuring.test(source);
 }
 
+function isProductionSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return !(
+    /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(normalized) ||
+    normalized.includes('/src/test/')
+  );
+}
+
 function isProductionComponentSource(fileName) {
   const normalized = normalizePath(fileName);
-  const isTestSource =
-    /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(normalized) ||
-    normalized.includes('/src/test/');
   const hasComponentResponsibility =
     normalized.includes('/src/components/') ||
     normalized.includes('/src/app/') ||
@@ -233,9 +268,30 @@ function isProductionComponentSource(fileName) {
     );
 
   return (
-    !isTestSource &&
+    isProductionSource(fileName) &&
     hasComponentResponsibility
   );
+}
+
+async function findIndexViolations(root) {
+  const relativeIndex = `${WORKBENCH_ROOT}/index.html`;
+  let source;
+
+  try {
+    source = await readFile(resolve(root, relativeIndex), 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const htmlTag = source.match(/<html\b[^>]*>/i)?.[0];
+  const language = htmlTag?.match(
+    /\blang\s*=\s*(['"])([^'"]+)\1/i,
+  )?.[2];
+
+  return language === 'zh-CN'
+    ? []
+    : [`${relativeIndex}: document language must be zh-CN`];
 }
 
 async function findManifestViolations(root) {
@@ -282,7 +338,8 @@ async function findSourceViolations(root) {
     const source = await readFile(file, 'utf8');
     const relativePath = normalizePath(relative(root, file));
 
-    for (const specifier of importSpecifiers(source)) {
+    const imports = importEntries(source);
+    for (const { specifier } of imports) {
       if (isAbsoluteLocalImport(specifier)) {
         violations.push(
           `${relativePath}: absolute local import ${specifier} is forbidden`,
@@ -309,6 +366,21 @@ async function findSourceViolations(root) {
         violations.push(
           `${relativePath}: forbidden import ${specifier} (${forbidden.label})`,
         );
+      }
+    }
+
+    if (isProductionSource(file)) {
+      for (const { runtime, specifier } of imports) {
+        if (
+          runtime &&
+          !isRelativeImport(specifier) &&
+          !isAbsoluteLocalImport(specifier) &&
+          !ALLOWED_RUNTIME_DEPENDENCIES.has(packageRoot(specifier))
+        ) {
+          violations.push(
+            `${relativePath}: runtime import ${specifier} is not in the Workbench allowlist`,
+          );
+        }
       }
     }
 
@@ -352,6 +424,7 @@ export async function findWorkbenchGovernanceViolations(
 ) {
   return [
     ...(await findManifestViolations(root)),
+    ...(await findIndexViolations(root)),
     ...(await findSourceViolations(root)),
   ];
 }
