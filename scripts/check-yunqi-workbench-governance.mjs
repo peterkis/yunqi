@@ -323,11 +323,11 @@ function hasClientMethodVariableDestructuring(source, method) {
 }
 
 function hasClientMethodParameter(source, method) {
-  const functionStart =
-    /\bfunction(?:\s+[A-Za-z_$][\w$]*)?\s*\(/g;
+  const functionStart = /\bfunction\b/g;
 
   for (const match of source.matchAll(functionStart)) {
     const openParenthesis = source.indexOf('(', match.index);
+    if (openParenthesis === -1) continue;
     const closeParenthesis = findBalancedDelimiter(
       source,
       openParenthesis,

@@ -722,6 +722,18 @@ test('rejects a client method beside an object default in local destructuring', 
   });
 });
 
+test('rejects a client method from generic function component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture<T>({ getCurrent }: Props<T>) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',
