@@ -9,6 +9,7 @@ import {
   win32,
 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import * as ts from 'typescript';
 
 const repositoryRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -210,178 +211,143 @@ function hasRuntimeClientImport(source) {
 }
 
 function hasContractDtoImport(source) {
-  const contractBindings =
-    /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"](@yunqi\/contracts(?:\/[^'"]*)?)['"]/g;
-  const contractImportType =
-    /\bimport\s*\(\s*['"]@yunqi\/contracts(?:\/[^'"]*)?['"]\s*\)\s*(?:\.\s*[A-Za-z_$][\w$]*Dto\b|\[\s*['"][A-Za-z_$][\w$]*Dto['"]\s*\])/;
+  const sourceFile = ts.createSourceFile(
+    'workbench-source.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  let found = false;
 
-  if (contractImportType.test(source)) return true;
+  const isContractsSpecifier = (node) =>
+    ts.isStringLiteral(node) &&
+    /^@yunqi\/contracts(?:\/|$)/.test(node.text);
+  const isDtoName = (node) =>
+    node !== undefined &&
+    /\b[A-Za-z_$][\w$]*Dto\b/.test(node.getText(sourceFile));
 
-  for (const match of source.matchAll(contractBindings)) {
-    const clause = match[1];
+  const visit = (node) => {
+    if (found) return;
+
     if (
-      clause.includes('*') ||
-      /\b[A-Za-z_$][\w$]*Dto\b/.test(clause)
+      (ts.isImportDeclaration(node) ||
+        ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier !== undefined &&
+      isContractsSpecifier(node.moduleSpecifier)
     ) {
-      return true;
-    }
-  }
+      const bindings = ts.isImportDeclaration(node)
+        ? node.importClause?.namedBindings
+        : node.exportClause;
 
-  return false;
-}
-
-function findBalancedDelimiter(source, start, open, close) {
-  let depth = 0;
-  let quote = null;
-
-  for (let index = start; index < source.length; index += 1) {
-    const character = source[index];
-    const next = source[index + 1];
-
-    if (quote !== null) {
-      if (character === '\\') {
-        index += 1;
-      } else if (character === quote) {
-        quote = null;
+      if (
+        bindings !== undefined &&
+        (ts.isNamespaceImport(bindings) ||
+          ts.isNamespaceExport(bindings) ||
+          (ts.isNamedImports(bindings) &&
+            bindings.elements.some((element) =>
+              isDtoName(element),
+            )) ||
+          (ts.isNamedExports(bindings) &&
+            bindings.elements.some((element) =>
+              isDtoName(element),
+            )))
+      ) {
+        found = true;
+        return;
       }
-      continue;
+
+      if (
+        ts.isExportDeclaration(node) &&
+        node.exportClause === undefined
+      ) {
+        found = true;
+        return;
+      }
     }
-
-    if (character === '/' && next === '/') {
-      const lineEnd = source.indexOf('\n', index + 2);
-      if (lineEnd === -1) return -1;
-      index = lineEnd;
-      continue;
-    }
-
-    if (character === '/' && next === '*') {
-      const commentEnd = source.indexOf('*/', index + 2);
-      if (commentEnd === -1) return -1;
-      index = commentEnd + 1;
-      continue;
-    }
-
-    if (character === "'" || character === '"' || character === '`') {
-      quote = character;
-      continue;
-    }
-
-    if (character === open) {
-      depth += 1;
-    } else if (character === close) {
-      depth -= 1;
-      if (depth === 0) return index;
-    }
-  }
-
-  return -1;
-}
-
-function parameterObjectContainsMethod(parameters, method) {
-  const objectStart = parameters.search(/\S/);
-  if (objectStart === -1 || parameters[objectStart] !== '{') return false;
-
-  const objectEnd = findBalancedDelimiter(
-    parameters,
-    objectStart,
-    '{',
-    '}',
-  );
-  if (objectEnd === -1) return false;
-
-  return new RegExp(`\\b${method}\\b`).test(
-    parameters.slice(objectStart, objectEnd + 1),
-  );
-}
-
-function hasClientMethodVariableDestructuring(source, method) {
-  const declarationStart = /\b(?:const|let|var)\s*\{/g;
-
-  for (const match of source.matchAll(declarationStart)) {
-    const objectStart = source.indexOf('{', match.index);
-    const objectEnd = findBalancedDelimiter(
-      source,
-      objectStart,
-      '{',
-      '}',
-    );
-    if (objectEnd === -1) continue;
-
-    const afterPattern = source.slice(objectEnd + 1);
-    if (!/^\s*(?::\s*[^;=]+)?=/.test(afterPattern)) continue;
 
     if (
-      new RegExp(`\\b${method}\\b`).test(
-        source.slice(objectStart, objectEnd + 1),
-      )
+      ts.isImportTypeNode(node) &&
+      ts.isLiteralTypeNode(node.argument) &&
+      isContractsSpecifier(node.argument.literal) &&
+      /\b[A-Za-z_$][\w$]*Dto\b/.test(node.getText(sourceFile))
     ) {
-      return true;
+      found = true;
+      return;
     }
-  }
 
-  return false;
-}
+    ts.forEachChild(node, visit);
+  };
 
-function hasClientMethodParameter(source, method) {
-  const functionStart = /\bfunction\b/g;
-
-  for (const match of source.matchAll(functionStart)) {
-    const openParenthesis = source.indexOf('(', match.index);
-    if (openParenthesis === -1) continue;
-    const closeParenthesis = findBalancedDelimiter(
-      source,
-      openParenthesis,
-      '(',
-      ')',
-    );
-    if (
-      closeParenthesis !== -1 &&
-      parameterObjectContainsMethod(
-        source.slice(openParenthesis + 1, closeParenthesis),
-        method,
-      )
-    ) {
-      return true;
-    }
-  }
-
-  for (const match of source.matchAll(/\(/g)) {
-    const openParenthesis = match.index;
-    const closeParenthesis = findBalancedDelimiter(
-      source,
-      openParenthesis,
-      '(',
-      ')',
-    );
-    if (closeParenthesis === -1) continue;
-
-    const afterParameters = source.slice(closeParenthesis + 1);
-    if (
-      /^\s*(?::\s*[^=]*?)?=>/.test(afterParameters) &&
-      parameterObjectContainsMethod(
-        source.slice(openParenthesis + 1, closeParenthesis),
-        method,
-      )
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  visit(sourceFile);
+  return found;
 }
 
 function hasDirectClientMethodAccess(source) {
-  const method =
-    '(?:getCurrent|getYear|calculate)';
-  const propertyAccess = new RegExp(
-    `(?:\\b[A-Za-z_$][\\w$]*|\\)|\\])\\s*(?:(?:\\?\\.|\\.)\\s*${method}\\b|(?:\\?\\.)?\\s*\\[\\s*['"]${method}['"]\\s*\\])`,
+  const sourceFile = ts.createSourceFile(
+    'workbench-source.tsx',
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
   );
+  const clientMethods = new Set([
+    'calculate',
+    'getCurrent',
+    'getYear',
+  ]);
+  let found = false;
 
-  return (
-    propertyAccess.test(source) ||
-    hasClientMethodVariableDestructuring(source, method) ||
-    hasClientMethodParameter(source, method)
-  );
+  const isClientMethodName = (node) => {
+    if (node === undefined) return false;
+    if (ts.isComputedPropertyName(node)) {
+      return isClientMethodName(node.expression);
+    }
+
+    return (
+      (ts.isIdentifier(node) || ts.isStringLiteralLike(node)) &&
+      clientMethods.has(node.text)
+    );
+  };
+
+  const bindingPatternContainsClientMethod = (pattern) => {
+    if (!ts.isObjectBindingPattern(pattern)) return false;
+
+    return pattern.elements.some((element) => {
+      if (
+        isClientMethodName(element.propertyName) ||
+        (ts.isIdentifier(element.name) &&
+          isClientMethodName(element.name))
+      ) {
+        return true;
+      }
+
+      return bindingPatternContainsClientMethod(element.name);
+    });
+  };
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      (ts.isPropertyAccessExpression(node) &&
+        isClientMethodName(node.name)) ||
+      (ts.isElementAccessExpression(node) &&
+        node.argumentExpression !== undefined &&
+        isClientMethodName(node.argumentExpression)) ||
+      ((ts.isVariableDeclaration(node) ||
+        ts.isParameter(node)) &&
+        bindingPatternContainsClientMethod(node.name))
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
 }
 
 function isProductionSource(fileName) {

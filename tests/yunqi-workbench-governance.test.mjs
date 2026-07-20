@@ -734,6 +734,44 @@ test('rejects a client method from generic function component parameters', async
   });
 });
 
+test('rejects a client method after a parameter comment', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture(/* props */ { getCurrent }) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method after a generic function constraint', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture<T extends () => void>(
+        { getCurrent }: Props<T>,
+      ) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a computed client method in component destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ ['getCurrent']: loadCurrent }) {
+        return <main>{loadCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',
@@ -798,6 +836,24 @@ test('rejects a frozen DTO import type query in component source', async () => {
     `,
     expected:
       /features\/yunqi\/components\/ImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a commented frozen DTO import type query', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/CommentedImportTypeDtoView.tsx',
+    source: `
+      type Props = {
+        readonly value:
+          import/* type */('@yunqi/contracts').YunQiCalculationDto;
+      };
+      export function CommentedImportTypeDtoView(props: Props) {
+        return <main>{props.value.year}</main>;
+      }
+    `,
+    expected:
+      /features\/yunqi\/components\/CommentedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
   });
 });
 
