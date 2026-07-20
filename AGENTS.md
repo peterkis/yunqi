@@ -157,6 +157,77 @@ docs/contracts/YQ-API-CONTRACT-1.0.0.md
 
 ------------------------------------------------------------------------
 
+## 3.3 React Workbench 治理边界
+
+Phase3-B Workbench 的依赖链固定为：
+
+```text
+apps/yunqi-workbench
+  ├── @yunqi/client
+  │     └── @yunqi/contracts
+  └── @tanstack/react-query
+```
+
+Workbench 运行时只允许依赖：
+
+```text
+@tanstack/react-query
+@yunqi/client
+@yunqi/contracts
+react
+react-dom
+```
+
+上述白名单同时约束 `dependencies`、`optionalDependencies` 和
+`peerDependencies`；`devDependencies` 只允许承载开发和测试工具，不能借此
+绕过源码 import 治理。
+
+禁止依赖或导入 Service、Domain、calendar adapter、内部生成的 OpenAPI 文件，
+Axios 或 React Router，也不得复制冻结 DTO。所有源码的静态 import、动态
+import 和 `require` 均受此约束，即使对应包只出现在 `devDependencies`。
+DTO 必须从 `@yunqi/contracts` 导入。
+
+相对 import 解析后必须仍位于 `apps/yunqi-workbench` 内；禁止使用 `../` 或
+Windows `..\` 逃逸到仓库中的 Service、Domain、calendar adapter、generated
+contract 或其他本地实现。禁止绝对本地路径和 `file:` import。公共
+`@yunqi/contracts` 与 `@yunqi/client` 包入口不受此限制。
+
+Provider ownership 固定如下：
+
+- `AppProviders` 负责组合 Error Boundary、Theme、Query 和 YunQi Client Provider；
+- `QueryProvider` 拥有 `QueryClient`；
+- `YunQiClientProvider` 拥有 `YunQiClient` 与 transport 的创建和注入；
+- feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
+- `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
+  按路径职责视为 component，不因文件扩展名改变；
+- component 只接收状态和 DTO，不得 runtime import 或 runtime re-export
+  `@yunqi/client`，不得调用 `fetch`、Axios 或 YunQi client 方法，不得通过
+  optional chaining、方法引用、bracket access 或解构取得 client 方法能力，
+  不得拼接 `/api/v1/yunqi/**` 路径或执行五运六气业务计算。纯 type-only
+  client import/re-export 不创建运行时能力；混合 type/runtime re-export
+  仍按 runtime 拒绝。
+
+Phase3-B 只建立非路由 Workbench foundation。未经后续阶段明确授权，不得加入
+router、业务页面、问诊流程、专家审核、规则管理、诊断或治疗输出。
+
+Workbench 展示业务时间必须直接使用 API 的规范 `localTime`，并标注：
+
+```text
+北京时间 UTC+08
+```
+
+不得从 `epochMilliseconds`、浏览器本地时区、`Date`、Temporal、Intl、
+locale/ISO formatter 或 `Asia/Shanghai` 重建展示时间。
+
+以上规则由根命令自动检查：
+
+```text
+pnpm test:workbench-governance
+pnpm test:time-governance
+```
+
+------------------------------------------------------------------------
+
 # 4. 时间处理规范
 
 五运六气最重要的工程风险是时间边界。

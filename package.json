@@ -2,13 +2,17 @@
   "name": "yunqi",
   "private": true,
   "packageManager": "pnpm@10.32.1",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "build:contract-source": "pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build",
-    "build": "pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build",
-    "test": "pnpm build && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
-    "typecheck": "pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/contracts typecheck && pnpm --filter @yunqi/contracts test:typecheck && pnpm --filter @yunqi/client typecheck && pnpm --filter @yunqi/client test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck",
-    "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/client test:coverage && pnpm --filter @yunqi/service test:coverage",
+    "build": "pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build",
+    "test": "pnpm build && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
+    "typecheck": "pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/contracts typecheck && pnpm --filter @yunqi/contracts test:typecheck && pnpm --filter @yunqi/client typecheck && pnpm --filter @yunqi/client test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck && pnpm --filter @yunqi/workbench typecheck && pnpm --filter @yunqi/workbench test:typecheck",
+    "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/client test:coverage && pnpm --filter @yunqi/service test:coverage && pnpm --filter @yunqi/workbench test:coverage",
     "test:contract-governance": "node --test tests/yunqi-contract-governance.test.mjs && node scripts/check-yunqi-contract-dependencies.mjs",
+    "test:workbench-governance": "node --test tests/yunqi-workbench-governance.test.mjs && node scripts/check-yunqi-workbench-governance.mjs",
     "test:time-purity": "pnpm test:time-governance && pnpm --filter @yunqi/domain test:time-purity && pnpm --filter @yunqi/service test:time-purity",
     "test:time-governance": "node --test tests/yunqi-time-governance.test.mjs && node scripts/check-yunqi-time-governance.mjs",
     "test:timezone": "pnpm build && pnpm --filter @yunqi/service test:timezone",
