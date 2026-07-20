@@ -210,14 +210,29 @@ function hasRuntimeClientImport(source) {
   );
 }
 
-function hasContractDtoImport(source) {
-  const sourceFile = ts.createSourceFile(
-    'workbench-source.tsx',
+function parseWorkbenchSource(source, fileName) {
+  const scriptKind = new Map([
+    ['.cjs', ts.ScriptKind.JS],
+    ['.cts', ts.ScriptKind.TS],
+    ['.js', ts.ScriptKind.JS],
+    ['.jsx', ts.ScriptKind.JSX],
+    ['.mjs', ts.ScriptKind.JS],
+    ['.mts', ts.ScriptKind.TS],
+    ['.ts', ts.ScriptKind.TS],
+    ['.tsx', ts.ScriptKind.TSX],
+  ]).get(extensionOf(fileName)) ?? ts.ScriptKind.Unknown;
+
+  return ts.createSourceFile(
+    fileName,
     source,
     ts.ScriptTarget.Latest,
     true,
-    ts.ScriptKind.TSX,
+    scriptKind,
   );
+}
+
+function hasContractDtoImport(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
   let found = false;
 
   const isContractsSpecifier = (node) =>
@@ -323,14 +338,8 @@ function hasContractDtoImport(source) {
   return found;
 }
 
-function hasDirectClientMethodAccess(source) {
-  const sourceFile = ts.createSourceFile(
-    'workbench-source.tsx',
-    source,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX,
-  );
+function hasDirectClientMethodAccess(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
   const clientMethods = new Set([
     'calculate',
     'getCurrent',
@@ -597,7 +606,7 @@ async function findSourceViolations(root) {
           );
         }
       }
-      if (hasDirectClientMethodAccess(source)) {
+      if (hasDirectClientMethodAccess(source, file)) {
         violations.push(
           `${relativePath}: client method access is forbidden in presentation mapper source`,
         );
@@ -611,7 +620,7 @@ async function findSourceViolations(root) {
 
     if (!isProductionComponentSource(file)) continue;
 
-    if (hasContractDtoImport(source)) {
+    if (hasContractDtoImport(source, file)) {
       violations.push(
         `${relativePath}: frozen DTO imports from @yunqi/contracts are forbidden in component source`,
       );
@@ -627,7 +636,7 @@ async function findSourceViolations(root) {
     if (/\/api\/v1\/yunqi\b/.test(source)) {
       violations.push(`${relativePath}: direct YunQi API path is forbidden`);
     }
-    if (hasDirectClientMethodAccess(source)) {
+    if (hasDirectClientMethodAccess(source, file)) {
       violations.push(
         `${relativePath}: direct YunQi client method access is forbidden`,
       );

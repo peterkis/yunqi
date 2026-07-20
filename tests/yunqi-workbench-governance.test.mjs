@@ -593,6 +593,20 @@ test('rejects taking a client method reference in component source', async () =>
   });
 });
 
+test('rejects a client method behind a TS angle-bracket assertion', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/AngleAssertion.ts',
+    source: `
+      export function read(client) {
+        const current = <unknown>client.getCurrent;
+        return current;
+      }
+    `,
+    expected:
+      /components\/AngleAssertion\.ts: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('rejects a client method capability passed under a generic prop name', async () => {
   await assertMutationRejected({
     source: `
