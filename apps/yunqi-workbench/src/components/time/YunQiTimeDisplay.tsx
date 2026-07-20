@@ -1,7 +1,7 @@
-import type { YunQiTimeDto } from '@yunqi/contracts';
+import type { YunQiTimeViewModel } from '../../features/yunqi/presentation/view-model';
 
 export interface YunQiTimeDisplayProps {
-  readonly value: YunQiTimeDto;
+  readonly value: YunQiTimeViewModel;
 }
 
 function toHumanLocalTime(localTime: string) {
@@ -16,7 +16,7 @@ export function YunQiTimeDisplay({
       <time dateTime={value.localTime}>
         {toHumanLocalTime(value.localTime)}
       </time>{' '}
-      <span>北京时间 UTC+08</span>
+      <span>{value.standard.label}</span>
     </span>
   );
 }
