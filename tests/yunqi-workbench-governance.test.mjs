@@ -208,6 +208,65 @@ for (const [packageName, source] of [
   });
 }
 
+for (const [label, relativeSourcePath, source] of [
+  [
+    'Service',
+    'features/fixture.ts',
+    "import '../../../../packages/yunqi-service/src/index.ts';",
+  ],
+  [
+    'Domain with Windows separators',
+    'app/fixture.ts',
+    "const domain = require('..\\\\..\\\\..\\\\..\\\\packages\\\\yunqi-domain\\\\src\\\\index.ts');",
+  ],
+]) {
+  test(`rejects relative import escaping to ${label}`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath,
+      source,
+      expected: new RegExp(
+        `${relativeSourcePath.replaceAll('.', '\\.').replaceAll('/', '\\/')}.*relative import.*escapes apps/yunqi-workbench`,
+      ),
+    });
+  });
+}
+
+test('rejects an absolute local import path', async () => {
+  const fixtureRoot = createFixture();
+  const absoluteTarget = join(
+    fixtureRoot,
+    'packages/yunqi-service/src/index.ts',
+  ).replaceAll('\\', '/');
+  writeFixtureFile(
+    fixtureRoot,
+    'apps/yunqi-workbench/src/features/absolute.ts',
+    `import '${absoluteTarget}';`,
+  );
+  const violations =
+    await findWorkbenchGovernanceViolations(fixtureRoot);
+
+  assert.ok(
+    violations.some((violation) =>
+      /features\/absolute\.ts: absolute local import .* is forbidden/.test(
+        violation,
+      ),
+    ),
+    violations.join('\n'),
+  );
+});
+
+test('allows an app-relative import that stays inside the Workbench', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'app/App.ts',
+    source: "import { Fixture } from '../components/Fixture';\nexport { Fixture };",
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
 test('allows client-context usage in a TSX feature hook', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'features/yunqi/hooks/useCurrent.tsx',
@@ -222,6 +281,51 @@ test('allows client-context usage in a TSX feature hook', async () => {
     await findWorkbenchGovernanceViolations(fixtureRoot),
     [],
   );
+});
+
+test('allows client runtime ownership in TSX provider infrastructure', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'providers/YunQiClientProvider.tsx',
+    source: `
+      import { createYunQiClient } from '@yunqi/client';
+      export const client = createYunQiClient(transport);
+      export const current = client.getCurrent;
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows a type-only client import in component source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'components/Typed.ts',
+    source: `
+      import React from 'react';
+      import type { YunQiClient } from '@yunqi/client';
+      export interface Props { readonly client: YunQiClient; }
+      export const element = React.createElement('main');
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('rejects a runtime client import in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/ClientOwner.ts',
+    source: `
+      import { createYunQiClient } from '@yunqi/client';
+      export const client = createYunQiClient(transport);
+    `,
+    expected:
+      /components\/ClientOwner\.ts: runtime @yunqi\/client import is forbidden in component source/,
+  });
 });
 
 test('rejects direct fetch in component source', async () => {
@@ -246,7 +350,7 @@ test('rejects direct YunQi client method call in component source', async () => 
     source:
       'export function Fixture() { yunqiClient.getCurrent(); return <main />; }',
     expected:
-      /components\/Fixture\.tsx: direct YunQi client method call is forbidden/,
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
   });
 });
 
@@ -261,7 +365,7 @@ test('rejects direct client calls in non-TSX component responsibility paths', as
       }
     `,
     expected:
-      /components\/Foo\.ts: direct YunQi client method call is forbidden/,
+      /components\/Foo\.ts: direct YunQi client method access is forbidden/,
   });
 });
 
@@ -276,11 +380,98 @@ for (const method of ['getCurrent', 'getYear', 'calculate']) {
         }
       `,
       expected: new RegExp(
-        `features/yunqi/components/${method}\\.js: direct YunQi client method call is forbidden`,
+        `features/yunqi/components/${method}\\.js: direct YunQi client method access is forbidden`,
       ),
     });
   });
 }
+
+test('rejects optional client method invocation in component source', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture() {
+        client.getCurrent?.();
+        return null;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects taking a client method reference in component source', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture() {
+        const current = yunqiClient.getCurrent;
+        return current;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method capability passed under a generic prop name', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ api }) {
+        const current = api['getCurrent'];
+        return current;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects destructuring a client method in component source', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture() {
+        const { getCurrent } = client;
+        return getCurrent();
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('allows similarly named fields on ordinary DTO values', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'components/Summary.ts',
+    source: `
+      export function summarize(result, dto) {
+        const localTime = result.input.localTime;
+        const { year, interval } = dto;
+        return { localTime, year, interval };
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('does not apply component capability rules to test files', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'components/Fixture.test.ts',
+    source: `
+      import { createYunQiClient } from '@yunqi/client';
+      client.getCurrent?.();
+      const { calculate } = client;
+      export { createYunQiClient, calculate };
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
 
 test('rejects a copied frozen DTO declaration', async () => {
   await assertMutationRejected({

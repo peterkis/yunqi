@@ -1,5 +1,13 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import {
+  dirname,
+  isAbsolute,
+  posix,
+  relative,
+  resolve,
+  sep,
+  win32,
+} from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const repositoryRoot = resolve(
@@ -111,6 +119,86 @@ function importSpecifiers(source) {
   return specifiers;
 }
 
+function isRelativeImport(specifier) {
+  const normalized = normalizePath(specifier);
+  return (
+    normalized === '.' ||
+    normalized === '..' ||
+    normalized.startsWith('./') ||
+    normalized.startsWith('../')
+  );
+}
+
+function isAbsoluteLocalImport(specifier) {
+  const normalized = normalizePath(specifier);
+  return (
+    normalized.startsWith('file:') ||
+    isAbsolute(specifier) ||
+    posix.isAbsolute(normalized) ||
+    win32.isAbsolute(specifier)
+  );
+}
+
+function escapesDirectory(parent, target) {
+  const pathFromParent = relative(parent, target);
+  return (
+    pathFromParent === '..' ||
+    pathFromParent.startsWith(`..${sep}`) ||
+    isAbsolute(pathFromParent)
+  );
+}
+
+function hasRuntimeClientImport(source) {
+  const clientSpecifier = '@yunqi/client';
+  const staticImports =
+    /\bimport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
+
+  for (const match of source.matchAll(staticImports)) {
+    const clause = match[1].trim();
+    if (clause.startsWith('type ')) continue;
+
+    const namedImport = clause.match(/^\{([\s\S]*)\}$/);
+    if (
+      namedImport &&
+      namedImport[1]
+        .split(',')
+        .filter((entry) => entry.trim() !== '')
+        .every((entry) => entry.trim().startsWith('type '))
+    ) {
+      continue;
+    }
+
+    return true;
+  }
+
+  return (
+    new RegExp(
+      `\\bimport\\s*\\(\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
+    ).test(source) ||
+    new RegExp(
+      `\\brequire\\s*\\(\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
+    ).test(source) ||
+    new RegExp(
+      `\\bimport\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
+    ).test(source)
+  );
+}
+
+function hasDirectClientMethodAccess(source) {
+  const clientIdentifier =
+    '(?:client|[A-Za-z_$][\\w$]*Client)';
+  const method =
+    '(?:getCurrent|getYear|calculate)';
+  const propertyAccess = new RegExp(
+    `(?:\\b[A-Za-z_$][\\w$]*|\\)|\\])\\s*(?:(?:\\?\\.|\\.)\\s*${method}\\b|(?:\\?\\.)?\\s*\\[\\s*['"]${method}['"]\\s*\\])`,
+  );
+  const destructuring = new RegExp(
+    `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=\\s*${clientIdentifier}\\b`,
+  );
+
+  return propertyAccess.test(source) || destructuring.test(source);
+}
+
 function isProductionComponentSource(fileName) {
   const normalized = normalizePath(fileName);
   const isTestSource =
@@ -165,7 +253,8 @@ async function findManifestViolations(root) {
 }
 
 async function findSourceViolations(root) {
-  const sourceRoot = resolve(root, WORKBENCH_ROOT, 'src');
+  const workbenchRoot = resolve(root, WORKBENCH_ROOT);
+  const sourceRoot = resolve(workbenchRoot, 'src');
   const sourceFiles = await collectSourceFiles(sourceRoot);
   const violations = [];
 
@@ -174,6 +263,25 @@ async function findSourceViolations(root) {
     const relativePath = normalizePath(relative(root, file));
 
     for (const specifier of importSpecifiers(source)) {
+      if (isAbsoluteLocalImport(specifier)) {
+        violations.push(
+          `${relativePath}: absolute local import ${specifier} is forbidden`,
+        );
+        continue;
+      }
+      if (
+        isRelativeImport(specifier) &&
+        escapesDirectory(
+          workbenchRoot,
+          resolve(dirname(file), normalizePath(specifier)),
+        )
+      ) {
+        violations.push(
+          `${relativePath}: relative import ${specifier} escapes apps/yunqi-workbench`,
+        );
+        continue;
+      }
+
       const forbidden = FORBIDDEN_IMPORTS.find(({ pattern }) =>
         pattern.test(specifier),
       );
@@ -198,19 +306,20 @@ async function findSourceViolations(root) {
 
     if (!isProductionComponentSource(file)) continue;
 
+    if (hasRuntimeClientImport(source)) {
+      violations.push(
+        `${relativePath}: runtime @yunqi/client import is forbidden in component source`,
+      );
+    }
     if (/\bfetch\s*\(/.test(source)) {
       violations.push(`${relativePath}: direct fetch is forbidden`);
     }
     if (/\/api\/v1\/yunqi\b/.test(source)) {
       violations.push(`${relativePath}: direct YunQi API path is forbidden`);
     }
-    if (
-      /(?:\.\s*(?:getCurrent|getYear|calculate)\s*|\[\s*['"](?:getCurrent|getYear|calculate)['"]\s*\])\(/.test(
-        source,
-      )
-    ) {
+    if (hasDirectClientMethodAccess(source)) {
       violations.push(
-        `${relativePath}: direct YunQi client method call is forbidden`,
+        `${relativePath}: direct YunQi client method access is forbidden`,
       );
     }
   }

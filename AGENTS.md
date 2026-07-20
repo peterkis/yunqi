@@ -187,6 +187,11 @@ Axios 或 React Router，也不得复制冻结 DTO。所有源码的静态 impor
 import 和 `require` 均受此约束，即使对应包只出现在 `devDependencies`。
 DTO 必须从 `@yunqi/contracts` 导入。
 
+相对 import 解析后必须仍位于 `apps/yunqi-workbench` 内；禁止使用 `../` 或
+Windows `..\` 逃逸到仓库中的 Service、Domain、calendar adapter、generated
+contract 或其他本地实现。禁止绝对本地路径和 `file:` import。公共
+`@yunqi/contracts` 与 `@yunqi/client` 包入口不受此限制。
+
 Provider ownership 固定如下：
 
 - `AppProviders` 负责组合 Error Boundary、Theme、Query 和 YunQi Client Provider；
@@ -195,8 +200,10 @@ Provider ownership 固定如下：
 - feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
 - `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
   按路径职责视为 component，不因文件扩展名改变；
-- component 只接收状态和 DTO，不得调用 `fetch`、Axios、YunQi client 方法，
-  不得拼接 `/api/v1/yunqi/**` 路径或执行五运六气业务计算。
+- component 只接收状态和 DTO，不得 runtime import `@yunqi/client`，不得调用
+  `fetch`、Axios 或 YunQi client 方法，不得通过 optional chaining、方法引用、
+  bracket access 或解构取得 client 方法能力，不得拼接 `/api/v1/yunqi/**`
+  路径或执行五运六气业务计算。type-only client import 不创建运行时能力。
 
 Phase3-B 只建立非路由 Workbench foundation。未经后续阶段明确授权，不得加入
 router、业务页面、问诊流程、专家审核、规则管理、诊断或治疗输出。

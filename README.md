@@ -44,6 +44,13 @@ including imports backed only by development dependencies. Presentation
 responsibility is path-based under `src/components/**`, `src/app/**`, and
 `src/features/**/components/**`.
 
+Relative imports must resolve inside `apps/yunqi-workbench`; absolute local
+imports and relative escapes into repository implementation packages are
+rejected. Public `@yunqi/contracts` and `@yunqi/client` package imports remain
+the supported boundary. Presentation components cannot runtime-import
+`@yunqi/client` or acquire its methods through optional access, references,
+brackets, or destructuring.
+
 ## Workbench development
 
 From the repository root:

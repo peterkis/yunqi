@@ -27,10 +27,19 @@ including when listed only as development dependencies. The runtime allowlist
 applies to dependencies, optional dependencies, and peer dependencies.
 Phase3-B deliberately has no router or business pages.
 
+Relative imports must stay inside `apps/yunqi-workbench`. Imports that escape
+to repository implementation packages, absolute local paths, and `file:`
+imports are forbidden. Use the public `@yunqi/contracts` and `@yunqi/client`
+package entrypoints.
+
 Component responsibility is path-based: `src/components/**`, `src/app/**`,
 and `src/features/**/components/**` are presentation code regardless of
 whether a file uses `.ts`, `.tsx`, `.js`, or `.jsx`. Hooks, query API modules,
 and Provider infrastructure retain their separate ownership boundaries.
+Components must not runtime-import `@yunqi/client` or obtain
+`getCurrent`/`getYear`/`calculate` through optional chaining, a method
+reference, bracket access, or destructuring. Type-only client imports do not
+create runtime capability.
 
 ## Fixed Beijing time
 
