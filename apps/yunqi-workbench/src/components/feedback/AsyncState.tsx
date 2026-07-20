@@ -1,4 +1,9 @@
 import type { ReactNode } from 'react';
+import {
+  EmptyState,
+  ErrorState,
+  LoadingState,
+} from './FeedbackStates';
 
 export interface AsyncStateProps<T> {
   readonly data: T | null | undefined;
@@ -20,24 +25,21 @@ export function AsyncState<T>({
   renderData,
 }: AsyncStateProps<T>) {
   if (isPending) {
-    return <p role="status">正在加载</p>;
+    return <LoadingState message="正在加载" />;
   }
 
   if (error !== null && error !== undefined) {
     return (
-      <div role="alert">
-        <p>加载失败</p>
-        {onRetry ? (
-          <button type="button" onClick={onRetry}>
-            重试
-          </button>
-        ) : null}
-      </div>
+      <ErrorState
+        message="加载失败"
+        onRetry={onRetry}
+        retryLabel="重试"
+      />
     );
   }
 
   if (data === null || data === undefined || isEmptyData(data)) {
-    return <p>暂无数据</p>;
+    return <EmptyState message="暂无数据" />;
   }
 
   return <>{renderData(data)}</>;

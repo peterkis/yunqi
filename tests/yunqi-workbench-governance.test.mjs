@@ -626,6 +626,77 @@ test('allows similarly named fields on ordinary DTO values', async () => {
   );
 });
 
+test('rejects a frozen DTO import in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/DirectDtoView.tsx',
+    source: `
+      import type {
+        YunQiCalculationDto,
+      } from '@yunqi/contracts';
+      export function DirectDtoView(
+        props: { readonly value: YunQiCalculationDto },
+      ) {
+        return <main>{props.value.year}</main>;
+      }
+    `,
+    expected:
+      /features\/yunqi\/components\/DirectDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a contracts namespace import in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/ContractNamespace.ts',
+    source: `
+      import type * as Contracts from '@yunqi/contracts';
+      export type Value = Contracts.YunQiTimeDto;
+    `,
+    expected:
+      /components\/ContractNamespace\.ts: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+for (const [label, source, expected] of [
+  [
+    'React',
+    "import type { ReactNode } from 'react';\nexport type Value = ReactNode;",
+    /presentation\/mapper\.ts: React imports are forbidden in presentation mapper source/,
+  ],
+  [
+    'TanStack Query',
+    "import { queryOptions } from '@tanstack/react-query';\nexport { queryOptions };",
+    /presentation\/mapper\.ts: TanStack Query imports are forbidden in presentation mapper source/,
+  ],
+  [
+    'YunQi client',
+    "import type { YunQiClient } from '@yunqi/client';\nexport type Value = YunQiClient;",
+    /presentation\/mapper\.ts: @yunqi\/client imports are forbidden in presentation mapper source/,
+  ],
+]) {
+  test(`rejects ${label} dependency in presentation mapper source`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: 'features/yunqi/presentation/mapper.ts',
+      source,
+      expected,
+    });
+  });
+}
+
+test('rejects direct client capability access in presentation mapper source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/presentation/mapper.ts',
+    source: `
+      export function map(client) {
+        return client.getCurrent();
+      }
+    `,
+    expected:
+      /presentation\/mapper\.ts: client method access is forbidden in presentation mapper source/,
+  });
+});
+
 test('does not apply component capability rules to test files', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Fixture.test.ts',

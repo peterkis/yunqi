@@ -236,6 +236,23 @@ function hasRuntimeClientImport(source) {
   );
 }
 
+function hasContractDtoImport(source) {
+  const contractBindings =
+    /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"](@yunqi\/contracts(?:\/[^'"]*)?)['"]/g;
+
+  for (const match of source.matchAll(contractBindings)) {
+    const clause = match[1];
+    if (
+      clause.includes('*') ||
+      /\b[A-Za-z_$][\w$]*Dto\b/.test(clause)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 function hasDirectClientMethodAccess(source) {
   const method =
     '(?:getCurrent|getYear|calculate)';
@@ -270,6 +287,14 @@ function isProductionComponentSource(fileName) {
   return (
     isProductionSource(fileName) &&
     hasComponentResponsibility
+  );
+}
+
+function isProductionPresentationMapperSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return (
+    isProductionSource(fileName) &&
+    normalized.includes('/src/features/yunqi/presentation/')
   );
 }
 
@@ -396,8 +421,43 @@ async function findSourceViolations(root) {
       }
     }
 
+    if (isProductionPresentationMapperSource(file)) {
+      for (const { specifier } of imports) {
+        if (/^react(?:\/|$)|^react-dom(?:\/|$)/.test(specifier)) {
+          violations.push(
+            `${relativePath}: React imports are forbidden in presentation mapper source`,
+          );
+        }
+        if (/^@tanstack\/react-query(?:\/|$)/.test(specifier)) {
+          violations.push(
+            `${relativePath}: TanStack Query imports are forbidden in presentation mapper source`,
+          );
+        }
+        if (/^@yunqi\/client(?:\/|$)/.test(specifier)) {
+          violations.push(
+            `${relativePath}: @yunqi/client imports are forbidden in presentation mapper source`,
+          );
+        }
+      }
+      if (hasDirectClientMethodAccess(source)) {
+        violations.push(
+          `${relativePath}: client method access is forbidden in presentation mapper source`,
+        );
+      }
+      if (/\bfetch\s*\(/.test(source)) {
+        violations.push(
+          `${relativePath}: fetch is forbidden in presentation mapper source`,
+        );
+      }
+    }
+
     if (!isProductionComponentSource(file)) continue;
 
+    if (hasContractDtoImport(source)) {
+      violations.push(
+        `${relativePath}: frozen DTO imports from @yunqi/contracts are forbidden in component source`,
+      );
+    }
     if (hasRuntimeClientImport(source)) {
       violations.push(
         `${relativePath}: runtime @yunqi/client import/re-export is forbidden in component source`,

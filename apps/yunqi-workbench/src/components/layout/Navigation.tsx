@@ -28,7 +28,7 @@ export function Navigation() {
           </li>
         ))}
       </ul>
-      <p className="navigation-note">Phase 3-B · 基础设施阶段</p>
+      <p className="navigation-note">Phase 3-C1 · 当前数据展示</p>
     </nav>
   );
 }
