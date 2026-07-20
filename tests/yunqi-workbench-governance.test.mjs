@@ -159,6 +159,10 @@ for (const [label, source] of [
     'require call',
     "export const helper = require('runtime-helper');",
   ],
+  [
+    'empty named import',
+    "import {} from 'runtime-helper';",
+  ],
 ]) {
   test(`rejects a devDependency-only bare runtime ${label} in production source`, async () => {
     await assertMutationRejected({
@@ -608,6 +612,44 @@ for (const method of ['getCurrent', 'getYear', 'calculate']) {
   });
 }
 
+for (const method of ['getCurrent', 'getYear', 'calculate']) {
+  test(`rejects destructuring ${method} from component parameters`, async () => {
+    await assertMutationRejected({
+      source: `
+        export function Fixture({ ${method} }) {
+          return ${method};
+        }
+      `,
+      expected:
+        /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+    });
+  });
+}
+
+for (const method of ['getCurrent', 'getYear', 'calculate']) {
+  test(`rejects destructuring ${method} from arrow component parameters`, async () => {
+    await assertMutationRejected({
+      source: `
+        export const Fixture = ({ ${method} }) => ${method};
+      `,
+      expected:
+        /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+    });
+  });
+}
+
+test('rejects an aliased client method from component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ getCurrent: loadCurrent }) {
+        return loadCurrent;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',
@@ -654,6 +696,24 @@ test('rejects a contracts namespace import in component source', async () => {
     `,
     expected:
       /components\/ContractNamespace\.ts: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a frozen DTO import type query in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/ImportTypeDtoView.tsx',
+    source: `
+      type Props = {
+        readonly value:
+          import('@yunqi/contracts').YunQiCalculationDto;
+      };
+      export function ImportTypeDtoView(props: Props) {
+        return <main>{props.value.year}</main>;
+      }
+    `,
+    expected:
+      /features\/yunqi\/components\/ImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
   });
 });
 

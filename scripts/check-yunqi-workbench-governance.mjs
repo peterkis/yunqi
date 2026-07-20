@@ -108,6 +108,7 @@ function clauseHasRuntimeBinding(clause) {
 
   const namedBindings = normalized.match(/^\{([\s\S]*)\}$/);
   if (!namedBindings) return true;
+  if (namedBindings[1].trim() === '') return true;
 
   return namedBindings[1]
     .split(',')
@@ -239,6 +240,10 @@ function hasRuntimeClientImport(source) {
 function hasContractDtoImport(source) {
   const contractBindings =
     /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"](@yunqi\/contracts(?:\/[^'"]*)?)['"]/g;
+  const contractImportType =
+    /\bimport\s*\(\s*['"]@yunqi\/contracts(?:\/[^'"]*)?['"]\s*\)\s*(?:\.\s*[A-Za-z_$][\w$]*Dto\b|\[\s*['"][A-Za-z_$][\w$]*Dto['"]\s*\])/;
+
+  if (contractImportType.test(source)) return true;
 
   for (const match of source.matchAll(contractBindings)) {
     const clause = match[1];
@@ -262,8 +267,21 @@ function hasDirectClientMethodAccess(source) {
   const destructuring = new RegExp(
     `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=`,
   );
+  const parameterObject =
+    `\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}`;
+  const functionParameter = new RegExp(
+    `\\bfunction(?:\\s+[A-Za-z_$][\\w$]*)?\\s*\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)\\r\\n]+)?(?:\\s*,[^)]*)?\\)`,
+  );
+  const arrowParameter = new RegExp(
+    `\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)\\r\\n]+)?(?:\\s*,[^)]*)?\\)\\s*(?::\\s*[^=\\r\\n]+)?=>`,
+  );
 
-  return propertyAccess.test(source) || destructuring.test(source);
+  return (
+    propertyAccess.test(source) ||
+    destructuring.test(source) ||
+    functionParameter.test(source) ||
+    arrowParameter.test(source)
+  );
 }
 
 function isProductionSource(fileName) {
