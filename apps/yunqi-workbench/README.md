@@ -22,7 +22,15 @@ methods, and do not construct `/api/v1/yunqi/**` paths.
 
 DTOs come from `@yunqi/contracts`. The Workbench must not depend on or import
 Service, Domain, calendar adapters, or internal generated OpenAPI modules.
+Axios and React Router imports are also forbidden throughout Workbench source,
+including when listed only as development dependencies. The runtime allowlist
+applies to dependencies, optional dependencies, and peer dependencies.
 Phase3-B deliberately has no router or business pages.
+
+Component responsibility is path-based: `src/components/**`, `src/app/**`,
+and `src/features/**/components/**` are presentation code regardless of
+whether a file uses `.ts`, `.tsx`, `.js`, or `.jsx`. Hooks, query API modules,
+and Provider infrastructure retain their separate ownership boundaries.
 
 ## Fixed Beijing time
 

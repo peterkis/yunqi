@@ -37,6 +37,13 @@ methods. Phase3-B contains no router or business pages. Business time is
 rendered from canonical `localTime` and labelled `北京时间 UTC+08`; it is not
 reconstructed from `epochMilliseconds`.
 
+The Workbench runtime allowlist applies to dependencies, optional
+dependencies, and peer dependencies. Service, Domain, calendar adapter,
+Axios, and React Router imports are forbidden throughout Workbench source,
+including imports backed only by development dependencies. Presentation
+responsibility is path-based under `src/components/**`, `src/app/**`, and
+`src/features/**/components/**`.
+
 ## Workbench development
 
 From the repository root:

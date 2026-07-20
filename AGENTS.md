@@ -178,8 +178,14 @@ react
 react-dom
 ```
 
+上述白名单同时约束 `dependencies`、`optionalDependencies` 和
+`peerDependencies`；`devDependencies` 只允许承载开发和测试工具，不能借此
+绕过源码 import 治理。
+
 禁止依赖或导入 Service、Domain、calendar adapter、内部生成的 OpenAPI 文件，
-也不得复制冻结 DTO。DTO 必须从 `@yunqi/contracts` 导入。
+Axios 或 React Router，也不得复制冻结 DTO。所有源码的静态 import、动态
+import 和 `require` 均受此约束，即使对应包只出现在 `devDependencies`。
+DTO 必须从 `@yunqi/contracts` 导入。
 
 Provider ownership 固定如下：
 
@@ -187,6 +193,8 @@ Provider ownership 固定如下：
 - `QueryProvider` 拥有 `QueryClient`；
 - `YunQiClientProvider` 拥有 `YunQiClient` 与 transport 的创建和注入；
 - feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
+- `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
+  按路径职责视为 component，不因文件扩展名改变；
 - component 只接收状态和 DTO，不得调用 `fetch`、Axios、YunQi client 方法，
   不得拼接 `/api/v1/yunqi/**` 路径或执行五运六气业务计算。
 

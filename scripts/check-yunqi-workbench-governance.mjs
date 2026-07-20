@@ -46,8 +46,15 @@ const FORBIDDEN_IMPORTS = [
     label: 'internal generated OpenAPI module',
     pattern: /^@yunqi\/contracts\/.*(?:generated|openapi)/,
   },
+  {
+    label: 'Axios',
+    pattern: /^axios(?:\/|$)/,
+  },
+  {
+    label: 'React Router',
+    pattern: /^react-router-dom(?:\/|$)/,
+  },
 ];
-const COMPONENT_SOURCE_EXTENSIONS = new Set(['.jsx', '.tsx']);
 
 function normalizePath(value) {
   return value.replaceAll('\\', '/');
@@ -106,10 +113,20 @@ function importSpecifiers(source) {
 
 function isProductionComponentSource(fileName) {
   const normalized = normalizePath(fileName);
+  const isTestSource =
+    /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(normalized) ||
+    normalized.includes('/src/test/');
+  const hasComponentResponsibility =
+    normalized.includes('/src/components/') ||
+    normalized.includes('/src/app/') ||
+    (
+      normalized.includes('/src/features/') &&
+      normalized.includes('/components/')
+    );
+
   return (
-    COMPONENT_SOURCE_EXTENSIONS.has(extensionOf(normalized)) &&
-    !/\.(?:test|spec)\.[jt]sx$/.test(normalized) &&
-    !normalized.includes('/src/test/')
+    !isTestSource &&
+    hasComponentResponsibility
   );
 }
 
@@ -131,6 +148,7 @@ async function findManifestViolations(root) {
   const runtimeGroups = [
     ['dependencies', manifest.dependencies],
     ['optionalDependencies', manifest.optionalDependencies],
+    ['peerDependencies', manifest.peerDependencies],
   ];
 
   for (const [group, dependencies] of runtimeGroups) {
@@ -167,8 +185,8 @@ async function findSourceViolations(root) {
     }
 
     const dtoDeclarationPatterns = [
-      /^\s*(?:export\s+)?(?:declare\s+)?(?:interface|class)\s+(YunQi[A-Za-z0-9_]*Dto)\b[^{\r\n]*\{/gm,
-      /^\s*(?:export\s+)?(?:declare\s+)?type\s+(YunQi[A-Za-z0-9_]*Dto)\b[^=\r\n]*=/gm,
+      /^\s*(?:(?:export|default|declare|abstract)\s+)*(?:interface|class)\s+(YunQi[A-Za-z0-9_]*Dto)\b[^{\r\n]*\{/gm,
+      /^\s*(?:(?:export|default|declare)\s+)*type\s+(YunQi[A-Za-z0-9_]*Dto)\b[^=\r\n]*=/gm,
     ];
     for (const pattern of dtoDeclarationPatterns) {
       for (const match of source.matchAll(pattern)) {
@@ -187,7 +205,9 @@ async function findSourceViolations(root) {
       violations.push(`${relativePath}: direct YunQi API path is forbidden`);
     }
     if (
-      /\.\s*(?:getCurrent|getYear|calculate)\s*\(/.test(source)
+      /(?:\.\s*(?:getCurrent|getYear|calculate)\s*|\[\s*['"](?:getCurrent|getYear|calculate)['"]\s*\])\(/.test(
+        source,
+      )
     ) {
       violations.push(
         `${relativePath}: direct YunQi client method call is forbidden`,
