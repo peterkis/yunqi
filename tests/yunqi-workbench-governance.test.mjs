@@ -324,9 +324,66 @@ test('rejects a runtime client import in component source', async () => {
       export const client = createYunQiClient(transport);
     `,
     expected:
-      /components\/ClientOwner\.ts: runtime @yunqi\/client import is forbidden in component source/,
+      /components\/ClientOwner\.ts: runtime @yunqi\/client import\/re-export is forbidden in component source/,
   });
 });
+
+for (const [label, source] of [
+  [
+    'named runtime re-export',
+    "export { createYunQiClient } from '@yunqi/client';",
+  ],
+  [
+    'star runtime re-export',
+    "export * from '@yunqi/client';",
+  ],
+  [
+    'multiline runtime re-export',
+    `export {
+      createFetchTransport,
+      createYunQiClient,
+    } from '@yunqi/client';`,
+  ],
+  [
+    'mixed type and runtime re-export',
+    `export {
+      type YunQiClient,
+      createYunQiClient,
+    } from '@yunqi/client';`,
+  ],
+]) {
+  test(`rejects ${label} in component source`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: 'components/ClientExports.ts',
+      source,
+      expected:
+        /components\/ClientExports\.ts: runtime @yunqi\/client import\/re-export is forbidden in component source/,
+    });
+  });
+}
+
+for (const [label, source] of [
+  [
+    'export type declaration',
+    "export type { YunQiClient } from '@yunqi/client';",
+  ],
+  [
+    'type-only named re-export',
+    "export { type YunQiClient } from '@yunqi/client';",
+  ],
+]) {
+  test(`allows ${label} in component source`, async () => {
+    const fixtureRoot = createFixture({
+      relativeSourcePath: 'components/ClientTypes.ts',
+      source,
+    });
+
+    assert.deepEqual(
+      await findWorkbenchGovernanceViolations(fixtureRoot),
+      [],
+    );
+  });
+}
 
 test('rejects direct fetch in component source', async () => {
   await assertMutationRejected({

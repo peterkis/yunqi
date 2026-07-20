@@ -152,6 +152,8 @@ function hasRuntimeClientImport(source) {
   const clientSpecifier = '@yunqi/client';
   const staticImports =
     /\bimport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
+  const reExports =
+    /\bexport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
 
   for (const match of source.matchAll(staticImports)) {
     const clause = match[1].trim();
@@ -161,6 +163,24 @@ function hasRuntimeClientImport(source) {
     if (
       namedImport &&
       namedImport[1]
+        .split(',')
+        .filter((entry) => entry.trim() !== '')
+        .every((entry) => entry.trim().startsWith('type '))
+    ) {
+      continue;
+    }
+
+    return true;
+  }
+
+  for (const match of source.matchAll(reExports)) {
+    const clause = match[1].trim();
+    if (clause.startsWith('type ')) continue;
+
+    const namedExport = clause.match(/^\{([\s\S]*)\}$/);
+    if (
+      namedExport &&
+      namedExport[1]
         .split(',')
         .filter((entry) => entry.trim() !== '')
         .every((entry) => entry.trim().startsWith('type '))
@@ -308,7 +328,7 @@ async function findSourceViolations(root) {
 
     if (hasRuntimeClientImport(source)) {
       violations.push(
-        `${relativePath}: runtime @yunqi/client import is forbidden in component source`,
+        `${relativePath}: runtime @yunqi/client import/re-export is forbidden in component source`,
       );
     }
     if (/\bfetch\s*\(/.test(source)) {

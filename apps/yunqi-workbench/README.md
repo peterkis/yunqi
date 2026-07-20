@@ -36,10 +36,11 @@ Component responsibility is path-based: `src/components/**`, `src/app/**`,
 and `src/features/**/components/**` are presentation code regardless of
 whether a file uses `.ts`, `.tsx`, `.js`, or `.jsx`. Hooks, query API modules,
 and Provider infrastructure retain their separate ownership boundaries.
-Components must not runtime-import `@yunqi/client` or obtain
-`getCurrent`/`getYear`/`calculate` through optional chaining, a method
-reference, bracket access, or destructuring. Type-only client imports do not
-create runtime capability.
+Components must not runtime-import or runtime re-export `@yunqi/client`, or
+obtain `getCurrent`/`getYear`/`calculate` through optional chaining, a method
+reference, bracket access, or destructuring. Pure type-only client imports and
+re-exports do not create runtime capability; mixed type/runtime re-exports are
+rejected.
 
 ## Fixed Beijing time
 

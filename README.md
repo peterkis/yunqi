@@ -48,8 +48,9 @@ Relative imports must resolve inside `apps/yunqi-workbench`; absolute local
 imports and relative escapes into repository implementation packages are
 rejected. Public `@yunqi/contracts` and `@yunqi/client` package imports remain
 the supported boundary. Presentation components cannot runtime-import
-`@yunqi/client` or acquire its methods through optional access, references,
-brackets, or destructuring.
+or runtime re-export `@yunqi/client`, or acquire its methods through optional
+access, references, brackets, or destructuring. Pure type-only imports and
+re-exports remain allowed; mixed type/runtime re-exports are rejected.
 
 ## Workbench development
 

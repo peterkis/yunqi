@@ -200,10 +200,12 @@ Provider ownership 固定如下：
 - feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
 - `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
   按路径职责视为 component，不因文件扩展名改变；
-- component 只接收状态和 DTO，不得 runtime import `@yunqi/client`，不得调用
-  `fetch`、Axios 或 YunQi client 方法，不得通过 optional chaining、方法引用、
-  bracket access 或解构取得 client 方法能力，不得拼接 `/api/v1/yunqi/**`
-  路径或执行五运六气业务计算。type-only client import 不创建运行时能力。
+- component 只接收状态和 DTO，不得 runtime import 或 runtime re-export
+  `@yunqi/client`，不得调用 `fetch`、Axios 或 YunQi client 方法，不得通过
+  optional chaining、方法引用、bracket access 或解构取得 client 方法能力，
+  不得拼接 `/api/v1/yunqi/**` 路径或执行五运六气业务计算。纯 type-only
+  client import/re-export 不创建运行时能力；混合 type/runtime re-export
+  仍按 runtime 拒绝。
 
 Phase3-B 只建立非路由 Workbench foundation。未经后续阶段明确授权，不得加入
 router、业务页面、问诊流程、专家审核、规则管理、诊断或治疗输出。
