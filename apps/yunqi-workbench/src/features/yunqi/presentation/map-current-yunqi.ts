@@ -149,4 +149,3 @@ export function mapCurrentYunQi(
     ruleVersion: dto.ruleVersion,
   };
 }
-

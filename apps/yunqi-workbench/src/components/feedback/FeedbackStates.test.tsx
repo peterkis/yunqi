@@ -37,4 +37,3 @@ describe('feedback states', () => {
     );
   });
 });
-

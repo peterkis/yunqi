@@ -20,4 +20,3 @@ export function GuestHostRelationDetail({
     </div>
   );
 }
-

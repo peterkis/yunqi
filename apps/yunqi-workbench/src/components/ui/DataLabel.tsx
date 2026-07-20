@@ -13,4 +13,3 @@ export function DataLabel({ label, value }: DataLabelProps) {
     </dl>
   );
 }
-

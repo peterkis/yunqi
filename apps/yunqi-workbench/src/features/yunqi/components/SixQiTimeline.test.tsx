@@ -89,4 +89,3 @@ describe('SixQiTimeline', () => {
     ).toHaveAttribute('aria-expanded', 'true');
   });
 });
-

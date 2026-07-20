@@ -77,13 +77,12 @@ Vitest 4.1.10, Testing Library 16.3.2, Vite 8.1.5.
 - [ ] Run focused Workbench tests, typecheck, coverage, and build.
 - [ ] Run root workbench/time governance and contract checks.
 - [ ] Run full root tests, typecheck, and `git diff --check`.
-- [ ] Inspect the real page at desktop and mobile widths using an injected
-      test API server; verify theme, disclosure controls, responsiveness, and
-      console/network behavior.
+- [ ] Inspect the real page at desktop and mobile widths against the real
+      Fastify API; verify theme, disclosure controls, responsiveness, and
+      console behavior.
 - [ ] Confirm immutable package and OpenAPI diffs are empty.
 - [ ] Write the Phase3-C1 verification record with exact evidence.
 - [ ] Request whole-branch code review and resolve every Critical or Important
       issue with a covering test.
 - [ ] Push the isolated branch, create a PR, wait for `quality-gates`, and
       merge only after review and required checks pass.
-

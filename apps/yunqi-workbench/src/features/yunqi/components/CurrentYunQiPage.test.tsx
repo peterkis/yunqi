@@ -68,4 +68,3 @@ describe('CurrentYunQiPage', () => {
     expect(theory).toHaveTextContent('YQ-MVP-RULES-1.0.0');
   });
 });
-

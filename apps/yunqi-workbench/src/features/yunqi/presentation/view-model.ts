@@ -79,4 +79,3 @@ export interface CurrentYunQiViewModel {
   readonly explanations: readonly string[];
   readonly ruleVersion: string;
 }
-

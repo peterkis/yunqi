@@ -36,4 +36,3 @@ export function CurrentStepCard({ step }: CurrentStepCardProps) {
     </Panel>
   );
 }
-

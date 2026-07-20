@@ -46,4 +46,3 @@ export function CurrentSummary({ summary }: CurrentSummaryProps) {
     </Panel>
   );
 }
-
