@@ -857,6 +857,38 @@ test('rejects a commented frozen DTO import type query', async () => {
   });
 });
 
+test('rejects an escaped frozen DTO identifier import', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/EscapedDtoView.tsx',
+    source: `
+      import type {
+        YunQiCalculation\\u0044to,
+      } from '@yunqi/contracts';
+      export type Props = {
+        readonly value: YunQiCalculation\\u0044to;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/EscapedDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects an escaped frozen DTO import type query', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/EscapedImportTypeDtoView.tsx',
+    source: `
+      export type Props = {
+        readonly value:
+          import('@yunqi/contracts').YunQiCalculation\\u0044to;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/EscapedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
 for (const [label, source, expected] of [
   [
     'React',

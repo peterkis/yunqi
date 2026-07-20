@@ -223,9 +223,29 @@ function hasContractDtoImport(source) {
   const isContractsSpecifier = (node) =>
     ts.isStringLiteral(node) &&
     /^@yunqi\/contracts(?:\/|$)/.test(node.text);
-  const isDtoName = (node) =>
-    node !== undefined &&
-    /\b[A-Za-z_$][\w$]*Dto\b/.test(node.getText(sourceFile));
+  const isDtoName = (node) => {
+    if (node === undefined) return false;
+    if (ts.isIdentifier(node) || ts.isStringLiteralLike(node)) {
+      return /Dto$/.test(node.text);
+    }
+    if (
+      ts.isImportSpecifier(node) ||
+      ts.isExportSpecifier(node)
+    ) {
+      return (
+        isDtoName(node.propertyName) ||
+        isDtoName(node.name)
+      );
+    }
+    if (ts.isQualifiedName(node)) {
+      return isDtoName(node.left) || isDtoName(node.right);
+    }
+    if (ts.isLiteralTypeNode(node)) {
+      return isDtoName(node.literal);
+    }
+
+    return false;
+  };
 
   const visit = (node) => {
     if (found) return;
@@ -270,7 +290,10 @@ function hasContractDtoImport(source) {
       ts.isImportTypeNode(node) &&
       ts.isLiteralTypeNode(node.argument) &&
       isContractsSpecifier(node.argument.literal) &&
-      /\b[A-Za-z_$][\w$]*Dto\b/.test(node.getText(sourceFile))
+      (isDtoName(node.qualifier) ||
+        (ts.isIndexedAccessTypeNode(node.parent) &&
+          node.parent.objectType === node &&
+          isDtoName(node.parent.indexType)))
     ) {
       found = true;
       return;
