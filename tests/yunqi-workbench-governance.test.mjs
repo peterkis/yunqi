@@ -443,6 +443,15 @@ test('rejects a runtime client import in component source', async () => {
   });
 });
 
+test('rejects an empty named client import in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/EmptyClientImport.ts',
+    source: "import {} from '@yunqi/client';",
+    expected:
+      /components\/EmptyClientImport\.ts: runtime @yunqi\/client import\/re-export is forbidden in component source/,
+  });
+});
+
 for (const [label, source] of [
   [
     'named runtime re-export',
@@ -644,6 +653,32 @@ test('rejects an aliased client method from component parameters', async () => {
       export function Fixture({ getCurrent: loadCurrent }) {
         return loadCurrent;
       }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method from multiline component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({
+        getCurrent,
+      }) {
+        return getCurrent;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects an aliased client method from multiline arrow parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export const Fixture = ({
+        calculate: runCalculation,
+      }) => runCalculation;
     `,
     expected:
       /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,

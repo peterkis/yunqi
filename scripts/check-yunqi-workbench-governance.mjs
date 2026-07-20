@@ -189,39 +189,11 @@ function hasRuntimeClientImport(source) {
     /\bexport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
 
   for (const match of source.matchAll(staticImports)) {
-    const clause = match[1].trim();
-    if (clause.startsWith('type ')) continue;
-
-    const namedImport = clause.match(/^\{([\s\S]*)\}$/);
-    if (
-      namedImport &&
-      namedImport[1]
-        .split(',')
-        .filter((entry) => entry.trim() !== '')
-        .every((entry) => entry.trim().startsWith('type '))
-    ) {
-      continue;
-    }
-
-    return true;
+    if (clauseHasRuntimeBinding(match[1])) return true;
   }
 
   for (const match of source.matchAll(reExports)) {
-    const clause = match[1].trim();
-    if (clause.startsWith('type ')) continue;
-
-    const namedExport = clause.match(/^\{([\s\S]*)\}$/);
-    if (
-      namedExport &&
-      namedExport[1]
-        .split(',')
-        .filter((entry) => entry.trim() !== '')
-        .every((entry) => entry.trim().startsWith('type '))
-    ) {
-      continue;
-    }
-
-    return true;
+    if (clauseHasRuntimeBinding(match[1])) return true;
   }
 
   return (
@@ -268,12 +240,12 @@ function hasDirectClientMethodAccess(source) {
     `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=`,
   );
   const parameterObject =
-    `\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}`;
+    `\\{[^}]*\\b${method}\\b[^}]*\\}`;
   const functionParameter = new RegExp(
-    `\\bfunction(?:\\s+[A-Za-z_$][\\w$]*)?\\s*\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)\\r\\n]+)?(?:\\s*,[^)]*)?\\)`,
+    `\\bfunction(?:\\s+[A-Za-z_$][\\w$]*)?\\s*\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)]+)?(?:\\s*,[^)]*)?\\)`,
   );
   const arrowParameter = new RegExp(
-    `\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)\\r\\n]+)?(?:\\s*,[^)]*)?\\)\\s*(?::\\s*[^=\\r\\n]+)?=>`,
+    `\\(\\s*${parameterObject}(?:\\s*:\\s*[^,)]+)?(?:\\s*,[^)]*)?\\)\\s*(?::\\s*[^=\\r\\n]+)?=>`,
   );
 
   return (
