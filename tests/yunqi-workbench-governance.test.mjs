@@ -772,6 +772,21 @@ test('rejects a computed client method in component destructuring', async () => 
   });
 });
 
+test('rejects a concatenated client method in component destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        const {
+          ['get' + 'Current']: loadCurrent,
+        } = client;
+        return <main>{loadCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',

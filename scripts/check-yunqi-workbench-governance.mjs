@@ -325,16 +325,39 @@ function hasDirectClientMethodAccess(source) {
   ]);
   let found = false;
 
+  const staticStringValue = (node) => {
+    if (ts.isStringLiteralLike(node)) return node.text;
+    if (ts.isParenthesizedExpression(node)) {
+      return staticStringValue(node.expression);
+    }
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken
+    ) {
+      const left = staticStringValue(node.left);
+      const right = staticStringValue(node.right);
+      return left === undefined || right === undefined
+        ? undefined
+        : left + right;
+    }
+
+    return undefined;
+  };
+
   const isClientMethodName = (node) => {
     if (node === undefined) return false;
     if (ts.isComputedPropertyName(node)) {
       return isClientMethodName(node.expression);
     }
+    if (ts.isParenthesizedExpression(node)) {
+      return isClientMethodName(node.expression);
+    }
+    if (ts.isIdentifier(node)) {
+      return clientMethods.has(node.text);
+    }
 
-    return (
-      (ts.isIdentifier(node) || ts.isStringLiteralLike(node)) &&
-      clientMethods.has(node.text)
-    );
+    const value = staticStringValue(node);
+    return value !== undefined && clientMethods.has(value);
   };
 
   const bindingPatternContainsClientMethod = (pattern) => {
