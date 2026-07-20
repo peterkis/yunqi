@@ -124,6 +124,32 @@ test('rejects Date reinterpretation hidden behind a frontend helper', () => {
   );
 });
 
+test('rejects epoch reinterpretation in an apps-directory Workbench', () => {
+  const root = createFixture(
+    'export const TimeView = ({ result }) => <time>{result.localTime}</time>;',
+  );
+  writeFixtureFile(
+    root,
+    'apps/yunqi-workbench/package.json',
+    JSON.stringify({
+      name: '@yunqi/workbench-app-fixture',
+      dependencies: { react: '19.0.0' },
+    }),
+  );
+  writeFixtureFile(
+    root,
+    'apps/yunqi-workbench/src/ForbiddenTimeView.tsx',
+    'export const value = new Date(result.epochMilliseconds).toLocaleString();',
+  );
+  const result = runChecker(root);
+
+  assert.notEqual(result.status, 0);
+  assert.match(
+    result.stderr,
+    /apps\/yunqi-workbench\/src\/ForbiddenTimeView\.tsx: Date API used with YunQi epochMilliseconds/,
+  );
+});
+
 test('rejects Temporal and IANA reinterpretation in YunQi time modules', () => {
   const root = createFixture(
     `export const standard = 'Asia/Shanghai';
