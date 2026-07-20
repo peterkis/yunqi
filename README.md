@@ -23,14 +23,47 @@ V1.0 MVP
 - `@yunqi/service`: Fastify runtime and OpenAPI schema source;
 - `@yunqi/contracts`: generated, browser-safe public DTO facade;
 - `@yunqi/client`: Fetch/Axios-structural typed browser client.
+- `@yunqi/workbench`: Phase3-B Vite/React presentation foundation.
 
 The Phase3 business API is frozen as `YQ-API-CONTRACT-1.0.0`. React consumers
 must import DTOs from `@yunqi/contracts` and client behavior from
 `@yunqi/client`; they must not duplicate API DTOs.
 
+The Workbench dependency path is
+`@yunqi/workbench -> @yunqi/client -> @yunqi/contracts`. Provider
+infrastructure owns QueryClient, YunQiClient, and transport creation.
+Components do not perform transport, construct API paths, or call client
+methods. Phase3-B contains no router or business pages. Business time is
+rendered from canonical `localTime` and labelled `北京时间 UTC+08`; it is not
+reconstructed from `epochMilliseconds`.
+
+## Workbench development
+
+From the repository root:
+
+```text
+pnpm --filter @yunqi/workbench dev
+pnpm --filter @yunqi/workbench build
+pnpm --filter @yunqi/workbench test
+pnpm test:workbench-governance
+```
+
+The Workbench uses same-origin API requests when
+`VITE_YUNQI_API_BASE_URL` is absent. To use a separately hosted API, create
+`apps/yunqi-workbench/.env.local`:
+
+```dotenv
+VITE_YUNQI_API_BASE_URL=http://127.0.0.1:3000
+```
+
+Set only the service origin/base URL; `@yunqi/client` owns the frozen
+`/api/v1/yunqi/**` paths. Restart the Vite dev server after changing the
+environment file.
+
 Key gates:
 
     pnpm contracts:check
+    pnpm test:workbench-governance
     pnpm test:time-governance
     pnpm test
     pnpm typecheck
