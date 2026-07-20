@@ -787,6 +787,18 @@ test('rejects a concatenated client method in component destructuring', async ()
   });
 });
 
+test('rejects a static template client method key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        return client[\`get\${'Current'}\`]();
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath: 'components/Summary.ts',
@@ -916,6 +928,19 @@ test('rejects a default frozen DTO import', async () => {
     `,
     expected:
       /features\/yunqi\/components\/DefaultDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a parenthesized indexed frozen DTO import type', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/ParenthesizedImportTypeDtoView.tsx',
+    source: `
+      export type Props =
+        (import('@yunqi/contracts'))['YunQiCalculationDto'];
+    `,
+    expected:
+      /features\/yunqi\/components\/ParenthesizedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
   });
 });
 

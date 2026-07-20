@@ -246,6 +246,21 @@ function hasContractDtoImport(source) {
 
     return false;
   };
+  const parentIndexedTypeHasDtoName = (node) => {
+    let current = node;
+    let parent = node.parent;
+
+    while (ts.isParenthesizedTypeNode(parent)) {
+      current = parent;
+      parent = parent.parent;
+    }
+
+    return (
+      ts.isIndexedAccessTypeNode(parent) &&
+      parent.objectType === current &&
+      isDtoName(parent.indexType)
+    );
+  };
 
   const visit = (node) => {
     if (found) return;
@@ -295,9 +310,7 @@ function hasContractDtoImport(source) {
       ts.isLiteralTypeNode(node.argument) &&
       isContractsSpecifier(node.argument.literal) &&
       (isDtoName(node.qualifier) ||
-        (ts.isIndexedAccessTypeNode(node.parent) &&
-          node.parent.objectType === node &&
-          isDtoName(node.parent.indexType)))
+        parentIndexedTypeHasDtoName(node))
     ) {
       found = true;
       return;
@@ -339,6 +352,17 @@ function hasDirectClientMethodAccess(source) {
       return left === undefined || right === undefined
         ? undefined
         : left + right;
+    }
+    if (ts.isTemplateExpression(node)) {
+      let value = node.head.text;
+
+      for (const span of node.templateSpans) {
+        const expression = staticStringValue(span.expression);
+        if (expression === undefined) return undefined;
+        value += expression + span.literal.text;
+      }
+
+      return value;
     }
 
     return undefined;
