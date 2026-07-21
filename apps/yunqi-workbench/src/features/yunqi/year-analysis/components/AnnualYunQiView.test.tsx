@@ -30,9 +30,9 @@ describe('AnnualYunQiView', () => {
       wrapper: createTestWrapper(client),
     });
 
-    expect(screen.getByRole('status')).toHaveTextContent(
-      '正在加载年度五运六气数据',
-    );
+    expect(
+      screen.getByText('正在加载 2026 年年度五运六气数据'),
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: '年度概览' }),
     ).not.toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('AnnualYunQiView', () => {
     });
 
     expect(
-      await screen.findByText('所选年份暂无数据'),
+      await screen.findByText('该年度暂无可展示数据'),
     ).toBeInTheDocument();
   });
 
