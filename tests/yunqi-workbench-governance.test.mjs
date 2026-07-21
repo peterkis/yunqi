@@ -1522,7 +1522,7 @@ test('review bypass: rejects a top-level named callback on stages.map', async ()
       }
     `,
     expected:
-      /AliasedStages\.tsx: annual stage index must preserve the API stage index/,
+      /AliasedStages\.tsx: annual stages\/steps\.map callback must be inline/,
   });
 });
 
@@ -1781,7 +1781,7 @@ test('review canonical: rejects a shadowed YearSelector options import', async (
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -1801,7 +1801,7 @@ test('review bypass: rejects Array.from arithmetic reconstruction without bounda
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -1937,7 +1937,7 @@ test('review canonical: rejects a nested named callback on stages.map', async ()
       }
     `,
     expected:
-      /VarAnnualStages\.tsx: annual stage index must preserve the API stage index/,
+      /VarAnnualStages\.tsx: annual stages\/steps\.map callback must be inline/,
   });
 });
 
@@ -2061,7 +2061,7 @@ test('review round2 bypass: rejects a decoy canonical map disconnected from opti
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2274,7 +2274,7 @@ test('review round3 canonical: rejects YearSelector option content wrapped in ma
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2296,7 +2296,7 @@ test('review round3 canonical: rejects aliased YearSelector option values and ch
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2314,7 +2314,7 @@ test('review round3 canonical: rejects aliased canonical option arrays', async (
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2333,7 +2333,7 @@ test('review round3 canonical: rejects option callbacks without a direct item va
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2405,7 +2405,7 @@ test('canonical review gap: rejects a decoy YearSelector map and rebuilt returne
       }
     `,
     expected:
-      /YearSelector\.tsx: exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map/,
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
   });
 });
 
@@ -2438,18 +2438,21 @@ test('canonical review allow: accepts the canonical map in the exported YearSele
   );
 });
 
-test('canonical review gap: rejects local const stage callbacks and selected index arithmetic', async () => {
+test('canonical review gap: rejects inline stage and selected index arithmetic together', async () => {
   const fixtureRoot = createFixture({
     relativeSourcePath:
       'features/yunqi/year-analysis/components/CombinedOrdinal.tsx',
     source: `
       export function CombinedOrdinal({ stages, selectedStepIndex }) {
-        const renderStage = (stage, position) => (
-          <span key={stage.index}>{position + 1}</span>
-        );
         const selectedOrdinal = selectedStepIndex - 1;
         void selectedOrdinal;
-        return <section>{stages.map(renderStage)}</section>;
+        return (
+          <section>
+            {stages.map((stage, position) => (
+              <span key={stage.index}>{position + 1}</span>
+            ))}
+          </section>
+        );
       }
     `,
   });
@@ -2551,6 +2554,136 @@ test('canonical review allow: permits unrelated static annual copy', async () =>
     [],
   );
 });
+
+test('final canonical gap: rejects an extra return inside exported YearSelector', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/YearSelector.tsx',
+    source: `
+      import { YUNQI_YEAR_OPTIONS } from '../../../../lib/yunqi-year-range';
+      export function YearSelector() {
+        if (false) return null;
+        return (
+          <select>
+            {YUNQI_YEAR_OPTIONS.map((year) => (
+              <option value={year}>{year}</option>
+            ))}
+          </select>
+        );
+      }
+    `,
+    expected:
+      /YearSelector\.tsx: exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map/,
+  });
+});
+
+test('final canonical allow: ignores returns in nested YearSelector helpers', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/YearSelector.tsx',
+    source: `
+      import { YUNQI_YEAR_OPTIONS } from '../../../../lib/yunqi-year-range';
+      export function YearSelector() {
+        const helpers = {
+          unused() { return null; },
+        };
+        void helpers;
+        return (
+          <select>
+            {YUNQI_YEAR_OPTIONS.map((year) => (
+              <option value={year}>{year}</option>
+            ))}
+          </select>
+        );
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+for (const [form, source] of [
+  [
+    'call after declaration',
+    `
+      function renderStage(stage) {
+        return <span key={stage.index}>{stage.index}</span>;
+      }
+      export function NamedStageList({ stages }) {
+        return <section>{stages.map(renderStage)}</section>;
+      }
+    `,
+  ],
+  [
+    'hoisted declaration after call',
+    `
+      export function NamedStageList({ stages }) {
+        return <section>{stages.map(renderStage)}</section>;
+      }
+      function renderStage(stage) {
+        return <span key={stage.index}>{stage.index}</span>;
+      }
+    `,
+  ],
+  [
+    'shadowed local callback',
+    `
+      function renderStage(stage) {
+        return <span>{stage.name}</span>;
+      }
+      export function NamedStageList({ stages }) {
+        const renderStage = (stage) => (
+          <span key={stage.index}>{stage.index}</span>
+        );
+        return <section>{stages.map(renderStage)}</section>;
+      }
+    `,
+  ],
+]) {
+  test(`final canonical gap: rejects named stages.map callback (${form})`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/year-analysis/components/NamedStageList.tsx',
+      source,
+      expected:
+        /NamedStageList\.tsx: annual stages\/steps\.map callback must be inline/,
+    });
+  });
+}
+
+for (const [form, extraProperty] of [
+  ['duplicate string index', "'index': step.index"],
+  ['computed overwrite', '[runtimeKey]: step.index'],
+]) {
+  test(`final canonical regression: rejects ${form} in a production-like stage mapper`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/presentation/map-yunqi-shared.ts',
+      source: `
+        const runtimeKey = 'index';
+        function mapSixQiStage(step) {
+          return {
+            name: step.name,
+            index: step.index,
+            ${extraProperty},
+          };
+        }
+        export function mapSixQiStageTuple(steps) {
+          const [first, second, third, fourth, fifth, sixth] = steps;
+          return [
+            mapSixQiStage(first), mapSixQiStage(second), mapSixQiStage(third),
+            mapSixQiStage(fourth), mapSixQiStage(fifth), mapSixQiStage(sixth),
+          ];
+        }
+      `,
+      expected:
+        /map-yunqi-shared\.ts: mapSixQiStage must keep step\.index as the final unique static index/,
+    });
+  });
+}
 
 test('rejects a default-exported copied frozen DTO declaration', async () => {
   await assertMutationRejected({

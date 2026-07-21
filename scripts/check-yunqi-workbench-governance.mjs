@@ -514,59 +514,28 @@ function topLevelFunctionDeclaration(sourceFile, name) {
   );
 }
 
-function functionLikeDeclarationByName(sourceFile, name, beforeNode) {
-  const candidates = [];
-  const visit = (node) => {
-    if (
-      ts.isFunctionDeclaration(node) &&
-      node.name?.text === name
-    ) {
-      candidates.push(node);
-    }
-    if (ts.isVariableDeclaration(node)) {
-      const initializer = node.initializer
-        ? unwrapExpression(node.initializer)
-        : undefined;
-      if (
-        ts.isIdentifier(node.name) &&
-        node.name.text === name &&
-        initializer &&
-        (ts.isArrowFunction(initializer) ||
-          ts.isFunctionExpression(initializer))
-      ) {
-        candidates.push(initializer);
-      }
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(sourceFile);
-
-  return candidates
-    .filter(
-      (candidate) =>
-        candidate.getStart(sourceFile) < beforeNode.getStart(sourceFile),
-    )
-    .sort(
-      (left, right) =>
-        right.getStart(sourceFile) - left.getStart(sourceFile),
-    )[0];
-}
-
-function directMapCallback(sourceFile, expression, mapCall) {
+function directMapCallback(expression) {
   const current = unwrapExpression(expression);
   if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
     return current;
   }
-  if (!ts.isIdentifier(current)) return undefined;
-  return functionLikeDeclarationByName(
-    sourceFile,
-    current.text,
-    mapCall,
+  return undefined;
+}
+
+function isFunctionBoundary(node) {
+  return (
+    ts.isArrowFunction(node) ||
+    ts.isFunctionDeclaration(node) ||
+    ts.isFunctionExpression(node) ||
+    ts.isMethodDeclaration(node) ||
+    ts.isGetAccessorDeclaration(node) ||
+    ts.isSetAccessorDeclaration(node) ||
+    ts.isConstructorDeclaration(node)
   );
 }
 
-function stageMapCallback(sourceFile, node) {
-  if (!isMapCall(node)) return undefined;
+function isStageMapCall(node) {
+  if (!isMapCall(node)) return false;
   const access = unwrapExpression(node.expression);
   const receiver = unwrapExpression(access.expression);
   const collectionName = ts.isIdentifier(receiver)
@@ -575,9 +544,15 @@ function stageMapCallback(sourceFile, node) {
       ? receiver.name.text
       : undefined;
   if (collectionName !== 'stages' && collectionName !== 'steps') {
-    return undefined;
+    return false;
   }
-  return directMapCallback(sourceFile, node.arguments[0], node);
+  return true;
+}
+
+function stageMapCallback(node) {
+  return isStageMapCall(node)
+    ? directMapCallback(node.arguments[0])
+    : undefined;
 }
 
 function containsPlusOne(node, identifier) {
@@ -606,7 +581,7 @@ function hasStageMapPlusOne(sourceFile, positionOnly) {
   const visit = (node) => {
     if (found) return;
     const callback = ts.isCallExpression(node)
-      ? stageMapCallback(sourceFile, node)
+      ? stageMapCallback(node)
       : undefined;
     const position = callback?.parameters[1]?.name;
     const positionName =
@@ -617,6 +592,24 @@ function hasStageMapPlusOne(sourceFile, positionOnly) {
       callback?.body &&
       (!positionOnly || positionName !== undefined) &&
       containsPlusOne(callback.body, positionName)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function hasNonInlineStageMapCallback(sourceFile) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    if (
+      ts.isCallExpression(node) &&
+      isStageMapCall(node) &&
+      stageMapCallback(node) === undefined
     ) {
       found = true;
       return;
@@ -838,6 +831,7 @@ function yearSelectorViolations(sourceFile) {
   let hasCanonicalOptionMap = false;
   let hasNonCanonicalOptionMap = false;
   let shadowsCanonicalImport = false;
+  let exportedReturnCount = 0;
   let returnedSelectCount = 0;
   let exportedYearSelector;
   const copiedBoundaries = new Set();
@@ -903,11 +897,7 @@ function yearSelectorViolations(sourceFile) {
   visit(sourceFile);
 
   const visitReturned = (node) => {
-    if (
-      ts.isArrowFunction(node) ||
-      ts.isFunctionExpression(node) ||
-      ts.isFunctionDeclaration(node)
-    ) {
+    if (isFunctionBoundary(node)) {
       return;
     }
     if (
@@ -950,14 +940,17 @@ function yearSelectorViolations(sourceFile) {
     const visitSelectorBody = (node) => {
       if (
         node !== exportedYearSelector.body &&
-        (ts.isArrowFunction(node) ||
-          ts.isFunctionExpression(node) ||
-          ts.isFunctionDeclaration(node))
+        isFunctionBoundary(node)
       ) {
         return;
       }
       if (ts.isReturnStatement(node) && node.expression) {
+        exportedReturnCount += 1;
         visitReturned(unwrapExpression(node.expression));
+        return;
+      }
+      if (ts.isReturnStatement(node)) {
+        exportedReturnCount += 1;
         return;
       }
       ts.forEachChild(node, visitSelectorBody);
@@ -975,10 +968,11 @@ function yearSelectorViolations(sourceFile) {
     !hasCanonicalOptionMap ||
     hasNonCanonicalOptionMap ||
     shadowsCanonicalImport ||
+    exportedReturnCount !== 1 ||
     returnedSelectCount !== 1
   ) {
     violations.push(
-      'exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map',
+      'exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map',
     );
   }
   for (const boundary of copiedBoundaries) {
@@ -1309,6 +1303,11 @@ async function findSourceViolations(root) {
         sourceFile,
       )) {
         violations.push(`${relativePath}: ${violation}`);
+      }
+      if (hasNonInlineStageMapCallback(sourceFile)) {
+        violations.push(
+          `${relativePath}: annual stages/steps.map callback must be inline`,
+        );
       }
       if (hasStageMapPlusOne(sourceFile, true)) {
         violations.push(
