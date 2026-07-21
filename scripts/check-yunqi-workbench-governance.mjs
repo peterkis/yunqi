@@ -514,23 +514,83 @@ function topLevelFunctionDeclaration(sourceFile, name) {
   );
 }
 
-function directMapCallback(sourceFile, expression) {
+function functionLikeDeclarationByName(sourceFile, name, beforeNode) {
+  const candidates = [];
+  const visit = (node) => {
+    if (
+      ts.isFunctionDeclaration(node) &&
+      node.name?.text === name
+    ) {
+      candidates.push(node);
+    }
+    if (ts.isVariableDeclaration(node)) {
+      const initializer = node.initializer
+        ? unwrapExpression(node.initializer)
+        : undefined;
+      if (
+        ts.isIdentifier(node.name) &&
+        node.name.text === name &&
+        initializer &&
+        (ts.isArrowFunction(initializer) ||
+          ts.isFunctionExpression(initializer))
+      ) {
+        candidates.push(initializer);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  return candidates
+    .filter(
+      (candidate) =>
+        candidate.getStart(sourceFile) < beforeNode.getStart(sourceFile),
+    )
+    .sort(
+      (left, right) =>
+        right.getStart(sourceFile) - left.getStart(sourceFile),
+    )[0];
+}
+
+function directMapCallback(sourceFile, expression, mapCall) {
   const current = unwrapExpression(expression);
   if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
     return current;
   }
   if (!ts.isIdentifier(current)) return undefined;
-  return topLevelFunctionDeclaration(sourceFile, current.text);
+  return functionLikeDeclarationByName(
+    sourceFile,
+    current.text,
+    mapCall,
+  );
 }
 
-function containsPlusOne(node) {
+function stageMapCallback(sourceFile, node) {
+  if (!isMapCall(node)) return undefined;
+  const access = unwrapExpression(node.expression);
+  const receiver = unwrapExpression(access.expression);
+  const collectionName = ts.isIdentifier(receiver)
+    ? receiver.text
+    : ts.isPropertyAccessExpression(receiver)
+      ? receiver.name.text
+      : undefined;
+  if (collectionName !== 'stages' && collectionName !== 'steps') {
+    return undefined;
+  }
+  return directMapCallback(sourceFile, node.arguments[0], node);
+}
+
+function containsPlusOne(node, identifier) {
   let found = false;
   const visit = (current) => {
     if (found) return;
     if (
       ts.isBinaryExpression(current) &&
       current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-      (isOne(current.left) || isOne(current.right))
+      ((isOne(current.left) &&
+        (!identifier || isDirectIdentifier(current.right, identifier))) ||
+        (isOne(current.right) &&
+          (!identifier || isDirectIdentifier(current.left, identifier))))
     ) {
       found = true;
       return;
@@ -541,16 +601,25 @@ function containsPlusOne(node) {
   return found;
 }
 
-function hasMapCallbackPlusOne(sourceFile) {
+function hasStageMapPlusOne(sourceFile, positionOnly) {
   let found = false;
   const visit = (node) => {
     if (found) return;
-    if (isMapCall(node)) {
-      const callback = directMapCallback(sourceFile, node.arguments[0]);
-      if (callback?.body && containsPlusOne(callback.body)) {
-        found = true;
-        return;
-      }
+    const callback = ts.isCallExpression(node)
+      ? stageMapCallback(sourceFile, node)
+      : undefined;
+    const position = callback?.parameters[1]?.name;
+    const positionName =
+      positionOnly && position && ts.isIdentifier(position)
+        ? position.text
+        : undefined;
+    if (
+      callback?.body &&
+      (!positionOnly || positionName !== undefined) &&
+      containsPlusOne(callback.body, positionName)
+    ) {
+      found = true;
+      return;
     }
     ts.forEachChild(node, visit);
   };
@@ -558,30 +627,15 @@ function hasMapCallbackPlusOne(sourceFile) {
   return found;
 }
 
-function hasOrdinalSelection(sourceFile) {
-  const isMinusOne = (node) => {
-    const current = unwrapExpression(node);
-    return (
-      ts.isBinaryExpression(current) &&
-      current.operatorToken.kind === ts.SyntaxKind.MinusToken &&
-      isOne(current.right)
-    );
-  };
-
+function hasSelectedStepIndexMinusOne(sourceFile) {
   let found = false;
   const visit = (node) => {
     if (found) return;
-    const expression = ts.isCallExpression(node)
-      ? unwrapExpression(node.expression)
-      : undefined;
     if (
-      (ts.isElementAccessExpression(node) &&
-        node.argumentExpression !== undefined &&
-        isMinusOne(node.argumentExpression)) ||
-      (expression &&
-        ts.isPropertyAccessExpression(expression) &&
-        expression.name.text === 'at' &&
-        node.arguments.some(isMinusOne))
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.MinusToken &&
+      isDirectIdentifier(node.left, 'selectedStepIndex') &&
+      isOne(node.right)
     ) {
       found = true;
       return;
@@ -644,12 +698,23 @@ function annualComponentSemanticViolations(sourceFile) {
     '诊断',
     '治疗',
   ];
+  const forbiddenEnglishLiterals = [
+    'current',
+    'completed',
+    'upcoming',
+    'diagnosis',
+    'treatment',
+  ];
   const identifiers = new Set();
   const literals = new Set();
 
   const recordLiterals = (value) => {
     for (const literal of forbiddenLiterals) {
       if (value.includes(literal)) literals.add(literal);
+    }
+    const lowerValue = value.toLowerCase();
+    for (const literal of forbiddenEnglishLiterals) {
+      if (lowerValue.includes(literal)) literals.add(literal);
     }
   };
   const visit = (node) => {
@@ -659,8 +724,17 @@ function annualComponentSemanticViolations(sourceFile) {
     ) {
       identifiers.add(node.text);
     }
-    if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
+    if (ts.isJsxText(node)) {
       recordLiterals(node.text);
+    }
+    if (
+      ts.isStringLiteralLike(node) ||
+      ts.isTemplateExpression(node) ||
+      (ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.PlusToken)
+    ) {
+      const staticValue = staticStringValue(node);
+      if (staticValue !== undefined) recordLiterals(staticValue);
     }
     if (ts.isTemplateExpression(node)) {
       recordLiterals(node.head.text);
@@ -679,7 +753,7 @@ function annualComponentSemanticViolations(sourceFile) {
     ),
     ...[...literals].map(
       (literal) =>
-        `annual component user-facing literal ${literal} is forbidden`,
+        `annual source-wide forbidden literal ${literal} is forbidden`,
     ),
   ];
 }
@@ -764,9 +838,21 @@ function yearSelectorViolations(sourceFile) {
   let hasCanonicalOptionMap = false;
   let hasNonCanonicalOptionMap = false;
   let shadowsCanonicalImport = false;
+  let returnedSelectCount = 0;
+  let exportedYearSelector;
   const copiedBoundaries = new Set();
 
   for (const statement of sourceFile.statements) {
+    if (
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === 'YearSelector' &&
+      statement.modifiers?.some(
+        (modifier) =>
+          modifier.kind === ts.SyntaxKind.ExportKeyword,
+      )
+    ) {
+      exportedYearSelector = statement;
+    }
     if (
       ts.isImportDeclaration(statement) &&
       ts.isStringLiteral(statement.moduleSpecifier) &&
@@ -812,11 +898,25 @@ function yearSelectorViolations(sourceFile) {
         shadowsCanonicalImport = true;
       }
     }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  const visitReturned = (node) => {
+    if (
+      ts.isArrowFunction(node) ||
+      ts.isFunctionExpression(node) ||
+      ts.isFunctionDeclaration(node)
+    ) {
+      return;
+    }
     if (
       ts.isJsxElement(node) &&
       ts.isIdentifier(node.openingElement.tagName) &&
       node.openingElement.tagName.text === 'select'
     ) {
+      returnedSelectCount += 1;
+      let selectHasCanonicalMap = false;
       for (const child of node.children) {
         if (
           !ts.isJsxExpression(child) ||
@@ -825,24 +925,45 @@ function yearSelectorViolations(sourceFile) {
           continue;
         }
         const expression = unwrapExpression(child.expression);
-        if (
+        const isDirectMap =
           ts.isCallExpression(expression) &&
           ts.isPropertyAccessExpression(
             unwrapExpression(expression.expression),
           ) &&
-          unwrapExpression(expression.expression).name.text === 'map'
-        ) {
+          unwrapExpression(expression.expression).name.text === 'map';
+        if (!isDirectMap) {
+          hasNonCanonicalOptionMap = true;
+        } else {
           if (canonicalYearOptionMap(expression)) {
+            selectHasCanonicalMap = true;
             hasCanonicalOptionMap = true;
           } else {
             hasNonCanonicalOptionMap = true;
           }
         }
       }
+      if (!selectHasCanonicalMap) hasNonCanonicalOptionMap = true;
     }
-    ts.forEachChild(node, visit);
+    ts.forEachChild(node, visitReturned);
   };
-  visit(sourceFile);
+  if (exportedYearSelector?.body) {
+    const visitSelectorBody = (node) => {
+      if (
+        node !== exportedYearSelector.body &&
+        (ts.isArrowFunction(node) ||
+          ts.isFunctionExpression(node) ||
+          ts.isFunctionDeclaration(node))
+      ) {
+        return;
+      }
+      if (ts.isReturnStatement(node) && node.expression) {
+        visitReturned(unwrapExpression(node.expression));
+        return;
+      }
+      ts.forEachChild(node, visitSelectorBody);
+    };
+    visitSelectorBody(exportedYearSelector.body);
+  }
 
   if (!hasCanonicalImport) {
     violations.push(
@@ -853,10 +974,11 @@ function yearSelectorViolations(sourceFile) {
   } else if (
     !hasCanonicalOptionMap ||
     hasNonCanonicalOptionMap ||
-    shadowsCanonicalImport
+    shadowsCanonicalImport ||
+    returnedSelectCount !== 1
   ) {
     violations.push(
-      'must render YUNQI_YEAR_OPTIONS directly without rebuilding',
+      'exported YearSelector must return the canonical YUNQI_YEAR_OPTIONS option map',
     );
   }
   for (const boundary of copiedBoundaries) {
@@ -904,12 +1026,23 @@ function canonicalStageMapper(sourceFile) {
     (property) =>
       'name' in property &&
       property.name !== undefined &&
-      ts.isIdentifier(property.name) &&
+      (ts.isIdentifier(property.name) ||
+        ts.isStringLiteralLike(property.name)) &&
       property.name.text === 'index',
   );
   if (
     indexProperties.length !== 1 ||
-    !ts.isPropertyAssignment(indexProperties[0])
+    !ts.isPropertyAssignment(indexProperties[0]) ||
+    !ts.isIdentifier(indexProperties[0].name)
+  ) {
+    return false;
+  }
+
+  const indexPosition = returned.properties.indexOf(indexProperties[0]);
+  if (
+    returned.properties
+      .slice(indexPosition + 1)
+      .some(ts.isSpreadAssignment)
   ) {
     return false;
   }
@@ -991,11 +1124,13 @@ function sharedTupleMapperViolations(sourceFile) {
   const violations = [];
   if (!canonicalTupleMapper(sourceFile)) {
     violations.push(
-      'mapSixQiStageTuple must preserve the six-item tuple without .map()',
+      'mapSixQiStageTuple must use one six-item const destructure and six ordered direct mapSixQiStage calls',
     );
   }
   if (!canonicalStageMapper(sourceFile)) {
-    violations.push('mapSixQiStage must preserve step.index');
+    violations.push(
+      'mapSixQiStage must keep step.index as the final unique static index',
+    );
   }
   return violations;
 }
@@ -1162,7 +1297,7 @@ async function findSourceViolations(root) {
           `${relativePath}: steps must consume CurrentSixQiStageTuple directly`,
         );
       }
-      if (hasMapCallbackPlusOne(sourceFile)) {
+      if (hasStageMapPlusOne(sourceFile, false)) {
         violations.push(
           `${relativePath}: stage ordinal arithmetic is forbidden`,
         );
@@ -1175,13 +1310,13 @@ async function findSourceViolations(root) {
       )) {
         violations.push(`${relativePath}: ${violation}`);
       }
-      if (hasMapCallbackPlusOne(sourceFile)) {
+      if (hasStageMapPlusOne(sourceFile, true)) {
         violations.push(
           `${relativePath}: annual stage index must preserve the API stage index`,
         );
       }
       if (
-        hasOrdinalSelection(sourceFile)
+        hasSelectedStepIndexMinusOne(sourceFile)
       ) {
         violations.push(
           `${relativePath}: annual stage selection must match the API stage index`,
