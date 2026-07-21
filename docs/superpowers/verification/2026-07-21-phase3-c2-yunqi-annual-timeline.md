@@ -4,7 +4,7 @@
 - Branch: `codex/phase3-c2-yunqi-annual-timeline`
 - Explicit base commit: `97829c525e7f5d7bd054ccb0fa2057c7050272c0`
 - Implementation verification HEAD:
-  `7962e030bbb5d3629a4808a81da364121c42517b`
+  `c42c0e27f0258f18ead18c4db86ecf89cf2f546e`
 - Contract ID: `YQ-API-CONTRACT-1.0.0`
 - Rule version: `YQ-MVP-RULES-1.0.0`
 - Node.js: `v22.14.0`
@@ -63,21 +63,32 @@ pnpm test:time-governance
 
 | Area | Result |
 |---|---:|
-| Workbench tests | 19 files, 43 tests passed |
-| Workbench governance | 90 tests passed |
+| Workbench tests | 19 files, 44 tests passed |
+| Workbench governance | 93 tests passed |
 | Time governance | 8 tests passed |
 | Vite production build | 97 modules transformed |
-| JavaScript bundle | 241.36 kB, 75.62 kB gzip |
-| CSS bundle | 14.02 kB, 3.46 kB gzip |
+| JavaScript bundle | 241.56 kB, 75.72 kB gzip |
+| CSS bundle | 14.47 kB, 3.55 kB gzip |
 
 Workbench coverage:
 
 | Metric | Result | Threshold |
 |---|---:|---:|
-| Statements | 99.25% (134/135) | 90% |
-| Branches | 89.47% (68/76) | 85% |
-| Functions | 100% (68/68) | 90% |
-| Lines | 99.24% (132/133) | 90% |
+| Statements | 99.28% (139/140) | 90% |
+| Branches | 89.74% (70/78) | 85% |
+| Functions | 100% (69/69) | 90% |
+| Lines | 99.27% (137/138) | 90% |
+
+Independent review fixes were verified before delivery:
+
+- each `SixQiTimeline` instance derives a unique `useId()` prefix;
+- instance-owned article refs replace global DOM lookup for positioning;
+- a two-instance test proves unique ARIA targets and correct-instance scroll;
+- automatic current-step changes open the new current detail without scroll;
+- governance checks the Rail `steps` prop against the imported canonical
+  `SixQiTimelineViewModel` and scopes ordinal-arithmetic rejection to the Rail;
+- mutation tests reject direct, callback-position and aliased renumbering while
+  allowing unrelated pagination index arithmetic.
 
 ## Real API browser verification
 
@@ -99,6 +110,13 @@ Desktop viewport `1440x1000`:
 - focus remained on the selected Rail control and computed scroll behavior
   was `auto`;
 - the equal-width/non-duration disclaimer was visible.
+
+Breakpoint-adjacent viewport `737x900`:
+
+- the Rail remained visible above the approved `46rem` cutoff;
+- the document client width and scroll width were both 722;
+- the Rail occupied the available 374 px as six equal 62 px columns;
+- surrounding panels collapsed without creating document-level overflow.
 
 Mobile viewport `390x844`:
 
@@ -132,6 +150,7 @@ pnpm test:coverage
 pnpm schema:validate
 pnpm openapi:validate
 git diff --check
+git diff --check 97829c525e7f5d7bd054ccb0fa2057c7050272c0..HEAD
 ```
 
 Selected repository results:
@@ -142,7 +161,7 @@ Selected repository results:
 | tyme4ts adapter tests | 37 passed |
 | Client tests | 8 passed |
 | Service tests | 136 passed |
-| Workbench tests | 43 passed |
+| Workbench tests | 44 passed |
 | Contract governance | 12 passed |
 | OpenAPI schema contract | 4 passed |
 | Service timezone independence | passed |
@@ -155,7 +174,7 @@ Repository coverage:
 | `@yunqi/domain` | 96.15% | 90.98% | 100% | 96.13% |
 | `@yunqi/client` | 100% | 100% | 100% | 100% |
 | `@yunqi/service` | 97.43% | 88.70% | 100% | 98.69% |
-| `@yunqi/workbench` | 99.25% | 89.47% | 100% | 99.24% |
+| `@yunqi/workbench` | 99.28% | 89.74% | 100% | 99.27% |
 
 OpenAPI validation retained exactly the three approved non-blocking warnings:
 
