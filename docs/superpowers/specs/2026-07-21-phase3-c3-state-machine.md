@@ -1,7 +1,7 @@
 # Phase3-C3 Annual Analysis State Matrix
 
-**Status:** Approved baseline  
-**Date:** 2026-07-21  
+**Status:** Approved baseline
+**Date:** 2026-07-21
 **Related design:**
 `docs/superpowers/specs/2026-07-21-phase3-c3-annual-analysis-design.md`
 
