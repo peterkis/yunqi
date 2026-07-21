@@ -9,6 +9,7 @@ import {
   win32,
 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import * as ts from 'typescript';
 
 const repositoryRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -108,6 +109,7 @@ function clauseHasRuntimeBinding(clause) {
 
   const namedBindings = normalized.match(/^\{([\s\S]*)\}$/);
   if (!namedBindings) return true;
+  if (namedBindings[1].trim() === '') return true;
 
   return namedBindings[1]
     .split(',')
@@ -188,39 +190,11 @@ function hasRuntimeClientImport(source) {
     /\bexport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
 
   for (const match of source.matchAll(staticImports)) {
-    const clause = match[1].trim();
-    if (clause.startsWith('type ')) continue;
-
-    const namedImport = clause.match(/^\{([\s\S]*)\}$/);
-    if (
-      namedImport &&
-      namedImport[1]
-        .split(',')
-        .filter((entry) => entry.trim() !== '')
-        .every((entry) => entry.trim().startsWith('type '))
-    ) {
-      continue;
-    }
-
-    return true;
+    if (clauseHasRuntimeBinding(match[1])) return true;
   }
 
   for (const match of source.matchAll(reExports)) {
-    const clause = match[1].trim();
-    if (clause.startsWith('type ')) continue;
-
-    const namedExport = clause.match(/^\{([\s\S]*)\}$/);
-    if (
-      namedExport &&
-      namedExport[1]
-        .split(',')
-        .filter((entry) => entry.trim() !== '')
-        .every((entry) => entry.trim().startsWith('type '))
-    ) {
-      continue;
-    }
-
-    return true;
+    if (clauseHasRuntimeBinding(match[1])) return true;
   }
 
   return (
@@ -236,34 +210,234 @@ function hasRuntimeClientImport(source) {
   );
 }
 
-function hasContractDtoImport(source) {
-  const contractBindings =
-    /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"](@yunqi\/contracts(?:\/[^'"]*)?)['"]/g;
+function parseWorkbenchSource(source, fileName) {
+  const scriptKind = new Map([
+    ['.cjs', ts.ScriptKind.JS],
+    ['.cts', ts.ScriptKind.TS],
+    ['.js', ts.ScriptKind.JS],
+    ['.jsx', ts.ScriptKind.JSX],
+    ['.mjs', ts.ScriptKind.JS],
+    ['.mts', ts.ScriptKind.TS],
+    ['.ts', ts.ScriptKind.TS],
+    ['.tsx', ts.ScriptKind.TSX],
+  ]).get(extensionOf(fileName)) ?? ts.ScriptKind.Unknown;
 
-  for (const match of source.matchAll(contractBindings)) {
-    const clause = match[1];
-    if (
-      clause.includes('*') ||
-      /\b[A-Za-z_$][\w$]*Dto\b/.test(clause)
-    ) {
-      return true;
-    }
-  }
-
-  return false;
+  return ts.createSourceFile(
+    fileName,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    scriptKind,
+  );
 }
 
-function hasDirectClientMethodAccess(source) {
-  const method =
-    '(?:getCurrent|getYear|calculate)';
-  const propertyAccess = new RegExp(
-    `(?:\\b[A-Za-z_$][\\w$]*|\\)|\\])\\s*(?:(?:\\?\\.|\\.)\\s*${method}\\b|(?:\\?\\.)?\\s*\\[\\s*['"]${method}['"]\\s*\\])`,
-  );
-  const destructuring = new RegExp(
-    `\\b(?:const|let|var)\\s*\\{[^}\\r\\n]*\\b${method}\\b[^}\\r\\n]*\\}\\s*=`,
-  );
+function hasContractDtoImport(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  let found = false;
 
-  return propertyAccess.test(source) || destructuring.test(source);
+  const isContractsSpecifier = (node) =>
+    ts.isStringLiteral(node) &&
+    /^@yunqi\/contracts(?:\/|$)/.test(node.text);
+  const isDtoName = (node) => {
+    if (node === undefined) return false;
+    if (ts.isIdentifier(node) || ts.isStringLiteralLike(node)) {
+      return /Dto$/.test(node.text);
+    }
+    if (
+      ts.isImportSpecifier(node) ||
+      ts.isExportSpecifier(node)
+    ) {
+      return (
+        isDtoName(node.propertyName) ||
+        isDtoName(node.name)
+      );
+    }
+    if (ts.isQualifiedName(node)) {
+      return isDtoName(node.left) || isDtoName(node.right);
+    }
+    if (ts.isLiteralTypeNode(node)) {
+      return isDtoName(node.literal);
+    }
+
+    return false;
+  };
+  const parentIndexedTypeHasDtoName = (node) => {
+    let current = node;
+    let parent = node.parent;
+
+    while (ts.isParenthesizedTypeNode(parent)) {
+      current = parent;
+      parent = parent.parent;
+    }
+
+    return (
+      ts.isIndexedAccessTypeNode(parent) &&
+      parent.objectType === current &&
+      isDtoName(parent.indexType)
+    );
+  };
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      (ts.isImportDeclaration(node) ||
+        ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier !== undefined &&
+      isContractsSpecifier(node.moduleSpecifier)
+    ) {
+      const bindings = ts.isImportDeclaration(node)
+        ? node.importClause?.namedBindings
+        : node.exportClause;
+      const defaultBinding = ts.isImportDeclaration(node)
+        ? node.importClause?.name
+        : undefined;
+
+      if (
+        isDtoName(defaultBinding) ||
+        (bindings !== undefined &&
+          (ts.isNamespaceImport(bindings) ||
+            ts.isNamespaceExport(bindings) ||
+            (ts.isNamedImports(bindings) &&
+              bindings.elements.some((element) =>
+                isDtoName(element),
+              )) ||
+            (ts.isNamedExports(bindings) &&
+              bindings.elements.some((element) =>
+                isDtoName(element),
+              ))))
+      ) {
+        found = true;
+        return;
+      }
+
+      if (
+        ts.isExportDeclaration(node) &&
+        node.exportClause === undefined
+      ) {
+        found = true;
+        return;
+      }
+    }
+
+    if (
+      ts.isImportTypeNode(node) &&
+      ts.isLiteralTypeNode(node.argument) &&
+      isContractsSpecifier(node.argument.literal) &&
+      (isDtoName(node.qualifier) ||
+        parentIndexedTypeHasDtoName(node))
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function hasDirectClientMethodAccess(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  const clientMethods = new Set([
+    'calculate',
+    'getCurrent',
+    'getYear',
+  ]);
+  let found = false;
+
+  const staticStringValue = (node) => {
+    if (ts.isStringLiteralLike(node)) return node.text;
+    if (ts.isParenthesizedExpression(node)) {
+      return staticStringValue(node.expression);
+    }
+    if (
+      ts.isAsExpression(node) ||
+      ts.isSatisfiesExpression(node) ||
+      ts.isTypeAssertionExpression(node)
+    ) {
+      return staticStringValue(node.expression);
+    }
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken
+    ) {
+      const left = staticStringValue(node.left);
+      const right = staticStringValue(node.right);
+      return left === undefined || right === undefined
+        ? undefined
+        : left + right;
+    }
+    if (ts.isTemplateExpression(node)) {
+      let value = node.head.text;
+
+      for (const span of node.templateSpans) {
+        const expression = staticStringValue(span.expression);
+        if (expression === undefined) return undefined;
+        value += expression + span.literal.text;
+      }
+
+      return value;
+    }
+
+    return undefined;
+  };
+
+  const isClientMethodName = (node) => {
+    if (node === undefined) return false;
+    if (ts.isComputedPropertyName(node)) {
+      return isClientMethodName(node.expression);
+    }
+    if (ts.isParenthesizedExpression(node)) {
+      return isClientMethodName(node.expression);
+    }
+    if (ts.isIdentifier(node)) {
+      return clientMethods.has(node.text);
+    }
+
+    const value = staticStringValue(node);
+    return value !== undefined && clientMethods.has(value);
+  };
+
+  const bindingPatternContainsClientMethod = (pattern) => {
+    if (!ts.isObjectBindingPattern(pattern)) return false;
+
+    return pattern.elements.some((element) => {
+      if (
+        isClientMethodName(element.propertyName) ||
+        (ts.isIdentifier(element.name) &&
+          isClientMethodName(element.name))
+      ) {
+        return true;
+      }
+
+      return bindingPatternContainsClientMethod(element.name);
+    });
+  };
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      (ts.isPropertyAccessExpression(node) &&
+        isClientMethodName(node.name)) ||
+      (ts.isElementAccessExpression(node) &&
+        node.argumentExpression !== undefined &&
+        isClientMethodName(node.argumentExpression)) ||
+      ((ts.isVariableDeclaration(node) ||
+        ts.isParameter(node)) &&
+        bindingPatternContainsClientMethod(node.name))
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
 }
 
 function isProductionSource(fileName) {
@@ -439,7 +613,7 @@ async function findSourceViolations(root) {
           );
         }
       }
-      if (hasDirectClientMethodAccess(source)) {
+      if (hasDirectClientMethodAccess(source, file)) {
         violations.push(
           `${relativePath}: client method access is forbidden in presentation mapper source`,
         );
@@ -453,7 +627,7 @@ async function findSourceViolations(root) {
 
     if (!isProductionComponentSource(file)) continue;
 
-    if (hasContractDtoImport(source)) {
+    if (hasContractDtoImport(source, file)) {
       violations.push(
         `${relativePath}: frozen DTO imports from @yunqi/contracts are forbidden in component source`,
       );
@@ -469,7 +643,7 @@ async function findSourceViolations(root) {
     if (/\/api\/v1\/yunqi\b/.test(source)) {
       violations.push(`${relativePath}: direct YunQi API path is forbidden`);
     }
-    if (hasDirectClientMethodAccess(source)) {
+    if (hasDirectClientMethodAccess(source, file)) {
       violations.push(
         `${relativePath}: direct YunQi client method access is forbidden`,
       );

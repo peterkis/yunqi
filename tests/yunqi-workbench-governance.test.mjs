@@ -159,6 +159,10 @@ for (const [label, source] of [
     'require call',
     "export const helper = require('runtime-helper');",
   ],
+  [
+    'empty named import',
+    "import {} from 'runtime-helper';",
+  ],
 ]) {
   test(`rejects a devDependency-only bare runtime ${label} in production source`, async () => {
     await assertMutationRejected({
@@ -439,6 +443,15 @@ test('rejects a runtime client import in component source', async () => {
   });
 });
 
+test('rejects an empty named client import in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/EmptyClientImport.ts',
+    source: "import {} from '@yunqi/client';",
+    expected:
+      /components\/EmptyClientImport\.ts: runtime @yunqi\/client import\/re-export is forbidden in component source/,
+  });
+});
+
 for (const [label, source] of [
   [
     'named runtime re-export',
@@ -580,6 +593,45 @@ test('rejects taking a client method reference in component source', async () =>
   });
 });
 
+test('rejects a client method behind a TS angle-bracket assertion', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'components/AngleAssertion.ts',
+    source: `
+      export function read(client) {
+        const current = <unknown>client.getCurrent;
+        return current;
+      }
+    `,
+    expected:
+      /components\/AngleAssertion\.ts: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects an asserted static client method key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        return client['getCurrent' as const]();
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a satisfies-wrapped client method destructuring key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        const { ['getCurrent' satisfies string]: load } = client;
+        return load;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
 test('rejects a client method capability passed under a generic prop name', async () => {
   await assertMutationRejected({
     source: `
@@ -607,6 +659,184 @@ for (const method of ['getCurrent', 'getYear', 'calculate']) {
     });
   });
 }
+
+for (const method of ['getCurrent', 'getYear', 'calculate']) {
+  test(`rejects destructuring ${method} from component parameters`, async () => {
+    await assertMutationRejected({
+      source: `
+        export function Fixture({ ${method} }) {
+          return ${method};
+        }
+      `,
+      expected:
+        /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+    });
+  });
+}
+
+for (const method of ['getCurrent', 'getYear', 'calculate']) {
+  test(`rejects destructuring ${method} from arrow component parameters`, async () => {
+    await assertMutationRejected({
+      source: `
+        export const Fixture = ({ ${method} }) => ${method};
+      `,
+      expected:
+        /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+    });
+  });
+}
+
+test('rejects an aliased client method from component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ getCurrent: loadCurrent }) {
+        return loadCurrent;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method from multiline component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({
+        getCurrent,
+      }) {
+        return getCurrent;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects an aliased client method from multiline arrow parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export const Fixture = ({
+        calculate: runCalculation,
+      }) => runCalculation;
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method before an object default in component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export const Fixture = ({ getCurrent, style = {} }) => {
+        return <main style={style}>{getCurrent}</main>;
+      };
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method after an object default in component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ style = {}, getYear }) {
+        return <main style={style}>{getYear}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method beside an object default in local destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ api }) {
+        const { calculate, options = {} } = api;
+        return <main>{calculate}{options}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method from generic function component parameters', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture<T>({ getCurrent }: Props<T>) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method after a parameter comment', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture(/* props */ { getCurrent }) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a client method after a generic function constraint', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture<T extends () => void>(
+        { getCurrent }: Props<T>,
+      ) {
+        return <main>{getCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a computed client method in component destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ ['getCurrent']: loadCurrent }) {
+        return <main>{loadCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a concatenated client method in component destructuring', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        const {
+          ['get' + 'Current']: loadCurrent,
+        } = client;
+        return <main>{loadCurrent}</main>;
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+test('rejects a static template client method key', async () => {
+  await assertMutationRejected({
+    source: `
+      export function Fixture({ client }) {
+        return client[\`get\${'Current'}\`]();
+      }
+    `,
+    expected:
+      /components\/Fixture\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
 
 test('allows similarly named fields on ordinary DTO values', async () => {
   const fixtureRoot = createFixture({
@@ -654,6 +884,102 @@ test('rejects a contracts namespace import in component source', async () => {
     `,
     expected:
       /components\/ContractNamespace\.ts: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a frozen DTO import type query in component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/ImportTypeDtoView.tsx',
+    source: `
+      type Props = {
+        readonly value:
+          import('@yunqi/contracts').YunQiCalculationDto;
+      };
+      export function ImportTypeDtoView(props: Props) {
+        return <main>{props.value.year}</main>;
+      }
+    `,
+    expected:
+      /features\/yunqi\/components\/ImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a commented frozen DTO import type query', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/CommentedImportTypeDtoView.tsx',
+    source: `
+      type Props = {
+        readonly value:
+          import/* type */('@yunqi/contracts').YunQiCalculationDto;
+      };
+      export function CommentedImportTypeDtoView(props: Props) {
+        return <main>{props.value.year}</main>;
+      }
+    `,
+    expected:
+      /features\/yunqi\/components\/CommentedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects an escaped frozen DTO identifier import', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/EscapedDtoView.tsx',
+    source: `
+      import type {
+        YunQiCalculation\\u0044to,
+      } from '@yunqi/contracts';
+      export type Props = {
+        readonly value: YunQiCalculation\\u0044to;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/EscapedDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects an escaped frozen DTO import type query', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/EscapedImportTypeDtoView.tsx',
+    source: `
+      export type Props = {
+        readonly value:
+          import('@yunqi/contracts').YunQiCalculation\\u0044to;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/EscapedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a default frozen DTO import', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/DefaultDtoView.tsx',
+    source: `
+      import type YunQiCalculationDto from '@yunqi/contracts';
+      export type Props = {
+        readonly value: YunQiCalculationDto;
+      };
+    `,
+    expected:
+      /features\/yunqi\/components\/DefaultDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects a parenthesized indexed frozen DTO import type', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/ParenthesizedImportTypeDtoView.tsx',
+    source: `
+      export type Props =
+        (import('@yunqi/contracts'))['YunQiCalculationDto'];
+    `,
+    expected:
+      /features\/yunqi\/components\/ParenthesizedImportTypeDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
   });
 });
 

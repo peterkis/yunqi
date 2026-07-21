@@ -25,6 +25,7 @@
     "schema:validate": "pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"
   },
   "devDependencies": {
+    "typescript": "5.9.3",
     "yaml": "2.9.0"
   }
 }
