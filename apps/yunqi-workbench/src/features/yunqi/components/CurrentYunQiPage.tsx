@@ -1,9 +1,10 @@
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
 import { CurrentStepCard } from './CurrentStepCard';
-import { CurrentSummary } from './CurrentSummary';
+import { RuleExplanationPanel } from './RuleExplanationPanel';
 import { SixQiTimeline } from './SixQiTimeline';
-import { TheoryAndTraceabilityPanel } from './TheoryAndTraceabilityPanel';
+import { TraceabilityPanel } from './TraceabilityPanel';
+import { YunQiYearSummaryPanel } from './YunQiYearSummaryPanel';
 
 export interface CurrentYunQiPageProps {
   readonly viewModel: CurrentYunQiViewModel;
@@ -28,14 +29,17 @@ export function CurrentYunQiPage({
         </div>
       </header>
 
-      <CurrentSummary summary={viewModel.summary} />
+      <YunQiYearSummaryPanel summary={viewModel.summary} />
       <CurrentStepCard step={viewModel.currentStep} />
       <SixQiTimeline
         steps={viewModel.timeline}
         currentStepIndex={viewModel.currentStep.index}
       />
-      <TheoryAndTraceabilityPanel
+      <RuleExplanationPanel
         explanations={viewModel.explanations}
+      />
+      <TraceabilityPanel
+        dataSource="YunQi 当前查询 API"
         ruleVersion={viewModel.ruleVersion}
       />
     </div>

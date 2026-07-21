@@ -15,13 +15,14 @@ describe('CurrentYunQiPage', () => {
     expect(
       screen.getByRole('heading', { name: '当前五运六气' }),
     ).toBeInTheDocument();
-    expect(
-      screen.getByText('2026-06-19 12:00:00'),
-    ).toHaveAttribute(
+    const inputTime = screen.getByText('2026-06-19 12:00:00');
+    expect(inputTime).toHaveAttribute(
       'dateTime',
       '2026-06-19T12:00:00+08:00',
     );
-    expect(screen.getByText('北京时间 UTC+08')).toBeInTheDocument();
+    expect(inputTime.parentElement).toHaveTextContent(
+      '北京时间 UTC+08',
+    );
 
     const yearSummary = screen.getByRole('region', {
       name: '年度概览',
@@ -68,13 +69,26 @@ describe('CurrentYunQiPage', () => {
       }),
     ).toHaveAttribute('aria-expanded', 'true');
 
-    const theory = screen.getByRole('region', {
-      name: '理论说明与追溯',
+    const explanation = screen.getByRole('region', {
+      name: '规则结果说明',
     });
-    expect(theory).toHaveTextContent('本结果依据冻结规则计算。');
-    expect(theory).toHaveTextContent(
+    expect(explanation).toHaveTextContent(
+      '本结果依据冻结规则计算。',
+    );
+    expect(explanation).toHaveTextContent(
       '传统理论说明仅供医生学习与复盘。',
     );
-    expect(theory).toHaveTextContent('YQ-MVP-RULES-1.0.0');
+    expect(explanation).toHaveTextContent('前端未扩写');
+
+    const trace = screen.getByRole('region', {
+      name: '追溯信息',
+    });
+    expect(trace).not.toHaveTextContent(
+      '本结果依据冻结规则计算。',
+    );
+    expect(trace).toHaveTextContent('YunQi 当前查询 API');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.0.0');
+    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.0.0');
+    expect(trace).toHaveTextContent('北京时间 UTC+08');
   });
 });
