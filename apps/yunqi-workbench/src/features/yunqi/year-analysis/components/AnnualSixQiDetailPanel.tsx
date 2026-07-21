@@ -20,7 +20,7 @@ export function AnnualSixQiDetailPanel({
       role="region"
     >
       <header className="annual-six-qi-detail__header">
-        <p className="section-label">Stage Detail</p>
+        <p className="annual-six-qi-detail__eyebrow">Stage Detail</p>
         <h2 id={titleId}>已选择：{stage.name}</h2>
         <p>以下内容来自年度查询 API，前端仅按所选阶段展示。</p>
       </header>

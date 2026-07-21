@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
@@ -36,6 +37,40 @@ describe('AnnualYunQiPage', () => {
     expect(
       screen.getAllByRole('region', { name: /已选择：/ }),
     ).toHaveLength(1);
+  });
+
+  it('keeps the detail eyebrow neutral outside checked-selection styling', () => {
+    render(
+      <AnnualYunQiPage
+        viewModel={mapAnnualYunQi(createYunQiYearDto())}
+      />,
+    );
+
+    const eyebrow = screen.getByText('Stage Detail');
+    expect(eyebrow).toHaveClass('annual-six-qi-detail__eyebrow');
+    expect(eyebrow).not.toHaveClass('section-label');
+  });
+
+  it('contains annual overflow locally without clipping the document', () => {
+    const stylesheet = readFileSync('src/styles/global.css', 'utf8');
+    const bodyDeclarations = stylesheet.match(
+      /\nbody\s*\{([^}]*)\}/s,
+    )?.[1];
+    const pageDeclarations = stylesheet.match(
+      /\.annual-yunqi-page\s*\{([^}]*)\}/s,
+    )?.[1];
+    const selectorDeclarations = stylesheet.match(
+      /\.annual-six-qi-selector__options\s*\{([^}]*)\}/s,
+    )?.[1];
+    const rangeDeclarations = stylesheet.match(
+      /\.annual-six-qi-selector__range\s*\{([^}]*)\}/s,
+    )?.[1];
+
+    expect(bodyDeclarations).not.toContain('overflow-x');
+    expect(pageDeclarations).toContain('min-width: 0;');
+    expect(selectorDeclarations).toContain('min-width: 0;');
+    expect(selectorDeclarations).toContain('grid-template-columns:');
+    expect(rangeDeclarations).toContain('overflow-wrap: anywhere;');
   });
 
   it('resets selection to the first returned stage when the year changes', async () => {

@@ -20,7 +20,6 @@ body,
 
 body {
   min-width: 20rem;
-  overflow-x: clip;
 }
 
 button {
@@ -383,6 +382,9 @@ button {
   width: 1rem;
   height: 1rem;
   margin: 0;
+}
+
+.annual-six-qi-selector__option input:checked {
   accent-color: var(--cinnabar);
 }
 
@@ -447,6 +449,13 @@ button {
   font-size: clamp(1.8rem, 3.5vw, 2.8rem);
   font-weight: 550;
   letter-spacing: -0.025em;
+}
+
+.annual-six-qi-detail__eyebrow {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
 }
 
 .annual-six-qi-detail__header > p:last-child {
