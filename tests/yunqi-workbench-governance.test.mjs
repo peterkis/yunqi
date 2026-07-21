@@ -1049,6 +1049,30 @@ test('rejects a copied frozen DTO declaration', async () => {
   });
 });
 
+test('rejects a parallel AnnualStageRail presentation model', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/presentation/annual-stage-rail.ts',
+    source: 'export interface AnnualStageRailData {}',
+    expected:
+      /AnnualStageRailData duplicates the canonical SixQiTimelineViewModel/,
+  });
+});
+
+test('rejects component-side renumbering of a YunQi step index', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/RenumberedStage.tsx',
+    source: `
+      export function RenumberedStage({ step }) {
+        return <span>{step.index + 1}</span>;
+      }
+    `,
+    expected:
+      /RenumberedStage\.tsx: component-side step index renumbering is forbidden/,
+  });
+});
+
 test('rejects a default-exported copied frozen DTO declaration', async () => {
   await assertMutationRejected({
     relativeSourcePath: 'models/default-copied-dto.ts',

@@ -27,6 +27,7 @@ export function TimelineItem({
 
   return (
     <article
+      id={id}
       className={`timeline-item${isCurrent ? ' is-current' : ''}`}
     >
       <div className="timeline-item__marker" aria-hidden="true" />

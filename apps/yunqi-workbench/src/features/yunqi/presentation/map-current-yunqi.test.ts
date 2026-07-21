@@ -43,10 +43,14 @@ describe('mapCurrentYunQi', () => {
     ]);
   });
 
-  it('preserves the six-step tuple and identifies the current step by API index', () => {
-    const result = mapCurrentYunQi(createYunQiCalculationDto());
+  it('preserves API indexes and maps the six-stage presentation status', () => {
+    const dto = createYunQiCalculationDto();
+    const result = mapCurrentYunQi(dto);
 
     expect(result.timeline).toHaveLength(6);
+    expect(result.timeline.map((step) => step.index)).toEqual(
+      dto.sixQi.steps.map((step) => step.index),
+    );
     expect(result.timeline.map((step) => step.name)).toEqual([
       '初之气',
       '二之气',
@@ -55,15 +59,16 @@ describe('mapCurrentYunQi', () => {
       '五之气',
       '终之气',
     ]);
-    expect(result.timeline.map((step) => step.isCurrent)).toEqual([
-      false,
-      false,
-      true,
-      false,
-      false,
-      false,
+    expect(result.timeline.map((step) => step.status)).toEqual([
+      { code: 'completed', label: '已结束' },
+      { code: 'completed', label: '已结束' },
+      { code: 'current', label: '当前' },
+      { code: 'upcoming', label: '未开始' },
+      { code: 'upcoming', label: '未开始' },
+      { code: 'upcoming', label: '未开始' },
     ]);
     expect(result.currentStep).toBe(result.timeline[2]);
+    expect(result.timeline[2]).not.toHaveProperty('isCurrent');
   });
 
   it('maps every frozen relation code to a neutral label', () => {

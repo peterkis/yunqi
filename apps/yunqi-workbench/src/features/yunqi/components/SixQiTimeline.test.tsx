@@ -1,11 +1,18 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
 import { SixQiTimeline } from './SixQiTimeline';
 
 describe('SixQiTimeline', () => {
+  const scrollIntoView = vi.fn();
+
+  beforeEach(() => {
+    scrollIntoView.mockReset();
+    HTMLElement.prototype.scrollIntoView = scrollIntoView;
+  });
+
   it('defaults to the current step and permits independent multi-expand', async () => {
     const user = userEvent.setup();
     const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
@@ -84,6 +91,41 @@ describe('SixQiTimeline', () => {
         }),
       ).toHaveAttribute('aria-expanded', 'true'),
     );
+    expect(
+      screen.getByRole('button', { name: '收起初之气详情' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+  });
+
+  it('reveals and positions a selected rail stage without closing other details or moving focus', async () => {
+    const user = userEvent.setup();
+    const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
+
+    render(
+      <SixQiTimeline
+        steps={viewModel.timeline}
+        currentStepIndex={viewModel.currentStep.index}
+      />,
+    );
+
+    const railControl = screen.getByRole('button', {
+      name: /第 1 步.*初之气.*已结束/,
+    });
+
+    railControl.focus();
+    await user.click(railControl);
+
+    expect(railControl).toHaveFocus();
+    expect(railControl).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('button', { name: '收起初之气详情' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(
+      screen.getByRole('button', { name: '收起三之气详情' }),
+    ).toHaveAttribute('aria-expanded', 'true');
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: 'nearest' });
+
+    await user.click(railControl);
+
     expect(
       screen.getByRole('button', { name: '收起初之气详情' }),
     ).toHaveAttribute('aria-expanded', 'true');

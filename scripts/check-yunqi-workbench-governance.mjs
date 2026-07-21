@@ -440,6 +440,68 @@ function hasDirectClientMethodAccess(source, fileName) {
   return found;
 }
 
+function hasAnnualStageRailModelDeclaration(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  const forbiddenNames = new Set([
+    'AnnualStageRailData',
+    'AnnualStageRailViewModel',
+  ]);
+  let found = false;
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      (ts.isInterfaceDeclaration(node) ||
+        ts.isTypeAliasDeclaration(node) ||
+        ts.isClassDeclaration(node)) &&
+      node.name !== undefined &&
+      forbiddenNames.has(node.name.text)
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function hasComponentStepIndexRenumbering(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  let found = false;
+
+  const isOne = (node) =>
+    ts.isNumericLiteral(node) && node.text === '1';
+  const isIndexAccess = (node) =>
+    (ts.isPropertyAccessExpression(node) && node.name.text === 'index') ||
+    (ts.isElementAccessExpression(node) &&
+      node.argumentExpression !== undefined &&
+      ts.isStringLiteralLike(node.argumentExpression) &&
+      node.argumentExpression.text === 'index');
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      ((isIndexAccess(node.left) && isOne(node.right)) ||
+        (isOne(node.left) && isIndexAccess(node.right)))
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
 function isProductionSource(fileName) {
   const normalized = normalizePath(fileName);
   return !(
@@ -595,6 +657,12 @@ async function findSourceViolations(root) {
       }
     }
 
+    if (hasAnnualStageRailModelDeclaration(source, file)) {
+      violations.push(
+        `${relativePath}: AnnualStageRailData duplicates the canonical SixQiTimelineViewModel`,
+      );
+    }
+
     if (isProductionPresentationMapperSource(file)) {
       for (const { specifier } of imports) {
         if (/^react(?:\/|$)|^react-dom(?:\/|$)/.test(specifier)) {
@@ -646,6 +714,11 @@ async function findSourceViolations(root) {
     if (hasDirectClientMethodAccess(source, file)) {
       violations.push(
         `${relativePath}: direct YunQi client method access is forbidden`,
+      );
+    }
+    if (hasComponentStepIndexRenumbering(source, file)) {
+      violations.push(
+        `${relativePath}: component-side step index renumbering is forbidden`,
       );
     }
   }

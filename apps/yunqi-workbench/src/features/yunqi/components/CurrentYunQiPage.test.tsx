@@ -50,6 +50,16 @@ describe('CurrentYunQiPage', () => {
       name: '六步交接时间线',
     });
     expect(
+      within(timeline).getByRole('navigation', {
+        name: '六气年度六阶段概览',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(timeline).getAllByRole('button', {
+        name: /第 [1-6] 步/,
+      }),
+    ).toHaveLength(6);
+    expect(
       within(timeline).getAllByRole('article'),
     ).toHaveLength(6);
     expect(
