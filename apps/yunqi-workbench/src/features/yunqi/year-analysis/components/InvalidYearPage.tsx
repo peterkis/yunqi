@@ -5,8 +5,8 @@ export interface InvalidYearPageProps {
 }
 
 const messages = {
-  format: '年份格式无效，请选择四位年份。',
-  range: '年份超出可查询范围，请从批准列表中选择。',
+  format: '年份格式错误，请选择四位年份',
+  range: '年份范围应为 1901–2099',
 } as const;
 
 export function InvalidYearPage({ reason }: InvalidYearPageProps) {

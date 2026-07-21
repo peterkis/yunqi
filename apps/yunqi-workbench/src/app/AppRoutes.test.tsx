@@ -97,7 +97,9 @@ describe('AppRoutes', () => {
 
     renderAppAt('/yunqi/year/abc', client);
 
-    expect(screen.getByRole('alert')).toHaveTextContent('年份格式无效');
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      /^年份格式错误，请选择四位年份$/,
+    );
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();
   });
@@ -105,10 +107,10 @@ describe('AppRoutes', () => {
   it('rejects an out-of-range URL year without querying', () => {
     const client = createClient();
 
-    renderAppAt('/yunqi/year/1900', client);
+    renderAppAt('/yunqi/year/2100', client);
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      '年份超出可查询范围',
+      /^年份范围应为 1901–2099$/,
     );
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();
