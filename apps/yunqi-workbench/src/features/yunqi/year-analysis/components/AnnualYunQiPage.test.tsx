@@ -39,6 +39,27 @@ describe('AnnualYunQiPage', () => {
     ).toHaveLength(1);
   });
 
+  it('supports native radio keyboard selection', async () => {
+    const user = userEvent.setup();
+    render(
+      <AnnualYunQiPage
+        viewModel={mapAnnualYunQi(createYunQiYearDto())}
+      />,
+    );
+
+    const firstStage = screen.getByRole('radio', { name: /初之气/ });
+    const secondStage = screen.getByRole('radio', { name: /二之气/ });
+
+    firstStage.focus();
+    await user.keyboard('{ArrowRight}');
+
+    expect(secondStage).toHaveFocus();
+    expect(secondStage).toBeChecked();
+    expect(
+      screen.getByRole('region', { name: '已选择：二之气' }),
+    ).toBeInTheDocument();
+  });
+
   it('keeps the detail eyebrow neutral outside checked-selection styling', () => {
     render(
       <AnnualYunQiPage
