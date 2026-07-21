@@ -127,7 +127,7 @@ Mobile viewport `390x844`:
 - the vertical details exposed two completed, one current and three upcoming
   status labels.
 
-Browser console warning and error arrays were empty in both viewports. The
+Browser console warning and error arrays were empty in all three viewports. The
 viewport override was reset, the browser tab was released, and both temporary
 servers were stopped after inspection.
 
