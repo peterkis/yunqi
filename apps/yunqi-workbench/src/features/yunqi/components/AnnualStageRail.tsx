@@ -13,6 +13,7 @@ export interface AnnualStageRailProps {
     index: SixQiTimelineItemViewModel['index'],
   ) => void;
   readonly steps: SixQiTimelineViewModel;
+  readonly timelineId: string;
 }
 
 function stageAccessibleName(step: SixQiTimelineItemViewModel) {
@@ -29,12 +30,13 @@ export function AnnualStageRail({
   expandedSteps,
   onRevealStep,
   steps,
+  timelineId,
 }: AnnualStageRailProps) {
   return (
     <nav className="annual-stage-rail" aria-label="六气年度六阶段概览">
       <ol className="annual-stage-rail__stages">
         {steps.map((step) => {
-          const ids = getSixQiTimelineIds(step.index);
+          const ids = getSixQiTimelineIds(timelineId, step.index);
           const isCurrent = step.status.code === 'current';
 
           return (

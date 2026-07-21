@@ -1,8 +1,8 @@
 # Phase3-C2 YunQi Annual Timeline Design
 
-**Status:** Approved, implementation-ready  
-**Date:** 2026-07-21  
-**Base:** Phase3-C1 YunQi Presentation  
+**Status:** Approved, implementation-ready
+**Date:** 2026-07-21
+**Base:** Phase3-C1 YunQi Presentation
 **Application:** `apps/yunqi-workbench`
 
 ## Purpose
@@ -44,6 +44,9 @@ Above `46rem`, the six stages form an equal-width horizontal rail. Equal width
 is categorical and does not represent real duration or within-stage progress.
 The rail states this explicitly.
 
+Between `46rem` and `64rem`, surrounding panel grids may collapse to a single
+column so the Rail remains six equal columns without document-level overflow.
+
 At or below `46rem`, the horizontal rail is hidden. The existing vertical
 six-step disclosures carry the same stage status, avoiding duplicate mobile
 navigation and focus targets.
@@ -82,4 +85,3 @@ medical risk, diagnosis, or treatment meaning.
 - No time-scale calculation, progress percentage, SVG, Canvas, or charting
   dependency.
 - No Router, form, database, inquiry workflow, or runtime fixture.
-

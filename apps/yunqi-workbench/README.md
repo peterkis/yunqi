@@ -92,6 +92,9 @@ honor `prefers-reduced-motion`.
 At `46rem` and below, the desktop rail is hidden and the existing vertical
 timeline remains the single mobile navigation/detail surface. Its current,
 completed, and upcoming labels use the same ViewModel status.
+Between `46rem` and `64rem`, surrounding summary panels collapse to one column
+while the Rail remains a six-column overview, preventing document-level
+horizontal overflow near the mobile breakpoint.
 
 ## Fixed Beijing time
 

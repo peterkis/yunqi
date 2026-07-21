@@ -25,6 +25,7 @@ describe('AnnualStageRail', () => {
 
     render(
       <AnnualStageRail
+        timelineId="sixqi-timeline-test"
         steps={viewModel.timeline}
         expandedSteps={new Set([viewModel.currentStep.index])}
         onRevealStep={vi.fn()}
@@ -43,7 +44,7 @@ describe('AnnualStageRail', () => {
 
       expect(control).toHaveAttribute(
         'aria-controls',
-        `sixqi-step-${step.index}-details`,
+        `sixqi-timeline-test-step-${step.index}-details`,
       );
       expect(control).toHaveAttribute(
         'aria-expanded',

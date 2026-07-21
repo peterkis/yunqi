@@ -1,3 +1,4 @@
+import type { Ref } from 'react';
 import { Badge } from '../../../components/ui/Badge';
 import { TimelineItem } from '../../../components/ui/TimelineItem';
 import type { SixQiTimelineItemViewModel } from '../presentation/view-model';
@@ -8,15 +9,19 @@ import { getSixQiTimelineIds } from './six-qi-timeline-ids';
 export interface SixQiTimelineItemProps {
   readonly isExpanded: boolean;
   readonly onToggle: () => void;
+  readonly rootRef: Ref<HTMLElement>;
   readonly step: SixQiTimelineItemViewModel;
+  readonly timelineId: string;
 }
 
 export function SixQiTimelineItem({
   isExpanded,
   onToggle,
+  rootRef,
   step,
+  timelineId,
 }: SixQiTimelineItemProps) {
-  const ids = getSixQiTimelineIds(step.index);
+  const ids = getSixQiTimelineIds(timelineId, step.index);
   const isCurrent = step.status.code === 'current';
 
   return (
@@ -26,6 +31,7 @@ export function SixQiTimelineItem({
       isCurrent={isCurrent}
       isExpanded={isExpanded}
       onToggle={onToggle}
+      rootRef={rootRef}
       summary={
         <div className="sixqi-step-summary">
           {!isCurrent ? (

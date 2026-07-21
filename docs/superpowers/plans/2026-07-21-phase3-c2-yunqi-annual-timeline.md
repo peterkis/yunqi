@@ -65,4 +65,3 @@ pnpm schema:validate
 pnpm openapi:validate
 git diff --check
 ```
-

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ReactNode, Ref } from 'react';
 import { Badge } from './Badge';
 
 export interface TimelineItemProps {
@@ -7,6 +7,7 @@ export interface TimelineItemProps {
   readonly isCurrent?: boolean;
   readonly isExpanded: boolean;
   readonly onToggle: () => void;
+  readonly rootRef?: Ref<HTMLElement>;
   readonly summary: ReactNode;
   readonly title: string;
 }
@@ -17,6 +18,7 @@ export function TimelineItem({
   isCurrent = false,
   isExpanded,
   onToggle,
+  rootRef,
   summary,
   title,
 }: TimelineItemProps) {
@@ -28,6 +30,7 @@ export function TimelineItem({
   return (
     <article
       id={id}
+      ref={rootRef}
       className={`timeline-item${isCurrent ? ' is-current' : ''}`}
     >
       <div className="timeline-item__marker" aria-hidden="true" />

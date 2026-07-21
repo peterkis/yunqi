@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Panel } from '../../../components/ui/Panel';
 import type { SixQiTimelineViewModel } from '../presentation/view-model';
 import { AnnualStageRail } from './AnnualStageRail';
 import { SixQiTimelineItem } from './SixQiTimelineItem';
-import { getSixQiTimelineIds } from './six-qi-timeline-ids';
 
 export interface SixQiTimelineProps {
   readonly currentStepIndex: number;
@@ -14,6 +13,8 @@ export function SixQiTimeline({
   currentStepIndex,
   steps,
 }: SixQiTimelineProps) {
+  const timelineId = `sixqi-timeline-${useId()}`;
+  const stepRoots = useRef(new Map<number, HTMLElement>());
   const [expandedSteps, setExpandedSteps] = useState<
     ReadonlySet<number>
   >(() => new Set([currentStepIndex]));
@@ -49,9 +50,7 @@ export function SixQiTimeline({
       return next;
     });
 
-    document
-      .getElementById(getSixQiTimelineIds(index).rootId)
-      ?.scrollIntoView({ block: 'nearest' });
+    stepRoots.current.get(index)?.scrollIntoView({ block: 'nearest' });
   }
 
   return (
@@ -61,6 +60,7 @@ export function SixQiTimeline({
       description="当前步默认展开；可同时展开多个节点比较客主关系。"
     >
       <AnnualStageRail
+        timelineId={timelineId}
         steps={steps}
         expandedSteps={expandedSteps}
         onRevealStep={revealStep}
@@ -72,6 +72,14 @@ export function SixQiTimeline({
             step={step}
             isExpanded={expandedSteps.has(step.index)}
             onToggle={() => toggleStep(step.index)}
+            timelineId={timelineId}
+            rootRef={(element) => {
+              if (element) {
+                stepRoots.current.set(step.index, element);
+              } else {
+                stepRoots.current.delete(step.index);
+              }
+            }}
           />
         ))}
       </div>

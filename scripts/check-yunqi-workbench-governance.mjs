@@ -440,23 +440,80 @@ function hasDirectClientMethodAccess(source, fileName) {
   return found;
 }
 
-function hasAnnualStageRailModelDeclaration(source, fileName) {
+function annualStageRailUsesCanonicalTimeline(source, fileName) {
   const sourceFile = parseWorkbenchSource(source, fileName);
-  const forbiddenNames = new Set([
-    'AnnualStageRailData',
-    'AnnualStageRailViewModel',
-  ]);
+  let localTimelineType;
+
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier) ||
+      statement.moduleSpecifier.text !== '../presentation/view-model' ||
+      !statement.importClause?.namedBindings ||
+      !ts.isNamedImports(statement.importClause.namedBindings)
+    ) {
+      continue;
+    }
+
+    const timelineImport = statement.importClause.namedBindings.elements.find(
+      (element) =>
+        (element.propertyName?.text ?? element.name.text) ===
+        'SixQiTimelineViewModel',
+    );
+    if (timelineImport) localTimelineType = timelineImport.name.text;
+  }
+
+  if (!localTimelineType) return false;
+
+  const props = sourceFile.statements.find(
+    (statement) =>
+      ts.isInterfaceDeclaration(statement) &&
+      statement.name.text === 'AnnualStageRailProps',
+  );
+  if (!props || !ts.isInterfaceDeclaration(props)) return false;
+
+  const steps = props.members.find(
+    (member) =>
+      ts.isPropertySignature(member) &&
+      member.name !== undefined &&
+      ((ts.isIdentifier(member.name) && member.name.text === 'steps') ||
+        (ts.isStringLiteralLike(member.name) && member.name.text === 'steps')),
+  );
+
+  return Boolean(
+    steps &&
+      ts.isPropertySignature(steps) &&
+      steps.type &&
+      ts.isTypeReferenceNode(steps.type) &&
+      ts.isIdentifier(steps.type.typeName) &&
+      steps.type.typeName.text === localTimelineType,
+  );
+}
+
+function hasAnnualStageOrdinalArithmetic(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
   let found = false;
+
+  const isOne = (node) =>
+    ts.isNumericLiteral(node) && node.text === '1';
 
   const visit = (node) => {
     if (found) return;
 
     if (
-      (ts.isInterfaceDeclaration(node) ||
-        ts.isTypeAliasDeclaration(node) ||
-        ts.isClassDeclaration(node)) &&
-      node.name !== undefined &&
-      forbiddenNames.has(node.name.text)
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      (isOne(node.left) || isOne(node.right))
+    ) {
+      found = true;
+      return;
+    }
+
+    if (
+      (ts.isPrefixUnaryExpression(node) ||
+        ts.isPostfixUnaryExpression(node)) &&
+      (node.operator === ts.SyntaxKind.PlusPlusToken ||
+        node.operator === ts.SyntaxKind.MinusMinusToken)
     ) {
       found = true;
       return;
@@ -469,37 +526,10 @@ function hasAnnualStageRailModelDeclaration(source, fileName) {
   return found;
 }
 
-function hasComponentStepIndexRenumbering(source, fileName) {
-  const sourceFile = parseWorkbenchSource(source, fileName);
-  let found = false;
-
-  const isOne = (node) =>
-    ts.isNumericLiteral(node) && node.text === '1';
-  const isIndexAccess = (node) =>
-    (ts.isPropertyAccessExpression(node) && node.name.text === 'index') ||
-    (ts.isElementAccessExpression(node) &&
-      node.argumentExpression !== undefined &&
-      ts.isStringLiteralLike(node.argumentExpression) &&
-      node.argumentExpression.text === 'index');
-
-  const visit = (node) => {
-    if (found) return;
-
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-      ((isIndexAccess(node.left) && isOne(node.right)) ||
-        (isOne(node.left) && isIndexAccess(node.right)))
-    ) {
-      found = true;
-      return;
-    }
-
-    ts.forEachChild(node, visit);
-  };
-
-  visit(sourceFile);
-  return found;
+function isAnnualStageRailSource(fileName) {
+  return normalizePath(fileName).endsWith(
+    '/src/features/yunqi/components/AnnualStageRail.tsx',
+  );
 }
 
 function isProductionSource(fileName) {
@@ -657,10 +687,17 @@ async function findSourceViolations(root) {
       }
     }
 
-    if (hasAnnualStageRailModelDeclaration(source, file)) {
-      violations.push(
-        `${relativePath}: AnnualStageRailData duplicates the canonical SixQiTimelineViewModel`,
-      );
+    if (isAnnualStageRailSource(file)) {
+      if (!annualStageRailUsesCanonicalTimeline(source, file)) {
+        violations.push(
+          `${relativePath}: steps must consume SixQiTimelineViewModel directly`,
+        );
+      }
+      if (hasAnnualStageOrdinalArithmetic(source, file)) {
+        violations.push(
+          `${relativePath}: stage ordinal arithmetic is forbidden`,
+        );
+      }
     }
 
     if (isProductionPresentationMapperSource(file)) {
@@ -714,11 +751,6 @@ async function findSourceViolations(root) {
     if (hasDirectClientMethodAccess(source, file)) {
       violations.push(
         `${relativePath}: direct YunQi client method access is forbidden`,
-      );
-    }
-    if (hasComponentStepIndexRenumbering(source, file)) {
-      violations.push(
-        `${relativePath}: component-side step index renumbering is forbidden`,
       );
     }
   }

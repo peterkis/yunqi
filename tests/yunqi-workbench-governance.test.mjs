@@ -1049,28 +1049,93 @@ test('rejects a copied frozen DTO declaration', async () => {
   });
 });
 
-test('rejects a parallel AnnualStageRail presentation model', async () => {
+test('rejects AnnualStageRail props that replace the canonical timeline model', async () => {
   await assertMutationRejected({
     relativeSourcePath:
-      'features/yunqi/presentation/annual-stage-rail.ts',
-    source: 'export interface AnnualStageRailData {}',
+      'features/yunqi/components/AnnualStageRail.tsx',
+    source: `
+      interface RenamedRailStageCollection {}
+      export interface AnnualStageRailProps {
+        readonly steps: RenamedRailStageCollection;
+      }
+      export function AnnualStageRail() { return null; }
+    `,
     expected:
-      /AnnualStageRailData duplicates the canonical SixQiTimelineViewModel/,
+      /AnnualStageRail\.tsx: steps must consume SixQiTimelineViewModel directly/,
   });
 });
 
 test('rejects component-side renumbering of a YunQi step index', async () => {
   await assertMutationRejected({
     relativeSourcePath:
-      'features/yunqi/components/RenumberedStage.tsx',
+      'features/yunqi/components/AnnualStageRail.tsx',
     source: `
-      export function RenumberedStage({ step }) {
-        return <span>{step.index + 1}</span>;
+      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      export interface AnnualStageRailProps {
+        readonly steps: SixQiTimelineViewModel;
+      }
+      export function AnnualStageRail({ steps }: AnnualStageRailProps) {
+        return steps.map((step) => <span>{step.index + 1}</span>);
       }
     `,
     expected:
-      /RenumberedStage\.tsx: component-side step index renumbering is forbidden/,
+      /AnnualStageRail\.tsx: stage ordinal arithmetic is forbidden/,
   });
+});
+
+test('rejects callback-position renumbering in AnnualStageRail', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/AnnualStageRail.tsx',
+    source: `
+      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      export interface AnnualStageRailProps {
+        readonly steps: SixQiTimelineViewModel;
+      }
+      export function AnnualStageRail({ steps }: AnnualStageRailProps) {
+        return steps.map((step, index) => <span>{index + 1}</span>);
+      }
+    `,
+    expected:
+      /AnnualStageRail\.tsx: stage ordinal arithmetic is forbidden/,
+  });
+});
+
+test('rejects aliased step-index renumbering in AnnualStageRail', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/components/AnnualStageRail.tsx',
+    source: `
+      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      export interface AnnualStageRailProps {
+        readonly steps: SixQiTimelineViewModel;
+      }
+      export function AnnualStageRail({ steps }: AnnualStageRailProps) {
+        return steps.map((step) => {
+          const position = step.index;
+          return <span>{position + 1}</span>;
+        });
+      }
+    `,
+    expected:
+      /AnnualStageRail\.tsx: stage ordinal arithmetic is forbidden/,
+  });
+});
+
+test('allows unrelated index arithmetic outside AnnualStageRail', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'components/Pagination.tsx',
+    source: `
+      export function Pagination({ pagination }) {
+        return <span>{pagination.index + 1}</span>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
 });
 
 test('rejects a default-exported copied frozen DTO declaration', async () => {
