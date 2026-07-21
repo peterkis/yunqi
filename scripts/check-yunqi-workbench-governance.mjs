@@ -487,39 +487,177 @@ function annualStageRailUsesCanonicalTimeline(source, fileName) {
   );
 }
 
-function hasAnnualStageOrdinalArithmetic(source, fileName) {
+function unwrapExpression(node) {
+  let current = node;
+
+  while (
+    ts.isParenthesizedExpression(current) ||
+    ts.isAsExpression(current) ||
+    ts.isSatisfiesExpression(current) ||
+    ts.isTypeAssertionExpression(current) ||
+    ts.isNonNullExpression(current)
+  ) {
+    current = current.expression;
+  }
+
+  return current;
+}
+
+function staticPropertyName(node) {
+  if (node === undefined) return undefined;
+  const current = unwrapExpression(node);
+
+  if (ts.isIdentifier(current) || ts.isStringLiteralLike(current)) {
+    return current.text;
+  }
+  if (ts.isComputedPropertyName(current)) {
+    return staticPropertyName(current.expression);
+  }
+
+  return undefined;
+}
+
+function memberName(expression) {
+  const current = unwrapExpression(expression);
+
+  if (ts.isIdentifier(current)) return current.text;
+  if (ts.isPropertyAccessExpression(current)) return current.name.text;
+  if (ts.isElementAccessExpression(current)) {
+    return staticPropertyName(current.argumentExpression);
+  }
+
+  return undefined;
+}
+
+function expressionContainsIdentifier(node, names) {
+  let found = false;
+
+  const visit = (current) => {
+    if (found) return;
+    if (ts.isIdentifier(current) && names.has(current.text)) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+
+  visit(node);
+  return found;
+}
+
+function isStageIndexExpression(node, stageNames) {
+  const current = unwrapExpression(node);
+  return (
+    ((ts.isPropertyAccessExpression(current) &&
+      current.name.text === 'index') ||
+      (ts.isElementAccessExpression(current) &&
+        staticPropertyName(current.argumentExpression) === 'index')) &&
+    expressionContainsIdentifier(current.expression, stageNames)
+  );
+}
+
+function hasStageOrdinalArithmetic(source, fileName) {
   const sourceFile = parseWorkbenchSource(source, fileName);
   let found = false;
 
-  const isOne = (node) =>
-    ts.isNumericLiteral(node) && node.text === '1';
-
-  const visit = (node) => {
+  const isOne = (node) => {
+    const current = unwrapExpression(node);
+    return ts.isNumericLiteral(current) && current.text === '1';
+  };
+  const visitStageMap = (node) => {
     if (found) return;
 
     if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-      (isOne(node.left) || isOne(node.right))
+      ts.isCallExpression(node) &&
+      ((ts.isPropertyAccessExpression(node.expression) &&
+        node.expression.name.text === 'map') ||
+        (ts.isElementAccessExpression(node.expression) &&
+          staticPropertyName(node.expression.argumentExpression) ===
+            'map'))
     ) {
-      found = true;
-      return;
+      const receiver = node.expression.expression;
+      const callback = node.arguments[0];
+      const collectionName = memberName(receiver);
+
+      if (
+        (collectionName === 'steps' || collectionName === 'stages') &&
+        callback !== undefined &&
+        (ts.isArrowFunction(callback) ||
+          ts.isFunctionExpression(callback))
+      ) {
+        const stageNames = new Set();
+        const ordinalNames = new Set();
+        const firstParameter = callback.parameters[0]?.name;
+        const secondParameter = callback.parameters[1]?.name;
+
+        if (firstParameter && ts.isIdentifier(firstParameter)) {
+          stageNames.add(firstParameter.text);
+        }
+        if (secondParameter && ts.isIdentifier(secondParameter)) {
+          ordinalNames.add(secondParameter.text);
+        }
+
+        let changed = true;
+        while (changed) {
+          changed = false;
+          const collectAliases = (current) => {
+            if (
+              ts.isVariableDeclaration(current) &&
+              ts.isIdentifier(current.name) &&
+              current.initializer !== undefined &&
+              (isStageIndexExpression(
+                current.initializer,
+                stageNames,
+              ) ||
+                expressionContainsIdentifier(
+                  current.initializer,
+                  ordinalNames,
+                )) &&
+              !ordinalNames.has(current.name.text)
+            ) {
+              ordinalNames.add(current.name.text);
+              changed = true;
+            }
+            ts.forEachChild(current, collectAliases);
+          };
+          ts.forEachChild(callback.body, collectAliases);
+        }
+
+        const isOrdinal = (expression) =>
+          isStageIndexExpression(expression, stageNames) ||
+          expressionContainsIdentifier(expression, ordinalNames);
+        const findArithmetic = (current) => {
+          if (found) return;
+          if (
+            ts.isBinaryExpression(current) &&
+            current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+            ((isOne(current.left) && isOrdinal(current.right)) ||
+              (isOne(current.right) && isOrdinal(current.left)))
+          ) {
+            found = true;
+            return;
+          }
+          if (
+            (ts.isPrefixUnaryExpression(current) ||
+              ts.isPostfixUnaryExpression(current)) &&
+            (current.operator === ts.SyntaxKind.PlusPlusToken ||
+              current.operator === ts.SyntaxKind.MinusMinusToken) &&
+            isOrdinal(current.operand)
+          ) {
+            found = true;
+            return;
+          }
+          ts.forEachChild(current, findArithmetic);
+        };
+
+        findArithmetic(callback.body);
+      }
     }
 
-    if (
-      (ts.isPrefixUnaryExpression(node) ||
-        ts.isPostfixUnaryExpression(node)) &&
-      (node.operator === ts.SyntaxKind.PlusPlusToken ||
-        node.operator === ts.SyntaxKind.MinusMinusToken)
-    ) {
-      found = true;
-      return;
-    }
-
-    ts.forEachChild(node, visit);
+    ts.forEachChild(node, visitStageMap);
   };
 
-  visit(sourceFile);
+  visitStageMap(sourceFile);
   return found;
 }
 
@@ -527,6 +665,301 @@ function isAnnualStageRailSource(fileName) {
   return normalizePath(fileName).endsWith(
     '/src/features/yunqi/components/AnnualStageRail.tsx',
   );
+}
+
+function isAnnualAnalysisComponentSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return (
+    isProductionSource(fileName) &&
+    normalized.includes(
+      '/src/features/yunqi/year-analysis/components/',
+    ) &&
+    !/\.fixture\.[cm]?[jt]sx?$/.test(normalized) &&
+    !normalized.includes('/fixtures/') &&
+    !normalized.includes('/__fixtures__/')
+  );
+}
+
+function isYearSelectorSource(fileName) {
+  return (
+    isAnnualAnalysisComponentSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/year-analysis/components/YearSelector.tsx',
+    )
+  );
+}
+
+function isSharedYunQiMapperSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/presentation/map-yunqi-shared.ts',
+    )
+  );
+}
+
+function annualComponentSemanticViolations(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  const forbiddenIdentifiers = new Set([
+    'currentStep',
+    'completed',
+    'upcoming',
+  ]);
+  const forbiddenLiterals = [
+    '当前',
+    '已结束',
+    '未开始',
+    '吉凶',
+    '诊断',
+    '治疗',
+  ];
+  const identifiers = new Set();
+  const literals = new Set();
+
+  const recordLiterals = (value) => {
+    for (const literal of forbiddenLiterals) {
+      if (value.includes(literal)) literals.add(literal);
+    }
+  };
+  const recordRenderedExpression = (node) => {
+    const visit = (current) => {
+      if (ts.isStringLiteralLike(current)) {
+        recordLiterals(current.text);
+      } else if (ts.isTemplateHead(current)) {
+        recordLiterals(current.text);
+      }
+      ts.forEachChild(current, visit);
+    };
+    visit(node);
+  };
+  const visit = (node) => {
+    if (
+      ts.isIdentifier(node) &&
+      forbiddenIdentifiers.has(node.text)
+    ) {
+      identifiers.add(node.text);
+    }
+    if (ts.isJsxText(node)) {
+      recordLiterals(node.text);
+    }
+    if (
+      ts.isJsxExpression(node) &&
+      !ts.isJsxAttribute(node.parent) &&
+      node.expression !== undefined
+    ) {
+      recordRenderedExpression(node.expression);
+    }
+    if (
+      ts.isJsxAttribute(node) &&
+      node.initializer !== undefined &&
+      ['aria-label', 'alt', 'placeholder', 'title'].includes(
+        staticPropertyName(node.name),
+      )
+    ) {
+      recordRenderedExpression(node.initializer);
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [
+    ...[...identifiers].map(
+      (identifier) =>
+        `annual component identifier ${identifier} is forbidden`,
+    ),
+    ...[...literals].map(
+      (literal) =>
+        `annual component user-facing literal ${literal} is forbidden`,
+    ),
+  ];
+}
+
+function usesOrdinalAnnualStageSelection(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  let found = false;
+
+  const isIdentifier = (node, name) => {
+    const current = unwrapExpression(node);
+    return ts.isIdentifier(current) && current.text === name;
+  };
+  const isOne = (node) => {
+    const current = unwrapExpression(node);
+    return ts.isNumericLiteral(current) && current.text === '1';
+  };
+  const visit = (node) => {
+    if (found) return;
+    if (
+      ts.isElementAccessExpression(node) &&
+      memberName(node.expression) === 'stages' &&
+      node.argumentExpression !== undefined
+    ) {
+      const argument = unwrapExpression(node.argumentExpression);
+      if (
+        ts.isBinaryExpression(argument) &&
+        argument.operatorToken.kind === ts.SyntaxKind.MinusToken &&
+        isIdentifier(argument.left, 'selectedStepIndex') &&
+        isOne(argument.right)
+      ) {
+        found = true;
+        return;
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function yearSelectorViolations(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  const violations = [];
+  let importsCanonicalOptions = false;
+  const copiedBoundaries = new Set();
+
+  for (const statement of sourceFile.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      normalizePath(statement.moduleSpecifier.text).endsWith(
+        '/lib/yunqi-year-range',
+      ) &&
+      statement.importClause?.namedBindings &&
+      ts.isNamedImports(statement.importClause.namedBindings) &&
+      statement.importClause.namedBindings.elements.some(
+        (element) =>
+          (element.propertyName?.text ?? element.name.text) ===
+          'YUNQI_YEAR_OPTIONS',
+      )
+    ) {
+      importsCanonicalOptions = true;
+    }
+  }
+
+  const visit = (node) => {
+    if (
+      ts.isNumericLiteral(node) &&
+      (node.text === '1901' || node.text === '2099')
+    ) {
+      copiedBoundaries.add(node.text);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  if (!importsCanonicalOptions) {
+    violations.push(
+      'must import YUNQI_YEAR_OPTIONS from lib/yunqi-year-range',
+    );
+  }
+  for (const boundary of copiedBoundaries) {
+    violations.push(
+      `duplicated YunQi year boundary ${boundary} is forbidden`,
+    );
+  }
+
+  return violations;
+}
+
+function sharedTupleMapperViolations(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  const violations = [];
+  const namedFunction = (name) =>
+    sourceFile.statements.find(
+      (statement) =>
+        ts.isFunctionDeclaration(statement) &&
+        statement.name?.text === name,
+    );
+  const tupleMapper = namedFunction('mapSixQiStageTuple');
+
+  if (tupleMapper?.body) {
+    let usesMap = false;
+    const visit = (node) => {
+      if (
+        ts.isCallExpression(node) &&
+        ((ts.isPropertyAccessExpression(node.expression) &&
+          node.expression.name.text === 'map') ||
+          (ts.isElementAccessExpression(node.expression) &&
+            staticPropertyName(node.expression.argumentExpression) ===
+              'map'))
+      ) {
+        usesMap = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(tupleMapper.body);
+    if (usesMap) {
+      violations.push(
+        'mapSixQiStageTuple must preserve the six-item tuple without .map()',
+      );
+    }
+  }
+
+  const stageMapper = namedFunction('mapSixQiStage');
+  const positionParameter = stageMapper?.parameters[1]?.name;
+  if (
+    stageMapper?.body &&
+    positionParameter &&
+    ts.isIdentifier(positionParameter)
+  ) {
+    const positionNames = new Set([positionParameter.text]);
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const collectAliases = (node) => {
+        if (
+          ts.isVariableDeclaration(node) &&
+          ts.isIdentifier(node.name) &&
+          node.initializer !== undefined &&
+          expressionContainsIdentifier(node.initializer, positionNames) &&
+          !positionNames.has(node.name.text)
+        ) {
+          positionNames.add(node.name.text);
+          changed = true;
+        }
+        ts.forEachChild(node, collectAliases);
+      };
+      collectAliases(stageMapper.body);
+    }
+
+    let assignsPosition = false;
+    const visit = (node) => {
+      if (assignsPosition) return;
+      if (
+        ts.isPropertyAssignment(node) &&
+        staticPropertyName(node.name) === 'index' &&
+        expressionContainsIdentifier(node.initializer, positionNames)
+      ) {
+        assignsPosition = true;
+        return;
+      }
+      if (
+        ts.isShorthandPropertyAssignment(node) &&
+        node.name.text === 'index' &&
+        positionNames.has(node.name.text)
+      ) {
+        assignsPosition = true;
+        return;
+      }
+      if (
+        ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
+        memberName(node.left) === 'index' &&
+        expressionContainsIdentifier(node.right, positionNames)
+      ) {
+        assignsPosition = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(stageMapper.body);
+    if (assignsPosition) {
+      violations.push('mapSixQiStage must preserve step.index');
+    }
+  }
+
+  return violations;
 }
 
 function isProductionSource(fileName) {
@@ -690,10 +1123,44 @@ async function findSourceViolations(root) {
           `${relativePath}: steps must consume CurrentSixQiStageTuple directly`,
         );
       }
-      if (hasAnnualStageOrdinalArithmetic(source, file)) {
+      if (hasStageOrdinalArithmetic(source, file)) {
         violations.push(
           `${relativePath}: stage ordinal arithmetic is forbidden`,
         );
+      }
+    }
+
+    if (isAnnualAnalysisComponentSource(file)) {
+      for (const violation of annualComponentSemanticViolations(
+        source,
+        file,
+      )) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+      if (hasStageOrdinalArithmetic(source, file)) {
+        violations.push(
+          `${relativePath}: annual stage index must preserve the API stage index`,
+        );
+      }
+      if (usesOrdinalAnnualStageSelection(source, file)) {
+        violations.push(
+          `${relativePath}: annual stage selection must match the API stage index`,
+        );
+      }
+    }
+
+    if (isYearSelectorSource(file)) {
+      for (const violation of yearSelectorViolations(source, file)) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+    }
+
+    if (isSharedYunQiMapperSource(file)) {
+      for (const violation of sharedTupleMapperViolations(
+        source,
+        file,
+      )) {
+        violations.push(`${relativePath}: ${violation}`);
       }
     }
 

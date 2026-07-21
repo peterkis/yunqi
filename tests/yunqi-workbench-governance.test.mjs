@@ -1160,6 +1160,283 @@ test('allows unrelated index arithmetic outside AnnualStageRail', async () => {
   );
 });
 
+test('rejects YunQiYearDto imports in annual component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualDtoView.tsx',
+    source: `
+      import type { YunQiYearDto } from '@yunqi/contracts';
+      export function AnnualDtoView({ dto }: { dto: YunQiYearDto }) {
+        return <span>{dto.year}</span>;
+      }
+    `,
+    expected:
+      /AnnualDtoView\.tsx: frozen DTO imports from @yunqi\/contracts are forbidden in component source/,
+  });
+});
+
+test('rejects direct getYear capability access in annual component source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualClientView.tsx',
+    source: `
+      export function AnnualClientView({ client }) {
+        return <button onClick={() => client.getYear(2026)}>Load</button>;
+      }
+    `,
+    expected:
+      /AnnualClientView\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+for (const identifier of ['currentStep', 'completed', 'upcoming']) {
+  test(`rejects ${identifier} identifiers in annual component source`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/year-analysis/components/AnnualSemantics.tsx',
+      source: `
+        export function AnnualSemantics({ stages }) {
+          const ${identifier} = stages[0];
+          return <span>{${identifier}.name}</span>;
+        }
+      `,
+      expected: new RegExp(
+        `AnnualSemantics\\.tsx: annual component identifier ${identifier} is forbidden`,
+      ),
+    });
+  });
+}
+
+for (const literal of [
+  '当前',
+  '已结束',
+  '未开始',
+  '吉凶',
+  '诊断',
+  '治疗',
+]) {
+  test(`rejects ${literal} user-facing copy in annual component source`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/year-analysis/components/AnnualCopy.tsx',
+      source: `export function AnnualCopy() { return <p>${literal}</p>; }`,
+      expected: new RegExp(
+        `AnnualCopy\\.tsx: annual component user-facing literal ${literal} is forbidden`,
+      ),
+    });
+  });
+}
+
+test('rejects rebuilding annual stage index from callback position', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualStageList.tsx',
+    source: `
+      export function AnnualStageList({ stages }) {
+        const rebuilt = stages.map((step, position) => ({
+          ...step,
+          index: position + 1,
+        }));
+        return rebuilt.map((stage) => <span key={stage.index}>{stage.name}</span>);
+      }
+    `,
+    expected:
+      /AnnualStageList\.tsx: annual stage index must preserve the API stage index/,
+  });
+});
+
+test('rejects selecting an annual stage by ordinal array position', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualSelection.tsx',
+    source: `
+      export function AnnualSelection({ stages, selectedStepIndex }) {
+        const selected = stages[selectedStepIndex - 1];
+        return <span>{selected.name}</span>;
+      }
+    `,
+    expected:
+      /AnnualSelection\.tsx: annual stage selection must match the API stage index/,
+  });
+});
+
+for (const boundary of [1901, 2099]) {
+  test(`rejects duplicated ${boundary} year boundary in YearSelector`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/year-analysis/components/YearSelector.tsx',
+      source: `
+        import { YUNQI_YEAR_OPTIONS } from '../../../../lib/yunqi-year-range';
+        const copiedBoundary = ${boundary};
+        export function YearSelector() {
+          return <span>{YUNQI_YEAR_OPTIONS.length + copiedBoundary}</span>;
+        }
+      `,
+      expected: new RegExp(
+        `YearSelector\\.tsx: duplicated YunQi year boundary ${boundary} is forbidden`,
+      ),
+    });
+  });
+}
+
+test('requires YearSelector to import the canonical year options', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/YearSelector.tsx',
+    source: `
+      const yearOptions = [2026];
+      export function YearSelector() {
+        return <span>{yearOptions.length}</span>;
+      }
+    `,
+    expected:
+      /YearSelector\.tsx: must import YUNQI_YEAR_OPTIONS from lib\/yunqi-year-range/,
+  });
+});
+
+test('rejects array map in mapSixQiStageTuple', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/presentation/map-yunqi-shared.ts',
+    source: `
+      function mapSixQiStage(step) { return step; }
+      export function mapSixQiStageTuple(steps) {
+        return steps.map(mapSixQiStage);
+      }
+    `,
+    expected:
+      /map-yunqi-shared\.ts: mapSixQiStageTuple must preserve the six-item tuple without \.map\(\)/,
+  });
+});
+
+test('rejects assigning mapped stage index from tuple position', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/presentation/map-yunqi-shared.ts',
+    source: `
+      function mapSixQiStage(step, position) {
+        return { ...step, index: position + 1 };
+      }
+      export function mapSixQiStageTuple(steps) {
+        const [first] = steps;
+        return [mapSixQiStage(first, 0)];
+      }
+    `,
+    expected:
+      /map-yunqi-shared\.ts: mapSixQiStage must preserve step\.index/,
+  });
+});
+
+for (const [label, source, expected] of [
+  [
+    'React Router',
+    "import { useNavigate } from 'react-router-dom';\nexport { useNavigate };",
+    /map-annual-yunqi\.ts: React Router imports are forbidden in presentation mapper source/,
+  ],
+  [
+    'TanStack Query',
+    "import { queryOptions } from '@tanstack/react-query';\nexport { queryOptions };",
+    /map-annual-yunqi\.ts: TanStack Query imports are forbidden in presentation mapper source/,
+  ],
+]) {
+  test(`rejects ${label} imports in the annual mapper`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath:
+        'features/yunqi/presentation/map-annual-yunqi.ts',
+      source,
+      expected,
+    });
+  });
+}
+
+test('allows current-view state semantics outside annual components', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/yunqi/components/CurrentView.tsx',
+    source: `
+      export function CurrentView({ currentStep, completed, upcoming }) {
+        return <p>当前 {currentStep.name} 已结束 {completed} 未开始 {upcoming}</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows diagnosis and treatment wording in the global safety note', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'app/App.tsx',
+    source: `
+      export function App() {
+        return <p>本系统不提供自动诊断或治疗决策。</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows unrelated pagination index arithmetic in annual components', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/Pagination.tsx',
+    source: `
+      export function Pagination({ pagination }) {
+        return <span>{pagination.index + 1}</span>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+for (const relativeSourcePath of [
+  'features/yunqi/year-analysis/components/AnnualSemantics.test.tsx',
+  'features/yunqi/year-analysis/components/AnnualSemantics.fixture.tsx',
+  'features/yunqi/year-analysis/components/fixtures/AnnualSemantics.tsx',
+]) {
+  test(`excludes annual semantics in ${relativeSourcePath}`, async () => {
+    const fixtureRoot = createFixture({
+      relativeSourcePath,
+      source: `
+        export function AnnualSemantics({ currentStep, completed, upcoming }) {
+          return <p>当前 {currentStep.name} 已结束 {completed} 未开始 {upcoming} 吉凶诊断治疗</p>;
+        }
+      `,
+    });
+
+    assert.deepEqual(
+      await findWorkbenchGovernanceViolations(fixtureRoot),
+      [],
+    );
+  });
+}
+
+test('allows array map outside mapSixQiStageTuple in presentation source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath:
+      'features/yunqi/presentation/map-yunqi-shared.ts',
+    source: `
+      export function mapLabels(values) {
+        return values.map((value) => value.label);
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
 test('rejects a default-exported copied frozen DTO declaration', async () => {
   await assertMutationRejected({
     relativeSourcePath: 'models/default-copied-dto.ts',
