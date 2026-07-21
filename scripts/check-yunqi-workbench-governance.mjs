@@ -463,16 +463,37 @@ function unwrapExpression(node) {
   return current;
 }
 
-function staticStringValue(node) {
+function staticStringValue(node, model, seenBindings = new Set()) {
   const current = unwrapExpression(node);
 
   if (ts.isStringLiteralLike(current)) return current.text;
+  if (model && ts.isIdentifier(current)) {
+    const binding = model.bindingForIdentifier(current);
+    if (
+      binding &&
+      model.isImmutableConst(binding) &&
+      !seenBindings.has(binding)
+    ) {
+      seenBindings.add(binding);
+      const sources = model.sourcesFor(binding, current);
+      const value =
+        sources.length === 1 && sources[0].path.length === 0
+          ? staticStringValue(
+              sources[0].node,
+              model,
+              seenBindings,
+            )
+          : undefined;
+      seenBindings.delete(binding);
+      return value;
+    }
+  }
   if (
     ts.isBinaryExpression(current) &&
     current.operatorToken.kind === ts.SyntaxKind.PlusToken
   ) {
-    const left = staticStringValue(current.left);
-    const right = staticStringValue(current.right);
+    const left = staticStringValue(current.left, model, seenBindings);
+    const right = staticStringValue(current.right, model, seenBindings);
     return left === undefined || right === undefined
       ? undefined
       : left + right;
@@ -480,7 +501,11 @@ function staticStringValue(node) {
   if (ts.isTemplateExpression(current)) {
     let value = current.head.text;
     for (const span of current.templateSpans) {
-      const expression = staticStringValue(span.expression);
+      const expression = staticStringValue(
+        span.expression,
+        model,
+        seenBindings,
+      );
       if (expression === undefined) return undefined;
       value += expression + span.literal.text;
     }
@@ -490,18 +515,18 @@ function staticStringValue(node) {
   return undefined;
 }
 
-function staticPropertyName(node) {
+function staticPropertyName(node, model) {
   if (node === undefined) return undefined;
   const current = unwrapExpression(node);
 
   if (ts.isIdentifier(current)) return current.text;
   if (ts.isComputedPropertyName(current)) {
-    return staticStringValue(current.expression);
+    return staticStringValue(current.expression, model);
   }
-  return staticStringValue(current);
+  return staticStringValue(current, model);
 }
 
-function memberAccess(expression) {
+function memberAccess(expression, model) {
   const current = unwrapExpression(expression);
 
   if (ts.isPropertyAccessExpression(current)) {
@@ -509,7 +534,7 @@ function memberAccess(expression) {
   }
   if (ts.isElementAccessExpression(current)) {
     return {
-      name: staticStringValue(current.argumentExpression),
+      name: staticStringValue(current.argumentExpression, model),
       receiver: current.expression,
     };
   }
@@ -517,10 +542,10 @@ function memberAccess(expression) {
   return undefined;
 }
 
-function memberName(expression) {
+function memberName(expression, model) {
   const current = unwrapExpression(expression);
   if (ts.isIdentifier(current)) return current.text;
-  return memberAccess(current)?.name;
+  return memberAccess(current, model)?.name;
 }
 
 function isFunctionLikeNode(node) {
@@ -572,7 +597,29 @@ function createLexicalModel(sourceFile) {
   const nodeScopes = new WeakMap();
   const declarationBindings = new WeakMap();
   const allBindings = [];
-  const rootScope = { bindings: new Map(), parent: undefined };
+  const rootScope = {
+    bindings: new Map(),
+    kind: 'root',
+    parent: undefined,
+  };
+
+  // Sources retain both their availability point and an extraction path.
+  // This keeps local analysis lexical (not runtime CFG evaluation) while
+  // avoiding sibling-property taint and late-assignment reverse taint.
+  const addSource = (
+    binding,
+    node,
+    path = [],
+    kind = 'declaration',
+  ) => {
+    if (!binding || node === undefined) return;
+    binding.sources.push({
+      availableAt: node.end,
+      kind,
+      node,
+      path,
+    });
+  };
 
   const addBinding = (
     scope,
@@ -580,18 +627,51 @@ function createLexicalModel(sourceFile) {
     declaration,
     source,
     functionNode,
+    metadata = {},
+    sourcePath = [],
   ) => {
     if (!ts.isIdentifier(nameNode)) return undefined;
     const binding = {
       declaration,
       functionNode,
+      isConst: metadata.isConst === true,
+      kind: metadata.kind ?? 'local',
       name: nameNode.text,
-      sources: source === undefined ? [] : [source],
+      sources: [],
     };
     scope.bindings.set(binding.name, binding);
     declarationBindings.set(nameNode, binding);
     allBindings.push(binding);
+    addSource(binding, source, sourcePath);
     return binding;
+  };
+
+  const bindingKey = (node) => {
+    if (node === undefined) return undefined;
+    const current = unwrapExpression(node);
+    if (ts.isIdentifier(current) || ts.isStringLiteralLike(current)) {
+      return current.text;
+    }
+    if (ts.isNumericLiteral(current)) return Number(current.text);
+    if (ts.isComputedPropertyName(current)) {
+      const value = staticStringValue(current.expression);
+      return value === undefined ? undefined : value;
+    }
+    return undefined;
+  };
+
+  const patternEntries = (pattern) => {
+    if (ts.isArrayBindingPattern(pattern)) {
+      return pattern.elements.flatMap((element, index) =>
+        ts.isOmittedExpression(element)
+          ? []
+          : [{ element, key: index }],
+      );
+    }
+    return pattern.elements.map((element) => ({
+      element,
+      key: bindingKey(element.propertyName ?? element.name),
+    }));
   };
 
   const bindPattern = (
@@ -600,6 +680,8 @@ function createLexicalModel(sourceFile) {
     declaration,
     source,
     functionNode,
+    metadata = {},
+    sourcePath = [],
   ) => {
     if (ts.isIdentifier(pattern)) {
       addBinding(
@@ -608,29 +690,35 @@ function createLexicalModel(sourceFile) {
         declaration,
         source,
         functionNode,
+        metadata,
+        sourcePath,
       );
       return;
     }
 
-    pattern.elements.forEach((element, index) => {
-      if (ts.isOmittedExpression(element)) return;
-      let elementSource = element.initializer ?? source;
-      if (
-        ts.isArrayBindingPattern(pattern) &&
-        source !== undefined &&
-        ts.isArrayLiteralExpression(unwrapExpression(source))
-      ) {
-        elementSource =
-          unwrapExpression(source).elements[index] ?? elementSource;
-      }
+    for (const { element, key } of patternEntries(pattern)) {
       bindPattern(
         element.name,
         scope,
         element,
-        elementSource,
+        source,
         undefined,
+        metadata,
+        key === undefined ? sourcePath : [...sourcePath, key],
       );
-    });
+      if (element.initializer && ts.isIdentifier(element.name)) {
+        const binding = declarationBindings.get(element.name);
+        addSource(binding, element.initializer, [], 'default');
+      }
+    }
+  };
+
+  const nearestFunctionScope = (scope) => {
+    let current = scope;
+    while (current.kind !== 'function' && current.kind !== 'root') {
+      current = current.parent;
+    }
+    return current;
   };
 
   const visit = (node, incomingScope) => {
@@ -641,20 +729,34 @@ function createLexicalModel(sourceFile) {
         node,
         undefined,
         node,
+        { kind: 'function' },
       );
     }
     if (ts.isVariableDeclaration(node)) {
+      const declarationList = node.parent;
+      const isBlockScoped = Boolean(
+        declarationList.flags & ts.NodeFlags.BlockScoped,
+      );
+      const declarationScope = isBlockScoped
+        ? incomingScope
+        : nearestFunctionScope(incomingScope);
       const initializer = node.initializer
         ? unwrapExpression(node.initializer)
         : undefined;
       bindPattern(
         node.name,
-        incomingScope,
+        declarationScope,
         node,
         node.initializer,
         initializer && isFunctionLikeNode(initializer)
           ? initializer
           : undefined,
+        {
+          isConst: Boolean(
+            declarationList.flags & ts.NodeFlags.Const,
+          ),
+          kind: 'variable',
+        },
       );
     }
     if (ts.isImportDeclaration(node) && node.importClause) {
@@ -665,6 +767,7 @@ function createLexicalModel(sourceFile) {
           node.importClause,
           undefined,
           undefined,
+          { kind: 'import' },
         );
       }
       const namedBindings = node.importClause.namedBindings;
@@ -676,6 +779,7 @@ function createLexicalModel(sourceFile) {
             element,
             undefined,
             undefined,
+            { kind: 'import' },
           );
         }
       } else if (namedBindings && ts.isNamespaceImport(namedBindings)) {
@@ -685,6 +789,7 @@ function createLexicalModel(sourceFile) {
           namedBindings,
           undefined,
           undefined,
+          { kind: 'import' },
         );
       }
     }
@@ -696,7 +801,11 @@ function createLexicalModel(sourceFile) {
         ts.isBlock(node) ||
         ts.isCatchClause(node))
     ) {
-      scope = { bindings: new Map(), parent: incomingScope };
+      scope = {
+        bindings: new Map(),
+        kind: isFunctionLikeNode(node) ? 'function' : 'block',
+        parent: incomingScope,
+      };
     }
     nodeScopes.set(node, scope);
 
@@ -711,6 +820,7 @@ function createLexicalModel(sourceFile) {
           parameter,
           parameter.initializer,
           undefined,
+          { kind: 'parameter' },
         );
       }
     }
@@ -721,6 +831,7 @@ function createLexicalModel(sourceFile) {
         node.variableDeclaration,
         node.variableDeclaration.initializer,
         undefined,
+        { kind: 'catch' },
       );
     }
 
@@ -744,18 +855,45 @@ function createLexicalModel(sourceFile) {
     return undefined;
   };
 
-  const assignSource = (target, source) => {
+  const assignSource = (target, source, sourcePath = []) => {
     const current = unwrapExpression(target);
     if (ts.isIdentifier(current)) {
-      bindingForIdentifier(current)?.sources.push(source);
+      addSource(
+        bindingForIdentifier(current),
+        source,
+        sourcePath,
+        'assignment',
+      );
       return;
     }
-    if (
-      ts.isArrayLiteralExpression(current) ||
-      ts.isObjectLiteralExpression(current)
-    ) {
-      for (const element of current.elements ?? current.properties) {
-        if (ts.isIdentifier(element)) assignSource(element, source);
+    if (ts.isArrayLiteralExpression(current)) {
+      current.elements.forEach((element, index) => {
+        if (!ts.isOmittedExpression(element)) {
+          assignSource(element, source, [...sourcePath, index]);
+        }
+      });
+      return;
+    }
+    if (ts.isObjectLiteralExpression(current)) {
+      for (const property of current.properties) {
+        if (ts.isPropertyAssignment(property)) {
+          const key = bindingKey(property.name);
+          if (key !== undefined) {
+            assignSource(
+              property.initializer,
+              source,
+              [...sourcePath, key],
+            );
+          }
+        } else if (ts.isShorthandPropertyAssignment(property)) {
+          assignSource(
+            property.name,
+            source,
+            [...sourcePath, property.name.text],
+          );
+        } else if (ts.isSpreadAssignment(property)) {
+          assignSource(property.expression, source, sourcePath);
+        }
       }
     }
   };
@@ -770,6 +908,13 @@ function createLexicalModel(sourceFile) {
   };
   collectAssignments(sourceFile);
 
+  const sourcesFor = (binding, atNode) => {
+    const usePosition = atNode?.getStart(sourceFile) ?? Infinity;
+    return binding.sources.filter(
+      (source) => source.availableAt <= usePosition,
+    );
+  };
+
   const functionLikeForExpression = (expression, seen = new Set()) => {
     const current = unwrapExpression(expression);
     if (isFunctionLikeNode(current)) return current;
@@ -778,8 +923,9 @@ function createLexicalModel(sourceFile) {
     if (!binding || seen.has(binding)) return undefined;
     if (binding.functionNode) return binding.functionNode;
     seen.add(binding);
-    for (const source of binding.sources) {
-      const resolved = functionLikeForExpression(source, seen);
+    for (const source of sourcesFor(binding, current)) {
+      if (source.path.length > 0) continue;
+      const resolved = functionLikeForExpression(source.node, seen);
       if (resolved) return resolved;
     }
     return undefined;
@@ -796,6 +942,17 @@ function createLexicalModel(sourceFile) {
       );
     },
     functionLikeForExpression,
+    isImportBinding(binding) {
+      return binding.kind === 'import';
+    },
+    isImmutableConst(binding) {
+      return (
+        binding.isConst &&
+        binding.sources.length === 1 &&
+        binding.sources[0].kind === 'declaration'
+      );
+    },
+    sourcesFor,
   };
 }
 
@@ -804,6 +961,7 @@ function expressionDependsOn(
   seedBindings,
   model,
   state = { bindings: new Set(), functions: new Set() },
+  projection = [],
 ) {
   if (node === undefined) return false;
   const current = unwrapExpression(node);
@@ -816,14 +974,125 @@ function expressionDependsOn(
       return false;
     }
     state.bindings.add(binding);
-    const depends = binding.sources.some((source) =>
-      expressionDependsOn(source, seedBindings, model, state),
+    const depends = model.sourcesFor(binding, current).some((source) =>
+      expressionDependsOn(
+        source.node,
+        seedBindings,
+        model,
+        state,
+        [...source.path, ...projection],
+      ),
     );
     state.bindings.delete(binding);
     return depends;
   }
 
   if (isFunctionLikeNode(current)) return false;
+
+  const access = memberAccess(current, model);
+  if (access?.name !== undefined) {
+    return expressionDependsOn(
+      access.receiver,
+      seedBindings,
+      model,
+      state,
+      [access.name, ...projection],
+    );
+  }
+
+  if (projection.length > 0) {
+    const [property, ...rest] = projection;
+    if (ts.isObjectLiteralExpression(current)) {
+      let found = false;
+      for (const entry of current.properties) {
+        if (
+          ts.isPropertyAssignment(entry) &&
+          staticPropertyName(entry.name, model) === String(property)
+        ) {
+          found ||= expressionDependsOn(
+            entry.initializer,
+            seedBindings,
+            model,
+            state,
+            rest,
+          );
+        } else if (
+          ts.isShorthandPropertyAssignment(entry) &&
+          entry.name.text === String(property)
+        ) {
+          found ||= expressionDependsOn(
+            entry.name,
+            seedBindings,
+            model,
+            state,
+            rest,
+          );
+        } else if (ts.isSpreadAssignment(entry)) {
+          found ||= expressionDependsOn(
+            entry.expression,
+            seedBindings,
+            model,
+            state,
+            projection,
+          );
+        }
+      }
+      return found;
+    }
+    if (ts.isArrayLiteralExpression(current)) {
+      const index = Number(property);
+      const element = Number.isInteger(index)
+        ? current.elements[index]
+        : undefined;
+      return Boolean(
+        element &&
+          !ts.isOmittedExpression(element) &&
+          expressionDependsOn(
+            element,
+            seedBindings,
+            model,
+            state,
+            rest,
+          ),
+      );
+    }
+    if (ts.isConditionalExpression(current)) {
+      return (
+        expressionDependsOn(
+          current.whenTrue,
+          seedBindings,
+          model,
+          state,
+          projection,
+        ) ||
+        expressionDependsOn(
+          current.whenFalse,
+          seedBindings,
+          model,
+          state,
+          projection,
+        )
+      );
+    }
+    if (ts.isCallExpression(current)) {
+      const called = model.functionLikeForExpression(current.expression);
+      if (called && !state.functions.has(called)) {
+        state.functions.add(called);
+        const depends = functionReturnExpressions(called).some((returned) =>
+          expressionDependsOn(
+            returned,
+            seedBindings,
+            model,
+            state,
+            projection,
+          ),
+        );
+        state.functions.delete(called);
+        return depends;
+      }
+    }
+    return false;
+  }
 
   if (ts.isCallExpression(current)) {
     if (
@@ -834,13 +1103,10 @@ function expressionDependsOn(
       return true;
     }
     const called = model.functionLikeForExpression(current.expression);
-    if (called?.body && !state.functions.has(called)) {
+    if (called && !state.functions.has(called)) {
       state.functions.add(called);
-      const depends = expressionDependsOn(
-        called.body,
-        seedBindings,
-        model,
-        state,
+      const depends = functionReturnExpressions(called).some((returned) =>
+        expressionDependsOn(returned, seedBindings, model, state),
       );
       state.functions.delete(called);
       if (depends) return true;
@@ -853,6 +1119,67 @@ function expressionDependsOn(
       !found &&
       expressionDependsOn(child, seedBindings, model, state)
     ) {
+      found = true;
+    }
+  });
+  return found;
+}
+
+function functionReturnExpressions(functionNode) {
+  if (!functionNode.body) return [];
+  if (!ts.isBlock(functionNode.body)) return [functionNode.body];
+
+  const returned = [];
+  const root = functionNode.body;
+  const visit = (node) => {
+    if (node !== root && isFunctionLikeNode(node)) return;
+    if (ts.isReturnStatement(node) && node.expression) {
+      returned.push(node.expression);
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(root);
+  return returned;
+}
+
+function expressionFlowContains(
+  node,
+  predicate,
+  model,
+  state = { bindings: new Set(), functions: new Set() },
+) {
+  if (node === undefined) return false;
+  const current = unwrapExpression(node);
+  if (predicate(current)) return true;
+
+  if (ts.isIdentifier(current) && isIdentifierReference(current)) {
+    const binding = model.bindingForIdentifier(current);
+    if (!binding || state.bindings.has(binding)) return false;
+    state.bindings.add(binding);
+    const found = model.sourcesFor(binding, current).some((source) =>
+      expressionFlowContains(source.node, predicate, model, state),
+    );
+    state.bindings.delete(binding);
+    return found;
+  }
+  if (isFunctionLikeNode(current)) return false;
+
+  if (ts.isCallExpression(current)) {
+    const called = model.functionLikeForExpression(current.expression);
+    if (called && !state.functions.has(called)) {
+      state.functions.add(called);
+      const found = functionReturnExpressions(called).some((returned) =>
+        expressionFlowContains(returned, predicate, model, state),
+      );
+      state.functions.delete(called);
+      if (found) return true;
+    }
+  }
+
+  let found = false;
+  ts.forEachChild(current, (child) => {
+    if (!found && expressionFlowContains(child, predicate, model, state)) {
       found = true;
     }
   });
@@ -883,22 +1210,9 @@ function functionLikeByName(sourceFile, name) {
   return undefined;
 }
 
-function visitFunctionOwnBody(functionNode, visit) {
-  if (!functionNode.body) return;
-  const root = functionNode.body;
-  const walk = (node) => {
-    visit(node);
-    ts.forEachChild(node, (child) => {
-      if (child !== root && isFunctionLikeNode(child)) return;
-      walk(child);
-    });
-  };
-  walk(root);
-}
-
-function isMethodCall(node, methodName) {
+function isMethodCall(node, methodName, model) {
   if (!ts.isCallExpression(node)) return false;
-  return memberAccess(node.expression)?.name === methodName;
+  return memberAccess(node.expression, model)?.name === methodName;
 }
 
 function isOne(node) {
@@ -914,7 +1228,7 @@ function expressionDependsOnStageIndex(
 ) {
   if (node === undefined) return false;
   const current = unwrapExpression(node);
-  const access = memberAccess(current);
+  const access = memberAccess(current, model);
 
   if (
     access?.name === 'index' &&
@@ -926,9 +1240,9 @@ function expressionDependsOnStageIndex(
     const binding = model.bindingForIdentifier(current);
     if (!binding || visitedBindings.has(binding)) return false;
     visitedBindings.add(binding);
-    const depends = binding.sources.some((source) =>
+    const depends = model.sourcesFor(binding, current).some((source) =>
       expressionDependsOnStageIndex(
-        source,
+        source.node,
         stageBindings,
         model,
         visitedBindings,
@@ -964,12 +1278,12 @@ function hasStageOrdinalArithmetic(sourceFile, model) {
 
   const visitStageMap = (node) => {
     if (found) return;
-    if (isMethodCall(node, 'map')) {
-      const receiver = memberAccess(node.expression).receiver;
+    if (isMethodCall(node, 'map', model)) {
+      const receiver = memberAccess(node.expression, model).receiver;
       const callback = node.arguments[0];
       if (
-        (memberName(receiver) === 'steps' ||
-          memberName(receiver) === 'stages' ||
+        (memberName(receiver, model) === 'steps' ||
+          memberName(receiver, model) === 'stages' ||
           expressionDependsOn(
             receiver,
             collectionBindings,
@@ -995,40 +1309,38 @@ function hasStageOrdinalArithmetic(sourceFile, model) {
         const positionBindings = new Set(
           positionBinding ? [positionBinding] : [],
         );
-        const findArithmetic = (current) => {
-          if (found) return;
-          if (
-            ts.isBinaryExpression(current) &&
-            current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-            ((isOne(current.left) &&
-              (expressionDependsOn(
+        const isOrdinalArithmetic = (current) =>
+          ts.isBinaryExpression(current) &&
+          current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+          ((isOne(current.left) &&
+            (expressionDependsOn(
+              current.right,
+              positionBindings,
+              model,
+            ) ||
+              expressionDependsOnStageIndex(
                 current.right,
+                stageBindings,
+                model,
+              ))) ||
+            (isOne(current.right) &&
+              (expressionDependsOn(
+                current.left,
                 positionBindings,
                 model,
               ) ||
                 expressionDependsOnStageIndex(
-                  current.right,
+                  current.left,
                   stageBindings,
                   model,
-                ))) ||
-              (isOne(current.right) &&
-                (expressionDependsOn(
-                  current.left,
-                  positionBindings,
-                  model,
-                ) ||
-                  expressionDependsOnStageIndex(
-                    current.left,
-                    stageBindings,
-                    model,
-                  ))))
-          ) {
-            found = true;
-            return;
-          }
-          ts.forEachChild(current, findArithmetic);
-        };
-        findArithmetic(callbackNode.body);
+                ))));
+        found = functionReturnExpressions(callbackNode).some((returned) =>
+          expressionFlowContains(
+            returned,
+            isOrdinalArithmetic,
+            model,
+          ),
+        );
       }
     }
     ts.forEachChild(node, visitStageMap);
@@ -1091,6 +1403,7 @@ function annualComponentSemanticViolations(sourceFile, model) {
     '治疗',
   ];
   const identifiers = new Set();
+  const renderedImports = new Set();
   const literals = new Set();
 
   const recordLiterals = (value) => {
@@ -1121,11 +1434,21 @@ function annualComponentSemanticViolations(sourceFile, model) {
       if (!binding || binding.functionNode || visitedBindings.has(binding)) {
         return;
       }
+      if (model.isImportBinding(binding)) {
+        renderedImports.add(binding.name);
+        return;
+      }
       visitedBindings.add(binding);
-      for (const source of binding.sources) {
-        recordRenderedExpression(source, visitedBindings);
+      for (const source of model.sourcesFor(binding, current)) {
+        recordRenderedExpression(source.node, visitedBindings);
       }
       visitedBindings.delete(binding);
+      return;
+    }
+    if (ts.isCallExpression(current)) {
+      for (const argument of current.arguments) {
+        recordRenderedExpression(argument, visitedBindings);
+      }
       return;
     }
     ts.forEachChild(current, (child) =>
@@ -1180,6 +1503,9 @@ function annualComponentSemanticViolations(sourceFile, model) {
         recordRenderedExpression(node.initializer.expression);
       }
     }
+    if (ts.isJsxSpreadAttribute(node)) {
+      recordRenderedExpression(node.expression);
+    }
     ts.forEachChild(node, visit);
   };
 
@@ -1192,6 +1518,10 @@ function annualComponentSemanticViolations(sourceFile, model) {
     ...[...literals].map(
       (literal) =>
         `annual component user-facing literal ${literal} is forbidden`,
+    ),
+    ...[...renderedImports].map(
+      (name) =>
+        `annual component rendered import ${name} is not statically auditable`,
     ),
   ];
 }
@@ -1265,8 +1595,103 @@ function yearSelectorViolations(sourceFile, fileName, model) {
   }
 
   let consumesBinding = false;
-  let mapsBindingDirectly = false;
-  let rebuildsOptions = false;
+  const renderedOptionMaps = [];
+
+  const isCanonicalAlias = (node, seenBindings = new Set()) => {
+    const current = unwrapExpression(node);
+    if (!ts.isIdentifier(current)) return false;
+    const binding = model.bindingForIdentifier(current);
+    if (!binding) return false;
+    if (binding === canonicalBinding) return true;
+    if (
+      seenBindings.has(binding) ||
+      !model.isImmutableConst(binding)
+    ) {
+      return false;
+    }
+    seenBindings.add(binding);
+    const sources = model.sourcesFor(binding, current);
+    const result =
+      sources.length === 1 &&
+      sources[0].path.length === 0 &&
+      isCanonicalAlias(sources[0].node, seenBindings);
+    seenBindings.delete(binding);
+    return result;
+  };
+
+  const mapProducesOptionChildren = (node) => {
+    if (!isMethodCall(node, 'map', model)) return false;
+    const callback = model.functionLikeForExpression(node.arguments[0]);
+    const itemParameter = callback?.parameters[0]?.name;
+    const itemBinding =
+      itemParameter && ts.isIdentifier(itemParameter)
+        ? model.bindingForDeclaration(itemParameter)
+        : undefined;
+    if (!callback || !itemBinding) return false;
+
+    let producesOption = false;
+    const visitReturned = (current) => {
+      if (producesOption) return;
+      if (
+        ts.isJsxElement(current) &&
+        ts.isIdentifier(current.openingElement.tagName) &&
+        current.openingElement.tagName.text === 'option'
+      ) {
+        producesOption = current.children.some(
+          (child) =>
+            ts.isJsxExpression(child) &&
+            child.expression !== undefined &&
+            expressionDependsOn(
+              child.expression,
+              new Set([itemBinding]),
+              model,
+            ),
+        );
+        if (producesOption) return;
+      }
+      ts.forEachChild(current, visitReturned);
+    };
+    for (const returned of functionReturnExpressions(callback)) {
+      visitReturned(returned);
+    }
+    return producesOption;
+  };
+
+  const collectRenderedOptionMaps = (
+    node,
+    state = { bindings: new Set(), functions: new Set() },
+  ) => {
+    const current = unwrapExpression(node);
+    if (mapProducesOptionChildren(current)) {
+      renderedOptionMaps.push(current);
+      return;
+    }
+    if (ts.isIdentifier(current) && isIdentifierReference(current)) {
+      const binding = model.bindingForIdentifier(current);
+      if (!binding || state.bindings.has(binding)) return;
+      state.bindings.add(binding);
+      for (const source of model.sourcesFor(binding, current)) {
+        collectRenderedOptionMaps(source.node, state);
+      }
+      state.bindings.delete(binding);
+      return;
+    }
+    if (isFunctionLikeNode(current)) return;
+    if (ts.isCallExpression(current)) {
+      const called = model.functionLikeForExpression(current.expression);
+      if (called && !state.functions.has(called)) {
+        state.functions.add(called);
+        for (const returned of functionReturnExpressions(called)) {
+          collectRenderedOptionMaps(returned, state);
+        }
+        state.functions.delete(called);
+      }
+    }
+    ts.forEachChild(current, (child) =>
+      collectRenderedOptionMaps(child, state),
+    );
+  };
+
   const visit = (node) => {
     if (
       ts.isNumericLiteral(node) &&
@@ -1282,36 +1707,12 @@ function yearSelectorViolations(sourceFile, fileName, model) {
     ) {
       consumesBinding = true;
     }
-    if (canonicalBinding && isMethodCall(node, 'map')) {
-      const receiver = memberAccess(node.expression).receiver;
-      const current = unwrapExpression(receiver);
-      if (
-        ts.isIdentifier(current) &&
-        model.bindingForIdentifier(current) === canonicalBinding
-      ) {
-        mapsBindingDirectly = true;
-      }
-    }
     if (
-      ts.isCallExpression(node) &&
-      memberAccess(node.expression)?.name === 'from' &&
-      memberName(memberAccess(node.expression).receiver) === 'Array'
+      ts.isJsxExpression(node) &&
+      !ts.isJsxAttribute(node.parent) &&
+      node.expression !== undefined
     ) {
-      rebuildsOptions = true;
-    }
-    if (
-      canonicalBinding &&
-      ts.isBinaryExpression(node) &&
-      [ts.SyntaxKind.PlusToken, ts.SyntaxKind.MinusToken].includes(
-        node.operatorToken.kind,
-      ) &&
-      expressionDependsOn(
-        node,
-        new Set([canonicalBinding]),
-        model,
-      )
-    ) {
-      rebuildsOptions = true;
+      collectRenderedOptionMaps(node.expression);
     }
     ts.forEachChild(node, visit);
   };
@@ -1328,7 +1729,11 @@ function yearSelectorViolations(sourceFile, fileName, model) {
   if (
     canonicalBinding &&
     consumesBinding &&
-    (!mapsBindingDirectly || rebuildsOptions)
+    (renderedOptionMaps.length === 0 ||
+      renderedOptionMaps.some((mapCall) => {
+        const receiver = memberAccess(mapCall.expression, model)?.receiver;
+        return !receiver || !isCanonicalAlias(receiver);
+      }))
   ) {
     violations.push(
       'must render YUNQI_YEAR_OPTIONS directly without rebuilding',
@@ -1351,10 +1756,14 @@ function sharedTupleMapperViolations(sourceFile, model) {
   );
 
   if (tupleMapper?.body) {
-    let usesMap = false;
-    visitFunctionOwnBody(tupleMapper, (node) => {
-      if (isMethodCall(node, 'map')) usesMap = true;
-    });
+    const usesMap = functionReturnExpressions(tupleMapper).some(
+      (returned) =>
+        expressionFlowContains(
+          returned,
+          (node) => isMethodCall(node, 'map', model),
+          model,
+        ),
+    );
     if (usesMap) {
       violations.push(
         'mapSixQiStageTuple must preserve the six-item tuple without .map()',
@@ -1380,7 +1789,7 @@ function sharedTupleMapperViolations(sourceFile, model) {
       if (assignsPosition) return;
       if (
         ts.isPropertyAssignment(node) &&
-        staticPropertyName(node.name) === 'index' &&
+        staticPropertyName(node.name, model) === 'index' &&
         expressionDependsOn(
           node.initializer,
           positionBindings,
@@ -1401,7 +1810,7 @@ function sharedTupleMapperViolations(sourceFile, model) {
       if (
         ts.isBinaryExpression(node) &&
         node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-        memberName(node.left) === 'index' &&
+        memberName(node.left, model) === 'index' &&
         expressionDependsOn(node.right, positionBindings, model)
       ) {
         assignsPosition = true;
