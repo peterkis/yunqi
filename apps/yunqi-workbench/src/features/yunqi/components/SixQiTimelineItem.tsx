@@ -1,7 +1,7 @@
 import type { Ref } from 'react';
 import { Badge } from '../../../components/ui/Badge';
 import { TimelineItem } from '../../../components/ui/TimelineItem';
-import type { SixQiTimelineItemViewModel } from '../presentation/view-model';
+import type { CurrentSixQiStageViewModel } from '../presentation/view-model';
 import { GuestHostRelationDetail } from './GuestHostRelationDetail';
 import { YunQiTimeRange } from './YunQiTimeRange';
 import { getSixQiTimelineIds } from './six-qi-timeline-ids';
@@ -10,7 +10,7 @@ export interface SixQiTimelineItemProps {
   readonly isExpanded: boolean;
   readonly onToggle: () => void;
   readonly rootRef: Ref<HTMLElement>;
-  readonly step: SixQiTimelineItemViewModel;
+  readonly step: CurrentSixQiStageViewModel;
   readonly timelineId: string;
 }
 

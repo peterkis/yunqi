@@ -1,6 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from './map-current-yunqi';
+import type { CurrentSixQiStageTuple } from './view-model';
 
 describe('mapCurrentYunQi', () => {
   it('maps the frozen DTO into a summary-first presentation model', () => {
@@ -47,6 +48,7 @@ describe('mapCurrentYunQi', () => {
     const dto = createYunQiCalculationDto();
     const result = mapCurrentYunQi(dto);
 
+    expectTypeOf(result.timeline).toMatchTypeOf<CurrentSixQiStageTuple>();
     expect(result.timeline).toHaveLength(6);
     expect(result.timeline.map((step) => step.index)).toEqual(
       dto.sixQi.steps.map((step) => step.index),

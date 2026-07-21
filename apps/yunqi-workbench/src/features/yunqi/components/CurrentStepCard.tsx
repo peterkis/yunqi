@@ -2,11 +2,11 @@ import { Badge } from '../../../components/ui/Badge';
 import { Card } from '../../../components/ui/Card';
 import { DataLabel } from '../../../components/ui/DataLabel';
 import { Panel } from '../../../components/ui/Panel';
-import type { SixQiTimelineItemViewModel } from '../presentation/view-model';
+import type { CurrentSixQiStageViewModel } from '../presentation/view-model';
 import { YunQiTimeRange } from './YunQiTimeRange';
 
 export interface CurrentStepCardProps {
-  readonly step: SixQiTimelineItemViewModel;
+  readonly step: CurrentSixQiStageViewModel;
 }
 
 export function CurrentStepCard({ step }: CurrentStepCardProps) {

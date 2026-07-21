@@ -1,7 +1,7 @@
 import type {
   HostGuestRelationDto,
   SixQiStepDto,
-  YunQiCalculationDto,
+  YunQiYearDto,
 } from '@yunqi/contracts';
 
 export interface LabeledCodeViewModel<
@@ -36,7 +36,7 @@ export type YunQiStageStatusCode =
   | 'current'
   | 'upcoming';
 
-export interface SixQiTimelineItemViewModel {
+export interface SixQiStageViewModel {
   readonly index: SixQiStepDto['index'];
   readonly name: SixQiStepDto['name'];
   readonly start: YunQiTimeViewModel;
@@ -44,43 +44,57 @@ export interface SixQiTimelineItemViewModel {
   readonly hostQi: SixQiStepDto['hostQi'];
   readonly guestQi: SixQiStepDto['guestQi'];
   readonly relation: GuestHostRelationViewModel;
+}
+
+export type SixQiStageTuple<
+  Stage extends SixQiStageViewModel = SixQiStageViewModel,
+> = readonly [Stage, Stage, Stage, Stage, Stage, Stage];
+
+export interface CurrentSixQiStageViewModel
+  extends SixQiStageViewModel {
   readonly status: LabeledCodeViewModel<YunQiStageStatusCode>;
 }
 
-export type SixQiTimelineViewModel = readonly [
-  SixQiTimelineItemViewModel,
-  SixQiTimelineItemViewModel,
-  SixQiTimelineItemViewModel,
-  SixQiTimelineItemViewModel,
-  SixQiTimelineItemViewModel,
-  SixQiTimelineItemViewModel,
-];
+export type CurrentSixQiStageTuple =
+  SixQiStageTuple<CurrentSixQiStageViewModel>;
 
-export interface YunQiSummaryViewModel {
-  readonly year: YunQiCalculationDto['year'];
+export interface YunQiYearSummaryViewModel {
+  readonly year: YunQiYearDto['year'];
   readonly stemBranch: {
-    readonly ganzhi: YunQiCalculationDto['stemBranch']['ganzhi'];
-    readonly stem: YunQiCalculationDto['stemBranch']['stem'];
-    readonly branch: YunQiCalculationDto['stemBranch']['branch'];
+    readonly ganzhi: YunQiYearDto['stemBranch']['ganzhi'];
+    readonly stem: YunQiYearDto['stemBranch']['stem'];
+    readonly branch: YunQiYearDto['stemBranch']['branch'];
   };
   readonly interval: {
     readonly start: YunQiTimeViewModel;
     readonly end: YunQiTimeViewModel;
   };
   readonly suiYun: {
-    readonly element: YunQiCalculationDto['suiYun']['element'];
-    readonly state: YunQiCalculationDto['suiYun']['state'];
-    readonly tone: YunQiCalculationDto['suiYun']['tone'];
+    readonly element: YunQiYearDto['suiYun']['element'];
+    readonly state: YunQiYearDto['suiYun']['state'];
+    readonly tone: YunQiYearDto['suiYun']['tone'];
   };
-  readonly sitian: YunQiCalculationDto['sixQi']['sitian'];
-  readonly zaiquan: YunQiCalculationDto['sixQi']['zaiquan'];
+  readonly sitian: YunQiYearDto['sixQi']['sitian'];
+  readonly zaiquan: YunQiYearDto['sixQi']['zaiquan'];
+}
+
+export interface AnnualYunQiViewModel {
+  readonly summary: YunQiYearSummaryViewModel;
+  readonly stages: SixQiStageTuple;
+  readonly explanations: readonly string[];
+  readonly ruleVersion: string;
 }
 
 export interface CurrentYunQiViewModel {
   readonly inputTime: YunQiTimeViewModel;
-  readonly summary: YunQiSummaryViewModel;
-  readonly currentStep: SixQiTimelineItemViewModel;
-  readonly timeline: SixQiTimelineViewModel;
+  readonly summary: YunQiYearSummaryViewModel;
+  readonly currentStep: CurrentSixQiStageViewModel;
+  readonly timeline: CurrentSixQiStageTuple;
   readonly explanations: readonly string[];
   readonly ruleVersion: string;
 }
+
+export type SixQiTimelineItemViewModel =
+  CurrentSixQiStageViewModel;
+export type SixQiTimelineViewModel = CurrentSixQiStageTuple;
+export type YunQiSummaryViewModel = YunQiYearSummaryViewModel;

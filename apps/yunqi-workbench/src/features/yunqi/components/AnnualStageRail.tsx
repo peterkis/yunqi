@@ -1,22 +1,22 @@
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import type {
-  SixQiTimelineItemViewModel,
-  SixQiTimelineViewModel,
+  CurrentSixQiStageTuple,
+  CurrentSixQiStageViewModel,
 } from '../presentation/view-model';
 import { getSixQiTimelineIds } from './six-qi-timeline-ids';
 
 export interface AnnualStageRailProps {
   readonly expandedSteps: ReadonlySet<
-    SixQiTimelineItemViewModel['index']
+    CurrentSixQiStageViewModel['index']
   >;
   readonly onRevealStep: (
-    index: SixQiTimelineItemViewModel['index'],
+    index: CurrentSixQiStageViewModel['index'],
   ) => void;
-  readonly steps: SixQiTimelineViewModel;
+  readonly steps: CurrentSixQiStageTuple;
   readonly timelineId: string;
 }
 
-function stageAccessibleName(step: SixQiTimelineItemViewModel) {
+function stageAccessibleName(step: CurrentSixQiStageViewModel) {
   return [
     `第 ${step.index} 步`,
     step.name,
