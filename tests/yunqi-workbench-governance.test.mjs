@@ -28,6 +28,7 @@ const allowedRuntimeDependencies = {
   '@yunqi/contracts': 'workspace:*',
   react: '19.2.7',
   'react-dom': '19.2.7',
+  'react-router-dom': '7.18.1',
 };
 
 function writeFixtureFile(fixtureRoot, relativePath, source) {
@@ -124,7 +125,8 @@ test('Workbench workspace and versions are pinned', () => {
   assert.equal(app.dependencies['@yunqi/contracts'], 'workspace:*');
   assert.equal(rootPackage.engines.node, '>=22');
   assert.match(workspace, /apps\/\*/);
-  assert.doesNotMatch(JSON.stringify(app), /next|react-router|axios/);
+  assert.equal(app.dependencies['react-router-dom'], '7.18.1');
+  assert.doesNotMatch(JSON.stringify(app), /next|axios/);
 });
 
 test('production Workbench has no governance violations', async () => {
@@ -252,7 +254,7 @@ test('allows a zh-CN Workbench document language', async () => {
 });
 
 for (const [group, dependency] of [
-  ['peerDependencies', 'react-router-dom'],
+  ['peerDependencies', 'unlisted-router'],
   ['optionalDependencies', 'axios'],
 ]) {
   test(`rejects ${group} runtime dependency ${dependency}`, async () => {
@@ -269,7 +271,7 @@ for (const dependency of [
   '@yunqi/service',
   '@yunqi/domain',
   'axios',
-  'react-router-dom',
+  'unlisted-router',
 ]) {
   test(`rejects runtime dependency ${dependency}`, async () => {
     await assertMutationRejected({
@@ -300,10 +302,7 @@ for (const [packageName, source] of [
     'axios',
     "import axios from 'axios';\nexport { axios };",
   ],
-  [
-    'react-router-dom',
-    "export const router = import('react-router-dom');",
-  ],
+  ['unlisted-router', "export const router = import('unlisted-router');"],
 ]) {
   test(`rejects source import from ${packageName}`, async () => {
     await assertMutationRejected({
@@ -313,15 +312,33 @@ for (const [packageName, source] of [
       },
       relativeSourcePath: 'features/fixture.ts',
       source,
-      expected: new RegExp(
-        `features/fixture\\.ts: forbidden import ${packageName.replace(
-          /[.*+?^${}()|[\]\\]/g,
-          '\\$&',
-        )}`,
-      ),
+      expected:
+        packageName === 'unlisted-router'
+          ? /features\/fixture\.ts: runtime import unlisted-router is not in the Workbench allowlist/
+          : new RegExp(
+              `features/fixture\\.ts: forbidden import ${packageName.replace(
+                /[.*+?^${}()|[\]\\]/g,
+                '\\$&',
+              )}`,
+            ),
     });
   });
 }
+
+test('allows the approved react-router-dom runtime dependency and import', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'app/RouterFixture.tsx',
+    source: `
+      import { Routes } from 'react-router-dom';
+      export function RouterFixture() { return <Routes />; }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
 
 for (const [label, relativeSourcePath, source] of [
   [
@@ -999,6 +1016,11 @@ for (const [label, source, expected] of [
     "import type { YunQiClient } from '@yunqi/client';\nexport type Value = YunQiClient;",
     /presentation\/mapper\.ts: @yunqi\/client imports are forbidden in presentation mapper source/,
   ],
+  [
+    'React Router',
+    "import { useNavigate } from 'react-router-dom';\nexport { useNavigate };",
+    /presentation\/mapper\.ts: React Router imports are forbidden in presentation mapper source/,
+  ],
 ]) {
   test(`rejects ${label} dependency in presentation mapper source`, async () => {
     await assertMutationRejected({
@@ -1061,7 +1083,7 @@ test('rejects AnnualStageRail props that replace the canonical timeline model', 
       export function AnnualStageRail() { return null; }
     `,
     expected:
-      /AnnualStageRail\.tsx: steps must consume SixQiTimelineViewModel directly/,
+      /AnnualStageRail\.tsx: steps must consume CurrentSixQiStageTuple directly/,
   });
 });
 
@@ -1070,9 +1092,9 @@ test('rejects component-side renumbering of a YunQi step index', async () => {
     relativeSourcePath:
       'features/yunqi/components/AnnualStageRail.tsx',
     source: `
-      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      import type { CurrentSixQiStageTuple } from '../presentation/view-model';
       export interface AnnualStageRailProps {
-        readonly steps: SixQiTimelineViewModel;
+        readonly steps: CurrentSixQiStageTuple;
       }
       export function AnnualStageRail({ steps }: AnnualStageRailProps) {
         return steps.map((step) => <span>{step.index + 1}</span>);
@@ -1088,9 +1110,9 @@ test('rejects callback-position renumbering in AnnualStageRail', async () => {
     relativeSourcePath:
       'features/yunqi/components/AnnualStageRail.tsx',
     source: `
-      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      import type { CurrentSixQiStageTuple } from '../presentation/view-model';
       export interface AnnualStageRailProps {
-        readonly steps: SixQiTimelineViewModel;
+        readonly steps: CurrentSixQiStageTuple;
       }
       export function AnnualStageRail({ steps }: AnnualStageRailProps) {
         return steps.map((step, index) => <span>{index + 1}</span>);
@@ -1106,9 +1128,9 @@ test('rejects aliased step-index renumbering in AnnualStageRail', async () => {
     relativeSourcePath:
       'features/yunqi/components/AnnualStageRail.tsx',
     source: `
-      import type { SixQiTimelineViewModel } from '../presentation/view-model';
+      import type { CurrentSixQiStageTuple } from '../presentation/view-model';
       export interface AnnualStageRailProps {
-        readonly steps: SixQiTimelineViewModel;
+        readonly steps: CurrentSixQiStageTuple;
       }
       export function AnnualStageRail({ steps }: AnnualStageRailProps) {
         return steps.map((step) => {
@@ -1150,7 +1172,7 @@ test('rejects a default-exported copied frozen DTO declaration', async () => {
 test('CLI exits non-zero and prints every path-qualified violation', () => {
   const fixtureRoot = createFixture({
     optionalDependencies: { axios: '1.0.0' },
-    peerDependencies: { 'react-router-dom': '7.0.0' },
+    peerDependencies: { 'unlisted-router': '1.0.0' },
   });
   const result = spawnSync(
     process.execPath,

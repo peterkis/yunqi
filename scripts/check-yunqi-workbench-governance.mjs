@@ -37,6 +37,7 @@ const ALLOWED_RUNTIME_DEPENDENCIES = new Set([
   '@yunqi/contracts',
   'react',
   'react-dom',
+  'react-router-dom',
 ]);
 const FORBIDDEN_IMPORTS = [
   {
@@ -58,10 +59,6 @@ const FORBIDDEN_IMPORTS = [
   {
     label: 'Axios',
     pattern: /^axios(?:\/|$)/,
-  },
-  {
-    label: 'React Router',
-    pattern: /^react-router-dom(?:\/|$)/,
   },
 ];
 
@@ -458,7 +455,7 @@ function annualStageRailUsesCanonicalTimeline(source, fileName) {
     const timelineImport = statement.importClause.namedBindings.elements.find(
       (element) =>
         (element.propertyName?.text ?? element.name.text) ===
-        'SixQiTimelineViewModel',
+        'CurrentSixQiStageTuple',
     );
     if (timelineImport) localTimelineType = timelineImport.name.text;
   }
@@ -690,7 +687,7 @@ async function findSourceViolations(root) {
     if (isAnnualStageRailSource(file)) {
       if (!annualStageRailUsesCanonicalTimeline(source, file)) {
         violations.push(
-          `${relativePath}: steps must consume SixQiTimelineViewModel directly`,
+          `${relativePath}: steps must consume CurrentSixQiStageTuple directly`,
         );
       }
       if (hasAnnualStageOrdinalArithmetic(source, file)) {
@@ -715,6 +712,11 @@ async function findSourceViolations(root) {
         if (/^@yunqi\/client(?:\/|$)/.test(specifier)) {
           violations.push(
             `${relativePath}: @yunqi/client imports are forbidden in presentation mapper source`,
+          );
+        }
+        if (/^react-router-dom(?:\/|$)/.test(specifier)) {
+          violations.push(
+            `${relativePath}: React Router imports are forbidden in presentation mapper source`,
           );
         }
       }
