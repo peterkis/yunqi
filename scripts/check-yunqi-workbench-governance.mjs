@@ -440,6 +440,98 @@ function hasDirectClientMethodAccess(source, fileName) {
   return found;
 }
 
+function annualStageRailUsesCanonicalTimeline(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  let localTimelineType;
+
+  for (const statement of sourceFile.statements) {
+    if (
+      !ts.isImportDeclaration(statement) ||
+      !ts.isStringLiteral(statement.moduleSpecifier) ||
+      statement.moduleSpecifier.text !== '../presentation/view-model' ||
+      !statement.importClause?.namedBindings ||
+      !ts.isNamedImports(statement.importClause.namedBindings)
+    ) {
+      continue;
+    }
+
+    const timelineImport = statement.importClause.namedBindings.elements.find(
+      (element) =>
+        (element.propertyName?.text ?? element.name.text) ===
+        'SixQiTimelineViewModel',
+    );
+    if (timelineImport) localTimelineType = timelineImport.name.text;
+  }
+
+  if (!localTimelineType) return false;
+
+  const props = sourceFile.statements.find(
+    (statement) =>
+      ts.isInterfaceDeclaration(statement) &&
+      statement.name.text === 'AnnualStageRailProps',
+  );
+  if (!props || !ts.isInterfaceDeclaration(props)) return false;
+
+  const steps = props.members.find(
+    (member) =>
+      ts.isPropertySignature(member) &&
+      member.name !== undefined &&
+      ((ts.isIdentifier(member.name) && member.name.text === 'steps') ||
+        (ts.isStringLiteralLike(member.name) && member.name.text === 'steps')),
+  );
+
+  return Boolean(
+    steps &&
+      ts.isPropertySignature(steps) &&
+      steps.type &&
+      ts.isTypeReferenceNode(steps.type) &&
+      ts.isIdentifier(steps.type.typeName) &&
+      steps.type.typeName.text === localTimelineType,
+  );
+}
+
+function hasAnnualStageOrdinalArithmetic(source, fileName) {
+  const sourceFile = parseWorkbenchSource(source, fileName);
+  let found = false;
+
+  const isOne = (node) =>
+    ts.isNumericLiteral(node) && node.text === '1';
+
+  const visit = (node) => {
+    if (found) return;
+
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      (isOne(node.left) || isOne(node.right))
+    ) {
+      found = true;
+      return;
+    }
+
+    if (
+      (ts.isPrefixUnaryExpression(node) ||
+        ts.isPostfixUnaryExpression(node)) &&
+      (node.operator === ts.SyntaxKind.PlusPlusToken ||
+        node.operator === ts.SyntaxKind.MinusMinusToken)
+    ) {
+      found = true;
+      return;
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return found;
+}
+
+function isAnnualStageRailSource(fileName) {
+  return normalizePath(fileName).endsWith(
+    '/src/features/yunqi/components/AnnualStageRail.tsx',
+  );
+}
+
 function isProductionSource(fileName) {
   const normalized = normalizePath(fileName);
   return !(
@@ -591,6 +683,19 @@ async function findSourceViolations(root) {
       for (const match of source.matchAll(pattern)) {
         violations.push(
           `${relativePath}: frozen DTO ${match[1]} must be imported from @yunqi/contracts`,
+        );
+      }
+    }
+
+    if (isAnnualStageRailSource(file)) {
+      if (!annualStageRailUsesCanonicalTimeline(source, file)) {
+        violations.push(
+          `${relativePath}: steps must consume SixQiTimelineViewModel directly`,
+        );
+      }
+      if (hasAnnualStageOrdinalArithmetic(source, file)) {
+        violations.push(
+          `${relativePath}: stage ordinal arithmetic is forbidden`,
         );
       }
     }

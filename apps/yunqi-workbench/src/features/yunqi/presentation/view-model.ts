@@ -31,6 +31,11 @@ export interface GuestHostRelationViewModel {
   readonly traditionalLabel: string;
 }
 
+export type YunQiStageStatusCode =
+  | 'completed'
+  | 'current'
+  | 'upcoming';
+
 export interface SixQiTimelineItemViewModel {
   readonly index: SixQiStepDto['index'];
   readonly name: SixQiStepDto['name'];
@@ -39,7 +44,7 @@ export interface SixQiTimelineItemViewModel {
   readonly hostQi: SixQiStepDto['hostQi'];
   readonly guestQi: SixQiStepDto['guestQi'];
   readonly relation: GuestHostRelationViewModel;
-  readonly isCurrent: boolean;
+  readonly status: LabeledCodeViewModel<YunQiStageStatusCode>;
 }
 
 export type SixQiTimelineViewModel = readonly [

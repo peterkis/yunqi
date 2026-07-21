@@ -10,6 +10,7 @@ import type {
   LabeledCodeViewModel,
   SixQiTimelineItemViewModel,
   SixQiTimelineViewModel,
+  YunQiStageStatusCode,
   YunQiTimeViewModel,
 } from './view-model';
 
@@ -39,6 +40,12 @@ const DIRECTION_LABELS = {
   HostGuestRelationDto['direction'],
   string
 >;
+
+const STAGE_STATUS_LABELS = {
+  completed: '已结束',
+  current: '当前',
+  upcoming: '未开始',
+} as const satisfies Record<YunQiStageStatusCode, string>;
 
 function labeledCode<Code extends string>(
   code: Code,
@@ -81,6 +88,13 @@ function mapStep(
   step: SixQiStepDto,
   currentStepIndex: number,
 ): SixQiTimelineItemViewModel {
+  const status: YunQiStageStatusCode =
+    step.index < currentStepIndex
+      ? 'completed'
+      : step.index === currentStepIndex
+        ? 'current'
+        : 'upcoming';
+
   return {
     index: step.index,
     name: step.name,
@@ -89,7 +103,7 @@ function mapStep(
     hostQi: step.hostQi,
     guestQi: step.guestQi,
     relation: mapRelation(step.relation),
-    isCurrent: step.index === currentStepIndex,
+    status: labeledCode(status, STAGE_STATUS_LABELS),
   };
 }
 
@@ -114,7 +128,9 @@ export function mapCurrentYunQi(
   dto: YunQiCalculationDto,
 ): CurrentYunQiViewModel {
   const timeline = mapTimeline(dto);
-  const currentStep = timeline.find((step) => step.isCurrent);
+  const currentStep = timeline.find(
+    (step) => step.status.code === 'current',
+  );
 
   if (!currentStep) {
     throw new Error(

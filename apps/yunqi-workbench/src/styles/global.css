@@ -399,6 +399,8 @@ button {
 
 .ui-panel {
   display: grid;
+  width: 100%;
+  min-width: 0;
   gap: 1.75rem;
 }
 
@@ -510,6 +512,113 @@ button {
 .current-step__grid {
   grid-template-columns: minmax(17rem, 1.5fr) repeat(3, minmax(8rem, 0.7fr));
   padding-top: 0.4rem;
+}
+
+.annual-stage-rail {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.annual-stage-rail__stages {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  border-block: 1px solid var(--rule-strong);
+  border-left: 1px solid var(--rule);
+  list-style: none;
+}
+
+.annual-stage-rail__stage {
+  min-width: 0;
+  border-right: 1px solid var(--rule);
+}
+
+.annual-stage-rail__stage--completed {
+  background: color-mix(in srgb, var(--paper-muted) 68%, transparent);
+}
+
+.annual-stage-rail__stage--current {
+  box-shadow: inset 0 0.25rem 0 var(--cinnabar);
+  background: var(--cinnabar-wash);
+}
+
+.annual-stage-rail__stage--upcoming {
+  background: color-mix(in srgb, var(--paper-raised) 86%, transparent);
+}
+
+.annual-stage-rail__button {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: 10.5rem;
+  gap: 0.5rem;
+  align-content: start;
+  padding: 1rem 0.85rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+
+.annual-stage-rail__button:hover {
+  background: color-mix(in srgb, var(--cinnabar-wash) 62%, transparent);
+}
+
+.annual-stage-rail__button:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.annual-stage-rail__button strong {
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: 1.1rem;
+}
+
+.annual-stage-rail__index,
+.annual-stage-rail__status,
+.annual-stage-rail__disclaimer {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.annual-stage-rail__stage--current .annual-stage-rail__status {
+  color: var(--cinnabar-deep);
+  font-weight: 700;
+}
+
+.annual-stage-rail__range {
+  display: grid;
+  min-width: 0;
+  gap: 0.2rem;
+  margin-top: auto;
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.annual-stage-rail__range .yunqi-time,
+.annual-stage-rail__range time {
+  min-width: 0;
+}
+
+.annual-stage-rail__range time {
+  white-space: normal;
+}
+
+.annual-stage-rail__range > span[aria-hidden="true"] {
+  color: var(--rule-strong);
+}
+
+.annual-stage-rail__disclaimer {
+  margin: 0;
+  text-align: right;
 }
 
 .sixqi-timeline {
@@ -721,6 +830,24 @@ button {
   }
 }
 
+@media (min-width: 46.01rem) and (max-width: 64rem) {
+  .current-yunqi-hero,
+  .ui-panel__header,
+  .summary-grid,
+  .current-step__grid,
+  .relation-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .annual-stage-rail__button {
+    padding-inline: 0.35rem;
+  }
+
+  .annual-stage-rail__range {
+    font-size: 0.64rem;
+  }
+}
+
 @media (max-width: 46rem) {
   .app-shell {
     border-inline: 0;
@@ -789,6 +916,10 @@ button {
 
   .summary-grid {
     border-bottom: 0;
+  }
+
+  .annual-stage-rail {
+    display: none;
   }
 
   .ui-card {

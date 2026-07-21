@@ -1,28 +1,42 @@
+import type { Ref } from 'react';
+import { Badge } from '../../../components/ui/Badge';
 import { TimelineItem } from '../../../components/ui/TimelineItem';
 import type { SixQiTimelineItemViewModel } from '../presentation/view-model';
 import { GuestHostRelationDetail } from './GuestHostRelationDetail';
 import { YunQiTimeRange } from './YunQiTimeRange';
+import { getSixQiTimelineIds } from './six-qi-timeline-ids';
 
 export interface SixQiTimelineItemProps {
   readonly isExpanded: boolean;
   readonly onToggle: () => void;
+  readonly rootRef: Ref<HTMLElement>;
   readonly step: SixQiTimelineItemViewModel;
+  readonly timelineId: string;
 }
 
 export function SixQiTimelineItem({
   isExpanded,
   onToggle,
+  rootRef,
   step,
+  timelineId,
 }: SixQiTimelineItemProps) {
+  const ids = getSixQiTimelineIds(timelineId, step.index);
+  const isCurrent = step.status.code === 'current';
+
   return (
     <TimelineItem
-      id={`sixqi-step-${step.index}`}
+      id={ids.rootId}
       title={step.name}
-      isCurrent={step.isCurrent}
+      isCurrent={isCurrent}
       isExpanded={isExpanded}
       onToggle={onToggle}
+      rootRef={rootRef}
       summary={
         <div className="sixqi-step-summary">
+          {!isCurrent ? (
+            <Badge tone="neutral">{step.status.label}</Badge>
+          ) : null}
           <YunQiTimeRange start={step.start} end={step.end} />
           <span>
             主气 {step.hostQi} · 客气 {step.guestQi}

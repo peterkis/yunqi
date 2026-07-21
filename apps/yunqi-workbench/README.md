@@ -1,9 +1,9 @@
 # @yunqi/workbench
 
-Phase3-C1 React Workbench for TCM YunQi Lab. It contains the first real,
-read-only `/current` YunQi view while remaining a presentation host and
-frozen-contract consumer. It is not a rule engine, router, diagnosis system,
-or treatment system.
+Phase3-C2 React Workbench for TCM YunQi Lab. It contains the real, read-only
+`/current` YunQi view and its annual six-stage visualization while remaining a
+presentation host and frozen-contract consumer. It is not a rule engine,
+router, diagnosis system, or treatment system.
 
 ## Architecture boundary
 
@@ -38,7 +38,7 @@ Service, Domain, calendar adapters, or internal generated OpenAPI modules.
 Axios and React Router imports are also forbidden throughout Workbench source,
 including when listed only as development dependencies. The runtime allowlist
 applies to dependencies, optional dependencies, and peer dependencies.
-Phase3-C1 deliberately has no router, year selector, calculation form,
+Phase3-C2 deliberately has no router, year selector, calculation form,
 runtime fixture, inquiry workflow, or backend contract change.
 
 Relative imports must stay inside `apps/yunqi-workbench`. Imports that escape
@@ -78,6 +78,23 @@ independent accessible disclosure, so users may compare multiple expanded
 steps. Structured Qi, element, and direction labels are displayed alongside
 the unchanged API `traditionalLabel`. Loading, failure/retry, and empty states
 are sanitized shared components; production never falls back to mock data.
+
+On desktop, `AnnualStageRail` presents the same six-element
+`SixQiTimelineViewModel` as an equal-width categorical overview. It does not
+introduce a second rail model, calculate actual-duration proportions, name
+solar terms, or infer stage state from time. Stage status and the displayed
+step number are mapped once from the frozen API `step.index`; components must
+not add one or renumber it. Selecting a rail stage ensures the existing detail
+is expanded and positions that detail without closing other disclosures or
+moving focus. Positioning is unanimated. Any future smooth scrolling must
+honor `prefers-reduced-motion`.
+
+At `46rem` and below, the desktop rail is hidden and the existing vertical
+timeline remains the single mobile navigation/detail surface. Its current,
+completed, and upcoming labels use the same ViewModel status.
+Between `46rem` and `64rem`, surrounding summary panels collapse to one column
+while the Rail remains a six-column overview, preventing document-level
+horizontal overflow near the mobile breakpoint.
 
 ## Fixed Beijing time
 
