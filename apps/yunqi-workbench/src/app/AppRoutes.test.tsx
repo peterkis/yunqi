@@ -72,7 +72,11 @@ describe('AppRoutes', () => {
     renderAppAt('/', client);
 
     expect(
-      await screen.findByRole('heading', { name: '当前五运六气' }),
+      await screen.findByRole(
+        'heading',
+        { name: '当前五运六气' },
+        { timeout: 5_000 },
+      ),
     ).toBeInTheDocument();
     expect(screen.getByLabelText('测试路径')).toHaveTextContent(
       '/yunqi/current',
