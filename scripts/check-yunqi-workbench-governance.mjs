@@ -463,37 +463,16 @@ function unwrapExpression(node) {
   return current;
 }
 
-function staticStringValue(node, model, seenBindings = new Set()) {
+function staticStringValue(node) {
   const current = unwrapExpression(node);
 
   if (ts.isStringLiteralLike(current)) return current.text;
-  if (model && ts.isIdentifier(current)) {
-    const binding = model.bindingForIdentifier(current);
-    if (
-      binding &&
-      model.isImmutableConst(binding) &&
-      !seenBindings.has(binding)
-    ) {
-      seenBindings.add(binding);
-      const sources = model.sourcesFor(binding, current);
-      const value =
-        sources.length === 1 && sources[0].path.length === 0
-          ? staticStringValue(
-              sources[0].node,
-              model,
-              seenBindings,
-            )
-          : undefined;
-      seenBindings.delete(binding);
-      return value;
-    }
-  }
   if (
     ts.isBinaryExpression(current) &&
     current.operatorToken.kind === ts.SyntaxKind.PlusToken
   ) {
-    const left = staticStringValue(current.left, model, seenBindings);
-    const right = staticStringValue(current.right, model, seenBindings);
+    const left = staticStringValue(current.left);
+    const right = staticStringValue(current.right);
     return left === undefined || right === undefined
       ? undefined
       : left + right;
@@ -501,11 +480,7 @@ function staticStringValue(node, model, seenBindings = new Set()) {
   if (ts.isTemplateExpression(current)) {
     let value = current.head.text;
     for (const span of current.templateSpans) {
-      const expression = staticStringValue(
-        span.expression,
-        model,
-        seenBindings,
-      );
+      const expression = staticStringValue(span.expression);
       if (expression === undefined) return undefined;
       value += expression + span.literal.text;
     }
@@ -515,838 +490,105 @@ function staticStringValue(node, model, seenBindings = new Set()) {
   return undefined;
 }
 
-function staticPropertyName(node, model) {
-  if (node === undefined) return undefined;
-  const current = unwrapExpression(node);
-
-  if (ts.isIdentifier(current)) return current.text;
-  if (ts.isComputedPropertyName(current)) {
-    return staticStringValue(current.expression, model);
-  }
-  return staticStringValue(current, model);
-}
-
-function memberAccess(expression, model) {
-  const current = unwrapExpression(expression);
-
-  if (ts.isPropertyAccessExpression(current)) {
-    return { name: current.name.text, receiver: current.expression };
-  }
-  if (ts.isElementAccessExpression(current)) {
-    return {
-      name: staticStringValue(current.argumentExpression, model),
-      receiver: current.expression,
-    };
-  }
-
-  return undefined;
-}
-
-function memberName(expression, model) {
-  const current = unwrapExpression(expression);
-  if (ts.isIdentifier(current)) return current.text;
-  return memberAccess(current, model)?.name;
-}
-
-function isFunctionLikeNode(node) {
-  return (
-    ts.isFunctionDeclaration(node) ||
-    ts.isFunctionExpression(node) ||
-    ts.isArrowFunction(node) ||
-    ts.isMethodDeclaration(node)
-  );
-}
-
-function isIdentifierReference(node) {
-  const parent = node.parent;
-
-  if (
-    (ts.isPropertyAccessExpression(parent) && parent.name === node) ||
-    ((ts.isPropertyAssignment(parent) ||
-      ts.isMethodDeclaration(parent) ||
-      ts.isPropertyDeclaration(parent) ||
-      ts.isPropertySignature(parent)) &&
-      parent.name === node) ||
-    ((ts.isVariableDeclaration(parent) ||
-      ts.isParameter(parent) ||
-      ts.isFunctionDeclaration(parent) ||
-      ts.isFunctionExpression(parent) ||
-      ts.isMethodDeclaration(parent) ||
-      ts.isClassDeclaration(parent) ||
-      ts.isInterfaceDeclaration(parent) ||
-      ts.isTypeAliasDeclaration(parent)) &&
-      parent.name === node) ||
-    (ts.isBindingElement(parent) &&
-      (parent.name === node || parent.propertyName === node)) ||
-    ts.isImportSpecifier(parent) ||
-    ts.isImportClause(parent) ||
-    ts.isNamespaceImport(parent) ||
-    ts.isExportSpecifier(parent) ||
-    ts.isJsxAttribute(parent) ||
-    ts.isJsxOpeningElement(parent) ||
-    ts.isJsxClosingElement(parent) ||
-    ts.isJsxSelfClosingElement(parent)
-  ) {
-    return false;
-  }
-
-  return true;
-}
-
-function createLexicalModel(sourceFile) {
-  const nodeScopes = new WeakMap();
-  const declarationBindings = new WeakMap();
-  const allBindings = [];
-  const rootScope = {
-    bindings: new Map(),
-    kind: 'root',
-    parent: undefined,
-  };
-
-  // Sources retain both their availability point and an extraction path.
-  // This keeps local analysis lexical (not runtime CFG evaluation) while
-  // avoiding sibling-property taint and late-assignment reverse taint.
-  const addSource = (
-    binding,
-    node,
-    path = [],
-    kind = 'declaration',
-  ) => {
-    if (!binding || node === undefined) return;
-    binding.sources.push({
-      availableAt: node.end,
-      kind,
-      node,
-      path,
-    });
-  };
-
-  const addBinding = (
-    scope,
-    nameNode,
-    declaration,
-    source,
-    functionNode,
-    metadata = {},
-    sourcePath = [],
-  ) => {
-    if (!ts.isIdentifier(nameNode)) return undefined;
-    const binding = {
-      declaration,
-      functionNode,
-      isConst: metadata.isConst === true,
-      kind: metadata.kind ?? 'local',
-      name: nameNode.text,
-      sources: [],
-    };
-    scope.bindings.set(binding.name, binding);
-    declarationBindings.set(nameNode, binding);
-    allBindings.push(binding);
-    addSource(binding, source, sourcePath);
-    return binding;
-  };
-
-  const bindingKey = (node) => {
-    if (node === undefined) return undefined;
-    const current = unwrapExpression(node);
-    if (ts.isIdentifier(current) || ts.isStringLiteralLike(current)) {
-      return current.text;
-    }
-    if (ts.isNumericLiteral(current)) return Number(current.text);
-    if (ts.isComputedPropertyName(current)) {
-      const value = staticStringValue(current.expression);
-      return value === undefined ? undefined : value;
-    }
-    return undefined;
-  };
-
-  const patternEntries = (pattern) => {
-    if (ts.isArrayBindingPattern(pattern)) {
-      return pattern.elements.flatMap((element, index) =>
-        ts.isOmittedExpression(element)
-          ? []
-          : [{ element, key: index }],
-      );
-    }
-    return pattern.elements.map((element) => ({
-      element,
-      key: bindingKey(element.propertyName ?? element.name),
-    }));
-  };
-
-  const bindPattern = (
-    pattern,
-    scope,
-    declaration,
-    source,
-    functionNode,
-    metadata = {},
-    sourcePath = [],
-  ) => {
-    if (ts.isIdentifier(pattern)) {
-      addBinding(
-        scope,
-        pattern,
-        declaration,
-        source,
-        functionNode,
-        metadata,
-        sourcePath,
-      );
-      return;
-    }
-
-    for (const { element, key } of patternEntries(pattern)) {
-      bindPattern(
-        element.name,
-        scope,
-        element,
-        source,
-        undefined,
-        metadata,
-        key === undefined ? sourcePath : [...sourcePath, key],
-      );
-      if (element.initializer && ts.isIdentifier(element.name)) {
-        const binding = declarationBindings.get(element.name);
-        addSource(binding, element.initializer, [], 'default');
-      }
-    }
-  };
-
-  const nearestFunctionScope = (scope) => {
-    let current = scope;
-    while (current.kind !== 'function' && current.kind !== 'root') {
-      current = current.parent;
-    }
-    return current;
-  };
-
-  const visit = (node, incomingScope) => {
-    if (ts.isFunctionDeclaration(node) && node.name) {
-      addBinding(
-        incomingScope,
-        node.name,
-        node,
-        undefined,
-        node,
-        { kind: 'function' },
-      );
-    }
-    if (ts.isVariableDeclaration(node)) {
-      const declarationList = node.parent;
-      const isBlockScoped = Boolean(
-        declarationList.flags & ts.NodeFlags.BlockScoped,
-      );
-      const declarationScope = isBlockScoped
-        ? incomingScope
-        : nearestFunctionScope(incomingScope);
-      const initializer = node.initializer
-        ? unwrapExpression(node.initializer)
-        : undefined;
-      bindPattern(
-        node.name,
-        declarationScope,
-        node,
-        node.initializer,
-        initializer && isFunctionLikeNode(initializer)
-          ? initializer
-          : undefined,
-        {
-          isConst: Boolean(
-            declarationList.flags & ts.NodeFlags.Const,
-          ),
-          kind: 'variable',
-        },
-      );
-    }
-    if (ts.isImportDeclaration(node) && node.importClause) {
-      if (node.importClause.name) {
-        addBinding(
-          incomingScope,
-          node.importClause.name,
-          node.importClause,
-          undefined,
-          undefined,
-          { kind: 'import' },
-        );
-      }
-      const namedBindings = node.importClause.namedBindings;
-      if (namedBindings && ts.isNamedImports(namedBindings)) {
-        for (const element of namedBindings.elements) {
-          addBinding(
-            incomingScope,
-            element.name,
-            element,
-            undefined,
-            undefined,
-            { kind: 'import' },
-          );
-        }
-      } else if (namedBindings && ts.isNamespaceImport(namedBindings)) {
-        addBinding(
-          incomingScope,
-          namedBindings.name,
-          namedBindings,
-          undefined,
-          undefined,
-          { kind: 'import' },
-        );
-      }
-    }
-
-    let scope = incomingScope;
-    if (
-      node !== sourceFile &&
-      (isFunctionLikeNode(node) ||
-        ts.isBlock(node) ||
-        ts.isCatchClause(node))
-    ) {
-      scope = {
-        bindings: new Map(),
-        kind: isFunctionLikeNode(node) ? 'function' : 'block',
-        parent: incomingScope,
-      };
-    }
-    nodeScopes.set(node, scope);
-
-    if (isFunctionLikeNode(node)) {
-      if (ts.isFunctionExpression(node) && node.name) {
-        addBinding(scope, node.name, node, undefined, node);
-      }
-      for (const parameter of node.parameters) {
-        bindPattern(
-          parameter.name,
-          scope,
-          parameter,
-          parameter.initializer,
-          undefined,
-          { kind: 'parameter' },
-        );
-      }
-    }
-    if (ts.isCatchClause(node) && node.variableDeclaration) {
-      bindPattern(
-        node.variableDeclaration.name,
-        scope,
-        node.variableDeclaration,
-        node.variableDeclaration.initializer,
-        undefined,
-        { kind: 'catch' },
-      );
-    }
-
-    ts.forEachChild(node, (child) => visit(child, scope));
-  };
-
-  nodeScopes.set(sourceFile, rootScope);
-  ts.forEachChild(sourceFile, (child) => visit(child, rootScope));
-
-  const bindingForIdentifier = (identifier) => {
-    const declared = declarationBindings.get(identifier);
-    if (declared) return declared;
-    if (!isIdentifierReference(identifier)) return undefined;
-
-    let scope = nodeScopes.get(identifier);
-    while (scope) {
-      const binding = scope.bindings.get(identifier.text);
-      if (binding) return binding;
-      scope = scope.parent;
-    }
-    return undefined;
-  };
-
-  const assignSource = (target, source, sourcePath = []) => {
-    const current = unwrapExpression(target);
-    if (ts.isIdentifier(current)) {
-      addSource(
-        bindingForIdentifier(current),
-        source,
-        sourcePath,
-        'assignment',
-      );
-      return;
-    }
-    if (ts.isArrayLiteralExpression(current)) {
-      current.elements.forEach((element, index) => {
-        if (!ts.isOmittedExpression(element)) {
-          assignSource(element, source, [...sourcePath, index]);
-        }
-      });
-      return;
-    }
-    if (ts.isObjectLiteralExpression(current)) {
-      for (const property of current.properties) {
-        if (ts.isPropertyAssignment(property)) {
-          const key = bindingKey(property.name);
-          if (key !== undefined) {
-            assignSource(
-              property.initializer,
-              source,
-              [...sourcePath, key],
-            );
-          }
-        } else if (ts.isShorthandPropertyAssignment(property)) {
-          assignSource(
-            property.name,
-            source,
-            [...sourcePath, property.name.text],
-          );
-        } else if (ts.isSpreadAssignment(property)) {
-          assignSource(property.expression, source, sourcePath);
-        }
-      }
-    }
-  };
-  const collectAssignments = (node) => {
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.EqualsToken
-    ) {
-      assignSource(node.left, node.right);
-    }
-    ts.forEachChild(node, collectAssignments);
-  };
-  collectAssignments(sourceFile);
-
-  const sourcesFor = (binding, atNode) => {
-    const usePosition = atNode?.getStart(sourceFile) ?? Infinity;
-    return binding.sources.filter(
-      (source) => source.availableAt <= usePosition,
-    );
-  };
-
-  const functionLikeForExpression = (expression, seen = new Set()) => {
-    const current = unwrapExpression(expression);
-    if (isFunctionLikeNode(current)) return current;
-    if (!ts.isIdentifier(current)) return undefined;
-    const binding = bindingForIdentifier(current);
-    if (!binding || seen.has(binding)) return undefined;
-    if (binding.functionNode) return binding.functionNode;
-    seen.add(binding);
-    for (const source of sourcesFor(binding, current)) {
-      if (source.path.length > 0) continue;
-      const resolved = functionLikeForExpression(source.node, seen);
-      if (resolved) return resolved;
-    }
-    return undefined;
-  };
-
-  return {
-    bindingForDeclaration(identifier) {
-      return declarationBindings.get(identifier);
-    },
-    bindingForIdentifier,
-    bindingsNamed(names) {
-      return new Set(
-        allBindings.filter((binding) => names.has(binding.name)),
-      );
-    },
-    functionLikeForExpression,
-    isImportBinding(binding) {
-      return binding.kind === 'import';
-    },
-    isImmutableConst(binding) {
-      return (
-        binding.isConst &&
-        binding.sources.length === 1 &&
-        binding.sources[0].kind === 'declaration'
-      );
-    },
-    sourcesFor,
-  };
-}
-
-function expressionDependsOn(
-  node,
-  seedBindings,
-  model,
-  state = { bindings: new Set(), functions: new Set() },
-  projection = [],
-) {
-  if (node === undefined) return false;
-  const current = unwrapExpression(node);
-
-  if (ts.isIdentifier(current) && isIdentifierReference(current)) {
-    const binding = model.bindingForIdentifier(current);
-    if (!binding) return false;
-    if (seedBindings.has(binding)) return true;
-    if (state.bindings.has(binding) || binding.functionNode) {
-      return false;
-    }
-    state.bindings.add(binding);
-    const depends = model.sourcesFor(binding, current).some((source) =>
-      expressionDependsOn(
-        source.node,
-        seedBindings,
-        model,
-        state,
-        [...source.path, ...projection],
-      ),
-    );
-    state.bindings.delete(binding);
-    return depends;
-  }
-
-  if (isFunctionLikeNode(current)) return false;
-
-  const access = memberAccess(current, model);
-  if (access?.name !== undefined) {
-    return expressionDependsOn(
-      access.receiver,
-      seedBindings,
-      model,
-      state,
-      [access.name, ...projection],
-    );
-  }
-
-  if (projection.length > 0) {
-    const [property, ...rest] = projection;
-    if (ts.isObjectLiteralExpression(current)) {
-      let found = false;
-      for (const entry of current.properties) {
-        if (
-          ts.isPropertyAssignment(entry) &&
-          staticPropertyName(entry.name, model) === String(property)
-        ) {
-          found ||= expressionDependsOn(
-            entry.initializer,
-            seedBindings,
-            model,
-            state,
-            rest,
-          );
-        } else if (
-          ts.isShorthandPropertyAssignment(entry) &&
-          entry.name.text === String(property)
-        ) {
-          found ||= expressionDependsOn(
-            entry.name,
-            seedBindings,
-            model,
-            state,
-            rest,
-          );
-        } else if (ts.isSpreadAssignment(entry)) {
-          found ||= expressionDependsOn(
-            entry.expression,
-            seedBindings,
-            model,
-            state,
-            projection,
-          );
-        }
-      }
-      return found;
-    }
-    if (ts.isArrayLiteralExpression(current)) {
-      const index = Number(property);
-      const element = Number.isInteger(index)
-        ? current.elements[index]
-        : undefined;
-      return Boolean(
-        element &&
-          !ts.isOmittedExpression(element) &&
-          expressionDependsOn(
-            element,
-            seedBindings,
-            model,
-            state,
-            rest,
-          ),
-      );
-    }
-    if (ts.isConditionalExpression(current)) {
-      return (
-        expressionDependsOn(
-          current.whenTrue,
-          seedBindings,
-          model,
-          state,
-          projection,
-        ) ||
-        expressionDependsOn(
-          current.whenFalse,
-          seedBindings,
-          model,
-          state,
-          projection,
-        )
-      );
-    }
-    if (ts.isCallExpression(current)) {
-      const called = model.functionLikeForExpression(current.expression);
-      if (called && !state.functions.has(called)) {
-        state.functions.add(called);
-        const depends = functionReturnExpressions(called).some((returned) =>
-          expressionDependsOn(
-            returned,
-            seedBindings,
-            model,
-            state,
-            projection,
-          ),
-        );
-        state.functions.delete(called);
-        return depends;
-      }
-    }
-    return false;
-  }
-
-  if (ts.isCallExpression(current)) {
-    if (
-      current.arguments.some((argument) =>
-        expressionDependsOn(argument, seedBindings, model, state),
-      )
-    ) {
-      return true;
-    }
-    const called = model.functionLikeForExpression(current.expression);
-    if (called && !state.functions.has(called)) {
-      state.functions.add(called);
-      const depends = functionReturnExpressions(called).some((returned) =>
-        expressionDependsOn(returned, seedBindings, model, state),
-      );
-      state.functions.delete(called);
-      if (depends) return true;
-    }
-  }
-
-  let found = false;
-  ts.forEachChild(current, (child) => {
-    if (
-      !found &&
-      expressionDependsOn(child, seedBindings, model, state)
-    ) {
-      found = true;
-    }
-  });
-  return found;
-}
-
-function functionReturnExpressions(functionNode) {
-  if (!functionNode.body) return [];
-  if (!ts.isBlock(functionNode.body)) return [functionNode.body];
-
-  const returned = [];
-  const root = functionNode.body;
-  const visit = (node) => {
-    if (node !== root && isFunctionLikeNode(node)) return;
-    if (ts.isReturnStatement(node) && node.expression) {
-      returned.push(node.expression);
-      return;
-    }
-    ts.forEachChild(node, visit);
-  };
-  visit(root);
-  return returned;
-}
-
-function expressionFlowContains(
-  node,
-  predicate,
-  model,
-  state = { bindings: new Set(), functions: new Set() },
-) {
-  if (node === undefined) return false;
-  const current = unwrapExpression(node);
-  if (predicate(current)) return true;
-
-  if (ts.isIdentifier(current) && isIdentifierReference(current)) {
-    const binding = model.bindingForIdentifier(current);
-    if (!binding || state.bindings.has(binding)) return false;
-    state.bindings.add(binding);
-    const found = model.sourcesFor(binding, current).some((source) =>
-      expressionFlowContains(source.node, predicate, model, state),
-    );
-    state.bindings.delete(binding);
-    return found;
-  }
-  if (isFunctionLikeNode(current)) return false;
-
-  if (ts.isCallExpression(current)) {
-    const called = model.functionLikeForExpression(current.expression);
-    if (called && !state.functions.has(called)) {
-      state.functions.add(called);
-      const found = functionReturnExpressions(called).some((returned) =>
-        expressionFlowContains(returned, predicate, model, state),
-      );
-      state.functions.delete(called);
-      if (found) return true;
-    }
-  }
-
-  let found = false;
-  ts.forEachChild(current, (child) => {
-    if (!found && expressionFlowContains(child, predicate, model, state)) {
-      found = true;
-    }
-  });
-  return found;
-}
-
-function functionLikeByName(sourceFile, name) {
-  for (const statement of sourceFile.statements) {
-    if (
-      ts.isFunctionDeclaration(statement) &&
-      statement.name?.text === name
-    ) {
-      return statement;
-    }
-    if (ts.isVariableStatement(statement)) {
-      for (const declaration of statement.declarationList.declarations) {
-        if (
-          ts.isIdentifier(declaration.name) &&
-          declaration.name.text === name &&
-          declaration.initializer !== undefined
-        ) {
-          const initializer = unwrapExpression(declaration.initializer);
-          if (isFunctionLikeNode(initializer)) return initializer;
-        }
-      }
-    }
-  }
-  return undefined;
-}
-
-function isMethodCall(node, methodName, model) {
-  if (!ts.isCallExpression(node)) return false;
-  return memberAccess(node.expression, model)?.name === methodName;
-}
-
 function isOne(node) {
   const current = unwrapExpression(node);
   return ts.isNumericLiteral(current) && current.text === '1';
 }
 
-function expressionDependsOnStageIndex(
-  node,
-  stageBindings,
-  model,
-  visitedBindings = new Set(),
-) {
-  if (node === undefined) return false;
-  const current = unwrapExpression(node);
-  const access = memberAccess(current, model);
+function isMapCall(node) {
+  const expression = ts.isCallExpression(node)
+    ? unwrapExpression(node.expression)
+    : undefined;
+  return Boolean(
+    expression &&
+      ts.isPropertyAccessExpression(expression) &&
+      expression.name.text === 'map',
+  );
+}
 
-  if (
-    access?.name === 'index' &&
-    expressionDependsOn(access.receiver, stageBindings, model)
-  ) {
-    return true;
-  }
-  if (ts.isIdentifier(current) && isIdentifierReference(current)) {
-    const binding = model.bindingForIdentifier(current);
-    if (!binding || visitedBindings.has(binding)) return false;
-    visitedBindings.add(binding);
-    const depends = model.sourcesFor(binding, current).some((source) =>
-      expressionDependsOnStageIndex(
-        source.node,
-        stageBindings,
-        model,
-        visitedBindings,
-      ),
-    );
-    visitedBindings.delete(binding);
-    return depends;
-  }
-  if (isFunctionLikeNode(current)) return false;
+function topLevelFunctionDeclaration(sourceFile, name) {
+  return sourceFile.statements.find(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === name,
+  );
+}
 
+function directMapCallback(sourceFile, expression) {
+  const current = unwrapExpression(expression);
+  if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
+    return current;
+  }
+  if (!ts.isIdentifier(current)) return undefined;
+  return topLevelFunctionDeclaration(sourceFile, current.text);
+}
+
+function containsPlusOne(node) {
   let found = false;
-  ts.forEachChild(current, (child) => {
+  const visit = (current) => {
+    if (found) return;
     if (
-      !found &&
-      expressionDependsOnStageIndex(
-        child,
-        stageBindings,
-        model,
-        visitedBindings,
-      )
+      ts.isBinaryExpression(current) &&
+      current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      (isOne(current.left) || isOne(current.right))
     ) {
       found = true;
+      return;
     }
-  });
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
   return found;
 }
 
-function hasStageOrdinalArithmetic(sourceFile, model) {
-  const collectionBindings = model.bindingsNamed(
-    new Set(['stages', 'steps']),
-  );
+function hasMapCallbackPlusOne(sourceFile) {
   let found = false;
-
-  const visitStageMap = (node) => {
+  const visit = (node) => {
     if (found) return;
-    if (isMethodCall(node, 'map', model)) {
-      const receiver = memberAccess(node.expression, model).receiver;
-      const callback = node.arguments[0];
-      if (
-        (memberName(receiver, model) === 'steps' ||
-          memberName(receiver, model) === 'stages' ||
-          expressionDependsOn(
-            receiver,
-            collectionBindings,
-            model,
-          )) &&
-        callback !== undefined &&
-        model.functionLikeForExpression(callback)?.body
-      ) {
-        const callbackNode = model.functionLikeForExpression(callback);
-        const stageParameter = callbackNode.parameters[0]?.name;
-        const positionParameter = callbackNode.parameters[1]?.name;
-        const stageBinding =
-          stageParameter && ts.isIdentifier(stageParameter)
-            ? model.bindingForDeclaration(stageParameter)
-            : undefined;
-        const positionBinding =
-          positionParameter && ts.isIdentifier(positionParameter)
-            ? model.bindingForDeclaration(positionParameter)
-            : undefined;
-        const stageBindings = new Set(
-          stageBinding ? [stageBinding] : [],
-        );
-        const positionBindings = new Set(
-          positionBinding ? [positionBinding] : [],
-        );
-        const isOrdinalArithmetic = (current) =>
-          ts.isBinaryExpression(current) &&
-          current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-          ((isOne(current.left) &&
-            (expressionDependsOn(
-              current.right,
-              positionBindings,
-              model,
-            ) ||
-              expressionDependsOnStageIndex(
-                current.right,
-                stageBindings,
-                model,
-              ))) ||
-            (isOne(current.right) &&
-              (expressionDependsOn(
-                current.left,
-                positionBindings,
-                model,
-              ) ||
-                expressionDependsOnStageIndex(
-                  current.left,
-                  stageBindings,
-                  model,
-                ))));
-        found = functionReturnExpressions(callbackNode).some((returned) =>
-          expressionFlowContains(
-            returned,
-            isOrdinalArithmetic,
-            model,
-          ),
-        );
+    if (isMapCall(node)) {
+      const callback = directMapCallback(sourceFile, node.arguments[0]);
+      if (callback?.body && containsPlusOne(callback.body)) {
+        found = true;
+        return;
       }
     }
-    ts.forEachChild(node, visitStageMap);
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function hasOrdinalSelection(sourceFile) {
+  const isMinusOne = (node) => {
+    const current = unwrapExpression(node);
+    return (
+      ts.isBinaryExpression(current) &&
+      current.operatorToken.kind === ts.SyntaxKind.MinusToken &&
+      isOne(current.right)
+    );
   };
 
-  visitStageMap(sourceFile);
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    const expression = ts.isCallExpression(node)
+      ? unwrapExpression(node.expression)
+      : undefined;
+    if (
+      (ts.isElementAccessExpression(node) &&
+        node.argumentExpression !== undefined &&
+        isMinusOne(node.argumentExpression)) ||
+      (expression &&
+        ts.isPropertyAccessExpression(expression) &&
+        expression.name.text === 'at' &&
+        node.arguments.some(isMinusOne))
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
   return found;
 }
 
@@ -1388,7 +630,7 @@ function isSharedYunQiMapperSource(fileName) {
   );
 }
 
-function annualComponentSemanticViolations(sourceFile, model) {
+function annualComponentSemanticViolations(sourceFile) {
   const forbiddenIdentifiers = new Set([
     'currentStep',
     'completed',
@@ -1403,71 +645,12 @@ function annualComponentSemanticViolations(sourceFile, model) {
     '治疗',
   ];
   const identifiers = new Set();
-  const renderedImports = new Set();
   const literals = new Set();
 
   const recordLiterals = (value) => {
     for (const literal of forbiddenLiterals) {
       if (value.includes(literal)) literals.add(literal);
     }
-  };
-  const recordRenderedExpression = (
-    node,
-    visitedBindings = new Set(),
-  ) => {
-    const current = unwrapExpression(node);
-    if (isFunctionLikeNode(current)) return;
-    if (ts.isStringLiteralLike(current)) {
-      recordLiterals(current.text);
-      return;
-    }
-    if (ts.isTemplateExpression(current)) {
-      recordLiterals(current.head.text);
-      for (const span of current.templateSpans) {
-        recordRenderedExpression(span.expression, visitedBindings);
-        recordLiterals(span.literal.text);
-      }
-      return;
-    }
-    if (ts.isIdentifier(current) && isIdentifierReference(current)) {
-      const binding = model.bindingForIdentifier(current);
-      if (!binding || binding.functionNode || visitedBindings.has(binding)) {
-        return;
-      }
-      if (model.isImportBinding(binding)) {
-        renderedImports.add(binding.name);
-        return;
-      }
-      visitedBindings.add(binding);
-      for (const source of model.sourcesFor(binding, current)) {
-        recordRenderedExpression(source.node, visitedBindings);
-      }
-      visitedBindings.delete(binding);
-      return;
-    }
-    if (ts.isCallExpression(current)) {
-      for (const argument of current.arguments) {
-        recordRenderedExpression(argument, visitedBindings);
-      }
-      return;
-    }
-    ts.forEachChild(current, (child) =>
-      recordRenderedExpression(child, visitedBindings),
-    );
-  };
-  const isCustomJsxAttribute = (attribute) => {
-    const opening = attribute.parent?.parent;
-    if (
-      !opening ||
-      (!ts.isJsxOpeningElement(opening) &&
-        !ts.isJsxSelfClosingElement(opening))
-    ) {
-      return false;
-    }
-    return (
-      !ts.isIdentifier(opening.tagName) ||
-      /^[A-Z]/.test(opening.tagName.text)
-    );
   };
   const visit = (node) => {
     if (
@@ -1476,35 +659,14 @@ function annualComponentSemanticViolations(sourceFile, model) {
     ) {
       identifiers.add(node.text);
     }
-    if (ts.isJsxText(node)) {
+    if (ts.isStringLiteralLike(node) || ts.isJsxText(node)) {
       recordLiterals(node.text);
     }
-    if (
-      ts.isJsxExpression(node) &&
-      !ts.isJsxAttribute(node.parent) &&
-      node.expression !== undefined
-    ) {
-      recordRenderedExpression(node.expression);
-    }
-    if (
-      ts.isJsxAttribute(node) &&
-      node.initializer !== undefined &&
-      (isCustomJsxAttribute(node) ||
-        ['aria-label', 'alt', 'placeholder', 'title'].includes(
-          staticPropertyName(node.name),
-        ))
-    ) {
-      if (ts.isStringLiteral(node.initializer)) {
-        recordRenderedExpression(node.initializer);
-      } else if (
-        ts.isJsxExpression(node.initializer) &&
-        node.initializer.expression !== undefined
-      ) {
-        recordRenderedExpression(node.initializer.expression);
+    if (ts.isTemplateExpression(node)) {
+      recordLiterals(node.head.text);
+      for (const span of node.templateSpans) {
+        recordLiterals(span.literal.text);
       }
-    }
-    if (ts.isJsxSpreadAttribute(node)) {
-      recordRenderedExpression(node.expression);
     }
     ts.forEachChild(node, visit);
   };
@@ -1519,178 +681,110 @@ function annualComponentSemanticViolations(sourceFile, model) {
       (literal) =>
         `annual component user-facing literal ${literal} is forbidden`,
     ),
-    ...[...renderedImports].map(
-      (name) =>
-        `annual component rendered import ${name} is not statically auditable`,
-    ),
   ];
 }
 
-function usesOrdinalAnnualStageSelection(sourceFile, model) {
-  let found = false;
-  const collectionBindings = model.bindingsNamed(new Set(['stages']));
-  const indexBindings = model.bindingsNamed(
-    new Set(['selectedStepIndex']),
-  );
-  const visit = (node) => {
-    if (found) return;
-    if (
-      ts.isElementAccessExpression(node) &&
-      node.argumentExpression !== undefined
-    ) {
-      const argument = unwrapExpression(node.argumentExpression);
-      if (
-        (memberName(node.expression) === 'stages' ||
-          expressionDependsOn(
-            node.expression,
-            collectionBindings,
-            model,
-          )) &&
-        ts.isBinaryExpression(argument) &&
-        argument.operatorToken.kind === ts.SyntaxKind.MinusToken &&
-        expressionDependsOn(argument.left, indexBindings, model) &&
-        isOne(argument.right)
-      ) {
-        found = true;
-        return;
-      }
-    }
-    ts.forEachChild(node, visit);
-  };
-
-  visit(sourceFile);
-  return found;
+function isDirectIdentifier(node, name) {
+  const current = unwrapExpression(node);
+  return ts.isIdentifier(current) && current.text === name;
 }
 
-function yearSelectorViolations(sourceFile, fileName, model) {
-  const violations = [];
-  let canonicalBinding;
-  const copiedBoundaries = new Set();
-  const expectedModule = resolve(
-    dirname(fileName),
-    '../../../../lib/yunqi-year-range',
+function optionUsesCallbackItemDirectly(option, itemName) {
+  const valueAttribute = option.openingElement.attributes.properties.find(
+    (attribute) =>
+      ts.isJsxAttribute(attribute) &&
+      ts.isIdentifier(attribute.name) &&
+      attribute.name.text === 'value',
   );
+  const valueExpression =
+    valueAttribute &&
+    ts.isJsxAttribute(valueAttribute) &&
+    valueAttribute.initializer &&
+    ts.isJsxExpression(valueAttribute.initializer)
+      ? valueAttribute.initializer.expression
+      : undefined;
+  const meaningfulChildren = option.children.filter(
+    (child) => !(ts.isJsxText(child) && child.text.trim() === ''),
+  );
+
+  return (
+    valueExpression !== undefined &&
+    isDirectIdentifier(valueExpression, itemName) &&
+    meaningfulChildren.length === 1 &&
+    ts.isJsxExpression(meaningfulChildren[0]) &&
+    meaningfulChildren[0].expression !== undefined &&
+    isDirectIdentifier(meaningfulChildren[0].expression, itemName)
+  );
+}
+
+function canonicalYearOptionMap(node) {
+  const mapCall = unwrapExpression(node);
+  if (
+    !ts.isCallExpression(mapCall) ||
+    mapCall.arguments.length !== 1 ||
+    !ts.isPropertyAccessExpression(
+      unwrapExpression(mapCall.expression),
+    )
+  ) {
+    return false;
+  }
+
+  const access = unwrapExpression(mapCall.expression);
+  if (
+    access.name.text !== 'map' ||
+    !isDirectIdentifier(access.expression, 'YUNQI_YEAR_OPTIONS')
+  ) {
+    return false;
+  }
+
+  const callback = unwrapExpression(mapCall.arguments[0]);
+  const item = callback.parameters?.[0]?.name;
+  if (
+    !ts.isArrowFunction(callback) ||
+    callback.parameters.length !== 1 ||
+    !item ||
+    !ts.isIdentifier(item)
+  ) {
+    return false;
+  }
+
+  const option = unwrapExpression(callback.body);
+  return (
+    ts.isJsxElement(option) &&
+    ts.isIdentifier(option.openingElement.tagName) &&
+    option.openingElement.tagName.text === 'option' &&
+    optionUsesCallbackItemDirectly(option, item.text)
+  );
+}
+
+function yearSelectorViolations(sourceFile) {
+  const violations = [];
+  let hasCanonicalImport = false;
+  let consumesCanonicalImport = false;
+  let hasCanonicalOptionMap = false;
+  let hasNonCanonicalOptionMap = false;
+  let shadowsCanonicalImport = false;
+  const copiedBoundaries = new Set();
 
   for (const statement of sourceFile.statements) {
     if (
       ts.isImportDeclaration(statement) &&
       ts.isStringLiteral(statement.moduleSpecifier) &&
-      resolve(dirname(fileName), statement.moduleSpecifier.text) ===
-        expectedModule &&
+      statement.moduleSpecifier.text ===
+        '../../../../lib/yunqi-year-range' &&
       !statement.importClause?.isTypeOnly &&
       statement.importClause?.namedBindings &&
-      ts.isNamedImports(statement.importClause.namedBindings)
+      ts.isNamedImports(statement.importClause.namedBindings) &&
+      statement.importClause.namedBindings.elements.some(
+        (element) =>
+          !element.isTypeOnly &&
+          element.propertyName === undefined &&
+          element.name.text === 'YUNQI_YEAR_OPTIONS',
+      )
     ) {
-      const imported =
-        statement.importClause.namedBindings.elements.find(
-          (element) =>
-            !element.isTypeOnly &&
-            element.propertyName === undefined &&
-            element.name.text === 'YUNQI_YEAR_OPTIONS',
-        );
-      if (imported) {
-        canonicalBinding = model.bindingForDeclaration(imported.name);
-      }
+      hasCanonicalImport = true;
     }
   }
-
-  let consumesBinding = false;
-  const renderedOptionMaps = [];
-
-  const isCanonicalAlias = (node, seenBindings = new Set()) => {
-    const current = unwrapExpression(node);
-    if (!ts.isIdentifier(current)) return false;
-    const binding = model.bindingForIdentifier(current);
-    if (!binding) return false;
-    if (binding === canonicalBinding) return true;
-    if (
-      seenBindings.has(binding) ||
-      !model.isImmutableConst(binding)
-    ) {
-      return false;
-    }
-    seenBindings.add(binding);
-    const sources = model.sourcesFor(binding, current);
-    const result =
-      sources.length === 1 &&
-      sources[0].path.length === 0 &&
-      isCanonicalAlias(sources[0].node, seenBindings);
-    seenBindings.delete(binding);
-    return result;
-  };
-
-  const mapProducesOptionChildren = (node) => {
-    if (!isMethodCall(node, 'map', model)) return false;
-    const callback = model.functionLikeForExpression(node.arguments[0]);
-    const itemParameter = callback?.parameters[0]?.name;
-    const itemBinding =
-      itemParameter && ts.isIdentifier(itemParameter)
-        ? model.bindingForDeclaration(itemParameter)
-        : undefined;
-    if (!callback || !itemBinding) return false;
-
-    let producesOption = false;
-    const visitReturned = (current) => {
-      if (producesOption) return;
-      if (
-        ts.isJsxElement(current) &&
-        ts.isIdentifier(current.openingElement.tagName) &&
-        current.openingElement.tagName.text === 'option'
-      ) {
-        producesOption = current.children.some(
-          (child) =>
-            ts.isJsxExpression(child) &&
-            child.expression !== undefined &&
-            expressionDependsOn(
-              child.expression,
-              new Set([itemBinding]),
-              model,
-            ),
-        );
-        if (producesOption) return;
-      }
-      ts.forEachChild(current, visitReturned);
-    };
-    for (const returned of functionReturnExpressions(callback)) {
-      visitReturned(returned);
-    }
-    return producesOption;
-  };
-
-  const collectRenderedOptionMaps = (
-    node,
-    state = { bindings: new Set(), functions: new Set() },
-  ) => {
-    const current = unwrapExpression(node);
-    if (mapProducesOptionChildren(current)) {
-      renderedOptionMaps.push(current);
-      return;
-    }
-    if (ts.isIdentifier(current) && isIdentifierReference(current)) {
-      const binding = model.bindingForIdentifier(current);
-      if (!binding || state.bindings.has(binding)) return;
-      state.bindings.add(binding);
-      for (const source of model.sourcesFor(binding, current)) {
-        collectRenderedOptionMaps(source.node, state);
-      }
-      state.bindings.delete(binding);
-      return;
-    }
-    if (isFunctionLikeNode(current)) return;
-    if (ts.isCallExpression(current)) {
-      const called = model.functionLikeForExpression(current.expression);
-      if (called && !state.functions.has(called)) {
-        state.functions.add(called);
-        for (const returned of functionReturnExpressions(called)) {
-          collectRenderedOptionMaps(returned, state);
-        }
-        state.functions.delete(called);
-      }
-    }
-    ts.forEachChild(current, (child) =>
-      collectRenderedOptionMaps(child, state),
-    );
-  };
 
   const visit = (node) => {
     if (
@@ -1700,40 +794,66 @@ function yearSelectorViolations(sourceFile, fileName, model) {
       copiedBoundaries.add(node.text);
     }
     if (
-      canonicalBinding &&
       ts.isIdentifier(node) &&
-      isIdentifierReference(node) &&
-      model.bindingForIdentifier(node) === canonicalBinding
+      node.text === 'YUNQI_YEAR_OPTIONS' &&
+      !ts.isImportSpecifier(node.parent)
     ) {
-      consumesBinding = true;
+      consumesCanonicalImport = true;
+      const parent = node.parent;
+      if (
+        (ts.isBindingElement(parent) && parent.name === node) ||
+        ((ts.isParameter(parent) ||
+          ts.isVariableDeclaration(parent) ||
+          ts.isFunctionDeclaration(parent) ||
+          ts.isFunctionExpression(parent) ||
+          ts.isClassDeclaration(parent)) &&
+          parent.name === node)
+      ) {
+        shadowsCanonicalImport = true;
+      }
     }
     if (
-      ts.isJsxExpression(node) &&
-      !ts.isJsxAttribute(node.parent) &&
-      node.expression !== undefined
+      ts.isJsxElement(node) &&
+      ts.isIdentifier(node.openingElement.tagName) &&
+      node.openingElement.tagName.text === 'select'
     ) {
-      collectRenderedOptionMaps(node.expression);
+      for (const child of node.children) {
+        if (
+          !ts.isJsxExpression(child) ||
+          child.expression === undefined
+        ) {
+          continue;
+        }
+        const expression = unwrapExpression(child.expression);
+        if (
+          ts.isCallExpression(expression) &&
+          ts.isPropertyAccessExpression(
+            unwrapExpression(expression.expression),
+          ) &&
+          unwrapExpression(expression.expression).name.text === 'map'
+        ) {
+          if (canonicalYearOptionMap(expression)) {
+            hasCanonicalOptionMap = true;
+          } else {
+            hasNonCanonicalOptionMap = true;
+          }
+        }
+      }
     }
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
 
-  if (!canonicalBinding) {
+  if (!hasCanonicalImport) {
     violations.push(
       'must import YUNQI_YEAR_OPTIONS from lib/yunqi-year-range',
     );
-  }
-  if (canonicalBinding && !consumesBinding) {
+  } else if (!consumesCanonicalImport) {
     violations.push('must consume imported YUNQI_YEAR_OPTIONS');
-  }
-  if (
-    canonicalBinding &&
-    consumesBinding &&
-    (renderedOptionMaps.length === 0 ||
-      renderedOptionMaps.some((mapCall) => {
-        const receiver = memberAccess(mapCall.expression, model)?.receiver;
-        return !receiver || !isCanonicalAlias(receiver);
-      }))
+  } else if (
+    !hasCanonicalOptionMap ||
+    hasNonCanonicalOptionMap ||
+    shadowsCanonicalImport
   ) {
     violations.push(
       'must render YUNQI_YEAR_OPTIONS directly without rebuilding',
@@ -1748,82 +868,135 @@ function yearSelectorViolations(sourceFile, fileName, model) {
   return violations;
 }
 
-function sharedTupleMapperViolations(sourceFile, model) {
-  const violations = [];
-  const tupleMapper = functionLikeByName(
+function canonicalStageMapper(sourceFile) {
+  const mapper = topLevelFunctionDeclaration(
+    sourceFile,
+    'mapSixQiStage',
+  );
+  if (
+    !mapper?.body ||
+    mapper.parameters.length !== 1 ||
+    !ts.isIdentifier(mapper.parameters[0].name) ||
+    mapper.parameters[0].name.text !== 'step' ||
+    mapper.body.statements.length !== 1 ||
+    !ts.isReturnStatement(mapper.body.statements[0]) ||
+    mapper.body.statements[0].expression === undefined
+  ) {
+    return false;
+  }
+
+  const returned = unwrapExpression(
+    mapper.body.statements[0].expression,
+  );
+  if (
+    !ts.isObjectLiteralExpression(returned) ||
+    returned.properties.some(
+      (property) =>
+        'name' in property &&
+        property.name !== undefined &&
+        ts.isComputedPropertyName(property.name),
+    )
+  ) {
+    return false;
+  }
+
+  const indexProperties = returned.properties.filter(
+    (property) =>
+      'name' in property &&
+      property.name !== undefined &&
+      ts.isIdentifier(property.name) &&
+      property.name.text === 'index',
+  );
+  if (
+    indexProperties.length !== 1 ||
+    !ts.isPropertyAssignment(indexProperties[0])
+  ) {
+    return false;
+  }
+
+  const value = unwrapExpression(indexProperties[0].initializer);
+  return (
+    ts.isPropertyAccessExpression(value) &&
+    isDirectIdentifier(value.expression, 'step') &&
+    value.name.text === 'index'
+  );
+}
+
+function canonicalTupleMapper(sourceFile) {
+  const mapper = topLevelFunctionDeclaration(
     sourceFile,
     'mapSixQiStageTuple',
   );
-
-  if (tupleMapper?.body) {
-    const usesMap = functionReturnExpressions(tupleMapper).some(
-      (returned) =>
-        expressionFlowContains(
-          returned,
-          (node) => isMethodCall(node, 'map', model),
-          model,
-        ),
-    );
-    if (usesMap) {
-      violations.push(
-        'mapSixQiStageTuple must preserve the six-item tuple without .map()',
-      );
-    }
-  }
-
-  const stageMapper = functionLikeByName(sourceFile, 'mapSixQiStage');
-  const positionParameter = stageMapper?.parameters[1]?.name;
   if (
-    stageMapper?.body &&
-    positionParameter &&
-    ts.isIdentifier(positionParameter)
+    !mapper?.body ||
+    mapper.parameters.length !== 1 ||
+    !ts.isIdentifier(mapper.parameters[0].name) ||
+    mapper.parameters[0].name.text !== 'steps' ||
+    mapper.body.statements.length !== 2
   ) {
-    const positionBinding = model.bindingForDeclaration(
-      positionParameter,
-    );
-    const positionBindings = new Set(
-      positionBinding ? [positionBinding] : [],
-    );
-    let assignsPosition = false;
-    const visit = (node) => {
-      if (assignsPosition) return;
-      if (
-        ts.isPropertyAssignment(node) &&
-        staticPropertyName(node.name, model) === 'index' &&
-        expressionDependsOn(
-          node.initializer,
-          positionBindings,
-          model,
-        )
-      ) {
-        assignsPosition = true;
-        return;
-      }
-      if (
-        ts.isShorthandPropertyAssignment(node) &&
-        node.name.text === 'index' &&
-        expressionDependsOn(node.name, positionBindings, model)
-      ) {
-        assignsPosition = true;
-        return;
-      }
-      if (
-        ts.isBinaryExpression(node) &&
-        node.operatorToken.kind === ts.SyntaxKind.EqualsToken &&
-        memberName(node.left, model) === 'index' &&
-        expressionDependsOn(node.right, positionBindings, model)
-      ) {
-        assignsPosition = true;
-        return;
-      }
-      ts.forEachChild(node, visit);
-    };
-    visit(stageMapper.body);
-    if (assignsPosition) {
-      violations.push('mapSixQiStage must preserve step.index');
-    }
+    return false;
   }
 
+  const [declarationStatement, returnStatement] =
+    mapper.body.statements;
+  if (
+    !ts.isVariableStatement(declarationStatement) ||
+    !(declarationStatement.declarationList.flags & ts.NodeFlags.Const) ||
+    declarationStatement.declarationList.declarations.length !== 1 ||
+    !ts.isReturnStatement(returnStatement) ||
+    returnStatement.expression === undefined
+  ) {
+    return false;
+  }
+
+  const declaration =
+    declarationStatement.declarationList.declarations[0];
+  if (
+    !ts.isArrayBindingPattern(declaration.name) ||
+    declaration.name.elements.length !== 6 ||
+    !declaration.initializer ||
+    !isDirectIdentifier(declaration.initializer, 'steps') ||
+    declaration.name.elements.some(
+      (element) =>
+        ts.isOmittedExpression(element) ||
+        !ts.isIdentifier(element.name) ||
+        element.propertyName !== undefined ||
+        element.initializer !== undefined ||
+        element.dotDotDotToken !== undefined,
+    )
+  ) {
+    return false;
+  }
+
+  const names = declaration.name.elements.map(
+    (element) => element.name.text,
+  );
+  const returned = unwrapExpression(returnStatement.expression);
+  return (
+    ts.isArrayLiteralExpression(returned) &&
+    returned.elements.length === 6 &&
+    returned.elements.every((element, index) => {
+      const call = unwrapExpression(element);
+      return (
+        ts.isCallExpression(call) &&
+        isDirectIdentifier(call.expression, 'mapSixQiStage') &&
+        call.arguments.length === 1 &&
+        isDirectIdentifier(call.arguments[0], names[index])
+      );
+    })
+  );
+}
+
+function sharedTupleMapperViolations(sourceFile) {
+  const violations = [];
+  if (!canonicalTupleMapper(sourceFile)) {
+    violations.push(
+      'mapSixQiStageTuple must preserve the six-item tuple without .map()',
+    );
+  }
+  if (!canonicalStageMapper(sourceFile)) {
+    violations.push('mapSixQiStage must preserve step.index');
+  }
   return violations;
 }
 
@@ -1925,12 +1098,6 @@ async function findSourceViolations(root) {
     const source = await readFile(file, 'utf8');
     const relativePath = normalizePath(relative(root, file));
     const sourceFile = parseWorkbenchSource(source, file);
-    let lexicalModel;
-    const getLexicalModel = () => {
-      lexicalModel ??= createLexicalModel(sourceFile);
-      return lexicalModel;
-    };
-
     const imports = importEntries(source);
     for (const { specifier } of imports) {
       if (isAbsoluteLocalImport(specifier)) {
@@ -1995,7 +1162,7 @@ async function findSourceViolations(root) {
           `${relativePath}: steps must consume CurrentSixQiStageTuple directly`,
         );
       }
-      if (hasStageOrdinalArithmetic(sourceFile, getLexicalModel())) {
+      if (hasMapCallbackPlusOne(sourceFile)) {
         violations.push(
           `${relativePath}: stage ordinal arithmetic is forbidden`,
         );
@@ -2005,20 +1172,16 @@ async function findSourceViolations(root) {
     if (isAnnualAnalysisComponentSource(file)) {
       for (const violation of annualComponentSemanticViolations(
         sourceFile,
-        getLexicalModel(),
       )) {
         violations.push(`${relativePath}: ${violation}`);
       }
-      if (hasStageOrdinalArithmetic(sourceFile, getLexicalModel())) {
+      if (hasMapCallbackPlusOne(sourceFile)) {
         violations.push(
           `${relativePath}: annual stage index must preserve the API stage index`,
         );
       }
       if (
-        usesOrdinalAnnualStageSelection(
-          sourceFile,
-          getLexicalModel(),
-        )
+        hasOrdinalSelection(sourceFile)
       ) {
         violations.push(
           `${relativePath}: annual stage selection must match the API stage index`,
@@ -2027,11 +1190,7 @@ async function findSourceViolations(root) {
     }
 
     if (isYearSelectorSource(file)) {
-      for (const violation of yearSelectorViolations(
-        sourceFile,
-        file,
-        getLexicalModel(),
-      )) {
+      for (const violation of yearSelectorViolations(sourceFile)) {
         violations.push(`${relativePath}: ${violation}`);
       }
     }
@@ -2039,7 +1198,6 @@ async function findSourceViolations(root) {
     if (isSharedYunQiMapperSource(file)) {
       for (const violation of sharedTupleMapperViolations(
         sourceFile,
-        getLexicalModel(),
       )) {
         violations.push(`${relativePath}: ${violation}`);
       }
