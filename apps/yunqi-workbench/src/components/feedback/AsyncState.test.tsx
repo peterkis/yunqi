@@ -78,4 +78,46 @@ describe('AsyncState', () => {
 
     expect(screen.getByText('契约数据已就绪')).toBeInTheDocument();
   });
+
+  it('supports feature-specific state messages without changing defaults', () => {
+    const { rerender } = render(
+      <AsyncState
+        data={undefined}
+        error={null}
+        isPending
+        loadingMessage="年度加载中"
+        errorMessage="年度加载失败"
+        emptyMessage="年度暂无数据"
+        renderData={() => null}
+      />,
+    );
+
+    expect(screen.getByRole('status')).toHaveTextContent('年度加载中');
+
+    rerender(
+      <AsyncState
+        data={undefined}
+        error={new Error('sensitive')}
+        isPending={false}
+        loadingMessage="年度加载中"
+        errorMessage="年度加载失败"
+        emptyMessage="年度暂无数据"
+        renderData={() => null}
+      />,
+    );
+    expect(screen.getByRole('alert')).toHaveTextContent('年度加载失败');
+
+    rerender(
+      <AsyncState
+        data={undefined}
+        error={null}
+        isPending={false}
+        loadingMessage="年度加载中"
+        errorMessage="年度加载失败"
+        emptyMessage="年度暂无数据"
+        renderData={() => null}
+      />,
+    );
+    expect(screen.getByRole('status')).toHaveTextContent('年度暂无数据');
+  });
 });

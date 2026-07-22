@@ -37,6 +37,7 @@ const ALLOWED_RUNTIME_DEPENDENCIES = new Set([
   '@yunqi/contracts',
   'react',
   'react-dom',
+  'react-router-dom',
 ]);
 const FORBIDDEN_IMPORTS = [
   {
@@ -58,10 +59,6 @@ const FORBIDDEN_IMPORTS = [
   {
     label: 'Axios',
     pattern: /^axios(?:\/|$)/,
-  },
-  {
-    label: 'React Router',
-    pattern: /^react-router-dom(?:\/|$)/,
   },
 ];
 
@@ -231,8 +228,7 @@ function parseWorkbenchSource(source, fileName) {
   );
 }
 
-function hasContractDtoImport(source, fileName) {
-  const sourceFile = parseWorkbenchSource(source, fileName);
+function hasContractDtoImport(sourceFile) {
   let found = false;
 
   const isContractsSpecifier = (node) =>
@@ -338,51 +334,13 @@ function hasContractDtoImport(source, fileName) {
   return found;
 }
 
-function hasDirectClientMethodAccess(source, fileName) {
-  const sourceFile = parseWorkbenchSource(source, fileName);
+function hasDirectClientMethodAccess(sourceFile) {
   const clientMethods = new Set([
     'calculate',
     'getCurrent',
     'getYear',
   ]);
   let found = false;
-
-  const staticStringValue = (node) => {
-    if (ts.isStringLiteralLike(node)) return node.text;
-    if (ts.isParenthesizedExpression(node)) {
-      return staticStringValue(node.expression);
-    }
-    if (
-      ts.isAsExpression(node) ||
-      ts.isSatisfiesExpression(node) ||
-      ts.isTypeAssertionExpression(node)
-    ) {
-      return staticStringValue(node.expression);
-    }
-    if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.PlusToken
-    ) {
-      const left = staticStringValue(node.left);
-      const right = staticStringValue(node.right);
-      return left === undefined || right === undefined
-        ? undefined
-        : left + right;
-    }
-    if (ts.isTemplateExpression(node)) {
-      let value = node.head.text;
-
-      for (const span of node.templateSpans) {
-        const expression = staticStringValue(span.expression);
-        if (expression === undefined) return undefined;
-        value += expression + span.literal.text;
-      }
-
-      return value;
-    }
-
-    return undefined;
-  };
 
   const isClientMethodName = (node) => {
     if (node === undefined) return false;
@@ -440,8 +398,7 @@ function hasDirectClientMethodAccess(source, fileName) {
   return found;
 }
 
-function annualStageRailUsesCanonicalTimeline(source, fileName) {
-  const sourceFile = parseWorkbenchSource(source, fileName);
+function annualStageRailUsesCanonicalTimeline(sourceFile) {
   let localTimelineType;
 
   for (const statement of sourceFile.statements) {
@@ -458,7 +415,7 @@ function annualStageRailUsesCanonicalTimeline(source, fileName) {
     const timelineImport = statement.importClause.namedBindings.elements.find(
       (element) =>
         (element.propertyName?.text ?? element.name.text) ===
-        'SixQiTimelineViewModel',
+        'CurrentSixQiStageTuple',
     );
     if (timelineImport) localTimelineType = timelineImport.name.text;
   }
@@ -490,38 +447,223 @@ function annualStageRailUsesCanonicalTimeline(source, fileName) {
   );
 }
 
-function hasAnnualStageOrdinalArithmetic(source, fileName) {
-  const sourceFile = parseWorkbenchSource(source, fileName);
+function unwrapExpression(node) {
+  let current = node;
+
+  while (
+    ts.isParenthesizedExpression(current) ||
+    ts.isAsExpression(current) ||
+    ts.isSatisfiesExpression(current) ||
+    ts.isTypeAssertionExpression(current) ||
+    ts.isNonNullExpression(current)
+  ) {
+    current = current.expression;
+  }
+
+  return current;
+}
+
+function staticStringValue(node) {
+  const current = unwrapExpression(node);
+
+  if (ts.isStringLiteralLike(current)) return current.text;
+  if (
+    ts.isBinaryExpression(current) &&
+    current.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
+    const left = staticStringValue(current.left);
+    const right = staticStringValue(current.right);
+    return left === undefined || right === undefined
+      ? undefined
+      : left + right;
+  }
+  if (ts.isTemplateExpression(current)) {
+    let value = current.head.text;
+    for (const span of current.templateSpans) {
+      const expression = staticStringValue(span.expression);
+      if (expression === undefined) return undefined;
+      value += expression + span.literal.text;
+    }
+    return value;
+  }
+
+  return undefined;
+}
+
+function isOne(node) {
+  const current = unwrapExpression(node);
+  return ts.isNumericLiteral(current) && current.text === '1';
+}
+
+function staticMemberName(node) {
+  const current = unwrapExpression(node);
+  if (ts.isPropertyAccessExpression(current)) {
+    return current.name.text;
+  }
+  if (ts.isElementAccessExpression(current)) {
+    return staticStringValue(current.argumentExpression);
+  }
+  return undefined;
+}
+
+function isMapCall(node) {
+  const expression = ts.isCallExpression(node)
+    ? unwrapExpression(node.expression)
+    : undefined;
+  return Boolean(
+    expression &&
+      (ts.isPropertyAccessExpression(expression) ||
+        ts.isElementAccessExpression(expression)) &&
+      staticMemberName(expression) === 'map',
+  );
+}
+
+function topLevelFunctionDeclaration(sourceFile, name) {
+  return sourceFile.statements.find(
+    (statement) =>
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === name,
+  );
+}
+
+function directMapCallback(expression) {
+  const current = unwrapExpression(expression);
+  if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
+    return current;
+  }
+  return undefined;
+}
+
+function canonicalStageMapCallback(expression) {
+  const current = unwrapExpression(expression);
+  const parameter = current.parameters?.[0];
+  if (
+    ts.isArrowFunction(current) &&
+    current.parameters.length === 1 &&
+    parameter &&
+    ts.isIdentifier(parameter.name) &&
+    parameter.dotDotDotToken === undefined &&
+    parameter.initializer === undefined
+  ) {
+    return current;
+  }
+  return undefined;
+}
+
+function isFunctionBoundary(node) {
+  return (
+    ts.isArrowFunction(node) ||
+    ts.isFunctionDeclaration(node) ||
+    ts.isFunctionExpression(node) ||
+    ts.isMethodDeclaration(node) ||
+    ts.isGetAccessorDeclaration(node) ||
+    ts.isSetAccessorDeclaration(node) ||
+    ts.isConstructorDeclaration(node)
+  );
+}
+
+function isStageMapCall(node) {
+  if (!isMapCall(node)) return false;
+  const access = unwrapExpression(node.expression);
+  const receiver = unwrapExpression(access.expression);
+  const collectionName = ts.isIdentifier(receiver)
+    ? receiver.text
+    : ts.isPropertyAccessExpression(receiver) ||
+        ts.isElementAccessExpression(receiver)
+      ? staticMemberName(receiver)
+      : undefined;
+  if (collectionName !== 'stages' && collectionName !== 'steps') {
+    return false;
+  }
+  return true;
+}
+
+function stageMapCallback(node) {
+  return isStageMapCall(node)
+    ? directMapCallback(node.arguments[0])
+    : undefined;
+}
+
+function containsPlusOne(node, identifier) {
   let found = false;
+  const visit = (current) => {
+    if (found) return;
+    if (
+      ts.isBinaryExpression(current) &&
+      current.operatorToken.kind === ts.SyntaxKind.PlusToken &&
+      ((isOne(current.left) &&
+        (!identifier || isDirectIdentifier(current.right, identifier))) ||
+        (isOne(current.right) &&
+          (!identifier || isDirectIdentifier(current.left, identifier))))
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return found;
+}
 
-  const isOne = (node) =>
-    ts.isNumericLiteral(node) && node.text === '1';
-
+function hasStageMapPlusOne(sourceFile, positionOnly) {
+  let found = false;
   const visit = (node) => {
     if (found) return;
-
+    const callback = ts.isCallExpression(node)
+      ? stageMapCallback(node)
+      : undefined;
+    const position = callback?.parameters[1]?.name;
+    const positionName =
+      positionOnly && position && ts.isIdentifier(position)
+        ? position.text
+        : undefined;
     if (
-      ts.isBinaryExpression(node) &&
-      node.operatorToken.kind === ts.SyntaxKind.PlusToken &&
-      (isOne(node.left) || isOne(node.right))
+      callback?.body &&
+      (!positionOnly || positionName !== undefined) &&
+      containsPlusOne(callback.body, positionName)
     ) {
       found = true;
       return;
     }
-
-    if (
-      (ts.isPrefixUnaryExpression(node) ||
-        ts.isPostfixUnaryExpression(node)) &&
-      (node.operator === ts.SyntaxKind.PlusPlusToken ||
-        node.operator === ts.SyntaxKind.MinusMinusToken)
-    ) {
-      found = true;
-      return;
-    }
-
     ts.forEachChild(node, visit);
   };
+  visit(sourceFile);
+  return found;
+}
 
+function hasNonInlineStageMapCallback(sourceFile) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    if (
+      ts.isCallExpression(node) &&
+      isStageMapCall(node) &&
+      canonicalStageMapCallback(node.arguments[0]) === undefined
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function hasSelectedStepIndexMinusOne(sourceFile) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    if (
+      ts.isBinaryExpression(node) &&
+      node.operatorToken.kind === ts.SyntaxKind.MinusToken &&
+      isDirectIdentifier(node.left, 'selectedStepIndex') &&
+      isOne(node.right)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
   visit(sourceFile);
   return found;
 }
@@ -532,11 +674,496 @@ function isAnnualStageRailSource(fileName) {
   );
 }
 
+function isAnnualAnalysisComponentSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return (
+    isProductionSource(fileName) &&
+    normalized.includes(
+      '/src/features/yunqi/year-analysis/components/',
+    ) &&
+    !/\.fixture\.[cm]?[jt]sx?$/.test(normalized) &&
+    !normalized.includes('/fixtures/') &&
+    !normalized.includes('/__fixtures__/') &&
+    !normalized.includes('/__tests__/')
+  );
+}
+
+function isYearSelectorSource(fileName) {
+  return (
+    isAnnualAnalysisComponentSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/year-analysis/components/YearSelector.tsx',
+    )
+  );
+}
+
+function isSharedYunQiMapperSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/presentation/map-yunqi-shared.ts',
+    )
+  );
+}
+
+function annualComponentSemanticViolations(sourceFile) {
+  const forbiddenIdentifiers = new Set([
+    'currentStep',
+    'completed',
+    'upcoming',
+  ]);
+  const forbiddenLiterals = [
+    '当前',
+    '已结束',
+    '未开始',
+    '吉凶',
+    '诊断',
+    '治疗',
+  ];
+  const forbiddenEnglishLiterals = [
+    'current',
+    'completed',
+    'upcoming',
+    'diagnosis',
+    'treatment',
+  ];
+  const identifiers = new Set();
+  const literals = new Set();
+
+  const recordLiterals = (value) => {
+    for (const literal of forbiddenLiterals) {
+      if (value.includes(literal)) literals.add(literal);
+    }
+    const lowerValue = value.toLowerCase();
+    for (const literal of forbiddenEnglishLiterals) {
+      if (lowerValue.includes(literal)) literals.add(literal);
+    }
+  };
+  const visit = (node) => {
+    if (
+      ts.isIdentifier(node) &&
+      forbiddenIdentifiers.has(node.text)
+    ) {
+      identifiers.add(node.text);
+    }
+    if (ts.isJsxText(node)) {
+      recordLiterals(node.text);
+    }
+    if (
+      ts.isStringLiteralLike(node) ||
+      ts.isTemplateExpression(node) ||
+      (ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.PlusToken)
+    ) {
+      const staticValue = staticStringValue(node);
+      if (staticValue !== undefined) recordLiterals(staticValue);
+    }
+    if (ts.isTemplateExpression(node)) {
+      recordLiterals(node.head.text);
+      for (const span of node.templateSpans) {
+        recordLiterals(span.literal.text);
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [
+    ...[...identifiers].map(
+      (identifier) =>
+        `annual component identifier ${identifier} is forbidden`,
+    ),
+    ...[...literals].map(
+      (literal) =>
+        `annual source-wide forbidden literal ${literal} is forbidden`,
+    ),
+  ];
+}
+
+function isDirectIdentifier(node, name) {
+  const current = unwrapExpression(node);
+  return ts.isIdentifier(current) && current.text === name;
+}
+
+function optionUsesCallbackItemDirectly(option, itemName) {
+  const valueAttribute = option.openingElement.attributes.properties.find(
+    (attribute) =>
+      ts.isJsxAttribute(attribute) &&
+      ts.isIdentifier(attribute.name) &&
+      attribute.name.text === 'value',
+  );
+  const valueExpression =
+    valueAttribute &&
+    ts.isJsxAttribute(valueAttribute) &&
+    valueAttribute.initializer &&
+    ts.isJsxExpression(valueAttribute.initializer)
+      ? valueAttribute.initializer.expression
+      : undefined;
+  const meaningfulChildren = option.children.filter(
+    (child) => !(ts.isJsxText(child) && child.text.trim() === ''),
+  );
+
+  return (
+    valueExpression !== undefined &&
+    isDirectIdentifier(valueExpression, itemName) &&
+    meaningfulChildren.length === 1 &&
+    ts.isJsxExpression(meaningfulChildren[0]) &&
+    meaningfulChildren[0].expression !== undefined &&
+    isDirectIdentifier(meaningfulChildren[0].expression, itemName)
+  );
+}
+
+function canonicalYearOptionMap(node) {
+  const mapCall = unwrapExpression(node);
+  if (
+    !ts.isCallExpression(mapCall) ||
+    mapCall.arguments.length !== 1 ||
+    !ts.isPropertyAccessExpression(
+      unwrapExpression(mapCall.expression),
+    )
+  ) {
+    return false;
+  }
+
+  const access = unwrapExpression(mapCall.expression);
+  if (
+    access.name.text !== 'map' ||
+    !isDirectIdentifier(access.expression, 'YUNQI_YEAR_OPTIONS')
+  ) {
+    return false;
+  }
+
+  const callback = unwrapExpression(mapCall.arguments[0]);
+  const item = callback.parameters?.[0]?.name;
+  if (
+    !ts.isArrowFunction(callback) ||
+    callback.parameters.length !== 1 ||
+    !item ||
+    !ts.isIdentifier(item)
+  ) {
+    return false;
+  }
+
+  const option = unwrapExpression(callback.body);
+  return (
+    ts.isJsxElement(option) &&
+    ts.isIdentifier(option.openingElement.tagName) &&
+    option.openingElement.tagName.text === 'option' &&
+    optionUsesCallbackItemDirectly(option, item.text)
+  );
+}
+
+function yearSelectorViolations(sourceFile) {
+  const violations = [];
+  let hasCanonicalImport = false;
+  let consumesCanonicalImport = false;
+  let hasCanonicalOptionMap = false;
+  let hasNonCanonicalOptionMap = false;
+  let shadowsCanonicalImport = false;
+  let exportedReturnCount = 0;
+  let returnedSelectCount = 0;
+  let exportedYearSelector;
+  const copiedBoundaries = new Set();
+
+  for (const statement of sourceFile.statements) {
+    if (
+      ts.isFunctionDeclaration(statement) &&
+      statement.name?.text === 'YearSelector' &&
+      statement.modifiers?.some(
+        (modifier) =>
+          modifier.kind === ts.SyntaxKind.ExportKeyword,
+      )
+    ) {
+      exportedYearSelector = statement;
+    }
+    if (
+      ts.isImportDeclaration(statement) &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text ===
+        '../../../../lib/yunqi-year-range' &&
+      !statement.importClause?.isTypeOnly &&
+      statement.importClause?.namedBindings &&
+      ts.isNamedImports(statement.importClause.namedBindings) &&
+      statement.importClause.namedBindings.elements.some(
+        (element) =>
+          !element.isTypeOnly &&
+          element.propertyName === undefined &&
+          element.name.text === 'YUNQI_YEAR_OPTIONS',
+      )
+    ) {
+      hasCanonicalImport = true;
+    }
+  }
+
+  const visit = (node) => {
+    if (
+      ts.isNumericLiteral(node) &&
+      (node.text === '1901' || node.text === '2099')
+    ) {
+      copiedBoundaries.add(node.text);
+    }
+    if (
+      ts.isIdentifier(node) &&
+      node.text === 'YUNQI_YEAR_OPTIONS' &&
+      !ts.isImportSpecifier(node.parent)
+    ) {
+      consumesCanonicalImport = true;
+      const parent = node.parent;
+      if (
+        (ts.isBindingElement(parent) && parent.name === node) ||
+        ((ts.isParameter(parent) ||
+          ts.isVariableDeclaration(parent) ||
+          ts.isFunctionDeclaration(parent) ||
+          ts.isFunctionExpression(parent) ||
+          ts.isClassDeclaration(parent)) &&
+          parent.name === node)
+      ) {
+        shadowsCanonicalImport = true;
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+
+  const visitReturned = (node) => {
+    if (isFunctionBoundary(node)) {
+      return;
+    }
+    if (
+      ts.isJsxElement(node) &&
+      ts.isIdentifier(node.openingElement.tagName) &&
+      node.openingElement.tagName.text === 'select'
+    ) {
+      returnedSelectCount += 1;
+      let selectHasCanonicalMap = false;
+      for (const child of node.children) {
+        if (
+          !ts.isJsxExpression(child) ||
+          child.expression === undefined
+        ) {
+          continue;
+        }
+        const expression = unwrapExpression(child.expression);
+        const isDirectMap =
+          ts.isCallExpression(expression) &&
+          ts.isPropertyAccessExpression(
+            unwrapExpression(expression.expression),
+          ) &&
+          unwrapExpression(expression.expression).name.text === 'map';
+        if (!isDirectMap) {
+          hasNonCanonicalOptionMap = true;
+        } else {
+          if (canonicalYearOptionMap(expression)) {
+            selectHasCanonicalMap = true;
+            hasCanonicalOptionMap = true;
+          } else {
+            hasNonCanonicalOptionMap = true;
+          }
+        }
+      }
+      if (!selectHasCanonicalMap) hasNonCanonicalOptionMap = true;
+    }
+    ts.forEachChild(node, visitReturned);
+  };
+  if (exportedYearSelector?.body) {
+    const visitSelectorBody = (node) => {
+      if (
+        node !== exportedYearSelector.body &&
+        isFunctionBoundary(node)
+      ) {
+        return;
+      }
+      if (ts.isReturnStatement(node) && node.expression) {
+        exportedReturnCount += 1;
+        visitReturned(unwrapExpression(node.expression));
+        return;
+      }
+      if (ts.isReturnStatement(node)) {
+        exportedReturnCount += 1;
+        return;
+      }
+      ts.forEachChild(node, visitSelectorBody);
+    };
+    visitSelectorBody(exportedYearSelector.body);
+  }
+
+  if (!hasCanonicalImport) {
+    violations.push(
+      'must import YUNQI_YEAR_OPTIONS from lib/yunqi-year-range',
+    );
+  } else if (!consumesCanonicalImport) {
+    violations.push('must consume imported YUNQI_YEAR_OPTIONS');
+  } else if (
+    !hasCanonicalOptionMap ||
+    hasNonCanonicalOptionMap ||
+    shadowsCanonicalImport ||
+    exportedReturnCount !== 1 ||
+    returnedSelectCount !== 1
+  ) {
+    violations.push(
+      'exported YearSelector must have exactly one return with the canonical YUNQI_YEAR_OPTIONS option map',
+    );
+  }
+  for (const boundary of copiedBoundaries) {
+    violations.push(
+      `duplicated YunQi year boundary ${boundary} is forbidden`,
+    );
+  }
+
+  return violations;
+}
+
+function canonicalStageMapper(sourceFile) {
+  const mapper = topLevelFunctionDeclaration(
+    sourceFile,
+    'mapSixQiStage',
+  );
+  if (
+    !mapper?.body ||
+    mapper.parameters.length !== 1 ||
+    !ts.isIdentifier(mapper.parameters[0].name) ||
+    mapper.parameters[0].name.text !== 'step' ||
+    mapper.body.statements.length !== 1 ||
+    !ts.isReturnStatement(mapper.body.statements[0]) ||
+    mapper.body.statements[0].expression === undefined
+  ) {
+    return false;
+  }
+
+  const returned = unwrapExpression(
+    mapper.body.statements[0].expression,
+  );
+  if (
+    !ts.isObjectLiteralExpression(returned) ||
+    returned.properties.some(
+      (property) =>
+        'name' in property &&
+        property.name !== undefined &&
+        ts.isComputedPropertyName(property.name),
+    )
+  ) {
+    return false;
+  }
+
+  const indexProperties = returned.properties.filter(
+    (property) =>
+      'name' in property &&
+      property.name !== undefined &&
+      (ts.isIdentifier(property.name) ||
+        ts.isStringLiteralLike(property.name)) &&
+      property.name.text === 'index',
+  );
+  if (
+    indexProperties.length !== 1 ||
+    !ts.isPropertyAssignment(indexProperties[0]) ||
+    !ts.isIdentifier(indexProperties[0].name)
+  ) {
+    return false;
+  }
+
+  const indexPosition = returned.properties.indexOf(indexProperties[0]);
+  if (
+    returned.properties
+      .slice(indexPosition + 1)
+      .some(ts.isSpreadAssignment)
+  ) {
+    return false;
+  }
+
+  const value = unwrapExpression(indexProperties[0].initializer);
+  return (
+    ts.isPropertyAccessExpression(value) &&
+    isDirectIdentifier(value.expression, 'step') &&
+    value.name.text === 'index'
+  );
+}
+
+function canonicalTupleMapper(sourceFile) {
+  const mapper = topLevelFunctionDeclaration(
+    sourceFile,
+    'mapSixQiStageTuple',
+  );
+  if (
+    !mapper?.body ||
+    mapper.parameters.length !== 1 ||
+    !ts.isIdentifier(mapper.parameters[0].name) ||
+    mapper.parameters[0].name.text !== 'steps' ||
+    mapper.body.statements.length !== 2
+  ) {
+    return false;
+  }
+
+  const [declarationStatement, returnStatement] =
+    mapper.body.statements;
+  if (
+    !ts.isVariableStatement(declarationStatement) ||
+    !(declarationStatement.declarationList.flags & ts.NodeFlags.Const) ||
+    declarationStatement.declarationList.declarations.length !== 1 ||
+    !ts.isReturnStatement(returnStatement) ||
+    returnStatement.expression === undefined
+  ) {
+    return false;
+  }
+
+  const declaration =
+    declarationStatement.declarationList.declarations[0];
+  if (
+    !ts.isArrayBindingPattern(declaration.name) ||
+    declaration.name.elements.length !== 6 ||
+    !declaration.initializer ||
+    !isDirectIdentifier(declaration.initializer, 'steps') ||
+    declaration.name.elements.some(
+      (element) =>
+        ts.isOmittedExpression(element) ||
+        !ts.isIdentifier(element.name) ||
+        element.propertyName !== undefined ||
+        element.initializer !== undefined ||
+        element.dotDotDotToken !== undefined,
+    )
+  ) {
+    return false;
+  }
+
+  const names = declaration.name.elements.map(
+    (element) => element.name.text,
+  );
+  const returned = unwrapExpression(returnStatement.expression);
+  return (
+    ts.isArrayLiteralExpression(returned) &&
+    returned.elements.length === 6 &&
+    returned.elements.every((element, index) => {
+      const call = unwrapExpression(element);
+      return (
+        ts.isCallExpression(call) &&
+        isDirectIdentifier(call.expression, 'mapSixQiStage') &&
+        call.arguments.length === 1 &&
+        isDirectIdentifier(call.arguments[0], names[index])
+      );
+    })
+  );
+}
+
+function sharedTupleMapperViolations(sourceFile) {
+  const violations = [];
+  if (!canonicalTupleMapper(sourceFile)) {
+    violations.push(
+      'mapSixQiStageTuple must use one six-item const destructure and six ordered direct mapSixQiStage calls',
+    );
+  }
+  if (!canonicalStageMapper(sourceFile)) {
+    violations.push(
+      'mapSixQiStage must keep step.index as the final unique static index',
+    );
+  }
+  return violations;
+}
+
 function isProductionSource(fileName) {
   const normalized = normalizePath(fileName);
   return !(
     /\.(?:test|spec)\.[cm]?[jt]sx?$/.test(normalized) ||
-    normalized.includes('/src/test/')
+    normalized.includes('/src/test/') ||
+    normalized.includes('/__tests__/')
   );
 }
 
@@ -628,7 +1255,7 @@ async function findSourceViolations(root) {
   for (const file of sourceFiles) {
     const source = await readFile(file, 'utf8');
     const relativePath = normalizePath(relative(root, file));
-
+    const sourceFile = parseWorkbenchSource(source, file);
     const imports = importEntries(source);
     for (const { specifier } of imports) {
       if (isAbsoluteLocalImport(specifier)) {
@@ -688,15 +1315,54 @@ async function findSourceViolations(root) {
     }
 
     if (isAnnualStageRailSource(file)) {
-      if (!annualStageRailUsesCanonicalTimeline(source, file)) {
+      if (!annualStageRailUsesCanonicalTimeline(sourceFile)) {
         violations.push(
-          `${relativePath}: steps must consume SixQiTimelineViewModel directly`,
+          `${relativePath}: steps must consume CurrentSixQiStageTuple directly`,
         );
       }
-      if (hasAnnualStageOrdinalArithmetic(source, file)) {
+      if (hasStageMapPlusOne(sourceFile, false)) {
         violations.push(
           `${relativePath}: stage ordinal arithmetic is forbidden`,
         );
+      }
+    }
+
+    if (isAnnualAnalysisComponentSource(file)) {
+      for (const violation of annualComponentSemanticViolations(
+        sourceFile,
+      )) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+      if (hasNonInlineStageMapCallback(sourceFile)) {
+        violations.push(
+          `${relativePath}: annual stages/steps.map callback must be inline arrow with exactly one identifier parameter`,
+        );
+      }
+      if (hasStageMapPlusOne(sourceFile, true)) {
+        violations.push(
+          `${relativePath}: annual stage index must preserve the API stage index`,
+        );
+      }
+      if (
+        hasSelectedStepIndexMinusOne(sourceFile)
+      ) {
+        violations.push(
+          `${relativePath}: annual stage selection must match the API stage index`,
+        );
+      }
+    }
+
+    if (isYearSelectorSource(file)) {
+      for (const violation of yearSelectorViolations(sourceFile)) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+    }
+
+    if (isSharedYunQiMapperSource(file)) {
+      for (const violation of sharedTupleMapperViolations(
+        sourceFile,
+      )) {
+        violations.push(`${relativePath}: ${violation}`);
       }
     }
 
@@ -717,8 +1383,13 @@ async function findSourceViolations(root) {
             `${relativePath}: @yunqi/client imports are forbidden in presentation mapper source`,
           );
         }
+        if (/^react-router-dom(?:\/|$)/.test(specifier)) {
+          violations.push(
+            `${relativePath}: React Router imports are forbidden in presentation mapper source`,
+          );
+        }
       }
-      if (hasDirectClientMethodAccess(source, file)) {
+      if (hasDirectClientMethodAccess(sourceFile)) {
         violations.push(
           `${relativePath}: client method access is forbidden in presentation mapper source`,
         );
@@ -732,7 +1403,7 @@ async function findSourceViolations(root) {
 
     if (!isProductionComponentSource(file)) continue;
 
-    if (hasContractDtoImport(source, file)) {
+    if (hasContractDtoImport(sourceFile)) {
       violations.push(
         `${relativePath}: frozen DTO imports from @yunqi/contracts are forbidden in component source`,
       );
@@ -748,7 +1419,7 @@ async function findSourceViolations(root) {
     if (/\/api\/v1\/yunqi\b/.test(source)) {
       violations.push(`${relativePath}: direct YunQi API path is forbidden`);
     }
-    if (hasDirectClientMethodAccess(source, file)) {
+    if (hasDirectClientMethodAccess(sourceFile)) {
       violations.push(
         `${relativePath}: direct YunQi client method access is forbidden`,
       );

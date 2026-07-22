@@ -1,12 +1,12 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Panel } from '../../../components/ui/Panel';
-import type { SixQiTimelineViewModel } from '../presentation/view-model';
+import type { CurrentSixQiStageTuple } from '../presentation/view-model';
 import { AnnualStageRail } from './AnnualStageRail';
 import { SixQiTimelineItem } from './SixQiTimelineItem';
 
 export interface SixQiTimelineProps {
   readonly currentStepIndex: number;
-  readonly steps: SixQiTimelineViewModel;
+  readonly steps: CurrentSixQiStageTuple;
 }
 
 export function SixQiTimeline({

@@ -3,6 +3,7 @@ import type {
   SixQiStepDto,
   YunQiCalculationDto,
   YunQiTimeDto,
+  YunQiYearDto,
 } from '@yunqi/contracts';
 
 function time(
@@ -148,4 +149,14 @@ export function createYunQiCalculationDto(): YunQiCalculationDto {
       '传统理论说明仅供医生学习与复盘。',
     ],
   };
+}
+
+export function createYunQiYearDto(): YunQiYearDto {
+  const { input, currentStep, ...year } =
+    createYunQiCalculationDto();
+
+  void input;
+  void currentStep;
+
+  return year;
 }

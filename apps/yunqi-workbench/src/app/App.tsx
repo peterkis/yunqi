@@ -1,11 +1,11 @@
 import { YUNQI_API_CONTRACT_ID } from '@yunqi/contracts';
 import { AppShell } from '../components/layout/AppShell';
-import { CurrentYunQiView } from '../features/yunqi/components/CurrentYunQiView';
+import { AppRoutes } from './AppRoutes';
 
 export function App() {
   return (
     <AppShell>
-      <CurrentYunQiView />
+      <AppRoutes />
 
       <footer className="workbench-footer">
         <section

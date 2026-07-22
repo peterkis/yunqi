@@ -4,6 +4,10 @@ import {
   type YunQiCalculationDto,
   type YunQiTimeDto,
 } from '@yunqi/contracts';
+import type {
+  AnnualYunQiViewModel,
+  SixQiStageTuple,
+} from '../features/yunqi/presentation/view-model';
 
 const contractId: 'YQ-API-CONTRACT-1.0.0' =
   YUNQI_API_CONTRACT_ID;
@@ -32,3 +36,13 @@ void {
 void time.timezone;
 // @ts-expect-error No alternate calendarTime field exists in the public calculation DTO.
 void calculation.calendarTime;
+
+declare const annual: AnnualYunQiViewModel;
+declare const stages: SixQiStageTuple;
+void stages[5].index;
+// @ts-expect-error Annual analysis has no seventh stage.
+void stages[6];
+// @ts-expect-error Annual analysis has no current-step field.
+void annual.currentStep;
+// @ts-expect-error Neutral annual stages have no status.
+void annual.stages[0].status;

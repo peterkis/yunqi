@@ -1,9 +1,14 @@
 import { act, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
+
+afterEach(() => {
+  document.body.innerHTML = '';
+});
 
 describe('application bootstrap', () => {
   it('mounts the Workbench into the root element', async () => {
     document.body.innerHTML = '<div id="root"></div>';
+    window.history.replaceState(null, '', '/yunqi/current');
 
     await act(async () => {
       await import('./main');

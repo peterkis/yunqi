@@ -1,5 +1,6 @@
 import type { YunQiClient } from '@yunqi/client';
 import type { PropsWithChildren } from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import {
   createWorkbenchQueryClient,
   QueryProvider,
@@ -11,11 +12,13 @@ export function createTestWrapper(client: YunQiClient) {
 
   return function TestWrapper({ children }: PropsWithChildren) {
     return (
-      <QueryProvider client={queryClient}>
-        <YunQiClientProvider client={client}>
-          {children}
-        </YunQiClientProvider>
-      </QueryProvider>
+      <MemoryRouter>
+        <QueryProvider client={queryClient}>
+          <YunQiClientProvider client={client}>
+            {children}
+          </YunQiClientProvider>
+        </QueryProvider>
+      </MemoryRouter>
     );
   };
 }

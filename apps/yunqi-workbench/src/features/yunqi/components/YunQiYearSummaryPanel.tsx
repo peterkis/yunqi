@@ -1,14 +1,16 @@
 import { Card } from '../../../components/ui/Card';
 import { DataLabel } from '../../../components/ui/DataLabel';
 import { Panel } from '../../../components/ui/Panel';
-import type { YunQiSummaryViewModel } from '../presentation/view-model';
+import type { YunQiYearSummaryViewModel } from '../presentation/view-model';
 import { YunQiTimeRange } from './YunQiTimeRange';
 
-export interface CurrentSummaryProps {
-  readonly summary: YunQiSummaryViewModel;
+export interface YunQiYearSummaryPanelProps {
+  readonly summary: YunQiYearSummaryViewModel;
 }
 
-export function CurrentSummary({ summary }: CurrentSummaryProps) {
+export function YunQiYearSummaryPanel({
+  summary,
+}: YunQiYearSummaryPanelProps) {
   return (
     <Panel
       eyebrow="Annual Frame"

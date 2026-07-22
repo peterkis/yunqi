@@ -318,6 +318,171 @@ button {
   margin-inline: auto;
 }
 
+.annual-yunqi-page {
+  display: grid;
+  width: 100%;
+  max-width: 74rem;
+  min-width: 0;
+  gap: clamp(3.5rem, 7vw, 6.5rem);
+  margin-inline: auto;
+}
+
+.annual-six-qi-selector {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.annual-six-qi-selector legend {
+  width: 100%;
+  padding: 1.2rem 0 1.75rem;
+  border-top: 1px solid var(--rule-strong);
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 550;
+  letter-spacing: -0.025em;
+}
+
+.annual-six-qi-selector__options {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  border-block: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+
+.annual-six-qi-selector__option {
+  display: grid;
+  min-width: 0;
+  min-height: 13rem;
+  gap: 0.6rem;
+  align-content: start;
+  padding: 1rem 0.8rem;
+  border-right: 1px solid var(--rule);
+  background: var(--paper-raised);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.annual-six-qi-selector__option:has(input:checked) {
+  box-shadow: inset 0 0.25rem 0 var(--cinnabar);
+  background: var(--cinnabar-wash);
+  color: var(--cinnabar-deep);
+}
+
+.annual-six-qi-selector__option:has(input:focus-visible) {
+  position: relative;
+  z-index: 1;
+  outline: 3px solid var(--focus);
+  outline-offset: -3px;
+}
+
+.annual-six-qi-selector__option input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.annual-six-qi-selector__option input:checked {
+  accent-color: var(--cinnabar);
+}
+
+.annual-six-qi-selector__option strong {
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: 1.1rem;
+}
+
+.annual-six-qi-selector__index {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.annual-six-qi-selector__range {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+  margin-top: auto;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.annual-six-qi-selector__range .yunqi-time {
+  display: grid;
+  min-width: 0;
+}
+
+.annual-six-qi-selector__range time {
+  white-space: normal;
+}
+
+.annual-six-qi-selector__range > span[aria-hidden="true"] {
+  color: var(--rule-strong);
+}
+
+.annual-six-qi-detail {
+  display: grid;
+  min-width: 0;
+  gap: 1.75rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--rule-strong);
+  background: var(--paper-raised);
+}
+
+.annual-six-qi-detail__header {
+  display: grid;
+  gap: 0.65rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.annual-six-qi-detail__header h2,
+.annual-six-qi-detail__header p {
+  margin: 0;
+}
+
+.annual-six-qi-detail__header h2 {
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+  font-weight: 550;
+  letter-spacing: -0.025em;
+}
+
+.annual-six-qi-detail__eyebrow {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.annual-six-qi-detail__header > p:last-child {
+  color: var(--ink-muted);
+  line-height: 1.75;
+}
+
+.annual-six-qi-detail__facts {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 0.55fr minmax(18rem, 2fr) repeat(2, 0.8fr);
+  gap: 1rem;
+}
+
+.annual-six-qi-detail__time {
+  display: grid;
+  min-width: 0;
+  gap: 0.4rem;
+}
+
+.annual-six-qi-detail__time > span:last-child {
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
 .workbench-footer {
   max-width: 74rem;
   margin: clamp(3.5rem, 7vw, 6.5rem) auto 0;
@@ -839,6 +1004,10 @@ button {
     grid-template-columns: 1fr;
   }
 
+  .annual-six-qi-detail__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .annual-stage-rail__button {
     padding-inline: 0.35rem;
   }
@@ -920,6 +1089,20 @@ button {
 
   .annual-stage-rail {
     display: none;
+  }
+
+  .annual-six-qi-selector__options,
+  .annual-six-qi-detail__facts {
+    grid-template-columns: 1fr;
+  }
+
+  .annual-six-qi-selector__options {
+    border-bottom: 0;
+  }
+
+  .annual-six-qi-selector__option {
+    min-height: 0;
+    border-bottom: 1px solid var(--rule);
   }
 
   .ui-card {
