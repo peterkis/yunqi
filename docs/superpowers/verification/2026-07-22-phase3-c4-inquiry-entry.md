@@ -5,7 +5,7 @@
 - Explicit implementation base commit:
   `0e23c9914592865be58df418eaaef358802f4f58`
 - Final verified code HEAD before this record:
-  `618e8e836242734aa05bd653afe4688ecf3d86e6`
+  `5d46b8535e2f8b55c0322d39fdeecb5c8c8050cd`
 - Contract ID: `YQ-API-CONTRACT-1.0.0`
 - Rule version: `YQ-MVP-RULES-1.0.0`
 - Node.js: `v22.14.0`
@@ -51,16 +51,23 @@ The implementation was developed through observed RED/GREEN cycles:
   the missing controls, then failed after AST governance was implemented;
 - fixture-exclusion tests first exposed over-broad inquiry copy scanning and
   then passed after `.fixture.*` and `fixtures/` were excluded.
+- independent review tests exposed Context Model `import()`/re-export bypasses,
+  immutable visible-copy aliases, missing treatment vocabulary, and committed
+  trailing whitespace; each issue received a failing regression test or
+  range-qualified diff check before the governance fix.
 
-Final Workbench governance contains 213 passing tests. It enforces:
+Final Workbench governance contains 228 passing tests. It enforces:
 
 - Page responsibility alongside existing component responsibility;
 - no direct DTO, client, fetch, client-method, or API-path capability in Pages;
 - exact interface names, members, readonly/optional flags and primitive types;
-- a five-entry type-only internal model index and no feature-root export;
-- no Context Model imports in production inquiry Pages or components;
+- a five-entry type-only internal model index and no direct, aliased,
+  import-type or intermediate feature re-export;
+- no Context Model static, namespace or import-type imports in production
+  inquiry Pages or components;
 - medical-decision keyword checks only in statically visible JSX text and
-  visible attributes, excluding identifiers, comments, tests, fixtures and
+  visible attributes, including immutable aliases, while excluding identifiers,
+  non-rendered strings, shadowed runtime values, comments, tests, fixtures and
   documentation.
 
 ## Workbench acceptance
@@ -80,7 +87,7 @@ pnpm test:time-governance
 | Area | Result |
 |---|---:|
 | Workbench tests | 26 files, 83 tests passed |
-| Workbench governance | 213 tests passed |
+| Workbench governance | 228 tests passed |
 | Time governance | 8 tests passed |
 | Vite production build | 124 modules transformed |
 | JavaScript bundle | 291.03 kB, 92.16 kB gzip |
@@ -160,7 +167,7 @@ Selected final results:
 | Client tests | 1 file, 8 tests passed |
 | Service tests | 13 files, 136 tests passed |
 | Workbench tests | 26 files, 83 tests passed |
-| Workbench governance | 213 tests passed |
+| Workbench governance | 228 tests passed |
 | Contract governance | 12 tests passed |
 | OpenAPI schema contract | 1 file, 4 tests passed |
 | Service timezone independence | passed |
