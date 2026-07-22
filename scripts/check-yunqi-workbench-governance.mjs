@@ -495,14 +495,26 @@ function isOne(node) {
   return ts.isNumericLiteral(current) && current.text === '1';
 }
 
+function staticMemberName(node) {
+  const current = unwrapExpression(node);
+  if (ts.isPropertyAccessExpression(current)) {
+    return current.name.text;
+  }
+  if (ts.isElementAccessExpression(current)) {
+    return staticStringValue(current.argumentExpression);
+  }
+  return undefined;
+}
+
 function isMapCall(node) {
   const expression = ts.isCallExpression(node)
     ? unwrapExpression(node.expression)
     : undefined;
   return Boolean(
     expression &&
-      ts.isPropertyAccessExpression(expression) &&
-      expression.name.text === 'map',
+      (ts.isPropertyAccessExpression(expression) ||
+        ts.isElementAccessExpression(expression)) &&
+      staticMemberName(expression) === 'map',
   );
 }
 
@@ -517,6 +529,22 @@ function topLevelFunctionDeclaration(sourceFile, name) {
 function directMapCallback(expression) {
   const current = unwrapExpression(expression);
   if (ts.isArrowFunction(current) || ts.isFunctionExpression(current)) {
+    return current;
+  }
+  return undefined;
+}
+
+function canonicalStageMapCallback(expression) {
+  const current = unwrapExpression(expression);
+  const parameter = current.parameters?.[0];
+  if (
+    ts.isArrowFunction(current) &&
+    current.parameters.length === 1 &&
+    parameter &&
+    ts.isIdentifier(parameter.name) &&
+    parameter.dotDotDotToken === undefined &&
+    parameter.initializer === undefined
+  ) {
     return current;
   }
   return undefined;
@@ -540,8 +568,9 @@ function isStageMapCall(node) {
   const receiver = unwrapExpression(access.expression);
   const collectionName = ts.isIdentifier(receiver)
     ? receiver.text
-    : ts.isPropertyAccessExpression(receiver)
-      ? receiver.name.text
+    : ts.isPropertyAccessExpression(receiver) ||
+        ts.isElementAccessExpression(receiver)
+      ? staticMemberName(receiver)
       : undefined;
   if (collectionName !== 'stages' && collectionName !== 'steps') {
     return false;
@@ -609,7 +638,7 @@ function hasNonInlineStageMapCallback(sourceFile) {
     if (
       ts.isCallExpression(node) &&
       isStageMapCall(node) &&
-      stageMapCallback(node) === undefined
+      canonicalStageMapCallback(node.arguments[0]) === undefined
     ) {
       found = true;
       return;
@@ -1306,7 +1335,7 @@ async function findSourceViolations(root) {
       }
       if (hasNonInlineStageMapCallback(sourceFile)) {
         violations.push(
-          `${relativePath}: annual stages/steps.map callback must be inline`,
+          `${relativePath}: annual stages/steps.map callback must be inline arrow with exactly one identifier parameter`,
         );
       }
       if (hasStageMapPlusOne(sourceFile, true)) {

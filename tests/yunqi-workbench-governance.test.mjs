@@ -1241,7 +1241,72 @@ test('rejects rebuilding annual stage index from callback position', async () =>
       }
     `,
     expected:
-      /AnnualStageList\.tsx: annual stage index must preserve the API stage index/,
+      /AnnualStageList\.tsx: annual stages\/steps\.map callback must be inline arrow with exactly one identifier parameter/,
+  });
+});
+
+test('rejects aliased annual stage callback positions', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualStageList.tsx',
+    source: `
+      export function AnnualStageList({ stages }) {
+        return stages.map((stage, position) => {
+          const ordinal = position;
+          return <span key={stage.index}>{ordinal + 1}</span>;
+        });
+      }
+    `,
+    expected:
+      /AnnualStageList\.tsx: annual stages\/steps\.map callback must be inline arrow with exactly one identifier parameter/,
+  });
+});
+
+test('rejects bracket-map annual stage callback positions', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualStageList.tsx',
+    source: `
+      export function AnnualStageList(props) {
+        return props['stages']['map']((stage, position) => (
+          <span key={stage.index}>{position + 1}</span>
+        ));
+      }
+    `,
+    expected:
+      /AnnualStageList\.tsx: annual stages\/steps\.map callback must be inline arrow with exactly one identifier parameter/,
+  });
+});
+
+test('rejects annual stage function callbacks with implicit arguments positions', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualStageList.tsx',
+    source: `
+      export function AnnualStageList({ stages }) {
+        return stages.map(function (stage) {
+          return <span key={stage.index}>{arguments[1] + 1}</span>;
+        });
+      }
+    `,
+    expected:
+      /AnnualStageList\.tsx: annual stages\/steps\.map callback must be inline arrow with exactly one identifier parameter/,
+  });
+});
+
+test('rejects annual stage rest-parameter callbacks', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/year-analysis/components/AnnualStageList.tsx',
+    source: `
+      export function AnnualStageList({ stages }) {
+        return stages.map((...items) => (
+          <span key={items[0].index}>{items[1] + 1}</span>
+        ));
+      }
+    `,
+    expected:
+      /AnnualStageList\.tsx: annual stages\/steps\.map callback must be inline arrow with exactly one identifier parameter/,
   });
 });
 
