@@ -159,13 +159,15 @@ docs/contracts/YQ-API-CONTRACT-1.0.0.md
 
 ## 3.3 React Workbench 治理边界
 
-Phase3-B Workbench 的依赖链固定为：
+Phase3-B foundation 阶段的非路由依赖边界继续保留。Phase3-C3 经明确授权后，
+Workbench 当前依赖链固定为：
 
 ```text
 apps/yunqi-workbench
   ├── @yunqi/client
   │     └── @yunqi/contracts
-  └── @tanstack/react-query
+  ├── @tanstack/react-query
+  └── react-router-dom@7.18.1
 ```
 
 Workbench 运行时只允许依赖：
@@ -176,16 +178,18 @@ Workbench 运行时只允许依赖：
 @yunqi/contracts
 react
 react-dom
+react-router-dom
 ```
 
 上述白名单同时约束 `dependencies`、`optionalDependencies` 和
 `peerDependencies`；`devDependencies` 只允许承载开发和测试工具，不能借此
-绕过源码 import 治理。
+绕过源码 import 治理。`react-router-dom` 必须精确锁定为 `7.18.1`，是当前
+唯一批准的路由运行时；其他路由包均不在白名单内。
 
 禁止依赖或导入 Service、Domain、calendar adapter、内部生成的 OpenAPI 文件，
-Axios 或 React Router，也不得复制冻结 DTO。所有源码的静态 import、动态
-import 和 `require` 均受此约束，即使对应包只出现在 `devDependencies`。
-DTO 必须从 `@yunqi/contracts` 导入。
+Axios 或未经批准的其他路由包，也不得复制冻结 DTO。所有源码的静态 import、
+动态 import 和 `require` 均受此约束，即使对应包只出现在
+`devDependencies`。DTO 必须从 `@yunqi/contracts` 导入。
 
 相对 import 解析后必须仍位于 `apps/yunqi-workbench` 内；禁止使用 `../` 或
 Windows `..\` 逃逸到仓库中的 Service、Domain、calendar adapter、generated
@@ -198,6 +202,12 @@ Provider ownership 固定如下：
 - `QueryProvider` 拥有 `QueryClient`；
 - `YunQiClientProvider` 拥有 `YunQiClient` 与 transport 的创建和注入；
 - feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
+- `AppRoutes` 及 Router 层只负责 URL 匹配、页面选择、导航、重定向和浏览器
+  历史恢复；
+- Router、Page 和 Navigation 不得直接调用 YunQi client 方法，数据获取必须
+  继续经过 feature query/hook 层；
+- presentation mapper 不得依赖 React Router、TanStack Query 或
+  `@yunqi/client`；
 - `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
   按路径职责视为 component，不因文件扩展名改变；
 - component 只接收状态和 DTO，不得 runtime import 或 runtime re-export
@@ -207,8 +217,20 @@ Provider ownership 固定如下：
   client import/re-export 不创建运行时能力；混合 type/runtime re-export
   仍按 runtime 拒绝。
 
-Phase3-B 只建立非路由 Workbench foundation。未经后续阶段明确授权，不得加入
-router、业务页面、问诊流程、专家审核、规则管理、诊断或治疗输出。
+Phase3-B 只建立非路由 Workbench foundation。Phase3-C3 已明确授权引入
+React Router，并冻结以下导航基线：
+
+```text
+/                    -> replace redirect /yunqi/current
+/yunqi/current       -> 当前状态视图
+/yunqi/year          -> 年度分析入口，不发起年度查询
+/yunqi/year/:year    -> URL 驱动的指定年度分析
+```
+
+年度分析子路径必须保持“年度分析”导航激活；当前实现通过父路径
+`/yunqi/year` 的非精确匹配满足该要求。年份属于 URL 导航状态，阶段选择属于
+页面局部交互状态。未经后续阶段明确授权，不得新增问诊流程、教学页面、专家
+审核、规则管理、诊断或治疗输出。
 
 Workbench 展示业务时间必须直接使用 API 的规范 `localTime`，并标注：
 
