@@ -208,7 +208,8 @@ Provider ownership 固定如下：
   继续经过 feature query/hook 层；
 - presentation mapper 不得依赖 React Router、TanStack Query 或
   `@yunqi/client`；
-- `src/components/**`、`src/app/**` 和 `src/features/**/components/**`
+- `src/components/**`、`src/app/**`、`src/features/**/components/**` 和
+  `src/features/**/pages/**`
   按路径职责视为 component，不因文件扩展名改变；
 - component 只接收状态和 DTO，不得 runtime import 或 runtime re-export
   `@yunqi/client`，不得调用 `fetch`、Axios 或 YunQi client 方法，不得通过
@@ -218,19 +219,45 @@ Provider ownership 固定如下：
   仍按 runtime 拒绝。
 
 Phase3-B 只建立非路由 Workbench foundation。Phase3-C3 已明确授权引入
-React Router，并冻结以下导航基线：
+React Router；Phase3-C4 进一步批准只读问诊结构化入口。当前导航基线冻结为：
 
 ```text
 /                    -> replace redirect /yunqi/current
 /yunqi/current       -> 当前状态视图
 /yunqi/year          -> 年度分析入口，不发起年度查询
 /yunqi/year/:year    -> URL 驱动的指定年度分析
+/yunqi/inquiry       -> 问诊结构化入口，不发起任何业务查询
 ```
 
 年度分析子路径必须保持“年度分析”导航激活；当前实现通过父路径
 `/yunqi/year` 的非精确匹配满足该要求。年份属于 URL 导航状态，阶段选择属于
-页面局部交互状态。未经后续阶段明确授权，不得新增问诊流程、教学页面、专家
-审核、规则管理、诊断或治疗输出。
+页面局部交互状态。`/yunqi/inquiry` 导航的 `enabled` 只表示入口可访问，不表示
+问诊业务已经上线。Phase3-C4 禁止新增患者搜索或选择、问诊创建、观察记录表单、
+任何 Patient/Inquiry/Observation API、Client、Query Hook、Mock、存储和问诊子路由。
+真实问诊流程、权限执行、教学页面、专家审核、规则管理及 AI 能力仍需后续阶段
+明确授权。
+
+Phase3-C4 的 Patient、Inquiry、Observation、Permission 和 Audit Context Model
+仅是 `apps/yunqi-workbench/src/features/inquiry/models` 内部的只读类型边界，不是
+API Contract、服务端实体或医疗事实。它们只能通过该目录的 type-only index
+内部导出；禁止从 inquiry feature 根路径导出，禁止被生产 Page 或 component
+导入、实例化，禁止直接提升为 DTO，也不得加入通用 `metadata`、角色枚举、
+生命周期、诊疗或推断字段。
+
+后续真实能力的建议评估顺序（不是当前冻结事实）为：
+
+```text
+专家流程验证
+    -> Inquiry Service
+    -> OpenAPI Schema
+    -> @yunqi/contracts
+    -> @yunqi/client
+    -> React
+```
+
+HIS/EMR 信息必须经正式 API/Contract 接入，不得通过扩展 Context Model 的通用
+`metadata` 绕过契约。Observation 专业类别等待专家确认；身份、角色和 RBAC
+等待真实认证及组织模型。
 
 Workbench 展示业务时间必须直接使用 API 的规范 `localTime`，并标注：
 

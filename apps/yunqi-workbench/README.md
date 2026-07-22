@@ -1,9 +1,10 @@
 # @yunqi/workbench
 
-Phase3-C3 React Workbench for TCM YunQi Lab. It is a read-only presentation
+Phase3-C4 React Workbench for TCM YunQi Lab. It is a read-only presentation
 host for the frozen YunQi API Contract. It shows the current YunQi state and
-an arbitrary-year analysis without calculating rules, inferring calendar
-boundaries, diagnosing, prescribing, or providing treatment decisions.
+an arbitrary-year analysis, and provides a safe inquiry-planning entry without
+calculating rules, inferring calendar boundaries, creating patient records,
+diagnosing, prescribing, or providing treatment decisions.
 
 ## Routes and state ownership
 
@@ -15,6 +16,7 @@ The Workbench uses declarative React Router routes:
 | `/yunqi/current` | Current YunQi state and six-stage timeline | Calls the current-query endpoint |
 | `/yunqi/year` | Annual-analysis entry and year selector | Makes no annual request |
 | `/yunqi/year/:year` | Annual structure for one validated year | Calls the annual endpoint only after strict URL validation |
+| `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
 | any other path | Workbench not-found page | Makes no YunQi request |
 
 Annual parameters must be exact four-digit years in the inclusive `1901–2099`
@@ -73,7 +75,37 @@ Relative imports must remain inside `apps/yunqi-workbench`. Imports that
 escape to repository implementations, absolute local paths, and `file:`
 imports are forbidden. Component responsibility is path-based for
 `src/components/**`, `src/app/**`, and
-`src/features/**/components/**`, regardless of file extension.
+`src/features/**/components/**` and `src/features/**/pages/**`, regardless of
+file extension.
+
+## Inquiry entry boundary
+
+`/yunqi/inquiry` is an accessible entry, not an implemented inquiry workflow.
+Its three semantic `article` cards describe only planned boundaries:
+
+- patient context;
+- authorized history viewing and teaching review;
+- a future confirmed professional structured-record flow.
+
+Every card is marked `规划中` and contains no link, button, focusable pseudo
+control, form, or click behavior. The route mounts no query hook and creates no
+patient, inquiry, observation, permission, or audit value. Forbidden child
+paths such as `/yunqi/inquiry/patient`, `/yunqi/inquiry/history`, and
+`/yunqi/inquiry/new` resolve to the existing not-found page without a client
+request.
+
+The five interfaces under `src/features/inquiry/models` are internal,
+type-only Context Model boundaries. They are not API DTOs, contracts, database
+entities, clinical facts, authorization enforcement, or an invitation to add
+generic metadata. Production inquiry pages and components must not import or
+instantiate them, and the inquiry feature must not expose a root barrel.
+
+Phase3-C4 does not include patient search or selection, inquiry creation,
+observation forms, persistence, permission or audit enforcement, AI analysis,
+YunQi correlation, runtime mocks, local storage, a database, child inquiry
+routes, or Patient/Inquiry/Observation APIs and query abstractions. A future
+real workflow must first be validated with experts, then flow through Service,
+OpenAPI, `@yunqi/contracts`, and `@yunqi/client` before React consumes it.
 
 ## Router dependency boundary
 
