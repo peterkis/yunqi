@@ -5,7 +5,7 @@
 - Explicit implementation base commit:
   `0e23c9914592865be58df418eaaef358802f4f58`
 - Final verified code HEAD before this record:
-  `5d46b8535e2f8b55c0322d39fdeecb5c8c8050cd`
+  `073d5996fc7c9594440ebdbda3c5d39b22363752`
 - Contract ID: `YQ-API-CONTRACT-1.0.0`
 - Rule version: `YQ-MVP-RULES-1.0.0`
 - Node.js: `v22.14.0`
@@ -55,8 +55,11 @@ The implementation was developed through observed RED/GREEN cycles:
   immutable visible-copy aliases, missing treatment vocabulary, and committed
   trailing whitespace; each issue received a failing regression test or
   range-qualified diff check before the governance fix.
+- follow-up review additionally reproduced dynamic model imports, cross-feature
+  re-exports, immutable object-member copy and concise-arrow scope shadowing;
+  four focused RED regressions now cover those target and lexical boundaries.
 
-Final Workbench governance contains 228 passing tests. It enforces:
+Final Workbench governance contains 232 passing tests. It enforces:
 
 - Page responsibility alongside existing component responsibility;
 - no direct DTO, client, fetch, client-method, or API-path capability in Pages;
@@ -87,7 +90,7 @@ pnpm test:time-governance
 | Area | Result |
 |---|---:|
 | Workbench tests | 26 files, 83 tests passed |
-| Workbench governance | 228 tests passed |
+| Workbench governance | 232 tests passed |
 | Time governance | 8 tests passed |
 | Vite production build | 124 modules transformed |
 | JavaScript bundle | 291.03 kB, 92.16 kB gzip |
@@ -102,11 +105,14 @@ Workbench coverage exceeds every required threshold:
 | Functions | 100% (98/98) | 90% |
 | Lines | 99.48% (193/194) | 90% |
 
-One initial full Workbench run produced seven unrelated five-second timeouts
-across existing bootstrap, current, timeline and annual tests. The same failed
-set then passed 22/22, and the unchanged exact full command passed 83/83. No
-timeout or production code was changed; the evidence is consistent with a
-transient Windows parallel-load event rather than a logic regression.
+Local high-load runs produced unrelated five-second timeouts across existing
+bootstrap, current, timeline and annual tests. The initial failed set passed
+22/22 and the unchanged exact full command passed 83/83. After follow-up
+governance-only changes, the reproduced failed set again passed 18/18 with one
+worker while concurrent full-suite attempts timed out. No application, timeout
+or test configuration was changed; the evidence is consistent with a Windows
+parallel-load event. The protected PR `quality-gates` run remains the required
+clean-environment merge authority.
 
 ## Production browser verification
 
@@ -167,7 +173,7 @@ Selected final results:
 | Client tests | 1 file, 8 tests passed |
 | Service tests | 13 files, 136 tests passed |
 | Workbench tests | 26 files, 83 tests passed |
-| Workbench governance | 228 tests passed |
+| Workbench governance | 232 tests passed |
 | Contract governance | 12 tests passed |
 | OpenAPI schema contract | 1 file, 4 tests passed |
 | Service timezone independence | passed |
