@@ -4,8 +4,8 @@
 - Branch: `codex/phase3-c3-annual-analysis`
 - Explicit implementation base commit:
   `7e9a0904882ccddeb79f9b9f533fb2b65d422dd7`
-- Implementation verification HEAD before this documentation commit:
-  `c484b45241b1a84f5e9facb6a0fe9736a541c4da`
+- Final verified code HEAD before this record update:
+  `9b60a52b6fa3af78e5e93c4d8ba5e7bf60144605`
 - Contract ID: `YQ-API-CONTRACT-1.0.0`
 - Rule version: `YQ-MVP-RULES-1.0.0`
 - Node.js: `v22.14.0`
@@ -79,10 +79,10 @@ pnpm test:time-governance
 | Area | Result |
 |---|---:|
 | Workbench tests | 25 files, 77 tests passed |
-| Workbench governance | 190 tests passed |
+| Workbench governance | 194 tests passed |
 | Time governance | 8 tests passed |
 | Vite production build | 122 modules transformed |
-| JavaScript bundle | 289.64 kB, 91.59 kB gzip |
+| JavaScript bundle | 289.65 kB, 91.60 kB gzip |
 | CSS bundle | 17.61 kB, 3.94 kB gzip |
 
 Workbench coverage exceeds every required threshold:
@@ -142,6 +142,25 @@ Console warning and error arrays were empty at all three viewports. Fastify
 logs contained only the expected valid current and annual requests; no annual
 request appeared for the entry or invalid-year routes.
 
+## Post-browser final review corrections
+
+Independent final review found that the shared application shell still used
+the current-route phrase `当前视图 · 只读` while rendering annual routes. The
+global status was changed to the route-neutral `临床教学工作台 · 只读`, and the
+annual AppShell test now requires that neutral text and rejects `当前视图`.
+This copy-only correction was covered by the focused AppShell/AppRoutes tests
+and the final Workbench and repository suites; the earlier real-API browser
+session is not misrepresented as having observed the later correction.
+
+The same review found two simple ordinal-governance bypasses through aliased
+callback positions and static bracket access. Annual `stages`/`steps` mapping
+is now limited to a one-identifier inline arrow callback, and static `.map`,
+`['map']`, and bracket receivers are all recognized. Mutation tests cover
+position aliases, bracket access, function `arguments[1]`, and rest
+parameters. The final governance suite contains 194 passing tests and reports
+zero production violations. The reviewer found no remaining Critical or
+Important issue at the final code HEAD.
+
 ## Complete repository acceptance
 
 Every required command completed with exit code 0 after the final production
@@ -169,7 +188,7 @@ Selected final test results:
 | Client tests | 1 file, 8 tests passed |
 | Service tests | 13 files, 136 tests passed |
 | Workbench tests | 25 files, 77 tests passed |
-| Workbench governance | 190 tests passed |
+| Workbench governance | 194 tests passed |
 | Contract governance | 12 tests passed |
 | OpenAPI schema contract | 1 file, 4 tests passed |
 | Service timezone independence | passed |
