@@ -2977,6 +2977,79 @@ for (const responsibility of ['pages', 'components']) {
   });
 }
 
+test('allows an unrelated namespace import in inquiry presentation source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ReactNamespacePage.tsx',
+    source: `
+      import * as React from 'react';
+      export function ReactNamespacePage() {
+        return <p>{React.version}</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('rejects an inquiry Context Model import-type query in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ImportTypePage.tsx',
+    source: `
+      type Patient = import('../models').PatientContextModel;
+      export function ImportTypePage({ patient }: { patient: Patient }) {
+        return <p>{patient.id}</p>;
+      }
+    `,
+    expected:
+      /ImportTypePage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
+test('rejects a namespace import from inquiry models in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ModelNamespacePage.tsx',
+    source: `
+      import type * as InquiryModels from '../models';
+      export function ModelNamespacePage({ patient }: { patient: InquiryModels.PatientContextModel }) {
+        return <p>{patient.id}</p>;
+      }
+    `,
+    expected:
+      /ModelNamespacePage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
+test('rejects an inquiry model re-export outside the approved model index', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/context.ts',
+    source: "export type { PatientContextModel } from './models';",
+    expected:
+      /features\/inquiry\/context\.ts: inquiry Context Models may only be re-exported by models\/index\.ts/,
+  });
+});
+
+test('rejects an inquiry feature-root TSX model barrel', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/index.tsx',
+    source: "export type { PatientContextModel } from './models';",
+    expected:
+      /features\/inquiry\/index\.tsx: inquiry Context Models must not be exported from a feature-root barrel/,
+  });
+});
+
+test('rejects an aliased import-type export from the inquiry feature root', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/index.ts',
+    source:
+      "export type Patient = import('./models').PatientContextModel;",
+    expected:
+      /features\/inquiry\/index\.ts: inquiry Context Models must not be exported from a feature-root barrel/,
+  });
+});
+
 for (const [label, source, literal] of [
   ['JSX text', 'export function Copy() { return <p>诊断</p>; }', '诊断'],
   [
@@ -3000,6 +3073,77 @@ for (const [label, source, literal] of [
     });
   });
 }
+
+test('rejects medical-decision copy rendered through an immutable alias', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/AliasedCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export function AliasedCopy() { return <p>{copy}</p>; }
+    `,
+    expected:
+      /AliasedCopy\.tsx: inquiry user-visible medical-decision literal 诊断 is forbidden/,
+  });
+});
+
+test('rejects visible medical-decision attributes through an immutable alias', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/AliasedAttribute.tsx',
+    source: `
+      const copy = '治疗';
+      export function AliasedAttribute() { return <section title={copy} />; }
+    `,
+    expected:
+      /AliasedAttribute\.tsx: inquiry user-visible medical-decision literal 治疗 is forbidden/,
+  });
+});
+
+for (const literal of ['方剂', '中药', '剂量', '疗程', '治法']) {
+  test(`rejects additional treatment-boundary copy ${literal}`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: 'features/inquiry/pages/TreatmentCopy.tsx',
+      source: `export function TreatmentCopy() { return <p>${literal}</p>; }`,
+      expected: new RegExp(
+        `TreatmentCopy\\.tsx: inquiry user-visible medical-decision literal ${literal} is forbidden`,
+      ),
+    });
+  });
+}
+
+test('allows a non-rendered medical term string in ordinary source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/InternalTerm.tsx',
+    source: `
+      const internalSafetyTerm = '诊断';
+      export function InternalTerm() {
+        void internalSafetyTerm;
+        return <p>信息记录</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows a rendered value that shadows a medical const through props', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ShadowedCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export function ShadowedCopy({ copy }: { copy: string }) {
+        return <p>{copy}</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
 
 test('allows medical-looking ordinary identifiers outside user-visible copy', async () => {
   const fixtureRoot = createFixture({

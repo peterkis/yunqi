@@ -1238,6 +1238,11 @@ const INQUIRY_FORBIDDEN_VISIBLE_LITERALS = [
   '用药',
   '风险预测',
   '推荐方案',
+  '方剂',
+  '中药',
+  '剂量',
+  '疗程',
+  '治法',
   'diagnosis',
   'treatment',
   'prescription',
@@ -1320,47 +1325,87 @@ function inquiryModelViolations(sourceFile, fileName) {
     : [`${spec.interfaceName} must match the frozen Phase3-C4 interface`];
 }
 
-function hasInquiryContextModelImport(sourceFile) {
-  return sourceFile.statements.some((statement) => {
-    if (
-      !ts.isImportDeclaration(statement) ||
-      statement.importClause === undefined
-    ) {
-      return false;
-    }
-    const clause = statement.importClause;
-    if (clause.name?.text.endsWith('ContextModel')) return true;
-    const bindings = clause.namedBindings;
-    if (bindings === undefined) return false;
-    if (ts.isNamespaceImport(bindings)) return true;
-    return bindings.elements.some(
-      (element) =>
-        element.name.text.endsWith('ContextModel') ||
-        element.propertyName?.text.endsWith('ContextModel'),
-    );
-  });
+function moduleTargetsInquiryModels(moduleSpecifier, sourceFile) {
+  if (!ts.isStringLiteral(moduleSpecifier)) return false;
+  const target = normalizePath(
+    resolve(dirname(sourceFile.fileName), moduleSpecifier.text),
+  );
+  return /\/src\/features\/inquiry\/models(?:\/|$)/.test(target);
 }
 
-function exportsInquiryContextModelFromFeatureRoot(sourceFile) {
-  return sourceFile.statements.some((statement) => {
-    if (!ts.isExportDeclaration(statement)) return false;
+function hasInquiryContextModelImport(sourceFile) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
     if (
-      ts.isStringLiteral(statement.moduleSpecifier) &&
-      /^\.\/models(?:\/|$)/.test(statement.moduleSpecifier.text)
+      ts.isImportDeclaration(node) &&
+      moduleTargetsInquiryModels(node.moduleSpecifier, sourceFile)
     ) {
-      return true;
+      found = true;
+      return;
     }
     if (
-      statement.exportClause === undefined ||
-      !ts.isNamedExports(statement.exportClause)
+      ts.isImportTypeNode(node) &&
+      ts.isLiteralTypeNode(node.argument) &&
+      moduleTargetsInquiryModels(node.argument.literal, sourceFile)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function exportsInquiryContextModel(sourceFile) {
+  return sourceFile.statements.some((statement) => {
+    if (ts.isExportDeclaration(statement)) {
+      if (
+        statement.moduleSpecifier !== undefined &&
+        moduleTargetsInquiryModels(statement.moduleSpecifier, sourceFile)
+      ) {
+        return true;
+      }
+      if (
+        statement.exportClause !== undefined &&
+        ts.isNamedExports(statement.exportClause) &&
+        statement.exportClause.elements.some(
+          (element) =>
+            element.name.text.endsWith('ContextModel') ||
+            element.propertyName?.text.endsWith('ContextModel'),
+        )
+      ) {
+        return true;
+      }
+    }
+
+    const modifiers = ts.canHaveModifiers(statement)
+      ? ts.getModifiers(statement)
+      : undefined;
+    if (
+      modifiers?.some(
+        (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+      ) !== true
     ) {
       return false;
     }
-    return statement.exportClause.elements.some(
-      (element) =>
-        element.name.text.endsWith('ContextModel') ||
-        element.propertyName?.text.endsWith('ContextModel'),
-    );
+
+    let importsInquiryModelType = false;
+    const visit = (node) => {
+      if (importsInquiryModelType) return;
+      if (
+        ts.isImportTypeNode(node) &&
+        ts.isLiteralTypeNode(node.argument) &&
+        moduleTargetsInquiryModels(node.argument.literal, sourceFile)
+      ) {
+        importsInquiryModelType = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
+    return importsInquiryModelType;
   });
 }
 
@@ -1369,6 +1414,122 @@ function inquiryForbiddenLiteral(value) {
   return INQUIRY_FORBIDDEN_VISIBLE_LITERALS.find((literal) =>
     normalized.includes(literal.toLocaleLowerCase('en-US')),
   );
+}
+
+function directIdentifierBindingName(node) {
+  return ts.isIdentifier(node) ? node.text : undefined;
+}
+
+function bindingNameContainsIdentifier(node, name) {
+  if (ts.isIdentifier(node)) return node.text === name;
+  if (
+    ts.isObjectBindingPattern(node) ||
+    ts.isArrayBindingPattern(node)
+  ) {
+    return node.elements.some(
+      (element) =>
+        ts.isBindingElement(element) &&
+        bindingNameContainsIdentifier(element.name, name),
+    );
+  }
+  return false;
+}
+
+function findInquiryConstInitializer(identifier, sourceFile) {
+  const name = identifier.text;
+  let current = identifier.parent;
+
+  while (current !== undefined) {
+    if (ts.isBlock(current) || ts.isSourceFile(current)) {
+      let nearest;
+      for (const statement of current.statements) {
+        if (statement.pos > identifier.pos) break;
+        if (!ts.isVariableStatement(statement)) continue;
+        for (const declaration of statement.declarationList.declarations) {
+          if (bindingNameContainsIdentifier(declaration.name, name)) {
+            nearest = {
+              declaration,
+              isConst:
+                directIdentifierBindingName(declaration.name) === name &&
+                (statement.declarationList.flags & ts.NodeFlags.Const) !== 0,
+            };
+          }
+        }
+      }
+      if (nearest !== undefined) {
+        return nearest.isConst
+          ? nearest.declaration.initializer
+          : undefined;
+      }
+
+      if (
+        ts.isBlock(current) &&
+        ts.isFunctionLike(current.parent) &&
+        current.parent.parameters.some(
+          (parameter) => bindingNameContainsIdentifier(parameter.name, name),
+        )
+      ) {
+        return undefined;
+      }
+    }
+    current = current.parent;
+  }
+
+  return undefined;
+}
+
+function inquiryStaticStringValue(
+  node,
+  sourceFile,
+  resolving = new Set(),
+) {
+  const current = unwrapExpression(node);
+  if (ts.isStringLiteralLike(current)) return current.text;
+  if (
+    ts.isBinaryExpression(current) &&
+    current.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
+    const left = inquiryStaticStringValue(
+      current.left,
+      sourceFile,
+      resolving,
+    );
+    const right = inquiryStaticStringValue(
+      current.right,
+      sourceFile,
+      resolving,
+    );
+    return left === undefined || right === undefined
+      ? undefined
+      : left + right;
+  }
+  if (ts.isTemplateExpression(current)) {
+    let value = current.head.text;
+    for (const span of current.templateSpans) {
+      const expression = inquiryStaticStringValue(
+        span.expression,
+        sourceFile,
+        resolving,
+      );
+      if (expression === undefined) return undefined;
+      value += expression + span.literal.text;
+    }
+    return value;
+  }
+  if (ts.isIdentifier(current)) {
+    const initializer = findInquiryConstInitializer(current, sourceFile);
+    if (initializer === undefined || resolving.has(initializer)) {
+      return undefined;
+    }
+    const nextResolving = new Set(resolving);
+    nextResolving.add(initializer);
+    return inquiryStaticStringValue(
+      initializer,
+      sourceFile,
+      nextResolving,
+    );
+  }
+  return undefined;
 }
 
 function inquiryVisibleMedicalCopyViolations(sourceFile) {
@@ -1399,7 +1560,12 @@ function inquiryVisibleMedicalCopyViolations(sourceFile) {
           ts.isJsxExpression(node.initializer) &&
           node.initializer.expression !== undefined
         ) {
-          inspectValue(staticStringValue(node.initializer.expression));
+          inspectValue(
+            inquiryStaticStringValue(
+              node.initializer.expression,
+              sourceFile,
+            ),
+          );
         }
       }
     } else if (
@@ -1407,7 +1573,9 @@ function inquiryVisibleMedicalCopyViolations(sourceFile) {
       node.expression !== undefined &&
       !ts.isJsxAttribute(node.parent)
     ) {
-      inspectValue(staticStringValue(node.expression));
+      inspectValue(
+        inquiryStaticStringValue(node.expression, sourceFile),
+      );
     }
 
     ts.forEachChild(node, visit);
@@ -1468,8 +1636,21 @@ function isInquiryPresentationSource(fileName) {
 }
 
 function isInquiryFeatureRootIndex(fileName) {
+  return /\/src\/features\/inquiry\/index\.[cm]?[jt]sx?$/.test(
+    normalizePath(fileName),
+  );
+}
+
+function isInquiryFeatureSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).includes('/src/features/inquiry/')
+  );
+}
+
+function isApprovedInquiryModelIndex(fileName) {
   return normalizePath(fileName).endsWith(
-    '/src/features/inquiry/index.ts',
+    '/src/features/inquiry/models/index.ts',
   );
 }
 
@@ -1605,11 +1786,19 @@ async function findSourceViolations(root) {
     }
 
     if (isInquiryFeatureRootIndex(file)) {
-      if (exportsInquiryContextModelFromFeatureRoot(sourceFile)) {
+      if (exportsInquiryContextModel(sourceFile)) {
         violations.push(
           `${relativePath}: inquiry Context Models must not be exported from a feature-root barrel`,
         );
       }
+    } else if (
+      isInquiryFeatureSource(file) &&
+      !isApprovedInquiryModelIndex(file) &&
+      exportsInquiryContextModel(sourceFile)
+    ) {
+      violations.push(
+        `${relativePath}: inquiry Context Models may only be re-exported by models/index.ts`,
+      );
     }
 
     if (isInquiryModelSource(file)) {

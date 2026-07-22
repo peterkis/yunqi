@@ -1,7 +1,7 @@
 # Phase3-C4 Inquiry Entry Design
 
-**Status:** Approved, implementation-ready  
-**Date:** 2026-07-22  
+**Status:** Approved, implementation-ready
+**Date:** 2026-07-22
 **Application:** `apps/yunqi-workbench`
 
 ## 1. Purpose
