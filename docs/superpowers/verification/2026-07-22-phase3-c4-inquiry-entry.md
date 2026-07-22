@@ -155,7 +155,7 @@ pnpm typecheck
 pnpm test:coverage
 pnpm schema:validate
 pnpm openapi:validate
-git diff --check
+git diff --check 0e23c9914592865be58df418eaaef358802f4f58..HEAD
 ```
 
 Selected final results:
