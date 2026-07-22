@@ -1352,6 +1352,15 @@ function hasInquiryContextModelImport(sourceFile) {
       found = true;
       return;
     }
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+      node.arguments[0] !== undefined &&
+      moduleTargetsInquiryModels(node.arguments[0], sourceFile)
+    ) {
+      found = true;
+      return;
+    }
     ts.forEachChild(node, visit);
   };
   visit(sourceFile);
@@ -1440,6 +1449,15 @@ function findInquiryConstInitializer(identifier, sourceFile) {
   let current = identifier.parent;
 
   while (current !== undefined) {
+    if (
+      ts.isFunctionLike(current) &&
+      current.parameters.some((parameter) =>
+        bindingNameContainsIdentifier(parameter.name, name),
+      )
+    ) {
+      return undefined;
+    }
+
     if (ts.isBlock(current) || ts.isSourceFile(current)) {
       let nearest;
       for (const statement of current.statements) {
@@ -1478,12 +1496,94 @@ function findInquiryConstInitializer(identifier, sourceFile) {
   return undefined;
 }
 
-function inquiryStaticStringValue(
+function inquiryPropertyName(node) {
+  if (
+    ts.isIdentifier(node) ||
+    ts.isStringLiteralLike(node) ||
+    ts.isNumericLiteral(node)
+  ) {
+    return node.text;
+  }
+  if (ts.isComputedPropertyName(node)) {
+    return staticStringValue(node.expression);
+  }
+  return undefined;
+}
+
+function inquiryStaticValueNode(
   node,
   sourceFile,
   resolving = new Set(),
 ) {
   const current = unwrapExpression(node);
+
+  if (ts.isIdentifier(current)) {
+    const initializer = findInquiryConstInitializer(current, sourceFile);
+    if (initializer === undefined || resolving.has(initializer)) {
+      return undefined;
+    }
+    const nextResolving = new Set(resolving);
+    nextResolving.add(initializer);
+    return inquiryStaticValueNode(
+      initializer,
+      sourceFile,
+      nextResolving,
+    );
+  }
+
+  if (
+    ts.isPropertyAccessExpression(current) ||
+    ts.isElementAccessExpression(current)
+  ) {
+    const propertyName = staticMemberName(current);
+    if (propertyName === undefined) return undefined;
+    const owner = inquiryStaticValueNode(
+      current.expression,
+      sourceFile,
+      resolving,
+    );
+    const object = owner === undefined ? undefined : unwrapExpression(owner);
+    if (object === undefined || !ts.isObjectLiteralExpression(object)) {
+      return undefined;
+    }
+    const property = object.properties.find(
+      (candidate) => inquiryPropertyName(candidate.name) === propertyName,
+    );
+    if (property === undefined) return undefined;
+    if (ts.isPropertyAssignment(property)) {
+      if (resolving.has(property.initializer)) return undefined;
+      const nextResolving = new Set(resolving);
+      nextResolving.add(property.initializer);
+      return inquiryStaticValueNode(
+        property.initializer,
+        sourceFile,
+        nextResolving,
+      );
+    }
+    if (ts.isShorthandPropertyAssignment(property)) {
+      if (resolving.has(property)) return undefined;
+      const nextResolving = new Set(resolving);
+      nextResolving.add(property);
+      return inquiryStaticValueNode(
+        property.name,
+        sourceFile,
+        nextResolving,
+      );
+    }
+    return undefined;
+  }
+
+  return current;
+}
+
+function inquiryStaticStringValue(
+  node,
+  sourceFile,
+  resolving = new Set(),
+) {
+  const resolved = inquiryStaticValueNode(node, sourceFile, resolving);
+  if (resolved === undefined) return undefined;
+  const current = unwrapExpression(resolved);
   if (ts.isStringLiteralLike(current)) return current.text;
   if (
     ts.isBinaryExpression(current) &&
@@ -1515,19 +1615,6 @@ function inquiryStaticStringValue(
       value += expression + span.literal.text;
     }
     return value;
-  }
-  if (ts.isIdentifier(current)) {
-    const initializer = findInquiryConstInitializer(current, sourceFile);
-    if (initializer === undefined || resolving.has(initializer)) {
-      return undefined;
-    }
-    const nextResolving = new Set(resolving);
-    nextResolving.add(initializer);
-    return inquiryStaticStringValue(
-      initializer,
-      sourceFile,
-      nextResolving,
-    );
   }
   return undefined;
 }
@@ -1792,12 +1879,12 @@ async function findSourceViolations(root) {
         );
       }
     } else if (
-      isInquiryFeatureSource(file) &&
+      isProductionSource(file) &&
       !isApprovedInquiryModelIndex(file) &&
       exportsInquiryContextModel(sourceFile)
     ) {
       violations.push(
-        `${relativePath}: inquiry Context Models may only be re-exported by models/index.ts`,
+        `${relativePath}: inquiry Context Models may only be re-exported by features/inquiry/models/index.ts`,
       );
     }
 

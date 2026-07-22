@@ -3008,6 +3008,20 @@ test('rejects an inquiry Context Model import-type query in presentation source'
   });
 });
 
+test('rejects a dynamic import of inquiry Context Models in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/DynamicModelPage.tsx',
+    source: `
+      export function DynamicModelPage() {
+        void import('../models');
+        return <p>信息记录</p>;
+      }
+    `,
+    expected:
+      /DynamicModelPage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
 test('rejects a namespace import from inquiry models in presentation source', async () => {
   await assertMutationRejected({
     relativeSourcePath: 'features/inquiry/pages/ModelNamespacePage.tsx',
@@ -3027,7 +3041,17 @@ test('rejects an inquiry model re-export outside the approved model index', asyn
     relativeSourcePath: 'features/inquiry/context.ts',
     source: "export type { PatientContextModel } from './models';",
     expected:
-      /features\/inquiry\/context\.ts: inquiry Context Models may only be re-exported by models\/index\.ts/,
+      /features\/inquiry\/context\.ts: inquiry Context Models may only be re-exported by features\/inquiry\/models\/index\.ts/,
+  });
+});
+
+test('rejects an inquiry model re-export outside the inquiry feature', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'lib/inquiry-types.ts',
+    source:
+      "export type { PatientContextModel } from '../features/inquiry/models';",
+    expected:
+      /src\/lib\/inquiry-types\.ts: inquiry Context Models may only be re-exported by features\/inquiry\/models\/index\.ts/,
   });
 });
 
@@ -3098,6 +3122,18 @@ test('rejects visible medical-decision attributes through an immutable alias', a
   });
 });
 
+test('rejects medical-decision copy rendered through an immutable object member', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ObjectCopy.tsx',
+    source: `
+      const copy = { label: '诊断' } as const;
+      export function ObjectCopy() { return <p>{copy.label}</p>; }
+    `,
+    expected:
+      /ObjectCopy\.tsx: inquiry user-visible medical-decision literal 诊断 is forbidden/,
+  });
+});
+
 for (const literal of ['方剂', '中药', '剂量', '疗程', '治法']) {
   test(`rejects additional treatment-boundary copy ${literal}`, async () => {
     await assertMutationRejected({
@@ -3136,6 +3172,21 @@ test('allows a rendered value that shadows a medical const through props', async
       export function ShadowedCopy({ copy }: { copy: string }) {
         return <p>{copy}</p>;
       }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows a concise arrow parameter that shadows a medical const', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ArrowCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export const ArrowCopy = (copy: string) => <p>{copy}</p>;
     `,
   });
 
