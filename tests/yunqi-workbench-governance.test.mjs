@@ -78,6 +78,64 @@ function createFixture({
   return fixtureRoot;
 }
 
+const inquiryModelSources = {
+  'audit-context.ts': `
+    export interface AuditContextModel {
+      readonly actorId: string;
+      readonly action: string;
+      readonly timestamp: string;
+      readonly targetId?: string;
+    }
+  `,
+  'inquiry-context.ts': `
+    export interface InquiryContextModel {
+      readonly id: string;
+      readonly patientId: string;
+    }
+  `,
+  'observation-context.ts': `
+    export interface ObservationContextModel {
+      readonly id: string;
+      readonly inquiryId: string;
+      readonly category?: string;
+      readonly recordedValue?: unknown;
+    }
+  `,
+  'patient-context.ts': `
+    export interface PatientContextModel {
+      readonly id: string;
+      readonly displayName?: string;
+    }
+  `,
+  'permission-context.ts': `
+    export interface PermissionContextModel {
+      readonly actorId: string;
+    }
+  `,
+  'index.ts': `
+    export type { AuditContextModel } from './audit-context';
+    export type { InquiryContextModel } from './inquiry-context';
+    export type { ObservationContextModel } from './observation-context';
+    export type { PatientContextModel } from './patient-context';
+    export type { PermissionContextModel } from './permission-context';
+  `,
+};
+
+function createInquiryModelFixture(overrides = {}) {
+  const fixtureRoot = createFixture();
+  for (const [fileName, source] of Object.entries({
+    ...inquiryModelSources,
+    ...overrides,
+  })) {
+    writeFixtureFile(
+      fixtureRoot,
+      `apps/yunqi-workbench/src/features/inquiry/models/${fileName}`,
+      source,
+    );
+  }
+  return fixtureRoot;
+}
+
 async function assertMutationRejected({
   dependencies,
   devDependencies,
@@ -2758,6 +2816,432 @@ test('rejects a default-exported copied frozen DTO declaration', async () => {
       /models\/default-copied-dto\.ts: frozen DTO YunQiTimeDto must be imported from @yunqi\/contracts/,
   });
 });
+
+test('rejects direct client capability access in feature page source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ClientPage.tsx',
+    source: `
+      import { yunqiClient } from '@yunqi/client';
+      export function ClientPage() {
+        void yunqiClient.getCurrent();
+        return <main />;
+      }
+    `,
+    expected:
+      /features\/inquiry\/pages\/ClientPage\.tsx: direct YunQi client method access is forbidden/,
+  });
+});
+
+for (const [fileName, interfaceName, source] of [
+  [
+    'patient-context.ts',
+    'PatientContextModel',
+    `export interface PatientContextModel {
+      readonly id: string;
+      readonly displayName?: string;
+      readonly metadata?: Record<string, unknown>;
+    }`,
+  ],
+  [
+    'inquiry-context.ts',
+    'InquiryContextModel',
+    `export interface InquiryContextModel {
+      readonly id: string;
+      readonly patientId: string;
+      readonly status?: 'draft' | 'completed';
+    }`,
+  ],
+  [
+    'observation-context.ts',
+    'ObservationContextModel',
+    `export interface ObservationContextModel {
+      readonly id: string;
+      readonly inquiryId: string;
+      readonly category?: string;
+      readonly recordedValue?: unknown;
+      readonly recordedAt?: string;
+    }`,
+  ],
+  [
+    'permission-context.ts',
+    'PermissionContextModel',
+    `export interface PermissionContextModel {
+      readonly actorId: string;
+      readonly role: 'doctor';
+    }`,
+  ],
+  [
+    'audit-context.ts',
+    'AuditContextModel',
+    `export interface AuditContextModel {
+      readonly actorId: string;
+      readonly action: string;
+      readonly timestamp: string;
+      readonly targetId?: string;
+      readonly diagnosis?: string;
+    }`,
+  ],
+]) {
+  test(`rejects shape drift in ${interfaceName}`, async () => {
+    const fixtureRoot = createInquiryModelFixture({
+      [fileName]: source,
+    });
+    const violations = await findWorkbenchGovernanceViolations(fixtureRoot);
+
+    assert.ok(
+      violations.some((violation) =>
+        new RegExp(
+          `features/inquiry/models/${fileName}: ${interfaceName} must match the frozen Phase3-C4 interface`,
+        ).test(violation),
+      ),
+      `Expected ${interfaceName} drift rejection, received:\n${violations.join('\n')}`,
+    );
+  });
+}
+
+test('rejects mutable Context Model fields', async () => {
+  const fixtureRoot = createInquiryModelFixture({
+    'patient-context.ts': `
+      export interface PatientContextModel {
+        id: string;
+        readonly displayName?: string;
+      }
+    `,
+  });
+  const violations = await findWorkbenchGovernanceViolations(fixtureRoot);
+
+  assert.ok(
+    violations.some((violation) =>
+      /patient-context\.ts: PatientContextModel must match the frozen Phase3-C4 interface/.test(
+        violation,
+      ),
+    ),
+    violations.join('\n'),
+  );
+});
+
+test('allows the exact internal inquiry Context Models', async () => {
+  const fixtureRoot = createInquiryModelFixture();
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('rejects runtime exports from the internal inquiry model index', async () => {
+  const fixtureRoot = createInquiryModelFixture({
+    'index.ts': `
+      export { AuditContextModel } from './audit-context';
+      export type { InquiryContextModel } from './inquiry-context';
+      export type { ObservationContextModel } from './observation-context';
+      export type { PatientContextModel } from './patient-context';
+      export type { PermissionContextModel } from './permission-context';
+    `,
+  });
+  const violations = await findWorkbenchGovernanceViolations(fixtureRoot);
+
+  assert.ok(
+    violations.some((violation) =>
+      /features\/inquiry\/models\/index\.ts: inquiry model index must contain only the frozen type-only exports/.test(
+        violation,
+      ),
+    ),
+    violations.join('\n'),
+  );
+});
+
+test('rejects a feature-root Context Model barrel', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/index.ts',
+    source: "export type { PatientContextModel } from './models';",
+    expected:
+      /features\/inquiry\/index\.ts: inquiry Context Models must not be exported from a feature-root barrel/,
+  });
+});
+
+for (const responsibility of ['pages', 'components']) {
+  test(`rejects Context Model imports in production inquiry ${responsibility}`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: `features/inquiry/${responsibility}/ModelView.tsx`,
+      source: `
+        import type { PatientContextModel } from '../models';
+        export function ModelView({ patient }: { patient: PatientContextModel }) {
+          return <p>{patient.id}</p>;
+        }
+      `,
+      expected: new RegExp(
+        `features/inquiry/${responsibility}/ModelView\\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source`,
+      ),
+    });
+  });
+}
+
+test('allows an unrelated namespace import in inquiry presentation source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ReactNamespacePage.tsx',
+    source: `
+      import * as React from 'react';
+      export function ReactNamespacePage() {
+        return <p>{React.version}</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('rejects an inquiry Context Model import-type query in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ImportTypePage.tsx',
+    source: `
+      type Patient = import('../models').PatientContextModel;
+      export function ImportTypePage({ patient }: { patient: Patient }) {
+        return <p>{patient.id}</p>;
+      }
+    `,
+    expected:
+      /ImportTypePage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
+test('rejects a dynamic import of inquiry Context Models in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/DynamicModelPage.tsx',
+    source: `
+      export function DynamicModelPage() {
+        void import('../models');
+        return <p>信息记录</p>;
+      }
+    `,
+    expected:
+      /DynamicModelPage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
+test('rejects a namespace import from inquiry models in presentation source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ModelNamespacePage.tsx',
+    source: `
+      import type * as InquiryModels from '../models';
+      export function ModelNamespacePage({ patient }: { patient: InquiryModels.PatientContextModel }) {
+        return <p>{patient.id}</p>;
+      }
+    `,
+    expected:
+      /ModelNamespacePage\.tsx: inquiry Context Model imports are forbidden in Phase3-C4 presentation source/,
+  });
+});
+
+test('rejects an inquiry model re-export outside the approved model index', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/context.ts',
+    source: "export type { PatientContextModel } from './models';",
+    expected:
+      /features\/inquiry\/context\.ts: inquiry Context Models may only be re-exported by features\/inquiry\/models\/index\.ts/,
+  });
+});
+
+test('rejects an inquiry model re-export outside the inquiry feature', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'lib/inquiry-types.ts',
+    source:
+      "export type { PatientContextModel } from '../features/inquiry/models';",
+    expected:
+      /src\/lib\/inquiry-types\.ts: inquiry Context Models may only be re-exported by features\/inquiry\/models\/index\.ts/,
+  });
+});
+
+test('rejects an inquiry feature-root TSX model barrel', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/index.tsx',
+    source: "export type { PatientContextModel } from './models';",
+    expected:
+      /features\/inquiry\/index\.tsx: inquiry Context Models must not be exported from a feature-root barrel/,
+  });
+});
+
+test('rejects an aliased import-type export from the inquiry feature root', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/index.ts',
+    source:
+      "export type Patient = import('./models').PatientContextModel;",
+    expected:
+      /features\/inquiry\/index\.ts: inquiry Context Models must not be exported from a feature-root barrel/,
+  });
+});
+
+for (const [label, source, literal] of [
+  ['JSX text', 'export function Copy() { return <p>诊断</p>; }', '诊断'],
+  [
+    'visible attribute',
+    'export function Copy() { return <section aria-label="治疗" />; }',
+    '治疗',
+  ],
+  [
+    'static JSX expression',
+    "export function Copy() { return <p>{'处方'}</p>; }",
+    '处方',
+  ],
+]) {
+  test(`rejects medical-decision copy in inquiry ${label}`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: 'features/inquiry/pages/Copy.tsx',
+      source,
+      expected: new RegExp(
+        `features/inquiry/pages/Copy\\.tsx: inquiry user-visible medical-decision literal ${literal} is forbidden`,
+      ),
+    });
+  });
+}
+
+test('rejects medical-decision copy rendered through an immutable alias', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/AliasedCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export function AliasedCopy() { return <p>{copy}</p>; }
+    `,
+    expected:
+      /AliasedCopy\.tsx: inquiry user-visible medical-decision literal 诊断 is forbidden/,
+  });
+});
+
+test('rejects visible medical-decision attributes through an immutable alias', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/AliasedAttribute.tsx',
+    source: `
+      const copy = '治疗';
+      export function AliasedAttribute() { return <section title={copy} />; }
+    `,
+    expected:
+      /AliasedAttribute\.tsx: inquiry user-visible medical-decision literal 治疗 is forbidden/,
+  });
+});
+
+test('rejects medical-decision copy rendered through an immutable object member', async () => {
+  await assertMutationRejected({
+    relativeSourcePath: 'features/inquiry/pages/ObjectCopy.tsx',
+    source: `
+      const copy = { label: '诊断' } as const;
+      export function ObjectCopy() { return <p>{copy.label}</p>; }
+    `,
+    expected:
+      /ObjectCopy\.tsx: inquiry user-visible medical-decision literal 诊断 is forbidden/,
+  });
+});
+
+for (const literal of ['方剂', '中药', '剂量', '疗程', '治法']) {
+  test(`rejects additional treatment-boundary copy ${literal}`, async () => {
+    await assertMutationRejected({
+      relativeSourcePath: 'features/inquiry/pages/TreatmentCopy.tsx',
+      source: `export function TreatmentCopy() { return <p>${literal}</p>; }`,
+      expected: new RegExp(
+        `TreatmentCopy\\.tsx: inquiry user-visible medical-decision literal ${literal} is forbidden`,
+      ),
+    });
+  });
+}
+
+test('allows a non-rendered medical term string in ordinary source', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/InternalTerm.tsx',
+    source: `
+      const internalSafetyTerm = '诊断';
+      export function InternalTerm() {
+        void internalSafetyTerm;
+        return <p>信息记录</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows a rendered value that shadows a medical const through props', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ShadowedCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export function ShadowedCopy({ copy }: { copy: string }) {
+        return <p>{copy}</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows a concise arrow parameter that shadows a medical const', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/ArrowCopy.tsx',
+    source: `
+      const copy = '诊断';
+      export const ArrowCopy = (copy: string) => <p>{copy}</p>;
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows medical-looking ordinary identifiers outside user-visible copy', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/NeutralPage.tsx',
+    source: `
+      const medicalRecommendationPolicy = true;
+      export function NeutralPage() {
+        void medicalRecommendationPolicy;
+        return <p>信息记录</p>;
+      }
+    `,
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('does not scan inquiry tests for user-visible medical-decision copy', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath: 'features/inquiry/pages/Copy.test.tsx',
+    source: 'export function Copy() { return <p>诊断治疗</p>; }',
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+for (const relativeSourcePath of [
+  'features/inquiry/pages/Copy.fixture.tsx',
+  'features/inquiry/pages/fixtures/Copy.tsx',
+]) {
+  test(`does not scan inquiry fixture ${relativeSourcePath}`, async () => {
+    const fixtureRoot = createFixture({
+      relativeSourcePath,
+      source: 'export function Copy() { return <p>诊断治疗</p>; }',
+    });
+
+    assert.deepEqual(
+      await findWorkbenchGovernanceViolations(fixtureRoot),
+      [],
+    );
+  });
+}
 
 test('CLI exits non-zero and prints every path-qualified violation', () => {
   const fixtureRoot = createFixture({

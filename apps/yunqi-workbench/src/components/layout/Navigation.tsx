@@ -35,7 +35,7 @@ export function Navigation() {
           </li>
         ))}
       </ul>
-      <p className="navigation-note">Phase 3-C3 · URL 驱动年度分析</p>
+      <p className="navigation-note">Phase 3-C4 · 问诊结构化入口</p>
     </nav>
   );
 }

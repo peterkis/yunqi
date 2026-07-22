@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { InquiryEntryPage } from '../features/inquiry/pages/InquiryEntryPage';
 import { CurrentYunQiView } from '../features/yunqi/components/CurrentYunQiView';
 import { YearAnalysisLayout } from '../features/yunqi/year-analysis/components/YearAnalysisLayout';
 import { YearAnalysisPage } from '../features/yunqi/year-analysis/components/YearAnalysisPage';
@@ -13,6 +14,7 @@ export function AppRoutes() {
         element={<Navigate replace to="/yunqi/current" />}
       />
       <Route path="/yunqi/current" element={<CurrentYunQiView />} />
+      <Route path="/yunqi/inquiry" element={<InquiryEntryPage />} />
       <Route path="/yunqi/year" element={<YearAnalysisLayout />}>
         <Route index element={<YearEntryPage />} />
         <Route path=":year" element={<YearAnalysisPage />} />

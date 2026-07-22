@@ -327,6 +327,70 @@ button {
   margin-inline: auto;
 }
 
+.inquiry-entry-page {
+  display: grid;
+  width: 100%;
+  max-width: 74rem;
+  min-width: 0;
+  gap: clamp(3.5rem, 7vw, 6.5rem);
+  margin-inline: auto;
+}
+
+.inquiry-entry-page__header {
+  display: grid;
+  max-width: 54rem;
+  gap: 0.9rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--rule-strong);
+}
+
+.inquiry-entry-page__header h2,
+.inquiry-entry-page__header p {
+  margin: 0;
+}
+
+.inquiry-entry-page__header h2 {
+  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: clamp(2.65rem, 6vw, 5.2rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.045em;
+}
+
+.inquiry-entry-page__header > p:last-child {
+  max-width: 46rem;
+  color: var(--ink-muted);
+  line-height: 1.8;
+}
+
+.inquiry-capability-grid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-block: 1px solid var(--rule);
+  border-left: 1px solid var(--rule);
+}
+
+.inquiry-capability-grid .ui-card {
+  min-height: 13rem;
+}
+
+.inquiry-capability-card__description {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.75;
+}
+
+.inquiry-capability-card__status {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  align-items: center;
+  margin: auto 0 0;
+  color: var(--ink-muted);
+  font-size: 0.75rem;
+}
+
 .annual-six-qi-selector {
   min-width: 0;
   margin: 0;
@@ -1015,6 +1079,10 @@ button {
   .annual-stage-rail__range {
     font-size: 0.64rem;
   }
+
+  .inquiry-capability-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 46rem) {
@@ -1092,7 +1160,8 @@ button {
   }
 
   .annual-six-qi-selector__options,
-  .annual-six-qi-detail__facts {
+  .annual-six-qi-detail__facts,
+  .inquiry-capability-grid {
     grid-template-columns: 1fr;
   }
 

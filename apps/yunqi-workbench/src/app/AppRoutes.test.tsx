@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { YunQiClient } from '@yunqi/client';
 import {
@@ -139,6 +139,64 @@ describe('AppRoutes', () => {
     const client = createClient();
 
     renderAppAt('/not-approved', client);
+
+    expect(
+      screen.getByRole('heading', { name: '页面未找到' }),
+    ).toBeInTheDocument();
+    expect(client.getCurrent).not.toHaveBeenCalled();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('renders the read-only inquiry entry without making a request', () => {
+    const client = createClient();
+
+    renderAppAt('/yunqi/inquiry', client);
+
+    expect(
+      screen.getByRole('heading', { name: '问诊结构化入口' }),
+    ).toBeInTheDocument();
+
+    const capabilities = screen.getByRole('region', {
+      name: '未来能力',
+    });
+    const cards = within(capabilities).getAllByRole('article');
+
+    expect(cards).toHaveLength(3);
+    expect(
+      within(capabilities).getByRole('heading', {
+        name: '患者上下文',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(capabilities).getByRole('heading', {
+        name: '历史记录',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      within(capabilities).getByRole('heading', {
+        name: '新建结构化记录',
+      }),
+    ).toBeInTheDocument();
+    expect(within(capabilities).getAllByText('规划中')).toHaveLength(3);
+    expect(within(capabilities).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(capabilities).queryByRole('button')).not.toBeInTheDocument();
+    expect(
+      within(capabilities).queryByText('aria-disabled'),
+    ).not.toBeInTheDocument();
+    expect(client.getCurrent).not.toHaveBeenCalled();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    '/yunqi/inquiry/patient',
+    '/yunqi/inquiry/history',
+    '/yunqi/inquiry/new',
+  ])('keeps the unapproved inquiry child route %s unavailable', (route) => {
+    const client = createClient();
+
+    renderAppAt(route, client);
 
     expect(
       screen.getByRole('heading', { name: '页面未找到' }),

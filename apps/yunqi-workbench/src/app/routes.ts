@@ -18,7 +18,9 @@ export const navigationItems = [
   {
     id: 'inquiry',
     label: '问诊',
-    mark: '待',
-    status: 'disabled',
+    mark: '问',
+    status: 'enabled',
+    to: '/yunqi/inquiry',
+    end: true,
   },
 ] as const;

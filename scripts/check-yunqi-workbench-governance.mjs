@@ -1158,6 +1158,520 @@ function sharedTupleMapperViolations(sourceFile) {
   return violations;
 }
 
+const INQUIRY_CONTEXT_MODEL_SPECS = new Map([
+  [
+    'audit-context.ts',
+    {
+      interfaceName: 'AuditContextModel',
+      members: [
+        ['actorId', 'string', false],
+        ['action', 'string', false],
+        ['timestamp', 'string', false],
+        ['targetId', 'string', true],
+      ],
+    },
+  ],
+  [
+    'inquiry-context.ts',
+    {
+      interfaceName: 'InquiryContextModel',
+      members: [
+        ['id', 'string', false],
+        ['patientId', 'string', false],
+      ],
+    },
+  ],
+  [
+    'observation-context.ts',
+    {
+      interfaceName: 'ObservationContextModel',
+      members: [
+        ['id', 'string', false],
+        ['inquiryId', 'string', false],
+        ['category', 'string', true],
+        ['recordedValue', 'unknown', true],
+      ],
+    },
+  ],
+  [
+    'patient-context.ts',
+    {
+      interfaceName: 'PatientContextModel',
+      members: [
+        ['id', 'string', false],
+        ['displayName', 'string', true],
+      ],
+    },
+  ],
+  [
+    'permission-context.ts',
+    {
+      interfaceName: 'PermissionContextModel',
+      members: [['actorId', 'string', false]],
+    },
+  ],
+]);
+
+const INQUIRY_MODEL_INDEX_EXPORTS = [
+  ['AuditContextModel', './audit-context'],
+  ['InquiryContextModel', './inquiry-context'],
+  ['ObservationContextModel', './observation-context'],
+  ['PatientContextModel', './patient-context'],
+  ['PermissionContextModel', './permission-context'],
+];
+
+const INQUIRY_VISIBLE_ATTRIBUTES = new Set([
+  'alt',
+  'aria-label',
+  'description',
+  'label',
+  'placeholder',
+  'title',
+]);
+
+const INQUIRY_FORBIDDEN_VISIBLE_LITERALS = [
+  '诊断',
+  '辨证',
+  '证型',
+  '治疗',
+  '处方',
+  '用药',
+  '风险预测',
+  '推荐方案',
+  '方剂',
+  '中药',
+  '剂量',
+  '疗程',
+  '治法',
+  'diagnosis',
+  'treatment',
+  'prescription',
+  'medication',
+  'risk prediction',
+  'recommendation',
+];
+
+function hasSyntaxModifier(node, kind) {
+  return node.modifiers?.some((modifier) => modifier.kind === kind) ?? false;
+}
+
+function inquiryModelInterfaceMatches(sourceFile, spec) {
+  if (sourceFile.statements.length !== 1) return false;
+  const declaration = sourceFile.statements[0];
+  if (
+    !ts.isInterfaceDeclaration(declaration) ||
+    declaration.name.text !== spec.interfaceName ||
+    !hasSyntaxModifier(declaration, ts.SyntaxKind.ExportKeyword) ||
+    declaration.typeParameters !== undefined ||
+    declaration.heritageClauses !== undefined ||
+    declaration.members.length !== spec.members.length
+  ) {
+    return false;
+  }
+
+  return declaration.members.every((member, index) => {
+    const [name, type, optional] = spec.members[index];
+    return (
+      ts.isPropertySignature(member) &&
+      ts.isIdentifier(member.name) &&
+      member.name.text === name &&
+      hasSyntaxModifier(member, ts.SyntaxKind.ReadonlyKeyword) &&
+      Boolean(member.questionToken) === optional &&
+      member.initializer === undefined &&
+      member.type?.getText(sourceFile) === type
+    );
+  });
+}
+
+function inquiryModelIndexMatches(sourceFile) {
+  if (sourceFile.statements.length !== INQUIRY_MODEL_INDEX_EXPORTS.length) {
+    return false;
+  }
+
+  return sourceFile.statements.every((statement, index) => {
+    const [name, moduleSpecifier] = INQUIRY_MODEL_INDEX_EXPORTS[index];
+    return (
+      ts.isExportDeclaration(statement) &&
+      statement.isTypeOnly &&
+      statement.moduleSpecifier !== undefined &&
+      ts.isStringLiteral(statement.moduleSpecifier) &&
+      statement.moduleSpecifier.text === moduleSpecifier &&
+      statement.exportClause !== undefined &&
+      ts.isNamedExports(statement.exportClause) &&
+      statement.exportClause.elements.length === 1 &&
+      statement.exportClause.elements[0].propertyName === undefined &&
+      statement.exportClause.elements[0].name.text === name
+    );
+  });
+}
+
+function inquiryModelViolations(sourceFile, fileName) {
+  const baseName = normalizePath(fileName).split('/').at(-1);
+  if (baseName === 'index.ts') {
+    return inquiryModelIndexMatches(sourceFile)
+      ? []
+      : [
+          'inquiry model index must contain only the frozen type-only exports',
+        ];
+  }
+
+  const spec = INQUIRY_CONTEXT_MODEL_SPECS.get(baseName);
+  if (spec === undefined) {
+    return ['only the five frozen Phase3-C4 Context Model modules are allowed'];
+  }
+
+  return inquiryModelInterfaceMatches(sourceFile, spec)
+    ? []
+    : [`${spec.interfaceName} must match the frozen Phase3-C4 interface`];
+}
+
+function moduleTargetsInquiryModels(moduleSpecifier, sourceFile) {
+  if (!ts.isStringLiteral(moduleSpecifier)) return false;
+  const target = normalizePath(
+    resolve(dirname(sourceFile.fileName), moduleSpecifier.text),
+  );
+  return /\/src\/features\/inquiry\/models(?:\/|$)/.test(target);
+}
+
+function hasInquiryContextModelImport(sourceFile) {
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    if (
+      ts.isImportDeclaration(node) &&
+      moduleTargetsInquiryModels(node.moduleSpecifier, sourceFile)
+    ) {
+      found = true;
+      return;
+    }
+    if (
+      ts.isImportTypeNode(node) &&
+      ts.isLiteralTypeNode(node.argument) &&
+      moduleTargetsInquiryModels(node.argument.literal, sourceFile)
+    ) {
+      found = true;
+      return;
+    }
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+      node.arguments[0] !== undefined &&
+      moduleTargetsInquiryModels(node.arguments[0], sourceFile)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
+function exportsInquiryContextModel(sourceFile) {
+  return sourceFile.statements.some((statement) => {
+    if (ts.isExportDeclaration(statement)) {
+      if (
+        statement.moduleSpecifier !== undefined &&
+        moduleTargetsInquiryModels(statement.moduleSpecifier, sourceFile)
+      ) {
+        return true;
+      }
+      if (
+        statement.exportClause !== undefined &&
+        ts.isNamedExports(statement.exportClause) &&
+        statement.exportClause.elements.some(
+          (element) =>
+            element.name.text.endsWith('ContextModel') ||
+            element.propertyName?.text.endsWith('ContextModel'),
+        )
+      ) {
+        return true;
+      }
+    }
+
+    const modifiers = ts.canHaveModifiers(statement)
+      ? ts.getModifiers(statement)
+      : undefined;
+    if (
+      modifiers?.some(
+        (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+      ) !== true
+    ) {
+      return false;
+    }
+
+    let importsInquiryModelType = false;
+    const visit = (node) => {
+      if (importsInquiryModelType) return;
+      if (
+        ts.isImportTypeNode(node) &&
+        ts.isLiteralTypeNode(node.argument) &&
+        moduleTargetsInquiryModels(node.argument.literal, sourceFile)
+      ) {
+        importsInquiryModelType = true;
+        return;
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(statement);
+    return importsInquiryModelType;
+  });
+}
+
+function inquiryForbiddenLiteral(value) {
+  const normalized = value.toLocaleLowerCase('en-US');
+  return INQUIRY_FORBIDDEN_VISIBLE_LITERALS.find((literal) =>
+    normalized.includes(literal.toLocaleLowerCase('en-US')),
+  );
+}
+
+function directIdentifierBindingName(node) {
+  return ts.isIdentifier(node) ? node.text : undefined;
+}
+
+function bindingNameContainsIdentifier(node, name) {
+  if (ts.isIdentifier(node)) return node.text === name;
+  if (
+    ts.isObjectBindingPattern(node) ||
+    ts.isArrayBindingPattern(node)
+  ) {
+    return node.elements.some(
+      (element) =>
+        ts.isBindingElement(element) &&
+        bindingNameContainsIdentifier(element.name, name),
+    );
+  }
+  return false;
+}
+
+function findInquiryConstInitializer(identifier, sourceFile) {
+  const name = identifier.text;
+  let current = identifier.parent;
+
+  while (current !== undefined) {
+    if (
+      ts.isFunctionLike(current) &&
+      current.parameters.some((parameter) =>
+        bindingNameContainsIdentifier(parameter.name, name),
+      )
+    ) {
+      return undefined;
+    }
+
+    if (ts.isBlock(current) || ts.isSourceFile(current)) {
+      let nearest;
+      for (const statement of current.statements) {
+        if (statement.pos > identifier.pos) break;
+        if (!ts.isVariableStatement(statement)) continue;
+        for (const declaration of statement.declarationList.declarations) {
+          if (bindingNameContainsIdentifier(declaration.name, name)) {
+            nearest = {
+              declaration,
+              isConst:
+                directIdentifierBindingName(declaration.name) === name &&
+                (statement.declarationList.flags & ts.NodeFlags.Const) !== 0,
+            };
+          }
+        }
+      }
+      if (nearest !== undefined) {
+        return nearest.isConst
+          ? nearest.declaration.initializer
+          : undefined;
+      }
+
+      if (
+        ts.isBlock(current) &&
+        ts.isFunctionLike(current.parent) &&
+        current.parent.parameters.some(
+          (parameter) => bindingNameContainsIdentifier(parameter.name, name),
+        )
+      ) {
+        return undefined;
+      }
+    }
+    current = current.parent;
+  }
+
+  return undefined;
+}
+
+function inquiryPropertyName(node) {
+  if (
+    ts.isIdentifier(node) ||
+    ts.isStringLiteralLike(node) ||
+    ts.isNumericLiteral(node)
+  ) {
+    return node.text;
+  }
+  if (ts.isComputedPropertyName(node)) {
+    return staticStringValue(node.expression);
+  }
+  return undefined;
+}
+
+function inquiryStaticValueNode(
+  node,
+  sourceFile,
+  resolving = new Set(),
+) {
+  const current = unwrapExpression(node);
+
+  if (ts.isIdentifier(current)) {
+    const initializer = findInquiryConstInitializer(current, sourceFile);
+    if (initializer === undefined || resolving.has(initializer)) {
+      return undefined;
+    }
+    const nextResolving = new Set(resolving);
+    nextResolving.add(initializer);
+    return inquiryStaticValueNode(
+      initializer,
+      sourceFile,
+      nextResolving,
+    );
+  }
+
+  if (
+    ts.isPropertyAccessExpression(current) ||
+    ts.isElementAccessExpression(current)
+  ) {
+    const propertyName = staticMemberName(current);
+    if (propertyName === undefined) return undefined;
+    const owner = inquiryStaticValueNode(
+      current.expression,
+      sourceFile,
+      resolving,
+    );
+    const object = owner === undefined ? undefined : unwrapExpression(owner);
+    if (object === undefined || !ts.isObjectLiteralExpression(object)) {
+      return undefined;
+    }
+    const property = object.properties.find(
+      (candidate) => inquiryPropertyName(candidate.name) === propertyName,
+    );
+    if (property === undefined) return undefined;
+    if (ts.isPropertyAssignment(property)) {
+      if (resolving.has(property.initializer)) return undefined;
+      const nextResolving = new Set(resolving);
+      nextResolving.add(property.initializer);
+      return inquiryStaticValueNode(
+        property.initializer,
+        sourceFile,
+        nextResolving,
+      );
+    }
+    if (ts.isShorthandPropertyAssignment(property)) {
+      if (resolving.has(property)) return undefined;
+      const nextResolving = new Set(resolving);
+      nextResolving.add(property);
+      return inquiryStaticValueNode(
+        property.name,
+        sourceFile,
+        nextResolving,
+      );
+    }
+    return undefined;
+  }
+
+  return current;
+}
+
+function inquiryStaticStringValue(
+  node,
+  sourceFile,
+  resolving = new Set(),
+) {
+  const resolved = inquiryStaticValueNode(node, sourceFile, resolving);
+  if (resolved === undefined) return undefined;
+  const current = unwrapExpression(resolved);
+  if (ts.isStringLiteralLike(current)) return current.text;
+  if (
+    ts.isBinaryExpression(current) &&
+    current.operatorToken.kind === ts.SyntaxKind.PlusToken
+  ) {
+    const left = inquiryStaticStringValue(
+      current.left,
+      sourceFile,
+      resolving,
+    );
+    const right = inquiryStaticStringValue(
+      current.right,
+      sourceFile,
+      resolving,
+    );
+    return left === undefined || right === undefined
+      ? undefined
+      : left + right;
+  }
+  if (ts.isTemplateExpression(current)) {
+    let value = current.head.text;
+    for (const span of current.templateSpans) {
+      const expression = inquiryStaticStringValue(
+        span.expression,
+        sourceFile,
+        resolving,
+      );
+      if (expression === undefined) return undefined;
+      value += expression + span.literal.text;
+    }
+    return value;
+  }
+  return undefined;
+}
+
+function inquiryVisibleMedicalCopyViolations(sourceFile) {
+  const violations = [];
+
+  const inspectValue = (value) => {
+    if (value === undefined) return;
+    const literal = inquiryForbiddenLiteral(value);
+    if (literal !== undefined) {
+      violations.push(
+        `inquiry user-visible medical-decision literal ${literal} is forbidden`,
+      );
+    }
+  };
+
+  const visit = (node) => {
+    if (ts.isJsxText(node)) {
+      inspectValue(node.text);
+    } else if (
+      ts.isJsxAttribute(node) &&
+      ts.isIdentifier(node.name) &&
+      INQUIRY_VISIBLE_ATTRIBUTES.has(node.name.text)
+    ) {
+      if (node.initializer !== undefined) {
+        if (ts.isStringLiteral(node.initializer)) {
+          inspectValue(node.initializer.text);
+        } else if (
+          ts.isJsxExpression(node.initializer) &&
+          node.initializer.expression !== undefined
+        ) {
+          inspectValue(
+            inquiryStaticStringValue(
+              node.initializer.expression,
+              sourceFile,
+            ),
+          );
+        }
+      }
+    } else if (
+      ts.isJsxExpression(node) &&
+      node.expression !== undefined &&
+      !ts.isJsxAttribute(node.parent)
+    ) {
+      inspectValue(
+        inquiryStaticStringValue(node.expression, sourceFile),
+      );
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [...new Set(violations)];
+}
+
 function isProductionSource(fileName) {
   const normalized = normalizePath(fileName);
   return !(
@@ -1174,12 +1688,56 @@ function isProductionComponentSource(fileName) {
     normalized.includes('/src/app/') ||
     (
       normalized.includes('/src/features/') &&
-      normalized.includes('/components/')
+      (
+        normalized.includes('/components/') ||
+        normalized.includes('/pages/')
+      )
     );
 
   return (
     isProductionSource(fileName) &&
     hasComponentResponsibility
+  );
+}
+
+function isInquiryModelSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return (
+    isProductionSource(fileName) &&
+    normalized.includes('/src/features/inquiry/models/')
+  );
+}
+
+function isInquiryPresentationSource(fileName) {
+  const normalized = normalizePath(fileName);
+  return (
+    isProductionSource(fileName) &&
+    !/\.fixture\.[cm]?[jt]sx?$/.test(normalized) &&
+    !normalized.includes('/fixtures/') &&
+    normalized.includes('/src/features/inquiry/') &&
+    (
+      normalized.includes('/components/') ||
+      normalized.includes('/pages/')
+    )
+  );
+}
+
+function isInquiryFeatureRootIndex(fileName) {
+  return /\/src\/features\/inquiry\/index\.[cm]?[jt]sx?$/.test(
+    normalizePath(fileName),
+  );
+}
+
+function isInquiryFeatureSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).includes('/src/features/inquiry/')
+  );
+}
+
+function isApprovedInquiryModelIndex(fileName) {
+  return normalizePath(fileName).endsWith(
+    '/src/features/inquiry/models/index.ts',
   );
 }
 
@@ -1311,6 +1869,41 @@ async function findSourceViolations(root) {
         violations.push(
           `${relativePath}: frozen DTO ${match[1]} must be imported from @yunqi/contracts`,
         );
+      }
+    }
+
+    if (isInquiryFeatureRootIndex(file)) {
+      if (exportsInquiryContextModel(sourceFile)) {
+        violations.push(
+          `${relativePath}: inquiry Context Models must not be exported from a feature-root barrel`,
+        );
+      }
+    } else if (
+      isProductionSource(file) &&
+      !isApprovedInquiryModelIndex(file) &&
+      exportsInquiryContextModel(sourceFile)
+    ) {
+      violations.push(
+        `${relativePath}: inquiry Context Models may only be re-exported by features/inquiry/models/index.ts`,
+      );
+    }
+
+    if (isInquiryModelSource(file)) {
+      for (const violation of inquiryModelViolations(sourceFile, file)) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+    }
+
+    if (isInquiryPresentationSource(file)) {
+      if (hasInquiryContextModelImport(sourceFile)) {
+        violations.push(
+          `${relativePath}: inquiry Context Model imports are forbidden in Phase3-C4 presentation source`,
+        );
+      }
+      for (const violation of inquiryVisibleMedicalCopyViolations(
+        sourceFile,
+      )) {
+        violations.push(`${relativePath}: ${violation}`);
       }
     }
 
