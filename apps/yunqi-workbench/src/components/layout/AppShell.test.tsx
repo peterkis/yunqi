@@ -16,7 +16,10 @@ describe('AppShell', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole('banner')).toHaveTextContent('TCM YunQi Lab');
+    const banner = screen.getByRole('banner');
+    expect(banner).toHaveTextContent('TCM YunQi Lab');
+    expect(banner).toHaveTextContent('临床教学工作台 · 只读');
+    expect(banner).not.toHaveTextContent('当前视图');
 
     const navigation = screen.getByRole('navigation', {
       name: '工作台导航',
