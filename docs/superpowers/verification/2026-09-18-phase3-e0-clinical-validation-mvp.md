@@ -4,7 +4,7 @@
 - Branch: codex/phase3e-e0-clinical-validation-baseline
 - Worktree: D:\Projects\YunQi-phase3e-e0
 - Base SHA: c0beecfccebefb1db7a11b29012c1d187eabcbf5
-- E0 content commit: recorded after commit below
+- E0 content commit: 3878a47
 - Verification-record commit: recorded after the verification update
 
 ## Scope
