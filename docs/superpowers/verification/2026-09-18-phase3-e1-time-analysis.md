@@ -37,6 +37,8 @@ apps/yunqi-workbench/src/features/yunqi/presentation/map-time-analysis-yunqi.ts
 apps/yunqi-workbench/src/features/yunqi/presentation/view-model.ts
 apps/yunqi-workbench/src/styles/global.css
 apps/yunqi-workbench/src/features/yunqi/time-analysis/
+docs/superpowers/specs/2026-09-18-phase3-e1-time-analysis-design.md
+docs/superpowers/plans/2026-09-18-phase3-e1-time-analysis.md
 scripts/check-yunqi-workbench-governance.mjs
 tests/yunqi-workbench-governance.test.mjs
 docs/superpowers/verification/2026-09-18-phase3-e1-time-analysis.md
