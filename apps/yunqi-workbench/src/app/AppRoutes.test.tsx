@@ -1,4 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { YunQiClient } from '@yunqi/client';
 import {
@@ -57,10 +63,18 @@ function createClient(overrides: Partial<YunQiClient> = {}): YunQiClient {
 
 function deferred<T>() {
   let resolve!: (value: T) => void;
-  const promise = new Promise<T>((resolvePromise) => {
-    resolve = resolvePromise;
-  });
-  return { promise, resolve };
+  let reject!: (reason: unknown) => void;
+  const promise = new Promise<T>(
+    (resolvePromise, rejectPromise) => {
+      resolve = resolvePromise;
+      reject = rejectPromise;
+    },
+  );
+  return {
+    promise,
+    resolve,
+    reject,
+  };
 }
 
 describe('AppRoutes', () => {
@@ -187,6 +201,211 @@ describe('AppRoutes', () => {
     expect(client.getCurrent).not.toHaveBeenCalled();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('renders the specified-time entry and keeps the initial state request-free', () => {
+    const client = createClient();
+
+    renderAppAt('/yunqi/calculate', client);
+
+    expect(
+      screen.getByRole('heading', { name: '指定时点分析' }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: /指定时点/ }),
+    ).toHaveClass('is-active');
+    expect(screen.getByLabelText('分析时间')).toHaveAttribute(
+      'type',
+      'datetime-local',
+    );
+    expect(
+      screen.getByText('北京时间 UTC+08'),
+    ).toBeInTheDocument();
+    expect(client.calculate).not.toHaveBeenCalled();
+    expect(client.getCurrent).not.toHaveBeenCalled();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole('region', { name: '指定时点分析结果' }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not calculate an invalid specified-time input', () => {
+    const client = createClient();
+
+    renderAppAt('/yunqi/calculate', client);
+
+    const input = screen.getByLabelText('分析时间');
+    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.submit(
+      screen.getByRole('form', { name: '指定时点分析表单' }),
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '请输入合法的北京时间',
+    );
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('submits one normalized request and renders the API canonical result', async () => {
+    const client = createClient({
+      calculate: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
+    });
+
+    renderAppAt('/yunqi/calculate', client);
+
+    fireEvent.change(screen.getByLabelText('分析时间'), {
+      target: { value: '2026-05-20T13:30' },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('分析时间')).toHaveValue(
+        '2026-05-20T13:30',
+      ),
+    );
+    fireEvent.submit(
+      screen.getByRole('form', { name: '指定时点分析表单' }),
+    );
+
+    await waitFor(() =>
+      expect(client.calculate).toHaveBeenCalledOnce(),
+    );
+    expect(client.calculate).toHaveBeenCalledWith({
+      dateTime: '2026-05-20T13:30:00+08:00',
+    });
+    expect(
+      await screen.findByRole('region', {
+        name: '指定时点分析结果',
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('2026-06-19 12:00:00'),
+    ).toBeInTheDocument();
+  });
+
+  it('hides the first result while a second request is pending and after it fails', async () => {
+    const secondRequest = deferred<ReturnType<
+      typeof createYunQiCalculationDto
+    >>();
+    const calculate = vi
+      .fn()
+      .mockResolvedValueOnce(createYunQiCalculationDto())
+      .mockReturnValueOnce(secondRequest.promise);
+    const client = createClient({ calculate });
+
+    renderAppAt('/yunqi/calculate', client);
+
+    fireEvent.change(screen.getByLabelText('分析时间'), {
+      target: { value: '2026-05-20T13:30' },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('分析时间')).toHaveValue(
+        '2026-05-20T13:30',
+      ),
+    );
+    fireEvent.submit(
+      screen.getByRole('form', { name: '指定时点分析表单' }),
+    );
+    expect(
+      await screen.findByRole('region', {
+        name: '指定时点分析结果',
+      }),
+    ).toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText('分析时间'), {
+      target: { value: '2026-05-21T13:30' },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('分析时间')).toHaveValue(
+        '2026-05-21T13:30',
+      ),
+    );
+    fireEvent.submit(
+      screen.getByRole('form', { name: '指定时点分析表单' }),
+    );
+
+    await waitFor(() => expect(calculate).toHaveBeenCalledTimes(2));
+    expect(
+      screen.queryByRole('region', {
+        name: '指定时点分析结果',
+      }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '正在分析' }),
+    ).toBeDisabled();
+
+    secondRequest.reject(new Error('network failure'));
+
+    expect(
+      await screen.findByRole('alert'),
+    ).toHaveTextContent('指定时点分析失败，请重试');
+    expect(
+      screen.queryByRole('region', {
+        name: '指定时点分析结果',
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('ignores duplicate submits while the calculate request is pending', async () => {
+    const pendingRequest = deferred<ReturnType<
+      typeof createYunQiCalculationDto
+    >>();
+    const calculate = vi.fn().mockReturnValue(pendingRequest.promise);
+    const client = createClient({ calculate });
+
+    renderAppAt('/yunqi/calculate', client);
+
+    fireEvent.change(screen.getByLabelText('分析时间'), {
+      target: { value: '2026-05-20T13:30' },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('分析时间')).toHaveValue(
+        '2026-05-20T13:30',
+      ),
+    );
+    const form = screen.getByRole('form', {
+      name: '指定时点分析表单',
+    });
+    fireEvent.submit(form);
+    await waitFor(() => expect(calculate).toHaveBeenCalledOnce());
+    expect(screen.getByLabelText('分析时间')).toBeDisabled();
+
+    fireEvent.submit(form);
+
+    expect(calculate).toHaveBeenCalledOnce();
+    pendingRequest.resolve(createYunQiCalculationDto());
+  });
+
+  it('retries a failed request and renders the recovered result', async () => {
+    const calculate = vi
+      .fn()
+      .mockRejectedValueOnce(new Error('network failure'))
+      .mockResolvedValueOnce(createYunQiCalculationDto());
+    const client = createClient({ calculate });
+
+    renderAppAt('/yunqi/calculate', client);
+
+    fireEvent.change(screen.getByLabelText('分析时间'), {
+      target: { value: '2026-05-20T13:30' },
+    });
+    await waitFor(() =>
+      expect(screen.getByLabelText('分析时间')).toHaveValue(
+        '2026-05-20T13:30',
+      ),
+    );
+    fireEvent.submit(
+      screen.getByRole('form', { name: '指定时点分析表单' }),
+    );
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      '指定时点分析失败，请重试',
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: '重试' }));
+
+    await waitFor(() => expect(calculate).toHaveBeenCalledTimes(2));
+    expect(
+      await screen.findByRole('region', {
+        name: '指定时点分析结果',
+      }),
+    ).toBeInTheDocument();
   });
 
   it.each([

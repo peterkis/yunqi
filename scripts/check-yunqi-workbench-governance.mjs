@@ -1672,6 +1672,178 @@ function inquiryVisibleMedicalCopyViolations(sourceFile) {
   return [...new Set(violations)];
 }
 
+function timeAnalysisVisibleMedicalCopyViolations(sourceFile) {
+  const violations = [];
+
+  const inspectValue = (value) => {
+    if (value === undefined) return;
+    const literal = inquiryForbiddenLiteral(value);
+    if (literal !== undefined) {
+      violations.push(
+        'time-analysis user-visible medical-decision literal ' +
+          literal +
+          ' is forbidden',
+      );
+    }
+  };
+
+  const visit = (node) => {
+    if (ts.isJsxText(node)) {
+      inspectValue(node.text);
+    } else if (
+      ts.isJsxAttribute(node) &&
+      ts.isIdentifier(node.name) &&
+      INQUIRY_VISIBLE_ATTRIBUTES.has(node.name.text)
+    ) {
+      if (node.initializer !== undefined) {
+        if (ts.isStringLiteral(node.initializer)) {
+          inspectValue(node.initializer.text);
+        } else if (
+          ts.isJsxExpression(node.initializer) &&
+          node.initializer.expression !== undefined
+        ) {
+          inspectValue(
+            inquiryStaticStringValue(
+              node.initializer.expression,
+              sourceFile,
+            ),
+          );
+        }
+      }
+    } else if (
+      ts.isJsxExpression(node) &&
+      node.expression !== undefined &&
+      !ts.isJsxAttribute(node.parent)
+    ) {
+      inspectValue(
+        inquiryStaticStringValue(node.expression, sourceFile),
+      );
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [...new Set(violations)];
+}
+
+const TIME_ANALYSIS_FORBIDDEN_IDENTIFIERS = new Set([
+  'Date',
+  'Temporal',
+  'Intl',
+  'epochMilliseconds',
+]);
+
+const TIME_ANALYSIS_FORBIDDEN_STAGE_IDENTIFIERS = new Set([
+  'currentStep',
+  'current',
+  'completed',
+  'upcoming',
+]);
+
+const TIME_ANALYSIS_FORBIDDEN_LITERAL_MARKERS = [
+  'Asia/Shanghai',
+  '已结束',
+  '未开始',
+  '当前阶段',
+];
+
+const TIME_ANALYSIS_VIEW_MODEL_FORBIDDEN_MEMBERS = new Set([
+  'currentStep',
+  'current',
+  'completed',
+  'upcoming',
+  'status',
+  'epochMilliseconds',
+]);
+
+function timeAnalysisSourceViolations(
+  sourceFile,
+  forbidStageSemantics = true,
+) {
+  const violations = [];
+
+  const add = (message) => {
+    if (!violations.includes(message)) violations.push(message);
+  };
+
+  const visit = (node) => {
+    if (
+      ts.isIdentifier(node) &&
+      TIME_ANALYSIS_FORBIDDEN_IDENTIFIERS.has(node.text)
+    ) {
+      if (node.text === 'epochMilliseconds') {
+        add(
+          'time-analysis epochMilliseconds display is forbidden',
+        );
+      } else {
+        add(
+          'time-analysis business time API is forbidden: ' +
+            node.text,
+        );
+      }
+    }
+
+    if (
+      forbidStageSemantics &&
+      ts.isIdentifier(node) &&
+      TIME_ANALYSIS_FORBIDDEN_STAGE_IDENTIFIERS.has(node.text)
+    ) {
+        add(
+          'time-analysis current-stage semantics are forbidden: ' +
+            node.text,
+        );
+    }
+
+    if (ts.isStringLiteralLike(node)) {
+      for (const marker of TIME_ANALYSIS_FORBIDDEN_LITERAL_MARKERS) {
+        if (node.text.includes(marker)) {
+          add(
+            'time-analysis forbidden literal is present: ' +
+              marker,
+          );
+        }
+      }
+    }
+
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return violations;
+}
+
+function timeAnalysisViewModelViolations(sourceFile) {
+  const violations = [];
+
+  const visit = (node) => {
+    if (
+      ts.isInterfaceDeclaration(node) &&
+      node.name.text === 'TimeAnalysisYunQiViewModel'
+    ) {
+      for (const member of node.members) {
+        if (!member.name || !ts.isIdentifier(member.name)) {
+          continue;
+        }
+        if (
+          TIME_ANALYSIS_VIEW_MODEL_FORBIDDEN_MEMBERS.has(
+            member.name.text,
+          )
+        ) {
+          violations.push(
+            'TimeAnalysisYunQiViewModel must not contain ' +
+              member.name.text,
+          );
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+
+  visit(sourceFile);
+  return [...new Set(violations)];
+}
+
 function isProductionSource(fileName) {
   const normalized = normalizePath(fileName);
   return !(
@@ -1746,6 +1918,33 @@ function isProductionPresentationMapperSource(fileName) {
   return (
     isProductionSource(fileName) &&
     normalized.includes('/src/features/yunqi/presentation/')
+  );
+}
+
+function isTimeAnalysisSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).includes(
+      '/src/features/yunqi/time-analysis/',
+    )
+  );
+}
+
+function isTimeAnalysisMapperSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/presentation/map-time-analysis-yunqi.ts',
+    )
+  );
+}
+
+function isTimeAnalysisViewModelSource(fileName) {
+  return (
+    isProductionSource(fileName) &&
+    normalizePath(fileName).endsWith(
+      '/src/features/yunqi/presentation/view-model.ts',
+    )
   );
 }
 
@@ -1904,6 +2103,36 @@ async function findSourceViolations(root) {
         sourceFile,
       )) {
         violations.push(`${relativePath}: ${violation}`);
+      }
+    }
+
+    if (isTimeAnalysisSource(file)) {
+      for (const violation of timeAnalysisSourceViolations(
+        sourceFile,
+      )) {
+        violations.push(relativePath + ': ' + violation);
+      }
+      for (const violation of timeAnalysisVisibleMedicalCopyViolations(
+        sourceFile,
+      )) {
+        violations.push(relativePath + ': ' + violation);
+      }
+    }
+
+    if (isTimeAnalysisMapperSource(file)) {
+      for (const violation of timeAnalysisSourceViolations(
+        sourceFile,
+        false,
+      )) {
+        violations.push(relativePath + ': ' + violation);
+      }
+    }
+
+    if (isTimeAnalysisViewModelSource(file)) {
+      for (const violation of timeAnalysisViewModelViolations(
+        sourceFile,
+      )) {
+        violations.push(relativePath + ': ' + violation);
       }
     }
 

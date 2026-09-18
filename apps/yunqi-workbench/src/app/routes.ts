@@ -16,6 +16,14 @@ export const navigationItems = [
     end: false,
   },
   {
+    id: 'calculate',
+    label: '指定时点',
+    mark: '时',
+    status: 'enabled',
+    to: '/yunqi/calculate',
+    end: true,
+  },
+  {
     id: 'inquiry',
     label: '问诊',
     mark: '问',
