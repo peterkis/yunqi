@@ -4,7 +4,7 @@
 - Branch: codex/phase3e-e1-time-analysis
 - Worktree: D:\Projects\YunQi-phase3e-e1
 - Base SHA: 5c856f58da929b39905fd482faba4a947fe31991
-- Final SHA: recorded after the E1 implementation commit
+- E1 implementation commit: 364ec785251754ff093a89ea6736ee077687938b
 - Frozen Contract: YQ-API-CONTRACT-1.0.0
 
 ## Scope
