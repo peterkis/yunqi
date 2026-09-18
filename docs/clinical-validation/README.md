@@ -6,33 +6,28 @@ it is not a patient record store and does not establish clinical efficacy.
 
 ## Current status
 
-The repository is at the E0 specification-freeze stage. The three review tasks
-are defined as:
+The repository has completed the E0 specification freeze and E1 specified-time
+Workbench slice. E2 now provides the expert validation kit. The three review
+tasks are:
 
 1. current YunQi structure;
 2. arbitrary-year YunQi analysis; and
 3. specified-time analysis using Beijing standard time.
 
-The specified-time route and UI are only proposed by the E0 design. They are
-not a live capability until the separately verified E1 implementation exists.
+The separately verified E1 route is /yunqi/calculate. It remains a deterministic
+rule calculation and presentation capability, not an inquiry or medical
+decision workflow.
 
 No expert reference cases, signed confirmations, clinical feedback sessions, or
 real patient data are present here. Therefore no clinical gate is PASS, and no
 expected result may be filled by Codex or copied from the system output.
 
-## Planned E2 materials
+## E2 materials
 
-After E1 is independently verified, E2 may add:
-
-- an expert review protocol;
-- a blank reference-case template;
-- a candidate coverage guide;
-- a de-identified Demo feedback template; and
-- a G1–G6 gate matrix template.
-
-The templates must preserve supplied URL/time order where applicable, keep
-expert expected values empty until an expert supplies them, and contain no
-patient identifiers.
+The phase3-e directory contains the protocol, blank reference-case template,
+coverage guide, de-identified Demo feedback template, and G1–G6 gate matrix.
+The templates keep expert expected values empty until an expert supplies them
+and contain no patient identifiers.
 
 ## Safety boundary
 
