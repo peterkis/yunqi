@@ -29,6 +29,7 @@ export function TimeAnalysisForm({
               ? 'time-analysis-hint time-analysis-error'
               : 'time-analysis-hint'
           }
+          disabled={isPending}
           aria-invalid={inputError !== null}
           id="time-analysis-input"
           onChange={(event) => onInputChange(event.target.value)}

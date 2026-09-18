@@ -366,6 +366,7 @@ describe('AppRoutes', () => {
     });
     fireEvent.submit(form);
     await waitFor(() => expect(calculate).toHaveBeenCalledOnce());
+    expect(screen.getByLabelText('分析时间')).toBeDisabled();
 
     fireEvent.submit(form);
 
