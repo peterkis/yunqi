@@ -1,10 +1,11 @@
 # @yunqi/workbench
 
-Phase3-C4 React Workbench for TCM YunQi Lab. It is a read-only presentation
-host for the frozen YunQi API Contract. It shows the current YunQi state and
-an arbitrary-year analysis, and provides a safe inquiry-planning entry without
-calculating rules, inferring calendar boundaries, creating patient records,
-diagnosing, prescribing, or providing treatment decisions.
+Phase3-E1 React Workbench for TCM YunQi Lab. It is a read-only presentation
+host for the frozen YunQi API Contract. It shows the current YunQi state, an
+arbitrary-year analysis, and a specified-time analysis while providing a safe
+inquiry-planning entry. It does not calculate rules in React, infer calendar
+boundaries, create patient records, diagnose, prescribe, or provide treatment
+decisions.
 
 ## Routes and state ownership
 
@@ -16,6 +17,7 @@ The Workbench uses declarative React Router routes:
 | `/yunqi/current` | Current YunQi state and six-stage timeline | Calls the current-query endpoint |
 | `/yunqi/year` | Annual-analysis entry and year selector | Makes no annual request |
 | `/yunqi/year/:year` | Annual structure for one validated year | Calls the annual endpoint only after strict URL validation |
+| `/yunqi/calculate` | Specified-time rule analysis | Makes one calculate request only after an explicit valid submit |
 | `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
 | any other path | Workbench not-found page | Makes no YunQi request |
 
@@ -30,6 +32,12 @@ browser clock, server time, or a timezone API. The selected Six-Qi stage is
 local state owned only by the annual master-detail page. It is deliberately
 not persisted in the URL or Contract and resets to the first returned stage
 when a different annual result is rendered.
+
+The specified-time route owns only local form state and the mutation lifecycle.
+It starts empty, makes no request on mount, treats the input as a Beijing
+standard wall-clock value, and hides a successful result as soon as the input
+changes. Its six-stage result uses neutral selected-time language rather than
+the current-page completed/current/upcoming semantics.
 
 ## Architecture boundary
 
@@ -57,6 +65,25 @@ Router
   -> CurrentYunQiViewModel
   -> presentational components
 ```
+
+The specified-time data flow is:
+
+```text
+Router
+  -> TimeAnalysisView
+  -> useCalculateYunQiMutation
+  -> @yunqi/client.calculate()
+  -> @yunqi/contracts YunQiCalculationDto
+  -> mapTimeAnalysisYunQi
+  -> TimeAnalysisYunQiViewModel
+  -> presentational components
+```
+
+The mutation owner is the only Workbench layer that calls the injected Client.
+The pure mapper copies the API canonical input time, maps the exact six-stage
+tuple, and selects the stage by the API currentStep index. The result displays
+the canonical API time, annual summary, a non-interactive equal-width stage
+rail, selected-stage detail, API explanations, and traceability.
 
 `AppProviders` composes the render error, theme, QueryClient, and YunQiClient
 providers. Provider infrastructure owns client and transport creation;
@@ -156,6 +183,17 @@ Do not parse or reinterpret business time with `Date`, Temporal, Intl,
 locale/ISO formatters, IANA timezones, browser local time, or
 `epochMilliseconds`. Epoch milliseconds are not copied into presentation
 ViewModels and are not a display source.
+
+The specified-time form accepts only local wall-clock strings in
+YYYY-MM-DDTHH:mm or YYYY-MM-DDTHH:mm:ss form and appends +08:00 by pure
+string normalization. It does not use a browser time zone or a JavaScript time
+API. A valid minute-precision example is
+2026-05-20T13:30:00+08:00 on the wire.
+
+The specified-time page has six observable states: idle, invalid-input,
+pending, success, dirty-after-success, and error. Errors are sanitized and
+retryable; no raw response, stack, patient data, diagnosis, treatment,
+prescription, medication, risk, or recommendation copy is rendered.
 
 ## Local commands
 

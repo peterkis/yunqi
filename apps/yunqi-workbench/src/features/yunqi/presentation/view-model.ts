@@ -85,6 +85,15 @@ export interface AnnualYunQiViewModel {
   readonly ruleVersion: string;
 }
 
+export interface TimeAnalysisYunQiViewModel {
+  readonly analysisTime: YunQiTimeViewModel;
+  readonly summary: YunQiYearSummaryViewModel;
+  readonly selectedStage: SixQiStageViewModel;
+  readonly stages: SixQiStageTuple;
+  readonly explanations: readonly string[];
+  readonly ruleVersion: string;
+}
+
 export interface CurrentYunQiViewModel {
   readonly inputTime: YunQiTimeViewModel;
   readonly summary: YunQiYearSummaryViewModel;

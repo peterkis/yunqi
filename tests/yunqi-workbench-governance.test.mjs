@@ -3243,6 +3243,127 @@ for (const relativeSourcePath of [
   });
 }
 
+for (const [identifier, expectedText] of [
+  ['Date', 'time-analysis business time API is forbidden: Date'],
+  [
+    'Temporal',
+    'time-analysis business time API is forbidden: Temporal',
+  ],
+  ['Intl', 'time-analysis business time API is forbidden: Intl'],
+]) {
+  test(
+    'rejects ' + identifier + ' in specified-time production source',
+    async () => {
+      await assertMutationRejected({
+        relativeSourcePath:
+          'features/yunqi/time-analysis/time-input.ts',
+        source:
+          'export function TimeInput() { return new ' +
+          identifier +
+          '(); }',
+        expected: new RegExp(
+          'time-input\\.ts: ' + expectedText,
+        ),
+      });
+    },
+  );
+}
+
+test('rejects IANA time-zone literals in specified-time production source', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/time-analysis/time-input.ts',
+    source: "const timeZone = 'Asia/Shanghai'; void timeZone;",
+    expected:
+      /time-input\.ts: time-analysis forbidden literal is present: Asia\/Shanghai/,
+  });
+});
+
+test('rejects epoch display in specified-time production components', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/time-analysis/components/Epoch.tsx',
+    source:
+      'export function Epoch({ value }) { return <span>{value.epochMilliseconds}</span>; }',
+    expected:
+      /Epoch\.tsx: time-analysis epochMilliseconds display is forbidden/,
+  });
+});
+
+for (const identifier of [
+  'currentStep',
+  'current',
+  'completed',
+  'upcoming',
+]) {
+  test(
+    'rejects ' + identifier + ' stage semantics in specified-time source',
+    async () => {
+      await assertMutationRejected({
+        relativeSourcePath:
+          'features/yunqi/time-analysis/components/Stage.tsx',
+        source:
+          'export function Stage(props) { return <p>{props.' +
+          identifier +
+          '}</p>; }',
+        expected: new RegExp(
+          'Stage\\.tsx: time-analysis current-stage semantics are forbidden: ' +
+            identifier,
+        ),
+      });
+    },
+  );
+}
+
+test('rejects forbidden medical-decision copy in specified-time UI', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/time-analysis/components/MedicalCopy.tsx',
+    source: 'export function MedicalCopy() { return <p>诊断</p>; }',
+    expected:
+      /MedicalCopy\.tsx: time-analysis user-visible medical-decision literal 诊断 is forbidden/,
+  });
+});
+
+test('rejects forbidden members in the selected-time ViewModel', async () => {
+  await assertMutationRejected({
+    relativeSourcePath:
+      'features/yunqi/presentation/view-model.ts',
+    source:
+      'export interface TimeAnalysisYunQiViewModel { readonly currentStep: unknown; }',
+    expected:
+      /view-model\.ts: TimeAnalysisYunQiViewModel must not contain currentStep/,
+  });
+});
+
+test('allows the selected-time mapper to read the frozen API currentStep', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath:
+      'features/yunqi/presentation/map-time-analysis-yunqi.ts',
+    source:
+      'export function map(dto) { return dto.currentStep.index; }',
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
+test('allows neutral specified-time copy and excludes its tests', async () => {
+  const fixtureRoot = createFixture({
+    relativeSourcePath:
+      'features/yunqi/time-analysis/components/Neutral.test.tsx',
+    source:
+      'export function Neutral() { return <p>规则结果核对</p>; }',
+  });
+
+  assert.deepEqual(
+    await findWorkbenchGovernanceViolations(fixtureRoot),
+    [],
+  );
+});
+
 test('CLI exits non-zero and prints every path-qualified violation', () => {
   const fixtureRoot = createFixture({
     optionalDependencies: { axios: '1.0.0' },

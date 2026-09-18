@@ -5,7 +5,8 @@ import { Panel } from '../../../components/ui/Panel';
 export interface TraceabilityPanelProps {
   readonly dataSource:
     | 'YunQi 当前查询 API'
-    | 'YunQi 年度查询 API';
+    | 'YunQi 年度查询 API'
+    | 'YunQi 指定时点计算 API';
   readonly ruleVersion: string;
 }
 
