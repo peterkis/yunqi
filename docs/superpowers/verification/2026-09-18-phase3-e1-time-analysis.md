@@ -5,6 +5,7 @@
 - Worktree: D:\Projects\YunQi-phase3e-e1
 - Base SHA: 5c856f58da929b39905fd482faba4a947fe31991
 - E1 implementation commit: 364ec785251754ff093a89ea6736ee077687938b
+- E1 pending-state fix commit: e55cf5cd13c565311fa0104eaea7976cde7b671d
 - Frozen Contract: YQ-API-CONTRACT-1.0.0
 
 ## Scope
