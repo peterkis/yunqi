@@ -5,6 +5,7 @@ export interface TimeAnalysisFormProps {
   readonly inputValue: string;
   readonly isPending: boolean;
   readonly onInputChange: (value: string) => void;
+  readonly onInvalid: () => void;
   readonly onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }
 
@@ -13,6 +14,7 @@ export function TimeAnalysisForm({
   inputValue,
   isPending,
   onInputChange,
+  onInvalid,
   onSubmit,
 }: TimeAnalysisFormProps) {
   return (
@@ -32,6 +34,11 @@ export function TimeAnalysisForm({
           disabled={isPending}
           aria-invalid={inputError !== null}
           id="time-analysis-input"
+          onInvalid={(event) => {
+            event.preventDefault();
+            onInvalid();
+            event.currentTarget.focus();
+          }}
           onChange={(event) => onInputChange(event.target.value)}
           required
           step="1"

@@ -42,6 +42,13 @@ export function TimeAnalysisView() {
     );
   }
 
+  function showInvalidInput() {
+    mutation.reset();
+    setIsDirty(false);
+    setViewModel(null);
+    setInputError('请输入合法的北京时间');
+  }
+
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (mutation.isPending) {
@@ -50,10 +57,7 @@ export function TimeAnalysisView() {
     const normalized = normalizeBeijingDateTimeInput(inputValue);
 
     if (!normalized.ok) {
-      mutation.reset();
-      setIsDirty(false);
-      setViewModel(null);
-      setInputError('请输入合法的北京时间');
+      showInvalidInput();
       return;
     }
 
@@ -79,6 +83,7 @@ export function TimeAnalysisView() {
       isError={mutation.isError}
       isPending={mutation.isPending}
       onInputChange={handleInputChange}
+      onInvalid={showInvalidInput}
       onRetry={handleRetry}
       onSubmit={handleSubmit}
       viewModel={viewModel}

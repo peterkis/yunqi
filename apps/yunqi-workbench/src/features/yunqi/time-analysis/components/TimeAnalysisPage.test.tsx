@@ -20,6 +20,7 @@ function renderPage(
       isError={overrides.isError ?? false}
       isPending={false}
       onInputChange={vi.fn()}
+      onInvalid={vi.fn()}
       onRetry={vi.fn()}
       onSubmit={vi.fn((event) => event.preventDefault())}
       viewModel={
@@ -105,6 +106,7 @@ describe('TimeAnalysisPage', () => {
         isError={false}
         isPending={false}
         onInputChange={vi.fn()}
+        onInvalid={vi.fn()}
         onRetry={vi.fn()}
         onSubmit={onSubmit}
         viewModel={null}
