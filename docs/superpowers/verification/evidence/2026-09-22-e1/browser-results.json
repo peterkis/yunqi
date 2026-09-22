@@ -1,0 +1,729 @@
+{
+  "codeCommit": "4a3ddf3d67ad3ec4214608812cbcd24867937b50",
+  "buildCommand": "pnpm build",
+  "buildExitCode": 0,
+  "bundleHashes": {
+    "apps/yunqi-workbench/dist/index.html": "4577c3926c03c59a6235e82a5efffea0ee496ce9a2c71022fe30704d2fd9d38b",
+    "apps/yunqi-workbench/dist/assets/index-7H2eZvwz.css": "285485832ac89b71069d6812aa9c15ba389784633777baf4a0540e7a17846712",
+    "apps/yunqi-workbench/dist/assets/index-BG3CV1hC.js": "1b698b59a133ab4dd118be28c480fb360067c3f6e71fd8f261e37ff149fda6f9",
+    "packages/yunqi-domain/dist/index.d.ts": "c45d2b8f0346dce00483e07e7187bfb3efac99d12c3b1cb8d8721b673325aa35",
+    "packages/yunqi-domain/dist/index.js": "cb016e07cb76bb4827f6603f0386693c7ba77f7b24cf1740517e14be9766fef2",
+    "packages/yunqi-domain/dist/types.d.ts": "69abe260ef6c5015c3873d7e9f917a0b16c90d3d2ec0846392df1767c4af7005",
+    "packages/yunqi-domain/dist/types.js": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "packages/yunqi-domain/dist/wuyun/sui-yun.d.ts": "8197a2b6bb3b4d712b9579e6f95ac370f834d55b6dcb79a08ac3a94d0099b329",
+    "packages/yunqi-domain/dist/wuyun/sui-yun.js": "8927b12adea671f0213dd1d70be71afbfccf9729b5b479b6f05f1159946c1f79",
+    "packages/yunqi-domain/dist/services/calculate-year-yunqi.d.ts": "eb9a66a1c97daa80a27b61b90e2799c12c5c23bb9346e674bbaab1db4a47367e",
+    "packages/yunqi-domain/dist/services/calculate-year-yunqi.js": "0571b2808681e1383d04cfe88b3e779fc517da04752bf5eb4e5b70dfd3f24520",
+    "packages/yunqi-domain/dist/services/calculate-yunqi.d.ts": "7e043bf48230fc71ffaddb90556f17f5035baad83f67e9d727588043f4b0f44a",
+    "packages/yunqi-domain/dist/services/calculate-yunqi.js": "22c72dafd7ab1b0ba06721ce7a4098119be1292175d57b1749d9a88d14e0d8a9",
+    "packages/yunqi-domain/dist/services/get-current-step.d.ts": "41f0abab29a334d7830801e1ec5fc09bb422100e74e51ff755ae2fbc852c6b61",
+    "packages/yunqi-domain/dist/services/get-current-step.js": "e3a308ce35c5cffb66004eaa85ca27b780939516c7622805a7da09f7329be578",
+    "packages/yunqi-domain/dist/rules/phase1-rules.d.ts": "f25d2b26952f37790ba2bb6fc91b667129a7f04e93b563237ca5a078c486a448",
+    "packages/yunqi-domain/dist/rules/phase1-rules.js": "46686754ec561b76ed43b6e5cbff916d95ba79be62f38a662c8926a3a21a6d86",
+    "packages/yunqi-domain/dist/relation/host-guest-relation.d.ts": "05edc42ef140ff0997eb63c45b1aff8fd8449fb0906a7c9b0544a1b246218ef5",
+    "packages/yunqi-domain/dist/relation/host-guest-relation.js": "5cbb463e601e2af51415b16031c19618bd42b76af778af3fc622c728403bd839",
+    "packages/yunqi-domain/dist/liuqi/host-guest.d.ts": "278dde7583b47ffaf72db1b96ba79f48212b7db6787ec660faf846ffed39f2cb",
+    "packages/yunqi-domain/dist/liuqi/host-guest.js": "cf6e9281b8c54e3842da1dfef33c62a513fc8f848da4d44f7faff36bfed63d63",
+    "packages/yunqi-domain/dist/liuqi/sitian-zaiquan.d.ts": "fe87beae203c02458ba66244c50f3fb132a4a2f8e9cb3aeed44464957fb1d454",
+    "packages/yunqi-domain/dist/liuqi/sitian-zaiquan.js": "578e01272ed90825235ea51222fdd7b04e6f9ca26aa6b6a627076d03a5b75ea1",
+    "packages/yunqi-domain/dist/liuqi/six-qi.d.ts": "884a66a04cb78670349e00a4ef67bb2d8fa925fe64d7c87d84f2c5434456eb9f",
+    "packages/yunqi-domain/dist/liuqi/six-qi.js": "0a32f599823dacb494a74ea1c367077624aa1189e9ae29f10a56e354ce0c2d5a",
+    "packages/yunqi-domain/dist/ganzhi/stem-branch.d.ts": "115f748e1dfd1373a8013b15f7e085325f18b3a1e1bc0a3f4ac854d6e29d0d84",
+    "packages/yunqi-domain/dist/ganzhi/stem-branch.js": "15a107d062dafbd08cc86b57ae9d2a84f1e5b4d7386ac250be3fb2462b749f94",
+    "packages/yunqi-domain/dist/explanation/explanation-template.d.ts": "25f055fadaac28d9174135419738ae8f7c5dfad53b9f461791c6857b2513b497",
+    "packages/yunqi-domain/dist/explanation/explanation-template.js": "1a9c01dba167f17c30b979fa7d8c177b14d5cae3acc065c2555ed1944faf0b0f",
+    "packages/yunqi-domain/dist/calendar/provider.d.ts": "bf848dd971ce83f080a1968d7b147d1cbb363c0b457470c68a478c5cdf44e58b",
+    "packages/yunqi-domain/dist/calendar/provider.js": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881",
+    "packages/yunqi-domain/dist/calendar/time.d.ts": "a98c77ee072670cf41333e7e9d02f73fbadcdf7b5e5920d885cb379d9342c228",
+    "packages/yunqi-domain/dist/calendar/time.js": "b52409c2b3750df916b240d8d0d8147ded4611a95c9d181bd5797c13295a5c94",
+    "packages/yunqi-domain/dist/calendar/yunqi-year-resolver.d.ts": "b19f4115af140baffe0f21b1ddfd5e83f2ee453d024ae062e34de9c03be9f08d",
+    "packages/yunqi-domain/dist/calendar/yunqi-year-resolver.js": "3f872d454919aa54063d15dcdfe1bccd9b996a71a8ebc8d6189f7a2afde200e9",
+    "packages/calendar-adapters/tyme4ts/dist/date-time-input.d.ts": "a116cbeb1e8874e1dc4fe6ac566ca4fc0bc5ad537e1d7ce2cb9c9581dc085578",
+    "packages/calendar-adapters/tyme4ts/dist/date-time-input.js": "50f4c789dbf795ce1c772890af4b56764617fda6357def98b607be3c8b30b4ab",
+    "packages/calendar-adapters/tyme4ts/dist/index.d.ts": "9e518837753325b7f20c7b484a3e70b3b9952a3c17ef96fb3a09b0879b5f3041",
+    "packages/calendar-adapters/tyme4ts/dist/index.js": "da8aeb5597aacb2dd1c11d68382cc7b30767ed12dfc6c8379671859b69e869f1",
+    "packages/calendar-adapters/tyme4ts/dist/provider.d.ts": "557ea561f59f8fa5c2edc4267a7fd8e8885ac9a10d76e66e94a41ce606e901c3",
+    "packages/calendar-adapters/tyme4ts/dist/provider.js": "51f7b8ebe07e27fd36e43e3617a7d0ef5da4f9bac95d8fab3eb3fb73155e90f4",
+    "packages/yunqi-service/dist/app.d.ts": "94f49dae06afd825efcfe2553792516d0d0c280404afb75ff1a1076dedc2b6c0",
+    "packages/yunqi-service/dist/app.d.ts.map": "304c2b062de6a057404178f97c277a1ebf090bfc60b642958b88c4914f9ef50c",
+    "packages/yunqi-service/dist/app.js": "cf56bee5eafed3fe11904f95d9a376788e93014e6841a5ee46bdb69470865123",
+    "packages/yunqi-service/dist/app.js.map": "0d24668c724d9d95b370360ed4b80d7ad774e17caf1be3383479f1915257a68e",
+    "packages/yunqi-service/dist/index.d.ts": "a4e607ff30e837a07375116a34086713d365a4e33e32f77b4fd1930aeafb51f6",
+    "packages/yunqi-service/dist/index.d.ts.map": "152ce2251f6a00804540712530156074eb8a00d60f0a85d3fddffd3a439dd893",
+    "packages/yunqi-service/dist/index.js": "df0debb386983e7dbef1f427e00d3136c4a94b6f743fe9bdf7d8218a61097ea1",
+    "packages/yunqi-service/dist/index.js.map": "587e7976fb65fb2abdd0de2c89dbcaba537624d8b467ca189fb8dfac3a2e206d",
+    "packages/yunqi-service/dist/server-config.d.ts": "f2f43afb07cd8c25ab11a6a0904780193c4995cc33c0c802270a686f6574a3ed",
+    "packages/yunqi-service/dist/server-config.d.ts.map": "a90d8cb836ed0b3ad02a90dc696e5b4b2e2432d68a6a8a3996d4246bfeefeb00",
+    "packages/yunqi-service/dist/server-config.js": "85ba0910e5806f6272b9846f278f7477d01063577bc9e959ff0983fa8d082f53",
+    "packages/yunqi-service/dist/server-config.js.map": "d4177b6388384fe4d720de2ced9e6f55fa6a1d821eb26afc059d511552c6cffb",
+    "packages/yunqi-service/dist/server.d.ts": "1bdaab87b793f49e745a6a1700bd74197b0a088d4e90ddc6f5bcb1a227fe826b",
+    "packages/yunqi-service/dist/server.d.ts.map": "003491c3d329f70892f1d153e94000571d3b0fbe907f22ef334905f6a8a24929",
+    "packages/yunqi-service/dist/server.js": "f85dd592fd8e249ffccabb3d8c550e53ccea4bf63cc004e0870a5b79aa5b95ca",
+    "packages/yunqi-service/dist/server.js.map": "6aa1c3f90881165d33e618aa291a25868fda09b6069e037ec01853f6cc01055b",
+    "packages/yunqi-service/dist/services/date-time.d.ts": "233f08b3ac20a090cee0e0c04d2295934db1c5bbd970adb43dea056b9164f4d0",
+    "packages/yunqi-service/dist/services/date-time.d.ts.map": "ac87d4245e26cd7cab67892bf700d32a8b28079ad13c302f3db5af337dcdab8b",
+    "packages/yunqi-service/dist/services/date-time.js": "8b87f8cd23175153d3c5b6fb2d2f6a992a6b97f0c20b33014b5c1936c0d9dbdc",
+    "packages/yunqi-service/dist/services/date-time.js.map": "53be45b9feb76647fe8fe256a6b507d958c47bc0fd091881073e1770f4947c41",
+    "packages/yunqi-service/dist/services/invalid-argument-error.d.ts": "ed726a86dcd430964e96ca6a284bf855b0ad48a19dbddd1a58e652e35be15fa9",
+    "packages/yunqi-service/dist/services/invalid-argument-error.d.ts.map": "0e293372208f5521029b65b0d96ed36810212b2df447373ec1f88b43dcb8962b",
+    "packages/yunqi-service/dist/services/invalid-argument-error.js": "58a12c014bc32ad9e7316b2f0ac6c09fed7c797227c1c227f735edbfcadc303f",
+    "packages/yunqi-service/dist/services/invalid-argument-error.js.map": "b750b672b6c17f4094245b4b062913e69a51761433d18f2f4843d67b0a8736c5",
+    "packages/yunqi-service/dist/services/provider-boundary.d.ts": "058eafea14253efe65c075f70ce54359184e8fec372b68ceb049e8c7557b6ae6",
+    "packages/yunqi-service/dist/services/provider-boundary.d.ts.map": "8e8b90a4eb399945e1b2ac19a1b03d3b6dfd581e3796d921f759d51078bcebd9",
+    "packages/yunqi-service/dist/services/provider-boundary.js": "99e6fefcaa50d43c1dc00d61bf315eac394c10f781abe753b1ca586ea96e8b9a",
+    "packages/yunqi-service/dist/services/provider-boundary.js.map": "9b53307429099e8f1e4beae7f81993ed4cb10a4b35c83f21c4b12a6e35ee0e41",
+    "packages/yunqi-service/dist/services/yunqi-service.d.ts": "babf1a588c02d6356df45333c8a09b60be9b812d738bae912abe8d9d7608ed1b",
+    "packages/yunqi-service/dist/services/yunqi-service.d.ts.map": "f31b9ba4897b0c4d26cd4bbf9682126e2e69050429121c39aef01f9a8b732bf9",
+    "packages/yunqi-service/dist/services/yunqi-service.js": "cd99ce44b52e2f907ed0990beb666a89ebb5d9386ddb65159b1d220083a0711c",
+    "packages/yunqi-service/dist/services/yunqi-service.js.map": "a604ebeabafc4f4b61f052a8773a412ef33cb432ef335e0e69a885320eedd7be",
+    "packages/yunqi-service/dist/schemas/common.d.ts": "82c922b09af2631f95d16f4f8557a2112601cd1646011fb8e2d6e79b44d48538",
+    "packages/yunqi-service/dist/schemas/common.d.ts.map": "f49ce00d19fbdbf5021befa98389418c217b7f2e8cdf49f5a40b01a6374352e1",
+    "packages/yunqi-service/dist/schemas/common.js": "045ab785586f265837373a2b7c5de3ff10e3fd58ccc0a858f849b7625ae68e14",
+    "packages/yunqi-service/dist/schemas/common.js.map": "d05ec8a245a72f13b551bbbdefb0312f31c5c1b5fe5ef146d04aaab9cf330098",
+    "packages/yunqi-service/dist/schemas/index.d.ts": "42ac1a57703fb76771737ecdf402f51dc39c5d64e5dd96e1370d646bbf2f4f3c",
+    "packages/yunqi-service/dist/schemas/index.d.ts.map": "44671ac0d58f981c09eaaf703e17a2f667e7b9e6ffca62275ec7bb039ff55b69",
+    "packages/yunqi-service/dist/schemas/index.js": "c292662eca5e961877976969cc2604f0c1e685b182ae3717492060031a18e691",
+    "packages/yunqi-service/dist/schemas/index.js.map": "35d7567806fe4cf4484f3561ad377974e13ea2252ad905e8497c5d852cc1c8bc",
+    "packages/yunqi-service/dist/schemas/yunqi.d.ts": "43af41f959b56d816ac20bebf5ebe5627ba81ad06e9e33c2d3ab4745b8f8e16a",
+    "packages/yunqi-service/dist/schemas/yunqi.d.ts.map": "1e462ec8d3ec195336ef811e2b2819f7ac5741ebe82948c2b845ac487052c9c2",
+    "packages/yunqi-service/dist/schemas/yunqi.js": "0d0806973f573e67dee73c3be4c8de4d4115cd88b4c1678f7a418488d655f666",
+    "packages/yunqi-service/dist/schemas/yunqi.js.map": "a9221871b5e4fdc02367fe3b89118aa6cfa1d18bc1507ab57490764f5d548733",
+    "packages/yunqi-service/dist/routes/health.d.ts": "1aedbe3b28f777cf6f4c35c5f16276b3eac1432ee6eed4a81e13076d8a3cb361",
+    "packages/yunqi-service/dist/routes/health.d.ts.map": "cdc77b10471b1e51a0efee7e44bf58bef8c7752f271ae6917e1f44e2f92a9c5b",
+    "packages/yunqi-service/dist/routes/health.js": "574d95ecaf0bb56715ac5ce7df4a51ab3398a87e338b968181414ef4dbf1a084",
+    "packages/yunqi-service/dist/routes/health.js.map": "d22a08d09a86979e2a140218ddeffd182b7dd311e37a592c657b1188c94db0e4",
+    "packages/yunqi-service/dist/routes/yunqi.d.ts": "25be2ef7250bf76def99d135a37add1420cbc313c8f42ad1b63e915f9f0726da",
+    "packages/yunqi-service/dist/routes/yunqi.d.ts.map": "be0dfc25b2773025d191e23c19e28857a6597ffb46a6078c6d520772ceb79773",
+    "packages/yunqi-service/dist/routes/yunqi.js": "b1f9a2f79af28ddfa7b9d8a1da7aaf0c62e4a31d13ecff37f8787a5fc441644d",
+    "packages/yunqi-service/dist/routes/yunqi.js.map": "f702b0e040583df67b12968429949a7cacb9417f10b4a2df2f666a0687f1dab9",
+    "packages/yunqi-service/dist/plugins/error-handler.d.ts": "934e2fbe81c08144946a9177a44ed7695fbaa9f0b6c9b3a38a0b452cb295f61a",
+    "packages/yunqi-service/dist/plugins/error-handler.d.ts.map": "372c39121c872913de62ef4e9115a2c2dd88aec9299a04db51909328f72b9187",
+    "packages/yunqi-service/dist/plugins/error-handler.js": "5c15868434409d749e4a2d3217d28cd7e2ded23b8f7d8bafc3aea2778c2308c7",
+    "packages/yunqi-service/dist/plugins/error-handler.js.map": "5a37940f7938a8366860f101b1a0bf799f2c65d2735d8540bd46a60b392d8c7e",
+    "packages/yunqi-service/dist/plugins/openapi.d.ts": "acbe1c6a6e9e88552d36f48c39d3f5caba35d0d6049f2eecdf23e39b376e1e02",
+    "packages/yunqi-service/dist/plugins/openapi.d.ts.map": "963e631d1c7da535517e4f84d496a2603f955ce986e44e8adf52ab53945060f2",
+    "packages/yunqi-service/dist/plugins/openapi.js": "a1b2e91194295260d6e6cb12a3b18d24018717d22741d7cc5940d5eea71ec8da",
+    "packages/yunqi-service/dist/plugins/openapi.js.map": "a29c72e365ace3a627200b1435147e5c063a597b4cd6574603826304ce36a063",
+    "packages/yunqi-service/dist/modules/time-normalizer/formatter.d.ts": "39829827aefed29a97d50b757f3b692c3eb441edcc7b352190b4d15e7593534b",
+    "packages/yunqi-service/dist/modules/time-normalizer/formatter.d.ts.map": "3d7741b310fee596a456b7952eb8bce55de8d6090be57c2710812cf3f89ef440",
+    "packages/yunqi-service/dist/modules/time-normalizer/formatter.js": "46637684a7c663249bd5201176676ceed01e940a808fa2a5d7fdf3f5096a3821",
+    "packages/yunqi-service/dist/modules/time-normalizer/formatter.js.map": "581369322e9f5ef22579870eb6476a39dddee41c3beea19e2b184e98f24166e9",
+    "packages/yunqi-service/dist/modules/time-normalizer/index.d.ts": "7435cc5255b30ecfcbf05b818adadbeb16726420a5f782e2b5ae7bf8427cfd15",
+    "packages/yunqi-service/dist/modules/time-normalizer/index.d.ts.map": "c3103aeb7421adfbc1e766dcf64d6f69566c86aebf36e4906d3eb9a8991ee745",
+    "packages/yunqi-service/dist/modules/time-normalizer/index.js": "d0990b9fcaee78335388f90515278650704557e5515491032c7ae09780b20c30",
+    "packages/yunqi-service/dist/modules/time-normalizer/index.js.map": "94a542ef6d0ef5d0e1e36153c3a97294270c5540e4e94e1f60ee383a832c86d2",
+    "packages/yunqi-service/dist/modules/time-normalizer/normalizer.d.ts": "b3eede286302b9892ffb0f92d909884bfc3113b5a5eeb3862c2deda379c58f72",
+    "packages/yunqi-service/dist/modules/time-normalizer/normalizer.d.ts.map": "721699e9828980bb60a8990a23c4341f4d2e031b2fc18419b57d66d8445f05bf",
+    "packages/yunqi-service/dist/modules/time-normalizer/normalizer.js": "164a28dde91b01c31ebc652a8f70be8ef9eb211c01d24df19b21ff845a834c4b",
+    "packages/yunqi-service/dist/modules/time-normalizer/normalizer.js.map": "4348f5830ebf68490f0996f08cbb2a38ceac5823b64c88a94d14b59e2bab947c",
+    "packages/yunqi-service/dist/modules/time-normalizer/parser.d.ts": "0c1c35e04b8d4c7d4311a5d21ccb4490b6e4ee0f989d6f19134444a5fb6affc5",
+    "packages/yunqi-service/dist/modules/time-normalizer/parser.d.ts.map": "d490a66b05ad13d0c888d53137df6b0ed8184c7c54f5208b0dc8c706e6085b6a",
+    "packages/yunqi-service/dist/modules/time-normalizer/parser.js": "28437e0544a195241efab3f2546afb43cc61d58fc17e0b65884418b22317f399",
+    "packages/yunqi-service/dist/modules/time-normalizer/parser.js.map": "7238d0f6a89eb438468f702f62363ea96ce5ba1bf55638da6920742ae3a0981f",
+    "packages/yunqi-service/dist/mappers/yunqi-mapper.d.ts": "2a73e8e4e2436004c2ae14380b39ab5ce6c02557e0bb1666de11a8c3792f63a2",
+    "packages/yunqi-service/dist/mappers/yunqi-mapper.d.ts.map": "3e870a3c9c4bc0a2a87c6b3c72564da8124296dc0d0c199d54d75888938c2a57",
+    "packages/yunqi-service/dist/mappers/yunqi-mapper.js": "2d16b92bf6120a63ac665ac9cbbea52e453a316c28a57ef4bcd5028630d95ea2",
+    "packages/yunqi-service/dist/mappers/yunqi-mapper.js.map": "6c869ca5dcf606b1ef878e8726dd1919dd53c6faa5ac953579c94f0721f49e3b"
+  },
+  "harnessSha256": "387cc9ec260b38161b89ae08d632066d869a53db20879e1eb0a5444fc547998f",
+  "browser": "153.0.4234.48",
+  "host": "Windows",
+  "harness": "external same-origin proxy to real buildApp and tyme4ts provider; headless Edge; fault/delay injection labeled",
+  "runs": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "browserTimezone": "America/New_York",
+      "requests": [
+        {
+          "phase": "minute-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "seconds-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-21T13:30:45+08:00\"}"
+        },
+        {
+          "phase": "injected-delay",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "injected-503",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "retry-real-service",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "method": "GET",
+          "path": "/api/v1/yunqi/year/2026",
+          "body": null
+        },
+        {
+          "phase": "/yunqi/current",
+          "method": "GET",
+          "path": "/api/v1/yunqi/current",
+          "body": null
+        }
+      ],
+      "responses": [
+        {
+          "phase": "minute-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "seconds-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-delay",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-503",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 503
+        },
+        {
+          "phase": "retry-real-service",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "path": "/api/v1/yunqi/year/2026",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/current",
+          "path": "/api/v1/yunqi/current",
+          "status": 200
+        }
+      ],
+      "console": [
+        {
+          "phase": "injected-503",
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "checks": [
+        {
+          "state": "idle",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "invalid",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "success",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "dirty",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "pending",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "error",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "/yunqi/year",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "/yunqi/inquiry",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "/not-approved",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "/yunqi/year/2026",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        },
+        {
+          "state": "/yunqi/current",
+          "dimensions": {
+            "width": 1440,
+            "height": 1000,
+            "scrollWidth": 1440,
+            "clientWidth": 1440
+          }
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "viewport": {
+        "width": 737,
+        "height": 900
+      },
+      "browserTimezone": "America/New_York",
+      "requests": [
+        {
+          "phase": "minute-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "seconds-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-21T13:30:45+08:00\"}"
+        },
+        {
+          "phase": "injected-delay",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "injected-503",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "retry-real-service",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "method": "GET",
+          "path": "/api/v1/yunqi/year/2026",
+          "body": null
+        },
+        {
+          "phase": "/yunqi/current",
+          "method": "GET",
+          "path": "/api/v1/yunqi/current",
+          "body": null
+        }
+      ],
+      "responses": [
+        {
+          "phase": "minute-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "seconds-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-delay",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-503",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 503
+        },
+        {
+          "phase": "retry-real-service",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "path": "/api/v1/yunqi/year/2026",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/current",
+          "path": "/api/v1/yunqi/current",
+          "status": 200
+        }
+      ],
+      "console": [
+        {
+          "phase": "injected-503",
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "checks": [
+        {
+          "state": "idle",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "invalid",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "success",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "dirty",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "pending",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "error",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "/yunqi/year",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "/yunqi/inquiry",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "/not-approved",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "/yunqi/year/2026",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        },
+        {
+          "state": "/yunqi/current",
+          "dimensions": {
+            "width": 737,
+            "height": 900,
+            "scrollWidth": 737,
+            "clientWidth": 737
+          }
+        }
+      ],
+      "status": "PASS"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "browserTimezone": "America/New_York",
+      "requests": [
+        {
+          "phase": "minute-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "seconds-success",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-21T13:30:45+08:00\"}"
+        },
+        {
+          "phase": "injected-delay",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-20T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "injected-503",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "retry-real-service",
+          "method": "POST",
+          "path": "/api/v1/yunqi/calculate",
+          "body": "{\"dateTime\":\"2026-05-22T13:30:00+08:00\"}"
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "method": "GET",
+          "path": "/api/v1/yunqi/year/2026",
+          "body": null
+        },
+        {
+          "phase": "/yunqi/current",
+          "method": "GET",
+          "path": "/api/v1/yunqi/current",
+          "body": null
+        }
+      ],
+      "responses": [
+        {
+          "phase": "minute-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "seconds-success",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-delay",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "injected-503",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 503
+        },
+        {
+          "phase": "retry-real-service",
+          "path": "/api/v1/yunqi/calculate",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/year/2026",
+          "path": "/api/v1/yunqi/year/2026",
+          "status": 200
+        },
+        {
+          "phase": "/yunqi/current",
+          "path": "/api/v1/yunqi/current",
+          "status": 200
+        }
+      ],
+      "console": [
+        {
+          "phase": "injected-503",
+          "type": "error",
+          "text": "Failed to load resource: the server responded with a status of 503 (Service Unavailable)"
+        }
+      ],
+      "pageErrors": [],
+      "checks": [
+        {
+          "state": "idle",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "invalid",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "success",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "dirty",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "pending",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "error",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "/yunqi/year",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "/yunqi/inquiry",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "/not-approved",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "/yunqi/year/2026",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        },
+        {
+          "state": "/yunqi/current",
+          "dimensions": {
+            "width": 390,
+            "height": 844,
+            "scrollWidth": 390,
+            "clientWidth": 390
+          }
+        }
+      ],
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}
