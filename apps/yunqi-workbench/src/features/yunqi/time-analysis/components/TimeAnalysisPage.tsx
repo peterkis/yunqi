@@ -15,6 +15,7 @@ export interface TimeAnalysisPageProps {
   readonly isError: boolean;
   readonly isPending: boolean;
   readonly onInputChange: (value: string) => void;
+  readonly onInvalid: () => void;
   readonly onRetry: () => void;
   readonly onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   readonly viewModel: TimeAnalysisYunQiViewModel | null;
@@ -27,6 +28,7 @@ export function TimeAnalysisPage({
   isError,
   isPending,
   onInputChange,
+  onInvalid,
   onRetry,
   onSubmit,
   viewModel,
@@ -57,6 +59,7 @@ export function TimeAnalysisPage({
           inputValue={inputValue}
           isPending={isPending}
           onInputChange={onInputChange}
+          onInvalid={onInvalid}
           onSubmit={onSubmit}
         />
       </section>

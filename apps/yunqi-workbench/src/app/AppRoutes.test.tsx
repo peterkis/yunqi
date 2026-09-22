@@ -229,13 +229,36 @@ describe('AppRoutes', () => {
     ).not.toBeInTheDocument();
   });
 
-  it('does not calculate an invalid specified-time input', () => {
+  it('shows an accessible error when native validation blocks an empty submit', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+
+    renderAppAt('/yunqi/calculate', client);
+
+    await user.click(
+      screen.getByRole('button', { name: '开始分析' }),
+    );
+
+    expect(screen.getByRole('alert')).toHaveTextContent(
+      '请输入合法的北京时间',
+    );
+    expect(screen.getByLabelText('分析时间')).toHaveFocus();
+    expect(screen.getByLabelText('分析时间')).toHaveAttribute(
+      'aria-describedby', 'time-analysis-hint time-analysis-error',
+    );
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('rejects retained fractional seconds through the submit normalizer', () => {
     const client = createClient();
 
     renderAppAt('/yunqi/calculate', client);
 
     const input = screen.getByLabelText('分析时间');
-    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.change(input, {
+      target: { value: '2026-05-20T13:30:45.000' },
+    });
+    expect(input).toHaveValue('2026-05-20T13:30:45.000');
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),
     );
@@ -244,6 +267,42 @@ describe('AppRoutes', () => {
       '请输入合法的北京时间',
     );
     expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('shows an accessible error for a keyboard empty submit without requesting', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/calculate', client);
+    screen.getByRole('button', { name: '开始分析' }).focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByRole('alert')).toHaveTextContent('请输入合法的北京时间');
+    expect(screen.getByLabelText('分析时间')).toHaveFocus();
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('hides the result when edited and clears dirty feedback after an empty submit', async () => {
+    const user = userEvent.setup();
+    const client = createClient({
+      calculate: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
+    });
+    renderAppAt('/yunqi/calculate', client);
+    const input = screen.getByLabelText('分析时间');
+    fireEvent.change(input, { target: { value: '2026-05-20T13:30' } });
+    await user.click(screen.getByRole('button', { name: '开始分析' }));
+    await screen.findByRole('region', { name: '指定时点分析结果' });
+    expect(client.calculate).toHaveBeenCalledExactlyOnceWith({
+      dateTime: '2026-05-20T13:30:00+08:00',
+    });
+    fireEvent.change(input, { target: { value: '2026-05-21T13:30' } });
+    expect(screen.getByText('输入已修改，请重新分析')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: '指定时点分析结果' })).not.toBeInTheDocument();
+    expect(client.calculate).toHaveBeenCalledOnce();
+    fireEvent.change(input, { target: { value: '' } });
+    await user.click(screen.getByRole('button', { name: '开始分析' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('请输入合法的北京时间');
+    expect(screen.queryByText('输入已修改，请重新分析')).not.toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: '指定时点分析结果' })).not.toBeInTheDocument();
+    expect(client.calculate).toHaveBeenCalledOnce();
   });
 
   it('submits one normalized request and renders the API canonical result', async () => {

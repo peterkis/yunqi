@@ -1,0 +1,44 @@
+codeCommit=4a3ddf3d67ad3ec4214608812cbcd24867937b50
+command=pnpm build
+exitCode=0
+
+> yunqi@ build D:\Projects\YunQi-phase3-e1-closeout
+> pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+
+
+> yunqi@ build:contract-source D:\Projects\YunQi-phase3-e1-closeout
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.1.0 build D:\Projects\YunQi-phase3-e1-closeout\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build D:\Projects\YunQi-phase3-e1-closeout\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.0.0 build D:\Projects\YunQi-phase3-e1-closeout\packages\yunqi-service
+> tsc -p tsconfig.json
+
+
+> @yunqi/contracts@1.0.0 build D:\Projects\YunQi-phase3-e1-closeout\packages\yunqi-contracts
+> tsc -p tsconfig.json
+
+
+> @yunqi/client@1.0.0 build D:\Projects\YunQi-phase3-e1-closeout\packages\yunqi-client
+> tsc -p tsconfig.json
+
+
+> @yunqi/workbench@0.1.0 build D:\Projects\YunQi-phase3-e1-closeout\apps\yunqi-workbench
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 132 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.41 kB │ gzip:  0.28 kB
+dist/assets/index-7H2eZvwz.css   24.09 kB │ gzip:  4.65 kB
+dist/assets/index-BG3CV1hC.js   299.85 kB │ gzip: 93.97 kB
+
+✓ built in 301ms

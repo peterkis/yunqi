@@ -19,8 +19,10 @@ rule calculation and presentation capability, not an inquiry or medical
 decision workflow.
 
 Merged implementation does not establish complete engineering acceptance.
-The 2026-09-18 E1 record leaves exact viewport and Console checks unverified;
-the native-invalid form fix and E2 feedback-input fix are pending delivery.
+The 2026-09-18 E1 record leaves exact viewport and Console checks unverified.
+The [2026-09-22 E1 closeout](../superpowers/verification/2026-09-22-phase3-e1-review-closeout.md)
+records the native-invalid form repair and new three-viewport browser evidence.
+The E2 feedback-input repair remains a separate pending delivery.
 See the [2026-09-22 reconciliation](../superpowers/verification/2026-09-22-phase3-e0-spec-reconciliation.md)
 for provenance, attachment coverage, and the separate E1/E2 closeout gates.
 
