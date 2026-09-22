@@ -219,7 +219,8 @@ Provider ownership 固定如下：
   仍按 runtime 拒绝。
 
 Phase3-B 只建立非路由 Workbench foundation。Phase3-C3 已明确授权引入
-React Router；Phase3-C4 进一步批准只读问诊结构化入口。当前导航基线冻结为：
+React Router；Phase3-C4 进一步批准只读问诊结构化入口。以下为 C4 导航基线；
+Phase3-E1 在此基础上增加 `/yunqi/calculate`，仅在用户提交后执行指定时点分析：
 
 ```text
 /                    -> replace redirect /yunqi/current

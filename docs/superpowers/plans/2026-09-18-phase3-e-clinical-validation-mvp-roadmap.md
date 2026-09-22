@@ -5,6 +5,19 @@
 
 ## Base and sequencing
 
+### 2026-09-22 reconciliation addendum
+
+E0, E1, and E2 are merged as PRs #9, #10, and #11. The original sequence below
+remains the phase specification, not an instruction to recreate those changes.
+Current closeout order: E0 documentation reconciliation, E1 native-input fix
+and complete browser acceptance, then E2 reproducible feedback records.
+Each closeout uses its own worktree, PR, verification record, independent
+specification/standards review, and passing current-commit quality-gates.
+E1 browser evidence is incomplete; E2 templates are not clinical evidence.
+See the [reconciliation record](../verification/2026-09-22-phase3-e0-spec-reconciliation.md).
+
+### Original implementation baseline
+
 - Base SHA: c0beecfccebefb1db7a11b29012c1d187eabcbf5
 - E0 branch: codex/phase3e-e0-clinical-validation-baseline
 - E1 branch: codex/phase3e-e1-time-analysis

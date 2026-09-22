@@ -14,9 +14,15 @@ tasks are:
 2. arbitrary-year YunQi analysis; and
 3. specified-time analysis using Beijing standard time.
 
-The separately verified E1 route is /yunqi/calculate. It remains a deterministic
+The implemented E1 route is /yunqi/calculate. It remains a deterministic
 rule calculation and presentation capability, not an inquiry or medical
 decision workflow.
+
+Merged implementation does not establish complete engineering acceptance.
+The 2026-09-18 E1 record leaves exact viewport and Console checks unverified;
+the native-invalid form fix and E2 feedback-input fix are pending delivery.
+See the [2026-09-22 reconciliation](../superpowers/verification/2026-09-22-phase3-e0-spec-reconciliation.md)
+for provenance, attachment coverage, and the separate E1/E2 closeout gates.
 
 No expert reference cases, signed confirmations, clinical feedback sessions, or
 real patient data are present here. Therefore no clinical gate is PASS, and no
