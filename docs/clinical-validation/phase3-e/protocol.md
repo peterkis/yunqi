@@ -22,6 +22,10 @@ The facilitator confirms before the session:
 - the blank feedback form; and
 - that no patient data will be entered or retained.
 
+Record the full reviewed Git commit SHA and session code before starting.
+Start a new record if the build changes. Every feedback entry references its
+task/example number; exported excerpts retain session and build identity.
+
 The clinician, not the facilitator, selects the familiar year and the two or
 three specified-time examples. The facilitator must not choose only examples
 that are likely to pass.
@@ -49,6 +53,7 @@ observation into a rule correction without a separate expert decision.
 ## Task B — arbitrary-year page
 
 Ask the clinician to choose a year they know well and open its annual analysis.
+Record 独立完成 / 需提示 / 未完成 for the task separately from comprehension.
 Ask:
 
 - Is the annual summary sufficient?
@@ -64,12 +69,23 @@ Ask the clinician to provide two or three familiar Beijing standard times.
 Before submission, ask whether the time standard is clear. After each result,
 record:
 
+- completion status (独立完成 / 需提示 / 未完成) for each attempted example;
+- verbatim raw form input, preserving supplied precision, when not patient-linked;
+- the separately observed API canonical localTime, when a result exists;
 - whether input was understandable;
 - whether the canonical time was clear;
 - whether the selected stage wording was understandable;
 - whether the rule output matches the clinician's independent expectation;
 - any missing domain fact; and
 - any presentation or usability issue.
+
+Both time fields use fixed Beijing UTC+08:00 semantics. Do not append an offset
+or fill seconds in the raw-input record. Only the separate API field copies
+the returned canonical +08:00 value. If no result exists, leave that field
+blank and describe the failure/unsubmitted outcome. If patient linkage exists,
+omit both time fields and record the omission without identifying details.
+Use C/1, C/2, or C/3 to bind each observation to its example. Task completion,
+comprehension and agreement with a rule value are separate observations.
 
 If the clinician disputes a rule value, record it as feedback. Do not alter the
 template or mark a case CONFIRMED during the session without the required
