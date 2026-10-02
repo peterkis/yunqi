@@ -15,7 +15,7 @@ export function YunQiYearSummaryPanel({
     <Panel
       eyebrow="Annual Frame"
       title="年度概览"
-      description="运气年、岁运与司天在泉均来自冻结规则结果。"
+      description="已版本化的 Phase 1 实现基线，待正式专家冻结与验证。"
     >
       <div className="summary-grid">
         <Card title="运气年">

@@ -3,6 +3,22 @@
 Fastify 5 service-contract package for the accepted `@yunqi/domain` facts.
 It exposes time boundaries and versioned rule mappings only.
 
+The standalone listener defaults to `127.0.0.1`; set `HOST` explicitly when
+network access is required. Each service instance enforces 128 connections,
+32 active requests, a 10-second absolute socket/request lifetime, a 5-second
+idle timeout, and fixed one-second request budgets of 60 globally and 20 per
+socket peer. Forwarded headers do not establish peer identity. Overload uses
+the existing `503`/`INTERNAL_ERROR` envelope with `Retry-After`; the frozen
+business schemas and status set are unchanged. Embedded callers can supply
+positive integer `buildApp({ ingress: ... })` limits. Timers measure resource
+lifetime only and do not participate in YunQi business-time interpretation.
+
+These bounds apply per process, including health/docs requests. All clients
+behind one proxy source IP share one peer budget; opening more connections
+does not change that budget. No trusted-proxy mode is enabled. Fixed windows allow a boundary burst, and
+timers cannot preempt a synchronous calculation already running. Capacity
+and multi-instance ingress budgets still require deployment load testing.
+
 ## Commands
 
 From the repository root:

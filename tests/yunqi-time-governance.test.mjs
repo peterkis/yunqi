@@ -76,6 +76,20 @@ function runChecker(root) {
   );
 }
 
+test('rejects computed recovery of a forbidden time global', () => {
+  const root = createFixture("const C = globalThis['Da' + 'te']; export const value = new C(0);");
+  const result = runChecker(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /computed|capability/);
+});
+
+test('rejects reflective recovery through a passed global object', () => {
+  const root = createFixture("const get = Reflect.get; const C = get(globalThis, 'Da' + 'te'); export const value = new C(0);");
+  const result = runChecker(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /capability/);
+});
+
 test('accepts React rendering of canonical localTime', () => {
   const root = createFixture(
     'export const TimeView = ({ result }) => <time>{result.localTime}</time>;',

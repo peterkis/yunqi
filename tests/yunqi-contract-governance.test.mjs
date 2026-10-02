@@ -8,6 +8,7 @@ import {
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import test from 'node:test';
+import { parse } from 'yaml';
 import { fileURLToPath } from 'node:url';
 import {
   assertContractProjectionMatchesFreeze,
@@ -533,6 +534,12 @@ function writeFixture(root, relativePath, source) {
 
 function createDependencyFixture() {
   const root = mkdtempSync(join(tmpdir(), 'yunqi-contract-dependencies-'));
+  writeFixture(root, 'packages/yunqi-domain/package.json', JSON.stringify({
+    name: '@yunqi/domain', dependencies: {},
+  }));
+  writeFixture(root, 'packages/calendar-adapters/tyme4ts/package.json', JSON.stringify({
+    name: '@yunqi/calendar-adapter-tyme4ts', dependencies: { '@yunqi/domain': 'workspace:*' },
+  }));
   writeFixture(
     root,
     'packages/yunqi-contracts/package.json',
@@ -582,6 +589,101 @@ function createDependencyFixture() {
 test('dependency gate accepts the approved package direction', async () => {
   const root = createDependencyFixture();
   assert.deepEqual(await findContractDependencyViolations(root), []);
+});
+
+test('dependency gate allows ordinary module-related text without loader access', async () => {
+  const root = createDependencyFixture();
+  writeFixture(root, 'packages/yunqi-service/src/labels.ts', "export const label = 'module'; export const example = 'node:module';");
+  assert.deepEqual(await findContractDependencyViolations(root), []);
+});
+
+for (const source of [
+  "export const load = () => import('@yunqi/' + 'client');",
+  "const id = '@yunqi/client'; export const load = () => import(id);",
+  "const load = require; export const client = load('@yunqi/client');",
+  "import { createRequire as factory } from 'node:module'; const load = factory(import.meta.url); load('@yunqi/client');",
+  "export const load = Function('return import(\"@yunqi/client\")');",
+]) {
+  test(`dependency gate rejects opaque capability acquisition: ${source}`, async () => {
+    const root = createDependencyFixture();
+    writeFixture(root, 'packages/yunqi-service/src/opaque.ts', source);
+    const violations = await findContractDependencyViolations(root);
+    assert.ok(violations.some((v) => v.includes('opaque.ts')), violations.join('\n'));
+  });
+}
+
+test('dependency gate rejects a template literal reverse import', async () => {
+  const root = createDependencyFixture();
+  writeFixture(root, 'packages/yunqi-domain/src/leak.ts',
+    'export const load = () => import(`../../yunqi-client/dist/index.js`);');
+  const violations = await findContractDependencyViolations(root);
+  assert.ok(violations.some((value) => value.includes('packages/yunqi-domain/src/leak.ts')));
+});
+
+test('dependency gate rejects a client relative import of Service runtime', async () => {
+  const root = createDependencyFixture();
+  writeFixture(
+    root,
+    'packages/yunqi-client/src/leak.ts',
+    "export { buildApp } from '../../yunqi-service/dist/app.js';",
+  );
+  const violations = await findContractDependencyViolations(root);
+  assert.ok(violations.some((value) => value.includes('packages/yunqi-client/src/leak.ts')));
+});
+
+for (const packagePath of ['packages/yunqi-domain', 'packages/calendar-adapters/tyme4ts']) {
+  test(`dependency gate rejects reverse dependencies from ${packagePath}`, async () => {
+    const root = createDependencyFixture();
+    writeFixture(root, `${packagePath}/package.json`, JSON.stringify({
+      dependencies: { '@yunqi/client': 'workspace:*' },
+    }));
+    writeFixture(root, `${packagePath}/src/leak.ts`,
+      "export { yunqiClient } from '@yunqi/client';");
+    const violations = await findContractDependencyViolations(root);
+    assert.ok(violations.some((value) => value.includes(`${packagePath}/package.json`)));
+    assert.ok(violations.some((value) => value.includes(`${packagePath}/src/leak.ts`)));
+  });
+}
+
+for (const [label, source] of [
+  ['dynamic import', "export const load = () => import('../../yunqi-service/dist/app.js');"],
+  ['commented dynamic import', "export const load = () => import(/* service */ '../../yunqi-service/dist/app.js');"],
+  ['template dynamic import', 'export const load = () => import(`../../yunqi-service/dist/app.js`);'],
+  ['TypeScript generic loader', "export const load = <T>() => import('../../yunqi-service/dist/app.js');"],
+  ['require', "const service = require('../../yunqi-service/dist/app.js');"],
+  ['Windows relative path', String.raw`export { buildApp } from '..\\..\\yunqi-service\\dist\\app.js';`],
+  ['absolute path', "export { buildApp } from '/packages/yunqi-service/dist/app.js';"],
+  ['file URL', "export { buildApp } from 'file:///packages/yunqi-service/dist/app.js';"],
+]) {
+  test(`dependency gate rejects browser package escape via ${label}`, async () => {
+    const root = createDependencyFixture();
+    writeFixture(root, 'packages/yunqi-client/src/leak.ts', source);
+    const violations = await findContractDependencyViolations(root);
+    assert.ok(violations.some((value) => value.includes('packages/yunqi-client/src/leak.ts')));
+  });
+}
+
+test('dependency gate ignores import examples in comments and strings', async () => {
+  const root = createDependencyFixture();
+  writeFixture(root, 'packages/yunqi-client/src/example.ts',
+    '// import { buildApp } from "../../yunqi-service/dist/app.js";\n' +
+    'export const example = "import(\'../../yunqi-service/dist/app.js\')";');
+  assert.deepEqual(await findContractDependencyViolations(root), []);
+});
+
+test('dependency gate accepts internal relative imports and rejects local reverse imports', async () => {
+  const root = createDependencyFixture();
+  writeFixture(root, 'packages/yunqi-client/src/nested/internal.ts', "export { value } from '../value.js';");
+  assert.deepEqual(await findContractDependencyViolations(root), []);
+  for (const [packagePath, specifier] of [
+    ['packages/yunqi-service', '../../yunqi-client/dist/index.js'],
+    ['packages/yunqi-domain', '../../yunqi-contracts/dist/index.js'],
+    ['packages/calendar-adapters/tyme4ts', '../../../yunqi-client/dist/index.js'],
+  ]) {
+    writeFixture(root, `${packagePath}/src/leak.ts`, `export * from '${specifier}';`);
+    const violations = await findContractDependencyViolations(root);
+    assert.ok(violations.some((value) => value.includes(`${packagePath}/src/leak.ts`)));
+  }
 });
 
 test('dependency gate rejects forbidden manifest and source dependencies', async () => {
@@ -655,10 +757,10 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     'concurrency:',
     'cancel-in-progress: true',
     'quality-gates:',
-    'actions/checkout@v7',
+    'actions/checkout@',
     'fetch-depth: 0',
-    'pnpm/action-setup@v6',
-    'actions/setup-node@v7',
+    'pnpm/action-setup@',
+    'actions/setup-node@',
     'node-version: 22',
     'pnpm install --frozen-lockfile',
     'pnpm test:time-governance',
@@ -688,6 +790,14 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     .filter((line) => line.startsWith('run: '))
     .map((line) => line.slice('run: '.length));
   assert.deepEqual(actualCommands, orderedCommands);
+  const visit = (node) => {
+    if (!node || typeof node !== 'object') return;
+    if ('uses' in node) {
+      assert.match(node.uses, /^(?:\.\/[^@]+|[^@\s]+@[a-f0-9]{40})$/, `mutable action: ${node.uses}`);
+    }
+    for (const value of Object.values(node)) visit(value);
+  };
+  visit(parse(workflow));
 });
 
 test('byte-compared contract artifacts are pinned to LF line endings', () => {

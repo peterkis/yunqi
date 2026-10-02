@@ -1,6 +1,8 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { dirname, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, relative, resolve, sep, win32 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import ts from 'typescript';
+import { findComputedCapabilityViolations } from './governed-capabilities.mjs';
 
 const repositoryRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -31,7 +33,7 @@ const PACKAGE_RULES = {
     allowedSourceImports: new Set(['@yunqi/contracts']),
   },
 };
-const SERVICE_FORBIDDEN = new Set([
+const REVERSE_FORBIDDEN = new Set([
   '@yunqi/contracts',
   '@yunqi/client',
 ]);
@@ -81,29 +83,44 @@ function collectRuntimeDependencyNames(manifest) {
   ];
 }
 
-function collectBareImports(source) {
+function collectImports(source, fileName) {
   const imports = new Set();
-  const patterns = [
-    /\bfrom\s+['"]([^'"]+)['"]/g,
-    /\bimport\s+['"]([^'"]+)['"]/g,
-    /\bimport\s*\(\s*['"]([^'"]+)['"]/g,
-    /\brequire\s*\(\s*['"]([^'"]+)['"]/g,
-  ];
-
-  for (const pattern of patterns) {
-    for (const match of source.matchAll(pattern)) {
-      const specifier = match[1];
-      if (
-        specifier !== undefined &&
-        !specifier.startsWith('.') &&
-        !specifier.startsWith('/')
-      ) {
-        imports.add(specifier);
-      }
+  const sourceFile = ts.createSourceFile(fileName, source, ts.ScriptTarget.Latest, true);
+  const addLiteral = (node) => {
+    if (node && ts.isStringLiteralLike(node)) imports.add(node.text);
+  };
+  const visit = (node) => {
+    if (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) {
+      addLiteral(node.moduleSpecifier);
+    } else if (ts.isCallExpression(node) &&
+        (node.expression.kind === ts.SyntaxKind.ImportKeyword ||
+         (ts.isIdentifier(node.expression) && node.expression.text === 'require'))) {
+      addLiteral(node.arguments[0]);
+    } else if (ts.isImportEqualsDeclaration(node) && ts.isExternalModuleReference(node.moduleReference)) {
+      addLiteral(node.moduleReference.expression);
+    } else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument)) {
+      addLiteral(node.argument.literal);
     }
-  }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
 
   return [...imports];
+}
+
+function isInside(parent, target) {
+  const path = relative(parent, target);
+  return path !== '..' && !path.startsWith(`..${sep}`) && !isAbsolute(path);
+}
+
+function isRelativeImport(specifier) {
+  return specifier === '.' || specifier === '..' ||
+    specifier.startsWith('./') || specifier.startsWith('../');
+}
+
+function isAbsoluteImport(specifier) {
+  return specifier.startsWith('file:') || isAbsolute(specifier) ||
+    win32.isAbsolute(specifier);
 }
 
 async function validatePackage(root, packagePath, rule) {
@@ -131,8 +148,15 @@ async function validatePackage(root, packagePath, rule) {
 
   for (const file of await collectSourceFiles(resolve(packageRoot, 'src'))) {
     const source = await readFile(file, 'utf8');
-    for (const dependency of collectBareImports(source)) {
-      if (!rule.allowedSourceImports.has(dependency)) {
+    for (const violation of findComputedCapabilityViolations(source, file)) {
+      violations.push(`${normalizePath(relative(root, file))}: ${violation}`);
+    }
+    for (const dependency of collectImports(source, file)) {
+      const specifier = normalizePath(dependency);
+      const allowed = isRelativeImport(specifier)
+        ? isInside(packageRoot, resolve(dirname(file), specifier))
+        : !isAbsoluteImport(specifier) && rule.allowedSourceImports.has(specifier);
+      if (!allowed) {
         violations.push(
           `${normalizePath(relative(root, file))}: forbidden import ${dependency}`,
         );
@@ -143,8 +167,38 @@ async function validatePackage(root, packagePath, rule) {
   return violations;
 }
 
-async function validateServiceDirection(root) {
-  const packagePath = 'packages/yunqi-service';
+function isReverseImport(root, file, dependency) {
+  if (/^@yunqi\/(?:contracts|client)(?:\/|$)/.test(dependency)) return true;
+  const specifier = normalizePath(dependency);
+  if (!isRelativeImport(specifier) && !isAbsoluteImport(specifier)) return false;
+  let target;
+  try {
+    target = specifier.startsWith('file:')
+      ? fileURLToPath(specifier)
+      : resolve(dirname(file), specifier);
+  } catch {
+    return true;
+  }
+  return ['packages/yunqi-contracts', 'packages/yunqi-client'].some(
+    (packagePath) => isInside(resolve(root, packagePath), target),
+  );
+}
+
+async function reversePackagePaths(root) {
+  const paths = ['packages/yunqi-service', 'packages/yunqi-domain'];
+  try {
+    for (const entry of await readdir(resolve(root, 'packages/calendar-adapters'), { withFileTypes: true })) {
+      if (entry.isDirectory() && !SKIPPED_DIRECTORIES.has(entry.name)) {
+        paths.push(`packages/calendar-adapters/${entry.name}`);
+      }
+    }
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  return paths;
+}
+
+async function validateReverseDirection(root, packagePath) {
   const packageRoot = resolve(root, packagePath);
   const violations = [];
   let manifest;
@@ -161,7 +215,7 @@ async function validateServiceDirection(root) {
   }
 
   for (const dependency of collectRuntimeDependencyNames(manifest)) {
-    if (SERVICE_FORBIDDEN.has(dependency)) {
+    if (REVERSE_FORBIDDEN.has(dependency)) {
       violations.push(
         `${packagePath}/package.json: forbidden reverse dependency ${dependency}`,
       );
@@ -170,8 +224,11 @@ async function validateServiceDirection(root) {
 
   for (const file of await collectSourceFiles(resolve(packageRoot, 'src'))) {
     const source = await readFile(file, 'utf8');
-    for (const dependency of collectBareImports(source)) {
-      if (SERVICE_FORBIDDEN.has(dependency)) {
+    for (const violation of findComputedCapabilityViolations(source, file)) {
+      violations.push(`${normalizePath(relative(root, file))}: ${violation}`);
+    }
+    for (const dependency of collectImports(source, file)) {
+      if (isReverseImport(root, file, dependency)) {
         violations.push(
           `${normalizePath(relative(root, file))}: forbidden reverse import ${dependency}`,
         );
@@ -189,7 +246,9 @@ export async function findContractDependencyViolations(
     ...Object.entries(PACKAGE_RULES).map(([packagePath, rule]) =>
       validatePackage(root, packagePath, rule),
     ),
-    validateServiceDirection(root),
+    ...(await reversePackagePaths(root)).map((packagePath) =>
+      validateReverseDirection(root, packagePath),
+    ),
   ]);
 
   return groups.flat().sort((left, right) => left.localeCompare(right));

@@ -15,6 +15,8 @@ describe('CurrentYunQiPage', () => {
     expect(
       screen.getByRole('heading', { name: '当前五运六气' }),
     ).toBeInTheDocument();
+    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+
     const inputTime = screen.getByText('2026-06-19 12:00:00');
     expect(inputTime).toHaveAttribute(
       'dateTime',

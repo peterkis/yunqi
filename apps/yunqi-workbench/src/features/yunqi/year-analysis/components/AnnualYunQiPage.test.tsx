@@ -11,6 +11,8 @@ describe('AnnualYunQiPage', () => {
     const viewModel = mapAnnualYunQi(createYunQiYearDto());
     render(<AnnualYunQiPage viewModel={viewModel} />);
 
+    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+
     const radios = screen.getAllByRole('radio');
     expect(radios).toHaveLength(6);
     expect(radios[0]).toBeChecked();

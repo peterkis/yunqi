@@ -214,15 +214,51 @@ The full repository gates additionally include frozen Contract drift checks,
 time purity, all package tests/typechecks/coverage, schema validation, and
 OpenAPI validation.
 
+Governed production imports must stay in `src` or use approved public packages.
+Runtime imports/re-exports of test, spec, fixture, or skipped output directories
+are rejected even through a barrel. Source file links and directory junctions
+are rejected, and the HTML module entry remains `/src/main.tsx`. Test helpers
+remain usable from tests, but cannot become production dependencies.
+
+Capability acquisition must be statically reviewable: module specifiers must
+be literals; indirect require, module-loader factories, dynamic code generation,
+and computed global time access are rejected. AST binding checks distinguish
+global-object aliases from locally shadowed names. These checks enforce project
+source conventions and are not a sandbox for arbitrary hostile JavaScript.
+
+The shared annual summary displays the versioned implementation baseline's
+pending expert freeze/validation status. While `rules/RULE_FREEZE_NOTE.md`
+remains pending, production copy cannot claim frozen rules. API Contract
+freeze is a separate status and does not establish clinical validation.
+
 ## Runtime API base URL
 
-By default, the client sends same-origin requests. For a separately hosted
-service, create `apps/yunqi-workbench/.env.local`:
+Run `pnpm build` from the repository root, then run Service and Workbench in
+separate terminals:
 
-```dotenv
-VITE_YUNQI_API_BASE_URL=http://127.0.0.1:3000
+```text
+pnpm --filter @yunqi/service start
+pnpm --filter @yunqi/workbench dev
 ```
 
-This value is the service origin/base URL. Do not append or duplicate
-`/api/v1/yunqi/**`; `@yunqi/client` owns those frozen paths. Restart the Vite
-development server after changing the environment file.
+Keep `VITE_YUNQI_API_BASE_URL` unset or empty for this local setup. Vite proxies
+`/api/v1/yunqi/` to `http://127.0.0.1:3000` without rewriting paths. The browser
+sends GET and POST requests to the Workbench origin.
+
+To target a different Service port, create `apps/yunqi-workbench/.env.local`:
+
+```dotenv
+YUNQI_DEV_API_TARGET=http://127.0.0.1:3001
+```
+
+Restart Vite after changing it. Remove a previous `VITE_YUNQI_API_BASE_URL`
+override pointing directly at the local Service, because that bypasses the
+same-origin proxy. The proxy target is server-only and is not exposed as a
+browser `VITE_` variable. Run `pnpm test:dev-proxy` from the root to verify real
+GET, POST and error responses through the development server.
+
+Production hosting must provide its own same-origin API reverse proxy.
+`YUNQI_DEV_API_TARGET` does not configure a production proxy. A nonempty
+`VITE_YUNQI_API_BASE_URL` is supported for separate origins only when the API
+host provides CORS and POST preflight support; Service has no default CORS.
+Do not append `/api/v1/yunqi/**` to either origin; the Client owns those paths.

@@ -1,4 +1,4 @@
-import { readdir, readFile } from 'node:fs/promises';
+import { lstat, readdir, readFile } from 'node:fs/promises';
 import {
   dirname,
   isAbsolute,
@@ -10,6 +10,7 @@ import {
 } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as ts from 'typescript';
+import { findComputedCapabilityViolations, governedImportEntries } from './governed-capabilities.mjs';
 
 const repositoryRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -71,10 +72,14 @@ function extensionOf(fileName) {
   return index === -1 ? '' : fileName.slice(index);
 }
 
-async function collectSourceFiles(directory) {
+async function collectSourceFiles(directory, violations) {
   let entries;
 
   try {
+    if ((await lstat(directory)).isSymbolicLink()) {
+      violations.push(`${normalizePath(directory)}: symbolic link in governed source is forbidden`);
+      return [];
+    }
     entries = await readdir(directory, { withFileTypes: true });
   } catch (error) {
     if (error?.code === 'ENOENT') return [];
@@ -84,11 +89,14 @@ async function collectSourceFiles(directory) {
   const files = [];
 
   for (const entry of entries) {
-    if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
-
     const target = resolve(directory, entry.name);
+    if (entry.isSymbolicLink()) {
+      violations.push(`${normalizePath(target)}: symbolic link in governed source is forbidden`);
+      continue;
+    }
+    if (SKIPPED_DIRECTORIES.has(entry.name)) continue;
     if (entry.isDirectory()) {
-      files.push(...(await collectSourceFiles(target)));
+      files.push(...(await collectSourceFiles(target, violations)));
     } else if (
       entry.isFile() &&
       SOURCE_EXTENSIONS.has(extensionOf(entry.name))
@@ -98,49 +106,6 @@ async function collectSourceFiles(directory) {
   }
 
   return files;
-}
-
-function clauseHasRuntimeBinding(clause) {
-  const normalized = clause.trim();
-  if (normalized.startsWith('type ')) return false;
-
-  const namedBindings = normalized.match(/^\{([\s\S]*)\}$/);
-  if (!namedBindings) return true;
-  if (namedBindings[1].trim() === '') return true;
-
-  return namedBindings[1]
-    .split(',')
-    .filter((entry) => entry.trim() !== '')
-    .some((entry) => !entry.trim().startsWith('type '));
-}
-
-function importEntries(source) {
-  const entries = [];
-  const staticImports =
-    /\b(?:import|export)\s+([^'";]+?)\s+from\s+['"]([^'"]+)['"]/g;
-  const sideEffectImports =
-    /\bimport\s*['"]([^'"]+)['"]/g;
-  const runtimeCalls = [
-    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  ];
-
-  for (const match of source.matchAll(staticImports)) {
-    entries.push({
-      runtime: clauseHasRuntimeBinding(match[1]),
-      specifier: match[2],
-    });
-  }
-  for (const match of source.matchAll(sideEffectImports)) {
-    entries.push({ runtime: true, specifier: match[1] });
-  }
-  for (const pattern of runtimeCalls) {
-    for (const match of source.matchAll(pattern)) {
-      entries.push({ runtime: true, specifier: match[1] });
-    }
-  }
-
-  return entries;
 }
 
 function isRelativeImport(specifier) {
@@ -180,31 +145,8 @@ function escapesDirectory(parent, target) {
 }
 
 function hasRuntimeClientImport(source) {
-  const clientSpecifier = '@yunqi/client';
-  const staticImports =
-    /\bimport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
-  const reExports =
-    /\bexport\s+([^'";]+?)\s+from\s+['"](@yunqi\/client(?:\/[^'"]*)?)['"]/g;
-
-  for (const match of source.matchAll(staticImports)) {
-    if (clauseHasRuntimeBinding(match[1])) return true;
-  }
-
-  for (const match of source.matchAll(reExports)) {
-    if (clauseHasRuntimeBinding(match[1])) return true;
-  }
-
-  return (
-    new RegExp(
-      `\\bimport\\s*\\(\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
-    ).test(source) ||
-    new RegExp(
-      `\\brequire\\s*\\(\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
-    ).test(source) ||
-    new RegExp(
-      `\\bimport\\s*['"]${clientSpecifier}(?:/[^'"]*)?['"]`,
-    ).test(source)
-  );
+  return governedImportEntries(source, 'component.tsx').some(({ runtime, specifier }) =>
+    runtime && /^@yunqi\/client(?:\/|$)/.test(specifier));
 }
 
 function parseWorkbenchSource(source, fileName) {
@@ -394,6 +336,95 @@ function hasDirectClientMethodAccess(sourceFile) {
     ts.forEachChild(node, visit);
   };
 
+  visit(sourceFile);
+  return found;
+}
+
+function hasGlobalFetchCapability(sourceFile) {
+  // Binding resolution distinguishes browser globals from local names, without
+  // loading project dependencies or evaluating component code.
+  const options = { noLib: true, noResolve: true, allowJs: true };
+  const host = ts.createCompilerHost(options);
+  host.getSourceFile = (fileName) => fileName === sourceFile.fileName ? sourceFile : undefined;
+  const checker = ts.createProgram([sourceFile.fileName], options, host).getTypeChecker();
+  const assignments = new Map();
+  const collectAssignments = (node) => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      const target = unwrapExpression(node.left);
+      if (ts.isIdentifier(target)) {
+        const symbol = checker.getSymbolAtLocation(target);
+        if (symbol) assignments.set(symbol, [...(assignments.get(symbol) ?? []), node.right]);
+      }
+    }
+    ts.forEachChild(node, collectAssignments);
+  };
+  collectAssignments(sourceFile);
+  const globalNames = new Set(['globalThis', 'window', 'self']);
+  const isGlobalName = (node) => {
+    const symbol = ts.isShorthandPropertyAssignment(node.parent)
+      ? checker.getShorthandAssignmentValueSymbol(node.parent)
+      : checker.getSymbolAtLocation(node);
+    return !symbol?.declarations?.length;
+  };
+  const isGlobalObject = (expression, seen = new Set()) => {
+    const node = unwrapExpression(expression);
+    if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) &&
+        globalNames.has(staticMemberName(node))) {
+      return isGlobalObject(node.expression, seen);
+    }
+    if (!ts.isIdentifier(node)) return false;
+    if (globalNames.has(node.text) && isGlobalName(node)) return true;
+    const symbol = checker.getSymbolAtLocation(node);
+    if (!symbol || seen.has(symbol)) return false;
+    const declaration = symbol.valueDeclaration;
+    if (declaration && ts.isBindingElement(declaration) &&
+        ts.isObjectBindingPattern(declaration.parent) &&
+        globalNames.has(inquiryPropertyName(declaration.propertyName ?? declaration.name))) {
+      const owner = declaration.parent.parent;
+      if (ts.isVariableDeclaration(owner) && owner.initializer &&
+          isGlobalObject(owner.initializer, new Set([...seen, symbol]))) return true;
+    }
+    const values = [...(assignments.get(symbol) ?? [])];
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      values.push(declaration.initializer);
+    }
+    return values.some((value) => isGlobalObject(value, new Set([...seen, symbol])));
+  };
+  let found = false;
+  const visit = (node) => {
+    if (found || ts.isTypeNode(node)) return;
+    if ((ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node)) &&
+        staticMemberName(node) === 'fetch' && isGlobalObject(node.expression)) {
+      found = true;
+      return;
+    }
+    if (ts.isVariableDeclaration(node) ||
+        (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken)) {
+      const binding = ts.isVariableDeclaration(node) ? node.name : unwrapExpression(node.left);
+      const value = ts.isVariableDeclaration(node) ? node.initializer : node.right;
+      const members = ts.isObjectBindingPattern(binding) ? binding.elements
+        : ts.isObjectLiteralExpression(binding) ? binding.properties : [];
+      if (value && isGlobalObject(value) && members.some((member) => {
+        const name = ts.isBindingElement(member) ? member.propertyName ?? member.name : member.name;
+        return name !== undefined && inquiryPropertyName(name) === 'fetch';
+      })) {
+        found = true;
+        return;
+      }
+    }
+    if (ts.isIdentifier(node) && node.text === 'fetch' && isGlobalName(node)) {
+      const parent = node.parent;
+      const isPropertyName =
+        (ts.isPropertyAccessExpression(parent) && parent.name === node) ||
+        (ts.isPropertyAssignment(parent) && parent.name === node) ||
+        (ts.isBindingElement(parent) && parent.propertyName === node);
+      if (!isPropertyName) {
+        found = true;
+        return;
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
   visit(sourceFile);
   return found;
 }
@@ -1964,9 +1995,15 @@ async function findIndexViolations(root) {
     /\blang\s*=\s*(['"])([^'"]+)\1/i,
   )?.[2];
 
-  return language === 'zh-CN'
+  const violations = language === 'zh-CN'
     ? []
     : [`${relativeIndex}: document language must be zh-CN`];
+  const scripts = [...source.matchAll(/<script\b[^>]*>/gi)];
+  const approved = [...source.matchAll(/<script\b(?=[^>]*\btype\s*=\s*["']module["'])(?=[^>]*\bsrc\s*=\s*["']\/src\/main\.tsx["'])[^>]*>\s*<\/script\s*>/gi)];
+  if (scripts.length > 0 && (scripts.length !== 1 || approved.length !== 1)) {
+    violations.push(`${relativeIndex}: production entrypoint must be /src/main.tsx with no inline script`);
+  }
+  return violations;
 }
 
 async function findManifestViolations(root) {
@@ -2006,15 +2043,38 @@ async function findManifestViolations(root) {
 async function findSourceViolations(root) {
   const workbenchRoot = resolve(root, WORKBENCH_ROOT);
   const sourceRoot = resolve(workbenchRoot, 'src');
-  const sourceFiles = await collectSourceFiles(sourceRoot);
   const violations = [];
+  const sourceFiles = await collectSourceFiles(sourceRoot, violations);
+  const freezeNote = await readFile(resolve(root, 'rules/RULE_FREEZE_NOTE.md'), 'utf8')
+    .catch((error) => { if (error.code === 'ENOENT') return ''; throw error; });
 
   for (const file of sourceFiles) {
     const source = await readFile(file, 'utf8');
     const relativePath = normalizePath(relative(root, file));
     const sourceFile = parseWorkbenchSource(source, file);
-    const imports = importEntries(source);
-    for (const { specifier } of imports) {
+    if (isProductionSource(file) && /待正式冻结/.test(freezeNote)) {
+      const visitCopy = (node) => {
+        if ((ts.isStringLiteralLike(node) || ts.isJsxText(node)) && /冻结规则|规则已冻结/.test(node.text)) {
+          violations.push(`${relativePath}: rule freeze claim conflicts with pending RULE_FREEZE_NOTE.md`);
+        }
+        ts.forEachChild(node, visitCopy);
+      };
+      visitCopy(sourceFile);
+    }
+    const imports = governedImportEntries(source, file);
+    if (isProductionSource(file)) {
+      for (const violation of findComputedCapabilityViolations(source, file, { time: true })) {
+        violations.push(`${relativePath}: ${violation}`);
+      }
+    }
+    for (const { specifier, runtime } of imports) {
+      if (runtime && isProductionSource(file) && isRelativeImport(specifier)) {
+        const target = resolve(dirname(file), normalizePath(specifier).split(/[?#]/)[0]);
+        if (escapesDirectory(sourceRoot, target) ||
+            /(?:^|\/)(?:test|__tests__|fixtures|__fixtures__|dist|coverage|node_modules)(?:\/|$)|\.(?:test|spec|fixture)(?:\.[cm]?[jt]sx?)?$/.test(normalizePath(target))) {
+          violations.push(`${relativePath}: production import ${specifier} reaches excluded source`);
+        }
+      }
       if (isAbsoluteLocalImport(specifier)) {
         violations.push(
           `${relativePath}: absolute local import ${specifier} is forbidden`,
@@ -2216,7 +2276,7 @@ async function findSourceViolations(root) {
           `${relativePath}: client method access is forbidden in presentation mapper source`,
         );
       }
-      if (/\bfetch\s*\(/.test(source)) {
+      if (hasGlobalFetchCapability(sourceFile)) {
         violations.push(
           `${relativePath}: fetch is forbidden in presentation mapper source`,
         );
@@ -2235,7 +2295,7 @@ async function findSourceViolations(root) {
         `${relativePath}: runtime @yunqi/client import/re-export is forbidden in component source`,
       );
     }
-    if (/\bfetch\s*\(/.test(source)) {
+    if (hasGlobalFetchCapability(sourceFile)) {
       violations.push(`${relativePath}: direct fetch is forbidden`);
     }
     if (/\/api\/v1\/yunqi\b/.test(source)) {

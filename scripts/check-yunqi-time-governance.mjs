@@ -1,6 +1,7 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { dirname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { findComputedCapabilityViolations } from './governed-capabilities.mjs';
 
 const repositoryRoot = resolve(
   dirname(fileURLToPath(import.meta.url)),
@@ -214,6 +215,9 @@ async function findFrontendViolations(root) {
 
     for (const file of sourceFiles) {
       const source = await readFile(file, 'utf8');
+      for (const violation of findComputedCapabilityViolations(source, file, { time: true })) {
+        violations.push(`${normalizePath(relative(root, file))}: ${violation}`);
+      }
       const consumesYunQiTime = YUNQI_TIME_SIGNALS.some((signal) =>
         source.includes(signal),
       );

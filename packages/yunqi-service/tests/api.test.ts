@@ -69,6 +69,17 @@ describe('versioned YunQi routes', () => {
     });
   });
 
+  it('rejects an array dateTime instead of coercing it to a string', async () => {
+    const response = await app.inject({
+      method: 'POST',
+      url: '/api/v1/yunqi/calculate',
+      payload: { dateTime: ['2024-05-20T21:00:00+08:00'] },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json().code).toBe('INVALID_ARGUMENT');
+  });
+
   it('uses the injected epoch-only clock exactly once for current', async () => {
     const now = vi.fn(() => 1_705_759_642_000);
     await app.close();
@@ -96,6 +107,12 @@ describe('versioned YunQi routes', () => {
 
   it.each([
     ['missing dateTime', {}],
+    ['an object dateTime', { dateTime: { value: '2024-05-20T21:00:00' } }],
+    ['a numeric dateTime', { dateTime: 2024 }],
+    ['a boolean dateTime', { dateTime: true }],
+    ['a null dateTime', { dateTime: null }],
+    ['an empty array dateTime', { dateTime: [] }],
+    ['multiple dateTimes', { dateTime: ['2024-05-20T21:00:00', '2025-05-20T21:00:00'] }],
     [
       'an additional property',
       { dateTime: '2024-05-20T21:00:00', extra: true },

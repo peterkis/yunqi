@@ -17,7 +17,7 @@ export function readServerConfig(
   }
 
   return {
-    host: env.HOST?.trim() || '0.0.0.0',
+    host: env.HOST?.trim() || '127.0.0.1',
     port,
   };
 }

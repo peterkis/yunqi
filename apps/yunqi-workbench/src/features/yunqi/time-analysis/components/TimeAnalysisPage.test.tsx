@@ -36,6 +36,8 @@ describe('TimeAnalysisPage', () => {
   it('renders the canonical success result with neutral selected-time semantics', () => {
     renderPage();
 
+    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+
     const result = screen.getByRole('region', {
       name: '指定时点分析结果',
     });

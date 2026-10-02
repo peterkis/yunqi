@@ -13,7 +13,9 @@
 
 V1.0 MVP
 
-已冻结： - 第一阶段五运六气基础规则； - 问诊关联边界； - 医疗安全边界。
+第一阶段规则是已版本化的实现基线，待正式专家冻结与验证，状态以
+`rules/RULE_FREEZE_NOTE.md` 为准。API Contract 冻结不代表专家验证通过。
+问诊关联边界与医疗安全边界继续遵守 AGENTS.md。
 
 ## Workspace packages
 
@@ -67,17 +69,33 @@ pnpm --filter @yunqi/workbench test
 pnpm test:workbench-governance
 ```
 
-The Workbench uses same-origin API requests when
-`VITE_YUNQI_API_BASE_URL` is absent. To use a separately hosted API, create
-`apps/yunqi-workbench/.env.local`:
+For local development, run `pnpm build` first, then start the Service and
+Workbench in separate terminals:
 
-```dotenv
-VITE_YUNQI_API_BASE_URL=http://127.0.0.1:3000
+```text
+pnpm --filter @yunqi/service start
+pnpm --filter @yunqi/workbench dev
 ```
 
-Set only the service origin/base URL; `@yunqi/client` owns the frozen
-`/api/v1/yunqi/**` paths. Restart the Vite dev server after changing the
-environment file.
+Leave `VITE_YUNQI_API_BASE_URL` unset (or empty). The Vite development server
+proxies `/api/v1/yunqi/` to `http://127.0.0.1:3000`, preserving the request
+path, method and body. The browser uses the Workbench origin for API requests.
+If the Service uses another port, set this server-only value in
+`apps/yunqi-workbench/.env.local` and restart Vite:
+
+```dotenv
+YUNQI_DEV_API_TARGET=http://127.0.0.1:3001
+```
+
+Remove any previous local `VITE_YUNQI_API_BASE_URL=http://127.0.0.1:3000`
+override so requests use this proxy. `pnpm test:dev-proxy` checks real GET,
+POST and error responses through Vite and Service on temporary loopback ports.
+
+For a production build, configure a same-origin reverse proxy for the API.
+`YUNQI_DEV_API_TARGET` is a development-server setting, not a deployment proxy.
+Use `VITE_YUNQI_API_BASE_URL` for a separate API origin only when that origin
+provides the necessary CORS responses and POST preflight support. Service does
+not enable CORS by default. `@yunqi/client` owns the frozen API paths.
 
 Key gates:
 
