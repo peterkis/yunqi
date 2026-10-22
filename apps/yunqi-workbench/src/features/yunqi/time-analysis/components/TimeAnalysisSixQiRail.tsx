@@ -17,7 +17,6 @@ export function TimeAnalysisSixQiRail({
 }: TimeAnalysisSixQiRailProps) {
   return (
     <Panel
-      eyebrow="Six-Qi Stages"
       title="六气阶段概览"
       description="六阶段等宽展示，不代表实际时长比例。"
     >

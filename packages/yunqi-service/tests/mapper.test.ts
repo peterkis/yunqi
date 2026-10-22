@@ -15,7 +15,7 @@ describe('YunQi API mapper', () => {
     const domain = calculateYearYunQi(2024, fixedCalendarProvider);
     const dto = mapYearResult(domain);
 
-    expect(dto.ruleVersion).toBe('YQ-MVP-RULES-1.0.0');
+    expect(dto.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
     expect(dto.year).toBe(2024);
     expect(dto.stemBranch).toEqual({
       ganzhi: '甲辰',

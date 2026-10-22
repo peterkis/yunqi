@@ -1,0 +1,311 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "metadata": {
+    "name": "五运六气 MVP 规则表",
+    "version": "1.0.0",
+    "status": "DRAFT_FOR_EXPERT_REVIEW",
+    "generatedAt": "2026-06-19",
+    "defaultTimezone": "Asia/Shanghai",
+    "defaultYunQiYearBoundary": "DA_HAN_EXACT_INSTANT",
+    "supportedYearRangeRecommendation": [
+      1900,
+      2100
+    ]
+  },
+  "normativeConventions": {
+    "interval": "[start, end)",
+    "dateTimeStorage": "ISO-8601 with offset; internally recommend UTC instant",
+    "displayTimezone": "Asia/Shanghai",
+    "ganzhiBasis": "Compute from numeric yunQiYear; 1984=甲子. Do not reuse lunar-new-year or Li-Chun year pillar.",
+    "solarTermPrecision": "Exact astronomical instant from CalendarProvider; never fixed Gregorian month/day."
+  },
+  "heavenlyStems": [
+    {
+      "stem": "甲",
+      "polarity": "阳",
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫"
+    },
+    {
+      "stem": "乙",
+      "polarity": "阴",
+      "element": "金",
+      "state": "不及",
+      "tone": "少商"
+    },
+    {
+      "stem": "丙",
+      "polarity": "阳",
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽"
+    },
+    {
+      "stem": "丁",
+      "polarity": "阴",
+      "element": "木",
+      "state": "不及",
+      "tone": "少角"
+    },
+    {
+      "stem": "戊",
+      "polarity": "阳",
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵"
+    },
+    {
+      "stem": "己",
+      "polarity": "阴",
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫"
+    },
+    {
+      "stem": "庚",
+      "polarity": "阳",
+      "element": "金",
+      "state": "太过",
+      "tone": "太商"
+    },
+    {
+      "stem": "辛",
+      "polarity": "阴",
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽"
+    },
+    {
+      "stem": "壬",
+      "polarity": "阳",
+      "element": "木",
+      "state": "太过",
+      "tone": "太角"
+    },
+    {
+      "stem": "癸",
+      "polarity": "阴",
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵"
+    }
+  ],
+  "earthlyBranches": [
+    {
+      "branch": "子",
+      "sitian": "少阴君火",
+      "zaiquan": "阳明燥金"
+    },
+    {
+      "branch": "丑",
+      "sitian": "太阴湿土",
+      "zaiquan": "太阳寒水"
+    },
+    {
+      "branch": "寅",
+      "sitian": "少阳相火",
+      "zaiquan": "厥阴风木"
+    },
+    {
+      "branch": "卯",
+      "sitian": "阳明燥金",
+      "zaiquan": "少阴君火"
+    },
+    {
+      "branch": "辰",
+      "sitian": "太阳寒水",
+      "zaiquan": "太阴湿土"
+    },
+    {
+      "branch": "巳",
+      "sitian": "厥阴风木",
+      "zaiquan": "少阳相火"
+    },
+    {
+      "branch": "午",
+      "sitian": "少阴君火",
+      "zaiquan": "阳明燥金"
+    },
+    {
+      "branch": "未",
+      "sitian": "太阴湿土",
+      "zaiquan": "太阳寒水"
+    },
+    {
+      "branch": "申",
+      "sitian": "少阳相火",
+      "zaiquan": "厥阴风木"
+    },
+    {
+      "branch": "酉",
+      "sitian": "阳明燥金",
+      "zaiquan": "少阴君火"
+    },
+    {
+      "branch": "戌",
+      "sitian": "太阳寒水",
+      "zaiquan": "太阴湿土"
+    },
+    {
+      "branch": "亥",
+      "sitian": "厥阴风木",
+      "zaiquan": "少阳相火"
+    }
+  ],
+  "qi": [
+    {
+      "name": "厥阴风木",
+      "element": "木",
+      "factor": "风",
+      "phase": "一阴"
+    },
+    {
+      "name": "少阴君火",
+      "element": "火",
+      "factor": "热",
+      "phase": "二阴"
+    },
+    {
+      "name": "太阴湿土",
+      "element": "土",
+      "factor": "湿",
+      "phase": "三阴"
+    },
+    {
+      "name": "少阳相火",
+      "element": "火",
+      "factor": "火",
+      "phase": "一阳"
+    },
+    {
+      "name": "阳明燥金",
+      "element": "金",
+      "factor": "燥",
+      "phase": "二阳"
+    },
+    {
+      "name": "太阳寒水",
+      "element": "水",
+      "factor": "寒",
+      "phase": "三阳"
+    }
+  ],
+  "hostQiSteps": [
+    {
+      "index": 1,
+      "name": "初之气",
+      "startTerm": "大寒",
+      "endTerm": "春分",
+      "qi": "厥阴风木"
+    },
+    {
+      "index": 2,
+      "name": "二之气",
+      "startTerm": "春分",
+      "endTerm": "小满",
+      "qi": "少阴君火"
+    },
+    {
+      "index": 3,
+      "name": "三之气",
+      "startTerm": "小满",
+      "endTerm": "大暑",
+      "qi": "少阳相火"
+    },
+    {
+      "index": 4,
+      "name": "四之气",
+      "startTerm": "大暑",
+      "endTerm": "秋分",
+      "qi": "太阴湿土"
+    },
+    {
+      "index": 5,
+      "name": "五之气",
+      "startTerm": "秋分",
+      "endTerm": "小雪",
+      "qi": "阳明燥金"
+    },
+    {
+      "index": 6,
+      "name": "终之气",
+      "startTerm": "小雪",
+      "endTerm": "次年大寒",
+      "qi": "太阳寒水"
+    }
+  ],
+  "guestQiOrder": [
+    "厥阴风木",
+    "少阴君火",
+    "太阴湿土",
+    "少阳相火",
+    "阳明燥金",
+    "太阳寒水"
+  ],
+  "fiveElementRelations": {
+    "generates": {
+      "木": "火",
+      "火": "土",
+      "土": "金",
+      "金": "水",
+      "水": "木"
+    },
+    "controls": {
+      "木": "土",
+      "土": "水",
+      "水": "火",
+      "火": "金",
+      "金": "木"
+    }
+  },
+  "phase2HomogenizationYearSets": {
+    "tianFu": [
+      "戊寅",
+      "乙酉",
+      "丙戌",
+      "丁亥",
+      "戊子",
+      "己丑",
+      "戊申",
+      "乙卯",
+      "丙辰",
+      "丁巳",
+      "戊午",
+      "己未"
+    ],
+    "suiHui": [
+      "丁卯",
+      "甲戌",
+      "丙子",
+      "乙酉",
+      "己丑",
+      "甲辰",
+      "戊午",
+      "己未"
+    ],
+    "taiYiTianFu": [
+      "乙酉",
+      "己丑",
+      "戊午",
+      "己未"
+    ],
+    "tongTianFu": [
+      "庚午",
+      "壬申",
+      "甲戌",
+      "庚子",
+      "壬寅",
+      "甲辰"
+    ],
+    "tongSuiHui": [
+      "辛未",
+      "癸酉",
+      "癸巳",
+      "辛丑",
+      "癸卯",
+      "癸亥"
+    ],
+    "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+  }
+}

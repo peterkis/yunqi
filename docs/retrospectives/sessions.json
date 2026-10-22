@@ -1,0 +1,508 @@
+{
+  "schemaVersion": 1,
+  "reviewDateLocal": "2026-10-18",
+  "selection": {
+    "sourceRoot": "$CODEX_HOME",
+    "projectCwd": "D:/Projects/YunQi",
+    "normalization": [
+      "case",
+      "separators",
+      "Windows extended prefix"
+    ],
+    "formats": [
+      "jsonl",
+      "jsonl.zst"
+    ],
+    "metadataFilesScanned": 511,
+    "relatedCheckoutCandidates": 0,
+    "matchedSessions": 23,
+    "mainSessions": 5,
+    "subagentSessions": 18,
+    "engineeringMainSessions": 4
+  },
+  "privacy": "Source locators and hashes only; no full private transcripts copied. Subagent inherited context is not independent acceptance.",
+  "sessions": [
+    {
+      "id": "019f660f-5ef7-73d3-a944-c66056198da5",
+      "sourcePath": "archived_sessions\\rollout-2026-07-15T21-55-20-019f660f-5ef7-73d3-a944-c66056198da5.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 16,
+      "indexedUtf8Sha256": "51bce412d31daba7218e49a9f57b7e60f03525498b1774c24b597be60590f625",
+      "startedAtUtc": "2026-07-15T13:55:20.409Z",
+      "parentId": null,
+      "rootId": "019f660f-5ef7-73d3-a944-c66056198da5",
+      "agentPath": null,
+      "kind": "main",
+      "topic": "仅项目上下文与短答，无工程执行证据",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        13
+      ],
+      "indexedThroughUtc": "2026-09-18T02:23:59.793Z",
+      "engineeringEvidence": "NOT_OBSERVED"
+    },
+    {
+      "id": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "sourcePath": "sessions\\2026\\09\\18\\rollout-2026-09-18T10-30-18-01a0b259-b5d3-7301-a62a-28ad01d42b35.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 3259,
+      "indexedUtf8Sha256": "9d3f0cbac220148464b4209c9afd952af25ec9b4f6a7a2aa9abe11c483a317ac",
+      "startedAtUtc": "2026-09-18T02:30:18.919Z",
+      "parentId": null,
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "main",
+      "topic": "Phase3-E E0/E1/E2及审查收尾",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        1978,
+        2476,
+        2524,
+        3253
+      ],
+      "indexedThroughUtc": "2026-09-30T00:39:45.758Z"
+    },
+    {
+      "id": "01a0c698-65a9-7fc0-8dbf-24f4891e7a86",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T08-51-11-01a0c698-65a9-7fc0-8dbf-24f4891e7a86.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 58,
+      "indexedUtf8Sha256": "491df4876b7312d8b0e2481d7ac2749a96b760301a9b0516fb689c72f980dd93",
+      "startedAtUtc": "2026-09-22T00:51:11.568Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E0导航与证据缺口审查",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        55
+      ],
+      "indexedThroughUtc": "2026-09-22T00:53:50.893Z"
+    },
+    {
+      "id": "01a0c69a-1007-7ed2-b3ca-f0f873b41fad",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T08-53-00-01a0c69a-1007-7ed2-b3ca-f0f873b41fad.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 48,
+      "indexedUtf8Sha256": "4c94a27cb3ffdbfbdaadadce699a337f7b54d1fdf3386d23b89afb46d5b68d48",
+      "startedAtUtc": "2026-09-22T00:53:00.663Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E0 Standards复核",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        45
+      ],
+      "indexedThroughUtc": "2026-09-22T00:54:35.443Z"
+    },
+    {
+      "id": "01a0c69a-10fb-7a41-904a-4f8a27baeff3",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T08-53-01-01a0c69a-10fb-7a41-904a-4f8a27baeff3.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 66,
+      "indexedUtf8Sha256": "fc39fb1d60f562d9414d70e0731e02ce32f1699a61ea10dd524db6d4d4432dbc",
+      "startedAtUtc": "2026-09-22T00:53:01.321Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E0 Spec复核及缺口关闭",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        40,
+        63
+      ],
+      "indexedThroughUtc": "2026-09-22T00:55:16.359Z"
+    },
+    {
+      "id": "01a0c6a3-031d-7171-8781-116b559db613",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T09-02-47-01a0c6a3-031d-7171-8781-116b559db613.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 115,
+      "indexedUtf8Sha256": "60cd47bb56e49b13c4e2a53ebffe03728a30b406af16632a73cd0b5ea67faa2d",
+      "startedAtUtc": "2026-09-22T01:02:47.165Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E1 Spec、构建产物溯源与忽略证据",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        47,
+        89,
+        112
+      ],
+      "indexedThroughUtc": "2026-09-22T01:11:09.551Z"
+    },
+    {
+      "id": "01a0c6a3-0424-7aa3-a77f-f093c80423cc",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T09-02-47-01a0c6a3-0424-7aa3-a77f-f093c80423cc.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 74,
+      "indexedUtf8Sha256": "ac353a775ca794f076b9578a66af338ce2b83ecb7b602c6be8837f4e167bd555",
+      "startedAtUtc": "2026-09-22T01:02:47.459Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E1 Standards与真实控件证据",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        43,
+        71
+      ],
+      "indexedThroughUtc": "2026-09-22T01:07:38.879Z"
+    },
+    {
+      "id": "01a0c6b0-40f0-7471-822a-67e1bfc990ac",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T09-17-15-01a0c6b0-40f0-7471-822a-67e1bfc990ac.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 41,
+      "indexedUtf8Sha256": "8c8df0f42290cfaa1129094adb67d9aba9ae58d72fdde3a3f8311d78c4db806e",
+      "startedAtUtc": "2026-09-22T01:17:15.064Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E2 Spec与临床模板边界",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        38
+      ],
+      "indexedThroughUtc": "2026-09-22T01:18:21.445Z"
+    },
+    {
+      "id": "01a0c6b0-bcb7-7553-a7a0-e80ddf7a6b0d",
+      "sourcePath": "sessions\\2026\\09\\22\\rollout-2026-09-22T09-17-46-01a0c6b0-bcb7-7553-a7a0-e80ddf7a6b0d.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 48,
+      "indexedUtf8Sha256": "cc21f4dabef903790c67499da636cb694ff2188b16b7ebcbbce730729cc2d971",
+      "startedAtUtc": "2026-09-22T01:17:46.692Z",
+      "parentId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "rootId": "01a0b259-b5d3-7301-a62a-28ad01d42b35",
+      "agentPath": null,
+      "kind": "subagent",
+      "topic": "E2 Standards与反馈追溯",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        45
+      ],
+      "indexedThroughUtc": "2026-09-22T01:19:20.867Z"
+    },
+    {
+      "id": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "sourcePath": "sessions\\2026\\09\\30\\rollout-2026-09-30T08-40-08-01a0efc1-2962-7962-b4ec-46c9a31413c3.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 810,
+      "indexedUtf8Sha256": "c92965451f8461fbc9f6bd780acfac092e9850c268e18392b45440b83a8811bf",
+      "startedAtUtc": "2026-09-30T00:40:08.921Z",
+      "parentId": null,
+      "rootId": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "agentPath": null,
+      "kind": "main",
+      "topic": "代码审查、连通与治理的两轮TDD修复",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        315,
+        559,
+        675,
+        805
+      ],
+      "indexedThroughUtc": "2026-10-02T14:14:26.419Z"
+    },
+    {
+      "id": "01a0efe5-976b-7923-b6fb-08e0b95d979b",
+      "sourcePath": "sessions\\2026\\09\\30\\rollout-2026-09-30T09-19-56-01a0efe5-976b-7923-b6fb-08e0b95d979b.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 63,
+      "indexedUtf8Sha256": "af5a0354d7b030254b2ba8726eb8be5d0f4034729f884ee01fda7d631e999a36",
+      "startedAtUtc": "2026-09-30T01:19:56.442Z",
+      "parentId": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "rootId": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "agentPath": "/root/standards_review",
+      "kind": "subagent",
+      "topic": "Standards发现动态import漏检",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        6,
+        60
+      ],
+      "indexedThroughUtc": "2026-09-30T01:21:15.380Z"
+    },
+    {
+      "id": "01a0efe5-ccd0-7261-9b0d-647beb85b000",
+      "sourcePath": "sessions\\2026\\09\\30\\rollout-2026-09-30T09-20-10-01a0efe5-ccd0-7261-9b0d-647beb85b000.jsonl.zst",
+      "compressed": true,
+      "indexedLines": 66,
+      "indexedUtf8Sha256": "b236566b69eef2555315f79c714d085cfee27a70cbdb7ae4971e85d01f795be9",
+      "startedAtUtc": "2026-09-30T01:20:10.108Z",
+      "parentId": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "rootId": "01a0efc1-2962-7962-b4ec-46c9a31413c3",
+      "agentPath": "/root/spec_review",
+      "kind": "subagent",
+      "topic": "Spec发现赋值别名漏检",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        6,
+        63
+      ],
+      "indexedThroughUtc": "2026-09-30T01:21:39.043Z"
+    },
+    {
+      "id": "01a0fcf9-e87b-7153-9cb7-d41bc1aebdbb",
+      "sourcePath": "sessions\\2026\\10\\02\\rollout-2026-10-02T22-17-11-01a0fcf9-e87b-7153-9cb7-d41bc1aebdbb.jsonl",
+      "compressed": false,
+      "indexedLines": 568,
+      "indexedUtf8Sha256": "2486ab0b28ca9898183ff4f55f2cca242ab441122f7dd66066645392f58359ad",
+      "startedAtUtc": "2026-10-02T14:17:11.829Z",
+      "parentId": null,
+      "rootId": "01a0fcf9-e87b-7153-9cb7-d41bc1aebdbb",
+      "agentPath": null,
+      "kind": "main",
+      "topic": "五项Security findings本地修复与授权推送",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        73,
+        512,
+        563
+      ],
+      "indexedThroughUtc": "2026-10-12T07:36:39.598Z"
+    },
+    {
+      "id": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T00-24-42-01a14aae-08c5-7e53-9c52-ca1665687cee.jsonl",
+      "compressed": false,
+      "indexedLines": 2160,
+      "indexedUtf8Sha256": "7f2765863f6c71b67a28c1a02fa1707de9ed4cb2c03d9b57bf29642bb02370e1",
+      "startedAtUtc": "2026-10-17T16:24:42.045Z",
+      "parentId": null,
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": null,
+      "kind": "main",
+      "topic": "流程视觉验收、规则复核和Word目标升级",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        777,
+        1207,
+        2142
+      ],
+      "indexedThroughUtc": "2026-10-18T07:54:21.165Z",
+      "cutoffReason": "Ends at the human request starting this retrospective; later self-analysis excluded."
+    },
+    {
+      "id": "01a14aaf-727d-7ce0-bd3e-64018085bc73",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T00-26-14-01a14aaf-727d-7ce0-bd3e-64018085bc73.jsonl",
+      "compressed": false,
+      "indexedLines": 1098,
+      "indexedUtf8Sha256": "a6ff1d3ecf666185183b5b068fa56596167ad1f4ab31d222ff51653725214063",
+      "startedAtUtc": "2026-10-17T16:26:14.630Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/flow_audit",
+      "kind": "subagent",
+      "topic": "完整质量门禁、CI命令接线及主机资源快照",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        91,
+        374,
+        669,
+        799,
+        1021,
+        1095
+      ],
+      "indexedThroughUtc": "2026-10-18T00:19:53.818Z"
+    },
+    {
+      "id": "01a14ab0-d52e-7f41-835c-8fee1f66250a",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T00-27-45-01a14ab0-d52e-7f41-835c-8fee1f66250a.jsonl",
+      "compressed": false,
+      "indexedLines": 1044,
+      "indexedUtf8Sha256": "2eecd5831dbdbc5b442ee0cb24c4aabbcec85cd1e64a4ac8689c90a3a1111aab",
+      "startedAtUtc": "2026-10-17T16:27:45.446Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/browser_acceptance",
+      "kind": "subagent",
+      "topic": "浏览器走查、视觉和测试环境调试",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        466,
+        552,
+        629,
+        1041
+      ],
+      "indexedThroughUtc": "2026-10-18T00:28:47.187Z"
+    },
+    {
+      "id": "01a14ab9-ab2d-7df1-8ef6-89604bb588a2",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T00-37-24-01a14ab9-ab2d-7df1-8ef6-89604bb588a2.jsonl",
+      "compressed": false,
+      "indexedLines": 671,
+      "indexedUtf8Sha256": "64d79a5d866ce944be4a733f74183e36b3575d4406aa37f6a8f1f1b5f523eb5b",
+      "startedAtUtc": "2026-10-17T16:37:24.612Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/acceptance_review",
+      "kind": "subagent",
+      "topic": "验收、计数和最终测试环境审查",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        222,
+        254,
+        309,
+        473,
+        668
+      ],
+      "indexedThroughUtc": "2026-10-18T00:22:35.646Z"
+    },
+    {
+      "id": "01a14abd-1783-7a01-9c6a-178b45c20f61",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T00-41-08-01a14abd-1783-7a01-9c6a-178b45c20f61.jsonl",
+      "compressed": false,
+      "indexedLines": 177,
+      "indexedUtf8Sha256": "d878e4e5ba1e4c62ae77dc406824b93ed663cf53d4ed29f1e5bef45e7e6d2e86",
+      "startedAtUtc": "2026-10-17T16:41:08.894Z",
+      "parentId": "01a14ab0-d52e-7f41-835c-8fee1f66250a",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/browser_acceptance/check_browser_harness",
+      "kind": "subagent",
+      "topic": "浏览器框架独立审查",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        108,
+        174
+      ],
+      "indexedThroughUtc": "2026-10-17T23:57:18.619Z"
+    },
+    {
+      "id": "01a14acf-8b92-79e1-ab6b-6815d04c5440",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T01-01-18-01a14acf-8b92-79e1-ab6b-6815d04c5440.jsonl",
+      "compressed": false,
+      "indexedLines": 412,
+      "indexedUtf8Sha256": "28da34da748516ba92caeaedca136890cbe8fe3c29246f11b932204e9b7d967b",
+      "startedAtUtc": "2026-10-17T17:01:18.282Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/rules_domain",
+      "kind": "subagent",
+      "topic": "规则表、36对关系、变异与版本升级",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        19,
+        151,
+        262,
+        409
+      ],
+      "indexedThroughUtc": "2026-10-17T23:59:50.386Z"
+    },
+    {
+      "id": "01a14acf-b8aa-7bc2-950f-ce6d3b840984",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T01-01-29-01a14acf-b8aa-7bc2-950f-ce6d3b840984.jsonl",
+      "compressed": false,
+      "indexedLines": 330,
+      "indexedUtf8Sha256": "5a7374e2b746403c5eaa08d30c978bb003bc3ebdf538cd01fb424a97c32ab0b6",
+      "startedAtUtc": "2026-10-17T17:01:29.829Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/rules_time",
+      "kind": "subagent",
+      "topic": "201年边界、独立公历oracle及探针",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        19,
+        174,
+        233,
+        327
+      ],
+      "indexedThroughUtc": "2026-10-17T23:59:07.912Z"
+    },
+    {
+      "id": "01a14acf-e305-7b63-a707-8b2ba2d7e3e0",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T01-01-40-01a14acf-e305-7b63-a707-8b2ba2d7e3e0.jsonl",
+      "compressed": false,
+      "indexedLines": 356,
+      "indexedUtf8Sha256": "6c61ee1abac293b675342b4b680ef05c3845cb630146fd044e668c869d0c4314",
+      "startedAtUtc": "2026-10-17T17:01:40.637Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/rules_service",
+      "kind": "subagent",
+      "topic": "真实Service一致性与支持范围",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        19,
+        151,
+        215,
+        353
+      ],
+      "indexedThroughUtc": "2026-10-17T23:59:53.939Z"
+    },
+    {
+      "id": "01a14ad0-0be8-7773-9a9a-d24cd32b7166",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T01-01-51-01a14ad0-0be8-7773-9a9a-d24cd32b7166.jsonl",
+      "compressed": false,
+      "indexedLines": 253,
+      "indexedUtf8Sha256": "aad69d361a192388f25375b3bcd9344c3a3a5e1cefcb4eef3f1649014ba6371d",
+      "startedAtUtc": "2026-10-17T17:01:51.529Z",
+      "parentId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/rules_workbench",
+      "kind": "subagent",
+      "topic": "Workbench来源覆盖及R12岁运修复",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        19,
+        155,
+        250
+      ],
+      "indexedThroughUtc": "2026-10-17T17:11:11.851Z"
+    },
+    {
+      "id": "01a14c4e-73b7-7852-bc35-210daa70bd8d",
+      "sourcePath": "sessions\\2026\\10\\18\\rollout-2026-10-18T07-59-32-01a14c4e-73b7-7852-bc35-210daa70bd8d.jsonl",
+      "compressed": false,
+      "indexedLines": 131,
+      "indexedUtf8Sha256": "dcde16ac96419406ba76daa76c284d108b49454161aa8927b129015330b073e9",
+      "startedAtUtc": "2026-10-17T23:59:32.568Z",
+      "parentId": "01a14ab9-ab2d-7df1-8ef6-89604bb588a2",
+      "rootId": "01a14aae-08c5-7e53-9c52-ca1665687cee",
+      "agentPath": "/root/acceptance_review/browser_migration_review",
+      "kind": "subagent",
+      "topic": "R08/R21 Workbench和浏览器升级独立复核",
+      "coverage": "Metadata and all records streamed; user/final/tool-output evidence selected and cross-checked, not a claim of line-by-line review of every text.",
+      "parseErrors": [],
+      "finalRecordLines": [
+        22,
+        26,
+        30,
+        128
+      ],
+      "indexedThroughUtc": "2026-10-18T00:01:47.917Z"
+    }
+  ]
+}

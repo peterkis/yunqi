@@ -35,7 +35,7 @@ const relations = [
     qiRelation: 'DIFFERENT_QI',
     elementRelation: 'DIFFERENT_ELEMENT',
     direction: 'GUEST_GENERATES_HOST',
-    traditionalLabel: '客生主',
+    traditionalLabel: '客生主，相得',
   },
   {
     qiRelation: 'DIFFERENT_QI',
@@ -116,7 +116,7 @@ export function createYunQiCalculationDto(): YunQiCalculationDto {
       '2026-06-19T12:00:00+08:00',
       1_781_841_600_000,
     ),
-    ruleVersion: 'YQ-MVP-RULES-1.0.0',
+    ruleVersion: 'YQ-MVP-RULES-1.1.0',
     year: 2026,
     stemBranch: {
       ganzhi: '丙午',

@@ -55,7 +55,6 @@ export function SixQiTimeline({
 
   return (
     <Panel
-      eyebrow="Six-Qi Sequence"
       title="六步交接时间线"
       description="当前步默认展开；可同时展开多个节点比较客主关系。"
     >

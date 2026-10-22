@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "firstDay": "1900-01-01",
+  "lastDay": "2100-12-31",
+  "gregorianDays": 73414,
+  "epochAndRoundTripAssertions": 146828,
+  "nodeVersion": "v24.18.0",
+  "oracle": "Python stdlib datetime; timezone(+08); integer timedelta",
+  "sampleLocalTime": "23:59:59.999+08:00",
+  "pythonVersion": "3.14.5"
+}

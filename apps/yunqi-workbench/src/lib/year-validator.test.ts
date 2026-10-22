@@ -7,6 +7,7 @@ import { parseYearParam } from './year-validator';
 
 describe('YunQi year URL validation', () => {
   it('exposes one inclusive option list', () => {
+    expect(YUNQI_YEAR_RANGE).toEqual({ min: 1900, max: 2100 });
     expect(YUNQI_YEAR_OPTIONS[0]).toBe(YUNQI_YEAR_RANGE.min);
     expect(YUNQI_YEAR_OPTIONS.at(-1)).toBe(YUNQI_YEAR_RANGE.max);
     expect(YUNQI_YEAR_OPTIONS).toHaveLength(
@@ -14,7 +15,7 @@ describe('YunQi year URL validation', () => {
     );
   });
 
-  it.each(['1901', '2026', '2099'])('accepts %s', (value) => {
+  it.each(['1900', '2026', '2100'])('accepts %s', (value) => {
     expect(parseYearParam(value)).toEqual({
       ok: true,
       year: Number(value),
@@ -31,7 +32,7 @@ describe('YunQi year URL validation', () => {
     },
   );
 
-  it.each(['1900', '2100'])('rejects %s as range', (value) => {
+  it.each(['1899', '2101'])('rejects %s as range', (value) => {
     expect(parseYearParam(value)).toEqual({
       ok: false,
       reason: 'range',

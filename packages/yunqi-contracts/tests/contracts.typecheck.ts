@@ -17,7 +17,7 @@ import {
   type YearSuccessResponse,
 } from '../src/index.js';
 
-const contractId: 'YQ-API-CONTRACT-1.0.0' = YUNQI_API_CONTRACT_ID;
+const contractId: 'YQ-API-CONTRACT-1.1.0' = YUNQI_API_CONTRACT_ID;
 const time: YunQiTimeDto = {
   localTime: '2026-01-01T12:00:00+08:00',
   epochMilliseconds: 1_767_240_000_000,

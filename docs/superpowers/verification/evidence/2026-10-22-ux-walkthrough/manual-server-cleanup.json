@@ -1,0 +1,10 @@
+{
+  "stopMethod": "Stop-Process on verified task-owned PID; stdin unavailable",
+  "pid": 16196,
+  "ports": [
+    64485,
+    64484
+  ],
+  "remainingListeners": 0,
+  "gracefulTeardown": false
+}

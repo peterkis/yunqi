@@ -1,0 +1,45 @@
+
+> yunqi@ test:contract-governance D:\Projects\YunQi
+> node --test tests/yunqi-contract-governance.test.mjs && node scripts/check-yunqi-contract-dependencies.mjs
+
+✔ Contract 1.1.0 changes only the approved year range and version identity (3.5693ms)
+✔ contract projection detects every exact-freeze mutation class (25.8649ms)
+✔ contract projection ignores documentation order and health-only changes (1.2509ms)
+✔ freeze writer rejects a changed projection under the same Contract ID (1.8679ms)
+✔ contract registry prevents deleting or replacing a known ID baseline (0.3365ms)
+✔ contract registry preserves every ID found in repository history (0.5145ms)
+✔ contract registry requires every historical baseline and matching embedded ID (0.3397ms)
+✔ historical baseline content remains immutable after Contract ID rotation (1.0888ms)
+✔ dependency gate accepts the approved package direction (48.9121ms)
+✔ dependency gate allows ordinary module-related text without loader access (23.8866ms)
+✔ dependency gate rejects opaque capability acquisition: export const load = () => import('@yunqi/' + 'client'); (17.8436ms)
+✔ dependency gate rejects opaque capability acquisition: const id = '@yunqi/client'; export const load = () => import(id); (17.5316ms)
+✔ dependency gate rejects opaque capability acquisition: const load = require; export const client = load('@yunqi/client'); (15.5137ms)
+✔ dependency gate rejects opaque capability acquisition: import { createRequire as factory } from 'node:module'; const load = factory(import.meta.url); load('@yunqi/client'); (18.4199ms)
+✔ dependency gate rejects opaque capability acquisition: export const load = Function('return import("@yunqi/client")'); (20.1067ms)
+✔ dependency gate rejects a template literal reverse import (23.7432ms)
+✔ dependency gate rejects a client relative import of Service runtime (19.7964ms)
+✔ dependency gate rejects reverse dependencies from packages/yunqi-domain (24.8367ms)
+✔ dependency gate rejects reverse dependencies from packages/calendar-adapters/tyme4ts (19.5038ms)
+✔ dependency gate rejects browser package escape via dynamic import (18.8819ms)
+✔ dependency gate rejects browser package escape via commented dynamic import (15.6653ms)
+✔ dependency gate rejects browser package escape via template dynamic import (14.4024ms)
+✔ dependency gate rejects browser package escape via TypeScript generic loader (14.9439ms)
+✔ dependency gate rejects browser package escape via require (21.1887ms)
+✔ dependency gate rejects browser package escape via Windows relative path (19.6548ms)
+✔ dependency gate rejects browser package escape via absolute path (29.8781ms)
+✔ dependency gate rejects browser package escape via file URL (14.9187ms)
+✔ dependency gate ignores import examples in comments and strings (26.531ms)
+✔ dependency gate accepts internal relative imports and rejects local reverse imports (44.5923ms)
+✔ dependency gate rejects forbidden manifest and source dependencies (27.6733ms)
+✔ dependency gate passes against the production repository (286.0062ms)
+✔ GitHub quality-gates workflow contains the required ordered gates (8.4602ms)
+✔ byte-compared contract artifacts are pinned to LF line endings (0.3306ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2996.7951

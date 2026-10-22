@@ -5,7 +5,7 @@ import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
 it('validates process server configuration', () => {
   expect(readServerConfig({})).toEqual({
-    host: '0.0.0.0',
+    host: '127.0.0.1',
     port: 3000,
   });
   expect(readServerConfig({ HOST: '127.0.0.1', PORT: '0' })).toEqual({

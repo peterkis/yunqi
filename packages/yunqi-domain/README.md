@@ -115,11 +115,13 @@ interface CalendarProvider {
 
 推荐实现是 `@yunqi/calendar-adapter-tyme4ts`。适配器负责取得真实节气字段并返回固定 `+08:00` 的 `YunQiInstant`；领域层负责全部运气规则和区间归属。
 
-包入口还保留已经审查的基础计算器、公共结果类型和冻结规则常量。`RULE_VERSION` 为 `YQ-MVP-RULES-1.0.0`。根导出的规则对象/集合、六步集合及解释集合均在运行时冻结；每次年度计算会创建新的解释集合。
+包入口还保留已经审查的基础计算器、公共结果类型和冻结规则常量。`@yunqi/domain` 包版本为 `1.2.0`，`RULE_VERSION` 为 `YQ-MVP-RULES-1.1.0`。根导出的规则对象/集合、六步集合及解释集合均在运行时冻结；每次年度计算会创建新的解释集合。
 
 ## 规则与安全边界
 
-唯一映射来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及 `src/rules/phase1-rules.ts`。本次版本调整只更新规则元数据，不改变 Phase 1 映射、节气顺序、客气序列或客主关系表；规则状态仍受 `RULE_FREEZE_NOTE.md` 的“待正式冻结”约束。
+当前规则来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md` 及 `src/rules/phase1-rules.ts`。本版按 Word 确认单 R-21 将客生主的解释标签改为“客生主，相得”，保留其 `GUEST_GENERATES_HOST` 方向及四字段关系结构。规则版本随结果升级到 `YQ-MVP-RULES-1.1.0`，其余岁运映射、节气顺序、客气序列及固定北京时间语义保持不变。
+
+按确认单 R-08，对外查询范围为 1900–2100 年，具体输入边界由对应 API Contract 约束。Domain 与历法适配器可使用相邻年节气完成跨年计算；这不扩大对外查询范围。旧版 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及原始资料保留，规则状态仍受 `RULE_FREEZE_NOTE.md` 的“待正式冻结”约束；本次修改没有产生专家签署或临床验证证据。
 
 输出解释只陈述时间边界和规则映射事实。包禁止输出诊断、辨证、证型、处方、方剂、中药、药物、剂量、用药、治疗、预后、疾病预测或个性化建议，也不参与医疗决策。
 

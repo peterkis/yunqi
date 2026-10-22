@@ -1,0 +1,11 @@
+{
+  "fixedNowEpochMilliseconds": 1705759642000,
+  "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+  "service": "real local Fastify + tyme4ts",
+  "frontend": "Vite same-origin proxy",
+  "browserChannel": "chrome",
+  "cleanupPassed": true,
+  "baseURL": "http://127.0.0.1:53381",
+  "serviceURL": "http://127.0.0.1:53380",
+  "cleanupErrors": []
+}

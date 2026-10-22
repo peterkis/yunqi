@@ -1,0 +1,87 @@
+{
+  "auditDate": "2026-10-18",
+  "overallStatus": "RULE_AND_CONTRACT_UPGRADE_VERIFIED_BROWSER_ACCEPTANCE_NOT_FULLY_PASSED",
+  "approvedRuleTarget": {
+    "R08": "1900-2100 YunQi years, from actual 1900 DaHan inclusive to actual 2101 DaHan exclusive",
+    "R21": "客生主，相得"
+  },
+  "ruleVersion": "YQ-MVP-RULES-1.1.0",
+  "contractId": "YQ-API-CONTRACT-1.1.0",
+  "openApiDocumentVersion": "1.3.0",
+  "packageVersions": {
+    "yunqi-domain": "1.2.0",
+    "yunqi-service": "2.1.0",
+    "yunqi-contracts": "1.1.0",
+    "yunqi-client": "1.1.0"
+  },
+  "ruleAndContractChecks": "PASS",
+  "qualityTests": {
+    "domain": 132,
+    "passed": 787,
+    "failed": 0,
+    "client": 8,
+    "workbench": 112,
+    "devProxy": 1,
+    "skipped": 1,
+    "timeGovernance": 10,
+    "service": 164,
+    "ruleConsistency": 5,
+    "timeConsistency": 3,
+    "contractGovernance": 33,
+    "calendarAdapter": 37,
+    "workbenchGovernancePass": 282,
+    "workbenchGovernanceSkip": 1
+  },
+  "allFiveQualityCommandsExitZero": true,
+  "schemaChecksPassed": 6,
+  "timeChecks": {
+    "supportedYears": 201,
+    "boundaryOwnershipChecks": 4221,
+    "uniqueBoundaryInstants": 3621,
+    "inputFormChecks": 12663,
+    "uniqueInputForms": 10863
+  },
+  "contractChangedLeafValues": 8,
+  "historicalFilesPreserved": 42,
+  "browser": {
+    "status": "FULL_BROWSER_ACCEPTANCE_NOT_PASSED",
+    "command": "pnpm exec playwright test --workers=1",
+    "commandExitCode": 1,
+    "workers": 1,
+    "pass": 69,
+    "fail": 1,
+    "skip": 0,
+    "workflowPass": 14,
+    "workflowFail": 0,
+    "visualPass": 55,
+    "visualFail": 1,
+    "axeScans": 55,
+    "axeViolations": 0,
+    "cleanupPassed": true,
+    "failure": "tablet-light / not-found: browser reported net::ERR_INSUFFICIENT_RESOURCES while loading Panel.tsx; heading did not mount",
+    "fiveNewRuleAndBoundaryScreenshotsInspected": true,
+    "failureRootCause": "NOT_INDEPENDENTLY_CONFIRMED",
+    "allFailedAttemptsPreserved": true
+  },
+  "postQualityTestInfrastructureUpdates": [
+    "Use owned random HTTP server for Vite WebSocket transport",
+    "Guard partial-setup server close",
+    "Install POST hold after editable input",
+    "Add boundary screenshot attachments and explain test setup in README"
+  ],
+  "independentReview": "NO_CONFIRMED_CODE_FINDINGS",
+  "expertRuleFreeze": "PENDING",
+  "clinicalValidation": "NOT_RUN",
+  "remainingAcceptance": "One complete browser rerun after resource conditions improve; do not claim full browser acceptance or proven resolution of native/resource failures.",
+  "evidence": {
+    "quality": "quality-summary.json",
+    "browser": "browser-summary.json",
+    "rule": "domain-summary.json",
+    "time": "time-summary.json",
+    "service": "service-summary.json",
+    "contract": "contract-migration.json",
+    "review": "review-summary.json",
+    "preservation": "source-preservation.json",
+    "hostResources": "host-resource-summary.json"
+  }
+}

@@ -1,0 +1,983 @@
+{
+  "schemaVersion": 1,
+  "task": "Authorized Word rule and API contract upgrade",
+  "status": "FULL_BROWSER_ACCEPTANCE_NOT_PASSED",
+  "requestedRange": {
+    "min": 1900,
+    "max": 2100,
+    "invalidNeighbors": [
+      1899,
+      2101
+    ]
+  },
+  "ruleVersion": "YQ-MVP-RULES-1.1.0",
+  "contractId": "YQ-API-CONTRACT-1.1.0",
+  "relation": {
+    "directionCode": "GUEST_GENERATES_HOST",
+    "directionLabel": "客生主",
+    "traditionalLabel": "客生主，相得"
+  },
+  "plannedBrowserChecks": [
+    "Real annual 1900 and 2100 HTTP 200 and matching year/rule version",
+    "1899 and 2101 URL validation without API request",
+    "Real 2025 response identifies a GUEST_GENERATES_HOST stage dynamically",
+    "Selected stage direction and traditional description match their labelled fields",
+    "Traceability shows the real API ruleVersion and approved Contract ID",
+    "Existing navigation/history/reload and layout/accessibility matrix remain"
+  ],
+  "plannedCommand": "pnpm test:browser",
+  "plannedTestCount": 70,
+  "validation": {
+    "browser": "FULL_BROWSER_ACCEPTANCE_NOT_PASSED",
+    "sharedBuild": "NOT_REPEATED - parent reported updated full build and quality gates PASS",
+    "unitTests": "NOT_REPEATED - parent reported quality gates PASS",
+    "syntaxCheck": "PASS",
+    "diffCheck": "PASS",
+    "cleanup": "PASS - all owned run/probe ports, known workers and headless browsers absent"
+  },
+  "scopeNotes": [
+    "No production code or styles changed during the execution/diagnosis phase.",
+    "No timeout was increased and no console/page error assertion was suppressed.",
+    "All five browser runs and failed/intermediate probes were retained separately.",
+    "Only two precisely identified task-owned probe processes were terminated; no user Node or browser process was terminated."
+  ],
+  "preparedFiles": [
+    {
+      "path": "apps/yunqi-workbench/src/lib/yunqi-year-range.ts",
+      "sha256": "3c7661c0b904d24035bbbfcb372bc7dff46413d3eac9f034527f24b3c38d0a71"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/year-validator.test.ts",
+      "sha256": "971f66c24b35095995fb2a78ee409c08bef04c7c3eb08ee33237f553004bae66"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx",
+      "sha256": "262a43e2c3bd419e5bd7dc6483c04d165e72c1842f5e264e858147761f1afbbe"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/AppRoutes.test.tsx",
+      "sha256": "31601eeea3fda9878bd6197966f8a841138f98dc44a82d7a096950b071073a56"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/App.test.tsx",
+      "sha256": "aeb792e6034f5419c76d29fae5c370624c64fa90d3c81f1390f11e05b00acee8"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/contract.typecheck.ts",
+      "sha256": "2c73717808fa94529dfa426bb9bc66d3d0bec5ffd4ba371cfee63f5eeae80863"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/yunqi-fixtures.ts",
+      "sha256": "21abbcaa63348a7a48610ce71f65612359c4d05380141809603dadc5a836ae7b"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts",
+      "sha256": "5b3d8d42faab7bddcc8356a73695eca9dbd39d6646357fb6c95d1e81ec1fa115"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx",
+      "sha256": "afbc709f34645864c7cf68c248f2282c12c6ebbdf45a88531073c738396db34c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx",
+      "sha256": "176cfbe38ae2b11b373ff8b62f88d771f6b0bc18e261b7b97adc2664943324d6"
+    },
+    {
+      "path": "apps/yunqi-workbench/README.md",
+      "sha256": "882f4dbc4a681cc4204e15649a9c5a8dd8546a3000d186ba2dbbe84beb0fd09d"
+    },
+    {
+      "path": "tests/browser/workbench.flows.spec.mjs",
+      "sha256": "dddef73eec33c4a248576cbb6fdd7f8ceebd3407f1b9341a829621fe84531747"
+    },
+    {
+      "path": "tests/browser/README.md",
+      "sha256": "40f1b754e0cb334f55a73e4dedb475d28cf533b4bd4d4f09cf5dfb06bd521ebe"
+    }
+  ],
+  "preparation": {
+    "status": "PREPARED_NOT_RUN",
+    "validation": {
+      "browser": "NOT_RUN - awaiting parent validation dispatch",
+      "sharedBuild": "NOT_RUN - parent coordinates shared build",
+      "unitTests": "NOT_RUN - parent coordinates validation",
+      "syntaxCheck": "PASS",
+      "diffCheck": "PASS"
+    },
+    "scopeNotes": [
+      "No UI styling changed.",
+      "Presentation direction-label mapping was not modified.",
+      "No production business relation was computed in the frontend.",
+      "Historical reports and the R12 browser summary were preserved.",
+      "No new RED or PASS browser outcome is claimed."
+    ]
+  },
+  "command": "pnpm exec playwright test --workers=1",
+  "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834",
+  "attempts": [
+    {
+      "id": "2026-10-18T00-07-39-619Z-ff9a2a34",
+      "command": "pnpm exec playwright test",
+      "workers": 2,
+      "commandExitCode": 1,
+      "naturalCliExit": true,
+      "status": "FAIL",
+      "note": "Initial full run: 68 passed, 2 bootstrap failures before any business POST. All 56 visual checks passed in this run.",
+      "stats": {
+        "startTime": "2026-10-18T00:07:39.627Z",
+        "duration": 172291.818,
+        "expected": 68,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "caseOutcomes": {
+        "passed": 68,
+        "failed": 2
+      },
+      "projectOutcomes": {
+        "flows-chromium": {
+          "passed": 12,
+          "failed": 2
+        },
+        "desktop-light": {
+          "passed": 7
+        },
+        "breakpoint-light": {
+          "passed": 7
+        },
+        "tablet-boundary-light": {
+          "passed": 7
+        },
+        "tablet-light": {
+          "passed": 7
+        },
+        "mobile-light": {
+          "passed": 7
+        },
+        "narrow-light": {
+          "passed": 7
+        },
+        "desktop-dark": {
+          "passed": 7
+        },
+        "mobile-dark": {
+          "passed": 7
+        }
+      },
+      "retries": 0,
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "axeScanCount": 56,
+      "axeViolationCount": 0,
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:50522",
+        "serviceURL": "http://127.0.0.1:50517",
+        "cleanupErrors": []
+      },
+      "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34",
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results.json",
+      "failedTests": [
+        {
+          "project": "flows-chromium",
+          "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+          "status": "failed",
+          "durationMs": 30558,
+          "errors": [
+            "TimeoutError: locator.fill: Timeout 10000ms exceeded."
+          ],
+          "pageErrors": [],
+          "consoleErrors": [],
+          "artifacts": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "status": "failed",
+          "durationMs": 11651,
+          "errors": [
+            "TimeoutError: locator.fill: Timeout 10000ms exceeded."
+          ],
+          "pageErrors": [],
+          "consoleErrors": [],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-07-39-619Z-ff9a2a34\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium\\trace.zip"
+            }
+          ]
+        }
+      ],
+      "runnerErrors": []
+    },
+    {
+      "id": "2026-10-18T00-11-17-023Z-c105448d",
+      "command": "pnpm exec playwright test --project=flows-chromium --grep 'a real unsupported calculation|pending calculation' --repeat-each=3",
+      "workers": 2,
+      "commandExitCode": 1,
+      "naturalCliExit": true,
+      "status": "FAIL",
+      "note": "Unmodified targeted repeat: 5 passed; one worker exited before executing the case with code 3221226505 (0xC0000409). The native-exit cause is not independently established.",
+      "stats": {
+        "startTime": "2026-10-18T00:11:17.038Z",
+        "duration": 16892.877,
+        "expected": 5,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "caseOutcomes": {
+        "passed": 5,
+        "failed": 1
+      },
+      "projectOutcomes": {
+        "flows-chromium": {
+          "passed": 5,
+          "failed": 1
+        }
+      },
+      "retries": 0,
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "axeScanCount": 0,
+      "axeViolationCount": 0,
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:60739",
+        "serviceURL": "http://127.0.0.1:60737",
+        "cleanupErrors": []
+      },
+      "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-11-17-023Z-c105448d",
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-11-17-023Z-c105448d\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-11-17-023Z-c105448d\\results.json",
+      "failedTests": [
+        {
+          "project": "flows-chromium",
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "status": "failed",
+          "durationMs": 0,
+          "errors": [
+            "Error: worker process exited unexpectedly (code=3221226505, signal=null)"
+          ],
+          "pageErrors": [],
+          "consoleErrors": [],
+          "artifacts": []
+        }
+      ],
+      "runnerErrors": []
+    },
+    {
+      "id": "2026-10-18T00-13-19-789Z-927cba26",
+      "command": "pnpm exec playwright test --project=flows-chromium --grep 'a real unsupported calculation|pending calculation' --repeat-each=3",
+      "workers": 2,
+      "commandExitCode": 1,
+      "naturalCliExit": true,
+      "status": "FAIL",
+      "note": "Intermediate ws:false setup: all 6 cases failed. Observed resource-loading failures and Vite-client WebSocket runtime errors are recorded separately. ws:false was removed.",
+      "stats": {
+        "startTime": "2026-10-18T00:13:19.814Z",
+        "duration": 71119.171,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 6,
+        "flaky": 0
+      },
+      "caseOutcomes": {
+        "timedOut": 2,
+        "failed": 4
+      },
+      "projectOutcomes": {
+        "flows-chromium": {
+          "timedOut": 2,
+          "failed": 4
+        }
+      },
+      "retries": 0,
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "axeScanCount": 0,
+      "axeViolationCount": 0,
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:58254",
+        "serviceURL": "http://127.0.0.1:58252",
+        "cleanupErrors": []
+      },
+      "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26",
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results.json",
+      "failedTests": [
+        {
+          "project": "flows-chromium",
+          "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+          "status": "timedOut",
+          "durationMs": 55102,
+          "errors": [
+            "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
+            "Error: No unexpected browser console errors",
+            "Error: page.goto: Test timeout of 45000ms exceeded."
+          ],
+          "pageErrors": [],
+          "consoleErrors": [
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/providers/AppProviders.tsx"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "status": "timedOut",
+          "durationMs": 55100,
+          "errors": [
+            "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m",
+            "Error: No unhandled browser runtime errors",
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed"
+          ],
+          "pageErrors": [
+            "WebSocket closed without opened."
+          ],
+          "consoleErrors": [
+            {
+              "text": "WebSocket connection to 'ws://127.0.0.1:24678/?token=<redacted>' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/features/yunqi/hooks/useCalculateYunQiMutation.ts"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/features/yunqi/presentation/map-time-analysis-yunqi.ts"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/@fs/D:/Projects/YunQi/packages/yunqi-client/dist/yunqi-api.js"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/lib/yunqi-year-range.ts"
+            },
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/features/yunqi/presentation/map-yunqi-shared.ts"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+          "status": "failed",
+          "durationMs": 2301,
+          "errors": [
+            "Error: No unhandled browser runtime errors"
+          ],
+          "pageErrors": [
+            "WebSocket closed without opened."
+          ],
+          "consoleErrors": [
+            {
+              "text": "WebSocket connection to 'ws://127.0.0.1:24678/?token=<redacted>' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+              "urlPath": "/api/v1/yunqi/calculate"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat1\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat1\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat1\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "status": "failed",
+          "durationMs": 2291,
+          "errors": [
+            "Error: No unhandled browser runtime errors"
+          ],
+          "pageErrors": [
+            "WebSocket closed without opened."
+          ],
+          "consoleErrors": [
+            {
+              "text": "WebSocket connection to 'ws://127.0.0.1:24678/?token=<redacted>' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat1\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat1\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat1\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+          "status": "failed",
+          "durationMs": 1728,
+          "errors": [
+            "Error: No unhandled browser runtime errors"
+          ],
+          "pageErrors": [
+            "WebSocket closed without opened."
+          ],
+          "consoleErrors": [
+            {
+              "text": "WebSocket connection to 'ws://127.0.0.1:24678/?token=<redacted>' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to load resource: the server responded with a status of 400 (Bad Request)",
+              "urlPath": "/api/v1/yunqi/calculate"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat2\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat2\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-a-real-uns-ee7f2--and-recovers-after-editing-flows-chromium-repeat2\\trace.zip"
+            }
+          ]
+        },
+        {
+          "project": "flows-chromium",
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "status": "failed",
+          "durationMs": 2057,
+          "errors": [
+            "Error: No unhandled browser runtime errors"
+          ],
+          "pageErrors": [
+            "WebSocket closed without opened."
+          ],
+          "consoleErrors": [
+            {
+              "text": "WebSocket connection to 'ws://127.0.0.1:24678/?token=<redacted>' failed: Error in connection establishment: net::ERR_CONNECTION_REFUSED",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "[vite] failed to connect to websocket (Error: WebSocket closed without opened.). ",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            },
+            {
+              "text": "Failed to send error to Vite server: Error: WebSocket closed without opened.\n    at WebSocket.<anonymous> (http://127.0.0.1:58254/@vite/client:418:30)",
+              "urlPath": "/@vite/client"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat2\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat2\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-13-19-789Z-927cba26\\results\\workbench.flows-pending-ca-73f0b-sends-only-one-real-request-flows-chromium-repeat2\\trace.zip"
+            }
+          ]
+        }
+      ],
+      "runnerErrors": []
+    },
+    {
+      "id": "2026-10-18T00-21-38-656Z-381c863f",
+      "command": "pnpm exec playwright test --project=flows-chromium --grep 'a real unsupported calculation|pending calculation' --workers=1",
+      "workers": 1,
+      "commandExitCode": 0,
+      "naturalCliExit": true,
+      "status": "PASS",
+      "note": "Final setup targeted check: both scenarios passed; CLI exited naturally and owned ports closed.",
+      "stats": {
+        "startTime": "2026-10-18T00:21:38.665Z",
+        "duration": 10477.833999999999,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "caseOutcomes": {
+        "passed": 2
+      },
+      "projectOutcomes": {
+        "flows-chromium": {
+          "passed": 2
+        }
+      },
+      "retries": 0,
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "axeScanCount": 0,
+      "axeViolationCount": 0,
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:50209",
+        "serviceURL": "http://127.0.0.1:50208",
+        "cleanupErrors": []
+      },
+      "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-21-38-656Z-381c863f",
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-21-38-656Z-381c863f\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-21-38-656Z-381c863f\\results.json",
+      "failedTests": [],
+      "runnerErrors": []
+    },
+    {
+      "id": "2026-10-18T00-22-34-654Z-befc9834",
+      "command": "pnpm exec playwright test --workers=1",
+      "workers": 1,
+      "commandExitCode": 1,
+      "naturalCliExit": true,
+      "status": "FAIL",
+      "note": "Final full single-worker run: 69 passed, 1 resource-loading failure. The full browser acceptance did not pass.",
+      "stats": {
+        "startTime": "2026-10-18T00:22:34.662Z",
+        "duration": 217742.065,
+        "expected": 69,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "caseOutcomes": {
+        "passed": 69,
+        "failed": 1
+      },
+      "projectOutcomes": {
+        "flows-chromium": {
+          "passed": 14
+        },
+        "desktop-light": {
+          "passed": 7
+        },
+        "breakpoint-light": {
+          "passed": 7
+        },
+        "tablet-boundary-light": {
+          "passed": 7
+        },
+        "tablet-light": {
+          "passed": 6,
+          "failed": 1
+        },
+        "mobile-light": {
+          "passed": 7
+        },
+        "narrow-light": {
+          "passed": 7
+        },
+        "desktop-dark": {
+          "passed": 7
+        },
+        "mobile-dark": {
+          "passed": 7
+        }
+      },
+      "retries": 0,
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "axeScanCount": 55,
+      "axeViolationCount": 0,
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:62075",
+        "serviceURL": "http://127.0.0.1:62074",
+        "cleanupErrors": []
+      },
+      "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834",
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results.json",
+      "failedTests": [
+        {
+          "project": "tablet-light",
+          "title": "@visual not-found: screenshot, readable layout and accessibility",
+          "status": "failed",
+          "durationMs": 11046,
+          "errors": [
+            "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed",
+            "Error: No unexpected browser console errors"
+          ],
+          "pageErrors": [],
+          "consoleErrors": [
+            {
+              "text": "Failed to load resource: net::ERR_INSUFFICIENT_RESOURCES",
+              "urlPath": "/src/components/ui/Panel.tsx"
+            }
+          ],
+          "artifacts": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-tablet-light\\test-failed-1.png"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-tablet-light\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-tablet-light\\trace.zip"
+            }
+          ]
+        }
+      ],
+      "runnerErrors": []
+    }
+  ],
+  "evidenceCaptureAddition": "Existing boundary tests now attach screenshots for 1899, 1900, 2100 and 2101; no new test cases or production changes.",
+  "fullBrowserAcceptancePassed": false,
+  "commandExitCode": 1,
+  "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\report\\index.html",
+  "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results.json",
+  "stats": {
+    "startTime": "2026-10-18T00:22:34.662Z",
+    "duration": 217742.065,
+    "expected": 69,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "caseOutcomes": {
+    "passed": 69,
+    "failed": 1
+  },
+  "projectOutcomes": {
+    "flows-chromium": {
+      "passed": 14
+    },
+    "desktop-light": {
+      "passed": 7
+    },
+    "breakpoint-light": {
+      "passed": 7
+    },
+    "tablet-boundary-light": {
+      "passed": 7
+    },
+    "tablet-light": {
+      "passed": 6,
+      "failed": 1
+    },
+    "mobile-light": {
+      "passed": 7
+    },
+    "narrow-light": {
+      "passed": 7
+    },
+    "desktop-dark": {
+      "passed": 7
+    },
+    "mobile-dark": {
+      "passed": 7
+    }
+  },
+  "browserVersions": [
+    "156.0.8078.4"
+  ],
+  "nodeVersion": "v24.18.0",
+  "workers": 1,
+  "defaultCiWorkersUnchanged": 2,
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "bundled-chromium",
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:62075",
+    "serviceURL": "http://127.0.0.1:62074",
+    "cleanupErrors": []
+  },
+  "axeScanCount": 55,
+  "axeViolationCount": 0,
+  "finalWorkflowResult": "14/14 PASS",
+  "finalVisualResult": "55/56 PASS; tablet-light not-found failed before screenshot/axe acceptance because Panel.tsx failed to load with net::ERR_INSUFFICIENT_RESOURCES.",
+  "historicalVisualResult": "The first full run completed 56/56 visual cases with 56 axe scans and zero violations. This does not replace the final-run result.",
+  "manualScreenshotChecks": [
+    {
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.flows-annual-ent-17876-load-and-return-form-a-loop-flows-chromium\\annual-upgraded-guest-generates-host.png",
+      "sha256": "84a88462124ae3e785c34b2dd5ba32baa9e1e7158724c37a2eab574a479b1d3b",
+      "actualImageInspection": "PASS",
+      "observation": "2025 selected third stage visibly separates direction 客生主 from traditional description 客生主，相得; trace and footer identify Contract 1.1.0 and trace identifies Rule 1.1.0."
+    },
+    {
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.flows-supported--f2705--directly-from-the-real-API-flows-chromium\\annual-boundary-1900.png",
+      "sha256": "20a69db3b7eb5060a12216494cce0753145ba106e702b5800eeda0a8d782eabd",
+      "actualImageInspection": "PASS",
+      "observation": "Year selector and annual summary show 1900, with six stages and the upgraded version identifiers."
+    },
+    {
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.flows-supported--f2705--directly-from-the-real-API-flows-chromium\\annual-boundary-2100.png",
+      "sha256": "589ead078c7f919bcaf585efcb64b40087392d1906e8cca12b8cc650183e2857",
+      "actualImageInspection": "PASS",
+      "observation": "Year selector and annual summary show 2100, with six stages and the upgraded version identifiers."
+    },
+    {
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.flows-invalid-ye-188af-ge-without-a-business-query-flows-chromium\\annual-invalid-boundary-1899.png",
+      "sha256": "8bb2a6596eee095914329302ad11381d8ca5aa564228233c3cdf80deaa5173ad",
+      "actualImageInspection": "PASS",
+      "observation": "Annual entry shows 年份范围应为 1900–2100 and the 1.1.0 Contract footer; the test verified no business request."
+    },
+    {
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-18T00-22-34-654Z-befc9834\\results\\workbench.flows-invalid-ye-9ef19-ge-without-a-business-query-flows-chromium\\annual-invalid-boundary-2101.png",
+      "sha256": "8bb2a6596eee095914329302ad11381d8ca5aa564228233c3cdf80deaa5173ad",
+      "actualImageInspection": "PASS",
+      "observation": "Annual entry shows 年份范围应为 1900–2100 and the 1.1.0 Contract footer; the test verified no business request."
+    }
+  ],
+  "testEnvironmentChanges": [
+    "Move the POST hold until the real input is editable; preserve all original duplicate-submit assertions.",
+    "Bind Vite WebSocket transport to the existing owned HTTP listener via server.ws.server; keep hmr:false and watch:null.",
+    "Guard HTTP close by listening state.",
+    "Add boundary screenshots to existing cases; no added test count."
+  ],
+  "probeRecords": [
+    {
+      "rawReport": "D:\\Projects\\YunQi\\.superpowers\\word-rule-upgrade-20261018\\vite-ws-probe-before-close-wait.json",
+      "handshakeAssertions": "PASS",
+      "listenerClosed": true,
+      "naturalExit": false,
+      "terminatedOwnedProcess": true,
+      "ownedPid": 12796,
+      "overallStatus": "INCOMPLETE_PROCESS_LIFECYCLE",
+      "scope": "Project-config transport probe; raw PASS only describes handshake/listener assertions."
+    },
+    {
+      "rawReport": "D:\\Projects\\YunQi\\.superpowers\\word-rule-upgrade-20261018\\vite-ws-probe-with-project-config.json",
+      "handshakeAssertions": "PASS",
+      "listenerClosed": true,
+      "naturalExit": false,
+      "terminatedOwnedProcess": true,
+      "ownedPid": 13356,
+      "overallStatus": "INCOMPLETE_PROCESS_LIFECYCLE",
+      "scope": "Project-config probe waited for WebSocket close; active FSReqCallback resources remained, so natural process exit was not achieved."
+    },
+    {
+      "rawReport": "D:\\Projects\\YunQi\\.superpowers\\word-rule-upgrade-20261018\\vite-ws-probe.json",
+      "handshakeAssertions": "PASS",
+      "listenerClosed": true,
+      "naturalExit": true,
+      "commandExitCode": 0,
+      "terminatedOwnedProcess": false,
+      "overallStatus": "PASS_TRANSPORT_ONLY",
+      "scope": "configFile:false and dependency discovery disabled; verifies HTTP/WS shared port and close only, not real Workbench bootstrap."
+    }
+  ],
+  "resourceDiagnosis": "D:\\Projects\\YunQi\\.superpowers\\word-rule-upgrade-20261018\\browser-resource-diagnosis.json",
+  "resourceAfterFinalFailure": "D:\\Projects\\YunQi\\.superpowers\\word-rule-upgrade-20261018\\browser-resource-after-single-worker-failure.json",
+  "finalCleanup": {
+    "checkedPorts": [
+      50522,
+      50517,
+      60739,
+      60737,
+      58254,
+      58252,
+      50209,
+      50208,
+      62075,
+      62074,
+      56397,
+      56834,
+      64901
+    ],
+    "listeners": [],
+    "knownWorkersRemaining": [],
+    "headlessBrowsersRemaining": [],
+    "allEnvironmentsReportCleanupPassed": true,
+    "actions": "Read only verification; no user process terminated."
+  },
+  "separateFindings": [
+    "Initial bootstrap failures: white/incomplete pages and aborted/incomplete JS requests; no business POST. Exact underlying cause not established.",
+    "Native worker exit 0xC0000409 occurred before a case ran. Its root cause is not independently confirmed and is not attributed to WebSocket configuration.",
+    "hmr:false alone left a fixed-port WebSocket transport. ws:false caused dev-client runtime errors in the intermediate configuration. The final transport shares the owned random HTTP listener.",
+    "The final single-worker full run still reported net::ERR_INSUFFICIENT_RESOURCES for /src/components/ui/Panel.tsx. This is evidence of a loading failure, not proof of a product-rule defect."
+  ],
+  "stopCondition": "No further browser runs or retries after the final single-worker resource failure; the existing run completed naturally for report and cleanup.",
+  "limitations": [
+    "Full browser acceptance remains not passed.",
+    "Hosted CI was not run.",
+    "Final local single-worker results do not establish final two-worker stability.",
+    "No screen-reader or physical-device acceptance; no approved pixel baseline.",
+    "No clinical or expert acceptance claim."
+  ],
+  "derivedSummaryNote": "Expired local Vite WebSocket tokens redacted; original local evidence remains unchanged."
+}

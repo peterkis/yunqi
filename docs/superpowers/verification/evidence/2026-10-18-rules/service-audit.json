@@ -1,0 +1,282 @@
+{
+  "auditId": "service-rule-consistency-2026-10-18",
+  "author": "rules_service",
+  "scope": "Read-only review of existing Service, public contracts, client, and relevant business/time documents. Evidence files only were added.",
+  "currentContractId": "YQ-API-CONTRACT-1.0.0",
+  "currentRuleVersion": "YQ-MVP-RULES-1.0.0",
+  "conclusion": "No confirmed implementation discrepancy against the current accepted service/time/API contract was found. Source-rule range and terminology conflicts are pending the root agent's user clarification.",
+  "fullFilesReviewed": [
+    "AGENTS.md",
+    "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+    "rules/PHASE1_RULE_SOURCES.md",
+    "rules/RULE_FREEZE_NOTE.md",
+    "docs/PRD.md",
+    "codex/prompts/Phase2-A_yunqi-service_Fastify_OpenAPI_JSONSchema_React_Contract_Prompt.md",
+    "docs/superpowers/specs/2026-07-16-yunqi-service-phase2a-design.md",
+    "docs/superpowers/specs/2026-07-16-yunqi-calendar-time-semantics-design.md",
+    "docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md",
+    "docs/architecture/ADR-002-yunqi-contract-freeze.md",
+    "docs/contracts/YQ-API-CONTRACT-1.0.0.md",
+    ".superpowers/rule-consistency-20261018/source-consensus.txt",
+    "package.json",
+    "packages/yunqi-service/package.json",
+    "packages/yunqi-service/README.md",
+    "packages/yunqi-service/vitest.config.ts",
+    "packages/yunqi-service/src/app.ts",
+    "packages/yunqi-service/src/server.ts",
+    "packages/yunqi-service/src/index.ts",
+    "packages/yunqi-service/src/routes/yunqi.ts",
+    "packages/yunqi-service/src/routes/health.ts",
+    "packages/yunqi-service/src/services/yunqi-service.ts",
+    "packages/yunqi-service/src/services/provider-boundary.ts",
+    "packages/yunqi-service/src/services/invalid-argument-error.ts",
+    "packages/yunqi-service/src/services/date-time.ts",
+    "packages/yunqi-service/src/modules/time-normalizer/parser.ts",
+    "packages/yunqi-service/src/modules/time-normalizer/normalizer.ts",
+    "packages/yunqi-service/src/modules/time-normalizer/formatter.ts",
+    "packages/yunqi-service/src/modules/time-normalizer/index.ts",
+    "packages/yunqi-service/src/mappers/yunqi-mapper.ts",
+    "packages/yunqi-service/src/schemas/common.ts",
+    "packages/yunqi-service/src/schemas/yunqi.ts",
+    "packages/yunqi-service/src/schemas/index.ts",
+    "packages/yunqi-service/src/plugins/error-handler.ts",
+    "packages/yunqi-service/src/plugins/openapi.ts",
+    "packages/yunqi-service/src/plugins/ingress.ts",
+    "packages/yunqi-service/tests/api.test.ts",
+    "packages/yunqi-service/tests/boundary.test.ts",
+    "packages/yunqi-service/tests/calendar-time-boundary.test.ts",
+    "packages/yunqi-service/tests/mapper.test.ts",
+    "packages/yunqi-service/tests/error-handler.test.ts",
+    "packages/yunqi-service/tests/time-normalizer.test.ts",
+    "packages/yunqi-service/tests/date-time.test.ts",
+    "packages/yunqi-service/tests/historical-dst-regression.test.ts",
+    "packages/yunqi-service/tests/openapi-contract.test.ts",
+    "packages/yunqi-service/tests/safety.test.ts",
+    "packages/yunqi-client/package.json",
+    "packages/yunqi-client/README.md",
+    "packages/yunqi-client/src/index.ts",
+    "packages/yunqi-client/src/yunqi-api.ts",
+    "packages/yunqi-client/tests/client.test.ts",
+    "packages/yunqi-contracts/package.json",
+    "packages/yunqi-contracts/src/index.ts",
+    "packages/yunqi-contracts/tests/contracts.typecheck.ts",
+    "packages/calendar-adapters/tyme4ts/src/index.ts",
+    "packages/calendar-adapters/tyme4ts/src/provider.ts",
+    "packages/yunqi-domain/src/services/calculate-yunqi.ts",
+    "packages/yunqi-domain/src/services/calculate-year-yunqi.ts",
+    "packages/yunqi-domain/src/calendar/yunqi-year-resolver.ts",
+    "scripts/check-yunqi-contracts.mjs",
+    ".gitignore"
+  ],
+  "excerptsReviewed": [
+    {
+      "path": "docs/superpowers/verification/2026-07-16-yunqi-service-phase2a.md",
+      "method": "rg matches for error, 400, 503 and review history; especially 183-190"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/time.ts",
+      "method": "rg matches for instant validation entry locations; full Domain audit owned by another agent"
+    }
+  ],
+  "authorityResolution": [
+    "The Phase2-A.1 time specification explicitly supersedes older Phase2-A IANA/instant-only semantics.",
+    "ADR-002 and YQ-API-CONTRACT-1.0.0 supersede the former Service-owned browser contract subpath and old time schema names.",
+    "The Phase1 rule table remains an implementation baseline subject to RULE_FREEZE_NOTE.md's pending formal freeze status.",
+    "The original source-consensus was reviewed as the root agent's extracted text, not by independently rendering the Word document.",
+    "The source-consensus R-08 versus frozen-contract range conflict is not silently resolved by this audit."
+  ],
+  "clauseMap": [
+    {
+      "clauses": [
+        "AGENTS 2.1, 3.1",
+        "Phase2-A Mapper layer and medical safety"
+      ],
+      "requirement": "Only Domain calculates; Service routes normalize, delegate and map; no new medical facts.",
+      "implementation": [
+        "packages/yunqi-service/src/routes/yunqi.ts:27",
+        "packages/yunqi-service/src/services/yunqi-service.ts:56",
+        "packages/yunqi-service/src/mappers/yunqi-mapper.ts:52"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/api.test.ts",
+        "packages/yunqi-service/tests/mapper.test.ts",
+        "packages/yunqi-service/tests/safety.test.ts"
+      ],
+      "result": "PASS by source review and the saved HTTP probe."
+    },
+    {
+      "clauses": [
+        "ADR-001 Service normalization boundary",
+        "time semantic design Input normalization contract"
+      ],
+      "requirement": "Six exact lexical forms; fixed UTC+08; reject unsupported offsets and invalid Gregorian dates.",
+      "implementation": [
+        "packages/yunqi-service/src/modules/time-normalizer/parser.ts:10",
+        "packages/yunqi-service/src/modules/time-normalizer/normalizer.ts:14",
+        "packages/yunqi-service/src/schemas/yunqi.ts:193"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/time-normalizer.test.ts",
+        "packages/yunqi-service/tests/date-time.test.ts",
+        "packages/yunqi-service/tests/historical-dst-regression.test.ts"
+      ],
+      "result": "PASS; three supported time forms agree in all 252 saved boundary cases. Separate ephemeral probes also rejected seven trailing whitespace/separator variants."
+    },
+    {
+      "clauses": [
+        "R-02 through R-07",
+        "R-09, R-10",
+        "R-14 through R-20"
+      ],
+      "requirement": "DaHan and six-step ownership, stem/branch, SuiYun, sky/ground and host/guest identities survive HTTP mapping unchanged.",
+      "implementation": [
+        "packages/yunqi-service/src/services/yunqi-service.ts:68",
+        "packages/yunqi-service/src/mappers/yunqi-mapper.ts:31",
+        "packages/yunqi-service/src/mappers/yunqi-mapper.ts:75"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/calendar-time-boundary.test.ts",
+        ".superpowers/rule-consistency-20261018/service-probe.mjs"
+      ],
+      "result": "PASS for 199 annual years, 252 boundary cases and 1207 HTTP requests."
+    },
+    {
+      "clauses": [
+        "Phase2-A annual endpoint range",
+        "YQ-API-CONTRACT-1.0.0 freeze",
+        "R-08 conflict"
+      ],
+      "requirement": "Current frozen public YunQi year range remains 1901 through 2099; civil year 2100 before DaHan may belong to 2099.",
+      "implementation": [
+        "packages/yunqi-service/src/services/yunqi-service.ts:19",
+        "packages/yunqi-service/src/services/yunqi-service.ts:43",
+        "packages/yunqi-service/src/schemas/yunqi.ts:161",
+        "packages/yunqi-service/src/schemas/yunqi.ts:181"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/boundary.test.ts",
+        ".superpowers/rule-consistency-20261018/service-probe.mjs"
+      ],
+      "result": "Implementation matches the frozen range. R-08 states 1900 through 2100 and remains pending user clarification, not reported as closed."
+    },
+    {
+      "clauses": [
+        "ADR-001 Runtime clock"
+      ],
+      "requirement": "Current clock supplies epoch only, once; fixed Beijing normalization precedes the same calculation path.",
+      "implementation": [
+        "packages/yunqi-service/src/server.ts:9",
+        "packages/yunqi-service/src/routes/yunqi.ts:45",
+        "packages/yunqi-service/src/services/yunqi-service.ts:81"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/api.test.ts",
+        "packages/yunqi-service/tests/error-handler.test.ts",
+        ".superpowers/rule-consistency-20261018/service-probe.mjs"
+      ],
+      "result": "PASS; current and three calculate forms match at each saved boundary case."
+    },
+    {
+      "clauses": [
+        "Phase2-A stable DTO and mapper rules",
+        "ADR-002 public time schema and generated boundaries"
+      ],
+      "requirement": "Fresh nested DTOs and explanation arrays; exact localTime formatting; one public time schema; six-step readonly tuple facade.",
+      "implementation": [
+        "packages/yunqi-service/src/mappers/yunqi-mapper.ts:31",
+        "packages/yunqi-service/src/modules/time-normalizer/formatter.ts:17",
+        "packages/yunqi-contracts/src/index.ts:17",
+        "packages/yunqi-contracts/src/index.ts:43"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/mapper.test.ts",
+        "packages/yunqi-service/tests/openapi-contract.test.ts",
+        "packages/yunqi-contracts/tests/contracts.typecheck.ts"
+      ],
+      "result": "PASS by source review and saved response equality. Full freeze/generated drift gate is assigned to the root agent."
+    },
+    {
+      "clauses": [
+        "Phase2-A error classification",
+        "time semantic design Error behavior"
+      ],
+      "requirement": "Invalid input 400; provider-thrown failure 503; unexpected internal errors sanitized 500.",
+      "implementation": [
+        "packages/yunqi-service/src/services/provider-boundary.ts:14",
+        "packages/yunqi-service/src/services/yunqi-service.ts:32",
+        "packages/yunqi-service/src/plugins/error-handler.ts:32"
+      ],
+      "tests": [
+        "packages/yunqi-service/tests/boundary.test.ts",
+        "packages/yunqi-service/tests/error-handler.test.ts"
+      ],
+      "result": "Existing implementation matches the explicit historical handling. Returned malformed provider data classification remains a non-blocking policy clarification, not a confirmed regression."
+    },
+    {
+      "clauses": [
+        "ADR-002 dependency and client ownership",
+        "AGENTS 3.2"
+      ],
+      "requirement": "Contracts derive from generated DTOs; client depends only on contracts; client performs transport and unwrapping, not calculation.",
+      "implementation": [
+        "packages/yunqi-contracts/src/index.ts",
+        "packages/yunqi-contracts/package.json",
+        "packages/yunqi-client/src/yunqi-api.ts:99",
+        "packages/yunqi-client/package.json"
+      ],
+      "tests": [
+        "packages/yunqi-contracts/tests/contracts.typecheck.ts",
+        "packages/yunqi-client/tests/client.test.ts"
+      ],
+      "result": "PASS by source review. The root agent owns final build/typecheck and dependency gates."
+    }
+  ],
+  "confirmedDefects": [],
+  "pendingClarifications": [
+    {
+      "id": "R08-RANGE",
+      "status": "PENDING_USER_DECISION_WITH_ROOT",
+      "detail": "Source consensus R-08 requests 1900-2100. Current accepted service design and immutable contract constrain 1901-2099. No range or frozen projection was changed."
+    },
+    {
+      "id": "R21-WORDING",
+      "status": "PENDING_USER_DECISION_WITH_ROOT",
+      "detail": "Source R-21 asks for 主生客，相得 / 客生主，相得. This audit verifies Service faithfully copies Domain relation fields; it does not approve a Domain/UI text change."
+    },
+    {
+      "id": "PROVIDER-RETURN-ERROR-CLASSIFICATION",
+      "status": "DOCUMENTED_NON_BLOCKING_AMBIGUITY",
+      "detail": "Old Phase2-A explicitly maps Domain RangeError after normalization to 400 and boundary.test.ts intentionally maps an inverted provider sequence to 400. Later time design says expected Domain invalid input 400 and provider failure 503 without explicitly reclassifying malformed return values. Both service and time reviewers agreed not to overturn the explicit historical test on inference."
+    }
+  ],
+  "reproducibleEvidence": {
+    "command": "node .superpowers/rule-consistency-20261018/service-probe.mjs",
+    "script": ".superpowers/rule-consistency-20261018/service-probe.mjs",
+    "result": ".superpowers/rule-consistency-20261018/service-probe-result.json",
+    "savedRun": {
+      "status": "PASS",
+      "startedAtUtc": "2026-10-17T17:09:19.739Z",
+      "completedAtUtc": "2026-10-17T17:09:21.230Z",
+      "annualYears": 199,
+      "sampledBoundaryYears": 14,
+      "boundaryCases": 252,
+      "annualRequests": 199,
+      "calculationRequests": 756,
+      "currentRequests": 252,
+      "httpRequests": 1207,
+      "expectedUnsupportedResponses": 4
+    },
+    "additionalEphemeralProbe": {
+      "description": "Before the saved probe, trailing LF, CR, CRLF, U+2028, U+2029, space and tab were injected after an otherwise valid dateTime; all seven returned 400 INVALID_ARGUMENT.",
+      "savedSource": false,
+      "includedIn1207": false
+    }
+  },
+  "limits": [
+    "No external website was used to change or infer business rules.",
+    "The saved probe uses current compiled dist artifacts; final rebuild and rerun are the root agent's responsibility.",
+    "Adapter timestamps are not an independent astronomical oracle; annual rule expectations are independently coded from repository rule tables.",
+    "No production code, frozen contract, original source document, rule mapping or test framework was modified.",
+    "No clinical/expert acceptance, real patient workflow, authentication capability or remote branch-protection check is claimed."
+  ]
+}

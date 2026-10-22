@@ -3,6 +3,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -40,7 +41,8 @@ function writeFixtureFile(root, relativePath, source) {
 function createFixture(frontendSource) {
   const root = mkdtempSync(join(tmpdir(), 'yunqi-time-governance-'));
 
-  writeFixtureFile(root, 'AGENTS.md', REQUIRED_GOVERNANCE);
+  writeFixtureFile(root, 'AGENTS.md', '[规则与时间](docs/agents/rules-and-time.md)');
+  writeFixtureFile(root, 'docs/agents/rules-and-time.md', REQUIRED_GOVERNANCE);
   writeFixtureFile(
     root,
     'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
@@ -75,6 +77,20 @@ function runChecker(root) {
     { encoding: 'utf8' },
   );
 }
+
+test('rejects computed recovery of a forbidden time global', () => {
+  const root = createFixture("const C = globalThis['Da' + 'te']; export const value = new C(0);");
+  const result = runChecker(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /computed|capability/);
+});
+
+test('rejects reflective recovery through a passed global object', () => {
+  const root = createFixture("const get = Reflect.get; const C = get(globalThis, 'Da' + 'te'); export const value = new C(0);");
+  const result = runChecker(root);
+  assert.equal(result.status, 1, result.stderr);
+  assert.match(result.stderr, /capability/);
+});
 
 test('accepts React rendering of canonical localTime', () => {
   const root = createFixture(
@@ -166,7 +182,7 @@ test('rejects incomplete persistence governance', () => {
   const root = createFixture(
     'export const TimeView = ({ result }) => <time>{result.localTime}</time>;',
   );
-  const agentsPath = join(root, 'AGENTS.md');
+  const agentsPath = join(root, 'docs/agents/rules-and-time.md');
   writeFileSync(
     agentsPath,
     readFileSync(agentsPath, 'utf8').replace('epoch_ms bigint', ''),
@@ -175,7 +191,25 @@ test('rejects incomplete persistence governance', () => {
   const result = runChecker(root);
 
   assert.equal(result.status, 1);
-  assert.match(result.stderr, /AGENTS\.md.*epoch_ms bigint/);
+  assert.match(result.stderr, /docs\/agents\/rules-and-time\.md.*epoch_ms bigint/);
+});
+
+test('rejects root guidance without its time-rules pointer', () => {
+  const root = createFixture('export const value = result.localTime;');
+  writeFixtureFile(root, 'AGENTS.md', REQUIRED_GOVERNANCE);
+  const result = runChecker(root);
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /AGENTS\.md.*missing.*rules-and-time\.md/);
+});
+
+test('rejects a missing time-rules document even with a valid root pointer', () => {
+  const root = createFixture('export const value = result.localTime;');
+  unlinkSync(join(root, 'docs/agents/rules-and-time.md'));
+  const result = runChecker(root);
+
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /docs\/agents\/rules-and-time\.md: required governance document missing/);
 });
 
 test('rejects an ambiguous YunQiInstant declaration', () => {

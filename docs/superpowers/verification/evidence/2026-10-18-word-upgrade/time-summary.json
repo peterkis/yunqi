@@ -1,0 +1,63 @@
+{
+  "auditDate": "2026-10-18",
+  "status": "PASS",
+  "scope": "Time-consistency regression aligned with the authorized Word R08 range",
+  "contractId": "YQ-API-CONTRACT-1.1.0",
+  "testFile": "tests/yunqi-time-consistency.test.mjs",
+  "verifiedCoverage": {
+    "firstSupportedYunQiYear": 1900,
+    "lastSupportedYunQiYear": 2100,
+    "annualYears": 201,
+    "boundaryOwnershipCases": 4221,
+    "normalizedInputForms": 12663,
+    "serviceEndpointRequests": 6,
+    "lowerBoundaryYear": 1900,
+    "upperBoundaryYear": 2101
+  },
+  "expectationSource": "Literal documented range and ordered boundary positions; no production resolver or range constant is used as the test oracle.",
+  "adapterProbe": {
+    "status": "PASS",
+    "dependency": "tyme4ts@1.5.2",
+    "source": "packages/calendar-adapters/tyme4ts/src/provider.ts",
+    "sourceLines": "10-31",
+    "year": 2101,
+    "term": "大寒",
+    "directLibraryLocalFields": {
+      "year": 2101,
+      "month": 1,
+      "day": 20,
+      "hour": 14,
+      "minute": 33,
+      "second": 47
+    },
+    "adapterLocalTime": "2101-01-20T14:33:47+08:00",
+    "adapterEpochMilliseconds": 4135646027000,
+    "independentPythonEpochMilliseconds": 4135646027000,
+    "independentPythonMethod": "datetime(2101,1,20,14,33,47,tzinfo=timezone(timedelta(hours=8))); integer timedelta milliseconds since 1970-01-01 UTC",
+    "limitations": "Direct dependency and adapter probes prove 2101 Dahan availability and fixed-offset conversion consistency. They do not independently certify astronomical second-level accuracy."
+  },
+  "verifiedEndpointResults": [
+    { "boundaryYear": 1900, "deltaMs": -1, "status": 400, "code": "INVALID_ARGUMENT" },
+    { "boundaryYear": 1900, "deltaMs": 0, "status": 200, "resultYear": 1900, "step": 1 },
+    { "boundaryYear": 1900, "deltaMs": 1, "status": 200, "resultYear": 1900, "step": 1 },
+    { "boundaryYear": 2101, "deltaMs": -1, "status": 200, "resultYear": 2100, "step": 6 },
+    { "boundaryYear": 2101, "deltaMs": 0, "status": 400, "code": "INVALID_ARGUMENT" },
+    { "boundaryYear": 2101, "deltaMs": 1, "status": 400, "code": "INVALID_ARGUMENT" }
+  ],
+  "validation": {
+    "syntaxCommand": "node --check tests/yunqi-time-consistency.test.mjs",
+    "syntaxStatus": "PASS",
+    "buildPrerequisite": "Parent agent completed unified contracts:freeze with exit 0 before this test; no independent rebuild performed.",
+    "testCommand": "node --test tests/yunqi-time-consistency.test.mjs",
+    "testStatus": "PASS",
+    "exitCode": 0,
+    "tests": 3,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "durationMilliseconds": 4295.9933,
+    "rawOutput": "✔ all 201 supported years preserve seven real boundaries at -1/0/+1 ms and three input forms (2071.7812ms)\n✔ Service accepts precisely 1900-2100 YunQi years at the 1900 and 2101 Dahan endpoints (623.0722ms)\n✔ normalization preserves Gregorian century rules, milliseconds, and strict input syntax (1.6312ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4295.9933"
+  },
+  "productionFilesModified": [],
+  "historicalEvidenceModified": []
+}

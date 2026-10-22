@@ -1,0 +1,42 @@
+{
+  "status": "PASS",
+  "startedAtUtc": "2026-10-17T17:09:19.739Z",
+  "contractId": "YQ-API-CONTRACT-1.0.0",
+  "ruleVersion": "YQ-MVP-RULES-1.0.0",
+  "supportedYunQiYears": [
+    1901,
+    2099
+  ],
+  "sampleYears": [
+    1901,
+    1911,
+    1949,
+    1984,
+    1986,
+    1987,
+    1988,
+    1989,
+    1990,
+    1991,
+    2000,
+    2024,
+    2026,
+    2099
+  ],
+  "annualYears": 199,
+  "boundaryCases": 252,
+  "annualRequests": 199,
+  "calculationRequests": 756,
+  "currentRequests": 252,
+  "httpRequests": 1207,
+  "expectedUnsupportedResponses": 4,
+  "execution": "Fastify inject with the real tyme4ts adapter and existing dist artifacts",
+  "limitations": [
+    "The root agent must rebuild after final source edits and rerun this probe.",
+    "Solar-term timestamps come from the configured real adapter, not an independent astronomical source.",
+    "Transport equivalence is tested using the approved formatter to construct equivalent lexemes.",
+    "R-08 range and R-21 display wording remain outside this unchanged-contract probe.",
+    "No clinical/expert acceptance or remote branch-protection verification is claimed."
+  ],
+  "completedAtUtc": "2026-10-17T17:09:21.230Z"
+}

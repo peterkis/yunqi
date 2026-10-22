@@ -1,0 +1,6182 @@
+[
+  {
+    "position": 1,
+    "ganzhi": "甲子",
+    "stem": "甲",
+    "branch": "子",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 2,
+    "ganzhi": "乙丑",
+    "stem": "乙",
+    "branch": "丑",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 3,
+    "ganzhi": "丙寅",
+    "stem": "丙",
+    "branch": "寅",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 4,
+    "ganzhi": "丁卯",
+    "stem": "丁",
+    "branch": "卯",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": true,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 5,
+    "ganzhi": "戊辰",
+    "stem": "戊",
+    "branch": "辰",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 6,
+    "ganzhi": "己巳",
+    "stem": "己",
+    "branch": "巳",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 7,
+    "ganzhi": "庚午",
+    "stem": "庚",
+    "branch": "午",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 8,
+    "ganzhi": "辛未",
+    "stem": "辛",
+    "branch": "未",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 9,
+    "ganzhi": "壬申",
+    "stem": "壬",
+    "branch": "申",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 10,
+    "ganzhi": "癸酉",
+    "stem": "癸",
+    "branch": "酉",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 11,
+    "ganzhi": "甲戌",
+    "stem": "甲",
+    "branch": "戌",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": true,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 12,
+    "ganzhi": "乙亥",
+    "stem": "乙",
+    "branch": "亥",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 13,
+    "ganzhi": "丙子",
+    "stem": "丙",
+    "branch": "子",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": true,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 14,
+    "ganzhi": "丁丑",
+    "stem": "丁",
+    "branch": "丑",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 15,
+    "ganzhi": "戊寅",
+    "stem": "戊",
+    "branch": "寅",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 16,
+    "ganzhi": "己卯",
+    "stem": "己",
+    "branch": "卯",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 17,
+    "ganzhi": "庚辰",
+    "stem": "庚",
+    "branch": "辰",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 18,
+    "ganzhi": "辛巳",
+    "stem": "辛",
+    "branch": "巳",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 19,
+    "ganzhi": "壬午",
+    "stem": "壬",
+    "branch": "午",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 20,
+    "ganzhi": "癸未",
+    "stem": "癸",
+    "branch": "未",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 21,
+    "ganzhi": "甲申",
+    "stem": "甲",
+    "branch": "申",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 22,
+    "ganzhi": "乙酉",
+    "stem": "乙",
+    "branch": "酉",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": true,
+      "taiYiTianFu": true,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 23,
+    "ganzhi": "丙戌",
+    "stem": "丙",
+    "branch": "戌",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 24,
+    "ganzhi": "丁亥",
+    "stem": "丁",
+    "branch": "亥",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 25,
+    "ganzhi": "戊子",
+    "stem": "戊",
+    "branch": "子",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 26,
+    "ganzhi": "己丑",
+    "stem": "己",
+    "branch": "丑",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": true,
+      "taiYiTianFu": true,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 27,
+    "ganzhi": "庚寅",
+    "stem": "庚",
+    "branch": "寅",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 28,
+    "ganzhi": "辛卯",
+    "stem": "辛",
+    "branch": "卯",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 29,
+    "ganzhi": "壬辰",
+    "stem": "壬",
+    "branch": "辰",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 30,
+    "ganzhi": "癸巳",
+    "stem": "癸",
+    "branch": "巳",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 31,
+    "ganzhi": "甲午",
+    "stem": "甲",
+    "branch": "午",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 32,
+    "ganzhi": "乙未",
+    "stem": "乙",
+    "branch": "未",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 33,
+    "ganzhi": "丙申",
+    "stem": "丙",
+    "branch": "申",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 34,
+    "ganzhi": "丁酉",
+    "stem": "丁",
+    "branch": "酉",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 35,
+    "ganzhi": "戊戌",
+    "stem": "戊",
+    "branch": "戌",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 36,
+    "ganzhi": "己亥",
+    "stem": "己",
+    "branch": "亥",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 37,
+    "ganzhi": "庚子",
+    "stem": "庚",
+    "branch": "子",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 38,
+    "ganzhi": "辛丑",
+    "stem": "辛",
+    "branch": "丑",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 39,
+    "ganzhi": "壬寅",
+    "stem": "壬",
+    "branch": "寅",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 40,
+    "ganzhi": "癸卯",
+    "stem": "癸",
+    "branch": "卯",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 41,
+    "ganzhi": "甲辰",
+    "stem": "甲",
+    "branch": "辰",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": true,
+      "taiYiTianFu": false,
+      "tongTianFu": true,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 42,
+    "ganzhi": "乙巳",
+    "stem": "乙",
+    "branch": "巳",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 43,
+    "ganzhi": "丙午",
+    "stem": "丙",
+    "branch": "午",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 44,
+    "ganzhi": "丁未",
+    "stem": "丁",
+    "branch": "未",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 45,
+    "ganzhi": "戊申",
+    "stem": "戊",
+    "branch": "申",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 46,
+    "ganzhi": "己酉",
+    "stem": "己",
+    "branch": "酉",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 47,
+    "ganzhi": "庚戌",
+    "stem": "庚",
+    "branch": "戌",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 48,
+    "ganzhi": "辛亥",
+    "stem": "辛",
+    "branch": "亥",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 49,
+    "ganzhi": "壬子",
+    "stem": "壬",
+    "branch": "子",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 50,
+    "ganzhi": "癸丑",
+    "stem": "癸",
+    "branch": "丑",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 51,
+    "ganzhi": "甲寅",
+    "stem": "甲",
+    "branch": "寅",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "土",
+      "state": "太过",
+      "tone": "太宫",
+      "label": "土运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 52,
+    "ganzhi": "乙卯",
+    "stem": "乙",
+    "branch": "卯",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "金",
+      "state": "不及",
+      "tone": "少商",
+      "label": "金运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 53,
+    "ganzhi": "丙辰",
+    "stem": "丙",
+    "branch": "辰",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "水",
+      "state": "太过",
+      "tone": "太羽",
+      "label": "水运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 54,
+    "ganzhi": "丁巳",
+    "stem": "丁",
+    "branch": "巳",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "木",
+      "state": "不及",
+      "tone": "少角",
+      "label": "木运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 55,
+    "ganzhi": "戊午",
+    "stem": "戊",
+    "branch": "午",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "火",
+      "state": "太过",
+      "tone": "太徵",
+      "label": "火运太过"
+    },
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": true,
+      "taiYiTianFu": true,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 56,
+    "ganzhi": "己未",
+    "stem": "己",
+    "branch": "未",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "土",
+      "state": "不及",
+      "tone": "少宫",
+      "label": "土运不及"
+    },
+    "sitian": "太阴湿土",
+    "zaiquan": "太阳寒水",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": true,
+      "suiHui": true,
+      "taiYiTianFu": true,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 57,
+    "ganzhi": "庚申",
+    "stem": "庚",
+    "branch": "申",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "金",
+      "state": "太过",
+      "tone": "太商",
+      "label": "金运太过"
+    },
+    "sitian": "少阳相火",
+    "zaiquan": "厥阴风木",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 58,
+    "ganzhi": "辛酉",
+    "stem": "辛",
+    "branch": "酉",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "水",
+      "state": "不及",
+      "tone": "少羽",
+      "label": "水运不及"
+    },
+    "sitian": "阳明燥金",
+    "zaiquan": "少阴君火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "SAME",
+          "name": "同气，相得",
+          "direction": "同气"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 59,
+    "ganzhi": "壬戌",
+    "stem": "壬",
+    "branch": "戌",
+    "stemPolarity": "阳",
+    "suiYun": {
+      "element": "木",
+      "state": "太过",
+      "tone": "太角",
+      "label": "木运太过"
+    },
+    "sitian": "太阳寒水",
+    "zaiquan": "太阴湿土",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_GENERATES_GUEST",
+          "name": "主生客，相得",
+          "direction": "主生客"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": false,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  },
+  {
+    "position": 60,
+    "ganzhi": "癸亥",
+    "stem": "癸",
+    "branch": "亥",
+    "stemPolarity": "阴",
+    "suiYun": {
+      "element": "火",
+      "state": "不及",
+      "tone": "少徵",
+      "label": "火运不及"
+    },
+    "sitian": "厥阴风木",
+    "zaiquan": "少阳相火",
+    "sixQiSteps": [
+      {
+        "index": 1,
+        "name": "初之气",
+        "startTerm": "大寒",
+        "endTerm": "春分",
+        "hostQi": "厥阴风木",
+        "guestQi": "阳明燥金",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 2,
+        "name": "二之气",
+        "startTerm": "春分",
+        "endTerm": "小满",
+        "hostQi": "少阴君火",
+        "guestQi": "太阳寒水",
+        "relation": {
+          "code": "GUEST_CONTROLS_HOST",
+          "name": "客胜主，从",
+          "direction": "客克主"
+        }
+      },
+      {
+        "index": 3,
+        "name": "三之气",
+        "startTerm": "小满",
+        "endTerm": "大暑",
+        "hostQi": "少阳相火",
+        "guestQi": "厥阴风木",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 4,
+        "name": "四之气",
+        "startTerm": "大暑",
+        "endTerm": "秋分",
+        "hostQi": "太阴湿土",
+        "guestQi": "少阴君火",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 5,
+        "name": "五之气",
+        "startTerm": "秋分",
+        "endTerm": "小雪",
+        "hostQi": "阳明燥金",
+        "guestQi": "太阴湿土",
+        "relation": {
+          "code": "GUEST_GENERATES_HOST",
+          "name": "客生主，相得",
+          "direction": "客生主"
+        }
+      },
+      {
+        "index": 6,
+        "name": "终之气",
+        "startTerm": "小雪",
+        "endTerm": "次年大寒",
+        "hostQi": "太阳寒水",
+        "guestQi": "少阳相火",
+        "relation": {
+          "code": "HOST_CONTROLS_GUEST",
+          "name": "主胜客，逆",
+          "direction": "主克客"
+        }
+      }
+    ],
+    "phase2Flags": {
+      "tianFu": false,
+      "suiHui": false,
+      "taiYiTianFu": false,
+      "tongTianFu": false,
+      "tongSuiHui": true,
+      "status": "PROVISIONAL_EXPERT_REVIEW_REQUIRED"
+    }
+  }
+]

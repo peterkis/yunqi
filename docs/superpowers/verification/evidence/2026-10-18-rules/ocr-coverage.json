@@ -1,0 +1,148 @@
+{
+  "previewMode": "workspace",
+  "purpose": "OCR workspace selection supplements, but does not define, the whole production-source rule audit. Original source preservation is mandatory.",
+  "totalFiles": 23,
+  "reviewed": 23,
+  "skipped": 0,
+  "files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": ".gitignore",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/index.html",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/AppShell.tsx",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/Navigation.tsx",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "apps/yunqi-workbench/src/styles/global.css",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "package.json",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "tests/yunqi-contract-governance.test.mjs",
+      "status": "modified",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/browser-summary.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/quality-summary.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/validated-source-sha256.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Source/manifest change checked by domain/service/Workbench review or prior-turn acceptance review; current rule changes reviewed separately."
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/MANIFEST.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Reviewed as immutable historical draft material. Manifest was checked; rule tables were independently compared; legacy IANA/Date, SAME relation and draft schema are superseded for runtime by current ADR/Contract and are not restored."
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/reference/yunqi-reference.ts",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Reviewed as immutable historical draft material. Manifest was checked; rule tables were independently compared; legacy IANA/Date, SAME relation and draft schema are superseded for runtime by current ADR/Contract and are not restored."
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/rules/yunqi-mvp-rules.v1.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Reviewed as immutable historical draft material. Manifest was checked; rule tables were independently compared; legacy IANA/Date, SAME relation and draft schema are superseded for runtime by current ADR/Contract and are not restored."
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/schemas/yunqi-result.v1.schema.json",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Reviewed as immutable historical draft material. Manifest was checked; rule tables were independently compared; legacy IANA/Date, SAME relation and draft schema are superseded for runtime by current ADR/Contract and are not restored."
+    },
+    {
+      "path": "playwright.config.mjs",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Previous-turn browser acceptance implementation reviewed, this turn retained; new SuiYun expectation is covered by the fresh browser run."
+    },
+    {
+      "path": "tests/browser/fixtures.mjs",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Previous-turn browser acceptance implementation reviewed, this turn retained; new SuiYun expectation is covered by the fresh browser run."
+    },
+    {
+      "path": "tests/browser/global-setup.mjs",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Previous-turn browser acceptance implementation reviewed, this turn retained; new SuiYun expectation is covered by the fresh browser run."
+    },
+    {
+      "path": "tests/browser/workbench.flows.spec.mjs",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Previous-turn browser acceptance implementation reviewed, this turn retained; new SuiYun expectation is covered by the fresh browser run."
+    },
+    {
+      "path": "tests/browser/workbench.visual.spec.mjs",
+      "status": "added",
+      "reviewStatus": "REVIEWED",
+      "reason": "Previous-turn browser acceptance implementation reviewed, this turn retained; new SuiYun expectation is covered by the fresh browser run."
+    }
+  ],
+  "coverageRate": 1.0
+}

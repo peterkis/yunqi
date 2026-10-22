@@ -30,7 +30,7 @@ describe('mapCurrentYunQi', () => {
         sitian: '少阳相火',
         zaiquan: '厥阴风木',
       },
-      ruleVersion: 'YQ-MVP-RULES-1.0.0',
+      ruleVersion: 'YQ-MVP-RULES-1.1.0',
     });
     expect(result.summary.interval.start.localTime).toBe(
       '2026-01-20T09:00:00+08:00',
@@ -105,7 +105,7 @@ describe('mapCurrentYunQi', () => {
           code: 'GUEST_GENERATES_HOST',
           label: '客生主',
         },
-        traditionalLabel: '客生主',
+        traditionalLabel: '客生主，相得',
       },
       {
         qi: { code: 'DIFFERENT_QI', label: '不同六气' },

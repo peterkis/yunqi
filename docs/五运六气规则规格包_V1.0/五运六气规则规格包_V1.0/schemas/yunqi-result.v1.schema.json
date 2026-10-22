@@ -1,0 +1,213 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.internal/schemas/yunqi-result.v1.schema.json",
+  "title": "YunQiResultV1",
+  "type": "object",
+  "required": [
+    "inputDateTime",
+    "timezone",
+    "yunQiYear",
+    "ganzhi",
+    "suiYun",
+    "sitian",
+    "zaiquan",
+    "steps",
+    "currentStepIndex",
+    "ruleVersion"
+  ],
+  "properties": {
+    "inputDateTime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timezone": {
+      "const": "Asia/Shanghai"
+    },
+    "yunQiYear": {
+      "type": "integer"
+    },
+    "ganzhi": {
+      "type": "string",
+      "minLength": 2,
+      "maxLength": 2
+    },
+    "ruleVersion": {
+      "type": "string"
+    },
+    "calendarProvider": {
+      "type": "object",
+      "required": [
+        "name",
+        "version"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "precision": {
+          "type": "string"
+        }
+      }
+    },
+    "suiYun": {
+      "type": "object",
+      "required": [
+        "element",
+        "state",
+        "tone",
+        "label"
+      ],
+      "properties": {
+        "element": {
+          "enum": [
+            "木",
+            "火",
+            "土",
+            "金",
+            "水"
+          ]
+        },
+        "state": {
+          "enum": [
+            "太过",
+            "不及"
+          ]
+        },
+        "tone": {
+          "enum": [
+            "太角",
+            "少角",
+            "太徵",
+            "少徵",
+            "太宫",
+            "少宫",
+            "太商",
+            "少商",
+            "太羽",
+            "少羽"
+          ]
+        },
+        "label": {
+          "type": "string"
+        }
+      }
+    },
+    "sitian": {
+      "enum": [
+        "厥阴风木",
+        "少阴君火",
+        "太阴湿土",
+        "少阳相火",
+        "阳明燥金",
+        "太阳寒水"
+      ]
+    },
+    "zaiquan": {
+      "enum": [
+        "厥阴风木",
+        "少阴君火",
+        "太阴湿土",
+        "少阳相火",
+        "阳明燥金",
+        "太阳寒水"
+      ]
+    },
+    "currentStepIndex": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 6
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "required": [
+          "index",
+          "name",
+          "startDateTime",
+          "endDateTime",
+          "hostQi",
+          "guestQi",
+          "relation"
+        ],
+        "properties": {
+          "index": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 6
+          },
+          "name": {
+            "enum": [
+              "初之气",
+              "二之气",
+              "三之气",
+              "四之气",
+              "五之气",
+              "终之气"
+            ]
+          },
+          "startDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "endDateTime": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "hostQi": {
+            "enum": [
+              "厥阴风木",
+              "少阴君火",
+              "太阴湿土",
+              "少阳相火",
+              "阳明燥金",
+              "太阳寒水"
+            ]
+          },
+          "guestQi": {
+            "enum": [
+              "厥阴风木",
+              "少阴君火",
+              "太阴湿土",
+              "少阳相火",
+              "阳明燥金",
+              "太阳寒水"
+            ]
+          },
+          "relation": {
+            "type": "object",
+            "required": [
+              "code",
+              "name"
+            ],
+            "properties": {
+              "code": {
+                "enum": [
+                  "SAME",
+                  "HOST_GENERATES_GUEST",
+                  "GUEST_GENERATES_HOST",
+                  "HOST_CONTROLS_GUEST",
+                  "GUEST_CONTROLS_HOST"
+                ]
+              },
+              "name": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

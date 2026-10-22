@@ -1,0 +1,90 @@
+ M .github/workflows/ci.yml
+ M .gitignore
+ M AGENTS.md
+ M README.md
+ M apps/yunqi-workbench/README.md
+ M apps/yunqi-workbench/index.html
+ M apps/yunqi-workbench/src/app/App.test.tsx
+ M apps/yunqi-workbench/src/app/AppRoutes.test.tsx
+ M apps/yunqi-workbench/src/components/layout/AppShell.tsx
+ M apps/yunqi-workbench/src/components/layout/Navigation.tsx
+ M apps/yunqi-workbench/src/components/ui/primitives.test.tsx
+ M apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx
+ M apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx
+ M apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+ M apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
+ M apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
+ M apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts
+ M apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx
+ M apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
+ M apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
+ M apps/yunqi-workbench/src/lib/year-validator.test.ts
+ M apps/yunqi-workbench/src/lib/yunqi-year-range.ts
+ M apps/yunqi-workbench/src/styles/global.css
+ M apps/yunqi-workbench/src/test/contract.typecheck.ts
+ M apps/yunqi-workbench/src/test/yunqi-fixtures.ts
+ M codex/AGENTS.md
+ M "docs/YunQi-Domain-\351\242\206\345\237\237\346\250\241\345\236\213\350\256\276\350\256\241.md"
+ M docs/architecture/ADR-002-yunqi-contract-freeze.md
+ M package.json
+ M packages/calendar-adapters/tyme4ts/README.md
+ M packages/calendar-adapters/tyme4ts/tests/property.test.ts
+ M packages/yunqi-client/README.md
+ M packages/yunqi-client/package.json
+ M packages/yunqi-contracts/README.md
+ M packages/yunqi-contracts/contract/registry.json
+ M packages/yunqi-contracts/package.json
+ M packages/yunqi-contracts/src/index.ts
+ M packages/yunqi-contracts/tests/contracts.typecheck.ts
+ M packages/yunqi-domain/README.md
+ M packages/yunqi-domain/package.json
+ M packages/yunqi-domain/src/rules/phase1-rules.ts
+ M packages/yunqi-domain/tests/acceptance.test.ts
+ M packages/yunqi-domain/tests/liuqi-rules.test.ts
+ M packages/yunqi-domain/tests/public-api.test.ts
+ M packages/yunqi-domain/tests/public-entry.test.ts
+ M packages/yunqi-domain/tests/rules.test.ts
+ M packages/yunqi-domain/tests/services.test.ts
+ M packages/yunqi-service/README.md
+ M packages/yunqi-service/openapi/yunqi-service.openapi.yaml
+ M packages/yunqi-service/package.json
+ M packages/yunqi-service/scripts/smoke-production-entry.mjs
+ M packages/yunqi-service/src/plugins/openapi.ts
+ M packages/yunqi-service/src/schemas/yunqi.ts
+ M packages/yunqi-service/src/services/yunqi-service.ts
+ M packages/yunqi-service/tests/api.test.ts
+ M packages/yunqi-service/tests/boundary.test.ts
+ M packages/yunqi-service/tests/mapper.test.ts
+ M packages/yunqi-service/tests/openapi-contract.test.ts
+ M pnpm-lock.yaml
+ M rules/PHASE1_RULE_SOURCES.md
+ M scripts/check-yunqi-time-governance.mjs
+ M scripts/check-yunqi-workbench-governance.mjs
+ M tests/yunqi-contract-governance.test.mjs
+ M tests/yunqi-time-governance.test.mjs
+ M tests/yunqi-workbench-governance.test.mjs
+?? CODING_STANDARDS.md
+?? apps/yunqi-workbench/public/
+?? apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.test.tsx
+?? codex/prompts/Phase3-B_React_Workbench_Foundation_Codex_Prompt.md
+?? codex/prompts/Phase3-B_React_Workbench_Foundation_Part2_Codex_Prompt.md
+?? docs/agents/
+?? docs/contracts/YQ-API-CONTRACT-1.1.0.md
+?? docs/retrospectives/
+?? docs/superpowers/verification/2026-10-18-browser-acceptance.md
+?? docs/superpowers/verification/2026-10-18-rule-consistency.md
+?? docs/superpowers/verification/2026-10-18-word-rule-upgrade.md
+?? docs/superpowers/verification/evidence/2026-10-18-browser/
+?? docs/superpowers/verification/evidence/2026-10-18-rules/
+?? docs/superpowers/verification/evidence/2026-10-18-word-upgrade/
+?? "docs/\344\270\255\345\214\273\344\272\224\350\277\220\345\205\255\346\260\224\347\254\254\344\270\200\351\230\266\346\256\265\350\247\204\345\210\231\345\205\261\350\257\206\347\241\256\350\256\244\345\215\225_V1.0-2026.7.7.docx"
+?? "docs/\344\272\224\350\277\220\345\205\255\346\260\224\350\247\204\345\210\231\350\247\204\346\240\274\345\214\205_V1.0/"
+?? packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.1.0.freeze.json
+?? packages/yunqi-service/tests/supported-range.test.ts
+?? playwright.config.mjs
+?? rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md
+?? scripts/check-project-guidance.mjs
+?? tests/browser/
+?? tests/project-guidance.test.mjs
+?? tests/yunqi-rule-consistency.test.mjs
+?? tests/yunqi-time-consistency.test.mjs

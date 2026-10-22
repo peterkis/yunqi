@@ -9,9 +9,8 @@ export function RuleExplanationPanel({
 }: RuleExplanationPanelProps) {
   return (
     <Panel
-      eyebrow="Rule Explanation"
       title="规则结果说明"
-      description="以下说明来自 API 结果，前端未扩写领域结论。"
+      description="按本次计算结果逐条说明，供规则学习与核对。"
     >
       {explanations.length === 0 ? (
         <p>本次结果未提供规则说明</p>

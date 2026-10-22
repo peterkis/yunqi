@@ -1,0 +1,196 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "timezone": "Asia/Shanghai",
+    "status": "DRAFT_FOR_EXPERT_REVIEW"
+  },
+  "yearBaselines": [
+    {
+      "id": "YEAR-2024",
+      "type": "YEAR_BASELINE",
+      "input": {
+        "yunQiYear": 2024
+      },
+      "expected": {
+        "ganzhi": "甲辰",
+        "suiYun": {
+          "element": "土",
+          "state": "太过",
+          "tone": "太宫",
+          "label": "土运太过"
+        },
+        "sitian": "太阳寒水",
+        "zaiquan": "太阴湿土",
+        "guestQiSteps": [
+          "少阳相火",
+          "阳明燥金",
+          "太阳寒水",
+          "厥阴风木",
+          "少阴君火",
+          "太阴湿土"
+        ]
+      }
+    },
+    {
+      "id": "YEAR-2025",
+      "type": "YEAR_BASELINE",
+      "input": {
+        "yunQiYear": 2025
+      },
+      "expected": {
+        "ganzhi": "乙巳",
+        "suiYun": {
+          "element": "金",
+          "state": "不及",
+          "tone": "少商",
+          "label": "金运不及"
+        },
+        "sitian": "厥阴风木",
+        "zaiquan": "少阳相火",
+        "guestQiSteps": [
+          "阳明燥金",
+          "太阳寒水",
+          "厥阴风木",
+          "少阴君火",
+          "太阴湿土",
+          "少阳相火"
+        ]
+      }
+    },
+    {
+      "id": "YEAR-2026",
+      "type": "YEAR_BASELINE",
+      "input": {
+        "yunQiYear": 2026
+      },
+      "expected": {
+        "ganzhi": "丙午",
+        "suiYun": {
+          "element": "水",
+          "state": "太过",
+          "tone": "太羽",
+          "label": "水运太过"
+        },
+        "sitian": "少阴君火",
+        "zaiquan": "阳明燥金",
+        "guestQiSteps": [
+          "太阳寒水",
+          "厥阴风木",
+          "少阴君火",
+          "太阴湿土",
+          "少阳相火",
+          "阳明燥金"
+        ]
+      }
+    },
+    {
+      "id": "YEAR-2027",
+      "type": "YEAR_BASELINE",
+      "input": {
+        "yunQiYear": 2027
+      },
+      "expected": {
+        "ganzhi": "丁未",
+        "suiYun": {
+          "element": "木",
+          "state": "不及",
+          "tone": "少角",
+          "label": "木运不及"
+        },
+        "sitian": "太阴湿土",
+        "zaiquan": "太阳寒水",
+        "guestQiSteps": [
+          "厥阴风木",
+          "少阴君火",
+          "太阴湿土",
+          "少阳相火",
+          "阳明燥金",
+          "太阳寒水"
+        ]
+      }
+    },
+    {
+      "id": "YEAR-2028",
+      "type": "YEAR_BASELINE",
+      "input": {
+        "yunQiYear": 2028
+      },
+      "expected": {
+        "ganzhi": "戊申",
+        "suiYun": {
+          "element": "火",
+          "state": "太过",
+          "tone": "太徵",
+          "label": "火运太过"
+        },
+        "sitian": "少阳相火",
+        "zaiquan": "厥阴风木",
+        "guestQiSteps": [
+          "少阴君火",
+          "太阴湿土",
+          "少阳相火",
+          "阳明燥金",
+          "太阳寒水",
+          "厥阴风木"
+        ]
+      }
+    }
+  ],
+  "boundaryCases": [
+    {
+      "id": "BOUNDARY-DAHAN-BEFORE",
+      "description": "当年大寒精确时刻前1毫秒仍归上一运气年",
+      "input": {
+        "dateTime": "TERM(year,大寒)-1ms",
+        "boundary": "DA_HAN_EXACT_INSTANT"
+      },
+      "expected": {
+        "yunQiYear": "year-1",
+        "currentStep": "终之气"
+      }
+    },
+    {
+      "id": "BOUNDARY-DAHAN-AT",
+      "description": "当年大寒精确时刻采用左闭区间，归当年运气年",
+      "input": {
+        "dateTime": "TERM(year,大寒)",
+        "boundary": "DA_HAN_EXACT_INSTANT"
+      },
+      "expected": {
+        "yunQiYear": "year",
+        "currentStep": "初之气"
+      }
+    },
+    {
+      "id": "BOUNDARY-EACH-TERM",
+      "description": "春分、小满、大暑、秋分、小雪均采用[start,end)；交节时刻进入新一步",
+      "input": {
+        "dateTime": "TERM(year,任一六步起始节气)"
+      },
+      "expected": {
+        "rule": "new step starts exactly at term instant"
+      }
+    }
+  ],
+  "dateCases": [
+    {
+      "id": "DATE-2026-06-19-CN",
+      "input": {
+        "dateTime": "2026-06-19T12:00:00+08:00",
+        "boundary": "DA_HAN_EXACT_INSTANT"
+      },
+      "expected": {
+        "yunQiYear": 2026,
+        "ganzhi": "丙午",
+        "suiYunLabel": "水运太过",
+        "sitian": "少阴君火",
+        "zaiquan": "阳明燥金",
+        "currentStep": "三之气",
+        "hostQi": "少阳相火",
+        "guestQi": "少阴君火",
+        "relationCode": "SAME"
+      },
+      "precondition": "2026小满精确时刻 <= 输入时刻 < 2026大暑精确时刻"
+    }
+  ]
+}

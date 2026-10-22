@@ -18,7 +18,7 @@ import {
 
 describe('Phase 1 rule tables', () => {
   it('exposes the exact versioned sixty-cycle sequence and anchor', () => {
-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
+    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
     expect(SIXTY_CYCLE_ANCHOR).toEqual({ year: 1984, ganzhi: '甲子', index: 0 });
     expect(SIXTY_CYCLE).toEqual([
       '甲子', '乙丑', '丙寅', '丁卯', '戊辰', '己巳', '庚午', '辛未', '壬申', '癸酉',
@@ -110,7 +110,7 @@ describe('Phase 1 rule tables', () => {
       SAME_QI: '同气',
       SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
       HOST_GENERATES_GUEST: '主生客，相得',
-      GUEST_GENERATES_HOST: '客生主',
+      GUEST_GENERATES_HOST: '客生主，相得',
       HOST_CONTROLS_GUEST: '主克客',
       GUEST_CONTROLS_HOST: '客克主',
     });

@@ -21,6 +21,7 @@ export function AnnualSixQiSelector({
   return (
     <fieldset className="annual-six-qi-selector">
       <legend>选择六气阶段</legend>
+      <p className="stage-selector-hint">选择后在下方查看详情 · 北京时间 UTC+08</p>
       <div className="annual-six-qi-selector__options">
         {stages.map((stage) => (
           <label
@@ -28,20 +29,22 @@ export function AnnualSixQiSelector({
             key={stage.index}
           >
             <input
+              aria-label={`第 ${stage.index} 步 ${stage.name}`}
+              aria-describedby={`${groupName}-${stage.index}-range`}
               checked={stage.index === selectedStepIndex}
               name={groupName}
               onChange={() => onSelect(stage.index)}
               type="radio"
               value={String(stage.index)}
             />
-            <span className="annual-six-qi-selector__index">
-              第 {stage.index} 步
-            </span>
             <strong>{stage.name}</strong>
             <span className="annual-six-qi-selector__range">
-              <YunQiTimeDisplay value={stage.start} />
+              <YunQiTimeDisplay value={stage.start} showStandard={false} variant="compact" />
               <span aria-hidden="true">—</span>
-              <YunQiTimeDisplay value={stage.end} />
+              <YunQiTimeDisplay value={stage.end} showStandard={false} variant="compact" />
+            </span>
+            <span className="visually-hidden" id={`${groupName}-${stage.index}-range`}>
+              开始 {stage.start.localTime}，结束 {stage.end.localTime}，北京时间 UTC+08
             </span>
           </label>
         ))}

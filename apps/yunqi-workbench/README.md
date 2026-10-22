@@ -21,9 +21,14 @@ The Workbench uses declarative React Router routes:
 | `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
 | any other path | Workbench not-found page | Makes no YunQi request |
 
-Annual parameters must be exact four-digit years in the inclusive `1901–2099`
+Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without
 mounting the annual query owner or calling the API.
+
+The active API Contract is `YQ-API-CONTRACT-1.1.0`; the rule result identifies
+`YQ-MVP-RULES-1.1.0`. For `GUEST_GENERATES_HOST`, the direction label remains
+`客生主`, while the API-provided traditional description is `客生主，相得`.
+The Workbench renders these separate fields without deriving a rule relation.
 
 The URL is the only owner of the selected year. Browser history therefore
 restores both the year URL and its query result; no React state mirrors the
@@ -214,15 +219,71 @@ The full repository gates additionally include frozen Contract drift checks,
 time purity, all package tests/typechecks/coverage, schema validation, and
 OpenAPI validation.
 
+Governed production imports must stay in `src` or use approved public packages.
+Runtime imports/re-exports of test, spec, fixture, or skipped output directories
+are rejected even through a barrel. Source file links and directory junctions
+are rejected, and the HTML module entry remains `/src/main.tsx`. Test helpers
+remain usable from tests, but cannot become production dependencies.
+
+Capability acquisition must be statically reviewable: module specifiers must
+be literals; indirect require, module-loader factories, dynamic code generation,
+and computed global time access are rejected. AST binding checks distinguish
+global-object aliases from locally shadowed names. These checks enforce project
+source conventions and are not a sandbox for arbitrary hostile JavaScript.
+
+The shared annual summary displays the versioned implementation baseline's
+pending expert freeze/validation status. While `rules/RULE_FREEZE_NOTE.md`
+remains pending, production copy cannot claim frozen rules. API Contract
+freeze is a separate status and does not establish clinical validation.
+
+## Doctor-oriented walkthrough refinements
+
+The current view presents its current stage before annual context and links to
+the returned YunQi year. Annual navigation keeps the year in the URL, with
+bounded previous/next controls and no inferred default year. Changing the year
+keeps focus on the year controls; switching work areas moves focus to the main
+content. A keyboard skip link and sticky navigation support long-page reading.
+
+The six annual radio choices retain keyboard selection. Their compact labels
+share one Beijing-time note, while accessible descriptions and the selected
+detail retain the full API canonical boundaries. On narrow screens all six
+choices fit in two rows, immediately followed by the selected detail.
+
+Specified-time success announces the selected stage and shows its details
+before the annual overview. Native date/time entry, explicit submission,
+pending protection and dirty-result hiding are preserved. The inquiry link is
+marked as planned, and the repeated footer API-contract explanation is a
+keyboard-operable disclosure. Rule explanations and traceability remain
+available; no patient workflow or rule calculation is introduced.
+
 ## Runtime API base URL
 
-By default, the client sends same-origin requests. For a separately hosted
-service, create `apps/yunqi-workbench/.env.local`:
+Run `pnpm build` from the repository root, then run Service and Workbench in
+separate terminals:
 
-```dotenv
-VITE_YUNQI_API_BASE_URL=http://127.0.0.1:3000
+```text
+pnpm --filter @yunqi/service start
+pnpm --filter @yunqi/workbench dev
 ```
 
-This value is the service origin/base URL. Do not append or duplicate
-`/api/v1/yunqi/**`; `@yunqi/client` owns those frozen paths. Restart the Vite
-development server after changing the environment file.
+Keep `VITE_YUNQI_API_BASE_URL` unset or empty for this local setup. Vite proxies
+`/api/v1/yunqi/` to `http://127.0.0.1:3000` without rewriting paths. The browser
+sends GET and POST requests to the Workbench origin.
+
+To target a different Service port, create `apps/yunqi-workbench/.env.local`:
+
+```dotenv
+YUNQI_DEV_API_TARGET=http://127.0.0.1:3001
+```
+
+Restart Vite after changing it. Remove a previous `VITE_YUNQI_API_BASE_URL`
+override pointing directly at the local Service, because that bypasses the
+same-origin proxy. The proxy target is server-only and is not exposed as a
+browser `VITE_` variable. Run `pnpm test:dev-proxy` from the root to verify real
+GET, POST and error responses through the development server.
+
+Production hosting must provide its own same-origin API reverse proxy.
+`YUNQI_DEV_API_TARGET` does not configure a production proxy. A nonempty
+`VITE_YUNQI_API_BASE_URL` is supported for separate origins only when the API
+host provides CORS and POST preflight support; Service has no default CORS.
+Do not append `/api/v1/yunqi/**` to either origin; the Client owns those paths.

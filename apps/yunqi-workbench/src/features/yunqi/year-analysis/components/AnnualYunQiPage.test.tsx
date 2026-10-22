@@ -11,6 +11,8 @@ describe('AnnualYunQiPage', () => {
     const viewModel = mapAnnualYunQi(createYunQiYearDto());
     render(<AnnualYunQiPage viewModel={viewModel} />);
 
+    expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+
     const radios = screen.getAllByRole('radio');
     expect(radios).toHaveLength(6);
     expect(radios[0]).toBeChecked();
@@ -60,16 +62,17 @@ describe('AnnualYunQiPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('keeps the detail eyebrow neutral outside checked-selection styling', () => {
+  it('announces the selected stage and preserves exact boundaries for assistive technology', () => {
     render(
       <AnnualYunQiPage
         viewModel={mapAnnualYunQi(createYunQiYearDto())}
       />,
     );
 
-    const eyebrow = screen.getByText('Stage Detail');
-    expect(eyebrow).toHaveClass('annual-six-qi-detail__eyebrow');
-    expect(eyebrow).not.toHaveClass('section-label');
+    expect(screen.getByRole('heading', { name: '已选择：初之气' }))
+      .toHaveAttribute('aria-live', 'polite');
+    expect(screen.getByRole('radio', { name: '第 1 步 初之气' }))
+      .toHaveAccessibleDescription(/开始 .*\+08:00，结束 .*\+08:00，北京时间 UTC\+08/);
   });
 
   it('contains annual overflow locally without clipping the document', () => {

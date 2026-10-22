@@ -125,10 +125,10 @@ describe('AppRoutes', () => {
   it('rejects an out-of-range URL year without querying', () => {
     const client = createClient();
 
-    renderAppAt('/yunqi/year/2100', client);
+    renderAppAt('/yunqi/year/2101', client);
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      /^年份范围应为 1901–2099$/,
+      /^年份范围应为 1900–2100$/,
     );
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();

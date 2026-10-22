@@ -1,0 +1,2691 @@
+diff --git a/.github/workflows/ci.yml b/.github/workflows/ci.yml
+index fc40cfe..b5d8166 100644
+--- a/.github/workflows/ci.yml
++++ b/.github/workflows/ci.yml
+@@ -35,6 +35,9 @@ jobs:
+       - name: Install dependencies
+         run: pnpm install --frozen-lockfile
+ 
++      - name: Verify project guidance and retrospective index
++        run: pnpm test:project-guidance
++
+       - name: Verify fixed-time governance
+         run: pnpm test:time-governance
+ 
+@@ -52,3 +55,19 @@ jobs:
+ 
+       - name: Validate schemas
+         run: pnpm schema:validate
++
++      - name: Install Chromium for browser acceptance
++        run: pnpm exec playwright install --with-deps chromium
++
++      - name: Run browser workflow and visual acceptance
++        run: pnpm test:browser
++
++      - name: Retain browser acceptance evidence
++        if: always()
++        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
++        with:
++          name: browser-acceptance-${{ github.run_id }}-${{ github.run_attempt }}
++          path: .artifacts/browser/
++          include-hidden-files: true
++          if-no-files-found: ignore
++          retention-days: 14
+diff --git a/.gitignore b/.gitignore
+index f6b1196..d05e083 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -17,3 +17,6 @@ Thumbs.db
+ # Superpowers transient execution artifacts
+ .superpowers/
+ 
++# Browser acceptance evidence (each run is retained separately)
++.artifacts/browser/
++
+diff --git a/AGENTS.md b/AGENTS.md
+index 3d29834..27ad392 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -1,799 +1,35 @@
+-# AGENTS.md
++# TCM YunQi Lab
+ 
+-# 中医五运六气与问诊结构化原型系统
++面向院内医生的五运六气规则学习、计算和只读展示原型。输出限于理论说明、规则解释、线索整理和教学提示；禁止自动诊断、辨证、处方、治疗建议及疾病因果推断。
+ 
+-## 1. 项目身份与开发目标
++## 工作约定
+ 
+-你正在参与开发：
++- 先读任务对应文档、理解规则并说明修改计划，再编辑；完成后执行相关检查并报告结果。
++- 核心计算只消费版本化规则，经纯 `packages/yunqi-domain` 输出结构化结果；规则变更须更新版本、说明、测试、原因和专家状态。
++- 当前规则 `YQ-MVP-RULES-1.1.0`，API Contract `YQ-API-CONTRACT-1.1.0`。规则仍待正式专家冻结，工程通过不能替代专家或临床验收。
++- 业务时间固定北京时间 UTC+08，历法权威为 `YunQiCalendarTime`；UI直接展示API `localTime`。不得用Date、Temporal、Intl、IANA或DST重建业务时间。
++- 保留原始资料、历史证据和无关工作。遵守用户授权范围；提交、推送、发布或清理按本次授权执行。
+ 
+-> 中医五运六气与问诊结构化原型系统（TCM YunQi Lab）
++## 按任务读取
+ 
+-这是一个面向院内中医医生的：
++编辑前必须读取匹配条目；详细约束和来源由下列文档继续导航。
+ 
+--   五运六气理论学习工具；
+--   五运六气规则计算平台；
+--   中医问诊结构化辅助平台；
+--   教学复盘平台。
++| 任务 | 必须读取 |
++| --- | --- |
++| 规则、Domain、历法、时间或未来持久化 | [规则与时间](docs/agents/rules-and-time.md)、[当前规则表](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md) |
++| Service、OpenAPI、DTO、Contracts、Client | [API边界](docs/agents/api-contracts.md)、[当前契约](docs/contracts/YQ-API-CONTRACT-1.1.0.md) |
++| React、路由、状态、展示、依赖 | [Workbench约束](docs/agents/workbench.md) |
++| 问诊模型、患者信息、临床验证或后续阶段 | [医疗与阶段范围](docs/agents/clinical-scope.md) |
++| 测试、CI、浏览器、证据、交付 | [验证与交付](docs/agents/verification.md) |
++| 修改指引、做复盘、查历史错误 | [指引索引](docs/agents/README.md)、[会话与教训索引](docs/retrospectives/README.md) |
+ 
+-本项目不是：
++## 检查入口
+ 
+--   自动诊断系统；
+--   自动辨证系统；
+--   自动处方系统；
+--   自动治疗决策系统。
++命令定义以 [package.json](package.json) 和 [CI](.github/workflows/ci.yml) 为准。
++指引变更先跑 `pnpm test:project-guidance`；代码变更按任务文档选择门禁。
++`quality-gates` 必须保留时间、契约漂移、测试、类型、覆盖率及schema检查；工作流存在不等于远端保护已经启用。
+ 
+-任何代码、接口、提示文本均不得突破医疗安全边界。
++## Code Review Rules
+ 
+-------------------------------------------------------------------------
+-
+-# 2. 核心开发原则
+-
+-## 2.1 规则优先（Rule First）
+-
+-五运六气计算属于确定性规则系统。
+-
+-所有核心结果必须来源于：
+-
+--   已冻结规则；
+--   版本化规则文件；
+--   自动化测试。
+-
+-禁止：
+-
+--   根据自然语言自行推断规则；
+--   根据网络资料临时修改规则；
+--   使用大模型生成五运六气计算结果；
+--   在 UI 层直接编写规则。
+-
+-正确：
+-
+-    规则文件
+-        ↓
+-    yunqi-domain
+-        ↓
+-    结构化结果
+-        ↓
+-    展示层
+-
+-错误：
+-
+-    React组件
+-        ↓
+-    if(year === ...)
+-        ↓
+-    直接计算
+-
+-------------------------------------------------------------------------
+-
+-# 3. 架构约束
+-
+-## 3.1 领域层隔离
+-
+-核心领域：
+-
+-    packages/yunqi-domain
+-
+-必须保持纯净。
+-
+-允许：
+-
+--   TypeScript；
+--   纯函数；
+--   领域对象；
+--   规则计算；
+--   单元测试。
+-
+-禁止依赖：
+-
+--   React；
+--   Vue；
+--   Fastify；
+--   Express；
+--   PostgreSQL；
+--   ORM；
+--   UI组件库；
+--   浏览器 API。
+-
+-领域层必须可以：
+-
+--   单独测试；
+--   单独发布；
+--   单独运行。
+-
+-------------------------------------------------------------------------
+-
+-## 3.2 API Contract 与前端依赖边界
+-
+-Phase3 及后续前端只能通过以下公共包消费 YunQi API：
+-
+-```text
+-@yunqi/contracts
+-@yunqi/client
+-```
+-
+-职责冻结：
+-
+-- `@yunqi/service` 是 Fastify 运行时和 TypeBox schema 的唯一来源；
+-- `@yunqi/contracts` 从 OpenAPI 生成类型派生公共 DTO facade；
+-- `@yunqi/client` 只依赖 `@yunqi/contracts`，提供浏览器安全 transport 和 client；
+-- React/Next 不得自行声明、复制或扩展 YunQi DTO；
+-- Service、Domain 和 calendar adapter 不得反向依赖 contracts 或 client。
+-
+-当前业务 API Contract ID：
+-
+-```text
+-YQ-API-CONTRACT-1.0.0
+-```
+-
+-该 Contract ID 精确冻结三个 `/api/v1/yunqi/**` 业务端点的路径、method、
+-operationId、参数、请求体、响应状态码及其所有可达 schema，包括公共 schema
+-名称、required、enum、validation constraints 和 `additionalProperties`。
+-
+-任何冻结投影变化都必须：
+-
+-1. 分配新的 Contract ID；
+-2. 按兼容性选择 package SemVer；
+-3. 更新 OpenAPI、冻结基线、契约文档和测试；
+-4. 记录迁移影响。
+-
+-禁止直接更新 snapshot 绕过 Contract ID 变更。
+-
+-`main` 的合入门禁必须包含固定名称的 GitHub Actions job：
+-
+-```text
+-quality-gates
+-```
+-
+-该检查必须执行时间治理、契约生成/冻结漂移、测试、类型检查、覆盖率和 schema
+-校验。仓库 ruleset 或 branch protection 必须阻止未通过检查的 PR 合并和绕过
+-规则直接 push。
+-
+-长期架构依据：
+-
+-```text
+-docs/architecture/ADR-002-yunqi-contract-freeze.md
+-docs/contracts/YQ-API-CONTRACT-1.0.0.md
+-```
+-
+-------------------------------------------------------------------------
+-
+-## 3.3 React Workbench 治理边界
+-
+-Phase3-B foundation 阶段的非路由依赖边界继续保留。Phase3-C3 经明确授权后，
+-Workbench 当前依赖链固定为：
+-
+-```text
+-apps/yunqi-workbench
+-  ├── @yunqi/client
+-  │     └── @yunqi/contracts
+-  ├── @tanstack/react-query
+-  └── react-router-dom@7.18.1
+-```
+-
+-Workbench 运行时只允许依赖：
+-
+-```text
+-@tanstack/react-query
+-@yunqi/client
+-@yunqi/contracts
+-react
+-react-dom
+-react-router-dom
+-```
+-
+-上述白名单同时约束 `dependencies`、`optionalDependencies` 和
+-`peerDependencies`；`devDependencies` 只允许承载开发和测试工具，不能借此
+-绕过源码 import 治理。`react-router-dom` 必须精确锁定为 `7.18.1`，是当前
+-唯一批准的路由运行时；其他路由包均不在白名单内。
+-
+-禁止依赖或导入 Service、Domain、calendar adapter、内部生成的 OpenAPI 文件，
+-Axios 或未经批准的其他路由包，也不得复制冻结 DTO。所有源码的静态 import、
+-动态 import 和 `require` 均受此约束，即使对应包只出现在
+-`devDependencies`。DTO 必须从 `@yunqi/contracts` 导入。
+-
+-相对 import 解析后必须仍位于 `apps/yunqi-workbench` 内；禁止使用 `../` 或
+-Windows `..\` 逃逸到仓库中的 Service、Domain、calendar adapter、generated
+-contract 或其他本地实现。禁止绝对本地路径和 `file:` import。公共
+-`@yunqi/contracts` 与 `@yunqi/client` 包入口不受此限制。
+-
+-Provider ownership 固定如下：
+-
+-- `AppProviders` 负责组合 Error Boundary、Theme、Query 和 YunQi Client Provider；
+-- `QueryProvider` 拥有 `QueryClient`；
+-- `YunQiClientProvider` 拥有 `YunQiClient` 与 transport 的创建和注入；
+-- feature query/hook 层通过注入的 client 与 `@yunqi/client` query options 获取数据；
+-- `AppRoutes` 及 Router 层只负责 URL 匹配、页面选择、导航、重定向和浏览器
+-  历史恢复；
+-- Router、Page 和 Navigation 不得直接调用 YunQi client 方法，数据获取必须
+-  继续经过 feature query/hook 层；
+-- presentation mapper 不得依赖 React Router、TanStack Query 或
+-  `@yunqi/client`；
+-- `src/components/**`、`src/app/**`、`src/features/**/components/**` 和
+-  `src/features/**/pages/**`
+-  按路径职责视为 component，不因文件扩展名改变；
+-- component 只接收状态和 DTO，不得 runtime import 或 runtime re-export
+-  `@yunqi/client`，不得调用 `fetch`、Axios 或 YunQi client 方法，不得通过
+-  optional chaining、方法引用、bracket access 或解构取得 client 方法能力，
+-  不得拼接 `/api/v1/yunqi/**` 路径或执行五运六气业务计算。纯 type-only
+-  client import/re-export 不创建运行时能力；混合 type/runtime re-export
+-  仍按 runtime 拒绝。
+-
+-Phase3-B 只建立非路由 Workbench foundation。Phase3-C3 已明确授权引入
+-React Router；Phase3-C4 进一步批准只读问诊结构化入口。以下为 C4 导航基线；
+-Phase3-E1 在此基础上增加 `/yunqi/calculate`，仅在用户提交后执行指定时点分析：
+-
+-```text
+-/                    -> replace redirect /yunqi/current
+-/yunqi/current       -> 当前状态视图
+-/yunqi/year          -> 年度分析入口，不发起年度查询
+-/yunqi/year/:year    -> URL 驱动的指定年度分析
+-/yunqi/inquiry       -> 问诊结构化入口，不发起任何业务查询
+-```
+-
+-年度分析子路径必须保持“年度分析”导航激活；当前实现通过父路径
+-`/yunqi/year` 的非精确匹配满足该要求。年份属于 URL 导航状态，阶段选择属于
+-页面局部交互状态。`/yunqi/inquiry` 导航的 `enabled` 只表示入口可访问，不表示
+-问诊业务已经上线。Phase3-C4 禁止新增患者搜索或选择、问诊创建、观察记录表单、
+-任何 Patient/Inquiry/Observation API、Client、Query Hook、Mock、存储和问诊子路由。
+-真实问诊流程、权限执行、教学页面、专家审核、规则管理及 AI 能力仍需后续阶段
+-明确授权。
+-
+-Phase3-C4 的 Patient、Inquiry、Observation、Permission 和 Audit Context Model
+-仅是 `apps/yunqi-workbench/src/features/inquiry/models` 内部的只读类型边界，不是
+-API Contract、服务端实体或医疗事实。它们只能通过该目录的 type-only index
+-内部导出；禁止从 inquiry feature 根路径导出，禁止被生产 Page 或 component
+-导入、实例化，禁止直接提升为 DTO，也不得加入通用 `metadata`、角色枚举、
+-生命周期、诊疗或推断字段。
+-
+-后续真实能力的建议评估顺序（不是当前冻结事实）为：
+-
+-```text
+-专家流程验证
+-    -> Inquiry Service
+-    -> OpenAPI Schema
+-    -> @yunqi/contracts
+-    -> @yunqi/client
+-    -> React
+-```
+-
+-HIS/EMR 信息必须经正式 API/Contract 接入，不得通过扩展 Context Model 的通用
+-`metadata` 绕过契约。Observation 专业类别等待专家确认；身份、角色和 RBAC
+-等待真实认证及组织模型。
+-
+-Workbench 展示业务时间必须直接使用 API 的规范 `localTime`，并标注：
+-
+-```text
+-北京时间 UTC+08
+-```
+-
+-不得从 `epochMilliseconds`、浏览器本地时区、`Date`、Temporal、Intl、
+-locale/ISO formatter 或 `Asia/Shanghai` 重建展示时间。
+-
+-以上规则由根命令自动检查：
+-
+-```text
+-pnpm test:workbench-governance
+-pnpm test:time-governance
+-```
+-
+-------------------------------------------------------------------------
+-
+-# 4. 时间处理规范
+-
+-五运六气最重要的工程风险是时间边界。
+-
+-必须遵守：
+-
+-## 4.1 时间标准
+-
+-本项目五运六气计算统一采用：
+-
+-    固定北京时间 UTC+08:00
+-
+-领域标准字面量：
+-
+-    BeijingStandardTime+08:00
+-
+-必须明确：
+-
+--   这里的“北京时间”不是 IANA `Asia/Shanghai` 历史时区规则；
+--   不应用 1986–1991 历史夏令时；
+--   不使用服务器本地时区；
+--   不使用 DST 调整；
+--   同一输入必须在不同运行环境得到完全一致结果。
+-
+-禁止使用：
+-
+--   IANA `Asia/Shanghai` 作为业务计算依据；
+--   `Date`、Temporal 或 Intl 推导五运六气业务时间；
+--   服务器默认时区参与边界判断；
+--   将 `epochMilliseconds` 作为五运六气历法语义的唯一来源。
+-
+-`YunQiInstant` 保留现有公共命名，但其规范定义必须写作：
+-
+-    BeijingStandardTime+08:00 Absolute Representation
+-
+-它不是 civil timezone instant。其
+-`epochMilliseconds` 只用于固定北京时间模型下的排序、传输、持久化、审计、
+-兼容与一致性校验；不得经 UTC、IANA 时区、服务器本地时区或 DST
+-重新解释后作为运气年或六步边界依据。
+-
+-`CalendarProvider` 只提供节气瞬间，不得决定：
+-
+--   运气年；
+--   六步归属；
+--   区间开闭或边界所有权；
+--   五运、六气、客主加临规则。
+-
+-所有 API 业务时间解析、归一化和格式化必须通过
+-`packages/yunqi-service/src/modules/time-normalizer`。Controller、route、DTO
+-mapper、serializer 不得为五运六气业务时间创建 `Date`、调用
+-`Date.parse()`/`toISOString()`，或自行使用 Temporal、Intl、IANA
+-时区完成转换。
+-
+-允许系统时钟只提供 epoch milliseconds，随后必须立即执行：
+-
+-    epochMilliseconds
+-        ↓
+-    YunQiCalendarTime
+-        ↓
+-    calculateYunQiByCalendarTime()
+-
+-以上固定时间标准同时用于展示和业务判断。
+-
+-------------------------------------------------------------------------
+-
+-## 4.2 运气年边界
+-
+-第一阶段规则：
+-
+-    当年大寒实际交节时刻开始
+-
+-    下一年大寒之前结束
+-
+-禁止：
+-
+--   使用春节作为年份边界；
+--   使用立春替代运气年；
+--   使用固定日期模拟大寒。
+-
+-------------------------------------------------------------------------
+-
+-## 4.3 时间模型
+-
+-领域内部禁止直接使用：
+-
+-``` ts
+-Date
+-```
+-
+-推荐：
+-
+-``` ts
+-YunQiCalendarTime
+-```
+-
+-或等价不可变时间对象。
+-
+-原因：
+-
+-避免：
+-
+--   时区漂移；
+--   环境差异；
+--   边界计算错误。
+-
+-`YunQiInstant` 仅作为固定北京时间模型下的绝对表示，用于：
+-
+--   排序；
+--   传输；
+--   持久化；
+--   审计；
+--   兼容。
+-
+-它不是权威历法语义，不得成为运气年或六步边界判断的唯一依据。
+-
+-长期架构依据：
+-
+-    docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md
+-
+-------------------------------------------------------------------------
+-
+-## 4.4 持久化时间合同
+-
+-Phase3/Phase4 或任何后续持久化必须保证：不依赖数据库连接、会话或服务器
+-时区配置，也能完整重建五运六气业务时间语义。
+-
+-最小持久化字段冻结为：
+-
+-```text
+-calendar_time_local varchar
+-epoch_ms bigint
+-offset char(6)
+-calendar_time_standard varchar
+-```
+-
+-字段约束：
+-
+-- `calendar_time_local` 保存规范固定北京时间字符串，例如
+-  `2026-06-19T12:00:00+08:00`；
+-- `epoch_ms` 只承担排序、传输、审计、兼容和持久化绝对表示；
+-- `offset` 必须为 `+08:00`；
+-- `calendar_time_standard` 必须为
+-  `BeijingStandardTime+08:00`。
+-
+-`timestamp with time zone` 或 `timestamptz` 只能作为派生查询辅助字段，不能
+-成为唯一字段、权威字段或重建五运六气业务时间的必要前提。
+-
+-------------------------------------------------------------------------
+-
+-## 4.5 React 工作台时间合同
+-
+-React/Next 展示五运六气业务时间时，必须直接使用 API 返回的规范
+-`localTime`，或者使用仅处理规范固定北京时间字段/字符串的专用 formatter。
+-
+-明确禁止：
+-
+-```ts
+-new Date(result.epochMilliseconds)
+-```
+-
+-React component、hook、selector、mapper、serializer 和 formatter 均不得
+-通过 `Date`、Temporal、`Intl.DateTimeFormat`、IANA 时区、浏览器本地时区、
+-`toISOString()` 或 locale formatter 重新解释五运六气业务时间。
+-
+-`epochMilliseconds` 在前端只允许用于排序、缓存键、审计和兼容，不得作为
+-展示日历含义的来源。UI 文案显示“北京时间 UTC+08”，不得显示
+-`Asia/Shanghai` 作为业务时间标准。
+-
+-------------------------------------------------------------------------
+-
+-# 5. 五运六气规则约束
+-
+-## 5.1 五运
+-
+-必须遵守：
+-
+-    甲己 → 土
+-    乙庚 → 金
+-    丙辛 → 水
+-    丁壬 → 木
+-    戊癸 → 火
+-
+-太过：
+-
+-    甲 丙 戊 庚 壬
+-
+-不及：
+-
+-    乙 丁 己 辛 癸
+-
+-------------------------------------------------------------------------
+-
+-## 5.2 六气
+-
+-六气名称必须保持：
+-
+-    厥阴风木
+-    少阴君火
+-    太阴湿土
+-    少阳相火
+-    阳明燥金
+-    太阳寒水
+-
+-特别注意：
+-
+-少阴君火 ≠ 少阳相火
+-
+-二者：
+-
+--   五行均属火；
+--   六气名称和理论含义不同。
+-
+-禁止合并：
+-
+-``` text
+-火气
+-```
+-
+-替代：
+-
+-``` text
+-少阴君火
+-少阳相火
+-```
+-
+-------------------------------------------------------------------------
+-
+-# 6. 客主关系规范
+-
+-客主关系必须结构化表达。
+-
+-禁止简单：
+-
+-``` ts
+-relation:"good"
+-relation:"bad"
+-```
+-
+-必须区分：
+-
+-## 六气关系
+-
+-例如：
+-
+-    同一六气
+-    不同六气
+-
+-## 五行关系
+-
+-例如：
+-
+-    同五行
+-    相生
+-    相克
+-
+-## 方向关系
+-
+-例如：
+-
+-    主生客
+-    客生主
+-    主胜客
+-    客胜主
+-
+-传统术语：
+-
+-    相得
+-    主胜客，逆
+-    客胜主，从
+-
+-只能作为解释文本。
+-
+-不得解释为：
+-
+--   吉凶；
+--   疾病；
+--   治疗建议。
+-
+-------------------------------------------------------------------------
+-
+-# 7. 医疗安全规范
+-
+-系统输出只能属于：
+-
+--   理论说明；
+--   规则解释；
+--   线索整理；
+--   教学提示。
+-
+-禁止输出：
+-
+-## 禁止疾病诊断
+-
+-例如：
+-
+-错误：
+-
+-> 患者属于某某证。
+-
+-允许：
+-
+-> 问诊资料中存在某类相关线索。
+-
+-------------------------------------------------------------------------
+-
+-## 禁止治疗建议
+-
+-禁止：
+-
+--   方剂；
+--   中药；
+--   剂量；
+--   疗程；
+--   治法。
+-
+-------------------------------------------------------------------------
+-
+-## 禁止因果表达
+-
+-禁止：
+-
+-> 因为今年某气，所以患者发生某疾病。
+-
+-允许：
+-
+-> 从传统五运六气理论角度存在对应关系，供医生参考。
+-
+-------------------------------------------------------------------------
+-
+-# 8. 问诊模块开发规范
+-
+-问诊模块负责：
+-
+-采集：
+-
+--   主诉；
+--   发病时间；
+--   就诊时间；
+--   寒热；
+--   汗；
+--   饮食；
+--   二便；
+--   睡眠情志；
+--   舌象；
+--   脉象。
+-
+-输出：
+-
+--   症状标签；
+--   六淫线索；
+--   八纲单项线索；
+--   时气对应提示。
+-
+-禁止：
+-
+-自动生成：
+-
+--   证型；
+--   诊断；
+--   方药。
+-
+-------------------------------------------------------------------------
+-
+-# 9. 规则修改流程
+-
+-任何规则修改必须：
+-
+-1.  修改规则版本；
+-2.  更新规则说明；
+-3.  更新测试；
+-4.  记录变更原因；
+-5.  标记专家审核状态。
+-
+-禁止：
+-
+-直接修改代码中的规则常量。
+-
+-------------------------------------------------------------------------
+-
+-# 10. 测试要求
+-
+-核心规则必须覆盖：
+-
+-## 60甲子
+-
+-验证：
+-
+--   年干支；
+--   岁运；
+--   司天；
+--   在泉。
+-
+-## 边界
+-
+-必须测试：
+-
+--   大寒前；
+--   大寒时刻；
+--   大寒后。
+-
+-## 六步
+-
+-必须验证：
+-
+-    三之气客气 = 司天
+-
+-    终之气客气 = 在泉
+-
+-## 属性测试
+-
+-推荐验证：
+-
+--   六步数量固定6；
+--   时间连续；
+--   无重叠；
+--   任意时间唯一归属。
+-
+-------------------------------------------------------------------------
+-
+-# 11. Git提交规范
+-
+-提交信息使用：
+-
+-    feat:
+-    新增功能
+-
+-    fix:
+-    修复问题
+-
+-    refactor:
+-    架构调整
+-
+-    test:
+-    测试调整
+-
+-    docs:
+-    文档更新
+-
+-示例：
+-
+-    feat(yunqi-domain):
+-    implement phase1 six qi calculator
+-
+-------------------------------------------------------------------------
+-
+-# 12. Codex工作方式要求
+-
+-执行任务时：
+-
+-必须：
+-
+-1.  先阅读项目文档；
+-2.  理解领域规则；
+-3.  输出修改计划；
+-4.  再修改代码；
+-5.  执行测试；
+-6.  输出变更报告。
+-
+-禁止：
+-
+-直接生成大量代码后解释。
+-
+-------------------------------------------------------------------------
+-
+-# 13. 当前开发路线
+-
+-## Phase1
+-
+-完成：
+-
+--   yunqi-domain；
+--   五运六气核心计算；
+--   自动测试。
+-
+-## Phase2
+-
+-完成：
+-
+--   Fastify API；
+--   OpenAPI；
+--   JSON Schema；
+--   服务层。
+-
+-## Phase3
+-
+-完成：
+-
+--   React工作台；
+--   五运六气可视化；
+--   问诊结构化。
+-
+-## Phase4
+-
+-完成：
+-
+--   教学复盘；
+--   专家审核；
+--   规则管理。
+-
+-------------------------------------------------------------------------
+-
+-# 最终原则
+-
+-请始终遵守：
+-
+-> 规则必须可解释，计算必须可验证，输出必须克制，医生拥有最终解释权。
+-
+-## Phase3-E 临床验证 MVP 建议评估（非已上线能力）
+-
+-Phase3-E 的建议评估范围仅包括三项可核对的规则展示任务：当前五运六气、
+-任意年度分析，以及由临床人员主动输入北京标准时间后的指定时点分析。
+-Phase3-E1 在 Workbench 中实现精确的 /yunqi/calculate 入口，但该入口仍只
+-提供冻结规则的计算与展示；是否进入真实临床工作流必须等待后续专家验证和
+-独立 Gate，不得把它描述为问诊或医疗决策能力。
+-
+-该建议评估不授权患者档案、HIS/EMR、问诊记录、症状采集、诊断、辨证、治疗、
+-处方、用药、风险预测、推荐、AI、持久化或新的医疗 Contract。真实临床事实、
+-专家参考答案、身份权限和责任边界必须先由相应专家与正式设计阶段确认，再进入
+-后续 Service、OpenAPI、@yunqi/contracts、@yunqi/client 和 React 链路。
++审查前读 [CODING_STANDARDS.md](CODING_STANDARDS.md)。优先检查授权、规则与契约一致性、医疗边界和证据可信度；机械约束由CI执行。
++报告确认缺陷与证据限制，保留FAIL、SKIP、NOT_RUN和未确认根因；检查次数不得冒称独立样本或专家案例。
+diff --git a/README.md b/README.md
+index 81ec5b2..05e15bc 100644
+--- a/README.md
++++ b/README.md
+@@ -1,5 +1,7 @@
+ # TCM YunQi Lab
+ 
++项目协作入口：[AGENTS.md](AGENTS.md) · [分类指引](docs/agents/README.md) · [会话复盘索引](docs/retrospectives/README.md)。
++
+ ## 项目简介
+ 
+ 中医五运六气与问诊结构化原型系统。
+@@ -17,6 +19,11 @@ V1.0 MVP
+ `rules/RULE_FREEZE_NOTE.md` 为准。API Contract 冻结不代表专家验证通过。
+ 问诊关联边界与医疗安全边界继续遵守 AGENTS.md。
+ 
++当前规则为 [YQ-MVP-RULES-1.1.0](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)。
++2026-10-18 按用户确认采用 Word R-08/R-21：支持1900–2100运气年，
++客生主传统描述为“客生主，相得”。[契约迁移说明](docs/contracts/YQ-API-CONTRACT-1.1.0.md)
++记录版本、兼容性和时间边界；原始确认单与旧冻结文件保留。
++
+ ## Workspace packages
+ 
+ - `@yunqi/domain`: deterministic YunQi rules and authoritative calendar-time
+@@ -25,9 +32,10 @@ V1.0 MVP
+ - `@yunqi/service`: Fastify runtime and OpenAPI schema source;
+ - `@yunqi/contracts`: generated, browser-safe public DTO facade;
+ - `@yunqi/client`: Fetch/Axios-structural typed browser client.
+-- `@yunqi/workbench`: Phase3-C1 Vite/React read-only current YunQi view.
++- `@yunqi/workbench`: Phase3-E1 Vite/React read-only current, annual and
++  specified-time analysis, with an inquiry-planning entry.
+ 
+-The Phase3 business API is frozen as `YQ-API-CONTRACT-1.0.0`. React consumers
++The Phase3 business API is frozen as `YQ-API-CONTRACT-1.1.0`. React consumers
+ must import DTOs from `@yunqi/contracts` and client behavior from
+ `@yunqi/client`; they must not duplicate API DTOs.
+ 
+@@ -36,17 +44,18 @@ The Workbench dependency path is
+ infrastructure owns QueryClient, YunQiClient, and transport creation.
+ The `/current` result passes through a pure DTO-to-ViewModel mapper before
+ rendering. Components do not import DTOs, perform transport, construct API
+-paths, or call client methods. Phase3-C1 contains no router, input form, or
+-runtime fixture. Business time is rendered from canonical `localTime` and
++paths, or call client methods. React Router owns navigation; feature hooks own
++queries and explicit specified-time submissions. Business time is rendered from canonical `localTime` and
+ labelled `北京时间 UTC+08`; `epochMilliseconds` is not copied into the
+ presentation model or used for display.
+ 
+ The Workbench runtime allowlist applies to dependencies, optional
+ dependencies, and peer dependencies. Service, Domain, calendar adapter,
+-Axios, and React Router imports are forbidden throughout Workbench source,
++and Axios imports are forbidden throughout Workbench source,
+ including imports backed only by development dependencies. Presentation
+ responsibility is path-based under `src/components/**`, `src/app/**`, and
+ `src/features/**/components/**`.
++The only approved router is `react-router-dom`, exactly `7.18.1`.
+ 
+ Relative imports must resolve inside `apps/yunqi-workbench`; absolute local
+ imports and relative escapes into repository implementation packages are
+@@ -105,3 +114,30 @@ Key gates:
+     pnpm test
+     pnpm typecheck
+     pnpm test:coverage
++
++规则文档与实现的一致性可单独验证：
++
++```text
++pnpm test:rule-consistency
++```
++
++该检查读取版本化规则表，核对六十甲子、五运六气、36 对客主关系，以及全部
++1900–2100 运气年的交节前后毫秒边界。它也随 `pnpm test` 运行。
++通过表示与当前实现基线一致，不代表原始共识文件已经完成专家冻结。
++
++## 自动化流程与页面验收
++
++首次安装浏览器后，可用一条命令构建应用、启动隔离的本地服务并完成走查：
++
++```text
++pnpm exec playwright install chromium
++pnpm test:browser
++```
++
++`pnpm test:browser:flows` 只检查流程；`pnpm test:browser:visual` 检查页面截图、
++布局和自动可访问性规则。测试覆盖当前状态、年度分析、指定时点分析、问诊规划入口
++和错误恢复，并接入 `quality-gates`。每次运行在 `.artifacts/browser/` 下保留独立报告、
++截图和失败 trace，不覆盖之前的失败证据。
++
++详见 [浏览器验收说明](tests/browser/README.md)。这些是合成输入的工程验收，
++不替代专家规则验证或临床验收。
+diff --git a/apps/yunqi-workbench/README.md b/apps/yunqi-workbench/README.md
+index 13f4966..14f0b32 100644
+--- a/apps/yunqi-workbench/README.md
++++ b/apps/yunqi-workbench/README.md
+@@ -21,10 +21,15 @@ The Workbench uses declarative React Router routes:
+ | `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
+ | any other path | Workbench not-found page | Makes no YunQi request |
+ 
+-Annual parameters must be exact four-digit years in the inclusive `1901–2099`
++Annual parameters must be exact four-digit years in the inclusive `1900–2100`
+ range. Malformed and out-of-range routes render a validation message without
+ mounting the annual query owner or calling the API.
+ 
++The active API Contract is `YQ-API-CONTRACT-1.1.0`; the rule result identifies
++`YQ-MVP-RULES-1.1.0`. For `GUEST_GENERATES_HOST`, the direction label remains
++`客生主`, while the API-provided traditional description is `客生主，相得`.
++The Workbench renders these separate fields without deriving a rule relation.
++
+ The URL is the only owner of the selected year. Browser history therefore
+ restores both the year URL and its query result; no React state mirrors the
+ year, and `/yunqi/year` never invents a default from `Date`, `/current`, the
+diff --git a/apps/yunqi-workbench/index.html b/apps/yunqi-workbench/index.html
+index 314a284..f439fec 100644
+--- a/apps/yunqi-workbench/index.html
++++ b/apps/yunqi-workbench/index.html
+@@ -3,6 +3,7 @@
+   <head>
+     <meta charset="UTF-8" />
+     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
++    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+     <title>TCM YunQi Lab</title>
+   </head>
+   <body>
+diff --git a/apps/yunqi-workbench/src/app/App.test.tsx b/apps/yunqi-workbench/src/app/App.test.tsx
+index 5a28d89..55870ec 100644
+--- a/apps/yunqi-workbench/src/app/App.test.tsx
++++ b/apps/yunqi-workbench/src/app/App.test.tsx
+@@ -35,7 +35,7 @@ describe('App', () => {
+     ).toBeInTheDocument();
+     const footer = within(view.container).getByRole('contentinfo');
+     expect(
+-      within(footer).getByText('YQ-API-CONTRACT-1.0.0'),
++      within(footer).getByText('YQ-API-CONTRACT-1.1.0'),
+     ).toBeInTheDocument();
+     expect(
+       within(footer).getByText(
+diff --git a/apps/yunqi-workbench/src/app/AppRoutes.test.tsx b/apps/yunqi-workbench/src/app/AppRoutes.test.tsx
+index 5d66876..5404299 100644
+--- a/apps/yunqi-workbench/src/app/AppRoutes.test.tsx
++++ b/apps/yunqi-workbench/src/app/AppRoutes.test.tsx
+@@ -125,10 +125,10 @@ describe('AppRoutes', () => {
+   it('rejects an out-of-range URL year without querying', () => {
+     const client = createClient();
+ 
+-    renderAppAt('/yunqi/year/2100', client);
++    renderAppAt('/yunqi/year/2101', client);
+ 
+     expect(screen.getByRole('alert')).toHaveTextContent(
+-      /^年份范围应为 1901–2099$/,
++      /^年份范围应为 1900–2100$/,
+     );
+     expect(client.getYear).not.toHaveBeenCalled();
+     expect(client.getCurrent).not.toHaveBeenCalled();
+diff --git a/apps/yunqi-workbench/src/components/layout/AppShell.tsx b/apps/yunqi-workbench/src/components/layout/AppShell.tsx
+index 38f2790..c3da433 100644
+--- a/apps/yunqi-workbench/src/components/layout/AppShell.tsx
++++ b/apps/yunqi-workbench/src/components/layout/AppShell.tsx
+@@ -30,7 +30,25 @@ export function AppShell({ children }: AppShellProps) {
+             onClick={toggleTheme}
+             aria-label={`切换至${nextThemeLabel}主题`}
+           >
+-            <span aria-hidden="true">{theme === 'light' ? '夜' : '昼'}</span>
++            <svg
++              aria-hidden="true"
++              focusable="false"
++              width="18"
++              height="18"
++              viewBox="0 0 24 24"
++              fill="none"
++              stroke="currentColor"
++              strokeWidth="1.5"
++            >
++              {theme === 'light' ? (
++                <path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z" />
++              ) : (
++                <>
++                  <circle cx="12" cy="12" r="4" />
++                  <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
++                </>
++              )}
++            </svg>
+             {nextThemeLabel}
+           </button>
+         </div>
+diff --git a/apps/yunqi-workbench/src/components/layout/Navigation.tsx b/apps/yunqi-workbench/src/components/layout/Navigation.tsx
+index 09d0485..524d2f2 100644
+--- a/apps/yunqi-workbench/src/components/layout/Navigation.tsx
++++ b/apps/yunqi-workbench/src/components/layout/Navigation.tsx
+@@ -35,7 +35,7 @@ export function Navigation() {
+           </li>
+         ))}
+       </ul>
+-      <p className="navigation-note">Phase 3-C4 · 问诊结构化入口</p>
++      <p className="navigation-note">规则学习 · 只读分析</p>
+     </nav>
+   );
+ }
+diff --git a/apps/yunqi-workbench/src/components/ui/primitives.test.tsx b/apps/yunqi-workbench/src/components/ui/primitives.test.tsx
+index a43d6ef..2e641e0 100644
+--- a/apps/yunqi-workbench/src/components/ui/primitives.test.tsx
++++ b/apps/yunqi-workbench/src/components/ui/primitives.test.tsx
+@@ -33,7 +33,7 @@ describe('Workbench presentation primitives', () => {
+   it('renders a card, data label, and non-judgmental badge tone', () => {
+     render(
+       <Card title="岁运">
+-        <DataLabel label="岁运" value="太羽 · 水 · 太过" />
++        <DataLabel label="岁运" value="水运太过（太羽）" />
+         <Badge tone="accent">司天</Badge>
+       </Card>,
+     );
+@@ -41,7 +41,7 @@ describe('Workbench presentation primitives', () => {
+     expect(
+       screen.getByRole('heading', { name: '岁运' }),
+     ).toBeInTheDocument();
+-    expect(screen.getByText('太羽 · 水 · 太过')).toBeInTheDocument();
++    expect(screen.getByText('水运太过（太羽）')).toBeInTheDocument();
+     expect(screen.getByText('司天')).toHaveAttribute(
+       'data-tone',
+       'accent',
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx b/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx
+index ee6501f..bf1e82d 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx
+@@ -55,9 +55,14 @@ describe('AnnualStageRail', () => {
+ 
+     expect(
+       screen.getByRole('button', {
+-        name: /第 3 步.*三之气.*当前.*2026-05-21T11:00:00\+08:00.*2026-07-23T12:00:00\+08:00/,
++        name: /第 3 步.*三之气.*当前.*05-21 11:00.*07-23 12:00/,
+       }),
+     ).toHaveAttribute('aria-current', 'step');
++    expect(
++      screen.getByRole('button', { name: /第 3 步.*三之气.*当前/ }),
++    ).toHaveAccessibleDescription(
++      '开始 2026-05-21T11:00:00+08:00，结束 2026-07-23T12:00:00+08:00，北京时间 UTC+08',
++    );
+     expect(screen.getAllByText('05-21 11:00')).toHaveLength(2);
+     for (const boundary of screen.getAllByText('05-21 11:00')) {
+       expect(boundary).toHaveAttribute(
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx b/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx
+index d7661a7..30c6c78 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx
+@@ -16,16 +16,6 @@ export interface AnnualStageRailProps {
+   readonly timelineId: string;
+ }
+ 
+-function stageAccessibleName(step: CurrentSixQiStageViewModel) {
+-  return [
+-    `第 ${step.index} 步`,
+-    step.name,
+-    step.status.label,
+-    `开始 ${step.start.localTime}`,
+-    `结束 ${step.end.localTime}`,
+-  ].join('，');
+-}
+-
+ export function AnnualStageRail({
+   expandedSteps,
+   onRevealStep,
+@@ -50,7 +40,7 @@ export function AnnualStageRail({
+                 aria-controls={ids.detailsId}
+                 aria-current={isCurrent ? 'step' : undefined}
+                 aria-expanded={expandedSteps.has(step.index)}
+-                aria-label={stageAccessibleName(step)}
++                aria-describedby={`${ids.rootId}-boundaries`}
+                 onClick={() => onRevealStep(step.index)}
+               >
+                 <span className="annual-stage-rail__index">
+@@ -74,6 +64,9 @@ export function AnnualStageRail({
+                   />
+                 </span>
+               </button>
++              <span className="visually-hidden" id={`${ids.rootId}-boundaries`}>
++                开始 {step.start.localTime}，结束 {step.end.localTime}，北京时间 UTC+08
++              </span>
+             </li>
+           );
+         })}
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx b/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+index 7132590..cf4e71c 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+@@ -32,7 +32,7 @@ describe('CurrentYunQiPage', () => {
+     expect(within(yearSummary).getByText('2026')).toBeInTheDocument();
+     expect(within(yearSummary).getByText('丙午')).toBeInTheDocument();
+     expect(
+-      within(yearSummary).getByText('太羽 · 水 · 太过'),
++      within(yearSummary).getByText('水运太过（太羽）'),
+     ).toBeInTheDocument();
+     expect(
+       within(yearSummary).getByText('少阳相火'),
+@@ -47,7 +47,7 @@ describe('CurrentYunQiPage', () => {
+     expect(
+       within(current).getByRole('heading', { name: '三之气' }),
+     ).toBeInTheDocument();
+-    expect(within(current).getByText('客生主')).toBeInTheDocument();
++    expect(within(current).getByText('客生主，相得')).toBeInTheDocument();
+ 
+     const timeline = screen.getByRole('region', {
+       name: '六步交接时间线',
+@@ -70,6 +70,11 @@ describe('CurrentYunQiPage', () => {
+         name: '收起三之气详情',
+       }),
+     ).toHaveAttribute('aria-expanded', 'true');
++    const currentDetails = within(timeline).getByRole('region', {
++      name: '三之气详情',
++    });
++    expect(within(currentDetails).getByText('客生主')).toBeInTheDocument();
++    expect(within(currentDetails).getByText('客生主，相得')).toBeInTheDocument();
+ 
+     const explanation = screen.getByRole('region', {
+       name: '规则结果说明',
+@@ -89,8 +94,8 @@ describe('CurrentYunQiPage', () => {
+       '本结果依据冻结规则计算。',
+     );
+     expect(trace).toHaveTextContent('YunQi 当前查询 API');
+-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.0.0');
+-    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.0.0');
++    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
++    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
+     expect(trace).toHaveTextContent('北京时间 UTC+08');
+   });
+ });
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx b/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
+index 02d25ca..46ff366 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
+@@ -37,7 +37,7 @@ export function YunQiYearSummaryPanel({
+         <Card title="岁运">
+           <DataLabel
+             label="岁运"
+-            value={`${summary.suiYun.tone} · ${summary.suiYun.element} · ${summary.suiYun.state}`}
++            value={`${summary.suiYun.element}运${summary.suiYun.state}（${summary.suiYun.tone}）`}
+           />
+         </Card>
+         <Card title="司天与在泉">
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx b/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
+index 89ec6fd..04155ba 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
+@@ -10,7 +10,7 @@ describe('rule explanation and traceability panels', () => {
+         <RuleExplanationPanel explanations={['API 原文']} />
+         <TraceabilityPanel
+           dataSource="YunQi 年度查询 API"
+-          ruleVersion="YQ-MVP-RULES-1.0.0"
++          ruleVersion="YQ-MVP-RULES-1.1.0"
+         />
+       </>,
+     );
+@@ -24,7 +24,8 @@ describe('rule explanation and traceability panels', () => {
+     expect(explanation).toHaveTextContent('API 原文');
+     expect(explanation).toHaveTextContent('前端未扩写');
+     expect(trace).not.toHaveTextContent('API 原文');
+-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.0.0');
++    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
++    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
+     expect(trace).toHaveTextContent('北京时间 UTC+08');
+   });
+ 
+diff --git a/apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts b/apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts
+index 7c68287..e651f90 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts
++++ b/apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts
+@@ -30,7 +30,7 @@ describe('mapCurrentYunQi', () => {
+         sitian: '少阳相火',
+         zaiquan: '厥阴风木',
+       },
+-      ruleVersion: 'YQ-MVP-RULES-1.0.0',
++      ruleVersion: 'YQ-MVP-RULES-1.1.0',
+     });
+     expect(result.summary.interval.start.localTime).toBe(
+       '2026-01-20T09:00:00+08:00',
+@@ -105,7 +105,7 @@ describe('mapCurrentYunQi', () => {
+           code: 'GUEST_GENERATES_HOST',
+           label: '客生主',
+         },
+-        traditionalLabel: '客生主',
++        traditionalLabel: '客生主，相得',
+       },
+       {
+         qi: { code: 'DIFFERENT_QI', label: '不同六气' },
+diff --git a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx
+index 7a410e7..5e1ad2c 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx
+@@ -1,4 +1,5 @@
+ import type { YearParamResult } from '../../../../lib/year-validator';
++import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
+ 
+ export interface InvalidYearPageProps {
+   readonly reason: Extract<YearParamResult, { ok: false }>['reason'];
+@@ -6,7 +7,7 @@ export interface InvalidYearPageProps {
+ 
+ const messages = {
+   format: '年份格式错误，请选择四位年份',
+-  range: '年份范围应为 1901–2099',
++  range: `年份范围应为 ${YUNQI_YEAR_RANGE.min}–${YUNQI_YEAR_RANGE.max}`,
+ } as const;
+ 
+ export function InvalidYearPage({ reason }: InvalidYearPageProps) {
+diff --git a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
+index 825365f..f84fa80 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
+@@ -11,7 +11,7 @@ export function YearAnalysisLayout() {
+       <header>
+         <p className="section-label">Workbench / Annual</p>
+         <h2>年度五运六气分析</h2>
+-        <p>按规范 URL 年份查询冻结契约结果。</p>
++        <p>选择年份，查看该运气年的五运六气与六步交接。</p>
+         <YearSelector
+           selectedYear={yearResult.ok ? yearResult.year : undefined}
+         />
+diff --git a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
+index 5520e43..c09f74b 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
+@@ -9,7 +9,7 @@ export function YearSelector({ selectedYear }: YearSelectorProps) {
+   const navigate = useNavigate();
+ 
+   return (
+-    <label>
++    <label className="year-selector">
+       <span>分析年份</span>
+       <select
+         aria-label="分析年份"
+diff --git a/apps/yunqi-workbench/src/lib/year-validator.test.ts b/apps/yunqi-workbench/src/lib/year-validator.test.ts
+index d6ba619..f04c467 100644
+--- a/apps/yunqi-workbench/src/lib/year-validator.test.ts
++++ b/apps/yunqi-workbench/src/lib/year-validator.test.ts
+@@ -7,6 +7,7 @@ import { parseYearParam } from './year-validator';
+ 
+ describe('YunQi year URL validation', () => {
+   it('exposes one inclusive option list', () => {
++    expect(YUNQI_YEAR_RANGE).toEqual({ min: 1900, max: 2100 });
+     expect(YUNQI_YEAR_OPTIONS[0]).toBe(YUNQI_YEAR_RANGE.min);
+     expect(YUNQI_YEAR_OPTIONS.at(-1)).toBe(YUNQI_YEAR_RANGE.max);
+     expect(YUNQI_YEAR_OPTIONS).toHaveLength(
+@@ -14,7 +15,7 @@ describe('YunQi year URL validation', () => {
+     );
+   });
+ 
+-  it.each(['1901', '2026', '2099'])('accepts %s', (value) => {
++  it.each(['1900', '2026', '2100'])('accepts %s', (value) => {
+     expect(parseYearParam(value)).toEqual({
+       ok: true,
+       year: Number(value),
+@@ -31,7 +32,7 @@ describe('YunQi year URL validation', () => {
+     },
+   );
+ 
+-  it.each(['1900', '2100'])('rejects %s as range', (value) => {
++  it.each(['1899', '2101'])('rejects %s as range', (value) => {
+     expect(parseYearParam(value)).toEqual({
+       ok: false,
+       reason: 'range',
+diff --git a/apps/yunqi-workbench/src/lib/yunqi-year-range.ts b/apps/yunqi-workbench/src/lib/yunqi-year-range.ts
+index bcc3373..d9e01d8 100644
+--- a/apps/yunqi-workbench/src/lib/yunqi-year-range.ts
++++ b/apps/yunqi-workbench/src/lib/yunqi-year-range.ts
+@@ -1,6 +1,6 @@
+ export const YUNQI_YEAR_RANGE = {
+-  min: 1901,
+-  max: 2099,
++  min: 1900,
++  max: 2100,
+ } as const;
+ 
+ function createYearOptions(): readonly number[] {
+diff --git a/apps/yunqi-workbench/src/styles/global.css b/apps/yunqi-workbench/src/styles/global.css
+index 5f93a97..1326082 100644
+--- a/apps/yunqi-workbench/src/styles/global.css
++++ b/apps/yunqi-workbench/src/styles/global.css
+@@ -33,12 +33,13 @@ button {
+   --paper-muted: #e7dfcf;
+   --paper-grid: rgb(88 73 49 / 5%);
+   --ink: #211e19;
+-  --ink-muted: #6f675b;
++  --ink-muted: #625b50;
+   --rule: #b8ad9a;
+   --rule-strong: #766d60;
+   --cinnabar: #a33a2b;
+   --cinnabar-deep: #79281f;
+   --cinnabar-wash: #efe0d8;
++  --on-cinnabar: #fffaf0;
+   --focus: #16667a;
+   background: var(--paper);
+   color: var(--ink);
+@@ -60,6 +61,7 @@ button {
+   --cinnabar: #db7967;
+   --cinnabar-deep: #ef9a89;
+   --cinnabar-wash: #3b2924;
++  --on-cinnabar: #181714;
+   --focus: #70c2d1;
+ }
+ 
+@@ -162,10 +164,9 @@ button {
+   outline-offset: 3px;
+ }
+ 
+-.theme-toggle > span {
++.theme-toggle > svg {
++  flex: 0 0 auto;
+   color: var(--cinnabar);
+-  font-family: "STKaiti", "KaiTi", serif;
+-  font-size: 1.1rem;
+ }
+ 
+ .shell-body {
+@@ -327,6 +328,57 @@ button {
+   margin-inline: auto;
+ }
+ 
++.annual-yunqi-layout {
++  display: grid;
++  min-width: 0;
++  gap: clamp(2.5rem, 5vw, 4rem);
++}
++
++.annual-yunqi-layout > header {
++  display: grid;
++  gap: 0.9rem;
++}
++
++.annual-yunqi-layout > header h2,
++.annual-yunqi-layout > header p {
++  margin: 0;
++}
++
++.annual-yunqi-layout > header h2 {
++  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
++  font-size: clamp(2rem, 3vw, 3rem);
++  font-weight: 500;
++  line-height: 1.2;
++  text-wrap: balance;
++}
++
++.annual-yunqi-layout > header > p:not(.section-label) {
++  color: var(--ink-muted);
++  line-height: 1.8;
++}
++
++.year-selector {
++  display: grid;
++  gap: 0.5rem;
++  justify-items: start;
++  margin-top: 0.5rem;
++}
++
++.year-selector select {
++  width: min(100%, 12rem);
++  min-height: 2.75rem;
++  padding: 0.55rem 0.75rem;
++  border: 1px solid var(--rule-strong);
++  background: var(--paper-raised);
++  color: var(--ink);
++  font: inherit;
++}
++
++.year-selector select:focus-visible {
++  outline: 3px solid var(--focus);
++  outline-offset: 3px;
++}
++
+ .inquiry-entry-page {
+   display: grid;
+   width: 100%;
+@@ -566,13 +618,13 @@ button {
+ }
+ 
+ .current-yunqi-hero h2 {
+-  max-width: 8ch;
+   margin: 0.55rem 0 1rem;
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(2.65rem, 6vw, 5.2rem);
++  font-size: clamp(2rem, 4.5vw, 4.5rem);
+   font-weight: 500;
+   line-height: 1.05;
+-  letter-spacing: -0.045em;
++  letter-spacing: -0.03em;
++  text-wrap: balance;
+ }
+ 
+ .current-yunqi-hero__summary {
+@@ -720,7 +772,7 @@ button {
+   padding: 0.65rem 1rem;
+   border: 1px solid var(--cinnabar);
+   background: var(--cinnabar);
+-  color: #fffaf0;
++  color: var(--on-cinnabar);
+   cursor: pointer;
+   font-weight: 700;
+ }
+@@ -1153,6 +1205,17 @@ button {
+   text-align: right;
+ }
+ 
++.visually-hidden {
++  position: absolute;
++  width: 1px;
++  height: 1px;
++  padding: 0;
++  overflow: hidden;
++  clip-path: inset(50%);
++  white-space: nowrap;
++  border: 0;
++}
++
+ .sixqi-timeline {
+   position: relative;
+   display: grid;
+@@ -1362,6 +1425,31 @@ button {
+   }
+ }
+ 
++@media (min-width: 46.01rem) and (max-width: 85rem) {
++  .current-yunqi-hero,
++  .ui-panel__header {
++    grid-template-columns: 1fr;
++  }
++
++  .current-step__grid,
++  .annual-six-qi-detail__facts,
++  .time-analysis-stage-detail__facts {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .annual-stage-rail__stages,
++  .annual-six-qi-selector__options,
++  .time-analysis-stage-rail {
++    grid-template-columns: repeat(3, minmax(0, 1fr));
++  }
++
++  .annual-stage-rail__stage,
++  .annual-six-qi-selector__option,
++  .time-analysis-stage-rail__stage {
++    border-bottom: 1px solid var(--rule);
++  }
++}
++
+ @media (min-width: 46.01rem) and (max-width: 64rem) {
+   .current-yunqi-hero,
+   .ui-panel__header,
+@@ -1375,22 +1463,15 @@ button {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+   }
+ 
++  .annual-six-qi-selector__options,
+   .time-analysis-stage-rail {
+-    grid-template-columns: repeat(3, minmax(0, 1fr));
++    grid-template-columns: repeat(2, minmax(0, 1fr));
+   }
+ 
+   .time-analysis-stage-detail__facts {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+   }
+ 
+-  .annual-stage-rail__button {
+-    padding-inline: 0.35rem;
+-  }
+-
+-  .annual-stage-rail__range {
+-    font-size: 0.64rem;
+-  }
+-
+   .inquiry-capability-grid {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
+   }
+diff --git a/apps/yunqi-workbench/src/test/contract.typecheck.ts b/apps/yunqi-workbench/src/test/contract.typecheck.ts
+index 725c99d..7dc83ea 100644
+--- a/apps/yunqi-workbench/src/test/contract.typecheck.ts
++++ b/apps/yunqi-workbench/src/test/contract.typecheck.ts
+@@ -9,7 +9,7 @@ import type {
+   SixQiStageTuple,
+ } from '../features/yunqi/presentation/view-model';
+ 
+-const contractId: 'YQ-API-CONTRACT-1.0.0' =
++const contractId: 'YQ-API-CONTRACT-1.1.0' =
+   YUNQI_API_CONTRACT_ID;
+ const time: YunQiTimeDto = {
+   localTime: '2026-01-01T12:00:00+08:00',
+diff --git a/apps/yunqi-workbench/src/test/yunqi-fixtures.ts b/apps/yunqi-workbench/src/test/yunqi-fixtures.ts
+index 2245636..ceca74b 100644
+--- a/apps/yunqi-workbench/src/test/yunqi-fixtures.ts
++++ b/apps/yunqi-workbench/src/test/yunqi-fixtures.ts
+@@ -35,7 +35,7 @@ const relations = [
+     qiRelation: 'DIFFERENT_QI',
+     elementRelation: 'DIFFERENT_ELEMENT',
+     direction: 'GUEST_GENERATES_HOST',
+-    traditionalLabel: '客生主',
++    traditionalLabel: '客生主，相得',
+   },
+   {
+     qiRelation: 'DIFFERENT_QI',
+@@ -116,7 +116,7 @@ export function createYunQiCalculationDto(): YunQiCalculationDto {
+       '2026-06-19T12:00:00+08:00',
+       1_781_841_600_000,
+     ),
+-    ruleVersion: 'YQ-MVP-RULES-1.0.0',
++    ruleVersion: 'YQ-MVP-RULES-1.1.0',
+     year: 2026,
+     stemBranch: {
+       ganzhi: '丙午',
+diff --git a/codex/AGENTS.md b/codex/AGENTS.md
+index 8f913d1..674b762 100644
+--- a/codex/AGENTS.md
++++ b/codex/AGENTS.md
+@@ -1,33 +1,8 @@
+-# AGENTS.md
++# codex目录指引
+ 
+-## 项目规则
++先遵守[根AGENTS](../AGENTS.md)，按任务读取[项目指引](../docs/agents/README.md)。
++规则来自版本化规则表，Domain保持纯净，时间固定北京时间，医疗输出保持克制。
+ 
+-你正在开发中医五运六气与问诊结构化原型系统。
+-
+-核心原则：
+-
+-1.  规则优先 所有五运六气计算必须来自规则文件，不允许自行推导。
+-
+-2.  领域隔离 yunqi-domain不得依赖React、数据库、API框架。
+-
+-3.  医疗安全 禁止生成：
+-
+--   自动诊断
+--   自动辨证
+--   方剂
+--   中药
+--   剂量
+-
+-允许： - 理论线索 - 规则解释 - 教学提示
+-
+-4.  时间规则 必须：
+-
+--   使用北京时间；
+--   使用实际节气交接时刻；
+--   不使用固定日期替代节气。
+-
+-5.  修改规则必须：
+-
+--   更新版本号；
+--   更新测试；
+--   记录变更原因。
++编辑提示词或执行附件时，核对当前阶段与人类授权，区分历史背景和当前事实。
++历史提示词不因新阶段自动改写；规则变更仍须版本、说明、测试、原因和专家状态。
++查过往决定与错误使用[复盘索引](../docs/retrospectives/README.md)。
+diff --git "a/docs/YunQi-Domain-\351\242\206\345\237\237\346\250\241\345\236\213\350\256\276\350\256\241.md" "b/docs/YunQi-Domain-\351\242\206\345\237\237\346\250\241\345\236\213\350\256\276\350\256\241.md"
+index 7501adc..0604ee9 100644
+--- "a/docs/YunQi-Domain-\351\242\206\345\237\237\346\250\241\345\236\213\350\256\276\350\256\241.md"
++++ "b/docs/YunQi-Domain-\351\242\206\345\237\237\346\250\241\345\236\213\350\256\276\350\256\241.md"
+@@ -247,6 +247,6 @@ function getCurrentStep(
+ 
+ ## 7. 规则状态与变更边界
+ 
+-规则唯一来源是 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及领域包中的对应规则表。当前版本是 Phase 1 实现基线，仍受 `rules/RULE_FREEZE_NOTE.md` 的“待正式冻结”状态约束，不应表述为已经完成正式专家共识冻结。
++当前规则来源是 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md`（`YQ-MVP-RULES-1.1.0`）及领域包中的对应规则表；旧 `PHASE1_IMPLEMENTATION_RULES_V1.md` 保留为历史基线。当前版本是 Phase 1 实现基线，仍受 `rules/RULE_FREEZE_NOTE.md` 的“待正式冻结”状态约束，不应表述为已经完成正式专家共识冻结。
+ 
+ 本设计只对齐已经实现并测试的公共契约，不扩展客主关系、诊疗含义或其他专家规则。后续规则变更必须先更新可追溯规则来源、版本和测试，再修改领域实现。
+diff --git a/docs/architecture/ADR-002-yunqi-contract-freeze.md b/docs/architecture/ADR-002-yunqi-contract-freeze.md
+index 164ed88..8aaaf3b 100644
+--- a/docs/architecture/ADR-002-yunqi-contract-freeze.md
++++ b/docs/architecture/ADR-002-yunqi-contract-freeze.md
+@@ -1,5 +1,11 @@
+ # ADR-002: YunQi API Contract Freeze and Client Package Boundary
+ 
++> 2026-10-18 版本补记：当前业务契约已按原有升级机制分配
++> `YQ-API-CONTRACT-1.1.0`，见 [新契约与迁移说明](../contracts/YQ-API-CONTRACT-1.1.0.md)。
++> 下文的1.0.0/1.2.0是本ADR作出时的历史版本；冻结与包边界机制继续适用。
++> 本次工程版本升级不代表专家规则冻结或临床验证通过。
++
++
+ - Status: Accepted
+ - Date: 2026-07-17
+ - Scope: YunQi Service OpenAPI, browser contracts, typed client, Phase3
+diff --git a/package.json b/package.json
+index 0f41772..c0826c6 100644
+--- a/package.json
++++ b/package.json
+@@ -8,10 +8,15 @@
+   "scripts": {
+     "build:contract-source": "pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build",
+     "build": "pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build",
+-    "test": "pnpm build && node --test tests/yunqi-dev-proxy.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
++    "test": "pnpm build && node --test tests/yunqi-dev-proxy.test.mjs tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check && pnpm test:project-guidance",
+     "typecheck": "pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/contracts typecheck && pnpm --filter @yunqi/contracts test:typecheck && pnpm --filter @yunqi/client typecheck && pnpm --filter @yunqi/client test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck && pnpm --filter @yunqi/workbench typecheck && pnpm --filter @yunqi/workbench test:typecheck",
+     "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/client test:coverage && pnpm --filter @yunqi/service test:coverage && pnpm --filter @yunqi/workbench test:coverage",
+     "test:dev-proxy": "pnpm build:contract-source && node --test tests/yunqi-dev-proxy.test.mjs",
++    "test:rule-consistency": "pnpm build:contract-source && node --test tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs",
++    "test:browser": "pnpm build && playwright test",
++    "test:browser:flows": "pnpm build && playwright test --project=flows-chromium",
++    "test:browser:visual": "pnpm build && playwright test --grep @visual",
++    "test:project-guidance": "node --test tests/project-guidance.test.mjs && node scripts/check-project-guidance.mjs",
+     "test:contract-governance": "node --test tests/yunqi-contract-governance.test.mjs && node scripts/check-yunqi-contract-dependencies.mjs",
+     "test:workbench-governance": "node --test tests/yunqi-workbench-governance.test.mjs && node scripts/check-yunqi-workbench-governance.mjs",
+     "test:time-purity": "pnpm test:time-governance && pnpm --filter @yunqi/domain test:time-purity && pnpm --filter @yunqi/service test:time-purity",
+@@ -26,6 +31,8 @@
+     "schema:validate": "pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"
+   },
+   "devDependencies": {
++    "@axe-core/playwright": "4.14.0",
++    "@playwright/test": "1.64.1",
+     "typescript": "5.9.3",
+     "yaml": "2.9.0"
+   }
+diff --git a/packages/calendar-adapters/tyme4ts/README.md b/packages/calendar-adapters/tyme4ts/README.md
+index ebe2628..b8bd4d8 100644
+--- a/packages/calendar-adapters/tyme4ts/README.md
++++ b/packages/calendar-adapters/tyme4ts/README.md
+@@ -31,11 +31,11 @@ console.log(formatYunQiInstant(result.currentStep.start));
+ 
+ 领域层负责按左闭右开区间解释适配器边界；provider 自身不判断运气年、六步归属或边界所有权。适配器测试锁定 2024 大寒、春分、小满、大暑、秋分、小雪、2025 大寒以及 1991 小满和大暑的精确 epoch。
+ 
+-性质测试在 1901–2099 年范围内以 200 次运行验证六步结构、连续性、区间唯一归属与跨年大寒契约，并以独立五行映射完整验证 6 × 6 客主关系组合。
++性质测试在 1900–2100 年范围内以 200 次运行验证六步结构、连续性、区间唯一归属与跨年大寒契约，并显式包含 1900、2100 两端年份。内部为核对终之气与下一年大寒的衔接可以请求相邻年节气；这不扩大对外业务查询范围。关系测试以独立五行映射完整验证 6 × 6 客主关系组合，包括 R-21 的“主生客，相得”和“客生主，相得”标签。
+ 
+ ## 规则与安全边界
+ 
+-规则唯一来源仍是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 和 `@yunqi/domain` 的规则实现；当前规则状态仍为“待正式冻结”。本适配器只提供时间和历法基础设施，不输出诊断、处方、治疗建议或个性化医疗结论，也不参与医疗决策。
++当前规则来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md` 和 `@yunqi/domain` 的规则实现，规则版本为 `YQ-MVP-RULES-1.1.0`；旧版规则说明和原始资料保留，当前专家状态仍为“待正式冻结”。本适配器只提供时间和历法基础设施，不输出诊断、处方、治疗建议或个性化医疗结论，也不参与医疗决策。
+ 
+ ## 本地验证
+ 
+diff --git a/packages/calendar-adapters/tyme4ts/tests/property.test.ts b/packages/calendar-adapters/tyme4ts/tests/property.test.ts
+index fe5f570..0cde226 100644
+--- a/packages/calendar-adapters/tyme4ts/tests/property.test.ts
++++ b/packages/calendar-adapters/tyme4ts/tests/property.test.ts
+@@ -53,7 +53,7 @@ const EXPECTED_CONTROL = Object.freeze({
+ 
+ const EXPECTED_DIRECTION_LABELS = Object.freeze({
+   HOST_GENERATES_GUEST: '主生客，相得',
+-  GUEST_GENERATES_HOST: '客生主',
++  GUEST_GENERATES_HOST: '客生主，相得',
+   HOST_CONTROLS_GUEST: '主克客',
+   GUEST_CONTROLS_HOST: '客克主',
+ } satisfies Readonly<
+@@ -126,7 +126,7 @@ function expectedRelation(host: Qi, guest: Qi): HostGuestRelationResult {
+ describe('Phase 2 admission properties', () => {
+   it('preserves six-step structure, continuity, anchors, and cross-year ownership', () => {
+     fc.assert(
+-      fc.property(fc.integer({ min: 1901, max: 2099 }), (year) => {
++      fc.property(fc.integer({ min: 1900, max: 2100 }), (year) => {
+         const result = calculateYearYunQi(year, tyme4tsCalendarProvider);
+         const next = calculateYearYunQi(year + 1, tyme4tsCalendarProvider);
+ 
+@@ -149,14 +149,14 @@ describe('Phase 2 admission properties', () => {
+           next.steps[0],
+         );
+       }),
+-      { numRuns: 200 },
++      { examples: [[1900], [2100]], numRuns: 200 },
+     );
+   });
+ 
+   it('gives every generated interior instant exactly one owning step', () => {
+     fc.assert(
+       fc.property(
+-        fc.integer({ min: 1901, max: 2099 }),
++        fc.integer({ min: 1900, max: 2100 }),
+         fc.integer({ min: 0, max: 5 }),
+         fc.integer({ min: 0, max: 1_000 }),
+         (year, stepIndex, basisPoint) => {
+@@ -175,7 +175,15 @@ describe('Phase 2 admission properties', () => {
+           );
+         },
+       ),
+-      { numRuns: 200 },
++      {
++        examples: [
++          [1900, 0, 0],
++          [1900, 5, 1_000],
++          [2100, 0, 0],
++          [2100, 5, 1_000],
++        ],
++        numRuns: 200,
++      },
+     );
+   });
+ 
+diff --git a/packages/yunqi-client/README.md b/packages/yunqi-client/README.md
+index 64bce30..3fcfb53 100644
+--- a/packages/yunqi-client/README.md
++++ b/packages/yunqi-client/README.md
+@@ -2,6 +2,10 @@
+ 
+ Browser-safe typed client for the YunQi `/api/v1` endpoints.
+ 
++Package 1.1.0 consumes `YQ-API-CONTRACT-1.1.0` through `@yunqi/contracts`.
++Annual requests support YunQi years 1900–2100. See the
++[contract migration notes](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md).
++
+ The package's only runtime workspace dependency is `@yunqi/contracts`. It does
+ not depend on Fastify, Domain, Service, React, Axios, or TanStack Query.
+ 
+diff --git a/packages/yunqi-client/package.json b/packages/yunqi-client/package.json
+index fd277aa..03c138e 100644
+--- a/packages/yunqi-client/package.json
++++ b/packages/yunqi-client/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@yunqi/client",
+-  "version": "1.0.0",
++  "version": "1.1.0",
+   "private": true,
+   "type": "module",
+   "main": "./dist/index.js",
+diff --git a/packages/yunqi-contracts/README.md b/packages/yunqi-contracts/README.md
+index d8e0b14..63af536 100644
+--- a/packages/yunqi-contracts/README.md
++++ b/packages/yunqi-contracts/README.md
+@@ -1,6 +1,6 @@
+ # @yunqi/contracts
+ 
+-Browser-safe public DTO facade for `YQ-API-CONTRACT-1.0.0`.
++Browser-safe public DTO facade for `YQ-API-CONTRACT-1.1.0`.
+ 
+ The package contains no YunQi rules, runtime time conversion, Fastify,
+ React, Axios, TanStack Query, Domain, or Service dependency. Its public types
+@@ -49,7 +49,7 @@ pnpm --filter @yunqi/contracts test:typecheck
+ The machine freeze is:
+ 
+ ```text
+-contract/YQ-API-CONTRACT-1.0.0.freeze.json
++contract/YQ-API-CONTRACT-1.1.0.freeze.json
+ contract/registry.json
+ ```
+ 
+diff --git a/packages/yunqi-contracts/contract/registry.json b/packages/yunqi-contracts/contract/registry.json
+index f40f5b8..1dda605 100644
+--- a/packages/yunqi-contracts/contract/registry.json
++++ b/packages/yunqi-contracts/contract/registry.json
+@@ -1,5 +1,6 @@
+ {
+   "contractIds": [
+-    "YQ-API-CONTRACT-1.0.0"
++    "YQ-API-CONTRACT-1.0.0",
++    "YQ-API-CONTRACT-1.1.0"
+   ]
+ }
+diff --git a/packages/yunqi-contracts/package.json b/packages/yunqi-contracts/package.json
+index 227b469..2c48a96 100644
+--- a/packages/yunqi-contracts/package.json
++++ b/packages/yunqi-contracts/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@yunqi/contracts",
+-  "version": "1.0.0",
++  "version": "1.1.0",
+   "private": true,
+   "type": "module",
+   "main": "./dist/index.js",
+diff --git a/packages/yunqi-contracts/src/index.ts b/packages/yunqi-contracts/src/index.ts
+index 70d2538..9b397a7 100644
+--- a/packages/yunqi-contracts/src/index.ts
++++ b/packages/yunqi-contracts/src/index.ts
+@@ -12,7 +12,7 @@ type GeneratedCalculationSuccessResponse =
+   Schemas['CalculationSuccessResponse'];
+ 
+ export const YUNQI_API_CONTRACT_ID =
+-  'YQ-API-CONTRACT-1.0.0' as const;
++  'YQ-API-CONTRACT-1.1.0' as const;
+ 
+ export type CalculateRequest = Schemas['CalculateRequest'];
+ export type ApiErrorResponse = Schemas['ErrorResponse'];
+diff --git a/packages/yunqi-contracts/tests/contracts.typecheck.ts b/packages/yunqi-contracts/tests/contracts.typecheck.ts
+index a3e971d..b13e674 100644
+--- a/packages/yunqi-contracts/tests/contracts.typecheck.ts
++++ b/packages/yunqi-contracts/tests/contracts.typecheck.ts
+@@ -17,7 +17,7 @@ import {
+   type YearSuccessResponse,
+ } from '../src/index.js';
+ 
+-const contractId: 'YQ-API-CONTRACT-1.0.0' = YUNQI_API_CONTRACT_ID;
++const contractId: 'YQ-API-CONTRACT-1.1.0' = YUNQI_API_CONTRACT_ID;
+ const time: YunQiTimeDto = {
+   localTime: '2026-01-01T12:00:00+08:00',
+   epochMilliseconds: 1_767_240_000_000,
+diff --git a/packages/yunqi-domain/README.md b/packages/yunqi-domain/README.md
+index 82053f6..72b4f40 100644
+--- a/packages/yunqi-domain/README.md
++++ b/packages/yunqi-domain/README.md
+@@ -115,11 +115,13 @@ interface CalendarProvider {
+ 
+ 推荐实现是 `@yunqi/calendar-adapter-tyme4ts`。适配器负责取得真实节气字段并返回固定 `+08:00` 的 `YunQiInstant`；领域层负责全部运气规则和区间归属。
+ 
+-包入口还保留已经审查的基础计算器、公共结果类型和冻结规则常量。`RULE_VERSION` 为 `YQ-MVP-RULES-1.0.0`。根导出的规则对象/集合、六步集合及解释集合均在运行时冻结；每次年度计算会创建新的解释集合。
++包入口还保留已经审查的基础计算器、公共结果类型和冻结规则常量。`@yunqi/domain` 包版本为 `1.2.0`，`RULE_VERSION` 为 `YQ-MVP-RULES-1.1.0`。根导出的规则对象/集合、六步集合及解释集合均在运行时冻结；每次年度计算会创建新的解释集合。
+ 
+ ## 规则与安全边界
+ 
+-唯一映射来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及 `src/rules/phase1-rules.ts`。本次版本调整只更新规则元数据，不改变 Phase 1 映射、节气顺序、客气序列或客主关系表；规则状态仍受 `RULE_FREEZE_NOTE.md` 的“待正式冻结”约束。
++当前规则来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md` 及 `src/rules/phase1-rules.ts`。本版按 Word 确认单 R-21 将客生主的解释标签改为“客生主，相得”，保留其 `GUEST_GENERATES_HOST` 方向及四字段关系结构。规则版本随结果升级到 `YQ-MVP-RULES-1.1.0`，其余岁运映射、节气顺序、客气序列及固定北京时间语义保持不变。
++
++按确认单 R-08，对外查询范围为 1900–2100 年，具体输入边界由对应 API Contract 约束。Domain 与历法适配器可使用相邻年节气完成跨年计算；这不扩大对外查询范围。旧版 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及原始资料保留，规则状态仍受 `RULE_FREEZE_NOTE.md` 的“待正式冻结”约束；本次修改没有产生专家签署或临床验证证据。
+ 
+ 输出解释只陈述时间边界和规则映射事实。包禁止输出诊断、辨证、证型、处方、方剂、中药、药物、剂量、用药、治疗、预后、疾病预测或个性化建议，也不参与医疗决策。
+ 
+diff --git a/packages/yunqi-domain/package.json b/packages/yunqi-domain/package.json
+index 4f54220..c1e25a6 100644
+--- a/packages/yunqi-domain/package.json
++++ b/packages/yunqi-domain/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@yunqi/domain",
+-  "version": "1.1.0",
++  "version": "1.2.0",
+   "private": true,
+   "type": "module",
+   "main": "./dist/index.js",
+diff --git a/packages/yunqi-domain/src/rules/phase1-rules.ts b/packages/yunqi-domain/src/rules/phase1-rules.ts
+index 2a365ea..8e81851 100644
+--- a/packages/yunqi-domain/src/rules/phase1-rules.ts
++++ b/packages/yunqi-domain/src/rules/phase1-rules.ts
+@@ -15,7 +15,7 @@ type HostGuestRelationRule =
+   | 'SAME_ELEMENT_DIFFERENT_QI'
+   | Exclude<HostGuestDirection, 'NONE'>;
+ 
+-export const RULE_VERSION = 'YQ-MVP-RULES-1.0.0' as const;
++export const RULE_VERSION = 'YQ-MVP-RULES-1.1.0' as const;
+ 
+ export const SIXTY_CYCLE_ANCHOR = Object.freeze({
+   year: 1984,
+@@ -188,7 +188,7 @@ export const HOST_GUEST_RELATION_LABELS = Object.freeze({
+   SAME_QI: '同气',
+   SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
+   HOST_GENERATES_GUEST: '主生客，相得',
+-  GUEST_GENERATES_HOST: '客生主',
++  GUEST_GENERATES_HOST: '客生主，相得',
+   HOST_CONTROLS_GUEST: '主克客',
+   GUEST_CONTROLS_HOST: '客克主',
+ } as const satisfies Readonly<Record<HostGuestRelationRule, string>>);
+diff --git a/packages/yunqi-domain/tests/acceptance.test.ts b/packages/yunqi-domain/tests/acceptance.test.ts
+index df6b074..9292ac4 100644
+--- a/packages/yunqi-domain/tests/acceptance.test.ts
++++ b/packages/yunqi-domain/tests/acceptance.test.ts
+@@ -28,7 +28,7 @@ const RELATION_EXPECTATIONS = {
+     qiRelation: 'DIFFERENT_QI',
+     elementRelation: 'DIFFERENT_ELEMENT',
+     direction: 'GUEST_GENERATES_HOST',
+-    traditionalLabel: '客生主',
++    traditionalLabel: '客生主，相得',
+   },
+   hostControlsGuest: {
+     qiRelation: 'DIFFERENT_QI',
+diff --git a/packages/yunqi-domain/tests/liuqi-rules.test.ts b/packages/yunqi-domain/tests/liuqi-rules.test.ts
+index e39e27e..d415fb5 100644
+--- a/packages/yunqi-domain/tests/liuqi-rules.test.ts
++++ b/packages/yunqi-domain/tests/liuqi-rules.test.ts
+@@ -107,7 +107,7 @@ describe('host/guest relation classification', () => {
+         qiRelation: 'DIFFERENT_QI',
+         elementRelation: 'DIFFERENT_ELEMENT',
+         direction: 'GUEST_GENERATES_HOST',
+-        traditionalLabel: '客生主',
++        traditionalLabel: '客生主，相得',
+       },
+     ],
+     [
+diff --git a/packages/yunqi-domain/tests/public-api.test.ts b/packages/yunqi-domain/tests/public-api.test.ts
+index 3c7f3e9..9a2e8ce 100644
+--- a/packages/yunqi-domain/tests/public-api.test.ts
++++ b/packages/yunqi-domain/tests/public-api.test.ts
+@@ -96,8 +96,8 @@ describe('stable package API', () => {
+       calculateYunQiByCalendarTime(calendarInput, provider);
+     const step: SixQiStep = getCurrentStep(input, provider);
+     const relation: HostGuestRelationResult = publicApi.calculateHostGuestRelation(
+-      '厥阴风木',
+       '少阴君火',
++      '厥阴风木',
+     );
+ 
+     expect('createYearExplanations' in publicApi).toBe(false);
+@@ -127,11 +127,11 @@ describe('stable package API', () => {
+     expect(relation).toEqual({
+       qiRelation: 'DIFFERENT_QI',
+       elementRelation: 'DIFFERENT_ELEMENT',
+-      direction: 'HOST_GENERATES_GUEST',
+-      traditionalLabel: '主生客，相得',
++      direction: 'GUEST_GENERATES_HOST',
++      traditionalLabel: '客生主，相得',
+     });
+     expect(Object.isFrozen(relation)).toBe(true);
+-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
++    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
+   });
+ 
+   it('keeps every root-exported singleton object and collection runtime immutable', () => {
+diff --git a/packages/yunqi-domain/tests/public-entry.test.ts b/packages/yunqi-domain/tests/public-entry.test.ts
+index c24ce36..5e518d8 100644
+--- a/packages/yunqi-domain/tests/public-entry.test.ts
++++ b/packages/yunqi-domain/tests/public-entry.test.ts
+@@ -93,7 +93,7 @@ describe('package source entrypoint', () => {
+     });
+     expect(Object.isFrozen(relation)).toBe(true);
+     expect(HOST_GUEST_RELATION_PRIORITY[0]).toBe('SAME_QI');
+-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
++    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
+     expect(SIXTY_CYCLE_ANCHOR.year).toBe(1984);
+     expect(SIXTY_CYCLE[0]).toBe('甲子');
+     expect(STEM_RULES.甲.tone).toBe('太宫');
+diff --git a/packages/yunqi-domain/tests/rules.test.ts b/packages/yunqi-domain/tests/rules.test.ts
+index fc3b0fe..100aa38 100644
+--- a/packages/yunqi-domain/tests/rules.test.ts
++++ b/packages/yunqi-domain/tests/rules.test.ts
+@@ -18,7 +18,7 @@ import {
+ 
+ describe('Phase 1 rule tables', () => {
+   it('exposes the exact versioned sixty-cycle sequence and anchor', () => {
+-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
++    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
+     expect(SIXTY_CYCLE_ANCHOR).toEqual({ year: 1984, ganzhi: '甲子', index: 0 });
+     expect(SIXTY_CYCLE).toEqual([
+       '甲子', '乙丑', '丙寅', '丁卯', '戊辰', '己巳', '庚午', '辛未', '壬申', '癸酉',
+@@ -110,7 +110,7 @@ describe('Phase 1 rule tables', () => {
+       SAME_QI: '同气',
+       SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
+       HOST_GENERATES_GUEST: '主生客，相得',
+-      GUEST_GENERATES_HOST: '客生主',
++      GUEST_GENERATES_HOST: '客生主，相得',
+       HOST_CONTROLS_GUEST: '主克客',
+       GUEST_CONTROLS_HOST: '客克主',
+     });
+diff --git a/packages/yunqi-domain/tests/services.test.ts b/packages/yunqi-domain/tests/services.test.ts
+index 0010460..5fa70ae 100644
+--- a/packages/yunqi-domain/tests/services.test.ts
++++ b/packages/yunqi-domain/tests/services.test.ts
+@@ -75,7 +75,7 @@ describe('six-step timeline', () => {
+       suiYun: { element: '土', state: '太过', tone: '太宫' },
+       sitian: '太阳寒水',
+       zaiquan: '太阴湿土',
+-      ruleVersion: 'YQ-MVP-RULES-1.0.0',
++      ruleVersion: 'YQ-MVP-RULES-1.1.0',
+     });
+     expect(result.steps[0].start).toEqual(
+       createYunQiInstant(1_705_759_642_000),
+diff --git a/packages/yunqi-service/README.md b/packages/yunqi-service/README.md
+index a55cf54..7dd093c 100644
+--- a/packages/yunqi-service/README.md
++++ b/packages/yunqi-service/README.md
+@@ -36,7 +36,7 @@ Swagger UI is served at `/docs/`. The checked-in contract is
+ ## Endpoints
+ 
+ - `GET /health`
+-- `GET /api/v1/yunqi/year/:year`, where `year` is 1901-2099
++- `GET /api/v1/yunqi/year/:year`, where the YunQi year is 1900-2100
+ - `GET /api/v1/yunqi/current`
+ - `POST /api/v1/yunqi/calculate`
+ 
+@@ -72,6 +72,12 @@ All accepted values flow through the Business Time Normalizer into
+ `calculateYunQiByCalendarTime()` entry. The runtime clock supplies epoch
+ milliseconds only and is normalized through the same fixed-offset path.
+ 
++The supported calculation interval starts at the actual 1900 大寒 boundary
++and ends immediately before the actual 2101 大寒 boundary. The first boundary
++is included; the last is excluded. A civil date in early 2101 can therefore
++belong to supported YunQi year 2100. Both `/calculate` and `/current` use this
++same interval; dates before 1900 大寒 or at/after 2101 大寒 return `400`.
++
+ Public time values use:
+ 
+     {
+@@ -81,9 +87,11 @@ Public time values use:
+       "calendarTimeStandard": "BeijingStandardTime+08:00"
+     }
+ 
+-The OpenAPI dialect remains 3.1.0, the contract document release is 1.2.0,
+-the business Contract ID is `YQ-API-CONTRACT-1.0.0`, and API paths remain
+-under `/api/v1`.
++The OpenAPI dialect remains 3.1.0, the contract document release is 1.3.0,
++the business Contract ID is `YQ-API-CONTRACT-1.1.0`, and API paths remain
++under `/api/v1`. Service package 2.1.0 returns rule version
++`YQ-MVP-RULES-1.1.0`; the approved guest-generates-host label is
++`客生主，相得`. These are neutral rule descriptions, not medical conclusions.
+ 
+ ## Browser contracts and client
+ 
+diff --git a/packages/yunqi-service/openapi/yunqi-service.openapi.yaml b/packages/yunqi-service/openapi/yunqi-service.openapi.yaml
+index 4b1d0b3..3d1f289 100644
+--- a/packages/yunqi-service/openapi/yunqi-service.openapi.yaml
++++ b/packages/yunqi-service/openapi/yunqi-service.openapi.yaml
+@@ -1,7 +1,7 @@
+ openapi: 3.1.0
+ info:
+   title: YunQi Service API
+-  version: 1.2.0
++  version: 1.3.0
+   description: Versioned YunQi time-fact and rule-mapping contract.
+ components:
+   schemas:
+@@ -398,8 +398,8 @@ components:
+           minLength: 1
+         year:
+           type: integer
+-          minimum: 1901
+-          maximum: 2099
++          minimum: 1900
++          maximum: 2100
+         stemBranch:
+           $ref: "#/components/schemas/StemBranchDto"
+         interval:
+@@ -431,8 +431,8 @@ components:
+           minLength: 1
+         year:
+           type: integer
+-          minimum: 1901
+-          maximum: 2099
++          minimum: 1900
++          maximum: 2100
+         stemBranch:
+           $ref: "#/components/schemas/StemBranchDto"
+         interval:
+@@ -471,8 +471,8 @@ components:
+       properties:
+         year:
+           type: integer
+-          minimum: 1901
+-          maximum: 2099
++          minimum: 1900
++          maximum: 2100
+       additionalProperties: false
+     HealthSuccessResponse:
+       type: object
+@@ -597,8 +597,8 @@ paths:
+       parameters:
+         - schema:
+             type: integer
+-            minimum: 1901
+-            maximum: 2099
++            minimum: 1900
++            maximum: 2100
+           in: path
+           name: year
+           required: true
+@@ -703,4 +703,4 @@ tags:
+     description: Service status endpoints
+   - name: yunqi
+     description: YunQi contract endpoints
+-x-yunqi-contract-id: YQ-API-CONTRACT-1.0.0
++x-yunqi-contract-id: YQ-API-CONTRACT-1.1.0
+diff --git a/packages/yunqi-service/package.json b/packages/yunqi-service/package.json
+index 67930a2..fafc287 100644
+--- a/packages/yunqi-service/package.json
++++ b/packages/yunqi-service/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "@yunqi/service",
+-  "version": "2.0.0",
++  "version": "2.1.0",
+   "private": true,
+   "type": "module",
+   "main": "./dist/index.js",
+diff --git a/packages/yunqi-service/scripts/smoke-production-entry.mjs b/packages/yunqi-service/scripts/smoke-production-entry.mjs
+index 7aed4f4..1ff7ac8 100644
+--- a/packages/yunqi-service/scripts/smoke-production-entry.mjs
++++ b/packages/yunqi-service/scripts/smoke-production-entry.mjs
+@@ -129,7 +129,7 @@ try {
+   );
+ 
+   assert.equal(health.data.status, 'ok');
+-  assert.equal(year.data.ruleVersion, 'YQ-MVP-RULES-1.0.0');
++  assert.equal(year.data.ruleVersion, 'YQ-MVP-RULES-1.1.0');
+   assert.equal(current.data.input.offset, '+08:00');
+   assert.deepEqual(calculation.data.input, {
+     localTime: '2024-01-20T22:07:22+08:00',
+diff --git a/packages/yunqi-service/src/plugins/openapi.ts b/packages/yunqi-service/src/plugins/openapi.ts
+index a2721c9..2c6ea0f 100644
+--- a/packages/yunqi-service/src/plugins/openapi.ts
++++ b/packages/yunqi-service/src/plugins/openapi.ts
+@@ -23,7 +23,7 @@ export async function registerOpenApi(
+       openapi: '3.1.0',
+       info: {
+         title: 'YunQi Service API',
+-        version: '1.2.0',
++        version: '1.3.0',
+         description: 'Versioned YunQi time-fact and rule-mapping contract.',
+       },
+       servers: [
+@@ -46,7 +46,7 @@ export async function registerOpenApi(
+ 
+       const { openapiObject } = documentObject;
+       Object.assign(openapiObject, {
+-        'x-yunqi-contract-id': 'YQ-API-CONTRACT-1.0.0',
++        'x-yunqi-contract-id': 'YQ-API-CONTRACT-1.1.0',
+       });
+       const schemas = openapiObject.components?.schemas;
+       if (!schemas) return openapiObject;
+diff --git a/packages/yunqi-service/src/schemas/yunqi.ts b/packages/yunqi-service/src/schemas/yunqi.ts
+index 6b92a06..4209024 100644
+--- a/packages/yunqi-service/src/schemas/yunqi.ts
++++ b/packages/yunqi-service/src/schemas/yunqi.ts
+@@ -158,7 +158,7 @@ export const SixQiDtoSchema = Type.Object(
+ export const YunQiYearDtoSchema = Type.Object(
+   {
+     ruleVersion: Type.String({ minLength: 1 }),
+-    year: Type.Integer({ minimum: 1901, maximum: 2099 }),
++    year: Type.Integer({ minimum: 1900, maximum: 2100 }),
+     stemBranch: Type.Ref('StemBranchDto'),
+     interval: Type.Ref('YunQiIntervalDto'),
+     suiYun: Type.Ref('SuiYunDto'),
+@@ -178,7 +178,7 @@ export const YunQiCalculationDtoSchema = Type.Object(
+ );
+ 
+ export const YearParamsSchema = Type.Object(
+-  { year: Type.Integer({ minimum: 1901, maximum: 2099 }) },
++  { year: Type.Integer({ minimum: 1900, maximum: 2100 }) },
+   { $id: 'YearParams', additionalProperties: false },
+ );
+ 
+diff --git a/packages/yunqi-service/src/services/yunqi-service.ts b/packages/yunqi-service/src/services/yunqi-service.ts
+index 08f241f..e3c209a 100644
+--- a/packages/yunqi-service/src/services/yunqi-service.ts
++++ b/packages/yunqi-service/src/services/yunqi-service.ts
+@@ -16,8 +16,8 @@ import type {
+ import { InvalidArgumentError } from './invalid-argument-error.js';
+ import { protectCalendarProvider } from './provider-boundary.js';
+ 
+-export const MIN_SUPPORTED_YEAR = 1901;
+-export const MAX_SUPPORTED_YEAR = 2099;
++export const MIN_SUPPORTED_YEAR = 1900;
++export const MAX_SUPPORTED_YEAR = 2100;
+ 
+ export function assertSupportedYear(year: number): void {
+   if (
+@@ -25,7 +25,7 @@ export function assertSupportedYear(year: number): void {
+     year < MIN_SUPPORTED_YEAR ||
+     year > MAX_SUPPORTED_YEAR
+   ) {
+-    throw new InvalidArgumentError('年份必须是 1901 到 2099 的整数');
++    throw new InvalidArgumentError('年份必须是 1900 到 2100 的整数');
+   }
+ }
+ 
+@@ -48,7 +48,7 @@ function assertResolvableCivilYear(input: YunQiCalendarTime): void {
+     civilYear > MAX_SUPPORTED_YEAR + 1
+   ) {
+     throw new InvalidArgumentError(
+-      'dateTime 对应的运气年不在 1901 到 2099 支持范围内',
++      'dateTime 对应的运气年不在 1900 到 2100 支持范围内',
+     );
+   }
+ }
+diff --git a/packages/yunqi-service/tests/api.test.ts b/packages/yunqi-service/tests/api.test.ts
+index f80a69e..437f5a1 100644
+--- a/packages/yunqi-service/tests/api.test.ts
++++ b/packages/yunqi-service/tests/api.test.ts
+@@ -28,7 +28,7 @@ describe('versioned YunQi routes', () => {
+       code: 'SUCCESS',
+       message: '',
+       data: {
+-        ruleVersion: 'YQ-MVP-RULES-1.0.0',
++        ruleVersion: 'YQ-MVP-RULES-1.1.0',
+         year: 2024,
+         stemBranch: { ganzhi: '甲辰', stem: '甲', branch: '辰' },
+         sixQi: { sitian: '太阳寒水', zaiquan: '太阴湿土' },
+@@ -36,7 +36,7 @@ describe('versioned YunQi routes', () => {
+     });
+   });
+ 
+-  it.each(['2024.5', 'not-a-year', '1900', '2100'])(
++  it.each(['2024.5', 'not-a-year', '1899', '2101'])(
+     'rejects invalid year %s',
+     async (year) => {
+       const response = await app.inject({
+diff --git a/packages/yunqi-service/tests/boundary.test.ts b/packages/yunqi-service/tests/boundary.test.ts
+index ef00b1c..233b0f7 100644
+--- a/packages/yunqi-service/tests/boundary.test.ts
++++ b/packages/yunqi-service/tests/boundary.test.ts
+@@ -27,7 +27,7 @@ describe('YunQi service boundaries', () => {
+   it('brands service year assertion failures as invalid arguments', () => {
+     let thrown: unknown;
+     try {
+-      assertSupportedYear(1900);
++      assertSupportedYear(1899);
+     } catch (error) {
+       thrown = error;
+     }
+@@ -84,7 +84,7 @@ describe('YunQi service boundaries', () => {
+     const response = await app.inject({
+       method: 'POST',
+       url: '/api/v1/yunqi/calculate',
+-      payload: { dateTime: '1901-01-01T00:00:00+08:00' },
++      payload: { dateTime: '1900-01-01T00:00:00+08:00' },
+     });
+ 
+     expect(response.statusCode).toBe(400);
+@@ -119,16 +119,16 @@ describe('YunQi service boundaries', () => {
+     },
+   );
+ 
+-  it('allows a 2100 civil instant in supported YunQi year 2099', async () => {
++  it('allows a 2101 civil instant in supported YunQi year 2100', async () => {
+     const app = await createApp(fixedCalendarProvider);
+ 
+     const response = await app.inject({
+       method: 'POST',
+       url: '/api/v1/yunqi/calculate',
+-      payload: { dateTime: '2100-01-01T00:00:00+08:00' },
++      payload: { dateTime: '2101-01-01T00:00:00+08:00' },
+     });
+ 
+     expect(response.statusCode).toBe(200);
+-    expect(response.json().data.year).toBe(2099);
++    expect(response.json().data.year).toBe(2100);
+   });
+ });
+diff --git a/packages/yunqi-service/tests/mapper.test.ts b/packages/yunqi-service/tests/mapper.test.ts
+index 07ea060..12cae64 100644
+--- a/packages/yunqi-service/tests/mapper.test.ts
++++ b/packages/yunqi-service/tests/mapper.test.ts
+@@ -15,7 +15,7 @@ describe('YunQi API mapper', () => {
+     const domain = calculateYearYunQi(2024, fixedCalendarProvider);
+     const dto = mapYearResult(domain);
+ 
+-    expect(dto.ruleVersion).toBe('YQ-MVP-RULES-1.0.0');
++    expect(dto.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
+     expect(dto.year).toBe(2024);
+     expect(dto.stemBranch).toEqual({
+       ganzhi: '甲辰',
+diff --git a/packages/yunqi-service/tests/openapi-contract.test.ts b/packages/yunqi-service/tests/openapi-contract.test.ts
+index 6026f74..aa09eb8 100644
+--- a/packages/yunqi-service/tests/openapi-contract.test.ts
++++ b/packages/yunqi-service/tests/openapi-contract.test.ts
+@@ -23,9 +23,9 @@ describe('OpenAPI contract', () => {
+     const document = app.swagger() as Record<string, any>;
+ 
+     expect(document.openapi).toBe('3.1.0');
+-    expect(document.info.version).toBe('1.2.0');
++    expect(document.info.version).toBe('1.3.0');
+     expect(document['x-yunqi-contract-id']).toBe(
+-      'YQ-API-CONTRACT-1.0.0',
++      'YQ-API-CONTRACT-1.1.0',
+     );
+     expect(Object.keys(document.paths ?? {})).toEqual(
+       expect.arrayContaining([
+@@ -76,6 +76,13 @@ describe('OpenAPI contract', () => {
+     expect(schemas.SixQiStepDto.properties.end).toEqual({
+       $ref: '#/components/schemas/YunQiTimeDto',
+     });
++    for (const schemaName of ['YearParams', 'YunQiYearDto', 'YunQiCalculationDto']) {
++      expect(schemas[schemaName].properties.year).toMatchObject({
++        type: 'integer',
++        minimum: 1900,
++        maximum: 2100,
++      });
++    }
+     expect(JSON.stringify(document)).not.toContain('Asia/Shanghai');
+     expect(JSON.stringify(document)).not.toContain('"timezone"');
+     expect(schemas.CalculateRequest.properties.dateTime.pattern).toBe(
+@@ -104,7 +111,7 @@ describe('OpenAPI contract', () => {
+     ]);
+   });
+ 
+-  it('validates a live annual response against its OpenAPI schema', async () => {
++  it.each([1900, 2024, 2100])('validates year %i against its live OpenAPI schema', async (year) => {
+     const app = await buildApp({
+       provider: fixedCalendarProvider,
+       now: () => 1_716_210_000_000,
+@@ -115,7 +122,7 @@ describe('OpenAPI contract', () => {
+     const document = app.swagger() as Record<string, any>;
+     const response = await app.inject({
+       method: 'GET',
+-      url: '/api/v1/yunqi/year/2024',
++      url: `/api/v1/yunqi/year/${year}`,
+     });
+     const schemas = document.components.schemas;
+     const ajv = new Ajv2020({ strict: false, allErrors: true });
+@@ -177,9 +184,9 @@ describe('OpenAPI contract', () => {
+     const document = parse(source);
+ 
+     expect(document.openapi).toBe('3.1.0');
+-    expect(document.info.version).toBe('1.2.0');
++    expect(document.info.version).toBe('1.3.0');
+     expect(document['x-yunqi-contract-id']).toBe(
+-      'YQ-API-CONTRACT-1.0.0',
++      'YQ-API-CONTRACT-1.1.0',
+     );
+     expect(document.paths).toHaveProperty('/api/v1/yunqi/calculate');
+     expect(document.components.schemas).toHaveProperty('YunQiTimeDto');
+diff --git a/pnpm-lock.yaml b/pnpm-lock.yaml
+index 2cd4f3e..759285a 100644
+--- a/pnpm-lock.yaml
++++ b/pnpm-lock.yaml
+@@ -8,6 +8,12 @@ importers:
+ 
+   .:
+     devDependencies:
++      '@axe-core/playwright':
++        specifier: 4.14.0
++        version: 4.14.0(playwright-core@1.64.1)
++      '@playwright/test':
++        specifier: 1.64.1
++        version: 1.64.1
+       typescript:
+         specifier: 5.9.3
+         version: 5.9.3
+@@ -192,6 +198,12 @@ packages:
+   '@asamuzakjp/nwsapi@2.3.9':
+     resolution: {integrity: sha512-n8GuYSrI9bF7FFZ/SjhwevlHc8xaVlb/7HmHelnc/PZXBD2ZR49NnN9sMMuDdEGPeeRQ5d0hqlSlEpgCX3Wl0Q==}
+ 
++  '@axe-core/playwright@4.14.0':
++    resolution: {integrity: sha512-SGUhG5PIHd2eMdpgBF2PyQLOhX+qyDR2PT4cmoS4Qk2ak+jX/rrSvst9l0PGv5WTHolKpUMvVmoHpr4cZgf1RQ==}
++    engines: {node: '>=22.12.0'}
++    peerDependencies:
++      playwright-core: '>= 1.0.0'
++
+   '@babel/code-frame@7.29.7':
+     resolution: {integrity: sha512-Aup7aUOfpbAUg2ROOJN6Iw5f9DMBlzu0mIkm/malLQFN/YQgO48wCj0Kxa3sEHJvPVFg7siR+qRInwXd2qhQKw==}
+     engines: {node: '>=6.9.0'}
+@@ -343,6 +355,11 @@ packages:
+   '@pinojs/redact@0.4.0':
+     resolution: {integrity: sha512-k2ENnmBugE/rzQfEcdWHcCY+/FM3VLzH9cYEsbdsoqrvzAKRhUZeRNhAZvB8OitQJ1TBed3yqWtdjzS6wJKBwg==}
+ 
++  '@playwright/test@1.64.1':
++    resolution: {integrity: sha512-IaYGml/nSOiZWROfPtuIL7neuu9qDOZ3TNvNljUIrhDMxiGTgPjzj/g9p9RxpS2tSepPDRY+UwAaEeiKtUvIAg==}
++    engines: {node: '>=20'}
++    hasBin: true
++
+   '@redocly/ajv@8.11.2':
+     resolution: {integrity: sha512-io1JpnwtIcvojV7QKDUSIuMN/ikdOUd1ReEnUnMKGfDVridQZ31J0MmIuqwuRjWDZfmvr+Q0MqCcfHM2gTivOg==}
+ 
+@@ -747,6 +764,10 @@ packages:
+   avvio@9.3.0:
+     resolution: {integrity: sha512-g2tQ7LE7oOSqDfwEm3M+ZCMTJc7KiZCdJ4UwyZJb5ckTKyYu50OYmvv0mCFXPuYXoM4zkSt8zM9XQ9KCvxA74A==}
+ 
++  axe-core@4.14.0:
++    resolution: {integrity: sha512-9WTZxEjsZ7b13TH8JPmbV2z8CHbl80/2hm3XPEG4JgNdQLK81IBRXmSxHfMAOkSqQeRxT/0dwNDz2GOm3zzpcQ==}
++    engines: {node: '>=4'}
++
+   balanced-match@1.0.2:
+     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
+ 
+@@ -1156,6 +1177,16 @@ packages:
+     resolution: {integrity: sha512-r34yH/GlQpKZbU1BvFFqOjhISRo1MNx1tWYsYvmj6KIRHSPMT2+yHOEb1SG6NMvRoHRF0a07kCOox/9yakl1vg==}
+     hasBin: true
+ 
++  playwright-core@1.64.1:
++    resolution: {integrity: sha512-BC4s8y6SEVA6Q1rSxZTto8hI1KUI3xXlHGZgvGqP4IqPdI/a6FX9H29IDNz7vKo9l21b6LfYosScPL6M3xxyDQ==}
++    engines: {node: '>=20'}
++    hasBin: true
++
++  playwright@1.64.1:
++    resolution: {integrity: sha512-HCrVhHr5QQuwYoswEUGTb7gGp522yflbv/ST8nF4sFWGuLjQCt17Q/EubpGGSNKYn1tsTCPZxqHhHCfVURu7UA==}
++    engines: {node: '>=20'}
++    hasBin: true
++
+   pluralize@8.0.0:
+     resolution: {integrity: sha512-Nc3IT5yHzflTfbjgqWcCPpo7DaKy4FnpB0l/zCAW0Tc7jxAiuqSxHasntB3D7887LSrA93kDJ9IXovxJYxyLCA==}
+     engines: {node: '>=4'}
+@@ -1535,6 +1566,11 @@ snapshots:
+ 
+   '@asamuzakjp/nwsapi@2.3.9': {}
+ 
++  '@axe-core/playwright@4.14.0(playwright-core@1.64.1)':
++    dependencies:
++      axe-core: 4.14.0
++      playwright-core: 1.64.1
++
+   '@babel/code-frame@7.29.7':
+     dependencies:
+       '@babel/helper-validator-identifier': 7.29.7
+@@ -1690,6 +1726,10 @@ snapshots:
+ 
+   '@pinojs/redact@0.4.0': {}
+ 
++  '@playwright/test@1.64.1':
++    dependencies:
++      playwright: 1.64.1
++
+   '@redocly/ajv@8.11.2':
+     dependencies:
+       fast-deep-equal: 3.1.3
+@@ -2001,6 +2041,8 @@ snapshots:
+       '@fastify/error': 4.2.0
+       fastq: 1.20.1
+ 
++  axe-core@4.14.0: {}
++
+   balanced-match@1.0.2: {}
+ 
+   balanced-match@4.0.4: {}
+@@ -2391,6 +2433,12 @@ snapshots:
+       sonic-boom: 4.2.1
+       thread-stream: 4.2.0
+ 
++  playwright-core@1.64.1: {}
++
++  playwright@1.64.1:
++    dependencies:
++      playwright-core: 1.64.1
++
+   pluralize@8.0.0: {}
+ 
+   postcss@8.5.19:
+diff --git a/rules/PHASE1_RULE_SOURCES.md b/rules/PHASE1_RULE_SOURCES.md
+index 2707a66..de8679e 100644
+--- a/rules/PHASE1_RULE_SOURCES.md
++++ b/rules/PHASE1_RULE_SOURCES.md
+@@ -2,6 +2,10 @@
+ 
+ 本文件补充 `PHASE1_IMPLEMENTATION_RULES_V1.md` 的来源定位，不改变任何映射、规则版本或计算结果。
+ 
++2026-10-18补记：当前 `PHASE1_IMPLEMENTATION_RULES_V1_1.md` 继承下列映射来源。
++1.1.0新增的R-08范围与R-21解释文本依据原始Word确认单及用户本轮明确采用决定；
++其版本差异、专家待冻结状态见新版规则表，不将工程采用描述为古典原文或专家签署。
++
+ ## 古典规则来源
+ 
+ - 十干化运、三阴三阳司天：`《黄帝内经·素问·天元纪大论》`，中国哲学书电子化计划：[原文](https://ctext.org/huangdi-neijing/tian-yuan-ji-da-lun/zh)
+diff --git a/scripts/check-yunqi-time-governance.mjs b/scripts/check-yunqi-time-governance.mjs
+index 856bf4e..8570935 100644
+--- a/scripts/check-yunqi-time-governance.mjs
++++ b/scripts/check-yunqi-time-governance.mjs
+@@ -33,8 +33,18 @@ const REQUIRED_GOVERNANCE_MARKERS = [
+   'new Date(result.epochMilliseconds)',
+ ];
+ const GOVERNANCE_DOCUMENTS = [
+-  'AGENTS.md',
+-  'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
++  {
++    path: 'AGENTS.md',
++    markers: ['](docs/agents/rules-and-time.md)'],
++  },
++  {
++    path: 'docs/agents/rules-and-time.md',
++    markers: REQUIRED_GOVERNANCE_MARKERS,
++  },
++  {
++    path: 'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
++    markers: REQUIRED_GOVERNANCE_MARKERS,
++  },
+ ];
+ const DOMAIN_TIME_SOURCE =
+   'packages/yunqi-domain/src/calendar/time.ts';
+@@ -107,7 +117,7 @@ async function collectFiles(directory, predicate) {
+ async function validateGovernanceDocuments(root) {
+   const violations = [];
+ 
+-  for (const relativePath of GOVERNANCE_DOCUMENTS) {
++  for (const { path: relativePath, markers } of GOVERNANCE_DOCUMENTS) {
+     const file = resolve(root, relativePath);
+     let source;
+ 
+@@ -121,7 +131,7 @@ async function validateGovernanceDocuments(root) {
+       throw error;
+     }
+ 
+-    for (const marker of REQUIRED_GOVERNANCE_MARKERS) {
++    for (const marker of markers) {
+       if (!source.includes(marker)) {
+         violations.push(`${relativePath}: missing ${marker}`);
+       }
+diff --git a/scripts/check-yunqi-workbench-governance.mjs b/scripts/check-yunqi-workbench-governance.mjs
+index 648897c..b9a829d 100644
+--- a/scripts/check-yunqi-workbench-governance.mjs
++++ b/scripts/check-yunqi-workbench-governance.mjs
+@@ -929,7 +929,7 @@ function yearSelectorViolations(sourceFile) {
+   const visit = (node) => {
+     if (
+       ts.isNumericLiteral(node) &&
+-      (node.text === '1901' || node.text === '2099')
++      ['1900', '1901', '2099', '2100'].includes(node.text)
+     ) {
+       copiedBoundaries.add(node.text);
+     }
+diff --git a/tests/yunqi-contract-governance.test.mjs b/tests/yunqi-contract-governance.test.mjs
+index d780240..d5ee652 100644
+--- a/tests/yunqi-contract-governance.test.mjs
++++ b/tests/yunqi-contract-governance.test.mjs
+@@ -29,6 +29,45 @@ const repositoryRoot = resolve(
+   '..',
+ );
+ 
++test('Contract 1.1.0 changes only the approved year range and version identity', () => {
++  const contractDirectory = join(
++    repositoryRoot,
++    'packages/yunqi-contracts/contract',
++  );
++  const previous = JSON.parse(readFileSync(
++    join(contractDirectory, 'YQ-API-CONTRACT-1.0.0.freeze.json'),
++    'utf8',
++  ));
++  const expected = structuredClone(previous);
++  expected.contractId = 'YQ-API-CONTRACT-1.1.0';
++  expected.documentVersion = '1.3.0';
++
++  const approvedYearSchemas = [
++    expected.paths['/api/v1/yunqi/year/{year}'].get.parameters[0].schema,
++    expected.schemas.YunQiYearDto.properties.year,
++    expected.schemas.YunQiCalculationDto.properties.year,
++  ];
++  for (const schema of approvedYearSchemas) {
++    assert.equal(schema.minimum, 1901);
++    assert.equal(schema.maximum, 2099);
++    schema.minimum = 1900;
++    schema.maximum = 2100;
++  }
++
++  const actual = JSON.parse(readFileSync(
++    join(contractDirectory, 'YQ-API-CONTRACT-1.1.0.freeze.json'),
++    'utf8',
++  ));
++  assert.deepEqual(actual, expected);
++
++  const registry = JSON.parse(readFileSync(
++    join(contractDirectory, 'registry.json'),
++    'utf8',
++  ));
++  assert.ok(registry.contractIds.includes(previous.contractId));
++  assert.ok(registry.contractIds.includes(actual.contractId));
++});
++
+ function createDocument() {
+   const errorResponse = {
+     description: 'error',
+@@ -763,12 +802,15 @@ test('GitHub quality-gates workflow contains the required ordered gates', () =>
+     'actions/setup-node@',
+     'node-version: 22',
+     'pnpm install --frozen-lockfile',
++    'pnpm test:project-guidance',
+     'pnpm test:time-governance',
+     'pnpm contracts:check',
+     'pnpm test',
+     'pnpm typecheck',
+     'pnpm test:coverage',
+     'pnpm schema:validate',
++    'pnpm exec playwright install --with-deps chromium',
++    'pnpm test:browser',
+   ];
+ 
+   for (const marker of requiredMarkers) {
+@@ -777,12 +819,15 @@ test('GitHub quality-gates workflow contains the required ordered gates', () =>
+ 
+   const orderedCommands = [
+     'pnpm install --frozen-lockfile',
++    'pnpm test:project-guidance',
+     'pnpm test:time-governance',
+     'pnpm contracts:check',
+     'pnpm test',
+     'pnpm typecheck',
+     'pnpm test:coverage',
+     'pnpm schema:validate',
++    'pnpm exec playwright install --with-deps chromium',
++    'pnpm test:browser',
+   ];
+   const actualCommands = workflow
+     .split(/\r?\n/)
+diff --git a/tests/yunqi-time-governance.test.mjs b/tests/yunqi-time-governance.test.mjs
+index e049825..69d75a9 100644
+--- a/tests/yunqi-time-governance.test.mjs
++++ b/tests/yunqi-time-governance.test.mjs
+@@ -3,6 +3,7 @@ import {
+   mkdirSync,
+   mkdtempSync,
+   readFileSync,
++  unlinkSync,
+   writeFileSync,
+ } from 'node:fs';
+ import { tmpdir } from 'node:os';
+@@ -40,7 +41,8 @@ function writeFixtureFile(root, relativePath, source) {
+ function createFixture(frontendSource) {
+   const root = mkdtempSync(join(tmpdir(), 'yunqi-time-governance-'));
+ 
+-  writeFixtureFile(root, 'AGENTS.md', REQUIRED_GOVERNANCE);
++  writeFixtureFile(root, 'AGENTS.md', '[规则与时间](docs/agents/rules-and-time.md)');
++  writeFixtureFile(root, 'docs/agents/rules-and-time.md', REQUIRED_GOVERNANCE);
+   writeFixtureFile(
+     root,
+     'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
+@@ -180,7 +182,7 @@ test('rejects incomplete persistence governance', () => {
+   const root = createFixture(
+     'export const TimeView = ({ result }) => <time>{result.localTime}</time>;',
+   );
+-  const agentsPath = join(root, 'AGENTS.md');
++  const agentsPath = join(root, 'docs/agents/rules-and-time.md');
+   writeFileSync(
+     agentsPath,
+     readFileSync(agentsPath, 'utf8').replace('epoch_ms bigint', ''),
+@@ -189,7 +191,25 @@ test('rejects incomplete persistence governance', () => {
+   const result = runChecker(root);
+ 
+   assert.equal(result.status, 1);
+-  assert.match(result.stderr, /AGENTS\.md.*epoch_ms bigint/);
++  assert.match(result.stderr, /docs\/agents\/rules-and-time\.md.*epoch_ms bigint/);
++});
++
++test('rejects root guidance without its time-rules pointer', () => {
++  const root = createFixture('export const value = result.localTime;');
++  writeFixtureFile(root, 'AGENTS.md', REQUIRED_GOVERNANCE);
++  const result = runChecker(root);
++
++  assert.equal(result.status, 1);
++  assert.match(result.stderr, /AGENTS\.md.*missing.*rules-and-time\.md/);
++});
++
++test('rejects a missing time-rules document even with a valid root pointer', () => {
++  const root = createFixture('export const value = result.localTime;');
++  unlinkSync(join(root, 'docs/agents/rules-and-time.md'));
++  const result = runChecker(root);
++
++  assert.equal(result.status, 1);
++  assert.match(result.stderr, /docs\/agents\/rules-and-time\.md: required governance document missing/);
+ });
+ 
+ test('rejects an ambiguous YunQiInstant declaration', () => {
+diff --git a/tests/yunqi-workbench-governance.test.mjs b/tests/yunqi-workbench-governance.test.mjs
+index 2fb7ddb..d43fb89 100644
+--- a/tests/yunqi-workbench-governance.test.mjs
++++ b/tests/yunqi-workbench-governance.test.mjs
+@@ -1501,7 +1501,7 @@ test('rejects selecting an annual stage by ordinal array position', async () =>
+   });
+ });
+ 
+-for (const boundary of [1901, 2099]) {
++for (const boundary of [1900, 1901, 2099, 2100]) {
+   test(`rejects duplicated ${boundary} year boundary in YearSelector`, async () => {
+     await assertMutationRejected({
+       relativeSourcePath:

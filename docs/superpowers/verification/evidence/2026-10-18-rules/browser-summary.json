@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "task": "R12 shared SuiYun summary copy regression",
+  "status": "PASS",
+  "preAssertionState": {
+    "recordedExistingGreenReport": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-48-26-591Z-a3df046a\\results.json",
+    "recordedExistingGreenStats": {
+      "startTime": "2026-10-17T16:48:26.601Z",
+      "duration": 118746.444,
+      "expected": 70,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "note": "The previous browser suite was green. This R12 copy change has not yet received a browser run. No failing run is claimed for the new assertion.",
+    "flowFileSha256BeforeAssertion": "e9b6e870a8c7ad21f115fe717f04cbbb4ee5cfb384488a93339d30dc566b213d",
+    "redRunPerformed": false
+  },
+  "authorizedChange": "Add one API-backed visible SuiYun summary assertion in the existing annual 2024 flow test.",
+  "requestedCommand": "pnpm test:browser",
+  "browser": "default bundled Chromium only",
+  "preservePriorRuns": true,
+  "command": "pnpm test:browser",
+  "commandExitCode": 0,
+  "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2",
+  "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2\\report\\index.html",
+  "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2\\results.json",
+  "stats": {
+    "startTime": "2026-10-17T17:21:11.848Z",
+    "duration": 104249.443,
+    "expected": 70,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "caseOutcomes": {
+    "passed": 70
+  },
+  "retryCount": 0,
+  "browserVersions": [
+    "156.0.8078.4"
+  ],
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "bundled-chromium",
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:61883",
+    "serviceURL": "http://127.0.0.1:61882",
+    "cleanupErrors": []
+  },
+  "axeScanCount": 56,
+  "axeViolationCount": 0,
+  "addedAssertion": {
+    "file": "tests/browser/workbench.flows.spec.mjs",
+    "test": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop",
+    "expectedSource": "Actual GET /api/v1/yunqi/year/2024 response data.suiYun.element/state/tone",
+    "assertion": "Exact visible summary equals element + 运 + state + （ + tone + ）"
+  },
+  "flowFileSha256AfterAssertion": "2ea47e39f87d2a667b36953d7cc99fe65e26ee6e0ff5b63b5c330c597b3dedcc",
+  "manualScreenshotChecks": [
+    {
+      "state": "current",
+      "project": "desktop-light",
+      "observedSummary": "土运太过（太宫）",
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2\\results\\workbench.visual--visual-c-2145e-le-layout-and-accessibility-desktop-light\\current.png"
+    },
+    {
+      "state": "annual-result",
+      "project": "desktop-light",
+      "observedSummary": "土运太过（太宫）",
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2\\results\\workbench.visual--visual-a-ece07-le-layout-and-accessibility-desktop-light\\annual-result.png"
+    },
+    {
+      "state": "calculate-result",
+      "project": "desktop-light",
+      "observedSummary": "土运太过（太宫）",
+      "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T17-21-11-844Z-e0fce6d2\\results\\workbench.visual--visual-c-b484d-le-layout-and-accessibility-desktop-light\\calculate-result.png"
+    }
+  ],
+  "scopeNotes": [
+    "One default bundled Chromium run only; no second browser.",
+    "Previous run evidence and acceptance-summary.json were not modified.",
+    "No RED claim; the pre-assertion state records the existing prior green suite.",
+    "No business rules, API contract, range, RuleVersion or product source changed by this browser task."
+  ],
+  "runnerErrors": []
+}

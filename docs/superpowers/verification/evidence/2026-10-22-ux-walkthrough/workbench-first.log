@@ -1,0 +1,1875 @@
+
+> @yunqi/workbench@0.1.0 test D:\Projects\YunQi\apps\yunqi-workbench
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/apps/yunqi-workbench
+
+ ❯ src/features/yunqi/components/CurrentYunQiPage.test.tsx (1 test | 1 failed) 119ms
+     × renders the complete summary-first current YunQi view 103ms
+ ❯ src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx (4 tests | 1 failed) 486ms
+     × renders the canonical success result with neutral selected-time semantics 220ms
+ ❯ src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx (7 tests | 2 failed) 3256ms
+     × selects the first API stage without current-state language 464ms
+     × keeps the detail eyebrow neutral outside checked-selection styling 143ms
+ ❯ src/features/yunqi/components/rule-traceability-panels.test.tsx (2 tests | 1 failed) 703ms
+     × keeps API explanations separate from traceability metadata 676ms
+ ❯ src/app/AppRoutes.test.tsx (20 tests | 1 failed) 5606ms
+     × renders the specified-time entry and keeps the initial state request-free 251ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/app/AppRoutes.test.tsx > AppRoutes > renders the specified-time entry and keeps the initial state request-free
+TestingLibraryElementError: Unable to find an element with the text: 北京时间 UTC+08. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="theme-root"
+      data-theme="light"
+    >
+      <div
+        class="app-shell"
+      >
+        <a
+          class="skip-link"
+          href="#workbench-content"
+        >
+          跳至主要内容
+        </a>
+        <header
+          class="product-header"
+        >
+          <div
+            class="product-lockup"
+          >
+            <span
+              aria-hidden="true"
+              class="product-seal"
+            >
+              运
+            </span>
+            <div>
+              <p
+                class="product-kicker"
+              >
+                中医五运六气 · 结构化原型系统
+              </p>
+              <h1
+                class="product-name"
+              >
+                TCM YunQi Lab
+              </h1>
+            </div>
+          </div>
+          <div
+            class="header-status"
+          >
+            <span
+              class="foundation-status"
+            >
+              临床教学工作台 · 只读
+            </span>
+            <button
+              aria-label="切换至深色主题"
+              class="theme-toggle"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                fill="none"
+                focusable="false"
+                height="18"
+                stroke="currentColor"
+                stroke-width="1.5"
+                viewBox="0 0 24 24"
+                width="18"
+              >
+                <path
+                  d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z"
+                />
+              </svg>
+              深色
+            </button>
+          </div>
+        </header>
+        <div
+          class="shell-body"
+        >
+          <nav
+            aria-label="工作台导航"
+            class="workbench-navigation"
+          >
+            <p
+              class="navigation-eyebrow"
+            >
+              工作台导航
+            </p>
+            <ul
+              class="navigation-list"
+            >
+              <li>
+                <a
+                  class="navigation-item"
+                  data-discover="true"
+                  href="/yunqi/current"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="navigation-mark"
+                  >
+                    今
+                  </span>
+                  当前五运六气
+                </a>
+              </li>
+              <li>
+                <a
+                  class="navigation-item"
+                  data-discover="true"
+                  href="/yunqi/year"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="navigation-mark"
+                  >
+                    年
+                  </span>
+                  年度分析
+                </a>
+              </li>
+              <li>
+                <a
+                  aria-current="page"
+                  class="navigation-item is-active"
+                  data-discover="true"
+                  href="/yunqi/calculate"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="navigation-mark"
+                  >
+                    时
+                  </span>
+                  指定时点
+                </a>
+              </li>
+              <li>
+                <a
+                  class="navigation-item"
+                  data-discover="true"
+                  href="/yunqi/inquiry"
+                >
+                  <span
+                    aria-hidden="true"
+                    class="navigation-mark"
+                  >
+                    问
+                  </span>
+                  问诊
+                  <span
+                    class="navigation-status"
+                  >
+                    规划中
+                  </span>
+                </a>
+              </li>
+            </ul>
+            <p
+              class="navigation-note"
+            >
+              规则学习 · 只读分析
+            </p>
+          </nav>
+          <main
+            class="workbench-main"
+            id="workbench-content"
+            tabindex="-1"
+          >
+            <div
+              class="time-analysis-page"
+            >
+              <header
+                class="time-analysis-hero"
+              >
+                <div>
+                  <h2>
+                    指定时点分析
+                  </h2>
+                  <p
+                    class="time-analysis-hero__summary"
+                  >
+                    输入一个北京标准时间，查看该时点对应的五运六气规则结构。
+                  </p>
+                </div>
+              </header>
+              <section
+                aria-labelledby="time-analysis-form-title"
+                class="time-analysis-form-panel"
+              >
+                <header>
+                  <h3
+                    id="time-analysis-form-title"
+                  >
+                    选择分析时间
+                  </h3>
+                  <p>
+                    本页面只用于规则结果核对与阶段验证。
+                  </p>
+                </header>
+                <form
+                  aria-label="指定时点分析表单"
+                  class="time-analysis-form"
+                >
+                  <div
+                    class="time-analysis-form__field"
+                  >
+                    <label
+                      for="time-analysis-input"
+                    >
+                      分析时间
+                    </label>
+                    <input
+                      aria-describedby="time-analysis-hint"
+                      aria-invalid="false"
+                      id="time-analysis-input"
+                      required=""
+                      step="1"
+                      type="datetime-local"
+                      value=""
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                  >
+                    开始分析
+                  </button>
+                  <p
+                    class="time-analysis-form__hint"
+                    id="time-analysis-hint"
+                  >
+                    按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
+                    <span>
+                      北京时间 UTC+08 · 支持 
+                      1900
+                      –
+                      2100
+                       运气年，年界以大寒交节为准。
+                    </span>
+                  </p>
+                </form>
+              </section>
+            </div>
+            <footer
+              class="workbench-footer"
+            >
+              <details
+                class="contract-disclosure"
+              >
+                <summary>
+                  技术信息 · 接口契约
+                </summary>
+                <div
+                  class="contract-detail"
+                >
+                  <code>
+                    YQ-API-CONTRACT-1.1.0
+                  </code>
+                  <p>
+                    仅消费冻结契约，不在展示层计算五运六气规则。
+                  </p>
+                </div>
+              </details>
+              <aside
+                aria-label="系统边界"
+                class="safety-note"
+              >
+                <span
+                  aria-hidden="true"
+                >
+                  界
+                </span>
+                <p>
+                  本系统用于理论说明、规则解释与线索整理，不提供自动诊断、辨证或治疗决策。
+                </p>
+              </aside>
+            </footer>
+          </main>
+        </div>
+      </div>
+      <div
+        data-testid="router-probe"
+      >
+        <output
+          aria-label="测试路径"
+        >
+          /yunqi/calculate
+        </output>
+        <output
+          aria-label="测试导航类型"
+        >
+          POP
+        </output>
+        <button
+          type="button"
+        >
+          测试后退
+        </button>
+      </div>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/app/AppRoutes.test.tsx:222:14
+    220|     );
+    221|     expect(
+    222|       screen.getByText('北京时间 UTC+08'),
+       |              ^
+    223|     ).toBeInTheDocument();
+    224|     expect(client.calculate).not.toHaveBeenCalled();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/features/yunqi/components/CurrentYunQiPage.test.tsx > CurrentYunQiPage > renders the complete summary-first current YunQi view
+TypeError: Cannot destructure property 'basename' of 'React10.useContext(...)' as it is null.
+ ❯ LinkWithRef ../../node_modules/.pnpm/react-router@7.18.1_react-d_2879923684311b3c119c4a81033d7b21/node_modules/react-router/dist/development/chunk-KS7C4IRE.mjs:10518:11
+ ❯ Object.react_stack_bottom_frame ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:25904:20
+ ❯ renderWithHooks ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:7662:22
+ ❯ updateForwardRef ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:9724:19
+ ❯ beginWork ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:12117:18
+ ❯ runWithFiberInDEV ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:874:13
+ ❯ performUnitOfWork ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:17641:22
+ ❯ workLoopSync ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:17469:41
+ ❯ renderRootSync ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:17450:11
+ ❯ performWorkOnRoot ../../node_modules/.pnpm/react-dom@19.2.7_react@19.2.7/node_modules/react-dom/cjs/react-dom-client.development.js:16583:35
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/features/yunqi/components/rule-traceability-panels.test.tsx > rule explanation and traceability panels > keeps API explanations separate from traceability metadata
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  前端未扩写
+Received:
+  规则结果说明按本次计算结果逐条说明，供规则学习与核对。API 原文
+ ❯ src/features/yunqi/components/rule-traceability-panels.test.tsx:25:25
+     23|     });
+     24|     expect(explanation).toHaveTextContent('API 原文');
+     25|     expect(explanation).toHaveTextContent('前端未扩写');
+       |                         ^
+     26|     expect(trace).not.toHaveTextContent('API 原文');
+     27|     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx > TimeAnalysisPage > renders the canonical success result with neutral selected-time semantics
+TestingLibraryElementError: Unable to find an element with the text: 已版本化的 Phase 1 实现基线，待正式专家冻结与验证。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="time-analysis-page"
+    >
+      <header
+        class="time-analysis-hero"
+      >
+        <div>
+          <h2>
+            指定时点分析
+          </h2>
+          <p
+            class="time-analysis-hero__summary"
+          >
+            输入一个北京标准时间，查看该时点对应的五运六气规则结构。
+          </p>
+        </div>
+      </header>
+      <section
+        aria-labelledby="time-analysis-form-title"
+        class="time-analysis-form-panel"
+      >
+        <header>
+          <h3
+            id="time-analysis-form-title"
+          >
+            选择分析时间
+          </h3>
+          <p>
+            本页面只用于规则结果核对与阶段验证。
+          </p>
+        </header>
+        <form
+          aria-label="指定时点分析表单"
+          class="time-analysis-form"
+        >
+          <div
+            class="time-analysis-form__field"
+          >
+            <label
+              for="time-analysis-input"
+            >
+              分析时间
+            </label>
+            <input
+              aria-describedby="time-analysis-hint"
+              aria-invalid="false"
+              id="time-analysis-input"
+              required=""
+              step="1"
+              type="datetime-local"
+              value=""
+            />
+          </div>
+          <button
+            type="submit"
+          >
+            开始分析
+          </button>
+          <p
+            class="time-analysis-form__hint"
+            id="time-analysis-hint"
+          >
+            按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
+            <span>
+              北京时间 UTC+08 · 支持 
+              1900
+              –
+              2100
+               运气年，年界以大寒交节为准。
+            </span>
+          </p>
+        </form>
+      </section>
+      <section
+        aria-label="指定时点分析结果"
+        class="time-analysis-result"
+      >
+        <p
+          class="analysis-success"
+          role="status"
+        >
+          分析完成，所选时点位于
+          三之气
+          。
+        </p>
+        <header
+          class="time-analysis-result__time"
+        >
+          <div>
+            <h3>
+              规范分析时间
+            </h3>
+          </div>
+          <span
+            class="yunqi-time"
+          >
+            <time
+              datetime="2026-06-19T12:00:00+08:00"
+            >
+              2026-06-19 12:00:00
+            </time>
+            <span
+              class="yunqi-time__standard"
+            >
+              北京时间 UTC+08
+            </span>
+          </span>
+        </header>
+        <section
+          aria-labelledby="_r_0_"
+          class="time-analysis-stage-detail"
+          role="region"
+        >
+          <header
+            class="time-analysis-stage-detail__header"
+          >
+            <h2
+              id="_r_0_"
+            >
+              所选时点所在阶段：
+              三之气
+            </h2>
+            <p>
+              核对所选时点的主气、客气和客主关系。
+            </p>
+          </header>
+          <div
+            class="time-analysis-stage-detail__facts"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段序号
+              </dt>
+              <dd>
+                3
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段区间
+              </dt>
+              <dd>
+                <span
+                  class="time-analysis-stage-detail__time"
+                >
+                  <span
+                    class="yunqi-time-range"
+                  >
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-05-21T11:00:00+08:00"
+                      >
+                        2026-05-21 11:00:00
+                      </time>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                    >
+                      —
+                    </span>
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-07-23T12:00:00+08:00"
+                      >
+                        2026-07-23 12:00:00
+                      </time>
+                    </span>
+                  </span>
+                  <span>
+                    北京时间 UTC+08
+                  </span>
+                </span>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                主气
+              </dt>
+              <dd>
+                少阳相火
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>[...
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx:39:19
+     37|     renderPage();
+     38|
+     39|     expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInT…
+       |                   ^
+     40|
+     41|     const result = screen.getByRole('region', {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+ FAIL  src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx > AnnualYunQiPage > selects the first API stage without current-state language
+TestingLibraryElementError: Unable to find an element with the text: 已版本化的 Phase 1 实现基线，待正式专家冻结与验证。. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="annual-yunqi-page"
+    >
+      <section
+        aria-labelledby="_r_0_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_0_"
+          >
+            年度概览
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            规则实现基线，待正式专家冻结与验证。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <div
+            class="summary-grid"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                运气年
+              </dt>
+              <dd>
+                2026
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                干支
+              </dt>
+              <dd>
+                丙午
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                岁运
+              </dt>
+              <dd>
+                水运太过（太羽）
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                司天
+              </dt>
+              <dd>
+                少阳相火
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                在泉
+              </dt>
+              <dd>
+                厥阴风木
+              </dd>
+            </dl>
+          </div>
+          <div
+            class="summary-year-range"
+          >
+            <span>
+              年界 · 北京时间 UTC+08
+            </span>
+            <span
+              class="yunqi-time-range"
+            >
+              <span
+                class="yunqi-time"
+              >
+                <time
+                  datetime="2026-01-20T09:00:00+08:00"
+                >
+                  2026-01-20 09:00:00
+                </time>
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                —
+              </span>
+              <span
+                class="yunqi-time"
+              >
+                <time
+                  datetime="2027-01-20T15:00:00+08:00"
+                >
+                  2027-01-20 15:00:00
+                </time>
+              </span>
+            </span>
+            <span>
+              起点包含，终点不包含
+            </span>
+          </div>
+        </div>
+      </section>
+      <div
+        class="annual-stage-workspace"
+      >
+        <fieldset
+          class="annual-six-qi-selector"
+        >
+          <legend>
+            选择六气阶段
+          </legend>
+          <p
+            class="stage-selector-hint"
+          >
+            选择后在下方查看详情 · 北京时间 UTC+08
+          </p>
+          <div
+            class="annual-six-qi-selector__options"
+          >
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                checked=""
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="1"
+              />
+              <strong>
+                初之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-01-20T09:00:00+08:00"
+                  >
+                    01-20 09:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-03-21T10:00:00+08:00"
+                  >
+                    03-21 10:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="2"
+              />
+              <strong>
+                二之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-03-21T10:00:00+08:00"
+                  >
+                    03-21 10:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-05-21T11:00:00+08:00"
+                  >
+                    05-21 11:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="3"
+              />
+              <strong>
+                三之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-05-21T11:00:00+08:00"
+                  >
+                    05-21 11:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-07-23T12:00:00+08:00"
+                  >
+                    07-23 12:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="4"
+              />
+              <strong>
+                四之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-07-23T12:00:00+08:00"
+                  >
+                    07-23 12:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-09-23T13:00:00+08:00"
+                  >
+                    09-23 13:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="5"
+              />
+              <strong>
+                五之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-09-23T13:00:00+08:00"
+                  >
+                    09-23 13:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-11-22T14:00:00+08:00"
+                  >
+                    11-22 14:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_1_"
+                type="radio"
+                value="6"
+              />
+              <strong>
+                终之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-11-22T14:00:00+08:00"
+                  >
+                    11-22 14:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2027-01-20T15:00:00+08:00"
+                  >
+                    01-20 15:00
+                  </time>
+                </span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+        <section
+          aria-labelledby="_r_2_"
+          class="annual-six-qi-detail"
+          role="region"
+        >
+          <header
+            class="annual-six-qi-detail__header"
+          >
+            <h2
+              aria-atomic="true"
+              aria-live="polite"
+              id="_r_2_"
+            >
+              已选择：
+              初之气
+            </h2>
+            <p>
+              核对本阶段的主气、客气和客主关系。
+            </p>
+          </header>
+          <div
+            class="annual-six-qi-detail__facts"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段序号
+              </dt>
+              <dd>
+                1
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段区间
+              </dt>
+              <dd>
+                <span
+                  class="annual-six-qi-detail__time"
+                >
+                  <span
+                    class="yunqi-time-range"
+                  >
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-01-20T09:00:00+08:00"
+                      >
+                        2026-01-20 09:00:00
+                      </time>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                    >
+                      —
+                    </span>
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-03-21T10:00:00+08:00"
+                      >
+                        2026-03-21 10:00:00
+                      </time>
+                    </span>
+                  </span>
+                  <span>
+                    北京时间 UTC+08
+                  </span>
+                </span>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                主气
+              </dt>
+              <dd>
+                厥阴风木
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                客气
+              </dt>
+              <dd>
+                少阴君火
+              </dd>
+            </dl>
+          </div>
+          <div
+            class="relation-detail"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                气关系
+              </dt>
+              <dd>
+                同一六气
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                五行关系
+              </dt>
+              <dd>
+                同五行
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                方向关系
+              </dt>
+              <dd>
+                无方向关系
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                传统描述
+              </dt>
+              <dd>
+                同一六气
+              </dd>
+            </dl>
+          </div>
+        </section>
+      </div>
+      <section
+        aria-labelledby="_r_3_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_3_"
+          >
+            规则结果说明
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            按本次计算结果逐条说明，供规则学习与核对。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <ol
+            class="theory-list"
+          >
+            <li>
+              本结果依据冻结规则计算。
+            </li>
+            <li>
+              传统理论说明仅供医生学习与复盘。
+            </li>
+          </ol>
+        </div>
+      </section>
+      <section
+        aria-labelledby="_r_4_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_4_"
+          >
+            追溯信息
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            用于核对本次结果的接口、规则版本与时间标准。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <div
+            class="rule-trace"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                Contract ID
+              </dt>
+              <dd>
+                <code>
+                  YQ-API-CONTRACT-1.1.0
+                </code>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                数据来源
+              </dt>
+              <dd>
+                YunQi 年度查询 API
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                规则版本
+              </dt>
+              <dd>
+                <code>
+                  YQ-MVP-RULES-1.1.0
+                </code>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                时间标准
+              </dt>
+              <dd>
+                北京时间 UTC+08
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx:14:19
+     12|     render(<AnnualYunQiPage viewModel={viewModel} />);
+     13|
+     14|     expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInT…
+       |                   ^
+     15|
+     16|     const radios = screen.getAllByRole('radio');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/6]⎯
+
+ FAIL  src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx > AnnualYunQiPage > keeps the detail eyebrow neutral outside checked-selection styling
+TestingLibraryElementError: Unable to find an element with the text: Stage Detail. This could be because the text is broken up by multiple elements. In this case, you can provide a function for your text matcher to make your matcher more flexible.
+
+Ignored nodes: comments, script, style
+<body>
+  <div>
+    <div
+      class="annual-yunqi-page"
+    >
+      <section
+        aria-labelledby="_r_f_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_f_"
+          >
+            年度概览
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            规则实现基线，待正式专家冻结与验证。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <div
+            class="summary-grid"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                运气年
+              </dt>
+              <dd>
+                2026
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                干支
+              </dt>
+              <dd>
+                丙午
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                岁运
+              </dt>
+              <dd>
+                水运太过（太羽）
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                司天
+              </dt>
+              <dd>
+                少阳相火
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                在泉
+              </dt>
+              <dd>
+                厥阴风木
+              </dd>
+            </dl>
+          </div>
+          <div
+            class="summary-year-range"
+          >
+            <span>
+              年界 · 北京时间 UTC+08
+            </span>
+            <span
+              class="yunqi-time-range"
+            >
+              <span
+                class="yunqi-time"
+              >
+                <time
+                  datetime="2026-01-20T09:00:00+08:00"
+                >
+                  2026-01-20 09:00:00
+                </time>
+              </span>
+              <span
+                aria-hidden="true"
+              >
+                —
+              </span>
+              <span
+                class="yunqi-time"
+              >
+                <time
+                  datetime="2027-01-20T15:00:00+08:00"
+                >
+                  2027-01-20 15:00:00
+                </time>
+              </span>
+            </span>
+            <span>
+              起点包含，终点不包含
+            </span>
+          </div>
+        </div>
+      </section>
+      <div
+        class="annual-stage-workspace"
+      >
+        <fieldset
+          class="annual-six-qi-selector"
+        >
+          <legend>
+            选择六气阶段
+          </legend>
+          <p
+            class="stage-selector-hint"
+          >
+            选择后在下方查看详情 · 北京时间 UTC+08
+          </p>
+          <div
+            class="annual-six-qi-selector__options"
+          >
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                checked=""
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="1"
+              />
+              <strong>
+                初之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-01-20T09:00:00+08:00"
+                  >
+                    01-20 09:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-03-21T10:00:00+08:00"
+                  >
+                    03-21 10:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="2"
+              />
+              <strong>
+                二之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-03-21T10:00:00+08:00"
+                  >
+                    03-21 10:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-05-21T11:00:00+08:00"
+                  >
+                    05-21 11:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="3"
+              />
+              <strong>
+                三之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-05-21T11:00:00+08:00"
+                  >
+                    05-21 11:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-07-23T12:00:00+08:00"
+                  >
+                    07-23 12:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="4"
+              />
+              <strong>
+                四之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-07-23T12:00:00+08:00"
+                  >
+                    07-23 12:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-09-23T13:00:00+08:00"
+                  >
+                    09-23 13:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="5"
+              />
+              <strong>
+                五之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-09-23T13:00:00+08:00"
+                  >
+                    09-23 13:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-11-22T14:00:00+08:00"
+                  >
+                    11-22 14:00
+                  </time>
+                </span>
+              </span>
+            </label>
+            <label
+              class="annual-six-qi-selector__option"
+            >
+              <input
+                name="annual-six-qi-_r_g_"
+                type="radio"
+                value="6"
+              />
+              <strong>
+                终之气
+              </strong>
+              <span
+                class="annual-six-qi-selector__range"
+              >
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2026-11-22T14:00:00+08:00"
+                  >
+                    11-22 14:00
+                  </time>
+                </span>
+                <span
+                  aria-hidden="true"
+                >
+                  —
+                </span>
+                <span
+                  class="yunqi-time"
+                >
+                  <time
+                    datetime="2027-01-20T15:00:00+08:00"
+                  >
+                    01-20 15:00
+                  </time>
+                </span>
+              </span>
+            </label>
+          </div>
+        </fieldset>
+        <section
+          aria-labelledby="_r_h_"
+          class="annual-six-qi-detail"
+          role="region"
+        >
+          <header
+            class="annual-six-qi-detail__header"
+          >
+            <h2
+              aria-atomic="true"
+              aria-live="polite"
+              id="_r_h_"
+            >
+              已选择：
+              初之气
+            </h2>
+            <p>
+              核对本阶段的主气、客气和客主关系。
+            </p>
+          </header>
+          <div
+            class="annual-six-qi-detail__facts"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段序号
+              </dt>
+              <dd>
+                1
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                阶段区间
+              </dt>
+              <dd>
+                <span
+                  class="annual-six-qi-detail__time"
+                >
+                  <span
+                    class="yunqi-time-range"
+                  >
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-01-20T09:00:00+08:00"
+                      >
+                        2026-01-20 09:00:00
+                      </time>
+                    </span>
+                    <span
+                      aria-hidden="true"
+                    >
+                      —
+                    </span>
+                    <span
+                      class="yunqi-time"
+                    >
+                      <time
+                        datetime="2026-03-21T10:00:00+08:00"
+                      >
+                        2026-03-21 10:00:00
+                      </time>
+                    </span>
+                  </span>
+                  <span>
+                    北京时间 UTC+08
+                  </span>
+                </span>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                主气
+              </dt>
+              <dd>
+                厥阴风木
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                客气
+              </dt>
+              <dd>
+                少阴君火
+              </dd>
+            </dl>
+          </div>
+          <div
+            class="relation-detail"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                气关系
+              </dt>
+              <dd>
+                同一六气
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                五行关系
+              </dt>
+              <dd>
+                同五行
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                方向关系
+              </dt>
+              <dd>
+                无方向关系
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                传统描述
+              </dt>
+              <dd>
+                同一六气
+              </dd>
+            </dl>
+          </div>
+        </section>
+      </div>
+      <section
+        aria-labelledby="_r_i_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_i_"
+          >
+            规则结果说明
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            按本次计算结果逐条说明，供规则学习与核对。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <ol
+            class="theory-list"
+          >
+            <li>
+              本结果依据冻结规则计算。
+            </li>
+            <li>
+              传统理论说明仅供医生学习与复盘。
+            </li>
+          </ol>
+        </div>
+      </section>
+      <section
+        aria-labelledby="_r_j_"
+        class="ui-panel"
+      >
+        <header
+          class="ui-panel__header"
+        >
+          <h2
+            id="_r_j_"
+          >
+            追溯信息
+          </h2>
+          <p
+            class="ui-panel__description"
+          >
+            用于核对本次结果的接口、规则版本与时间标准。
+          </p>
+        </header>
+        <div
+          class="ui-panel__content"
+        >
+          <div
+            class="rule-trace"
+          >
+            <dl
+              class="data-label"
+            >
+              <dt>
+                Contract ID
+              </dt>
+              <dd>
+                <code>
+                  YQ-API-CONTRACT-1.1.0
+                </code>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                数据来源
+              </dt>
+              <dd>
+                YunQi 年度查询 API
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                规则版本
+              </dt>
+              <dd>
+                <code>
+                  YQ-MVP-RULES-1.1.0
+                </code>
+              </dd>
+            </dl>
+            <dl
+              class="data-label"
+            >
+              <dt>
+                时间标准
+              </dt>
+              <dd>
+                北京时间 UTC+08
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+ ❯ Object.getElementError ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../node_modules/.pnpm/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx:72:28
+     70|     );
+     71|
+     72|     const eyebrow = screen.getByText('Stage Detail');
+       |                            ^
+     73|     expect(eyebrow).toHaveClass('annual-six-qi-detail__eyebrow');
+     74|     expect(eyebrow).not.toHaveClass('section-label');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/6]⎯
+
+
+ Test Files  5 failed | 26 passed (31)
+      Tests  6 failed | 106 passed (112)
+   Start at  16:27:21
+   Duration  40.88s (transform 5.59s, setup 127.82s, import 38.75s, tests 27.09s, environment 361.09s)
+
+D:\Projects\YunQi\apps\yunqi-workbench:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @yunqi/workbench@0.1.0 test: `vitest run`
+Exit status 1

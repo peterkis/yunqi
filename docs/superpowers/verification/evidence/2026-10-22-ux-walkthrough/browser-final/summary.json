@@ -1,0 +1,464 @@
+{
+  "stats": {
+    "startTime": "2026-10-22T08:38:40.292Z",
+    "duration": 166180.507,
+    "expected": 73,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserVersions": [
+    "155.0.8059.80"
+  ],
+  "checks": [
+    {
+      "title": "current-year shortcut and adjacent-year controls retain URL, bounds and history",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "sticky navigation, skip link and technical disclosure support keyboard recovery",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "current route redirects, renders canonical time and closes every stage disclosure",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "invalid year abc shows a recoverable message without a business query",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "invalid year 2024extra shows a recoverable message without a business query",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "invalid year 1899 shows a recoverable message without a business query",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "invalid year 2101 shows a recoverable message without a business query",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "specified time is submit-only, rejects empty input and hides stale results after editing",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "supported annual boundary years load directly from the real API",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "pending calculation disables input and repeated activation sends only one real request",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "calculation outage is sanitized and retry recovers using the real API",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "/yunqi/current recovers after a single failed GET",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "/yunqi/year/2024 recovers after a single failed GET",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "inquiry remains a no-query planning entry and invalid child routes return to current",
+      "project": "flows-chromium",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "desktop-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "breakpoint-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "tablet-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "mobile-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "narrow-light",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "desktop-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "project": "mobile-dark",
+      "status": "expected",
+      "attempts": 1
+    }
+  ],
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "chrome",
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:53381",
+    "serviceURL": "http://127.0.0.1:53380",
+    "cleanupErrors": []
+  }
+}

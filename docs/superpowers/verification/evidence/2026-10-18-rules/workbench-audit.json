@@ -1,0 +1,544 @@
+{
+  "auditDate": "2026-10-18",
+  "scope": "Frontend projection of documented business rules; reviewed production TypeScript/TSX/declarations, excluding CSS and test fixtures from the 68-file production manifest.",
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "b7716751d6e714dab5848525986dad1cba6cc988d03af7a2a207f433d30bc904"
+    },
+    {
+      "path": "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+      "sha256": "6db429fdaa301c838e9bcd47a6ae0102b8085c51f431d59ade2ccb47ab75a751"
+    },
+    {
+      "path": "rules/PHASE1_RULE_SOURCES.md",
+      "sha256": "1d2534fbb1b0a4ca79b6121ded46f03b3fb2664234d517a47aa16fae9e871ae3"
+    },
+    {
+      "path": "rules/RULE_FREEZE_NOTE.md",
+      "sha256": "14d5971a5d86c4112ef67f7719319079a2aca826caacf730bb9475f5b1732310"
+    },
+    {
+      "path": "docs/contracts/YQ-API-CONTRACT-1.0.0.md",
+      "sha256": "f35c475cde238ae521cc8b674646b7ba4c40894269c541b2ca976669c771a1df"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-20-phase3-c1-yunqi-presentation-design.md",
+      "sha256": "822624cd6afc9d604141df6968c47cd9a6b2c8c78f6e90f4a32dc5343a5e8b8b"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c2-yunqi-annual-timeline-design.md",
+      "sha256": "56db6c753b6e3f12802ca79a03aef6174a2dfa9aa844a3457bbb260d545d34b8"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c3-annual-analysis-design.md",
+      "sha256": "935860446c3d697ca9338c978a5fadf23e82f8f1a456a0a7d22cab9fbe8ee9be"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c3-state-machine.md",
+      "sha256": "8650774ae8d51636794eba467c4ac51969c918add86632620ad6420b19186399"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-22-phase3-c4-inquiry-entry-design.md",
+      "sha256": "b6d06554c83feff37ac056726984f7d1b49ee5199f15cfdc6c3cbc11befd5dab"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-18-phase3-e1-time-analysis-design.md",
+      "sha256": "cbfb7f3bd472a7a6bc5ae5b516e6c504ab5600bb5b442c421b69cf7d7b378f2a"
+    },
+    {
+      "path": "docs/中医五运六气第一阶段规则共识确认单_V1.0-2026.7.7.docx",
+      "sha256": "9a2962c35b9da1b796fc89b4cb2956d1e238cf083f3880c6a368039b1ef65bbc"
+    },
+    {
+      "path": ".superpowers/rule-consistency-20261018/source-consensus.txt",
+      "sha256": "73eff417b1fcfd7a1275d8eda1e3f9290753d30a576fb8254a2e5bb295349d78"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/五运六气规则规格说明书_V1.0.md",
+      "sha256": "ff63cd81e4ddc662d9c9c3b13762c74e1d89af9920e496eb83cce1570b72f4d1"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-15-yunqi-domain-phase1.md",
+      "sha256": "5e7e0d13256c22bbe2f8ea4a12e67b55583cbabfb4e4f1cff8bce560a6ee6dbc"
+    }
+  ],
+  "coverage": {
+    "totalFiles": 68,
+    "reviewedFiles": 68,
+    "skippedFiles": 0,
+    "coverageRate": 1,
+    "method": "Source-by-source manual review against rules, frozen Contract and phase-specific specifications; not proof of clinical validity."
+  },
+  "files": [
+    {
+      "path": "apps/yunqi-workbench/src/app/App.tsx",
+      "sha256": "e3120c61db2274ee84ce10ada96e35211657f9cfbe2c0ac87fda413cd485697b",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/AppRoutes.tsx",
+      "sha256": "398831a6718782d6d80aa6d6bb388eeaf9da0ffc138368e3d645189882f8191a",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/NotFoundPage.tsx",
+      "sha256": "c7d16fde433d5663f5c1dfcbe1617fb46f608bc9e0fc2233e968c8d1fc0e1e2e",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/routes.ts",
+      "sha256": "fa59c9d8464995bc071fff89f2dcfb6df57f919dd203ea0341d9dabfc594f17e",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/AsyncState.tsx",
+      "sha256": "1be22f31a4f86f314bf340dfad8702ec7163bc4240ba1aa6e39be384cdf48165",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/FeedbackStates.tsx",
+      "sha256": "3e542044b6ea588cdbde3446b37d4f1cd15f3b7fb978c2ee2cd8179503b45451",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/AppShell.tsx",
+      "sha256": "422de19e9b181162adda8e08add7d415d652d96d017c56a6889a93b9b37cc1a7",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/Navigation.tsx",
+      "sha256": "71b4c51702c0b3806549a3e71f584a1166299fd497393442752dc7b6d784bcc9",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/time/YunQiTimeDisplay.tsx",
+      "sha256": "d5db68f09bcedc4a23cb5b2bde8060aefd5fffb50588cccf78212644b9a832a2",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Badge.tsx",
+      "sha256": "7236d1fe7e295a6089ab4a3a274577aeb6cba8c9eaebc5f7449aa4712adae007",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Card.tsx",
+      "sha256": "1399d9903dc8502f3a99d6b462f46fc88e486819fc09a940e45270a704103cba",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/DataLabel.tsx",
+      "sha256": "8af2236b320b45b58cd3fddf46f1153299ebcfb6aa2035c1061bac994391337f",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Panel.tsx",
+      "sha256": "a02cd3a674e1f631fdc41b857b2b04f3b6e0d399e5ad2dec9c9658346670ccac",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/TimelineItem.tsx",
+      "sha256": "cab6d1806bd553cf95e3b36206d78aa92eef904c6529b1f5f24ab7fd26275c71",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/components/InquiryCapabilityCard.tsx",
+      "sha256": "f7c7974efca99f71f9f4ce291287459d4013185f48f6e0baa0f94052e5e41d78",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/audit-context.ts",
+      "sha256": "61664d5955a0f3c3cc8fe79aa79f99764bb51de3418c94930233627e05872d02",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/index.ts",
+      "sha256": "7aa99911d1e4e9e17e28589ae40f7c29c8fcb0140f7a971b11ecade2b19a222a",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/inquiry-context.ts",
+      "sha256": "cf76cd756d2342b156a89a7812ca5dff0d3a20ba8ef073117ae13c68fb33284b",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/observation-context.ts",
+      "sha256": "a03487a2b682306eefe05ea22e22385f23886f62d586902520b0ba9611319fb0",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/patient-context.ts",
+      "sha256": "a0110935652fa3b50ce06245d87b2c431ecc2bf8c4b66be75bcfae99bef3bb23",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/permission-context.ts",
+      "sha256": "f98892877b73b193d69705a6dad13464aefcbdb27f72b21e7e89b5733a213175",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.tsx",
+      "sha256": "941e5990d9a5be683d2ae14153c057267be3eb30b18816e8907b029c26c48219",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/api/query-options.ts",
+      "sha256": "f91009ce78fe6a7b89adf6e645908e4f57bc1a1ddae6e6902ae980b4c15e9990",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx",
+      "sha256": "4846f02f4c303e19574b1f29c61e858be13468fbed4b85af6ac2e7446c73a6bb",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentStepCard.tsx",
+      "sha256": "29c863bb585d4260983ca1d5b3a9707a530c9a5a295040e3ca7551602537aad6",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.tsx",
+      "sha256": "f811536e73f6a24801c5e44aa4214e06dd4ed95316a4c061d2020559293a3554",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiView.tsx",
+      "sha256": "9258969b8d82e16f039f1352a3d2025899bfe0d8dd74c5622e8eed000db98560",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/GuestHostRelationDetail.tsx",
+      "sha256": "00206b123b1340cd3c4671a149247a3024ed833607c1a7cf19d8bca129d4dbae",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/RuleExplanationPanel.tsx",
+      "sha256": "300563a636338c9e7346cd1265766bc5934f31f407dc367454bfb025d7dd225d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/six-qi-timeline-ids.ts",
+      "sha256": "cacce2982c4a3886e469ef4155ecb7079a661a29bbe172dbc7d4a8de96b5c2cb",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.tsx",
+      "sha256": "dd866d90faf229cc6c65402f4200be5564474e5e2a3d126bd754305f49ea491d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimelineItem.tsx",
+      "sha256": "3b9c54c1a0c4ff50b842c2d96f4b994f358a3df46a369668604f49346395c09d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/TraceabilityPanel.tsx",
+      "sha256": "2de077d8f68ba25f8fcb22b1c2abe1a91b8727350ccb83b0d358d093e11dae42",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiTimeRange.tsx",
+      "sha256": "24fe0c11a7feb67e8f7aba200ecad873f0bf305871fb96fcbe4c30ddf085bfc7",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx",
+      "sha256": "ccde0bd836740500cfbfad11e992b3b96df3190ce33376f3bd1c3e923bef09c9",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useCalculateYunQiMutation.ts",
+      "sha256": "2f59c1969acf915a8e32235a66ba766171884a19f501478842191254eed81e78",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useCurrentYunQiQuery.ts",
+      "sha256": "ff4cf6c9d8f8ccdc7eb86548830155b8e10d8aa8eef0e30c3ae4c00aae062d6e",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useYunQiYearQuery.ts",
+      "sha256": "62daa96de2100b90efd9206101b792524b9ea75bbff9208bb6ae23bbde21ca0d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-annual-yunqi.ts",
+      "sha256": "19de481e9979851f956a0f50f35ed8454220ff9a77fffb5b5f21620ce5bf36bc",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.ts",
+      "sha256": "4b6a7e71f12f54411050d65cdac2e75aac5aef58710fde3e6863c949f83cbf82",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-time-analysis-yunqi.ts",
+      "sha256": "79b2e93787b5b12c2409e41b1db1e576402e949d11a0fe60062ede1b509d8fbd",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-yunqi-shared.ts",
+      "sha256": "e8ff267da2cbd15f1ebddad08bf604625f603896157034f02e53add51aa24326",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/view-model.ts",
+      "sha256": "dfa5a4fb9ed83f0d41911aadc91a595892ec43c8e8ffb82a5f59b08c81428401",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisForm.tsx",
+      "sha256": "1bc1fc0ebbd5752071310dd26d11214fd1df3182e55c564705c381d00cf6492c",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.tsx",
+      "sha256": "0ddadff011e2776cde10e6034ff841664141f76a914e9be825c5e9d71a60a9ec",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisSixQiRail.tsx",
+      "sha256": "55f2521c42c5389e5be9b3c7651a8c19a2eb3d6a9567f51a40efe8a5b2684335",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisStageDetailPanel.tsx",
+      "sha256": "771907a448b6f967b6de838372c048ba375e350ee6d7c7902ab7fbf45d71edcd",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisView.tsx",
+      "sha256": "5cee3ab16e3e02309657f9f34f666ed7bd4f27cf33fb6d04b1a5c00c4effb7f8",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/time-input.ts",
+      "sha256": "7aaf4f4298968df1f16f164d949dc5244b4d95230a357c54c34b50339f7469eb",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiDetailPanel.tsx",
+      "sha256": "ab5711721108ae24b13a23532f78b2b07cb689bea1c8ddb37d9c7fb07ac4d325",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiSelector.tsx",
+      "sha256": "6e140cdc719e417519315179384cf7045f26f2952afa8bdac1078f50cc5fadba",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.tsx",
+      "sha256": "a190a683bc3a0547839cfcb9e3609e4093fe383ea51b7894719bbf13db1426ad",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiView.tsx",
+      "sha256": "1596b2d2934ffb67f30167586f219b74a374a9519cc908ede38da33db4b08bf7",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx",
+      "sha256": "48b17391c1348e696a642d5bab2fc9ec3325ed9cf5380778466f430dd5aacfc0",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx",
+      "sha256": "f5ba968ea57e33876b84af08e075084efa5148fcb1dc68a5149e21ab84d02747",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisPage.tsx",
+      "sha256": "e4310e779415d61d3f28e7cc5c9cb08fb625190421026e444a7c51573d8f6924",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearEntryPage.tsx",
+      "sha256": "e6501ee2eeec4e72b76f088af8a87c2e3527526f232a2bfce9a2eea6cc508d18",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx",
+      "sha256": "005a9d3fa39fa1f24cedaf2fde24c7744c37eded44f9b37472bd8f9ac6c1d67d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/runtime-config.ts",
+      "sha256": "7820c82763e055220f8655949a52eb47667ea4710bb4a62837088fad56e42759",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/year-validator.ts",
+      "sha256": "992a13b1497632091e67304f1b14393616622369c60842624f832d12918f2366",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/yunqi-year-range.ts",
+      "sha256": "f8cac4853558b2b90004c6333eb04ed547ed6b8018f2a9da4733d1813a9d697d",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/main.tsx",
+      "sha256": "d48c0743ab29e0560f4304ddd5ad5ac6f55437d39342d21293c6cfb053c4dc86",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/AppProviders.tsx",
+      "sha256": "42feda1ff9b33704bbcfd4f6da096982b5d476f6384e23abe70eecdc2f253423",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ErrorBoundaryProvider.tsx",
+      "sha256": "16b8c790f380904c7e94a5a018408da30c4f889917376e7bc2ab10e7ee10db1f",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/QueryProvider.tsx",
+      "sha256": "ef01321c3bb51d80dee3648deae229c15eb2b2712605ace5d04614ffea21fafd",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ThemeProvider.tsx",
+      "sha256": "907011476a683215997930a4fe6abc3a30f93714752aa2ec29de0891bff3b8dc",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/YunQiClientProvider.tsx",
+      "sha256": "be70230108fad759ff3a21f71f7b7bf2556276572703d7dfba433e9a81d60da9",
+      "status": "reviewed"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/vite-env.d.ts",
+      "sha256": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92",
+      "status": "reviewed"
+    }
+  ],
+  "findings": [
+    {
+      "id": "WB-R12",
+      "severity": "medium",
+      "status": "fixed",
+      "source": "Original consensus document R-12; extracted source-consensus.txt line 32. No later C1/C3/E1 spec explicitly overrides the primary movement/state wording.",
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx",
+      "line": 40,
+      "before": "太羽 · 水 · 太过",
+      "after": "水运太过（太羽）",
+      "additionalCase": "木运不及（少角）",
+      "changeBoundary": "Presentation string only. Preserves element, state and tone facts; no rule algorithm/version, DTO, Contract, CSS or pre-existing UI change."
+    }
+  ],
+  "checks": [
+    {
+      "rule": "DTO facts, six-stage order, API indexes and tuple preservation",
+      "result": "consistent",
+      "evidence": "map-yunqi-shared.ts:82-132"
+    },
+    {
+      "rule": "Qi, element and direction remain separate; traditionalLabel unchanged",
+      "result": "consistent",
+      "evidence": "map-yunqi-shared.ts:16-79; GuestHostRelationDetail.tsx:12-19"
+    },
+    {
+      "rule": "Canonical localTime with fixed Beijing label; no epoch-based display or time/rule recomputation",
+      "result": "consistent",
+      "evidence": "map-yunqi-shared.ts:53-62; YunQiTimeDisplay.tsx:9-34"
+    },
+    {
+      "rule": "Current status comes only from API currentStep.index",
+      "result": "consistent",
+      "evidence": "map-current-yunqi.ts:22-77"
+    },
+    {
+      "rule": "Annual entry/invalid routes make no query; URL owns year; annual stage state neutral",
+      "result": "consistent",
+      "evidence": "AppRoutes.tsx:23-26; YearAnalysisPage.tsx:6-14; AnnualYunQiPage.tsx:13-31"
+    },
+    {
+      "rule": "Specified time requests only after explicit submission; dirty/pending/error hide previous results; selected time is not current time",
+      "result": "consistent",
+      "evidence": "TimeAnalysisView.tsx:9-89; TimeAnalysisPage.tsx:67-113; map-time-analysis-yunqi.ts:12-30"
+    },
+    {
+      "rule": "API explanations rendered without inferred medical meaning",
+      "result": "consistent",
+      "evidence": "RuleExplanationPanel.tsx:16-23"
+    },
+    {
+      "rule": "Inquiry entry remains planning-only with zero requests; models internal and type-only",
+      "result": "consistent",
+      "evidence": "InquiryEntryPage.tsx:4-35; inquiry/models/index.ts:1-5; AppRoutes.tsx:22-27"
+    },
+    {
+      "rule": "Public package and Provider ownership boundaries",
+      "result": "consistent",
+      "evidence": "providers/*; features/yunqi/hooks/*; features/yunqi/api/query-options.ts"
+    }
+  ],
+  "tests": [
+    {
+      "phase": "RED",
+      "command": "pnpm --filter @yunqi/workbench exec vitest run src/features/yunqi/components/YunQiYearSummaryPanel.test.tsx src/features/yunqi/components/CurrentYunQiPage.test.tsx --maxWorkers=1",
+      "exitCode": 1,
+      "testFiles": 2,
+      "failed": 3,
+      "passed": 0,
+      "log": {
+        "path": ".superpowers/rule-consistency-20261018/workbench-red.log",
+        "sha256": "8f235fb921149146c45fa8ba5bc86464707a1e9cdd0e7d484733f7c3b10fc2c5"
+      },
+      "failureCause": "Expected R-12 display strings absent; old tone-first strings present. PNPM appends an ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL wrapper message after the actual Vitest assertion failures."
+    },
+    {
+      "phase": "GREEN",
+      "command": "pnpm --filter @yunqi/workbench exec vitest run src/features/yunqi/components/YunQiYearSummaryPanel.test.tsx src/features/yunqi/components/CurrentYunQiPage.test.tsx --maxWorkers=1",
+      "exitCode": 0,
+      "testFiles": 2,
+      "failed": 0,
+      "passed": 3,
+      "log": {
+        "path": ".superpowers/rule-consistency-20261018/workbench-green.log",
+        "sha256": "fea4df81b35e431ab17f580ef465073a3403d07e0f03c4330f8662b6a4d621c2"
+      }
+    },
+    {
+      "phase": "Adjacent shared-consumer regression",
+      "command": "pnpm --filter @yunqi/workbench exec vitest run src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx --maxWorkers=1",
+      "exitCode": 0,
+      "testFiles": 2,
+      "failed": 0,
+      "passed": 11,
+      "log": {
+        "path": ".superpowers/rule-consistency-20261018/workbench-adjacent.log",
+        "sha256": "9b6367646b8d52a6b795887ae969bded7457fe0afbc62a778b32018e1de08cc7"
+      }
+    },
+    {
+      "phase": "Test typecheck",
+      "command": "pnpm --filter @yunqi/workbench test:typecheck",
+      "exitCode": 0,
+      "log": {
+        "path": ".superpowers/rule-consistency-20261018/workbench-test-typecheck.log",
+        "sha256": "72cc424b3183b58da98b2c00a2f5e95d8495c4adfbb2e51cd7838724a22fd610"
+      }
+    }
+  ],
+  "editedFiles": [
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx",
+      "sha256": "ccde0bd836740500cfbfad11e992b3b96df3190ce33376f3bd1c3e923bef09c9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.test.tsx",
+      "sha256": "8fa27ff5c1ad46b46770b0773dcfd9531a661f569561403c524afdf1abaab574"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx",
+      "sha256": "68508e975f8623551a6f9a70493c25236e2cc2627c995698d1ae2d0a48ae8bb6"
+    }
+  ],
+  "limitations": [
+    "R-08 range and R-21 traditional wording conflict are handled by the parent task; this patch does not choose either policy.",
+    "Existing Workbench synthetic fixtures include intentionally assembled facts, including a 2026 Qi pair not matching the real rule output; their PASS is not evidence of real-year/domain correctness.",
+    "No new screenshot/browser run, full quality-gate run or clinical/expert validation was performed by this subtask.",
+    "Rule version remains YQ-MVP-RULES-1.0.0; original rule-freeze note remains pending formal freeze."
+  ]
+}

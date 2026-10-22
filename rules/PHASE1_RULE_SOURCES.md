@@ -2,6 +2,10 @@
 
 本文件补充 `PHASE1_IMPLEMENTATION_RULES_V1.md` 的来源定位，不改变任何映射、规则版本或计算结果。
 
+2026-10-18补记：当前 `PHASE1_IMPLEMENTATION_RULES_V1_1.md` 继承下列映射来源。
+1.1.0新增的R-08范围与R-21解释文本依据原始Word确认单及用户本轮明确采用决定；
+其版本差异、专家待冻结状态见新版规则表，不将工程采用描述为古典原文或专家签署。
+
 ## 古典规则来源
 
 - 十干化运、三阴三阳司天：`《黄帝内经·素问·天元纪大论》`，中国哲学书电子化计划：[原文](https://ctext.org/huangdi-neijing/tian-yuan-ji-da-lun/zh)

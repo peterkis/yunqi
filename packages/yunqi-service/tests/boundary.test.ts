@@ -27,7 +27,7 @@ describe('YunQi service boundaries', () => {
   it('brands service year assertion failures as invalid arguments', () => {
     let thrown: unknown;
     try {
-      assertSupportedYear(1900);
+      assertSupportedYear(1899);
     } catch (error) {
       thrown = error;
     }
@@ -84,7 +84,7 @@ describe('YunQi service boundaries', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/yunqi/calculate',
-      payload: { dateTime: '1901-01-01T00:00:00+08:00' },
+      payload: { dateTime: '1900-01-01T00:00:00+08:00' },
     });
 
     expect(response.statusCode).toBe(400);
@@ -119,16 +119,16 @@ describe('YunQi service boundaries', () => {
     },
   );
 
-  it('allows a 2100 civil instant in supported YunQi year 2099', async () => {
+  it('allows a 2101 civil instant in supported YunQi year 2100', async () => {
     const app = await createApp(fixedCalendarProvider);
 
     const response = await app.inject({
       method: 'POST',
       url: '/api/v1/yunqi/calculate',
-      payload: { dateTime: '2100-01-01T00:00:00+08:00' },
+      payload: { dateTime: '2101-01-01T00:00:00+08:00' },
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().data.year).toBe(2099);
+    expect(response.json().data.year).toBe(2100);
   });
 });

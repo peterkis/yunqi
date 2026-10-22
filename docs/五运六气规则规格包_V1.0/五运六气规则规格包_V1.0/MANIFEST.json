@@ -1,0 +1,50 @@
+{
+  "generatedAt": "2026-06-19",
+  "files": [
+    {
+      "path": "README.md",
+      "size": 1138,
+      "sha256": "420c87b441376153878caa1dff24505f9e450a4f583f16eba77c3002c67f7991"
+    },
+    {
+      "path": "fixtures/mvp-test-cases.v1.json",
+      "size": 4715,
+      "sha256": "984f8f29e10d0dc17893d8604a905688a712926310cf69f355e4c7a586ec2aac"
+    },
+    {
+      "path": "fixtures/sexagenary-cycle-baseline.v1.csv",
+      "size": 10114,
+      "sha256": "0d0e9c9aa9be13f0650f6fb650749a404a4dd988a80cb39f655ff5552aea0f6c"
+    },
+    {
+      "path": "fixtures/sexagenary-cycle-baseline.v1.json",
+      "size": 154297,
+      "sha256": "7246544a7c39762c0aa474f53eef1f2a7370c52b2803ede75923b8baa1162e47"
+    },
+    {
+      "path": "reference/yunqi-reference.ts",
+      "size": 4762,
+      "sha256": "be5bdefe2273e33aff65c62574629a24d1c4e96f10c09e6d25e158413dea8d27"
+    },
+    {
+      "path": "rules/yunqi-mvp-rules.v1.json",
+      "size": 6158,
+      "sha256": "68c75058a336772a3dbe78019a457a9c948dff79c1272fc1bdb45f77483e84bf"
+    },
+    {
+      "path": "schemas/yunqi-result.v1.schema.json",
+      "size": 4350,
+      "sha256": "885dd2e6833c00aea923ba074c8410dfcd04b862d0cb5439c9a8b56c9cf7001e"
+    },
+    {
+      "path": "专家审核清单.md",
+      "size": 2535,
+      "sha256": "e67eae4dfde8f9df993b8e40d8d686828c50ba6263c222c323901c271fbc80a8"
+    },
+    {
+      "path": "五运六气规则规格说明书_V1.0.md",
+      "size": 28979,
+      "sha256": "ff63cd81e4ddc662d9c9c3b13762c74e1d89af9920e496eb83cce1570b72f4d1"
+    }
+  ]
+}

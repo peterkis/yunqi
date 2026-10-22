@@ -1,0 +1,149 @@
+{
+  "auditDate": "2026-10-18",
+  "scope": "Fixed Beijing time, Gregorian conversion, solar-term boundaries, time normalization, and frozen Service range",
+  "status": "PASS_WITH_DOCUMENT_AUTHORITY_LIMITATIONS",
+  "productionFilesModified": [],
+  "ruleAuthority": [
+    {
+      "source": "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+      "lines": "15-23,30-41,73-92",
+      "clauses": "Fixed +08; actual Dahan year; left-closed/right-open; 1984 Jiazi anchor; six solar-term starts and next Dahan; third guest equals sitian and sixth guest equals zaiquan"
+    },
+    {
+      "source": "docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md",
+      "lines": "26-38,44-91,94-150,163-184,254-263",
+      "clauses": "CalendarTime authority; exclude historical DST and server zone; sole dated calculation; provider separation; exact input formats; independent-process TZ equivalence"
+    },
+    {
+      "source": "docs/superpowers/specs/2026-07-16-yunqi-calendar-time-semantics-design.md",
+      "lines": "238-266,273-306,341-378,719-725",
+      "clauses": "Gregorian field validation; exact milliseconds; immutable factories; optional redundant deep assertion; calendar tuple comparisons; preserve locked solar-term epochs"
+    },
+    {
+      "source": "docs/superpowers/specs/2026-07-16-yunqi-service-phase2a-design.md",
+      "lines": "161,190-195,237",
+      "clauses": "Inclusive 1901-2099 Service range; provider-thrown failure is 503; ordinary Domain RangeError is 400"
+    },
+    {
+      "source": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/五运六气规则规格说明书_V1.0.md",
+      "lines": "193-198,271,470-496,808-838",
+      "clauses": "Actual Dahan interval; recommended 1900-2100 conflicts with later frozen API range; six-step completeness; each boundary -1/0/+1ms; independent astronomy crosscheck is recommended"
+    },
+    {
+      "source": "rules/PHASE1_RULE_SOURCES.md",
+      "lines": "17",
+      "clauses": "Independent published tables support minute-level checks only; locked tyme4ts@1.5.2 supplies exact seconds"
+    }
+  ],
+  "implementationTrace": [
+    {
+      "source": "packages/yunqi-domain/src/calendar/time.ts",
+      "lines": "103-143,150-239,248-391",
+      "checks": "Leap-year validation, integer Gregorian conversion, strict immutable factories, local-field tuple comparison"
+    },
+    {
+      "source": "packages/yunqi-domain/src/calendar/yunqi-year-resolver.ts",
+      "lines": "15-28",
+      "checks": "Candidate local year and actual Dahan comparison"
+    },
+    {
+      "source": "packages/yunqi-domain/src/services/calculate-yunqi.ts",
+      "lines": "18-74",
+      "checks": "Left-closed/right-open local-field selection and compatibility delegation"
+    },
+    {
+      "source": "packages/yunqi-domain/src/liuqi/six-qi.ts",
+      "lines": "17-52",
+      "checks": "Seven provider boundaries, strict ordering, six adjacent steps"
+    },
+    {
+      "source": "packages/calendar-adapters/tyme4ts/src/provider.ts",
+      "lines": "10-31",
+      "checks": "Requested term/year validation, fixed-Beijing fields, no YunQi ownership logic"
+    },
+    {
+      "source": "packages/yunqi-service/src/modules/time-normalizer/parser.ts",
+      "lines": "10-37",
+      "checks": "Strict input lexical forms"
+    },
+    {
+      "source": "packages/yunqi-service/src/modules/time-normalizer/normalizer.ts",
+      "lines": "14-45",
+      "checks": "Fixed-offset local/+08/Z normalization and epoch clock projection"
+    },
+    {
+      "source": "packages/yunqi-service/src/modules/time-normalizer/formatter.ts",
+      "lines": "17-34",
+      "checks": "Canonical localTime and three-digit nonzero milliseconds"
+    },
+    {
+      "source": "packages/yunqi-service/src/services/yunqi-service.ts",
+      "lines": "19-28,43-77",
+      "checks": "Frozen supported YunQi-year range and allowed 2100 civil time before Dahan"
+    }
+  ],
+  "executedEvidence": [
+    {
+      "command": "node --test tests/yunqi-time-consistency.test.mjs",
+      "status": "PASS",
+      "tests": 3,
+      "supportedAnnualYears": 199,
+      "boundaryOwnershipCases": 4179,
+      "normalizedInputForms": 12537,
+      "serviceEndpointRequests": 6,
+      "invalidLexemes": 9,
+      "durationMilliseconds": 3344.9712,
+      "oracleBoundary": "Expected year and step derive from the ordered specification boundary position. Three-form checks establish transport equivalence, not an independent Gregorian algorithm."
+    },
+    {
+      "command": "python -X utf8 -B .superpowers/rule-consistency-20261018/verify-gregorian-oracle.py",
+      "status": "PASS",
+      "summaryFile": "gregorian-oracle-summary.json",
+      "gregorianDays": 73414,
+      "epochAndRoundTripAssertions": 146828,
+      "independentOracle": "Python standard-library datetime with fixed timezone(+08), integer timedelta division",
+      "initialFailureFile": "gregorian-oracle-initial-failure.json"
+    },
+    {
+      "command": "pnpm --filter @yunqi/domain exec vitest run tests/calendar-time.test.ts tests/calendar.test.ts tests/services.test.ts tests/sexagenary-cycle-full.test.ts",
+      "status": "PASS",
+      "tests": 71
+    },
+    {
+      "command": "pnpm --filter @yunqi/calendar-adapter-tyme4ts test",
+      "status": "PASS",
+      "tests": 37
+    },
+    {
+      "command": "pnpm --filter @yunqi/service exec vitest run tests/time-normalizer.test.ts tests/calendar-time-boundary.test.ts tests/historical-dst-regression.test.ts tests/boundary.test.ts",
+      "status": "PASS",
+      "tests": 36
+    },
+    {
+      "command": "node packages/yunqi-service/scripts/check-time-zone-independence.mjs",
+      "status": "PASS",
+      "processTimeZones": ["UTC", "Asia/Shanghai"],
+      "result": "timezone-independence: ok"
+    }
+  ],
+  "rangeEndpointResults": [
+    { "boundaryYear": 1901, "deltaMs": -1, "status": 400, "code": "INVALID_ARGUMENT" },
+    { "boundaryYear": 1901, "deltaMs": 0, "status": 200, "resultYear": 1901, "step": 1 },
+    { "boundaryYear": 1901, "deltaMs": 1, "status": 200, "resultYear": 1901, "step": 1 },
+    { "boundaryYear": 2100, "deltaMs": -1, "status": 200, "resultYear": 2099, "step": 6 },
+    { "boundaryYear": 2100, "deltaMs": 0, "status": 400, "code": "INVALID_ARGUMENT" },
+    { "boundaryYear": 2100, "deltaMs": 1, "status": 400, "code": "INVALID_ARGUMENT" }
+  ],
+  "limitations": [
+    "The original 1900-2100 recommendation and subsequent frozen 1901-2099 API range require an authority decision; this audit does not expand the Contract.",
+    "Real-provider boundary checks validate engineering ownership for locked tyme4ts values; they do not independently certify astronomical second-level accuracy.",
+    "Provider-thrown errors and malformed provider output triggering Domain RangeError have distinct historical error classification; no classification change is claimed.",
+    "The rule baseline remains pending formal expert freezing; this is engineering evidence, not clinical acceptance."
+  ],
+  "reproduction": [
+    "pnpm build:contract-source",
+    "node --test tests/yunqi-time-consistency.test.mjs",
+    "python -X utf8 -B .superpowers/rule-consistency-20261018/verify-gregorian-oracle.py",
+    "node packages/yunqi-service/scripts/check-time-zone-independence.mjs"
+  ]
+}

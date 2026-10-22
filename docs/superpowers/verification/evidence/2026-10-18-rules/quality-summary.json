@@ -1,0 +1,69 @@
+{
+  "baselineHead": "12ddb044f7bfc64d643e5e95a0271a707db107c0",
+  "completedAt": "2026-10-18T01:19:41.1942566+08:00",
+  "commands": [
+    {
+      "command": "pnpm test",
+      "startedAt": "2026-10-18T01:14:33.980268+08:00",
+      "finishedAt": "2026-10-18T01:16:04.7042254+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "startedAt": "2026-10-18T01:16:23.1544158+08:00",
+      "finishedAt": "2026-10-18T01:16:50.4055831+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm test:coverage",
+      "startedAt": "2026-10-18T01:16:50.4763176+08:00",
+      "finishedAt": "2026-10-18T01:18:37.5055267+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm contracts:check",
+      "startedAt": "2026-10-18T01:18:37.5401473+08:00",
+      "finishedAt": "2026-10-18T01:18:54.0405081+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm schema:validate",
+      "startedAt": "2026-10-18T01:18:54.0543194+08:00",
+      "finishedAt": "2026-10-18T01:19:01.0766709+08:00",
+      "exitCode": 0
+    }
+  ],
+  "sourceFilesBefore": 248,
+  "sourceFilesAfter": 248,
+  "sourceDriftCount": 0,
+  "sourceChangesDuringValidation": [],
+  "aggregateCounts": {
+    "workbench": 112,
+    "service": 153,
+    "ruleConsistency": 5,
+    "workbenchGovernanceSkip": 1,
+    "timeGovernance": 10,
+    "contractGovernance": 32,
+    "timeConsistency": 3,
+    "domain": 132,
+    "workbenchGovernancePass": 280,
+    "client": 8,
+    "calendarAdapter": 37,
+    "passed": 773,
+    "skipped": 1,
+    "devProxy": 1,
+    "failed": 0
+  },
+  "schemaValidateTests": 4,
+  "workbenchCoverage": {
+    "functions": 100,
+    "lines": 98.82,
+    "statements": 98.83,
+    "branches": 92.95
+  },
+  "intermediateFailures": [],
+  "retries": [],
+  "retainedSkip": "Workbench governance linked-source symlink creation unavailable on this Windows host (1 SKIP).",
+  "openapiWarnings": 3,
+  "scope": "Engineering checks only. Browser verification is intentionally deferred to parent. Clinical G1-G6 remain NOT_RUN."
+}

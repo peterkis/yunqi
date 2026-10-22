@@ -1,0 +1,137 @@
+[
+  {
+    "path": "apps/yunqi-workbench/src/app/App.tsx",
+    "before": "e3120c61db2274ee84ce10ada96e35211657f9cfbe2c0ac87fda413cd485697b",
+    "after": "efa2442ce0fa8778bd66a37cbd841991adddd448722666acd5b481dd7d6db114"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/components/layout/AppShell.tsx",
+    "before": "422de19e9b181162adda8e08add7d415d652d96d017c56a6889a93b9b37cc1a7",
+    "after": "7a44150634b9ab37131ccd51331440b7b7095a244faf6dcfb541c187ad22172d"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/components/layout/Navigation.tsx",
+    "before": "71b4c51702c0b3806549a3e71f584a1166299fd497393442752dc7b6d784bcc9",
+    "after": "92913339890c348fa5c63b24ff10fa854a09d10b01b0f08bc2bb5e2e473b9c44"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.tsx",
+    "before": "941e5990d9a5be683d2ae14153c057267be3eb30b18816e8907b029c26c48219",
+    "after": "3ceb71fb286d4d78c197d4082a11c5884c79faddddf520fbd774c0f024752fbc"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentStepCard.tsx",
+    "before": "29c863bb585d4260983ca1d5b3a9707a530c9a5a295040e3ca7551602537aad6",
+    "after": "486ac8bba2c4a9897bb29a0b1a6b9d09f386a48a1841d663d86c36ae45a76718"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx",
+    "before": "afbc709f34645864c7cf68c248f2282c12c6ebbdf45a88531073c738396db34c",
+    "after": "21231b55d8b106b8964e647e7f681b404ddbbd3de304416c7110787d93448b07"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.tsx",
+    "before": "f811536e73f6a24801c5e44aa4214e06dd4ed95316a4c061d2020559293a3554",
+    "after": "06d62163cad15131ccf40a449e3b5871d8647cf64e22751aa9fb7e488e3c686b"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx",
+    "before": "176cfbe38ae2b11b373ff8b62f88d771f6b0bc18e261b7b97adc2664943324d6",
+    "after": "c8ee2d7d22e509d59a5f41c51501aea2e94e3f7421f60a222f6f574b59c12461"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/RuleExplanationPanel.tsx",
+    "before": "300563a636338c9e7346cd1265766bc5934f31f407dc367454bfb025d7dd225d",
+    "after": "693ade839b4b150b5314c5a712f330c8b8780f631941259ad2e188d8d128045a"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.tsx",
+    "before": "dd866d90faf229cc6c65402f4200be5564474e5e2a3d126bd754305f49ea491d",
+    "after": "ab3a7aafe5977c740fc8e2c268025eae39ccdf54e2c690239f74b90de50f25b7"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/TraceabilityPanel.tsx",
+    "before": "2de077d8f68ba25f8fcb22b1c2abe1a91b8727350ccb83b0d358d093e11dae42",
+    "after": "70f399a8fe6cbec3d137c91bb84f8e2c4701f23cef09fba9ec492dc74290c26b"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx",
+    "before": "ccde0bd836740500cfbfad11e992b3b96df3190ce33376f3bd1c3e923bef09c9",
+    "after": "99235d2316ad0fb9d4125e96c9ec62d3e59f93d4eb2cc6c503581d0506f495b4"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisForm.tsx",
+    "before": "1bc1fc0ebbd5752071310dd26d11214fd1df3182e55c564705c381d00cf6492c",
+    "after": "6ed66c2414d9bc5f8a0a9f9f92fe01722aafc832e9f3608973517e2f9179e912"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx",
+    "before": "7addadea2bc4adfca9b796267b2713fa66ce36cb9f477d6abec0eea743f58118",
+    "after": "3d271b6b2ac13d47c4a97bd909b96cf328e4b9ca7a1befe4bb93da10bf9fc441"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.tsx",
+    "before": "0ddadff011e2776cde10e6034ff841664141f76a914e9be825c5e9d71a60a9ec",
+    "after": "c2b861831af209eb548755b0365472e0c23fdfc6fe4921581919f49d11d54467"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisSixQiRail.tsx",
+    "before": "55f2521c42c5389e5be9b3c7651a8c19a2eb3d6a9567f51a40efe8a5b2684335",
+    "after": "47def243bfc3b0ff41d188258bb66ed03a401c9731b33b7062b86a6783ccbb9b"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisStageDetailPanel.tsx",
+    "before": "771907a448b6f967b6de838372c048ba375e350ee6d7c7902ab7fbf45d71edcd",
+    "after": "55053a42101831e992037d88c693bf44716b5f8d9a17d03d00122302d56ec066"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiDetailPanel.tsx",
+    "before": "ab5711721108ae24b13a23532f78b2b07cb689bea1c8ddb37d9c7fb07ac4d325",
+    "after": "f194d732dc25f553057ad1752eddcc1bda66109c4785a26194a462c4a16fe4e8"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiSelector.tsx",
+    "before": "6e140cdc719e417519315179384cf7045f26f2952afa8bdac1078f50cc5fadba",
+    "after": "2688af7e76ccb8723ea201a6177d476231d561fb559d35a7ffce11d9a4a1809c"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx",
+    "before": "06a5c3e463a758a62aca349ed26cb71be4a6216967d258655eddc828ffa07eee",
+    "after": "c0b758ee05813a4b2cb1666481531a3daaf9c06f468bfb0ba952f9e0d13e1e91"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.tsx",
+    "before": "a190a683bc3a0547839cfcb9e3609e4093fe383ea51b7894719bbf13db1426ad",
+    "after": "22c1f3c5591bcaaf200663cc97aad029ffd582dcbbd0cf999c59cf6f1f4b81db"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx",
+    "before": "f5ba968ea57e33876b84af08e075084efa5148fcb1dc68a5149e21ab84d02747",
+    "after": "643206d13d8da4f82900352c257556c3217f94cb329ba62b6914556305932add"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx",
+    "before": "005a9d3fa39fa1f24cedaf2fde24c7744c37eded44f9b37472bd8f9ac6c1d67d",
+    "after": "f52fe7949a9881d5b7c99e0190afdf384fc8274efac884a6e843b14dc567704e"
+  },
+  {
+    "path": "apps/yunqi-workbench/src/styles/global.css",
+    "before": "c9e17c8496b2b1273606d6d845817bf75c260fe2bea6f5c3780866e920c74607",
+    "after": "362c715457247be8ddc55c4f92bfd8bb8328ff979a70cb273b32d370987a032b"
+  },
+  {
+    "path": "tests/browser/README.md",
+    "before": "c2b7c5b12a4d42c94cd16fac286d32ac4048310e42721d5b7fb1f1b339418de4",
+    "after": "1edfc2ac71dc364c0fcc0c0a4aabb6328e69f04d8ff48dbb425913b922c55230"
+  },
+  {
+    "path": "tests/browser/ux-walkthrough.flows.spec.mjs",
+    "before": null,
+    "after": "ef3fa6e688cf805d9fce922e6af8d382f9ee34278912b6218059d8177fa9caca"
+  },
+  {
+    "path": "tests/browser/workbench.flows.spec.mjs",
+    "before": "2b0f8b1e3ccefd9a15817f97fb756ee6496cd5b52004bff79523e7a3f13248c0",
+    "after": "d92a33b215346a1f755def39f7d5fe6d131c07e00c2ce7c96bba01c76e1dab99"
+  }
+]

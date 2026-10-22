@@ -4,6 +4,7 @@ import {
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  symlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -30,6 +31,70 @@ const allowedRuntimeDependencies = {
   'react-dom': '19.2.7',
   'react-router-dom': '7.18.1',
 };
+
+for (const target of ['hidden.test.tsx', 'hidden.spec.ts', 'hidden.fixture.tsx',
+  'fixtures/hidden.ts', '__fixtures__/hidden.ts', 'test/hidden.ts', '__tests__/hidden.ts']) {
+  test(`rejects production import of excluded source ${target}`, async () => {
+    const fixture = createFixture({ relativeSourcePath: 'main.tsx', source: `import './${target}';` });
+    writeFixtureFile(fixture, `apps/yunqi-workbench/src/${target}`, 'export const hidden = 1;');
+    const violations = await findWorkbenchGovernanceViolations(fixture);
+    assert.ok(violations.some((v) => /excluded|production.*import/.test(v)), violations.join('\n'));
+  });
+}
+
+test('rejects a source directory junction escaping the Workbench', async () => {
+  const fixture = createFixture({ relativeSourcePath: 'main.tsx', source: "import './linked/hidden';" });
+  writeFixtureFile(fixture, 'outside/hidden.ts', 'export const hidden = 1;');
+  symlinkSync(join(fixture, 'outside'), join(fixture, 'apps/yunqi-workbench/src/linked'), 'junction');
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.ok(violations.some((v) => /symbolic link/.test(v)), violations.join('\n'));
+});
+
+test('rejects a linked source file instead of silently skipping it', async (t) => {
+  const fixture = createFixture({ relativeSourcePath: 'main.tsx', source: "import './linked';" });
+  writeFixtureFile(fixture, 'outside.ts', 'export const hidden = 1;');
+  try {
+    symlinkSync(join(fixture, 'outside.ts'), join(fixture, 'apps/yunqi-workbench/src/linked.ts'), 'file');
+  } catch (error) {
+    if (error.code === 'EPERM') { t.skip('OS does not grant file symlink creation'); return; }
+    throw error;
+  }
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.ok(violations.some((v) => /symbolic link/.test(v)), violations.join('\n'));
+});
+
+test('rejects an HTML entrypoint into excluded production source', async () => {
+  const fixture = createFixture({ indexHtml: '<html lang="zh-CN"><script type="module" src="/src/hidden.test.tsx"></script></html>' });
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.ok(violations.some((v) => /entrypoint/.test(v)), violations.join('\n'));
+});
+
+test('rejects excluded source reached through a runtime re-export barrel', async () => {
+  const fixture = createFixture({ relativeSourcePath: 'main.tsx', source: "import './barrel';" });
+  writeFixtureFile(fixture, 'apps/yunqi-workbench/src/barrel.ts', "export * from './hidden.test';");
+  writeFixtureFile(fixture, 'apps/yunqi-workbench/src/hidden.test.ts', 'export const hidden = 1;');
+  assert.ok((await findWorkbenchGovernanceViolations(fixture)).some((v) => /production import.*excluded/.test(v)));
+});
+
+test('pending rule provenance forbids a frozen-rule claim in production copy', async () => {
+  const fixture = createFixture({ source: 'export const Panel = () => <p>运气年来自冻结规则结果。</p>;' });
+  writeFixtureFile(fixture, 'rules/RULE_FREEZE_NOTE.md', '状态： 待正式冻结。');
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.ok(violations.some((v) => /rule.*freeze|冻结/.test(v)), violations.join('\n'));
+});
+
+for (const source of [
+  "export const load = () => import('@yunqi/' + 'domain');",
+  "export const load = () => import(`axios`);",
+  "const g = globalThis; export const C = g['Da' + 'te'];",
+  "export const C = window['Tem' + 'poral'];",
+]) {
+  test(`rejects opaque Workbench capability: ${source}`, async () => {
+    const fixture = createFixture({ relativeSourcePath: 'lib/opaque.ts', source });
+    const violations = await findWorkbenchGovernanceViolations(fixture);
+    assert.ok(violations.some((v) => v.includes('opaque.ts')), violations.join('\n'));
+  });
+}
 
 function writeFixtureFile(fixtureRoot, relativePath, source) {
   const target = join(fixtureRoot, relativePath);
@@ -589,6 +654,59 @@ test('rejects direct fetch in component source', async () => {
     source:
       "export function Fixture() { fetch('/health'); return <main />; }",
     expected: /components\/Fixture\.tsx: direct fetch is forbidden/,
+  });
+});
+
+test('rejects aliased global fetch in component source', async () => {
+  await assertMutationRejected({
+    source: "const request = globalThis.fetch; export async function load() { return request('/health'); }",
+    expected: /components\/Fixture\.tsx: .*fetch.*forbidden/,
+  });
+});
+
+test('rejects global fetch through an assigned browser alias', async () => {
+  await assertMutationRejected({
+    source: "let browser: Window; browser = window; export const request = () => browser.fetch('/health');",
+    expected: /fetch.*forbidden/,
+  });
+});
+
+for (const [label, source] of [
+  ['optional invocation', "export const load = () => globalThis.fetch?.('/health');"],
+  ['bare reference', 'export const request = fetch;'],
+  ['bracket reference', "export const request = window['fetch'];"],
+  ['global object alias', 'const browser = window; export const request = browser.fetch;'],
+  ['nested global object', "export const request = window.self.fetch('/health');"],
+  ['destructured global object', 'const { window: browser } = globalThis; export const request = browser.fetch;'],
+  ['destructured reference', 'const { fetch: request } = self; export { request };'],
+  ['shorthand reference', 'export const transport = { fetch };'],
+]) {
+  test(`rejects global fetch capability via ${label}`, async () => {
+    await assertMutationRejected({ source, expected: /fetch.*forbidden/ });
+  });
+}
+
+for (const [label, source] of [
+  ['local function', "function fetch() { return 'local'; } export const value = fetch();"],
+  ['parameter', 'export function read(fetch) { return fetch(); }'],
+  ['object method', 'const repository = { fetch() { return 1; } }; export const value = repository.fetch();'],
+  ['shadowed global object', 'export function read(window) { return window.fetch(); }'],
+  ['local shorthand', 'const fetch = () => 1; export const repository = { fetch };'],
+  ['assigned local object', 'let browser; browser = { fetch() { return 1; } }; export const value = browser.fetch();'],
+  ['shadowed assigned object', 'let browser = window; export function read() { let browser; browser = { fetch() { return 1; } }; return browser.fetch(); }'],
+  ['type-only reference', 'export type Request = typeof fetch;'],
+  ['text and comments', "// fetch('/health')\nexport const label = 'fetch(example)';"],
+]) {
+  test(`allows ${label} without browser fetch capability`, async () => {
+    const root = createFixture({ source });
+    assert.deepEqual(await findWorkbenchGovernanceViolations(root), []);
+  });
+}
+
+test('rejects global fetch destructuring assignment', async () => {
+  await assertMutationRejected({
+    source: 'let request; ({ fetch: request } = window); export { request };',
+    expected: /fetch.*forbidden/,
   });
 });
 
@@ -1383,7 +1501,7 @@ test('rejects selecting an annual stage by ordinal array position', async () => 
   });
 });
 
-for (const boundary of [1901, 2099]) {
+for (const boundary of [1900, 1901, 2099, 2100]) {
   test(`rejects duplicated ${boundary} year boundary in YearSelector`, async () => {
     await assertMutationRejected({
       relativeSourcePath:

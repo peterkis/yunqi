@@ -20,14 +20,11 @@ export function TimeAnalysisStageDetailPanel({
       role="region"
     >
       <header className="time-analysis-stage-detail__header">
-        <p className="time-analysis-stage-detail__eyebrow">
-          Selected Stage
-        </p>
         <h2 id={titleId}>所选时点所在阶段：{stage.name}</h2>
-        <p>以下内容来自指定时点计算 API，前端仅展示所选阶段事实。</p>
+        <p>核对所选时点的主气、客气和客主关系。</p>
       </header>
       <div className="time-analysis-stage-detail__facts">
-        <DataLabel label="API 阶段序号" value={stage.index} />
+        <DataLabel label="阶段序号" value={stage.index} />
         <DataLabel
           label="阶段区间"
           value={

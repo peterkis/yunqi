@@ -1,0 +1,259 @@
+{
+  "status": "PASS",
+  "unchangedFiles": 42,
+  "files": [
+    {
+      "path": "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+      "sha256Before": "6db429fdaa301c838e9bcd47a6ae0102b8085c51f431d59ade2ccb47ab75a751",
+      "sha256After": "6db429fdaa301c838e9bcd47a6ae0102b8085c51f431d59ade2ccb47ab75a751",
+      "unchanged": true
+    },
+    {
+      "path": "rules/RULE_FREEZE_NOTE.md",
+      "sha256Before": "14d5971a5d86c4112ef67f7719319079a2aca826caacf730bb9475f5b1732310",
+      "sha256After": "14d5971a5d86c4112ef67f7719319079a2aca826caacf730bb9475f5b1732310",
+      "unchanged": true
+    },
+    {
+      "path": "docs/contracts/YQ-API-CONTRACT-1.0.0.md",
+      "sha256Before": "f35c475cde238ae521cc8b674646b7ba4c40894269c541b2ca976669c771a1df",
+      "sha256After": "f35c475cde238ae521cc8b674646b7ba4c40894269c541b2ca976669c771a1df",
+      "unchanged": true
+    },
+    {
+      "path": "packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.0.0.freeze.json",
+      "sha256Before": "6b25cd857cec0768a7642bf06aae72d74527d0fd3e2797f957604e1e76782cff",
+      "sha256After": "6b25cd857cec0768a7642bf06aae72d74527d0fd3e2797f957604e1e76782cff",
+      "unchanged": true
+    },
+    {
+      "path": "docs/中医五运六气第一阶段规则共识确认单_V1.0-2026.7.7.docx",
+      "sha256Before": "9a2962c35b9da1b796fc89b4cb2956d1e238cf083f3880c6a368039b1ef65bbc",
+      "sha256After": "9a2962c35b9da1b796fc89b4cb2956d1e238cf083f3880c6a368039b1ef65bbc",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/MANIFEST.json",
+      "sha256Before": "e265583f2c6c825cbc89f6c3aa324223b3e5c2ef49ba2515e1d6154ee3060d08",
+      "sha256After": "e265583f2c6c825cbc89f6c3aa324223b3e5c2ef49ba2515e1d6154ee3060d08",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/README.md",
+      "sha256Before": "420c87b441376153878caa1dff24505f9e450a4f583f16eba77c3002c67f7991",
+      "sha256After": "420c87b441376153878caa1dff24505f9e450a4f583f16eba77c3002c67f7991",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/专家审核清单.md",
+      "sha256Before": "e67eae4dfde8f9df993b8e40d8d686828c50ba6263c222c323901c271fbc80a8",
+      "sha256After": "e67eae4dfde8f9df993b8e40d8d686828c50ba6263c222c323901c271fbc80a8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/五运六气规则规格说明书_V1.0.md",
+      "sha256Before": "ff63cd81e4ddc662d9c9c3b13762c74e1d89af9920e496eb83cce1570b72f4d1",
+      "sha256After": "ff63cd81e4ddc662d9c9c3b13762c74e1d89af9920e496eb83cce1570b72f4d1",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/mvp-test-cases.v1.json",
+      "sha256Before": "984f8f29e10d0dc17893d8604a905688a712926310cf69f355e4c7a586ec2aac",
+      "sha256After": "984f8f29e10d0dc17893d8604a905688a712926310cf69f355e4c7a586ec2aac",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/sexagenary-cycle-baseline.v1.csv",
+      "sha256Before": "0d0e9c9aa9be13f0650f6fb650749a404a4dd988a80cb39f655ff5552aea0f6c",
+      "sha256After": "0d0e9c9aa9be13f0650f6fb650749a404a4dd988a80cb39f655ff5552aea0f6c",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/sexagenary-cycle-baseline.v1.json",
+      "sha256Before": "7246544a7c39762c0aa474f53eef1f2a7370c52b2803ede75923b8baa1162e47",
+      "sha256After": "7246544a7c39762c0aa474f53eef1f2a7370c52b2803ede75923b8baa1162e47",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/reference/yunqi-reference.ts",
+      "sha256Before": "be5bdefe2273e33aff65c62574629a24d1c4e96f10c09e6d25e158413dea8d27",
+      "sha256After": "be5bdefe2273e33aff65c62574629a24d1c4e96f10c09e6d25e158413dea8d27",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/rules/yunqi-mvp-rules.v1.json",
+      "sha256Before": "68c75058a336772a3dbe78019a457a9c948dff79c1272fc1bdb45f77483e84bf",
+      "sha256After": "68c75058a336772a3dbe78019a457a9c948dff79c1272fc1bdb45f77483e84bf",
+      "unchanged": true
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/schemas/yunqi-result.v1.schema.json",
+      "sha256Before": "885dd2e6833c00aea923ba074c8410dfcd04b862d0cb5439c9a8b56c9cf7001e",
+      "sha256After": "885dd2e6833c00aea923ba074c8410dfcd04b862d0cb5439c9a8b56c9cf7001e",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/2026-10-18-rule-consistency.md",
+      "sha256Before": "66684a15577887950dab13403d79f43dce1419e0a5a54598f422e7eabac46123",
+      "sha256After": "66684a15577887950dab13403d79f43dce1419e0a5a54598f422e7eabac46123",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/2026-10-18-browser-acceptance.md",
+      "sha256Before": "43b620000255eae436ba1e67e88bbc999069cc50f8a93949c35db3d2210eaff8",
+      "sha256After": "43b620000255eae436ba1e67e88bbc999069cc50f8a93949c35db3d2210eaff8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/browser-summary.json",
+      "sha256Before": "2c63bdb2d45bae4e50272d245a56b1a2af0f588c366e6bcc5cbb52f6a0f8435d",
+      "sha256After": "2c63bdb2d45bae4e50272d245a56b1a2af0f588c366e6bcc5cbb52f6a0f8435d",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/domain-audit.json",
+      "sha256Before": "69cc35f9ad91bc80fbdf32559926a23cacfd7b073bcdb1949c26d5e8bfa8c934",
+      "sha256After": "69cc35f9ad91bc80fbdf32559926a23cacfd7b073bcdb1949c26d5e8bfa8c934",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/gregorian-oracle-initial-failure.json",
+      "sha256Before": "2e4d292c7ac329a705fd9407eda1f6ae42e72cc1ac9c99674296a9ad531546e4",
+      "sha256After": "2e4d292c7ac329a705fd9407eda1f6ae42e72cc1ac9c99674296a9ad531546e4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/gregorian-oracle-summary.json",
+      "sha256Before": "0c61f1fce4475491e5b8a35c18b758f440986f6e3b5d6bf7bf75edbbddaf3ee3",
+      "sha256After": "0c61f1fce4475491e5b8a35c18b758f440986f6e3b5d6bf7bf75edbbddaf3ee3",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/ocr-coverage.json",
+      "sha256Before": "c91a1878be69873674be9dab889e614f792a1188e218325e0c6c0d2445e7afeb",
+      "sha256After": "c91a1878be69873674be9dab889e614f792a1188e218325e0c6c0d2445e7afeb",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/original-manifest-check.json",
+      "sha256Before": "742516c84e20eee596b19ab9c457b8473313858634d0d707fbaad199c3ff29dd",
+      "sha256After": "742516c84e20eee596b19ab9c457b8473313858634d0d707fbaad199c3ff29dd",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/protected-source-hashes.json",
+      "sha256Before": "3894256ad80f65cba79f9a57bae18676c13534478eb65e63246fc04d55030da8",
+      "sha256After": "3894256ad80f65cba79f9a57bae18676c13534478eb65e63246fc04d55030da8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/quality-summary.json",
+      "sha256Before": "985f7c2033442aa456c6ca9cab35af074e56649b6a992f22c8d0e15b6e094864",
+      "sha256After": "985f7c2033442aa456c6ca9cab35af074e56649b6a992f22c8d0e15b6e094864",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/service-audit.json",
+      "sha256Before": "7ff1996ebd864e13de8737aa040039f121542550a73bdde7fc4a67d22102fcd9",
+      "sha256After": "7ff1996ebd864e13de8737aa040039f121542550a73bdde7fc4a67d22102fcd9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/service-probe-result.json",
+      "sha256Before": "c779960e7fd926fe6b6776774e6b18f34379bd398cdcfd0cac69f9879ee28681",
+      "sha256After": "c779960e7fd926fe6b6776774e6b18f34379bd398cdcfd0cac69f9879ee28681",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/source-coverage.json",
+      "sha256Before": "e140c59d19b5361c60e5ea941a7686a1a18c9f3bbdf8bbef0c0e6829be027ff0",
+      "sha256After": "e140c59d19b5361c60e5ea941a7686a1a18c9f3bbdf8bbef0c0e6829be027ff0",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/source-preservation.json",
+      "sha256Before": "3c6e0f6aeb5a18221a1f4a1864791709005badbe301c3fabee8fed2690f08f04",
+      "sha256After": "3c6e0f6aeb5a18221a1f4a1864791709005badbe301c3fabee8fed2690f08f04",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/summary.json",
+      "sha256Before": "58161f9f8eab058d1fb7999f56a3a4f3454972efe43253b66fa883ac15ca8a25",
+      "sha256After": "58161f9f8eab058d1fb7999f56a3a4f3454972efe43253b66fa883ac15ca8a25",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/supplemental-audit.json",
+      "sha256Before": "61f3374d50ab4a308f04b166e524f46ec8a3ffd6b3096ecf51444bcf2d688fd9",
+      "sha256After": "61f3374d50ab4a308f04b166e524f46ec8a3ffd6b3096ecf51444bcf2d688fd9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/time-audit.json",
+      "sha256Before": "9e4d1363a26caa79ce621cd23e31a251fd0e6022b4698a8c4ace7c13882a4822",
+      "sha256After": "9e4d1363a26caa79ce621cd23e31a251fd0e6022b4698a8c4ace7c13882a4822",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/workbench-audit.json",
+      "sha256Before": "3c2826129185f3c30e090f924ff575b7f4a3f1dba44c246143bddcdfb9035ea4",
+      "sha256After": "3c2826129185f3c30e090f924ff575b7f4a3f1dba44c246143bddcdfb9035ea4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-calculate-dark.png",
+      "sha256Before": "63b97c55f66ab85fdb93606a6444b137fed0db4ded51ed1295ab03458878f070",
+      "sha256After": "63b97c55f66ab85fdb93606a6444b137fed0db4ded51ed1295ab03458878f070",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-current-desktop.png",
+      "sha256Before": "32e39c66e0e6a4e84733d92b445a3df4426fd3f341e48a5cf82057f2ddb1a5c4",
+      "sha256After": "32e39c66e0e6a4e84733d92b445a3df4426fd3f341e48a5cf82057f2ddb1a5c4",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-current-preview.png",
+      "sha256Before": "3da8167c9b7f71d104c3a6d1d7dbf10bd0b11178ff870712875cf4b7120a9dd8",
+      "sha256After": "3da8167c9b7f71d104c3a6d1d7dbf10bd0b11178ff870712875cf4b7120a9dd8",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-year-737.png",
+      "sha256Before": "cb93ed148f48c2c99e8cdd34eccfbb11ef44267aaec177d3bb3d97e022d08833",
+      "sha256After": "cb93ed148f48c2c99e8cdd34eccfbb11ef44267aaec177d3bb3d97e022d08833",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/before-year-737.png",
+      "sha256Before": "0cdd8e881a85111da337f263155fa5d5ffa9af55e3ce9f9df383c61d788743d5",
+      "sha256After": "0cdd8e881a85111da337f263155fa5d5ffa9af55e3ce9f9df383c61d788743d5",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/browser-summary.json",
+      "sha256Before": "dd6c612ab70ad170f0f7237f758f25bd1ec0e906035d25081cde450dcac18e06",
+      "sha256After": "dd6c612ab70ad170f0f7237f758f25bd1ec0e906035d25081cde450dcac18e06",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/development-build-interruption.png",
+      "sha256Before": "197c1d636d425faeb1b17501bcea0eb1190939d4ff65dd7ff5daa6758edd56d9",
+      "sha256After": "197c1d636d425faeb1b17501bcea0eb1190939d4ff65dd7ff5daa6758edd56d9",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/quality-summary.json",
+      "sha256Before": "ab86a9900f46b132fd5f5cba5f26b8c09a2c3debbe97a2452f3dbb6ce34a7a7b",
+      "sha256After": "ab86a9900f46b132fd5f5cba5f26b8c09a2c3debbe97a2452f3dbb6ce34a7a7b",
+      "unchanged": true
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/validated-source-sha256.json",
+      "sha256Before": "79ddb51cadc9a0db5b2ed7e3eb2cf36fdd371d6308c93f55635e51203ce3d7f1",
+      "sha256After": "79ddb51cadc9a0db5b2ed7e3eb2cf36fdd371d6308c93f55635e51203ce3d7f1",
+      "unchanged": true
+    }
+  ],
+  "finalCheck": "All 42 protected files remain byte-identical after final browser work."
+}

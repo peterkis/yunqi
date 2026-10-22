@@ -1,0 +1,10 @@
+{
+  "base": "248623be3f0c3e8fc9ba6871bad869288e08941d",
+  "head": "12ddb044f7bfc64d643e5e95a0271a707db107c0",
+  "tree": "002f136903805632d0dc2fd8ec66bea74872a5e2",
+  "committedDiff": "git diff 248623be3f0c3e8fc9ba6871bad869288e08941d...HEAD",
+  "candidateDiff": "git diff 248623be3f0c3e8fc9ba6871bad869288e08941d 002f136903805632d0dc2fd8ec66bea74872a5e2",
+  "commits": "12ddb04 fix(security): close cloud findings and harden boundary controls",
+  "files": 217,
+  "bytes": 22799338
+}

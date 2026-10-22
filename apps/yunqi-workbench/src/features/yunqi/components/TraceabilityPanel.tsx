@@ -16,7 +16,6 @@ export function TraceabilityPanel({
 }: TraceabilityPanelProps) {
   return (
     <Panel
-      eyebrow="Traceability"
       title="追溯信息"
       description="用于核对本次结果的接口、规则版本与时间标准。"
     >

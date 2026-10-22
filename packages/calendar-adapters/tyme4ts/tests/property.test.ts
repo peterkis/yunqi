@@ -53,7 +53,7 @@ const EXPECTED_CONTROL = Object.freeze({
 
 const EXPECTED_DIRECTION_LABELS = Object.freeze({
   HOST_GENERATES_GUEST: '主生客，相得',
-  GUEST_GENERATES_HOST: '客生主',
+  GUEST_GENERATES_HOST: '客生主，相得',
   HOST_CONTROLS_GUEST: '主克客',
   GUEST_CONTROLS_HOST: '客克主',
 } satisfies Readonly<
@@ -126,7 +126,7 @@ function expectedRelation(host: Qi, guest: Qi): HostGuestRelationResult {
 describe('Phase 2 admission properties', () => {
   it('preserves six-step structure, continuity, anchors, and cross-year ownership', () => {
     fc.assert(
-      fc.property(fc.integer({ min: 1901, max: 2099 }), (year) => {
+      fc.property(fc.integer({ min: 1900, max: 2100 }), (year) => {
         const result = calculateYearYunQi(year, tyme4tsCalendarProvider);
         const next = calculateYearYunQi(year + 1, tyme4tsCalendarProvider);
 
@@ -149,14 +149,14 @@ describe('Phase 2 admission properties', () => {
           next.steps[0],
         );
       }),
-      { numRuns: 200 },
+      { examples: [[1900], [2100]], numRuns: 200 },
     );
   });
 
   it('gives every generated interior instant exactly one owning step', () => {
     fc.assert(
       fc.property(
-        fc.integer({ min: 1901, max: 2099 }),
+        fc.integer({ min: 1900, max: 2100 }),
         fc.integer({ min: 0, max: 5 }),
         fc.integer({ min: 0, max: 1_000 }),
         (year, stepIndex, basisPoint) => {
@@ -175,7 +175,15 @@ describe('Phase 2 admission properties', () => {
           );
         },
       ),
-      { numRuns: 200 },
+      {
+        examples: [
+          [1900, 0, 0],
+          [1900, 5, 1_000],
+          [2100, 0, 0],
+          [2100, 5, 1_000],
+        ],
+        numRuns: 200,
+      },
     );
   });
 

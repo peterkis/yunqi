@@ -1,0 +1,67 @@
+{
+  "auditDate": "2026-10-18",
+  "overallStatus": "ENGINEERING_PASS_WITH_UNRESOLVED_RULE_AUTHORITY",
+  "ruleVersion": "YQ-MVP-RULES-1.0.0",
+  "contractId": "YQ-API-CONTRACT-1.0.0",
+  "productionSourceCoverage": {
+    "total": 111,
+    "reviewed": 111,
+    "skipped": 0
+  },
+  "fixed": [
+    "R-12 SuiYun movement/state first; tone in parentheses"
+  ],
+  "pendingDecisions": [
+    {
+      "id": "R-08",
+      "originalWord": "1900-2100",
+      "currentFrozenAPI": "1901-2099",
+      "status": "AWAITING_AUTHORITY_CLARIFICATION"
+    },
+    {
+      "id": "R-21",
+      "originalWord": "客生主，相得",
+      "currentRuleLabel": "客生主",
+      "status": "AWAITING_AUTHORITY_CLARIFICATION"
+    }
+  ],
+  "checks": {
+    "ruleConformanceTests": 5,
+    "timeConformanceTests": 3,
+    "annualReferenceRows": 60,
+    "annualReferenceSteps": 360,
+    "orderedQiPairs": 36,
+    "supportedYears": 199,
+    "boundaryOwnershipChecks": 4179,
+    "uniqueBoundaryInstants": 3585,
+    "inputFormChecks": 12537,
+    "uniqueInputForms": 10755,
+    "independentGregorianDays": 73414,
+    "gregorianAssertions": 146828,
+    "serviceRequests": 1207,
+    "allTestsPass": 773,
+    "allTestsSkip": 1,
+    "browserPass": 70,
+    "browserSkip": 0,
+    "automaticAxeScans": 56,
+    "automaticAxeViolations": 0
+  },
+  "clinicalValidation": "NOT_RUN",
+  "expertRuleFreeze": "PENDING",
+  "preservedOriginalFiles": 11,
+  "scopeLimitations": [
+    "No independent solar-term astronomy accuracy proof",
+    "No new clinical workflow or production deployment acceptance",
+    "All-rule-document consistency is not declared while R-08/R-21 remain unresolved"
+  ],
+  "evidence": {
+    "quality": "quality-summary.json",
+    "browser": "browser-summary.json",
+    "domain": "domain-audit.json",
+    "time": "time-audit.json",
+    "service": "service-audit.json",
+    "workbench": "workbench-audit.json",
+    "sourceCoverage": "source-coverage.json",
+    "originalPreservation": "source-preservation.json"
+  }
+}

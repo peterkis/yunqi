@@ -75,7 +75,7 @@ describe('six-step timeline', () => {
       suiYun: { element: '土', state: '太过', tone: '太宫' },
       sitian: '太阳寒水',
       zaiquan: '太阴湿土',
-      ruleVersion: 'YQ-MVP-RULES-1.0.0',
+      ruleVersion: 'YQ-MVP-RULES-1.1.0',
     });
     expect(result.steps[0].start).toEqual(
       createYunQiInstant(1_705_759_642_000),

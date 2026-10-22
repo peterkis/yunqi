@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "dateLocal": "2026-10-18",
+  "task": "Deep retrospective and AGENTS guidance migration",
+  "runtimeChanges": false,
+  "clinicalValidation": "NOT_RUN",
+  "hostedCi": "NOT_RUN",
+  "fullBusinessAndBrowserRetest": "NOT_RUN - documentation and governance scope only",
+  "commands": [
+    {
+      "command": "pnpm test:project-guidance",
+      "exitCode": 0,
+      "passed": 13,
+      "skipped": 0,
+      "note": "Initial guidance check",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/guidance-initial.log.txt",
+      "logSha256": "4efe1fbcc7752654a737692ef464cb7fadfc01ebea3a5a1321c69e3c602c3f9b"
+    },
+    {
+      "command": "pnpm test:time-governance",
+      "exitCode": 1,
+      "passed": 10,
+      "skipped": 0,
+      "note": "Unit tests passed but production CLI rejected old root-document marker locations",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/time-governance.log.txt",
+      "logSha256": "95d50049b976d2ffb2cbc22d616e561f6b85c0e37934914c298be7875df71c49"
+    },
+    {
+      "command": "pnpm test:contract-governance",
+      "exitCode": 0,
+      "passed": 33,
+      "skipped": 0,
+      "note": "Final contract dependency and exact CI workflow check",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/contract-governance.log.txt",
+      "logSha256": "441552bba40f4a1513b25fe72760ef2ef8a95a404a12ccb16eb7f9aedad89533"
+    },
+    {
+      "command": "pnpm test:workbench-governance",
+      "exitCode": 0,
+      "passed": 282,
+      "skipped": 1,
+      "note": "Final Workbench check; existing Windows symlink permission skip retained",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/workbench-governance.log.txt",
+      "logSha256": "b47b1d92d0f5b537fcf060ccab4c2582643d63c3a4caf633740f95d046f562e3"
+    },
+    {
+      "command": "pnpm test:time-governance",
+      "exitCode": 0,
+      "passed": 12,
+      "skipped": 0,
+      "note": "Final time-document migration and all existing time bans",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/time-governance-final.log.txt",
+      "logSha256": "c600c08f0fb38845d875803c38094fdb584bf0ffdef5f72c22579b2c46f26c6b"
+    },
+    {
+      "command": "pnpm test:project-guidance",
+      "exitCode": 0,
+      "passed": 13,
+      "skipped": 0,
+      "note": "Final guidance implementation and mutation fixtures",
+      "log": "docs/retrospectives/evidence/2026-10-18-validation/guidance-final.log.txt",
+      "logSha256": "0ca09b09210fdc0fc2903f6d6a601c69a54859b4922fe7caf239ada4e0b0a838"
+    }
+  ],
+  "finalGateTotals": {
+    "passed": 340,
+    "skipped": 1,
+    "failed": 0,
+    "meaning": "Four final governance commands, not full business or browser acceptance"
+  },
+  "initialFailurePreserved": true,
+  "fileProtection": {
+    "baseline": 389,
+    "reviewedEdits": 8,
+    "protectedUnchanged": 381,
+    "violations": []
+  },
+  "rootGuidance": {
+    "beforeBytes": 20270,
+    "beforeLines": 802,
+    "afterBytes": 2662,
+    "afterLines": 35
+  },
+  "sourceIndex": {
+    "sessions": 23,
+    "main": 5,
+    "subagents": 18,
+    "engineeringMains": 4,
+    "indexedRecords": 11864
+  },
+  "migrationSections": 26,
+  "retrospectiveLessons": 18,
+  "limitations": [
+    "Latest pre-retrospective full browser round remains 69/70; entire browser acceptance not passed",
+    "Rules pending formal expert freeze; clinical G1-G6 NOT_RUN",
+    "No commit, push or remote protection change"
+  ],
+  "finalAudit": {
+    "guidanceCliExitCode": 0,
+    "requiredLinksAndAnchors": "PASS",
+    "archivesAndMigration": "PASS",
+    "sessionProvenance": "PASS",
+    "newArtifactIgnoreCheck": "PASS - no generated delivery file ignored",
+    "protectedFilesRechecked": 381,
+    "unexpectedChanges": [],
+    "diffCheckExitCode": 0
+  }
+}

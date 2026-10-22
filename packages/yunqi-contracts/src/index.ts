@@ -12,7 +12,7 @@ type GeneratedCalculationSuccessResponse =
   Schemas['CalculationSuccessResponse'];
 
 export const YUNQI_API_CONTRACT_ID =
-  'YQ-API-CONTRACT-1.0.0' as const;
+  'YQ-API-CONTRACT-1.1.0' as const;
 
 export type CalculateRequest = Schemas['CalculateRequest'];
 export type ApiErrorResponse = Schemas['ErrorResponse'];

@@ -1,0 +1,47 @@
+[
+  {
+    "path": "README.md",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "fixtures/mvp-test-cases.v1.json",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "fixtures/sexagenary-cycle-baseline.v1.csv",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "fixtures/sexagenary-cycle-baseline.v1.json",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "reference/yunqi-reference.ts",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "rules/yunqi-mvp-rules.v1.json",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "schemas/yunqi-result.v1.schema.json",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "专家审核清单.md",
+    "bytesMatch": true,
+    "sha256Match": true
+  },
+  {
+    "path": "五运六气规则规格说明书_V1.0.md",
+    "bytesMatch": true,
+    "sha256Match": true
+  }
+]

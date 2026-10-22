@@ -10,7 +10,7 @@ describe('rule explanation and traceability panels', () => {
         <RuleExplanationPanel explanations={['API 原文']} />
         <TraceabilityPanel
           dataSource="YunQi 年度查询 API"
-          ruleVersion="YQ-MVP-RULES-1.0.0"
+          ruleVersion="YQ-MVP-RULES-1.1.0"
         />
       </>,
     );
@@ -22,9 +22,10 @@ describe('rule explanation and traceability panels', () => {
       name: '追溯信息',
     });
     expect(explanation).toHaveTextContent('API 原文');
-    expect(explanation).toHaveTextContent('前端未扩写');
+    expect(explanation).toHaveTextContent('供规则学习与核对');
     expect(trace).not.toHaveTextContent('API 原文');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.0.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
+    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });
 

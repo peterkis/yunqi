@@ -1,0 +1,30 @@
+
+> yunqi@ test:time-governance D:\Projects\YunQi
+> node --test tests/yunqi-time-governance.test.mjs && node scripts/check-yunqi-time-governance.mjs
+
+✔ rejects computed recovery of a forbidden time global (953.3873ms)
+✔ rejects reflective recovery through a passed global object (290.2177ms)
+✔ accepts React rendering of canonical localTime (283.0529ms)
+✔ rejects Date reinterpretation of YunQi epochMilliseconds (283.7244ms)
+✔ rejects Intl reinterpretation of YunQi epochMilliseconds (286.1664ms)
+✔ rejects Date reinterpretation hidden behind a frontend helper (354.44ms)
+✔ rejects epoch reinterpretation in an apps-directory Workbench (333.5758ms)
+✔ rejects Temporal and IANA reinterpretation in YunQi time modules (307.8754ms)
+✔ rejects incomplete persistence governance (317.9035ms)
+✔ rejects an ambiguous YunQiInstant declaration (302.9109ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3792.1813
+AGENTS.md: missing BeijingStandardTime+08:00 Absolute Representation
+AGENTS.md: missing calendar_time_local varchar
+AGENTS.md: missing epoch_ms bigint
+AGENTS.md: missing offset char(6)
+AGENTS.md: missing calendar_time_standard varchar
+AGENTS.md: missing timestamp with time zone
+AGENTS.md: missing new Date(result.epochMilliseconds)
+ ELIFECYCLE  Command failed with exit code 1.

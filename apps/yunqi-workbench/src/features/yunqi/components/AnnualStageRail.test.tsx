@@ -55,9 +55,14 @@ describe('AnnualStageRail', () => {
 
     expect(
       screen.getByRole('button', {
-        name: /第 3 步.*三之气.*当前.*2026-05-21T11:00:00\+08:00.*2026-07-23T12:00:00\+08:00/,
+        name: /第 3 步.*三之气.*当前.*05-21 11:00.*07-23 12:00/,
       }),
     ).toHaveAttribute('aria-current', 'step');
+    expect(
+      screen.getByRole('button', { name: /第 3 步.*三之气.*当前/ }),
+    ).toHaveAccessibleDescription(
+      '开始 2026-05-21T11:00:00+08:00，结束 2026-07-23T12:00:00+08:00，北京时间 UTC+08',
+    );
     expect(screen.getAllByText('05-21 11:00')).toHaveLength(2);
     for (const boundary of screen.getAllByText('05-21 11:00')) {
       expect(boundary).toHaveAttribute(
