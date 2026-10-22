@@ -34,12 +34,14 @@ function AnnualYunQiContent({ viewModel }: AnnualYunQiPageProps) {
   return (
     <div className="annual-yunqi-page">
       <YunQiYearSummaryPanel summary={viewModel.summary} />
-      <AnnualSixQiSelector
-        onSelect={setSelectedStepIndex}
-        selectedStepIndex={selectedStepIndex}
-        stages={viewModel.stages}
-      />
-      <AnnualSixQiDetailPanel stage={selected} />
+      <div className="annual-stage-workspace">
+        <AnnualSixQiSelector
+          onSelect={setSelectedStepIndex}
+          selectedStepIndex={selectedStepIndex}
+          stages={viewModel.stages}
+        />
+        <AnnualSixQiDetailPanel stage={selected} />
+      </div>
       <RuleExplanationPanel explanations={viewModel.explanations} />
       <TraceabilityPanel
         dataSource="YunQi 年度查询 API"

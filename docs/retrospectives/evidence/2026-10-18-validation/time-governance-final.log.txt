@@ -1,0 +1,24 @@
+
+> yunqi@ test:time-governance D:\Projects\YunQi
+> node --test tests/yunqi-time-governance.test.mjs && node scripts/check-yunqi-time-governance.mjs
+
+✔ rejects computed recovery of a forbidden time global (695.9904ms)
+✔ rejects reflective recovery through a passed global object (624.7349ms)
+✔ accepts React rendering of canonical localTime (622.7588ms)
+✔ rejects Date reinterpretation of YunQi epochMilliseconds (613.7007ms)
+✔ rejects Intl reinterpretation of YunQi epochMilliseconds (634.2805ms)
+✔ rejects Date reinterpretation hidden behind a frontend helper (640.2139ms)
+✔ rejects epoch reinterpretation in an apps-directory Workbench (643.3889ms)
+✔ rejects Temporal and IANA reinterpretation in YunQi time modules (636.5097ms)
+✔ rejects incomplete persistence governance (621.6783ms)
+✔ rejects root guidance without its time-rules pointer (596.6395ms)
+✔ rejects a missing time-rules document even with a valid root pointer (629.1312ms)
+✔ rejects an ambiguous YunQiInstant declaration (627.5052ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7762.7118

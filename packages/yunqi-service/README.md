@@ -36,7 +36,7 @@ Swagger UI is served at `/docs/`. The checked-in contract is
 ## Endpoints
 
 - `GET /health`
-- `GET /api/v1/yunqi/year/:year`, where `year` is 1901-2099
+- `GET /api/v1/yunqi/year/:year`, where the YunQi year is 1900-2100
 - `GET /api/v1/yunqi/current`
 - `POST /api/v1/yunqi/calculate`
 
@@ -72,6 +72,12 @@ All accepted values flow through the Business Time Normalizer into
 `calculateYunQiByCalendarTime()` entry. The runtime clock supplies epoch
 milliseconds only and is normalized through the same fixed-offset path.
 
+The supported calculation interval starts at the actual 1900 大寒 boundary
+and ends immediately before the actual 2101 大寒 boundary. The first boundary
+is included; the last is excluded. A civil date in early 2101 can therefore
+belong to supported YunQi year 2100. Both `/calculate` and `/current` use this
+same interval; dates before 1900 大寒 or at/after 2101 大寒 return `400`.
+
 Public time values use:
 
     {
@@ -81,9 +87,11 @@ Public time values use:
       "calendarTimeStandard": "BeijingStandardTime+08:00"
     }
 
-The OpenAPI dialect remains 3.1.0, the contract document release is 1.2.0,
-the business Contract ID is `YQ-API-CONTRACT-1.0.0`, and API paths remain
-under `/api/v1`.
+The OpenAPI dialect remains 3.1.0, the contract document release is 1.3.0,
+the business Contract ID is `YQ-API-CONTRACT-1.1.0`, and API paths remain
+under `/api/v1`. Service package 2.1.0 returns rule version
+`YQ-MVP-RULES-1.1.0`; the approved guest-generates-host label is
+`客生主，相得`. These are neutral rule descriptions, not medical conclusions.
 
 ## Browser contracts and client
 

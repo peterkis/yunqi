@@ -93,7 +93,7 @@ describe('package source entrypoint', () => {
     });
     expect(Object.isFrozen(relation)).toBe(true);
     expect(HOST_GUEST_RELATION_PRIORITY[0]).toBe('SAME_QI');
-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
+    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
     expect(SIXTY_CYCLE_ANCHOR.year).toBe(1984);
     expect(SIXTY_CYCLE[0]).toBe('甲子');
     expect(STEM_RULES.甲.tone).toBe('太宫');

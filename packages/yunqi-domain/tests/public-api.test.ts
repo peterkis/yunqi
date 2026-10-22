@@ -96,8 +96,8 @@ describe('stable package API', () => {
       calculateYunQiByCalendarTime(calendarInput, provider);
     const step: SixQiStep = getCurrentStep(input, provider);
     const relation: HostGuestRelationResult = publicApi.calculateHostGuestRelation(
-      '厥阴风木',
       '少阴君火',
+      '厥阴风木',
     );
 
     expect('createYearExplanations' in publicApi).toBe(false);
@@ -127,11 +127,11 @@ describe('stable package API', () => {
     expect(relation).toEqual({
       qiRelation: 'DIFFERENT_QI',
       elementRelation: 'DIFFERENT_ELEMENT',
-      direction: 'HOST_GENERATES_GUEST',
-      traditionalLabel: '主生客，相得',
+      direction: 'GUEST_GENERATES_HOST',
+      traditionalLabel: '客生主，相得',
     });
     expect(Object.isFrozen(relation)).toBe(true);
-    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.0.0');
+    expect(RULE_VERSION).toBe('YQ-MVP-RULES-1.1.0');
   });
 
   it('keeps every root-exported singleton object and collection runtime immutable', () => {

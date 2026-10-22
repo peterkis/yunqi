@@ -33,8 +33,18 @@ const REQUIRED_GOVERNANCE_MARKERS = [
   'new Date(result.epochMilliseconds)',
 ];
 const GOVERNANCE_DOCUMENTS = [
-  'AGENTS.md',
-  'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
+  {
+    path: 'AGENTS.md',
+    markers: ['](docs/agents/rules-and-time.md)'],
+  },
+  {
+    path: 'docs/agents/rules-and-time.md',
+    markers: REQUIRED_GOVERNANCE_MARKERS,
+  },
+  {
+    path: 'docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md',
+    markers: REQUIRED_GOVERNANCE_MARKERS,
+  },
 ];
 const DOMAIN_TIME_SOURCE =
   'packages/yunqi-domain/src/calendar/time.ts';
@@ -107,7 +117,7 @@ async function collectFiles(directory, predicate) {
 async function validateGovernanceDocuments(root) {
   const violations = [];
 
-  for (const relativePath of GOVERNANCE_DOCUMENTS) {
+  for (const { path: relativePath, markers } of GOVERNANCE_DOCUMENTS) {
     const file = resolve(root, relativePath);
     let source;
 
@@ -121,7 +131,7 @@ async function validateGovernanceDocuments(root) {
       throw error;
     }
 
-    for (const marker of REQUIRED_GOVERNANCE_MARKERS) {
+    for (const marker of markers) {
       if (!source.includes(marker)) {
         violations.push(`${relativePath}: missing ${marker}`);
       }

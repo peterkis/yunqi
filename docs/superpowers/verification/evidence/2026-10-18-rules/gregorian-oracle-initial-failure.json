@@ -1,0 +1,10 @@
+{
+  "status": "PRESERVED_ORACLE_FAILURE",
+  "productDefect": false,
+  "sampleLocalTime": "1935-02-28T23:59:59.999+08:00",
+  "originalOracleExpression": "int((sample - epoch).total_seconds() * 1000)",
+  "rawAssertion": "AssertionError [ERR_ASSERTION]: 1935-2-28\n+ actual - expected\n+ -1099468800001\n- -1099468800000",
+  "cause": "Python total_seconds() produces floating point; multiplication and int truncation lost one millisecond for this negative epoch.",
+  "correctedOracleExpression": "(sample - epoch) // timedelta(milliseconds=1)",
+  "resolution": "Use standard-library integer timedelta division. Re-run all 73414 days; preserve this initial failed attempt separately from the passing summary. No product implementation changed."
+}

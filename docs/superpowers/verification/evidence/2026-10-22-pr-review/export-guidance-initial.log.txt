@@ -1,0 +1,1 @@
+Archive integrity mismatch: docs/retrospectives/evidence/2026-10-18-agents-codex-before.md

@@ -28,7 +28,7 @@ const RELATION_EXPECTATIONS = {
     qiRelation: 'DIFFERENT_QI',
     elementRelation: 'DIFFERENT_ELEMENT',
     direction: 'GUEST_GENERATES_HOST',
-    traditionalLabel: '客生主',
+    traditionalLabel: '客生主，相得',
   },
   hostControlsGuest: {
     qiRelation: 'DIFFERENT_QI',

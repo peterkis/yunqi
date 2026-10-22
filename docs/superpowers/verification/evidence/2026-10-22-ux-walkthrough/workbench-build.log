@@ -1,0 +1,14 @@
+
+> @yunqi/workbench@0.1.0 build D:\Projects\YunQi\apps\yunqi-workbench
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v8.1.5 building client environment for production...
+[2K
+transforming...✓ 132 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.47 kB │ gzip:  0.31 kB
+dist/assets/index-Btm57CD4.css   27.94 kB │ gzip:  5.25 kB
+dist/assets/index-B627MjC2.js   300.62 kB │ gzip: 94.40 kB
+
+✓ built in 245ms

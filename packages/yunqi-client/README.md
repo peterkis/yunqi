@@ -2,6 +2,10 @@
 
 Browser-safe typed client for the YunQi `/api/v1` endpoints.
 
+Package 1.1.0 consumes `YQ-API-CONTRACT-1.1.0` through `@yunqi/contracts`.
+Annual requests support YunQi years 1900–2100. See the
+[contract migration notes](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md).
+
 The package's only runtime workspace dependency is `@yunqi/contracts`. It does
 not depend on Fastify, Domain, Service, React, Axios, or TanStack Query.
 

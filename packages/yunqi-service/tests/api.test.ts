@@ -28,7 +28,7 @@ describe('versioned YunQi routes', () => {
       code: 'SUCCESS',
       message: '',
       data: {
-        ruleVersion: 'YQ-MVP-RULES-1.0.0',
+        ruleVersion: 'YQ-MVP-RULES-1.1.0',
         year: 2024,
         stemBranch: { ganzhi: '甲辰', stem: '甲', branch: '辰' },
         sixQi: { sitian: '太阳寒水', zaiquan: '太阴湿土' },
@@ -36,7 +36,7 @@ describe('versioned YunQi routes', () => {
     });
   });
 
-  it.each(['2024.5', 'not-a-year', '1900', '2100'])(
+  it.each(['2024.5', 'not-a-year', '1899', '2101'])(
     'rejects invalid year %s',
     async (year) => {
       const response = await app.inject({

@@ -23,9 +23,9 @@ describe('OpenAPI contract', () => {
     const document = app.swagger() as Record<string, any>;
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.2.0');
+    expect(document.info.version).toBe('1.3.0');
     expect(document['x-yunqi-contract-id']).toBe(
-      'YQ-API-CONTRACT-1.0.0',
+      'YQ-API-CONTRACT-1.1.0',
     );
     expect(Object.keys(document.paths ?? {})).toEqual(
       expect.arrayContaining([
@@ -76,6 +76,13 @@ describe('OpenAPI contract', () => {
     expect(schemas.SixQiStepDto.properties.end).toEqual({
       $ref: '#/components/schemas/YunQiTimeDto',
     });
+    for (const schemaName of ['YearParams', 'YunQiYearDto', 'YunQiCalculationDto']) {
+      expect(schemas[schemaName].properties.year).toMatchObject({
+        type: 'integer',
+        minimum: 1900,
+        maximum: 2100,
+      });
+    }
     expect(JSON.stringify(document)).not.toContain('Asia/Shanghai');
     expect(JSON.stringify(document)).not.toContain('"timezone"');
     expect(schemas.CalculateRequest.properties.dateTime.pattern).toBe(
@@ -104,7 +111,7 @@ describe('OpenAPI contract', () => {
     ]);
   });
 
-  it('validates a live annual response against its OpenAPI schema', async () => {
+  it.each([1900, 2024, 2100])('validates year %i against its live OpenAPI schema', async (year) => {
     const app = await buildApp({
       provider: fixedCalendarProvider,
       now: () => 1_716_210_000_000,
@@ -115,7 +122,7 @@ describe('OpenAPI contract', () => {
     const document = app.swagger() as Record<string, any>;
     const response = await app.inject({
       method: 'GET',
-      url: '/api/v1/yunqi/year/2024',
+      url: `/api/v1/yunqi/year/${year}`,
     });
     const schemas = document.components.schemas;
     const ajv = new Ajv2020({ strict: false, allErrors: true });
@@ -177,9 +184,9 @@ describe('OpenAPI contract', () => {
     const document = parse(source);
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.2.0');
+    expect(document.info.version).toBe('1.3.0');
     expect(document['x-yunqi-contract-id']).toBe(
-      'YQ-API-CONTRACT-1.0.0',
+      'YQ-API-CONTRACT-1.1.0',
     );
     expect(document.paths).toHaveProperty('/api/v1/yunqi/calculate');
     expect(document.components.schemas).toHaveProperty('YunQiTimeDto');

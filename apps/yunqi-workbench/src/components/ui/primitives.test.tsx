@@ -33,7 +33,7 @@ describe('Workbench presentation primitives', () => {
   it('renders a card, data label, and non-judgmental badge tone', () => {
     render(
       <Card title="岁运">
-        <DataLabel label="岁运" value="太羽 · 水 · 太过" />
+        <DataLabel label="岁运" value="水运太过（太羽）" />
         <Badge tone="accent">司天</Badge>
       </Card>,
     );
@@ -41,7 +41,7 @@ describe('Workbench presentation primitives', () => {
     expect(
       screen.getByRole('heading', { name: '岁运' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('太羽 · 水 · 太过')).toBeInTheDocument();
+    expect(screen.getByText('水运太过（太羽）')).toBeInTheDocument();
     expect(screen.getByText('司天')).toHaveAttribute(
       'data-tone',
       'accent',

@@ -1,0 +1,70 @@
+{
+  "scope": "Read-only Windows host resource observation. No tests, builds, process termination, or cleanup actions were performed.",
+  "recordedAt": "2026-10-18T08:19:33.0435006+08:00",
+  "memorySnapshot": {
+    "capturedAt": "2026-10-18T08:16:29.9401906+08:00",
+    "physicalTotalGiB": 15.72,
+    "physicalAvailableGiB": 2.34,
+    "availableMBytes": 2465,
+    "committedGiB": 31.43,
+    "commitLimitGiB": 34.47,
+    "commitHeadroomGiB": 3.03,
+    "percentCommittedBytesInUse": 91,
+    "pageReadsPersec": 39,
+    "pagesInputPersec": 149
+  },
+  "processSnapshot": {
+    "capturedAt": "2026-10-18T08:16:29.9401906+08:00",
+    "nodeCount": 112,
+    "nodePrivateMemoryGiB": 16.07,
+    "nodeWorkingSetGiB": 5.6,
+    "nodeHandleCount": 25943,
+    "nodeThreadCount": 1351,
+    "standaloneChromiumChromeEdgeHeadlessCount": 0,
+    "webView2Count": 12,
+    "webView2PrivateMemoryGiB": 0.46,
+    "note": "Counts are a point-in-time host snapshot; they do not imply ownership by this task."
+  },
+  "sameWorkspaceObservation": {
+    "capturedAt": "2026-10-18T08:17:16.7457399+08:00",
+    "directYunqiPathNodeCount": 4,
+    "pids": [
+      23848,
+      12628,
+      14564,
+      2436
+    ],
+    "parentPids": [
+      18648,
+      18412
+    ],
+    "parentType": "node_repl.exe",
+    "startedBetween": [
+      "2026-10-18T00:27:08+08:00",
+      "2026-10-18T00:27:26+08:00"
+    ],
+    "combinedPrivateMemoryGiB": 0.29,
+    "parentsPresentAndPredateChildren": true,
+    "currentBrowserRunOwnershipEstablished": false,
+    "conclusion": "Long-lived workspace-associated processes are not established as leftovers of this browser acceptance run and must be preserved."
+  },
+  "latestRunCleanupEvidence": {
+    "source": "Parent agent relaying browser acceptance agent confirmation; not independently rechecked in this read-only summary",
+    "threeRunsWorkersExited": 12,
+    "headlessProcessesExited": true,
+    "ownedPortsClosed": 6,
+    "browserRunLeakEstablished": false
+  },
+  "reportedFailureContext": [
+    "Initial browser suite: 68 passed / 2 bootstrap timeouts",
+    "Unchanged targeted run: 5 passed / 1 failure including native Node exit 3221226505",
+    "Targeted ws:false run: 0 passed / 6 failures including ERR_INSUFFICIENT_RESOURCES and WebSocket closed without being opened"
+  ],
+  "interpretation": {
+    "resourcePressureObserved": true,
+    "resourcePressureMayContributeToFailures": true,
+    "rootCauseProven": false,
+    "statement": "High host commit usage is a possible contributor to resource allocation or native process failures. The snapshots do not establish that it caused the Node native exit, bootstrap timeouts, or WebSocket failures; WebSocket configuration is being investigated independently."
+  },
+  "followupOwnedByParent": "Same-port WebSocket probe, then a single-worker browser acceptance retry after the current diagnostic; no process-name-based mass termination."
+}

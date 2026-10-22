@@ -1,5 +1,11 @@
 # ADR-002: YunQi API Contract Freeze and Client Package Boundary
 
+> 2026-10-18 版本补记：当前业务契约已按原有升级机制分配
+> `YQ-API-CONTRACT-1.1.0`，见 [新契约与迁移说明](../contracts/YQ-API-CONTRACT-1.1.0.md)。
+> 下文的1.0.0/1.2.0是本ADR作出时的历史版本；冻结与包边界机制继续适用。
+> 本次工程版本升级不代表专家规则冻结或临床验证通过。
+
+
 - Status: Accepted
 - Date: 2026-07-17
 - Scope: YunQi Service OpenAPI, browser contracts, typed client, Phase3

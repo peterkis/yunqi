@@ -1,0 +1,245 @@
+{
+  "schemaVersion": 1,
+  "rootBudget": {
+    "bytes": 4096,
+    "lines": 70
+  },
+  "archives": [
+    {
+      "id": "root",
+      "path": "docs/retrospectives/evidence/2026-10-18-agents-root-before.md",
+      "sha256": "ba083ee521707ea7c5bcf54bdebd4b78c2f4ef47f1cd3da2d0efa10861749d32",
+      "bytes": 20270,
+      "lines": 802
+    },
+    {
+      "id": "codex",
+      "path": "docs/retrospectives/evidence/2026-10-18-agents-codex-before.md",
+      "sha256": "a9d5070f088cfb3b3577e53708d3deaf8713cbf388c1d83106abf0227cf45e71",
+      "bytes": 672,
+      "lines": 33
+    }
+  ],
+  "sections": [
+    {
+      "key": "1",
+      "heading": "## 1.",
+      "line": 5,
+      "targets": [
+        "docs/agents/clinical-scope.md#输出边界"
+      ]
+    },
+    {
+      "key": "2",
+      "heading": "# 2.",
+      "line": 29,
+      "targets": [
+        "docs/agents/rules-and-time.md#领域所有权"
+      ]
+    },
+    {
+      "key": "2.1",
+      "heading": "## 2.1 ",
+      "line": 31,
+      "targets": [
+        "docs/agents/rules-and-time.md#领域所有权"
+      ]
+    },
+    {
+      "key": "3",
+      "heading": "# 3.",
+      "line": 68,
+      "targets": [
+        "docs/agents/api-contracts.md#所有权"
+      ]
+    },
+    {
+      "key": "3.1",
+      "heading": "## 3.1 ",
+      "line": 70,
+      "targets": [
+        "docs/agents/rules-and-time.md#领域所有权"
+      ]
+    },
+    {
+      "key": "3.2",
+      "heading": "## 3.2 ",
+      "line": 105,
+      "targets": [
+        "docs/agents/api-contracts.md#冻结与升级",
+        "docs/agents/api-contracts.md#检查与远端保护"
+      ]
+    },
+    {
+      "key": "3.3",
+      "heading": "## 3.3 ",
+      "line": 163,
+      "targets": [
+        "docs/agents/workbench.md#依赖和导入",
+        "docs/agents/workbench.md#职责所有权",
+        "docs/agents/workbench.md#当前导航和状态",
+        "docs/agents/clinical-scope.md#c4内部只读模型"
+      ]
+    },
+    {
+      "key": "4",
+      "heading": "# 4.",
+      "line": 284,
+      "targets": [
+        "docs/agents/rules-and-time.md#固定时间语义"
+      ]
+    },
+    {
+      "key": "4.1",
+      "heading": "## 4.1 ",
+      "line": 290,
+      "targets": [
+        "docs/agents/rules-and-time.md#固定时间语义",
+        "docs/agents/rules-and-time.md#服务与前端时间"
+      ]
+    },
+    {
+      "key": "4.2",
+      "heading": "## 4.2 ",
+      "line": 349,
+      "targets": [
+        "docs/agents/rules-and-time.md#固定时间语义"
+      ]
+    },
+    {
+      "key": "4.3",
+      "heading": "## 4.3 ",
+      "line": 365,
+      "targets": [
+        "docs/agents/rules-and-time.md#固定时间语义"
+      ]
+    },
+    {
+      "key": "4.4",
+      "heading": "## 4.4 ",
+      "line": 405,
+      "targets": [
+        "docs/agents/rules-and-time.md#未来持久化合同"
+      ]
+    },
+    {
+      "key": "4.5",
+      "heading": "## 4.5 ",
+      "line": 433,
+      "targets": [
+        "docs/agents/rules-and-time.md#服务与前端时间"
+      ]
+    },
+    {
+      "key": "5",
+      "heading": "# 5.",
+      "line": 454,
+      "targets": [
+        "docs/agents/rules-and-time.md#五运六气"
+      ]
+    },
+    {
+      "key": "5.1",
+      "heading": "## 5.1 ",
+      "line": 456,
+      "targets": [
+        "docs/agents/rules-and-time.md#五运六气"
+      ]
+    },
+    {
+      "key": "5.2",
+      "heading": "## 5.2 ",
+      "line": 476,
+      "targets": [
+        "docs/agents/rules-and-time.md#五运六气"
+      ]
+    },
+    {
+      "key": "6",
+      "heading": "# 6.",
+      "line": 511,
+      "targets": [
+        "docs/agents/rules-and-time.md#五运六气"
+      ]
+    },
+    {
+      "key": "7",
+      "heading": "# 7.",
+      "line": 564,
+      "targets": [
+        "docs/agents/clinical-scope.md#输出边界"
+      ]
+    },
+    {
+      "key": "8",
+      "heading": "# 8.",
+      "line": 613,
+      "targets": [
+        "docs/agents/clinical-scope.md#问诊目标与后续路线"
+      ]
+    },
+    {
+      "key": "9",
+      "heading": "# 9.",
+      "line": 647,
+      "targets": [
+        "docs/agents/rules-and-time.md#领域所有权"
+      ]
+    },
+    {
+      "key": "10",
+      "heading": "# 10.",
+      "line": 663,
+      "targets": [
+        "docs/agents/rules-and-time.md#必须核验"
+      ]
+    },
+    {
+      "key": "11",
+      "heading": "# 11.",
+      "line": 703,
+      "targets": [
+        "docs/agents/verification.md#git与远端"
+      ]
+    },
+    {
+      "key": "12",
+      "heading": "# 12.",
+      "line": 729,
+      "targets": [
+        "docs/agents/verification.md#工作顺序"
+      ]
+    },
+    {
+      "key": "13",
+      "heading": "# 13.",
+      "line": 748,
+      "targets": [
+        "docs/agents/clinical-scope.md#问诊目标与后续路线"
+      ]
+    },
+    {
+      "key": "final-principle",
+      "heading": "最终原则",
+      "line": 785,
+      "targets": [
+        "docs/agents/clinical-scope.md#输出边界"
+      ]
+    },
+    {
+      "key": "phase3-e",
+      "heading": "Phase3-E 临床验证MVP",
+      "line": 791,
+      "targets": [
+        "docs/agents/clinical-scope.md#当前授权能力",
+        "docs/agents/clinical-scope.md#专家与临床证据"
+      ]
+    }
+  ],
+  "codexCoverage": [
+    "docs/agents/rules-and-time.md",
+    "docs/agents/clinical-scope.md",
+    "docs/agents/verification.md"
+  ],
+  "semantics": "Mapping verifies section coverage and link reachability; manual comparison is still required for semantic equivalence."
+}

@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "taskDateLocal": "2026-10-18",
+  "timeZone": "Asia/Shanghai",
+  "scope": "Local synthetic read-only browser acceptance; no clinical or production acceptance claim.",
+  "packages": {
+    "@playwright/test": "1.64.1",
+    "@axe-core/playwright": "4.14.0"
+  },
+  "runs": [
+    {
+      "id": "2026-10-17T16-35-55-503Z-b3dc191b",
+      "classification": "RED_BASELINE_VISUAL",
+      "command": "YUNQI_BROWSER_CHANNEL=msedge pnpm exec playwright test --project=desktop-light --project=tablet-light --project=narrow-light --project=desktop-dark --project=breakpoint-light --grep 'current:|annual-result:|calculate-entry:'",
+      "exitCode": 1,
+      "reason": "15 initial visual checks failed on layout, contrast, accessible-name mismatch, and favicon console errors. Initial Vite port=0 resolved to 5173; the harness was corrected to an owned Node HTTP ephemeral listener afterward.",
+      "stats": {
+        "startTime": "2026-10-17T16:35:55.527Z",
+        "duration": 82231.813,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 15,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-35-55-503Z-b3dc191b\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-35-55-503Z-b3dc191b\\results.json",
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "msedge",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:5173",
+        "serviceURL": "http://127.0.0.1:55829",
+        "cleanupErrors": []
+      },
+      "browserVersions": [],
+      "caseOutcomes": {
+        "failed": 15
+      },
+      "assertionFailureCounts": {
+        "Error: Desktop current heading fits on one line": 2,
+        "Error: No automatically detected WCAG A/AA violations": 15,
+        "Error: No unexpected browser console errors": 15,
+        "Error: Year selector has a usable 44 px target": 5,
+        "Error: Page must not overflow horizontally": 1,
+        "Error: Stage time remains on one line: 2024-01-20 22:07:22": 2,
+        "Error: Stage time remains on one line: 2024-03-20 11:06:25": 4,
+        "Error: Stage time remains on one line: 2024-05-20 20:59:31": 4,
+        "Error: Stage time remains on one line: 2024-07-22 15:44:26": 4,
+        "Error: Stage time remains on one line: 2024-09-22 20:43:42": 4,
+        "Error: Stage time remains on one line: 2024-11-22 03:56:31": 4,
+        "Error: Stage time remains on one line: 2025-01-20 04:00:08": 2,
+        "Error: Stage name remains readable: 初之气": 1,
+        "Error: Stage name remains readable: 二之气": 1,
+        "Error: Stage name remains readable: 三之气": 1,
+        "Error: Stage name remains readable: 四之气": 1,
+        "Error: Stage name remains readable: 五之气": 1,
+        "Error: Stage name remains readable: 终之气": 1
+      },
+      "axeScanCount": 15,
+      "axeViolationNodeOccurrences": {
+        "color-contrast": 59,
+        "label-content-name-mismatch": 39
+      },
+      "failedTests": [
+        {
+          "project": "desktop-light",
+          "name": "@visual current: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "desktop-light",
+          "name": "@visual annual-result: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "desktop-light",
+          "name": "@visual calculate-entry: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "breakpoint-light",
+          "name": "@visual current: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "breakpoint-light",
+          "name": "@visual annual-result: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "breakpoint-light",
+          "name": "@visual calculate-entry: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "tablet-light",
+          "name": "@visual current: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "tablet-light",
+          "name": "@visual annual-result: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "tablet-light",
+          "name": "@visual calculate-entry: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "narrow-light",
+          "name": "@visual current: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "narrow-light",
+          "name": "@visual annual-result: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "narrow-light",
+          "name": "@visual calculate-entry: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "desktop-dark",
+          "name": "@visual current: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "desktop-dark",
+          "name": "@visual annual-result: screenshot, readable layout and accessibility"
+        },
+        {
+          "project": "desktop-dark",
+          "name": "@visual calculate-entry: screenshot, readable layout and accessibility"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-17T16-38-49-377Z-ecfd43ce",
+      "classification": "RED_FLOW_CONSOLE",
+      "command": "YUNQI_BROWSER_CHANNEL=msedge pnpm exec playwright test --project=flows-chromium",
+      "exitCode": 1,
+      "reason": "All 14 workflow body assertions passed; 10 cases failed their final unexpected-console-error check because favicon.ico returned 404. Four cases passed. No business-flow defect was observed.",
+      "stats": {
+        "startTime": "2026-10-17T16:38:49.390Z",
+        "duration": 55120.373,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 10,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-38-49-377Z-ecfd43ce\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-38-49-377Z-ecfd43ce\\results.json",
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "msedge",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:52507",
+        "serviceURL": "http://127.0.0.1:52506",
+        "cleanupErrors": []
+      },
+      "browserVersions": [],
+      "caseOutcomes": {
+        "failed": 10,
+        "passed": 4
+      },
+      "assertionFailureCounts": {
+        "Error: No unexpected browser console errors": 10
+      },
+      "axeScanCount": 0,
+      "axeViolationNodeOccurrences": {},
+      "failedTests": [
+        {
+          "project": "flows-chromium",
+          "name": "current route redirects, renders canonical time and closes every stage disclosure"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "invalid year abc shows a recoverable message without a business query"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "invalid year 2024extra shows a recoverable message without a business query"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "invalid year 1900 shows a recoverable message without a business query"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "invalid year 2100 shows a recoverable message without a business query"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "specified time is submit-only, rejects empty input and hides stale results after editing"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "supported annual boundary years load directly from the real API"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "a real unsupported calculation receives sanitized feedback and recovers after editing"
+        },
+        {
+          "project": "flows-chromium",
+          "name": "inquiry remains a no-query planning entry and invalid child routes return to current"
+        }
+      ]
+    },
+    {
+      "id": "2026-10-17T16-41-30-972Z-f0982350",
+      "classification": "NOT_RUN_DISCOVERY_ONLY",
+      "command": "pnpm exec playwright test --list",
+      "exitCode": 0,
+      "reason": "Discovery listed 70 tests without running global setup or browser assertions. Playwright reports them as skipped; this is neither an interrupted run nor acceptance evidence.",
+      "stats": {
+        "startTime": "2026-10-17T16:41:30.982Z",
+        "duration": 308.961,
+        "expected": 0,
+        "skipped": 70,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-41-30-972Z-f0982350\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-41-30-972Z-f0982350\\results.json",
+      "environment": null,
+      "browserVersions": [],
+      "caseOutcomes": {},
+      "assertionFailureCounts": {},
+      "axeScanCount": 0,
+      "axeViolationNodeOccurrences": {},
+      "failedTests": []
+    },
+    {
+      "id": "2026-10-17T16-44-56-688Z-f1518d68",
+      "classification": "PASS_EDGE_FULL",
+      "command": "YUNQI_BROWSER_CHANNEL=msedge pnpm test:browser",
+      "exitCode": 0,
+      "reason": "All 14 workflow and 56 visual/accessibility cases passed after fixes.",
+      "stats": {
+        "startTime": "2026-10-17T16:44:56.699Z",
+        "duration": 188628.58899999998,
+        "expected": 70,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-44-56-688Z-f1518d68\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-44-56-688Z-f1518d68\\results.json",
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "msedge",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:61412",
+        "serviceURL": "http://127.0.0.1:61411",
+        "cleanupErrors": []
+      },
+      "browserVersions": [
+        "155.0.4283.45"
+      ],
+      "caseOutcomes": {
+        "passed": 70
+      },
+      "assertionFailureCounts": {},
+      "axeScanCount": 56,
+      "axeViolationNodeOccurrences": {},
+      "failedTests": []
+    },
+    {
+      "id": "2026-10-17T16-48-26-591Z-a3df046a",
+      "classification": "PASS_BUNDLED_CHROMIUM_FULL",
+      "command": "pnpm test:browser",
+      "exitCode": 0,
+      "reason": "All 14 workflow and 56 visual/accessibility cases passed using the CI-default bundled Chromium.",
+      "stats": {
+        "startTime": "2026-10-17T16:48:26.601Z",
+        "duration": 118746.444,
+        "expected": 70,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "report": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-48-26-591Z-a3df046a\\report\\index.html",
+      "results": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-10-17T16-48-26-591Z-a3df046a\\results.json",
+      "environment": {
+        "fixedNowEpochMilliseconds": 1705759642000,
+        "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+        "service": "real local Fastify + tyme4ts",
+        "frontend": "Vite same-origin proxy",
+        "browserChannel": "bundled-chromium",
+        "cleanupPassed": true,
+        "baseURL": "http://127.0.0.1:50078",
+        "serviceURL": "http://127.0.0.1:50077",
+        "cleanupErrors": []
+      },
+      "browserVersions": [
+        "156.0.8078.4"
+      ],
+      "caseOutcomes": {
+        "passed": 70
+      },
+      "assertionFailureCounts": {},
+      "axeScanCount": 56,
+      "axeViolationNodeOccurrences": {},
+      "failedTests": []
+    }
+  ],
+  "notRun": [
+    "GitHub Actions hosted CI",
+    "Physical mobile/touch devices",
+    "Screen-reader acceptance",
+    "Firefox",
+    "WebKit",
+    "Approved pixel-baseline regression"
+  ],
+  "otherValidation": {
+    "build": "PASS",
+    "frozenLockfileOfflineInstall": "PASS",
+    "syntaxChecks": "PASS",
+    "gitDiffCheck": "PASS",
+    "harnessIndependentReview": "No blocking finding; read-only review."
+  },
+  "postRunListenerCheck": {
+    "checkedPorts": [
+      50077,
+      50078,
+      61411,
+      61412,
+      52506,
+      52507
+    ],
+    "listenersFound": [],
+    "result": "PASS"
+  }
+}

@@ -35,7 +35,7 @@ describe('App', () => {
     ).toBeInTheDocument();
     const footer = within(view.container).getByRole('contentinfo');
     expect(
-      within(footer).getByText('YQ-API-CONTRACT-1.0.0'),
+      within(footer).getByText('YQ-API-CONTRACT-1.1.0'),
     ).toBeInTheDocument();
     expect(
       within(footer).getByText(

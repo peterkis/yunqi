@@ -20,6 +20,7 @@ export function Navigation() {
                   {item.mark}
                 </span>
                 {item.label}
+                {item.id === 'inquiry' ? <span className="navigation-status">规划中</span> : null}
               </NavLink>
             ) : (
               <span
@@ -35,7 +36,7 @@ export function Navigation() {
           </li>
         ))}
       </ul>
-      <p className="navigation-note">Phase 3-C4 · 问诊结构化入口</p>
+      <p className="navigation-note">规则学习 · 只读分析</p>
     </nav>
   );
 }

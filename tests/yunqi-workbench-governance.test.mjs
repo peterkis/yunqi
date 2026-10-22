@@ -1501,7 +1501,7 @@ test('rejects selecting an annual stage by ordinal array position', async () => 
   });
 });
 
-for (const boundary of [1901, 2099]) {
+for (const boundary of [1900, 1901, 2099, 2100]) {
   test(`rejects duplicated ${boundary} year boundary in YearSelector`, async () => {
     await assertMutationRejected({
       relativeSourcePath:

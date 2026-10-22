@@ -15,7 +15,7 @@ type HostGuestRelationRule =
   | 'SAME_ELEMENT_DIFFERENT_QI'
   | Exclude<HostGuestDirection, 'NONE'>;
 
-export const RULE_VERSION = 'YQ-MVP-RULES-1.0.0' as const;
+export const RULE_VERSION = 'YQ-MVP-RULES-1.1.0' as const;
 
 export const SIXTY_CYCLE_ANCHOR = Object.freeze({
   year: 1984,
@@ -188,7 +188,7 @@ export const HOST_GUEST_RELATION_LABELS = Object.freeze({
   SAME_QI: '同气',
   SAME_ELEMENT_DIFFERENT_QI: '同属{element}，六气不同',
   HOST_GENERATES_GUEST: '主生客，相得',
-  GUEST_GENERATES_HOST: '客生主',
+  GUEST_GENERATES_HOST: '客生主，相得',
   HOST_CONTROLS_GUEST: '主克客',
   GUEST_CONTROLS_HOST: '客克主',
 } as const satisfies Readonly<Record<HostGuestRelationRule, string>>);

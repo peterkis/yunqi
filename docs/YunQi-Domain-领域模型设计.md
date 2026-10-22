@@ -247,6 +247,6 @@ function getCurrentStep(
 
 ## 7. 规则状态与变更边界
 
-规则唯一来源是 `rules/PHASE1_IMPLEMENTATION_RULES_V1.md` 及领域包中的对应规则表。当前版本是 Phase 1 实现基线，仍受 `rules/RULE_FREEZE_NOTE.md` 的“待正式冻结”状态约束，不应表述为已经完成正式专家共识冻结。
+当前规则来源是 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md`（`YQ-MVP-RULES-1.1.0`）及领域包中的对应规则表；旧 `PHASE1_IMPLEMENTATION_RULES_V1.md` 保留为历史基线。当前版本是 Phase 1 实现基线，仍受 `rules/RULE_FREEZE_NOTE.md` 的“待正式冻结”状态约束，不应表述为已经完成正式专家共识冻结。
 
 本设计只对齐已经实现并测试的公共契约，不扩展客主关系、诊疗含义或其他专家规则。后续规则变更必须先更新可追溯规则来源、版本和测试，再修改领域实现。

@@ -1,0 +1,101 @@
+{
+  "workstream": "Service implementation for the authorized Word-rule upgrade",
+  "status": "COMPLETE_TARGETED_GREEN",
+  "scope": {
+    "supportedYunQiYears": [
+      1900,
+      2100
+    ],
+    "calculationStartInclusive": "actual 1900 DaHan",
+    "calculationEndExclusive": "actual 2101 DaHan",
+    "timeStandard": "BeijingStandardTime+08:00",
+    "ruleVersion": "YQ-MVP-RULES-1.1.0",
+    "contractId": "YQ-API-CONTRACT-1.1.0",
+    "openApiDialect": "3.1.0",
+    "openApiDocumentVersion": "1.3.0",
+    "servicePackageVersion": "2.1.0"
+  },
+  "editedFiles": [
+    "packages/yunqi-service/README.md",
+    "packages/yunqi-service/package.json",
+    "packages/yunqi-service/scripts/smoke-production-entry.mjs",
+    "packages/yunqi-service/src/plugins/openapi.ts",
+    "packages/yunqi-service/src/schemas/yunqi.ts",
+    "packages/yunqi-service/src/services/yunqi-service.ts",
+    "packages/yunqi-service/tests/api.test.ts",
+    "packages/yunqi-service/tests/boundary.test.ts",
+    "packages/yunqi-service/tests/mapper.test.ts",
+    "packages/yunqi-service/tests/openapi-contract.test.ts"
+  ],
+  "addedFiles": [
+    "packages/yunqi-service/tests/supported-range.test.ts"
+  ],
+  "productionChanges": [
+    "Change public annual/result year bounds from 1901-2099 to 1900-2100.",
+    "Retain Domain ownership of DaHan and six-step boundaries; allow civil year 2101 for inputs belonging to YunQi year 2100.",
+    "Update invalid-year messages and request/response schemas to the authorized range.",
+    "Publish the newly allocated Contract ID and OpenAPI document version; increment the Service package minor version.",
+    "Keep rule text mapping as direct Domain-to-DTO copying; no duplicated relation calculation or hardcoded response rewriting."
+  ],
+  "regressionCases": [
+    "Real-provider HTTP annual results for 1900 and 2100.",
+    "One millisecond before, exactly at, and one millisecond after actual 1900 DaHan.",
+    "One millisecond before, exactly at, and one millisecond after actual 2101 DaHan.",
+    "All boundary cases compare suffix-free, +08:00, Z and injected-clock /current responses.",
+    "Real-provider 2026 annual/calculate/current responses preserve GUEST_GENERATES_HOST and 客生主，相得 under rule 1.1.0.",
+    "Live OpenAPI schemas enforce 1900-2100 in YearParams, annual DTO and calculation DTO.",
+    "Live annual responses for 1900, 2024 and 2100 validate against their OpenAPI response schema."
+  ],
+  "checks": {
+    "red": {
+      "status": "EXPECTED_FAILURE_OBSERVED",
+      "command": "pnpm --filter @yunqi/service exec vitest run tests/supported-range.test.ts --maxWorkers=1",
+      "log": ".superpowers/word-rule-upgrade-20261018/service-red.log",
+      "tests": 9,
+      "failed": 6,
+      "passed": 3,
+      "explanation": "Before production edits, supported edge years and boundary cases returned 400; the text case first failed on old rule version 1.0.0."
+    },
+    "diffWhitespace": {
+      "status": "PASS",
+      "command": "git diff --check -- packages/yunqi-service",
+      "warnings": "Only Git's existing LF-to-CRLF notices; no whitespace-error findings."
+    },
+    "staleCurrentAssertions": {
+      "status": "PASS",
+      "scope": "Service source, tests, scripts, README and package only; excluded untouched generated OpenAPI.",
+      "result": "No remaining 1901/2099 bounds or old rule/Contract/document/package version assertions."
+    },
+    "targetedTests": {
+      "status": "PASS",
+      "command": "pnpm --filter @yunqi/service exec vitest run tests/supported-range.test.ts tests/api.test.ts tests/boundary.test.ts tests/mapper.test.ts tests/openapi-contract.test.ts --maxWorkers=1",
+      "log": ".superpowers/word-rule-upgrade-20261018/service-green.log",
+      "exitCode": 0,
+      "testFiles": 5,
+      "passed": 49,
+      "failed": 0,
+      "durationSeconds": 16.20,
+      "buildOwnership": "Run after the root agent confirmed the new Domain/adapter/Service build and contracts:freeze completed successfully."
+    },
+    "testTypecheck": {
+      "status": "PASS",
+      "command": "pnpm --filter @yunqi/service test:typecheck",
+      "log": ".superpowers/word-rule-upgrade-20261018/service-typecheck.log",
+      "exitCode": 0
+    },
+    "productionEntrySmoke": {
+      "status": "PASS",
+      "command": "pnpm --filter @yunqi/service smoke:production-entry",
+      "log": ".superpowers/word-rule-upgrade-20261018/service-smoke.log",
+      "exitCode": 0,
+      "result": "production-smoke: ok"
+    }
+  },
+  "preservedBoundaries": [
+    "No shared build was run by this agent.",
+    "No OpenAPI YAML or generated TypeScript artifact was edited by this agent.",
+    "No historical frozen contract baseline or original source material was changed.",
+    "Provider-return error classification and all other previously accepted error semantics remain unchanged.",
+    "The original .superpowers/rule-consistency-20261018 evidence is preserved as pre-upgrade evidence."
+  ]
+}

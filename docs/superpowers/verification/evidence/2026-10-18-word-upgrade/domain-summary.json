@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-18",
+  "authorization": "User explicitly authorized Word consensus as the target with necessary rule and contract version upgrades; expert freeze remains pending.",
+  "packageVersion": "1.2.0",
+  "ruleVersion": "YQ-MVP-RULES-1.1.0",
+  "formalExpertStatus": "PENDING_FORMAL_FREEZE",
+  "sourceDocument": "docs/中医五运六气第一阶段规则共识确认单_V1.0-2026.7.7.docx",
+  "executableRuleDocument": "rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md",
+  "changes": [
+    {
+      "path": "packages/yunqi-domain/package.json",
+      "sha256": "e732b8a14f8bf75c871777de2fe9110edf0195723597665a8db3bfcfad7cb161"
+    },
+    {
+      "path": "packages/yunqi-domain/README.md",
+      "sha256": "5bdfbb2e9519afb557a5eee70fabed704a13496d8e8b2ad6d4df2acad3950b66"
+    },
+    {
+      "path": "packages/yunqi-domain/src/rules/phase1-rules.ts",
+      "sha256": "c7a00ee2e20701a104db9abe0c67bb96b30b63ba375d844d56150394f98cd26f"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-api.test.ts",
+      "sha256": "b698b48566012ef508daa0938d0e99040f4151b2b96ae629ab94cc568a31de53"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-entry.test.ts",
+      "sha256": "1a1e9500a7c3b71a750ba31ff67bed05e7dd4835fa5b5baaa98f053b4ac23071"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/services.test.ts",
+      "sha256": "2d1e301b39be0ceeed9b2ba6620e2c0e06d3e56a9ddbcab7cf6f4447feffd0b4"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/rules.test.ts",
+      "sha256": "a4725ded3e7e5ed6c28f45185b2f612135493939297f0764ab60d4fa557f0e2b"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/acceptance.test.ts",
+      "sha256": "c1e890d262f3c4907a8a0d8269b74b35a238c5a438d93a66d9432163035a6b85"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/liuqi-rules.test.ts",
+      "sha256": "1456ead1475d506fe02d08d3ee87f442f9c8b8e4af09ff38a3aa805d729ce73e"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tests/property.test.ts",
+      "sha256": "3a31760182f42941dec7673504876569ca9ad132ee2114f3d95722c4ed72b5a7"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/README.md",
+      "sha256": "e640144ce49f7336e2f18083ab1b1e66834a5a436951d5ec8fa28e17ad5c1f31"
+    },
+    {
+      "path": "rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md",
+      "sha256": "f03fbf1521fb6cea6e8730da8e06e4fe8819cb97bea2162e9b07f6da3adae0e9"
+    },
+    {
+      "path": "tests/yunqi-rule-consistency.test.mjs",
+      "sha256": "ecb97d370ba09c55ae857f3433c5a393f331fba28fcf283d954e67103848beb2"
+    }
+  ],
+  "semanticDelta": {
+    "rule": "R-21",
+    "direction": "GUEST_GENERATES_HOST",
+    "oldLabel": "客生主",
+    "newLabel": "客生主，相得",
+    "affectedOrderedQiPairs": 7,
+    "allNewLabelsMatch": true,
+    "structureAndEnumsUnchanged": true,
+    "otherRuleMappingsUnchanged": true
+  },
+  "rangeValidation": {
+    "sourceRule": "R-08",
+    "propertyYearMinimum": 1900,
+    "propertyYearMaximum": 2100,
+    "explicitYearExamples": [
+      1900,
+      2100
+    ],
+    "explicitInteriorExamples": [
+      [
+        1900,
+        0,
+        0
+      ],
+      [
+        1900,
+        5,
+        1000
+      ],
+      [
+        2100,
+        0,
+        0
+      ],
+      [
+        2100,
+        5,
+        1000
+      ]
+    ],
+    "propertyRunsPerTest": 200,
+    "internalNextYearData": "Cross-year properties request adjacent-year ephemerides; this does not extend public query input bounds."
+  },
+  "redGreen": [
+    {
+      "stage": "RED",
+      "command": "pnpm --filter @yunqi/domain exec vitest run tests/public-api.test.ts",
+      "exitCode": 1,
+      "passed": 3,
+      "failed": 1,
+      "failure": {
+        "expectedLabel": "客生主，相得",
+        "actualLabel": "客生主",
+        "unchangedDirection": "GUEST_GENERATES_HOST"
+      },
+      "note": "The pnpm tail printed a secondary command-not-found message after Vitest returned nonzero; Vitest executed and produced the recorded assertion failure."
+    },
+    {
+      "stage": "GREEN",
+      "command": "pnpm --filter @yunqi/domain exec vitest run tests/public-api.test.ts",
+      "exitCode": 0,
+      "passed": 4,
+      "failed": 0
+    }
+  ],
+  "finalChecks": [
+    {
+      "command": "pnpm --filter @yunqi/domain test",
+      "exitCode": 0,
+      "testFiles": 10,
+      "passed": 132,
+      "failed": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/domain test:typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "node --test tests/yunqi-rule-consistency.test.mjs",
+      "exitCode": 0,
+      "passed": 5,
+      "failed": 0,
+      "coverage": {
+        "numericYears": 201,
+        "realAdapterAnnualRows": 60,
+        "steps": 360,
+        "independentOrderedRelationsWithAllFourFields": 36
+      }
+    },
+    {
+      "command": "pnpm --filter @yunqi/calendar-adapter-tyme4ts exec vitest run tests/property.test.ts",
+      "exitCode": 0,
+      "passed": 3,
+      "failed": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "git diff --exit-code -- rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+      "exitCode": 0
+    }
+  ],
+  "buildCoordination": "No build invoked by this subtask. Parent completed the shared contracts:freeze build before final adapter and root-oracle checks.",
+  "preservation": {
+    "historicalRulePath": "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+    "historicalRuleMatchesHeadIgnoringLineEndings": true,
+    "originalWordEdited": false,
+    "originalRulePackageEdited": false,
+    "historicalEvidenceRewritten": false
+  },
+  "annual2026Sample": {
+    "qiRelation": "DIFFERENT_QI",
+    "elementRelation": "DIFFERENT_ELEMENT",
+    "direction": "GUEST_GENERATES_HOST",
+    "traditionalLabel": "客生主，相得"
+  },
+  "exclusions": [
+    "No new expert sign-off",
+    "No clinical validation",
+    "No new DTO fields or enum members",
+    "No inferred new medical rules",
+    "No changes to original materials"
+  ],
+  "priorMutationEvidence": ".superpowers/rule-consistency-20261018/domain-audit.json"
+}

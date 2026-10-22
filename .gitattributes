@@ -1,3 +1,9 @@
 packages/yunqi-service/openapi/*.yaml text eol=lf
 packages/yunqi-contracts/src/generated/*.ts text eol=lf
 packages/yunqi-contracts/contract/*.json text eol=lf
+
+# Historical evidence and expert source packages are hashed as original bytes.
+# Disable text conversion on both add and checkout, including on Windows.
+docs/retrospectives/evidence/** -text
+docs/superpowers/verification/evidence/** -text
+docs/五运六气规则规格包_V1.0/** -text

@@ -12,9 +12,8 @@ export interface CurrentStepCardProps {
 export function CurrentStepCard({ step }: CurrentStepCardProps) {
   return (
     <Panel
-      eyebrow="Current Position"
       title="当前所在六步"
-      description="当前位置由 API 返回的 currentStep 标识，前端不重新判断边界。"
+      description="交接时刻起进入下一步，时间均为北京时间 UTC+08。"
     >
       <Card title={step.name}>
         <div className="current-step__badge">

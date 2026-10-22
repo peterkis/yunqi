@@ -16,8 +16,8 @@ import type {
 import { InvalidArgumentError } from './invalid-argument-error.js';
 import { protectCalendarProvider } from './provider-boundary.js';
 
-export const MIN_SUPPORTED_YEAR = 1901;
-export const MAX_SUPPORTED_YEAR = 2099;
+export const MIN_SUPPORTED_YEAR = 1900;
+export const MAX_SUPPORTED_YEAR = 2100;
 
 export function assertSupportedYear(year: number): void {
   if (
@@ -25,7 +25,7 @@ export function assertSupportedYear(year: number): void {
     year < MIN_SUPPORTED_YEAR ||
     year > MAX_SUPPORTED_YEAR
   ) {
-    throw new InvalidArgumentError('年份必须是 1901 到 2099 的整数');
+    throw new InvalidArgumentError('年份必须是 1900 到 2100 的整数');
   }
 }
 
@@ -48,7 +48,7 @@ function assertResolvableCivilYear(input: YunQiCalendarTime): void {
     civilYear > MAX_SUPPORTED_YEAR + 1
   ) {
     throw new InvalidArgumentError(
-      'dateTime 对应的运气年不在 1901 到 2099 支持范围内',
+      'dateTime 对应的运气年不在 1900 到 2100 支持范围内',
     );
   }
 }

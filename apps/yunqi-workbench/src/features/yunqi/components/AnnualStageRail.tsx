@@ -16,16 +16,6 @@ export interface AnnualStageRailProps {
   readonly timelineId: string;
 }
 
-function stageAccessibleName(step: CurrentSixQiStageViewModel) {
-  return [
-    `第 ${step.index} 步`,
-    step.name,
-    step.status.label,
-    `开始 ${step.start.localTime}`,
-    `结束 ${step.end.localTime}`,
-  ].join('，');
-}
-
 export function AnnualStageRail({
   expandedSteps,
   onRevealStep,
@@ -50,7 +40,7 @@ export function AnnualStageRail({
                 aria-controls={ids.detailsId}
                 aria-current={isCurrent ? 'step' : undefined}
                 aria-expanded={expandedSteps.has(step.index)}
-                aria-label={stageAccessibleName(step)}
+                aria-describedby={`${ids.rootId}-boundaries`}
                 onClick={() => onRevealStep(step.index)}
               >
                 <span className="annual-stage-rail__index">
@@ -74,6 +64,9 @@ export function AnnualStageRail({
                   />
                 </span>
               </button>
+              <span className="visually-hidden" id={`${ids.rootId}-boundaries`}>
+                开始 {step.start.localTime}，结束 {step.end.localTime}，北京时间 UTC+08
+              </span>
             </li>
           );
         })}

@@ -929,7 +929,7 @@ function yearSelectorViolations(sourceFile) {
   const visit = (node) => {
     if (
       ts.isNumericLiteral(node) &&
-      (node.text === '1901' || node.text === '2099')
+      ['1900', '1901', '2099', '2100'].includes(node.text)
     ) {
       copiedBoundaries.add(node.text);
     }

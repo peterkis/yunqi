@@ -129,7 +129,7 @@ try {
   );
 
   assert.equal(health.data.status, 'ok');
-  assert.equal(year.data.ruleVersion, 'YQ-MVP-RULES-1.0.0');
+  assert.equal(year.data.ruleVersion, 'YQ-MVP-RULES-1.1.0');
   assert.equal(current.data.input.offset, '+08:00');
   assert.deepEqual(calculation.data.input, {
     localTime: '2024-01-20T22:07:22+08:00',

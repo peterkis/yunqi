@@ -8,10 +8,15 @@
   "scripts": {
     "build:contract-source": "pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build",
     "build": "pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build",
-    "test": "pnpm build && node --test tests/yunqi-dev-proxy.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
+    "test": "pnpm build && node --test tests/yunqi-dev-proxy.test.mjs tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check && pnpm test:project-guidance",
     "typecheck": "pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/contracts typecheck && pnpm --filter @yunqi/contracts test:typecheck && pnpm --filter @yunqi/client typecheck && pnpm --filter @yunqi/client test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck && pnpm --filter @yunqi/workbench typecheck && pnpm --filter @yunqi/workbench test:typecheck",
     "test:coverage": "pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/client test:coverage && pnpm --filter @yunqi/service test:coverage && pnpm --filter @yunqi/workbench test:coverage",
     "test:dev-proxy": "pnpm build:contract-source && node --test tests/yunqi-dev-proxy.test.mjs",
+    "test:rule-consistency": "pnpm build:contract-source && node --test tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs",
+    "test:browser": "pnpm build && playwright test",
+    "test:browser:flows": "pnpm build && playwright test --project=flows-chromium",
+    "test:browser:visual": "pnpm build && playwright test --grep @visual",
+    "test:project-guidance": "node --test tests/project-guidance.test.mjs && node scripts/check-project-guidance.mjs",
     "test:contract-governance": "node --test tests/yunqi-contract-governance.test.mjs && node scripts/check-yunqi-contract-dependencies.mjs",
     "test:workbench-governance": "node --test tests/yunqi-workbench-governance.test.mjs && node scripts/check-yunqi-workbench-governance.mjs",
     "test:time-purity": "pnpm test:time-governance && pnpm --filter @yunqi/domain test:time-purity && pnpm --filter @yunqi/service test:time-purity",
@@ -26,6 +31,8 @@
     "schema:validate": "pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"
   },
   "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1",
     "typescript": "5.9.3",
     "yaml": "2.9.0"
   }

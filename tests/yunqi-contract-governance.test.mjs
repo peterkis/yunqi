@@ -29,6 +29,45 @@ const repositoryRoot = resolve(
   '..',
 );
 
+test('Contract 1.1.0 changes only the approved year range and version identity', () => {
+  const contractDirectory = join(
+    repositoryRoot,
+    'packages/yunqi-contracts/contract',
+  );
+  const previous = JSON.parse(readFileSync(
+    join(contractDirectory, 'YQ-API-CONTRACT-1.0.0.freeze.json'),
+    'utf8',
+  ));
+  const expected = structuredClone(previous);
+  expected.contractId = 'YQ-API-CONTRACT-1.1.0';
+  expected.documentVersion = '1.3.0';
+
+  const approvedYearSchemas = [
+    expected.paths['/api/v1/yunqi/year/{year}'].get.parameters[0].schema,
+    expected.schemas.YunQiYearDto.properties.year,
+    expected.schemas.YunQiCalculationDto.properties.year,
+  ];
+  for (const schema of approvedYearSchemas) {
+    assert.equal(schema.minimum, 1901);
+    assert.equal(schema.maximum, 2099);
+    schema.minimum = 1900;
+    schema.maximum = 2100;
+  }
+
+  const actual = JSON.parse(readFileSync(
+    join(contractDirectory, 'YQ-API-CONTRACT-1.1.0.freeze.json'),
+    'utf8',
+  ));
+  assert.deepEqual(actual, expected);
+
+  const registry = JSON.parse(readFileSync(
+    join(contractDirectory, 'registry.json'),
+    'utf8',
+  ));
+  assert.ok(registry.contractIds.includes(previous.contractId));
+  assert.ok(registry.contractIds.includes(actual.contractId));
+});
+
 function createDocument() {
   const errorResponse = {
     description: 'error',
@@ -763,12 +802,15 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     'actions/setup-node@',
     'node-version: 22',
     'pnpm install --frozen-lockfile',
+    'pnpm test:project-guidance',
     'pnpm test:time-governance',
     'pnpm contracts:check',
     'pnpm test',
     'pnpm typecheck',
     'pnpm test:coverage',
     'pnpm schema:validate',
+    'pnpm exec playwright install --with-deps chromium',
+    'pnpm test:browser',
   ];
 
   for (const marker of requiredMarkers) {
@@ -777,12 +819,15 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
 
   const orderedCommands = [
     'pnpm install --frozen-lockfile',
+    'pnpm test:project-guidance',
     'pnpm test:time-governance',
     'pnpm contracts:check',
     'pnpm test',
     'pnpm typecheck',
     'pnpm test:coverage',
     'pnpm schema:validate',
+    'pnpm exec playwright install --with-deps chromium',
+    'pnpm test:browser',
   ];
   const actualCommands = workflow
     .split(/\r?\n/)

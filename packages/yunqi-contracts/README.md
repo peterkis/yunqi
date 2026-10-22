@@ -1,6 +1,6 @@
 # @yunqi/contracts
 
-Browser-safe public DTO facade for `YQ-API-CONTRACT-1.0.0`.
+Browser-safe public DTO facade for `YQ-API-CONTRACT-1.1.0`.
 
 The package contains no YunQi rules, runtime time conversion, Fastify,
 React, Axios, TanStack Query, Domain, or Service dependency. Its public types
@@ -49,7 +49,7 @@ pnpm --filter @yunqi/contracts test:typecheck
 The machine freeze is:
 
 ```text
-contract/YQ-API-CONTRACT-1.0.0.freeze.json
+contract/YQ-API-CONTRACT-1.1.0.freeze.json
 contract/registry.json
 ```
 

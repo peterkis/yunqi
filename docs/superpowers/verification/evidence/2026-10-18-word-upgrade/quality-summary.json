@@ -1,0 +1,122 @@
+{
+  "ruleVersion": "YQ-MVP-RULES-1.1.0",
+  "contractId": "YQ-API-CONTRACT-1.1.0",
+  "expertStatus": "pending formal freeze",
+  "baselineHead": "12ddb044f7bfc64d643e5e95a0271a707db107c0",
+  "completedAt": "2026-10-18T08:07:19.9201965+08:00",
+  "commands": [
+    {
+      "command": "pnpm test",
+      "startedAt": "2026-10-18T07:59:48.4205043+08:00",
+      "finishedAt": "2026-10-18T08:02:19.8047126+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm typecheck",
+      "startedAt": "2026-10-18T08:02:43.7504534+08:00",
+      "finishedAt": "2026-10-18T08:03:07.48453+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm test:coverage",
+      "startedAt": "2026-10-18T08:03:07.5604299+08:00",
+      "finishedAt": "2026-10-18T08:05:44.879333+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm contracts:check",
+      "startedAt": "2026-10-18T08:05:44.908296+08:00",
+      "finishedAt": "2026-10-18T08:06:05.9680846+08:00",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm schema:validate",
+      "startedAt": "2026-10-18T08:06:05.990028+08:00",
+      "finishedAt": "2026-10-18T08:06:25.6962887+08:00",
+      "exitCode": 0
+    }
+  ],
+  "allFiveCommandsExitZero": true,
+  "sourceFilesBefore": 257,
+  "sourceFilesAfter": 257,
+  "sourceDriftCount": 1,
+  "runtimeTestOrOtherSourceDriftCount": 0,
+  "sourceChangesDuringValidation": [
+    {
+      "path": "rules/PHASE1_RULE_SOURCES.md",
+      "status": "changed",
+      "classification": "authorized_documentation_pointer_update",
+      "beforeSha256": "1D2534FBB1B0A4CA79B6121DED46F03B3FB2664234D517A47AA16FAE9E871AE3",
+      "afterSha256": "117FC72B49627951F9C3ECADF1219469CD4D7F97C5F14903C3D19E9AE479C851"
+    }
+  ],
+  "sourceScope": [
+    "AGENTS.md",
+    "rules",
+    "docs/contracts",
+    "apps/yunqi-workbench",
+    "packages",
+    "scripts",
+    "tests",
+    "package.json",
+    "pnpm-lock.yaml",
+    ".github/workflows/ci.yml"
+  ],
+  "excludedAuthorizedWork": [
+    "new docs/superpowers/verification reports and evidence",
+    "docs/YunQi-Domain-领域模型设计.md documentation pointer update; not in source-hash scope"
+  ],
+  "aggregateCounts": {
+    "domain": 132,
+    "passed": 787,
+    "failed": 0,
+    "client": 8,
+    "workbench": 112,
+    "devProxy": 1,
+    "skipped": 1,
+    "timeGovernance": 10,
+    "service": 164,
+    "ruleConsistency": 5,
+    "timeConsistency": 3,
+    "contractGovernance": 33,
+    "calendarAdapter": 37,
+    "workbenchGovernancePass": 282,
+    "workbenchGovernanceSkip": 1
+  },
+  "schemaValidateTests": 6,
+  "coverage": {
+    "workbench": {
+      "statements": 98.83,
+      "branches": 92.95,
+      "functions": 100,
+      "lines": 98.82
+    },
+    "service": {
+      "statements": 97.97,
+      "branches": 92.3,
+      "functions": 100,
+      "lines": 98.94
+    },
+    "client": {
+      "statements": 100,
+      "branches": 100,
+      "functions": 100,
+      "lines": 100
+    },
+    "domain": {
+      "statements": 96.15,
+      "branches": 90.98,
+      "functions": 100,
+      "lines": 96.13
+    }
+  },
+  "intermediateFailures": [],
+  "retries": [],
+  "retainedSkip": "Workbench governance linked-source symlink creation unavailable on this Windows host (1 SKIP).",
+  "openapiWarnings": [
+    "no-server-example-com",
+    "operation-4xx-response",
+    "no-unused-components"
+  ],
+  "scope": "Engineering verification only, not formal expert freeze or clinical validation. Browser checks are owned by the parent agent after build release."
+}

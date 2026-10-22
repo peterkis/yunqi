@@ -37,7 +37,6 @@ export function TimeAnalysisPage({
     <div className="time-analysis-page">
       <header className="time-analysis-hero">
         <div>
-          <p className="section-label">Workbench / Specified Time</p>
           <h2>指定时点分析</h2>
           <p className="time-analysis-hero__summary">
             输入一个北京标准时间，查看该时点对应的五运六气规则结构。
@@ -50,7 +49,6 @@ export function TimeAnalysisPage({
         className="time-analysis-form-panel"
       >
         <header>
-          <p className="section-label">Analysis Input</p>
           <h3 id="time-analysis-form-title">选择分析时间</h3>
           <p>本页面只用于规则结果核对与阶段验证。</p>
         </header>
@@ -87,20 +85,20 @@ export function TimeAnalysisPage({
           aria-label="指定时点分析结果"
           className="time-analysis-result"
         >
+          <p className="analysis-success" role="status">分析完成，所选时点位于{viewModel.selectedStage.name}。</p>
           <header className="time-analysis-result__time">
             <div>
-              <p className="section-label">Canonical Analysis Time</p>
               <h3>规范分析时间</h3>
             </div>
             <YunQiTimeDisplay value={viewModel.analysisTime} />
           </header>
+          <TimeAnalysisStageDetailPanel
+            stage={viewModel.selectedStage}
+          />
           <YunQiYearSummaryPanel summary={viewModel.summary} />
           <TimeAnalysisSixQiRail
             selectedStageIndex={viewModel.selectedStage.index}
             stages={viewModel.stages}
-          />
-          <TimeAnalysisStageDetailPanel
-            stage={viewModel.selectedStage}
           />
           <RuleExplanationPanel
             explanations={viewModel.explanations}

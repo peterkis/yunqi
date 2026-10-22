@@ -1,0 +1,7 @@
+test: EXIT=0
+typecheck: EXIT=0
+test:coverage: EXIT=0
+contracts:check: EXIT=0
+schema:validate: EXIT=0
+browser-chrome-workers-1: EXIT=0
+test:project-guidance (final docs): EXIT=0

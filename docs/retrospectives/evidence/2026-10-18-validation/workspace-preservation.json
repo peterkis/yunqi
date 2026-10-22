@@ -1,0 +1,1576 @@
+{
+  "schemaVersion": 1,
+  "status": "PASS",
+  "baselineFiles": 389,
+  "reviewedExistingFileChanges": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "beforeSha256": "c5050842f14059d0686bb528de8c5cf74e10ab16bc38a98da550792336c84ff9",
+      "afterSha256": "e28f03fedf9216a16cd8da43639b28c913283e9301b535b6543f08727c19ded3"
+    },
+    {
+      "path": "AGENTS.md",
+      "beforeSha256": "ba083ee521707ea7c5bcf54bdebd4b78c2f4ef47f1cd3da2d0efa10861749d32",
+      "afterSha256": "425b8e579e600f8e7bf19e091b5e3220caa1b073362172c725d63be507f04bdc"
+    },
+    {
+      "path": "README.md",
+      "beforeSha256": "d95e1adcfd7b9b2115f96c1a9018282e2f633e992e53dba4c12f697a9239cbdc",
+      "afterSha256": "d063da67ed1a012a40562c9ba91e224918fb4e65a069debdcc5f9d36f018048a"
+    },
+    {
+      "path": "codex/AGENTS.md",
+      "beforeSha256": "a9d5070f088cfb3b3577e53708d3deaf8713cbf388c1d83106abf0227cf45e71",
+      "afterSha256": "37d2b6bb1a01b21a2b53de9ab7d1825a4ec20e4c3f0a8a066ac4b07576fc94e1"
+    },
+    {
+      "path": "package.json",
+      "beforeSha256": "70bf155e3d4ed6fca06874f6a8a48696d87ccb187a404704ad8898faad69b75b",
+      "afterSha256": "82affa914e25dc9ec1d8129e2cef3a902f588a12d123e614a6f07ffaabf808ac"
+    },
+    {
+      "path": "scripts/check-yunqi-time-governance.mjs",
+      "beforeSha256": "e29f008e9887dd199fb785329637e6fedac7be99bb5e1314daced4f509439732",
+      "afterSha256": "67cd373962eaa16539a622ae49ca3c24aabb1e30bda21799b1af7bd84de8ab83"
+    },
+    {
+      "path": "tests/yunqi-contract-governance.test.mjs",
+      "beforeSha256": "5227d4803ad6bbc90b5fde2b7c36fd51ed89ac83c16aba1fbebc20ceeaf1607f",
+      "afterSha256": "3fa495af1d25cc3e9d949fa8549910acc36372f7460c4559a7e8161509a51c52"
+    },
+    {
+      "path": "tests/yunqi-time-governance.test.mjs",
+      "beforeSha256": "617bf6c66642ff0857aae502f4c628166da0faefac60516c50859ee53c947993",
+      "afterSha256": "daa025fdca8e55d1df3c49221a31e32b9185df94f41808131e730d81fa5c9be4"
+    }
+  ],
+  "scopeExtensionReason": "Time governance hard-coded long AGENTS markers; adapted documentation locations and added fail-closed pointer/missing-document tests. No runtime capability checks changed.",
+  "protectedUnchangedCount": 381,
+  "violations": [],
+  "protectedUnchanged": [
+    {
+      "path": ".gitattributes",
+      "sha256": "1956f17f66c3fd74b7c2201b1ad7e9b09af6deee51715780d42a757052ae64a0"
+    },
+    {
+      "path": ".gitignore",
+      "sha256": "5c9c8007aa66782f9256967a49d8a786ec76adcde364e755d3e91ac64750c2d1"
+    },
+    {
+      "path": "api/API-Interface-Design.md",
+      "sha256": "f30c3b12c9df325a19df93e3894983e5873aa2fca195f7f794cabc90f50a81db"
+    },
+    {
+      "path": "apps/yunqi-workbench/README.md",
+      "sha256": "882f4dbc4a681cc4204e15649a9c5a8dd8546a3000d186ba2dbbe84beb0fd09d"
+    },
+    {
+      "path": "apps/yunqi-workbench/index.html",
+      "sha256": "02af363283c67cb8aeb5e587037eb2f7f5a042d08662516da45f25f20e96928f"
+    },
+    {
+      "path": "apps/yunqi-workbench/package.json",
+      "sha256": "af9cd162a8cf3937e60b7ae02b1ff832b3e038f7d856d9592df5e12192fa6d67"
+    },
+    {
+      "path": "apps/yunqi-workbench/public/favicon.svg",
+      "sha256": "7f03575be1fcfc0467dbfb933492dbb8b84caecafce5d2b46e2988a8256cba11"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/App.test.tsx",
+      "sha256": "aeb792e6034f5419c76d29fae5c370624c64fa90d3c81f1390f11e05b00acee8"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/App.tsx",
+      "sha256": "e3120c61db2274ee84ce10ada96e35211657f9cfbe2c0ac87fda413cd485697b"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/AppRoutes.test.tsx",
+      "sha256": "31601eeea3fda9878bd6197966f8a841138f98dc44a82d7a096950b071073a56"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/AppRoutes.tsx",
+      "sha256": "398831a6718782d6d80aa6d6bb388eeaf9da0ffc138368e3d645189882f8191a"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/NotFoundPage.tsx",
+      "sha256": "c7d16fde433d5663f5c1dfcbe1617fb46f608bc9e0fc2233e968c8d1fc0e1e2e"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/app/routes.ts",
+      "sha256": "fa59c9d8464995bc071fff89f2dcfb6df57f919dd203ea0341d9dabfc594f17e"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/AsyncState.test.tsx",
+      "sha256": "d97013194b8297e36943b66c9ec0f0d686d7119363e30e5926d3634a161422ca"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/AsyncState.tsx",
+      "sha256": "1be22f31a4f86f314bf340dfad8702ec7163bc4240ba1aa6e39be384cdf48165"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/FeedbackStates.test.tsx",
+      "sha256": "292bf5341440571c942ded6e74181a56950d307461a54fbfca47bbb336c0d5b4"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/feedback/FeedbackStates.tsx",
+      "sha256": "3e542044b6ea588cdbde3446b37d4f1cd15f3b7fb978c2ee2cd8179503b45451"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/AppShell.test.tsx",
+      "sha256": "9dda41b282eeb2cdeb8a06e11d21d60d0c22e187acc16e84e9eaa5e16f2e8260"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/AppShell.tsx",
+      "sha256": "422de19e9b181162adda8e08add7d415d652d96d017c56a6889a93b9b37cc1a7"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/layout/Navigation.tsx",
+      "sha256": "71b4c51702c0b3806549a3e71f584a1166299fd497393442752dc7b6d784bcc9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/time/YunQiTimeDisplay.test.tsx",
+      "sha256": "77991e60e5356327cb18b561d5e2d9798f3c0323feccaf7274c43d74348aa637"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/time/YunQiTimeDisplay.tsx",
+      "sha256": "d5db68f09bcedc4a23cb5b2bde8060aefd5fffb50588cccf78212644b9a832a2"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Badge.tsx",
+      "sha256": "7236d1fe7e295a6089ab4a3a274577aeb6cba8c9eaebc5f7449aa4712adae007"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Card.tsx",
+      "sha256": "1399d9903dc8502f3a99d6b462f46fc88e486819fc09a940e45270a704103cba"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/DataLabel.tsx",
+      "sha256": "8af2236b320b45b58cd3fddf46f1153299ebcfb6aa2035c1061bac994391337f"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/Panel.tsx",
+      "sha256": "a02cd3a674e1f631fdc41b857b2b04f3b6e0d399e5ad2dec9c9658346670ccac"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/TimelineItem.tsx",
+      "sha256": "cab6d1806bd553cf95e3b36206d78aa92eef904c6529b1f5f24ab7fd26275c71"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/components/ui/primitives.test.tsx",
+      "sha256": "462c3bb5f7a89b306369f3ea9610a81dc785c8d40cc6c9e39cc86354362d5d09"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/components/InquiryCapabilityCard.tsx",
+      "sha256": "f7c7974efca99f71f9f4ce291287459d4013185f48f6e0baa0f94052e5e41d78"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/audit-context.ts",
+      "sha256": "61664d5955a0f3c3cc8fe79aa79f99764bb51de3418c94930233627e05872d02"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/index.ts",
+      "sha256": "7aa99911d1e4e9e17e28589ae40f7c29c8fcb0140f7a971b11ecade2b19a222a"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/inquiry-context.ts",
+      "sha256": "cf76cd756d2342b156a89a7812ca5dff0d3a20ba8ef073117ae13c68fb33284b"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/observation-context.ts",
+      "sha256": "a03487a2b682306eefe05ea22e22385f23886f62d586902520b0ba9611319fb0"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/patient-context.ts",
+      "sha256": "a0110935652fa3b50ce06245d87b2c431ecc2bf8c4b66be75bcfae99bef3bb23"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/models/permission-context.ts",
+      "sha256": "f98892877b73b193d69705a6dad13464aefcbdb27f72b21e7e89b5733a213175"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.test.tsx",
+      "sha256": "8596c3be075ca884bbab95c70f90734171451eaccfa4b84a78f995a51e7c8342"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.tsx",
+      "sha256": "941e5990d9a5be683d2ae14153c057267be3eb30b18816e8907b029c26c48219"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/api/query-options.ts",
+      "sha256": "f91009ce78fe6a7b89adf6e645908e4f57bc1a1ddae6e6902ae980b4c15e9990"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.test.tsx",
+      "sha256": "2635a278a85d339f534ffcb7bb7b9b33bf95b496e3415eebc355b64b30a19b7e"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/AnnualStageRail.tsx",
+      "sha256": "4846f02f4c303e19574b1f29c61e858be13468fbed4b85af6ac2e7446c73a6bb"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentStepCard.tsx",
+      "sha256": "29c863bb585d4260983ca1d5b3a9707a530c9a5a295040e3ca7551602537aad6"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx",
+      "sha256": "afbc709f34645864c7cf68c248f2282c12c6ebbdf45a88531073c738396db34c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.tsx",
+      "sha256": "f811536e73f6a24801c5e44aa4214e06dd4ed95316a4c061d2020559293a3554"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiView.test.tsx",
+      "sha256": "2e3d3883e28c94c6bc8bb98ced40e1fafd5daeb93f1250983252f48eb065c411"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiView.tsx",
+      "sha256": "9258969b8d82e16f039f1352a3d2025899bfe0d8dd74c5622e8eed000db98560"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/GuestHostRelationDetail.tsx",
+      "sha256": "00206b123b1340cd3c4671a149247a3024ed833607c1a7cf19d8bca129d4dbae"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/RuleExplanationPanel.tsx",
+      "sha256": "300563a636338c9e7346cd1265766bc5934f31f407dc367454bfb025d7dd225d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.test.tsx",
+      "sha256": "a4872472c1c8d4d7440015a7fbe09094e61bda78f339b7e23db133a88ad9e806"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.tsx",
+      "sha256": "dd866d90faf229cc6c65402f4200be5564474e5e2a3d126bd754305f49ea491d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/SixQiTimelineItem.tsx",
+      "sha256": "3b9c54c1a0c4ff50b842c2d96f4b994f358a3df46a369668604f49346395c09d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/TraceabilityPanel.tsx",
+      "sha256": "2de077d8f68ba25f8fcb22b1c2abe1a91b8727350ccb83b0d358d093e11dae42"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiTimeRange.tsx",
+      "sha256": "24fe0c11a7feb67e8f7aba200ecad873f0bf305871fb96fcbe4c30ddf085bfc7"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.test.tsx",
+      "sha256": "8fa27ff5c1ad46b46770b0773dcfd9531a661f569561403c524afdf1abaab574"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx",
+      "sha256": "ccde0bd836740500cfbfad11e992b3b96df3190ce33376f3bd1c3e923bef09c9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx",
+      "sha256": "176cfbe38ae2b11b373ff8b62f88d771f6b0bc18e261b7b97adc2664943324d6"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/six-qi-timeline-ids.ts",
+      "sha256": "cacce2982c4a3886e469ef4155ecb7079a661a29bbe172dbc7d4a8de96b5c2cb"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useCalculateYunQiMutation.test.tsx",
+      "sha256": "abbdf8481aa25350841eaa584b497354932b2f9597d936d1b132f747b10f9364"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useCalculateYunQiMutation.ts",
+      "sha256": "2f59c1969acf915a8e32235a66ba766171884a19f501478842191254eed81e78"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useCurrentYunQiQuery.ts",
+      "sha256": "ff4cf6c9d8f8ccdc7eb86548830155b8e10d8aa8eef0e30c3ae4c00aae062d6e"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useYunQiYearQuery.ts",
+      "sha256": "62daa96de2100b90efd9206101b792524b9ea75bbff9208bb6ae23bbde21ca0d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/yunqi-queries.test.tsx",
+      "sha256": "8eb2699018f430e4428287c79f090e26f87ca16e0cded1e7ea670cef32a19b6a"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-annual-yunqi.test.ts",
+      "sha256": "f5ab556ac366212aeff63333f6d780ded98d7bed71220427052a659da330cf73"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-annual-yunqi.ts",
+      "sha256": "19de481e9979851f956a0f50f35ed8454220ff9a77fffb5b5f21620ce5bf36bc"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.test.ts",
+      "sha256": "5b3d8d42faab7bddcc8356a73695eca9dbd39d6646357fb6c95d1e81ec1fa115"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-current-yunqi.ts",
+      "sha256": "4b6a7e71f12f54411050d65cdac2e75aac5aef58710fde3e6863c949f83cbf82"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-time-analysis-yunqi.test.ts",
+      "sha256": "67c83c3f9f6f5060eeb3241e3ee7c661bb728a7df13a5c9a5695089e1008fd8f"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-time-analysis-yunqi.ts",
+      "sha256": "79b2e93787b5b12c2409e41b1db1e576402e949d11a0fe60062ede1b509d8fbd"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-yunqi-shared.ts",
+      "sha256": "e8ff267da2cbd15f1ebddad08bf604625f603896157034f02e53add51aa24326"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/view-model.ts",
+      "sha256": "dfa5a4fb9ed83f0d41911aadc91a595892ec43c8e8ffb82a5f59b08c81428401"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisForm.tsx",
+      "sha256": "1bc1fc0ebbd5752071310dd26d11214fd1df3182e55c564705c381d00cf6492c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx",
+      "sha256": "7addadea2bc4adfca9b796267b2713fa66ce36cb9f477d6abec0eea743f58118"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.tsx",
+      "sha256": "0ddadff011e2776cde10e6034ff841664141f76a914e9be825c5e9d71a60a9ec"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisSixQiRail.tsx",
+      "sha256": "55f2521c42c5389e5be9b3c7651a8c19a2eb3d6a9567f51a40efe8a5b2684335"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisStageDetailPanel.tsx",
+      "sha256": "771907a448b6f967b6de838372c048ba375e350ee6d7c7902ab7fbf45d71edcd"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisView.tsx",
+      "sha256": "5cee3ab16e3e02309657f9f34f666ed7bd4f27cf33fb6d04b1a5c00c4effb7f8"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/time-input.test.ts",
+      "sha256": "3cad941237778d4cd60d96f29eebddb903e3726ce1e458dec4b6ddf498ed7568"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/time-analysis/time-input.ts",
+      "sha256": "7aaf4f4298968df1f16f164d949dc5244b4d95230a357c54c34b50339f7469eb"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiDetailPanel.tsx",
+      "sha256": "ab5711721108ae24b13a23532f78b2b07cb689bea1c8ddb37d9c7fb07ac4d325"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiSelector.tsx",
+      "sha256": "6e140cdc719e417519315179384cf7045f26f2952afa8bdac1078f50cc5fadba"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx",
+      "sha256": "06a5c3e463a758a62aca349ed26cb71be4a6216967d258655eddc828ffa07eee"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.tsx",
+      "sha256": "a190a683bc3a0547839cfcb9e3609e4093fe383ea51b7894719bbf13db1426ad"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiView.test.tsx",
+      "sha256": "5a4610765dad0a0f6c0cc2a0daa1d1a8ad6aa4d8220d50e55fc19c7269271b62"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiView.tsx",
+      "sha256": "1596b2d2934ffb67f30167586f219b74a374a9519cc908ede38da33db4b08bf7"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/InvalidYearPage.tsx",
+      "sha256": "262a43e2c3bd419e5bd7dc6483c04d165e72c1842f5e264e858147761f1afbbe"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx",
+      "sha256": "f5ba968ea57e33876b84af08e075084efa5148fcb1dc68a5149e21ab84d02747"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisPage.tsx",
+      "sha256": "e4310e779415d61d3f28e7cc5c9cb08fb625190421026e444a7c51573d8f6924"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearEntryPage.tsx",
+      "sha256": "e6501ee2eeec4e72b76f088af8a87c2e3527526f232a2bfce9a2eea6cc508d18"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx",
+      "sha256": "005a9d3fa39fa1f24cedaf2fde24c7744c37eded44f9b37472bd8f9ac6c1d67d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/runtime-config.test.ts",
+      "sha256": "dcb0566603cb87dfebff6c3467baf329562e4437ba84bd3b36cfa23ecd9796a4"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/runtime-config.ts",
+      "sha256": "7820c82763e055220f8655949a52eb47667ea4710bb4a62837088fad56e42759"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/year-validator.test.ts",
+      "sha256": "971f66c24b35095995fb2a78ee409c08bef04c7c3eb08ee33237f553004bae66"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/year-validator.ts",
+      "sha256": "992a13b1497632091e67304f1b14393616622369c60842624f832d12918f2366"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/lib/yunqi-year-range.ts",
+      "sha256": "3c7661c0b904d24035bbbfcb372bc7dff46413d3eac9f034527f24b3c38d0a71"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/main.test.tsx",
+      "sha256": "40d644d55481bc0b871a5a6118936ea119a28c95f7b009f37bdbc54875c10bad"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/main.tsx",
+      "sha256": "d48c0743ab29e0560f4304ddd5ad5ac6f55437d39342d21293c6cfb053c4dc86"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/AppProviders.test.tsx",
+      "sha256": "27e93e3d80778808f023eed21201a1738a61a3102b92d3e1e0364e6c903c48b0"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/AppProviders.tsx",
+      "sha256": "42feda1ff9b33704bbcfd4f6da096982b5d476f6384e23abe70eecdc2f253423"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ErrorBoundaryProvider.test.tsx",
+      "sha256": "a6a834f33518975d273f5228c78999d7ab01fcbb150e5b1b83be9a23bdc6b9a2"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ErrorBoundaryProvider.tsx",
+      "sha256": "16b8c790f380904c7e94a5a018408da30c4f889917376e7bc2ab10e7ee10db1f"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/QueryProvider.test.tsx",
+      "sha256": "6b23f71dc1e151efb18e903b6e87c9e4997eb4631368463c85e8b988374248eb"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/QueryProvider.tsx",
+      "sha256": "ef01321c3bb51d80dee3648deae229c15eb2b2712605ace5d04614ffea21fafd"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ThemeProvider.test.tsx",
+      "sha256": "f1ce76818b7fd0f6af8ee455aa2e3552dc03fd4c59d1f521733e8a5b492021bb"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/ThemeProvider.tsx",
+      "sha256": "907011476a683215997930a4fe6abc3a30f93714752aa2ec29de0891bff3b8dc"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/YunQiClientProvider.test.tsx",
+      "sha256": "4342b4e1ef40eee76305e6fc1b563aa1703bf888399b1aac93f2c9657897fbb7"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/providers/YunQiClientProvider.tsx",
+      "sha256": "be70230108fad759ff3a21f71f7b7bf2556276572703d7dfba433e9a81d60da9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/styles/global.css",
+      "sha256": "c9e17c8496b2b1273606d6d845817bf75c260fe2bea6f5c3780866e920c74607"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/contract.typecheck.ts",
+      "sha256": "2c73717808fa94529dfa426bb9bc66d3d0bec5ffd4ba371cfee63f5eeae80863"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/inquiry-context.typecheck.ts",
+      "sha256": "5d33431d8011bb73895711955dfeeb15ea406c0c060193a916a02d062256596c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/setup.ts",
+      "sha256": "50134ef995d7e8d8b11b2d793c6b67510e14aa34e9d9be9006c5479432a6f022"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/test-utils.tsx",
+      "sha256": "381aa71b28c98faf9647dc5d5529f62f170947fd8376a7d7247bc16e9cab40b8"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/test/yunqi-fixtures.ts",
+      "sha256": "21abbcaa63348a7a48610ce71f65612359c4d05380141809603dadc5a836ae7b"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/vite-env.d.ts",
+      "sha256": "424faf9241dd699dda995b367ed36665732da1e6ec1f33b2fd40394488ecac92"
+    },
+    {
+      "path": "apps/yunqi-workbench/tsconfig.json",
+      "sha256": "ec57b59b5034634d54c9694a4151b13f1d66e4e0dea0ba605b4c8ed70a38b8b9"
+    },
+    {
+      "path": "apps/yunqi-workbench/tsconfig.test.json",
+      "sha256": "badb061d8a2563280b8fd3b36270e05920e4e520a70a84f5d2bea65dcbefc301"
+    },
+    {
+      "path": "apps/yunqi-workbench/vite.config.ts",
+      "sha256": "0c2c3f46f5d5564b6ac644acd14354ca852ccfdd4b4cf6f48cd2e6a495a66c05"
+    },
+    {
+      "path": "apps/yunqi-workbench/vitest.config.ts",
+      "sha256": "11ac3af7cbf19ffc7c580833cc1d0e0285d788dee393a7606fe76d2012b09f67"
+    },
+    {
+      "path": "architecture/ARCHITECTURE.md",
+      "sha256": "70ca9cc7346ed2b355e941fcc3a532dcb9d5c561ee7cbee1f16eed17502529e8"
+    },
+    {
+      "path": "codex/CODEX-PHASE1-STARTER-PROMPT.md",
+      "sha256": "996e20d65cb412cd17e9f91acd037ff4fd1bcab9dee7ce558c4422133d09a55e"
+    },
+    {
+      "path": "codex/prompts/Phase2-A.1_yunqi_calendar_time_semantic_fix_prompt.md",
+      "sha256": "726fd57f641d04a1dd3e33fb604e6cec8e9e2ccbe4e5621f97bae4ad4bb03cd6"
+    },
+    {
+      "path": "codex/prompts/Phase2-A_yunqi-service_Fastify_OpenAPI_JSONSchema_React_Contract_Prompt.md",
+      "sha256": "db759e2987cf2fd52a66fa71511779d244bb2912bf80ef3362f3933aecbc03a9"
+    },
+    {
+      "path": "codex/prompts/Phase3-B_React_Workbench_Foundation_Codex_Prompt.md",
+      "sha256": "64b8a417b8709e15e620cafe64936d11495c2fd5c09266032a01ac366e2a5574"
+    },
+    {
+      "path": "codex/prompts/Phase3-B_React_Workbench_Foundation_Part2_Codex_Prompt.md",
+      "sha256": "75a5b25621eee4661b3ded6eccf8d46a1f69a64f07d2cec1930fa009564b1d2e"
+    },
+    {
+      "path": "codex/prompts/codexpromptsPHASE1-YUNQI-DOMAIN-FIX.md",
+      "sha256": "f314a677b8b926caa7d785d5f9bd5d6e2c5a2d246dd9bbfa022c3de336bf6810"
+    },
+    {
+      "path": "database/DATA-MODEL-DESIGN.md",
+      "sha256": "4bf1351057e3e67f91135d96de61dfa025e171a34ce458df58b1341c7e431562"
+    },
+    {
+      "path": "docs/PRD.md",
+      "sha256": "6429c9617c35d170a7663ba12a1b113d5df4d58ec761815bc0a601823fbda389"
+    },
+    {
+      "path": "docs/YunQi-Domain-领域模型设计.md",
+      "sha256": "9fa3052220dd66d12e62706155cb5e37e334a8cb27a49b88b238dc194dff0540"
+    },
+    {
+      "path": "docs/architecture/ADR-002-yunqi-contract-freeze.md",
+      "sha256": "516ad3d210a141c3148c4efd8f33e82bf074b704de2f67f85952b1e711948232"
+    },
+    {
+      "path": "docs/architecture/adr/ADR-001-fixed-beijing-time-semantics.md",
+      "sha256": "794cc71b07d3bf31128ec27e1be09105032582c8b95d5104cbd924e52dff5010"
+    },
+    {
+      "path": "docs/clinical-validation/README.md",
+      "sha256": "db4ba4737df1b0c0c18ce8c0d36e4f18fe68f2bce511614640de902212992796"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/README.md",
+      "sha256": "157c57167f6509a7824c434feddad6b21806dc1ee4ce5224e46905531c12ab9d"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/demo-feedback.template.md",
+      "sha256": "0055be8c587828aa286f9134c14081769725979ccf0a2673756338107af975ac"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/gate-matrix.template.md",
+      "sha256": "a1fc491025655a937e5370625aee6cb62139aed724fa521112ce26e15bf5f9f9"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/protocol.md",
+      "sha256": "79876f83a5fbaa6b44a7441159e2248ed460f0845ebfd22bc17b8956b976d289"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/reference-case-selection-guide.md",
+      "sha256": "d17c39356903a6e8f209c2e042f78bb8d07ff1cd32a51f0d6260a4b0b8a7a77d"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/reference-cases.template.csv",
+      "sha256": "cc820647bf8669adf092e070a8e64b7e2e8d609c937fbf91168e5fcf9252ab33"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/references/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/clinical-validation/phase3-e/sessions/.gitkeep",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "docs/contracts/YQ-API-CONTRACT-1.0.0.md",
+      "sha256": "f35c475cde238ae521cc8b674646b7ba4c40894269c541b2ca976669c771a1df"
+    },
+    {
+      "path": "docs/contracts/YQ-API-CONTRACT-1.1.0.md",
+      "sha256": "2c4eaa9045da172c89c07dfdfe9b5decb095c4bf24c3910a6543f90b8ef9f3a9"
+    },
+    {
+      "path": "docs/plans/2026-07-Phase3-A-contract-migration.md",
+      "sha256": "ef3beb17f3850a817d54c81a8bb1b8a152f112b9a3d6b91c9ab381e81e4d363d"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-15-yunqi-domain-phase1-fix.md",
+      "sha256": "b3497e5ab6eac5d694b91c19b9f296aee70f4ce5c06985bced0d26ec887dc125"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-15-yunqi-domain-phase1.md",
+      "sha256": "5e7e0d13256c22bbe2f8ea4a12e67b55583cbabfb4e4f1cff8bce560a6ee6dbc"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-16-yunqi-downstream-time-guardrails.md",
+      "sha256": "248b3f3d2e1f0009dc6c6cdd3ebcdd5ea634f87030e706afd2e3b5f86e533c53"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-16-yunqi-fixed-beijing-time-semantics.md",
+      "sha256": "7a66634a90ac30222d75f4fc7b4751ba59de4237b80bbc25ed09ce4227ae1db5"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-16-yunqi-service-phase2a.md",
+      "sha256": "926a12a6cc9467934f4d726909b04e91e82fe4b0769fcffa3ebe12f263892767"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-20-phase3-b-react-workbench-foundation.md",
+      "sha256": "ba7b594c1bb47cffcdf4fffff6077339de6ae1dbe8bcac64be418b0ea0f308cb"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-20-phase3-c1-yunqi-presentation.md",
+      "sha256": "c653a9b182a6783b54757d179b77da33692b184ecbe201685aa26bdae1a839da"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-21-phase3-c2-yunqi-annual-timeline.md",
+      "sha256": "1d0d942b084469e57cf219111675d0ba485ad405b60581ec2f46e2f86efbc266"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-21-phase3-c3-annual-analysis.md",
+      "sha256": "1fe54cdafa3ccabc2214e11b79a5437bb3964cf659538c9a7cbe5cdd28b00eea"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-07-22-phase3-c4-inquiry-entry.md",
+      "sha256": "a60bec2ecdc8207250faa6c6036b50c9e9bbba4e6ac6220d941dec2ef8c51de7"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-18-phase3-e-clinical-validation-mvp-roadmap.md",
+      "sha256": "2296e782d557f9eab5a485ceeea7f3dc0f49226bafd77c5f2f82db3a75042900"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-18-phase3-e1-time-analysis.md",
+      "sha256": "8e39265567ddfa247455dbc76767b6d5d1be1a86eb8f77f054b3c8a5bb5a1204"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-18-phase3e-e2-clinical-validation-kit.md",
+      "sha256": "4eae344be8e9bfc94da07b52feeacc672e50a046f7c29afd050b5c45f8499115"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-22-phase3-e1-review-closeout.md",
+      "sha256": "18d91e17e1202dd5abce9f78c32494f5d0050c4191c15efe12c5815d7e64c6c3"
+    },
+    {
+      "path": "docs/superpowers/plans/2026-09-22-phase3-e2-feedback-closeout.md",
+      "sha256": "ff3132a22b5081c53031a506acce6adc37778e991adfdec1a9531feacb05e754"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-15-yunqi-domain-design.md",
+      "sha256": "885101e15a228d5932b86083910e434ecdfe34870b4911b9742634731bbb53cd"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-16-yunqi-calendar-time-semantics-design.md",
+      "sha256": "08803390aeaaffe5fafa23259e5647deaccdc04e5e024f6c24c129e9f4e5a875"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-16-yunqi-service-phase2a-design.md",
+      "sha256": "7054fddff1c004e5fd869ec960af34e83a09745deb253ef615488a0482abb1ce"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-20-phase3-b-react-workbench-foundation-design.md",
+      "sha256": "b6caaf9300b993b7833e4358ead75eb1ecb2ff7d95e7d838286e0587d345afa1"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-20-phase3-c1-yunqi-presentation-design.md",
+      "sha256": "822624cd6afc9d604141df6968c47cd9a6b2c8c78f6e90f4a32dc5343a5e8b8b"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c2-yunqi-annual-timeline-design.md",
+      "sha256": "56db6c753b6e3f12802ca79a03aef6174a2dfa9aa844a3457bbb260d545d34b8"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c3-annual-analysis-design.md",
+      "sha256": "935860446c3d697ca9338c978a5fadf23e82f8f1a456a0a7d22cab9fbe8ee9be"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-21-phase3-c3-state-machine.md",
+      "sha256": "8650774ae8d51636794eba467c4ac51969c918add86632620ad6420b19186399"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-07-22-phase3-c4-inquiry-entry-design.md",
+      "sha256": "b6d06554c83feff37ac056726984f7d1b49ee5199f15cfdc6c3cbc11befd5dab"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-18-phase3-e-clinical-validation-mvp-design.md",
+      "sha256": "074a2ff98547f8c09ffd6a5e2a0d44e0117e12fbc4fff67eaf24774b416f0aac"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-18-phase3-e1-time-analysis-design.md",
+      "sha256": "cbfb7f3bd472a7a6bc5ae5b516e6c504ab5600bb5b442c421b69cf7d7b378f2a"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-09-18-phase3-e2-clinical-validation-kit-design.md",
+      "sha256": "99dbf5cfb79ef0b072189c2cc8d4cce3c690f6eb034c55be6329469038863c6f"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-15-yunqi-domain-phase1.md",
+      "sha256": "0ceb6c1e01129947a1fe1c248ed57d2a68aada14351450033987444f83dd660d"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-16-yunqi-calendar-time-semantics.md",
+      "sha256": "8f9e4da5da9fdfcfef7ba8453b442c3b64963ac4581d37916fa470ee2fb00ea7"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-16-yunqi-downstream-time-guardrails.md",
+      "sha256": "b3b6288744fca707528962c9a59bdf43b22642370d4dc53de283bd9d37596777"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-16-yunqi-service-phase2a.md",
+      "sha256": "7d1fa6050f38f0c6570548d2253ca73f8778893ff4d7e3c5c71714e5613d8473"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-17-phase3-a-contract-freeze.md",
+      "sha256": "d1cdd87eeffc8aa0bbf49a53f755bd9e2c8ce5b609de0d715d8ca421d1c43318"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-20-phase3-b-react-workbench-foundation.md",
+      "sha256": "95d0a3c2fdfcc8093aeca58b98a90efe7652469bfd75f7504025e253030a1173"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-20-phase3-c1-yunqi-presentation.md",
+      "sha256": "efaa2c2fb869eddf269e144784dd9ecb2235e1c9510df8b623d77355c17115e5"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-21-phase3-c2-yunqi-annual-timeline.md",
+      "sha256": "348c40ab2f19772e79eb364829a73c4e373cea14a1dd2ed9726738ed4653d3ab"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-21-phase3-c3-annual-analysis.md",
+      "sha256": "2e935e7026421cefa2fab4dd24861d71387dc5de531876a8d4e65a16e31afeeb"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-07-22-phase3-c4-inquiry-entry.md",
+      "sha256": "dfa02139a258a2cc5c41b221be45437d66d799fbb3400efb9c552dc73fa41773"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-18-phase3-e0-clinical-validation-mvp.md",
+      "sha256": "b479a2374432be9b87067a1ea675a18090597cc7451556e3d28553ca7ff6a424"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-18-phase3-e1-time-analysis.md",
+      "sha256": "943f219986071631de6278049f074335abc0e1dc8cd19e7c773bbd6dafd5d181"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-18-phase3-e2-clinical-validation-kit.md",
+      "sha256": "5e2532318c380e49793c740041f731f6b9bc02a8acaddbf0029acd2c0df0c520"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-22-phase3-e0-spec-reconciliation.md",
+      "sha256": "6bd824143680f6fd44c5044ebdf8a75ed077bed6a504d80c6bb2585a27472794"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-22-phase3-e1-review-closeout.md",
+      "sha256": "7e5081529583849b6c4579606423d7e85de0a21f8d3ee1d2f8dce055d1b8e528"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-09-22-phase3-e2-feedback-closeout.md",
+      "sha256": "2597378b0f0b5a6bee4a77e67ff7803e65695164cd34ebda459eac1df912fac3"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-10-18-browser-acceptance.md",
+      "sha256": "43b620000255eae436ba1e67e88bbc999069cc50f8a93949c35db3d2210eaff8"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-10-18-rule-consistency.md",
+      "sha256": "66684a15577887950dab13403d79f43dce1419e0a5a54598f422e7eabac46123"
+    },
+    {
+      "path": "docs/superpowers/verification/2026-10-18-word-rule-upgrade.md",
+      "sha256": "e318c7105491056198fdc5e1b7521f9c47adb08cf6d78124df34611c0d84af14"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/1440-error.png",
+      "sha256": "725cb9d340d2ae342bcd5315b7e030a445cc0332380420158d917d80d4a64ab4"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/1440-invalid.png",
+      "sha256": "9aa95d38649536c13fdf8fc6fdcad6e6f7353c82e480cf365ba422150f04bfba"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/1440-success.png",
+      "sha256": "d4e8d3bb5b9cf2df7395efc6f28ce49f958c433aba20ada1120734aa7babfc23"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/390-error.png",
+      "sha256": "ebc30cfcf6f56fabcd30fe029fa525812ed429f5b2d2667e3bc7b4424037b18d"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/390-invalid.png",
+      "sha256": "bcd7358529c3e45ff8b48c75bcfaabffe1ad440e2531851404a523c06abf28c0"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/390-success.png",
+      "sha256": "fbcc4edc2b4b7cf5a7e1872fb83ca9b7b5d249bb4da3848d8da24291f06b4ae7"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/737-error.png",
+      "sha256": "869ffe2b0596db567c093dcd982c605e071a236b838527ed8b23f5e6851fe319"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/737-invalid.png",
+      "sha256": "557fc761a19a3f34dd58a970b4281f409ac030c37323d9ac534c4955f7a86b3f"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/737-success.png",
+      "sha256": "9f2b336dcac0ef9f2fc32a6cf16ee346252cc66b8d66e90af42ed4fd94278c58"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-09-22-e1/browser-results.json",
+      "sha256": "198c1102836a84fdc1007b3c1af75c10ce056c98dddec43a3bec69d35551d445"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-calculate-dark.png",
+      "sha256": "63b97c55f66ab85fdb93606a6444b137fed0db4ded51ed1295ab03458878f070"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-current-desktop.png",
+      "sha256": "32e39c66e0e6a4e84733d92b445a3df4426fd3f341e48a5cf82057f2ddb1a5c4"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-current-preview.png",
+      "sha256": "3da8167c9b7f71d104c3a6d1d7dbf10bd0b11178ff870712875cf4b7120a9dd8"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/after-year-737.png",
+      "sha256": "cb93ed148f48c2c99e8cdd34eccfbb11ef44267aaec177d3bb3d97e022d08833"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/before-year-737.png",
+      "sha256": "0cdd8e881a85111da337f263155fa5d5ffa9af55e3ce9f9df383c61d788743d5"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/browser-summary.json",
+      "sha256": "dd6c612ab70ad170f0f7237f758f25bd1ec0e906035d25081cde450dcac18e06"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/development-build-interruption.png",
+      "sha256": "197c1d636d425faeb1b17501bcea0eb1190939d4ff65dd7ff5daa6758edd56d9"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/quality-summary.json",
+      "sha256": "ab86a9900f46b132fd5f5cba5f26b8c09a2c3debbe97a2452f3dbb6ce34a7a7b"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-browser/validated-source-sha256.json",
+      "sha256": "79ddb51cadc9a0db5b2ed7e3eb2cf36fdd371d6308c93f55635e51203ce3d7f1"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/browser-summary.json",
+      "sha256": "2c63bdb2d45bae4e50272d245a56b1a2af0f588c366e6bcc5cbb52f6a0f8435d"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/domain-audit.json",
+      "sha256": "69cc35f9ad91bc80fbdf32559926a23cacfd7b073bcdb1949c26d5e8bfa8c934"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/gregorian-oracle-initial-failure.json",
+      "sha256": "2e4d292c7ac329a705fd9407eda1f6ae42e72cc1ac9c99674296a9ad531546e4"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/gregorian-oracle-summary.json",
+      "sha256": "0c61f1fce4475491e5b8a35c18b758f440986f6e3b5d6bf7bf75edbbddaf3ee3"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/ocr-coverage.json",
+      "sha256": "c91a1878be69873674be9dab889e614f792a1188e218325e0c6c0d2445e7afeb"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/original-manifest-check.json",
+      "sha256": "742516c84e20eee596b19ab9c457b8473313858634d0d707fbaad199c3ff29dd"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/protected-source-hashes.json",
+      "sha256": "3894256ad80f65cba79f9a57bae18676c13534478eb65e63246fc04d55030da8"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/quality-summary.json",
+      "sha256": "985f7c2033442aa456c6ca9cab35af074e56649b6a992f22c8d0e15b6e094864"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/service-audit.json",
+      "sha256": "7ff1996ebd864e13de8737aa040039f121542550a73bdde7fc4a67d22102fcd9"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/service-probe-result.json",
+      "sha256": "c779960e7fd926fe6b6776774e6b18f34379bd398cdcfd0cac69f9879ee28681"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/source-coverage.json",
+      "sha256": "e140c59d19b5361c60e5ea941a7686a1a18c9f3bbdf8bbef0c0e6829be027ff0"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/source-preservation.json",
+      "sha256": "3c6e0f6aeb5a18221a1f4a1864791709005badbe301c3fabee8fed2690f08f04"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/summary.json",
+      "sha256": "58161f9f8eab058d1fb7999f56a3a4f3454972efe43253b66fa883ac15ca8a25"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/supplemental-audit.json",
+      "sha256": "61f3374d50ab4a308f04b166e524f46ec8a3ffd6b3096ecf51444bcf2d688fd9"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/time-audit.json",
+      "sha256": "9e4d1363a26caa79ce621cd23e31a251fd0e6022b4698a8c4ace7c13882a4822"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-rules/workbench-audit.json",
+      "sha256": "3c2826129185f3c30e090f924ff575b7f4a3f1dba44c246143bddcdfb9035ea4"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/browser-summary.json",
+      "sha256": "899e1170481221033375b36b8451edf0dcb393209189ffc86620039434698825"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/contract-migration.json",
+      "sha256": "57e00c785881244a3e65e48f1d29a35e6dcc68611926022e8bafbb05e037e06d"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/domain-summary.json",
+      "sha256": "0ccf8a7e37b6b367032f952b4fdcad5c0cf50ffa322f0c579951b2fa875dae20"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/host-resource-summary.json",
+      "sha256": "fd619973b05233e27f3a404029e51c7703c376ae9c077a2d2fef90be6c39a8cc"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/quality-summary.json",
+      "sha256": "8d1e614e09900279fb29639b529afeb651ec36359d3e7677982f07be1feb975a"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/review-summary.json",
+      "sha256": "4681ef189e77f65f10a7efbfc65069e676f523c1fe31ead7271f7d441d795da1"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/service-summary.json",
+      "sha256": "5b3de0009af24ead3add0e73e694810a3ab0e3991299ffab5bd40b5f516aa992"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/source-preservation.json",
+      "sha256": "ef2129b05558cb28e9a30335247b1fc242d55ed83257b3b1e7431bfbf3c8f8c1"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/summary.json",
+      "sha256": "f418b7593ad83fd21dd9f76869e6bacdf00c7f5cd32e14005b92a4a705e4a49e"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-10-18-word-upgrade/time-summary.json",
+      "sha256": "6931ac93aa694b5c6636a16331e3c267b6f59ed6cc04e12e3ee0384483e64403"
+    },
+    {
+      "path": "docs/中医五运六气第一阶段规则共识确认单_V1.0-2026.7.7.docx",
+      "sha256": "9a2962c35b9da1b796fc89b4cb2956d1e238cf083f3880c6a368039b1ef65bbc"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/MANIFEST.json",
+      "sha256": "e265583f2c6c825cbc89f6c3aa324223b3e5c2ef49ba2515e1d6154ee3060d08"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/README.md",
+      "sha256": "420c87b441376153878caa1dff24505f9e450a4f583f16eba77c3002c67f7991"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/mvp-test-cases.v1.json",
+      "sha256": "984f8f29e10d0dc17893d8604a905688a712926310cf69f355e4c7a586ec2aac"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/sexagenary-cycle-baseline.v1.csv",
+      "sha256": "0d0e9c9aa9be13f0650f6fb650749a404a4dd988a80cb39f655ff5552aea0f6c"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/fixtures/sexagenary-cycle-baseline.v1.json",
+      "sha256": "7246544a7c39762c0aa474f53eef1f2a7370c52b2803ede75923b8baa1162e47"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/reference/yunqi-reference.ts",
+      "sha256": "be5bdefe2273e33aff65c62574629a24d1c4e96f10c09e6d25e158413dea8d27"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/rules/yunqi-mvp-rules.v1.json",
+      "sha256": "68c75058a336772a3dbe78019a457a9c948dff79c1272fc1bdb45f77483e84bf"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/schemas/yunqi-result.v1.schema.json",
+      "sha256": "885dd2e6833c00aea923ba074c8410dfcd04b862d0cb5439c9a8b56c9cf7001e"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/专家审核清单.md",
+      "sha256": "e67eae4dfde8f9df993b8e40d8d686828c50ba6263c222c323901c271fbc80a8"
+    },
+    {
+      "path": "docs/五运六气规则规格包_V1.0/五运六气规则规格包_V1.0/五运六气规则规格说明书_V1.0.md",
+      "sha256": "ff63cd81e4ddc662d9c9c3b13762c74e1d89af9920e496eb83cce1570b72f4d1"
+    },
+    {
+      "path": "domain/DOMAIN-IMPLEMENTATION-GUIDE.md",
+      "sha256": "a6b6f163bd72a4c3dc1e4ce0cbdf6e340c163333bd4b341fd7c73c2a6a4e444e"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/README.md",
+      "sha256": "e640144ce49f7336e2f18083ab1b1e66834a5a436951d5ec8fa28e17ad5c1f31"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/package.json",
+      "sha256": "324651473774444fdcf7df2f6ec3829e48daf7bd2e11a821cffcf6deb019fa50"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/src/date-time-input.ts",
+      "sha256": "b97bc7cbb16cb9dd90bce97fdcb456b67c3d3088f2e36d80f6a9db841cbde189"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/src/index.ts",
+      "sha256": "a7285ad1bc9e565b3ebcdd8127fd42c0a10229bde7f94f4e538c35a3cc9e9b85"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/src/provider.ts",
+      "sha256": "cc2661725b7d725291bf33ba9b2ee6482e9e97098d030cc5ecfa309bc4e32e23"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tests/property.test.ts",
+      "sha256": "3a31760182f42941dec7673504876569ca9ad132ee2114f3d95722c4ed72b5a7"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tests/provider.test.ts",
+      "sha256": "d4ed81234c179705bf4da2f2a8b22b82db8c441fa660e12a4c9e1130517e6cd8"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tests/solar-term-boundary.test.ts",
+      "sha256": "a8887f752487be5eba879895781910539fce4b70af61477fa4de09a0dd6ab830"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tsconfig.json",
+      "sha256": "d8392784db36c00660c7c8dfbd046f2dbdca8ea9be110543ef912beef2826b45"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/tsconfig.test.json",
+      "sha256": "3fb1ab8daa1e15e4f3218408ffb9bfa51598e46eb589f8099be7a033f0894b4d"
+    },
+    {
+      "path": "packages/yunqi-client/README.md",
+      "sha256": "1e6867765752ad03e186ccba93a2e512d6160f12520063652c8dbab03bc200e8"
+    },
+    {
+      "path": "packages/yunqi-client/package.json",
+      "sha256": "2538ed55ef1e8b4cd2f73683e3f185482fd44ed0a59dc0d4fcb7a08d848d2b8d"
+    },
+    {
+      "path": "packages/yunqi-client/src/index.ts",
+      "sha256": "74f90378fca9de5a44a62b2b475e97bcb47fb8980f9c5cf06a434f0b6f16a59f"
+    },
+    {
+      "path": "packages/yunqi-client/src/yunqi-api.ts",
+      "sha256": "41d88ed991700ae2fd56d66e7177e76c5c1f2cb306353bf14edd530cc3c4f8af"
+    },
+    {
+      "path": "packages/yunqi-client/tests/client.test.ts",
+      "sha256": "1cf5930f861756e4e4bb8f9b9a7328f2cfec0746c7858c4294f22d0da7b421b7"
+    },
+    {
+      "path": "packages/yunqi-client/tests/client.typecheck.ts",
+      "sha256": "dae399b5cf1a7aa2a2645dcab04dcc8aca5a0dd40d5e19e5d26cbf48cc34fe30"
+    },
+    {
+      "path": "packages/yunqi-client/tsconfig.json",
+      "sha256": "5bb3d61d45c62c09c4e296411f3c0c51b2d7fede40ca304bc558fd9d3deddd73"
+    },
+    {
+      "path": "packages/yunqi-client/tsconfig.test.json",
+      "sha256": "2610b45e76e21106f1a9445a54dbd794a3c411aab487436a27488235f5ec0875"
+    },
+    {
+      "path": "packages/yunqi-client/vitest.config.ts",
+      "sha256": "8fb531b1969eafd51ed1ab87dfca2f759f72a4eccb2b59c934d2fd71fa6a4396"
+    },
+    {
+      "path": "packages/yunqi-contracts/README.md",
+      "sha256": "aa8e21a42bdc9a3352363e62cb39e7d827da4653e32af050e6c8d407a2f38d6c"
+    },
+    {
+      "path": "packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.0.0.freeze.json",
+      "sha256": "6b25cd857cec0768a7642bf06aae72d74527d0fd3e2797f957604e1e76782cff"
+    },
+    {
+      "path": "packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.1.0.freeze.json",
+      "sha256": "4f86a60c76b99161b91d495e209bcaf73b323b933977b6ce5c142a9457085c7d"
+    },
+    {
+      "path": "packages/yunqi-contracts/contract/registry.json",
+      "sha256": "4cdef773d840f0f40a6b4f48d9aa9ab30262bd71804b52135ac2ab84a85d6b21"
+    },
+    {
+      "path": "packages/yunqi-contracts/package.json",
+      "sha256": "1979e12bae178d61a8632efbf1d07221d0e7da01e27a7b21d77de3828b0fae05"
+    },
+    {
+      "path": "packages/yunqi-contracts/src/generated/openapi.ts",
+      "sha256": "c979edd271895c0b85c0b81268da140588d9dbd22701f1b44db859354c5e2f0a"
+    },
+    {
+      "path": "packages/yunqi-contracts/src/index.ts",
+      "sha256": "fea2187dd47c14cbcff576559782013347a49e02a3ed46d616a8cc0a5e935fb4"
+    },
+    {
+      "path": "packages/yunqi-contracts/tests/contracts.typecheck.ts",
+      "sha256": "142d2ab48f3c49ceb30138287820790e4823c244c2fef50b14850315b7f2ef20"
+    },
+    {
+      "path": "packages/yunqi-contracts/tsconfig.json",
+      "sha256": "fa97d95d3d8155b612e1ae7b7a7e598c74776969ad52a6703f9158dbca7b8ed8"
+    },
+    {
+      "path": "packages/yunqi-contracts/tsconfig.test.json",
+      "sha256": "e25f3ba97fd0236a3ba66114f4de50d8d21976ac3ee59af288c2bcd7d27c8404"
+    },
+    {
+      "path": "packages/yunqi-domain/README.md",
+      "sha256": "5bdfbb2e9519afb557a5eee70fabed704a13496d8e8b2ad6d4df2acad3950b66"
+    },
+    {
+      "path": "packages/yunqi-domain/package.json",
+      "sha256": "e732b8a14f8bf75c871777de2fe9110edf0195723597665a8db3bfcfad7cb161"
+    },
+    {
+      "path": "packages/yunqi-domain/scripts/check-time-purity.mjs",
+      "sha256": "3d08ec537227bc81c24d138959a9f325ed6d7406519ea9285b2acbdcc76f2a1b"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/provider.ts",
+      "sha256": "ab17fb6e345c97346000533caea2e1d89032a6761a82a90a84cd05098584b348"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/time.ts",
+      "sha256": "6fb0a4ae05ceb2548ff6eef25c10f389976003719d18cfb4c8dbbc3c9d5f8ef7"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/yunqi-year-resolver.ts",
+      "sha256": "af54cd8008b0f9059aa08c6284f355a1625b9f16b9f506603710c1c1a4a05f87"
+    },
+    {
+      "path": "packages/yunqi-domain/src/explanation/explanation-template.ts",
+      "sha256": "0efac917e2ad0ed05012ddaf33f4839d6541c47c83f9438805e86c24179ddda4"
+    },
+    {
+      "path": "packages/yunqi-domain/src/ganzhi/stem-branch.ts",
+      "sha256": "fbd7558c4759444773ebf0ead1ce32e6e528e3ef3230149ad1e74147079d33ff"
+    },
+    {
+      "path": "packages/yunqi-domain/src/index.ts",
+      "sha256": "f44d27a74d58dd75ed07fd86c497c79665b89165f6be4a8c37e50aca80303c2f"
+    },
+    {
+      "path": "packages/yunqi-domain/src/liuqi/host-guest.ts",
+      "sha256": "d2868f261c7dd24ea801511a15361e069dff47380a347909f630d8d91a93597c"
+    },
+    {
+      "path": "packages/yunqi-domain/src/liuqi/sitian-zaiquan.ts",
+      "sha256": "2604a374cef592d4dfed0feab5b66bdc6f8a9ea666765059b1750830f556f300"
+    },
+    {
+      "path": "packages/yunqi-domain/src/liuqi/six-qi.ts",
+      "sha256": "841c7ad507f4b362b862c5ecb1765ed7b95ea1a093d163f3236729c49ffa68f3"
+    },
+    {
+      "path": "packages/yunqi-domain/src/relation/host-guest-relation.ts",
+      "sha256": "5ef59e22880f6ccb0f6b461c2c979f122481c01c0bb548b509892a965e91df94"
+    },
+    {
+      "path": "packages/yunqi-domain/src/rules/phase1-rules.ts",
+      "sha256": "c7a00ee2e20701a104db9abe0c67bb96b30b63ba375d844d56150394f98cd26f"
+    },
+    {
+      "path": "packages/yunqi-domain/src/services/calculate-year-yunqi.ts",
+      "sha256": "09d395472fa72986d3003581faf13919da26a3d65cb27005ad53fb8f4fba7450"
+    },
+    {
+      "path": "packages/yunqi-domain/src/services/calculate-yunqi.ts",
+      "sha256": "9a85f86acf9822047f155d60ee4b2f4951fdf0d2032a790bd98488907a9bcd88"
+    },
+    {
+      "path": "packages/yunqi-domain/src/services/get-current-step.ts",
+      "sha256": "331cdc44a9d5de86f6acaa2c0901ccdf6e4ec4e8a63dbd1eff44223a61383790"
+    },
+    {
+      "path": "packages/yunqi-domain/src/types.ts",
+      "sha256": "253fca79931a3df109abcb266f380914e41eba343abdc8dd5bba2bb0085e2114"
+    },
+    {
+      "path": "packages/yunqi-domain/src/wuyun/sui-yun.ts",
+      "sha256": "a57ee80f83353e5bab0c38bb4360a712fbccac069c99b93dec99cb246cc6c44f"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/acceptance.test.ts",
+      "sha256": "c1e890d262f3c4907a8a0d8269b74b35a238c5a438d93a66d9432163035a6b85"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/calendar-time.test.ts",
+      "sha256": "c3fbe7228b0e355d58c4aa287d8c4b1a35ea4f7818a31f8c0fcd2afed58ba070"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/calendar.test.ts",
+      "sha256": "3f1e5cc4418c7c8d8d8d1db47136802198f52a1290bbfb63c158bb8f28f5eba6"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/helpers/fixed-calendar-provider.ts",
+      "sha256": "db80485140267467a8ebc58ae2e7480be294b39201b2aabc5fabeda0a5ef9183"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/liuqi-rules.test.ts",
+      "sha256": "1456ead1475d506fe02d08d3ee87f442f9c8b8e4af09ff38a3aa805d729ce73e"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-api.test.ts",
+      "sha256": "b698b48566012ef508daa0938d0e99040f4151b2b96ae629ab94cc568a31de53"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-entry.test.ts",
+      "sha256": "1a1e9500a7c3b71a750ba31ff67bed05e7dd4835fa5b5baaa98f053b4ac23071"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/rules.test.ts",
+      "sha256": "a4725ded3e7e5ed6c28f45185b2f612135493939297f0764ab60d4fa557f0e2b"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/services.test.ts",
+      "sha256": "2d1e301b39be0ceeed9b2ba6620e2c0e06d3e56a9ddbcab7cf6f4447feffd0b4"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/sexagenary-cycle-full.test.ts",
+      "sha256": "dd72d9e427f0401534f2cfc3110ead65def3f0c34c515413494d1e7f4a220fd7"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/year-and-suiyun.test.ts",
+      "sha256": "e8155f76e6a4432d00fbd8adbedf8b9ed02875bfa6eb6142cdd0afc4c3df36cb"
+    },
+    {
+      "path": "packages/yunqi-domain/tsconfig.json",
+      "sha256": "d8392784db36c00660c7c8dfbd046f2dbdca8ea9be110543ef912beef2826b45"
+    },
+    {
+      "path": "packages/yunqi-domain/tsconfig.test.json",
+      "sha256": "3fb1ab8daa1e15e4f3218408ffb9bfa51598e46eb589f8099be7a033f0894b4d"
+    },
+    {
+      "path": "packages/yunqi-service/README.md",
+      "sha256": "a006ea0c48c097d4b4761dbd0f678626642974ab9950d0909d55d12e07f20d37"
+    },
+    {
+      "path": "packages/yunqi-service/openapi/yunqi-service.openapi.yaml",
+      "sha256": "e53da5f0fc486dbbc5177774a8fd774827b533a26ad54ef233c18739afbc5350"
+    },
+    {
+      "path": "packages/yunqi-service/package.json",
+      "sha256": "068ed4d2cdcb2794637a8cc7b65f323417d4240cde5ccebb7a03260c5eba8376"
+    },
+    {
+      "path": "packages/yunqi-service/redocly.yaml",
+      "sha256": "bee7f42b246046bfc9436d2733136e430939aef6fec6da85125fa88c6db298b4"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/check-generated.mjs",
+      "sha256": "dc2f16a10fa4a6976b99b35e9164032abe6d6d06e94b33d78ceda8a4f85484ce"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/check-time-purity.mjs",
+      "sha256": "021f3da9a6dba31f4df1b2f4ec5d90f734b7ea5a44b610365809c7c9b5cae807"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/check-time-zone-independence.mjs",
+      "sha256": "453fc1e035a2ec410daf2c1d90c1d68abb98ab1283704c2fa15a0089f955620c"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/generate-openapi.mjs",
+      "sha256": "58491464bc76e2cb4de62f2e891f612a0deb56b2bc8d22c7937c5bdea6a8dfc8"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/openapi-typescript-resolve-hook.mjs",
+      "sha256": "e69d1bb5e1aec9428020c685cdaa054bb03baaa8054061d50e0a200282a3d572"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/run-openapi-typescript.mjs",
+      "sha256": "85565a80fe9a3ac9a3caaa06b67d87ea295e9cca10f30bed5e1144c78d3f3b22"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/smoke-production-entry.mjs",
+      "sha256": "3f22963076073cb3878a4ca8c56cbe9046223514e624d1bb31ee6d30dbb599e1"
+    },
+    {
+      "path": "packages/yunqi-service/scripts/time-zone-snapshot.mjs",
+      "sha256": "be2348dc1b6ea0176a11ac0aac0ac542f5b91e973edcfb2f9a330c3bb2966cf9"
+    },
+    {
+      "path": "packages/yunqi-service/src/app.ts",
+      "sha256": "dbe1b45aa1dd1f742043e6ede041fa07470f5db4bd2c5b2bc8d4b6741647b5b1"
+    },
+    {
+      "path": "packages/yunqi-service/src/index.ts",
+      "sha256": "e6336b5772de350697fa78abab56cb9c691dd7a0077d31934152659c4c6aa2ce"
+    },
+    {
+      "path": "packages/yunqi-service/src/mappers/yunqi-mapper.ts",
+      "sha256": "3bfb42d800b45a85f5abc56eae69516aee629da803de377289e039a8e7fba3d0"
+    },
+    {
+      "path": "packages/yunqi-service/src/modules/time-normalizer/formatter.ts",
+      "sha256": "558eabba1412e15c749718ac0be8e5aaa644ce27bcc3cc0d3d4b41179eff551d"
+    },
+    {
+      "path": "packages/yunqi-service/src/modules/time-normalizer/index.ts",
+      "sha256": "6ac1636652de8ade300486fb45f74a41999eb57b13a4f231bedcab2574922cdb"
+    },
+    {
+      "path": "packages/yunqi-service/src/modules/time-normalizer/normalizer.ts",
+      "sha256": "51e64b50539b7f8fda5c103218552d23221181880c1898947940c0501353a20b"
+    },
+    {
+      "path": "packages/yunqi-service/src/modules/time-normalizer/parser.ts",
+      "sha256": "ce6bf5ae39dd5766a2b4edc48271c27162dc2203619e0d89c99754efa4ca4172"
+    },
+    {
+      "path": "packages/yunqi-service/src/plugins/error-handler.ts",
+      "sha256": "8a7fb8a03ffcf741fb94fd9f04dc3e940ca64660fa500e520d0b3fc2cd36a71a"
+    },
+    {
+      "path": "packages/yunqi-service/src/plugins/ingress.ts",
+      "sha256": "9ffa705e11064248f88f73c402022884703488693aa241c4c8d21c9ef604c80f"
+    },
+    {
+      "path": "packages/yunqi-service/src/plugins/openapi.ts",
+      "sha256": "24c6a533771a8052c3ebe39b7f5b5d56d11ce46548fbea8352895c864bc5db75"
+    },
+    {
+      "path": "packages/yunqi-service/src/routes/health.ts",
+      "sha256": "abeb48f720f037f39fee6a8a31c7e1530069b596f17ce3f56b1b6e282aa01004"
+    },
+    {
+      "path": "packages/yunqi-service/src/routes/yunqi.ts",
+      "sha256": "b926a1a2126f00474a3bb0bf7628fbfa80cbdcde70533a7acec0e42ec7619849"
+    },
+    {
+      "path": "packages/yunqi-service/src/schemas/common.ts",
+      "sha256": "cf61a516243a16cc6649181d5f3bc54db8e00cc8a990eeeaa7bd75c7f44f99a9"
+    },
+    {
+      "path": "packages/yunqi-service/src/schemas/index.ts",
+      "sha256": "1a05bf6709a6683cf5cc232c1f638f8ba39be5f6f026d76c8e73f0b5d2fe1901"
+    },
+    {
+      "path": "packages/yunqi-service/src/schemas/yunqi.ts",
+      "sha256": "d977229f641874ebd8dbac700e369472a660e93ffb36cc1875cf47ed721ea1d8"
+    },
+    {
+      "path": "packages/yunqi-service/src/server-config.ts",
+      "sha256": "0b7bfe22350785567dea8b4e5782f2e2ebf362dbb31bb6a8814688907d22b964"
+    },
+    {
+      "path": "packages/yunqi-service/src/server.ts",
+      "sha256": "c23d67d4f9973990a3df716e6c096ac98020fb703b48c01b646fe78d7b934a69"
+    },
+    {
+      "path": "packages/yunqi-service/src/services/date-time.ts",
+      "sha256": "607723d3ae64e953eb38e58c43b95b36ec02862dc7e756dd763ef2cefea96ac4"
+    },
+    {
+      "path": "packages/yunqi-service/src/services/invalid-argument-error.ts",
+      "sha256": "467eae87e46fb5d5152e0cc7fa73440c701d33b173b656feb3ada2d8c90022fd"
+    },
+    {
+      "path": "packages/yunqi-service/src/services/provider-boundary.ts",
+      "sha256": "ddb6bbdac0aefaaa1c911cf1ded1fde0b90b47692d0acf84616c77a77b347d12"
+    },
+    {
+      "path": "packages/yunqi-service/src/services/yunqi-service.ts",
+      "sha256": "c08f927a9130ece8f80053cccff8e836373b41570cbfdf802e654ab3a6ab4147"
+    },
+    {
+      "path": "packages/yunqi-service/tests/api.test.ts",
+      "sha256": "78129df335673724d1ce1517de4c2095b6383a93d100b62e37fa9fd34081eedd"
+    },
+    {
+      "path": "packages/yunqi-service/tests/boundary.test.ts",
+      "sha256": "c778db59ee1e39831240f6979264b8b3e8e93ef5a595d5979cad471cbb4280ee"
+    },
+    {
+      "path": "packages/yunqi-service/tests/calendar-time-boundary.test.ts",
+      "sha256": "5312f507d307061d919f8a2957961db147be1f9d72ebc45e2214e2272cbdeae8"
+    },
+    {
+      "path": "packages/yunqi-service/tests/date-time.test.ts",
+      "sha256": "ef6adeaacaf605e99fa3dc31d877e9dea63f4fd8caffc225389b7606bf1d24fb"
+    },
+    {
+      "path": "packages/yunqi-service/tests/error-handler.test.ts",
+      "sha256": "970f32c72b6c326086b9e894d2bba7bc2ffdbab2d7e2117ebe64fa79fa6e6ba0"
+    },
+    {
+      "path": "packages/yunqi-service/tests/health.test.ts",
+      "sha256": "6acb5d73e4e37accf8196081a0bc9b098bd9c76da2db6bbbafeba5344e3bfcae"
+    },
+    {
+      "path": "packages/yunqi-service/tests/helpers/fixed-calendar-provider.ts",
+      "sha256": "6eda0dad53203966aeb92af69a3ad418333dbf9aec74f5a288cc03ffd012cfb9"
+    },
+    {
+      "path": "packages/yunqi-service/tests/historical-dst-regression.test.ts",
+      "sha256": "a3c7d36e23158118ecb2f53c63d1a3115f5c0194145313699fbcddc12e861413"
+    },
+    {
+      "path": "packages/yunqi-service/tests/ingress.test.ts",
+      "sha256": "df984ffe017edcc903f8295f954bb8c9f5a6aec20106dd496f59619149a8a167"
+    },
+    {
+      "path": "packages/yunqi-service/tests/mapper.test.ts",
+      "sha256": "14607e72c7ca609c0b86163a1c3bba97e91c7129ce3eb87571ec35e71ca64fc6"
+    },
+    {
+      "path": "packages/yunqi-service/tests/openapi-contract.test.ts",
+      "sha256": "b661c44d5d09537e58d3cab51095f568a20b2f7aa1b769830f94b65628389c3a"
+    },
+    {
+      "path": "packages/yunqi-service/tests/safety.test.ts",
+      "sha256": "6d9cd4c078e581c279f19c2def7dda619c387e2f6f272e95142de4ba16ce2ed8"
+    },
+    {
+      "path": "packages/yunqi-service/tests/startup.test.ts",
+      "sha256": "a9d37faa4e34f9aaea3e1cbf36f1811e15cb22e55b88c3ddc80dd37bf2c821cf"
+    },
+    {
+      "path": "packages/yunqi-service/tests/supported-range.test.ts",
+      "sha256": "75afdfa112d75878dfa519935d40ddc085c3417315f1e215bb20765374908aad"
+    },
+    {
+      "path": "packages/yunqi-service/tests/time-normalizer.test.ts",
+      "sha256": "aa2a3c3e7e6d28370f049c7d474fe3705812f6a047ce8be25de8dc5e73e397e7"
+    },
+    {
+      "path": "packages/yunqi-service/tests/time-purity-gate.test.ts",
+      "sha256": "2f186246576c4a13d797bb0a8216c5caec0cb6aeb7a8ce0598957bb3ef5c6b60"
+    },
+    {
+      "path": "packages/yunqi-service/tsconfig.json",
+      "sha256": "e0431aeb28de2a0c3fdc93a883dbf7a31c64f3c56d6c811fc788fff109d78128"
+    },
+    {
+      "path": "packages/yunqi-service/tsconfig.test.json",
+      "sha256": "1acbf037adb302ec116963c975b88e61f41cdde042f71be23fbe3d3d7dd2506a"
+    },
+    {
+      "path": "packages/yunqi-service/vitest.config.ts",
+      "sha256": "28db3ce4f348e0c124b1f2a47191d7be8fa3e3c154c54fc5f24346c284462f41"
+    },
+    {
+      "path": "playwright.config.mjs",
+      "sha256": "70250f6b13a78d36ff8a596eee6c566a7f57c1889e07f76b39d89402f69fc8bc"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "sha256": "c564786752ff7e1f445c28ee51d8cacd44aef81c8514c780b9b85b0c22052369"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "sha256": "06dc68c3b4931e2f2070d9d12a2353e155f07186f036102b66416bf971781aa4"
+    },
+    {
+      "path": "rules/PHASE1_IMPLEMENTATION_RULES_V1.md",
+      "sha256": "6db429fdaa301c838e9bcd47a6ae0102b8085c51f431d59ade2ccb47ab75a751"
+    },
+    {
+      "path": "rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md",
+      "sha256": "f03fbf1521fb6cea6e8730da8e06e4fe8819cb97bea2162e9b07f6da3adae0e9"
+    },
+    {
+      "path": "rules/PHASE1_RULE_SOURCES.md",
+      "sha256": "117fc72b49627951f9c3ecadf1219469cd4d7f97c5f14903c3d19e9ae479c851"
+    },
+    {
+      "path": "rules/RULE_FREEZE_NOTE.md",
+      "sha256": "14d5971a5d86c4112ef67f7719319079a2aca826caacf730bb9475f5b1732310"
+    },
+    {
+      "path": "scripts/check-yunqi-contract-dependencies.mjs",
+      "sha256": "972dde7684eadba1081da6272a5b2eeedd27ad7516d8cfd0ef111fe2ddaa7346"
+    },
+    {
+      "path": "scripts/check-yunqi-contracts.mjs",
+      "sha256": "71ca523578759f01a7f50b25f5cceaecdc5a0a0f92d173787f4b97bd44bd0317"
+    },
+    {
+      "path": "scripts/check-yunqi-workbench-governance.mjs",
+      "sha256": "9b5253fa5d64144f6e81086d5183030db62d606138f0e67504c98a37b7dacbd0"
+    },
+    {
+      "path": "scripts/freeze-yunqi-contract.mjs",
+      "sha256": "97551e2d40aed630adeaa236f63827eb73cf8f8221c29c42cbf596f0f97c2343"
+    },
+    {
+      "path": "scripts/generate-yunqi-contracts.mjs",
+      "sha256": "7fe106940c333b6275117b88782855f5b55f61a0a1b8c59d21ac6f4b0b9e7160"
+    },
+    {
+      "path": "scripts/governed-capabilities.mjs",
+      "sha256": "0d43f4579cc8a425d119f72cd4bf4e2b496446953c48198c1819606f8ec2a447"
+    },
+    {
+      "path": "scripts/yunqi-contract-generation.mjs",
+      "sha256": "43ee2321698a094766dce6feb6783a2493bad1cf3a91acb8a38027288be9f139"
+    },
+    {
+      "path": "scripts/yunqi-contract-projection.mjs",
+      "sha256": "1534a25407e71f56958067b675de1bbce49976fff787728231720d7d522bbdf8"
+    },
+    {
+      "path": "scripts/yunqi-contract-registry.mjs",
+      "sha256": "73ce2c9ae36e0af101be9f28950ca8a0c26000e8f082d8412727320211edd9f6"
+    },
+    {
+      "path": "tests/browser/README.md",
+      "sha256": "c2b7c5b12a4d42c94cd16fac286d32ac4048310e42721d5b7fb1f1b339418de4"
+    },
+    {
+      "path": "tests/browser/fixtures.mjs",
+      "sha256": "4a8257c1f4bafafb95481490174274b374ee33e5e6a57273654bae243f04b07a"
+    },
+    {
+      "path": "tests/browser/global-setup.mjs",
+      "sha256": "e6ac5e2e837031423993f721b210349300868418708409407424f1a01e0e73a4"
+    },
+    {
+      "path": "tests/browser/workbench.flows.spec.mjs",
+      "sha256": "2b0f8b1e3ccefd9a15817f97fb756ee6496cd5b52004bff79523e7a3f13248c0"
+    },
+    {
+      "path": "tests/browser/workbench.visual.spec.mjs",
+      "sha256": "7dc2dc96b48decf1a6c2cccbc1b79e46d10ec983c489cef23b4656e624eb1acb"
+    },
+    {
+      "path": "tests/yunqi-dev-proxy.test.mjs",
+      "sha256": "bb51703458a2c52651bcd1697ef21ef34365f184fa93fe160f72a69bb1adf38f"
+    },
+    {
+      "path": "tests/yunqi-rule-consistency.test.mjs",
+      "sha256": "ecb97d370ba09c55ae857f3433c5a393f331fba28fcf283d954e67103848beb2"
+    },
+    {
+      "path": "tests/yunqi-time-consistency.test.mjs",
+      "sha256": "de6cc3da2ddf14fdcb79f18a85c022d4254da39c27f3d2656e39bb38f09ffaa3"
+    },
+    {
+      "path": "tests/yunqi-workbench-governance.test.mjs",
+      "sha256": "fce5f1b7cbe96bc463f1e493c310555c282b966abd7e8ee78b73461b0e31b013"
+    }
+  ]
+}

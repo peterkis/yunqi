@@ -1,0 +1,615 @@
+
+> yunqi@ test D:\Projects\YunQi
+> pnpm build && node --test tests/yunqi-dev-proxy.test.mjs tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check && pnpm test:project-guidance
+
+
+> yunqi@ build D:\Projects\YunQi
+> pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+
+
+> yunqi@ build:contract-source D:\Projects\YunQi
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.2.0 build D:\Projects\YunQi\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build D:\Projects\YunQi\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.1.0 build D:\Projects\YunQi\packages\yunqi-service
+> tsc -p tsconfig.json
+
+
+> @yunqi/contracts@1.1.0 build D:\Projects\YunQi\packages\yunqi-contracts
+> tsc -p tsconfig.json
+
+
+> @yunqi/client@1.1.0 build D:\Projects\YunQi\packages\yunqi-client
+> tsc -p tsconfig.json
+
+
+> @yunqi/workbench@0.1.0 build D:\Projects\YunQi\apps\yunqi-workbench
+> tsc -p tsconfig.json --noEmit && vite build
+
+vite v8.1.5 building client environment for production...
+[2K
+transforming...✓ 132 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.47 kB │ gzip:  0.31 kB
+dist/assets/index-CN1ddOCb.css   28.22 kB │ gzip:  5.28 kB
+dist/assets/index-qRKMs8ji.js   301.15 kB │ gzip: 94.54 kB
+
+✓ built in 174ms
+✔ development origin serves real YunQi GET and POST responses through Vite (559.1129ms)
+✔ tracked rule document supplies complete, distinct baseline tables (1.2219ms)
+✔ public calculators agree with the document for every stem, branch and Qi sequence (0.4504ms)
+✔ every 1900-2100 numeric year follows the documented 60-cycle anchor (0.4386ms)
+✔ 60 real-adapter annual results and 360 steps match the tracked business rules (36.9979ms)
+✔ all 36 ordered Qi pairs match both the documented priority and independent matrix (0.456ms)
+✔ all 201 supported years preserve seven real boundaries at -1/0/+1 ms and three input forms (929.1949ms)
+✔ Service accepts precisely 1900-2100 YunQi years at the 1900 and 2101 Dahan endpoints (345.5766ms)
+✔ normalization preserves Gregorian century rules, milliseconds, and strict input syntax (0.6483ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2032.7384
+> @yunqi/domain@1.2.0 test D:\Projects\YunQi\packages\yunqi-domain
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/packages/yunqi-domain
+
+
+ Test Files  10 passed (10)
+      Tests  132 passed (132)
+   Start at  16:34:45
+   Duration  480ms (transform 872ms, setup 0ms, import 1.54s, tests 125ms, environment 1ms)
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 test D:\Projects\YunQi\packages\calendar-adapters\tyme4ts
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/packages/calendar-adapters/tyme4ts
+
+
+ Test Files  3 passed (3)
+      Tests  37 passed (37)
+   Start at  16:34:47
+   Duration  709ms (transform 263ms, setup 0ms, import 625ms, tests 221ms, environment 0ms)
+
+
+> @yunqi/contracts@1.1.0 test D:\Projects\YunQi\packages\yunqi-contracts
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/client@1.1.0 test D:\Projects\YunQi\packages\yunqi-client
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/packages/yunqi-client
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  16:34:48
+   Duration  207ms (transform 39ms, setup 0ms, import 53ms, tests 21ms, environment 0ms)
+
+
+> @yunqi/service@2.1.0 test D:\Projects\YunQi\packages\yunqi-service
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/packages/yunqi-service
+
+
+ Test Files  15 passed (15)
+      Tests  164 passed (164)
+   Start at  16:34:49
+   Duration  7.67s (transform 2.46s, setup 0ms, import 20.58s, tests 26.93s, environment 4ms)
+
+
+> @yunqi/workbench@0.1.0 test D:\Projects\YunQi\apps\yunqi-workbench
+> vitest run
+
+
+ RUN  v4.1.10 D:/Projects/YunQi/apps/yunqi-workbench
+
+
+ Test Files  31 passed (31)
+      Tests  112 passed (112)
+   Start at  16:34:58
+   Duration  20.21s (transform 9.29s, setup 42.59s, import 17.64s, tests 40.58s, environment 145.54s)
+
+
+> yunqi@ test:workbench-governance D:\Projects\YunQi
+> node --test tests/yunqi-workbench-governance.test.mjs && node scripts/check-yunqi-workbench-governance.mjs
+
+✔ rejects production import of excluded source hidden.test.tsx (47.9537ms)
+✔ rejects production import of excluded source hidden.spec.ts (8.6075ms)
+✔ rejects production import of excluded source hidden.fixture.tsx (9.6154ms)
+✔ rejects production import of excluded source fixtures/hidden.ts (9.3807ms)
+✔ rejects production import of excluded source __fixtures__/hidden.ts (9.3787ms)
+✔ rejects production import of excluded source test/hidden.ts (8.7203ms)
+✔ rejects production import of excluded source __tests__/hidden.ts (8.3282ms)
+✔ rejects a source directory junction escaping the Workbench (7.0318ms)
+﹣ rejects a linked source file instead of silently skipping it (3.31ms) # OS does not grant file symlink creation
+✔ rejects an HTML entrypoint into excluded production source (14.6254ms)
+✔ rejects excluded source reached through a runtime re-export barrel (29.9446ms)
+✔ pending rule provenance forbids a frozen-rule claim in production copy (23.8877ms)
+✔ rejects opaque Workbench capability: export const load = () => import('@yunqi/' + 'domain'); (18.4526ms)
+✔ rejects opaque Workbench capability: export const load = () => import(`axios`); (22.2199ms)
+✔ rejects opaque Workbench capability: const g = globalThis; export const C = g['Da' + 'te']; (21.6163ms)
+✔ rejects opaque Workbench capability: export const C = window['Tem' + 'poral']; (17.185ms)
+✔ Workbench workspace and versions are pinned (2.1215ms)
+✔ production Workbench has no governance violations (698.9074ms)
+✔ allows development-only dependencies without treating them as runtime (44.9543ms)
+✔ rejects a devDependency-only bare runtime static import in production source (27.7892ms)
+✔ rejects a devDependency-only bare runtime dynamic import in production source (10.7336ms)
+✔ rejects a devDependency-only bare runtime require call in production source (7.6328ms)
+✔ rejects a devDependency-only bare runtime empty named import in production source (14.0008ms)
+✔ rejects an npm-aliased bare runtime import in production source (19.5328ms)
+✔ allows type-only bare imports in production source (9.1391ms)
+✔ does not treat test source or root tool configuration as production runtime imports (7.963ms)
+✔ rejects a Workbench document language other than zh-CN (8.8066ms)
+✔ allows a zh-CN Workbench document language (12.8115ms)
+✔ rejects peerDependencies runtime dependency unlisted-router (17.3022ms)
+✔ rejects optionalDependencies runtime dependency axios (18.8886ms)
+✔ rejects runtime dependency @yunqi/service (15.4352ms)
+✔ rejects runtime dependency @yunqi/domain (22.4757ms)
+✔ rejects runtime dependency axios (36.8873ms)
+✔ rejects runtime dependency unlisted-router (14.9063ms)
+✔ rejects source import from @yunqi/service (14.6714ms)
+✔ rejects source import from @yunqi/domain (37.9678ms)
+✔ rejects source import from axios (40.1202ms)
+✔ rejects source import from unlisted-router (30.1237ms)
+✔ allows the approved react-router-dom runtime dependency and import (8.7319ms)
+✔ rejects relative import escaping to Service (6.8408ms)
+✔ rejects relative import escaping to Domain with Windows separators (7.9763ms)
+✔ rejects an absolute local import path (9.2349ms)
+✔ allows an app-relative import that stays inside the Workbench (7.4051ms)
+✔ allows client-context usage in a TSX feature hook (6.9511ms)
+✔ allows client runtime ownership in TSX provider infrastructure (6.9811ms)
+✔ allows a type-only client import in component source (10.7262ms)
+✔ rejects a runtime client import in component source (17.809ms)
+✔ rejects an empty named client import in component source (8.9052ms)
+✔ rejects named runtime re-export in component source (8.9553ms)
+✔ rejects star runtime re-export in component source (8.8512ms)
+✔ rejects multiline runtime re-export in component source (8.2673ms)
+✔ rejects mixed type and runtime re-export in component source (8.3486ms)
+✔ allows export type declaration in component source (9.0073ms)
+✔ allows type-only named re-export in component source (8.7678ms)
+✔ rejects direct fetch in component source (7.094ms)
+✔ rejects aliased global fetch in component source (6.6693ms)
+✔ rejects global fetch through an assigned browser alias (7.1224ms)
+✔ rejects global fetch capability via optional invocation (8.0493ms)
+✔ rejects global fetch capability via bare reference (7.1832ms)
+✔ rejects global fetch capability via bracket reference (7.1909ms)
+✔ rejects global fetch capability via global object alias (6.2015ms)
+✔ rejects global fetch capability via nested global object (7.2176ms)
+✔ rejects global fetch capability via destructured global object (6.2509ms)
+✔ rejects global fetch capability via destructured reference (7.2438ms)
+✔ rejects global fetch capability via shorthand reference (6.0341ms)
+✔ allows local function without browser fetch capability (5.7309ms)
+✔ allows parameter without browser fetch capability (7.1703ms)
+✔ allows object method without browser fetch capability (14.8925ms)
+✔ allows shadowed global object without browser fetch capability (12.1417ms)
+✔ allows local shorthand without browser fetch capability (8.4041ms)
+✔ allows assigned local object without browser fetch capability (7.7681ms)
+✔ allows shadowed assigned object without browser fetch capability (8.6951ms)
+✔ allows type-only reference without browser fetch capability (6.7697ms)
+✔ allows text and comments without browser fetch capability (7.1647ms)
+✔ rejects global fetch destructuring assignment (8.2145ms)
+✔ rejects direct YunQi API path in component source (7.9267ms)
+✔ rejects direct YunQi client method call in component source (8.2764ms)
+✔ rejects direct client calls in non-TSX component responsibility paths (9.9877ms)
+✔ rejects bracket access to client method getCurrent (67.9755ms)
+✔ rejects bracket access to client method getYear (72.3804ms)
+✔ rejects bracket access to client method calculate (18.7096ms)
+✔ rejects optional client method invocation in component source (7.8247ms)
+✔ rejects taking a client method reference in component source (7.9898ms)
+✔ rejects a client method behind a TS angle-bracket assertion (7.7759ms)
+✔ rejects an asserted static client method key (6.879ms)
+✔ rejects a satisfies-wrapped client method destructuring key (7.2132ms)
+✔ rejects a client method capability passed under a generic prop name (7.3817ms)
+✔ rejects destructuring getCurrent from a generic receiver in component source (6.8096ms)
+✔ rejects destructuring getYear from a generic receiver in component source (7.4362ms)
+✔ rejects destructuring calculate from a generic receiver in component source (6.223ms)
+✔ rejects destructuring getCurrent from component parameters (7.6195ms)
+✔ rejects destructuring getYear from component parameters (6.2191ms)
+✔ rejects destructuring calculate from component parameters (6.7505ms)
+✔ rejects destructuring getCurrent from arrow component parameters (6.0007ms)
+✔ rejects destructuring getYear from arrow component parameters (6.5732ms)
+✔ rejects destructuring calculate from arrow component parameters (6.2168ms)
+✔ rejects an aliased client method from component parameters (5.8877ms)
+✔ rejects a client method from multiline component parameters (6.5379ms)
+✔ rejects an aliased client method from multiline arrow parameters (7.5146ms)
+✔ rejects a client method before an object default in component parameters (6.7547ms)
+✔ rejects a client method after an object default in component parameters (7.1961ms)
+✔ rejects a client method beside an object default in local destructuring (7.6695ms)
+✔ rejects a client method from generic function component parameters (10.2692ms)
+✔ rejects a client method after a parameter comment (8.8165ms)
+✔ rejects a client method after a generic function constraint (7.3707ms)
+✔ rejects a computed client method in component destructuring (6.4897ms)
+✔ rejects a concatenated client method in component destructuring (20.2557ms)
+✔ rejects a static template client method key (7.5264ms)
+✔ allows similarly named fields on ordinary DTO values (7.5099ms)
+✔ rejects a frozen DTO import in component source (11.0721ms)
+✔ rejects a contracts namespace import in component source (9.6627ms)
+✔ rejects a frozen DTO import type query in component source (11.9228ms)
+✔ rejects a commented frozen DTO import type query (11.632ms)
+✔ rejects an escaped frozen DTO identifier import (12.2769ms)
+✔ rejects an escaped frozen DTO import type query (11.352ms)
+✔ rejects a default frozen DTO import (10.7929ms)
+✔ rejects a parenthesized indexed frozen DTO import type (11.7579ms)
+✔ rejects React dependency in presentation mapper source (12.7105ms)
+✔ rejects TanStack Query dependency in presentation mapper source (12.0274ms)
+✔ rejects YunQi client dependency in presentation mapper source (11.0097ms)
+✔ rejects React Router dependency in presentation mapper source (11.8996ms)
+✔ rejects direct client capability access in presentation mapper source (9.4679ms)
+✔ does not apply component capability rules to test files (6.2021ms)
+✔ rejects a copied frozen DTO declaration (6.6705ms)
+✔ rejects AnnualStageRail props that replace the canonical timeline model (8.2745ms)
+✔ rejects component-side renumbering of a YunQi step index (9.0436ms)
+✔ rejects callback-position renumbering in AnnualStageRail (9.4295ms)
+✔ rejects aliased step-index renumbering in AnnualStageRail (9.9283ms)
+✔ allows unrelated index arithmetic outside AnnualStageRail (6.4897ms)
+✔ rejects YunQiYearDto imports in annual component source (11.3837ms)
+✔ rejects direct getYear capability access in annual component source (9.0942ms)
+✔ rejects currentStep identifiers in annual component source (9.4743ms)
+✔ rejects completed identifiers in annual component source (9.0017ms)
+✔ rejects upcoming identifiers in annual component source (8.9322ms)
+✔ rejects 当前 user-facing copy in annual component source (8.6121ms)
+✔ rejects 已结束 user-facing copy in annual component source (8.7537ms)
+✔ rejects 未开始 user-facing copy in annual component source (8.6538ms)
+✔ rejects 吉凶 user-facing copy in annual component source (21.9576ms)
+✔ rejects 诊断 user-facing copy in annual component source (15.0379ms)
+✔ rejects 治疗 user-facing copy in annual component source (8.719ms)
+✔ rejects rebuilding annual stage index from callback position (9.2657ms)
+✔ rejects aliased annual stage callback positions (9.3578ms)
+✔ rejects bracket-map annual stage callback positions (10.4715ms)
+✔ rejects annual stage function callbacks with implicit arguments positions (9.3203ms)
+✔ rejects annual stage rest-parameter callbacks (11.3824ms)
+✔ rejects selecting an annual stage by ordinal array position (9.8902ms)
+✔ rejects duplicated 1900 year boundary in YearSelector (10.997ms)
+✔ rejects duplicated 1901 year boundary in YearSelector (9.6485ms)
+✔ rejects duplicated 2099 year boundary in YearSelector (11.7055ms)
+✔ rejects duplicated 2100 year boundary in YearSelector (12.3997ms)
+✔ requires YearSelector to import the canonical year options (11.9954ms)
+✔ rejects array map in mapSixQiStageTuple (11.4678ms)
+✔ rejects assigning mapped stage index from tuple position (10.6612ms)
+✔ rejects React Router imports in the annual mapper (13.8128ms)
+✔ rejects TanStack Query imports in the annual mapper (13.8771ms)
+✔ allows current-view state semantics outside annual components (11.8962ms)
+✔ allows diagnosis and treatment wording in the global safety note (10.2421ms)
+✔ allows unrelated pagination index arithmetic in annual components (12.1459ms)
+✔ excludes annual semantics in features/yunqi/year-analysis/components/AnnualSemantics.test.tsx (14.5458ms)
+✔ excludes annual semantics in features/yunqi/year-analysis/components/AnnualSemantics.fixture.tsx (13.8551ms)
+✔ excludes annual semantics in features/yunqi/year-analysis/components/fixtures/AnnualSemantics.tsx (10.9785ms)
+✔ review bypass: rejects rendered forbidden copy through const aliases (12.8322ms)
+✔ review bypass: rejects forbidden copy in template head (14.403ms)
+✔ review bypass: rejects forbidden copy in template middle (15.1047ms)
+✔ review bypass: rejects forbidden copy in template tail (11.9494ms)
+✔ review bypass: rejects aliased forbidden copy passed to a custom JSX prop (12.0845ms)
+✔ review round3 conservative: rejects forbidden literals anywhere in annual source (14.4834ms)
+✔ review bypass: rejects a top-level named callback on stages.map (23.4236ms)
+✔ review bypass: rejects an aliased selectedStepIndex minus one expression (20.2472ms)
+✔ review bypass: rejects parenthesized tuple map callees (11.421ms)
+✔ review bypass: rejects statically concatenated tuple map access (10.9286ms)
+✔ review bypass: rejects tuple map in a variable arrow (11.7925ms)
+✔ review bypass: rejects tuple map in a variable function expression (11.9745ms)
+✔ review round3 canonical: rejects every nested tuple helper (10.492ms)
+✔ review bypass: rejects tuple position taint propagated through assignment (13.4463ms)
+✔ review bypass: rejects tuple position taint propagated through destructuring (10.5428ms)
+✔ review bypass: rejects tuple position captured by a closure (13.7965ms)
+✔ review bypass: rejects tuple position in an arrow mapSixQiStage (12.689ms)
+✔ review round3 canonical: rejects an aliased mapSixQiStage index (9.9103ms)
+✔ review allow: excludes annual semantics under __tests__ directories (11.8026ms)
+✔ review bypass: rejects YearSelector type-only import (14.3211ms)
+✔ review bypass: rejects YearSelector aliased import placeholder (11.0462ms)
+✔ review bypass: rejects YearSelector approximate import path (12.8839ms)
+✔ review bypass: requires YearSelector to consume the imported binding (12.0226ms)
+✔ review canonical: rejects a shadowed YearSelector options import (12.0959ms)
+✔ review bypass: rejects Array.from arithmetic reconstruction without boundary literals (12.7396ms)
+✔ review round2 bypass: rejects forbidden copy in a local JSX object spread (11.5925ms)
+✔ review round2 bypass: rejects forbidden copy in a conditional JSX spread (11.1153ms)
+✔ review round2 bypass: rejects tuple map returned through an invoked local helper (9.6775ms)
+✔ review round3 canonical: rejects an unused local tuple helper (9.7469ms)
+✔ review round2 bypass: resolves an immutable const tuple map method key (10.1137ms)
+✔ review round2 bypass: resolves an immutable const mapped index key (10.2536ms)
+✔ review round3 canonical: rejects a runtime tuple method key (9.8513ms)
+✔ review canonical: rejects a nested named callback on stages.map (11.8005ms)
+✔ review round2 bypass: gives var mapped positions function scope (10.7246ms)
+✔ review round2 bypass: tracks a tainted object declaration destructuring property (11.3168ms)
+✔ review round3 canonical: rejects object-destructured mapSixQiStage index (11.2913ms)
+✔ review round2 bypass: tracks a tainted object assignment destructuring property (11.9079ms)
+✔ review round3 canonical: rejects assigned mapSixQiStage index aliases (11.0832ms)
+✔ review round3 canonical: rejects array-projected mapSixQiStage index aliases (12.3782ms)
+✔ review round2 bypass: rejects a decoy canonical map disconnected from option children (15.1746ms)
+✔ review round2 allow: ignores unrelated Array.from when canonical option children are rendered (12.8965ms)
+✔ review round3 conservative: rejects logging-only callback ordinal arithmetic (16.5033ms)
+✔ review round3 canonical: rejects noncanonical mapSixQiStage property mutation (11.9103ms)
+✔ review round3 conservative: rejects forbidden copy in an unrendered local helper (14.3624ms)
+✔ review round3 conservative: rejects any plus-one inside a two-parameter map callback (15.0408ms)
+✔ review round3 conservative: rejects selected index minus one through Array.at (27.4232ms)
+✔ review round3 canonical: requires both frozen mapper functions (10.857ms)
+✔ review round3 canonical: rejects explicit tuple mapping through a local helper (11.1436ms)
+✔ review round3 canonical: rejects tuple mapping through an object method (11.6412ms)
+✔ review round3 canonical: rejects an index object method in mapSixQiStage (12.6918ms)
+✔ review round3 canonical: rejects YearSelector option content wrapped in markup (12.9685ms)
+✔ review round3 canonical: rejects aliased YearSelector option values and children (13.4209ms)
+✔ review round3 canonical: rejects aliased canonical option arrays (12.9423ms)
+✔ review round3 canonical: rejects option callbacks without a direct item value (14.2396ms)
+✔ canonical review gap: rejects a post-index spread in mapSixQiStage (11.6466ms)
+✔ canonical review allow: permits a pre-index spread in mapSixQiStage (10.6818ms)
+✔ canonical review gap: rejects a decoy YearSelector map and rebuilt returned options (12.8788ms)
+✔ canonical review allow: accepts the canonical map in the exported YearSelector return (12.6497ms)
+✔ canonical review gap: rejects inline stage and selected index arithmetic together (11.566ms)
+✔ canonical review allow: permits unrelated page ordinals in annual source (11.5863ms)
+✔ canonical review gap: rejects composed Chinese and English annual literals (11.4751ms)
+✔ canonical review allow: permits unrelated static annual copy (11.6722ms)
+✔ final canonical gap: rejects an extra return inside exported YearSelector (12.8933ms)
+✔ final canonical allow: ignores returns in nested YearSelector helpers (12.8258ms)
+✔ final canonical gap: rejects named stages.map callback (call after declaration) (10.9055ms)
+✔ final canonical gap: rejects named stages.map callback (hoisted declaration after call) (10.735ms)
+✔ final canonical gap: rejects named stages.map callback (shadowed local callback) (11.3282ms)
+✔ final canonical regression: rejects duplicate string index in a production-like stage mapper (11.9217ms)
+✔ final canonical regression: rejects computed overwrite in a production-like stage mapper (11.5758ms)
+✔ rejects a default-exported copied frozen DTO declaration (7.9851ms)
+✔ rejects direct client capability access in feature page source (12.947ms)
+✔ rejects shape drift in PatientContextModel (39.9644ms)
+✔ rejects shape drift in InquiryContextModel (29.408ms)
+✔ rejects shape drift in ObservationContextModel (30.8007ms)
+✔ rejects shape drift in PermissionContextModel (26.0178ms)
+✔ rejects shape drift in AuditContextModel (26.5331ms)
+✔ rejects mutable Context Model fields (25.6383ms)
+✔ allows the exact internal inquiry Context Models (24.7054ms)
+✔ rejects runtime exports from the internal inquiry model index (24.662ms)
+✔ rejects a feature-root Context Model barrel (9.9905ms)
+✔ rejects Context Model imports in production inquiry pages (14.0576ms)
+✔ rejects Context Model imports in production inquiry components (12.1244ms)
+✔ allows an unrelated namespace import in inquiry presentation source (15.043ms)
+✔ rejects an inquiry Context Model import-type query in presentation source (11.5956ms)
+✔ rejects a dynamic import of inquiry Context Models in presentation source (12.0333ms)
+✔ rejects a namespace import from inquiry models in presentation source (10.9605ms)
+✔ rejects an inquiry model re-export outside the approved model index (8.863ms)
+✔ rejects an inquiry model re-export outside the inquiry feature (8.7133ms)
+✔ rejects an inquiry feature-root TSX model barrel (9.3109ms)
+✔ rejects an aliased import-type export from the inquiry feature root (9.3674ms)
+✔ rejects medical-decision copy in inquiry JSX text (13.0069ms)
+✔ rejects medical-decision copy in inquiry visible attribute (11.3787ms)
+✔ rejects medical-decision copy in inquiry static JSX expression (11.423ms)
+✔ rejects medical-decision copy rendered through an immutable alias (11.357ms)
+✔ rejects visible medical-decision attributes through an immutable alias (10.7152ms)
+✔ rejects medical-decision copy rendered through an immutable object member (10.7996ms)
+✔ rejects additional treatment-boundary copy 方剂 (11.5443ms)
+✔ rejects additional treatment-boundary copy 中药 (10.9662ms)
+✔ rejects additional treatment-boundary copy 剂量 (11.4942ms)
+✔ rejects additional treatment-boundary copy 疗程 (9.779ms)
+✔ rejects additional treatment-boundary copy 治法 (12.5755ms)
+✔ allows a non-rendered medical term string in ordinary source (12.2442ms)
+✔ allows a rendered value that shadows a medical const through props (9.6511ms)
+✔ allows a concise arrow parameter that shadows a medical const (10.8727ms)
+✔ allows medical-looking ordinary identifiers outside user-visible copy (10.9534ms)
+✔ does not scan inquiry tests for user-visible medical-decision copy (26.1002ms)
+✔ does not scan inquiry fixture features/inquiry/pages/Copy.fixture.tsx (10.7346ms)
+✔ does not scan inquiry fixture features/inquiry/pages/fixtures/Copy.tsx (11.2982ms)
+✔ rejects Date in specified-time production source (11.1532ms)
+✔ rejects Temporal in specified-time production source (10.5063ms)
+✔ rejects Intl in specified-time production source (9.5728ms)
+✔ rejects IANA time-zone literals in specified-time production source (9.8042ms)
+✔ rejects epoch display in specified-time production components (14.1609ms)
+✔ rejects currentStep stage semantics in specified-time source (11.9617ms)
+✔ rejects current stage semantics in specified-time source (11.9091ms)
+✔ rejects completed stage semantics in specified-time source (13.1374ms)
+✔ rejects upcoming stage semantics in specified-time source (13.1608ms)
+✔ rejects forbidden medical-decision copy in specified-time UI (15.3319ms)
+✔ rejects forbidden members in the selected-time ViewModel (13.9801ms)
+✔ allows the selected-time mapper to read the frozen API currentStep (10.801ms)
+✔ allows neutral specified-time copy and excludes its tests (11.2479ms)
+✔ CLI exits non-zero and prints every path-qualified violation (423.6218ms)
+ℹ tests 283
+ℹ suites 0
+ℹ pass 282
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 1
+ℹ todo 0
+ℹ duration_ms 5855.3459
+
+> yunqi@ test:contract-governance D:\Projects\YunQi
+> node --test tests/yunqi-contract-governance.test.mjs && node scripts/check-yunqi-contract-dependencies.mjs
+
+✔ Contract 1.1.0 changes only the approved year range and version identity (5.6049ms)
+✔ contract projection detects every exact-freeze mutation class (22.5453ms)
+✔ contract projection ignores documentation order and health-only changes (1.1513ms)
+✔ freeze writer rejects a changed projection under the same Contract ID (1.346ms)
+✔ contract registry prevents deleting or replacing a known ID baseline (0.4746ms)
+✔ contract registry preserves every ID found in repository history (0.3011ms)
+✔ contract registry requires every historical baseline and matching embedded ID (0.2974ms)
+✔ historical baseline content remains immutable after Contract ID rotation (1.292ms)
+✔ dependency gate accepts the approved package direction (48.2253ms)
+✔ dependency gate allows ordinary module-related text without loader access (23.1944ms)
+✔ dependency gate rejects opaque capability acquisition: export const load = () => import('@yunqi/' + 'client'); (20.5064ms)
+✔ dependency gate rejects opaque capability acquisition: const id = '@yunqi/client'; export const load = () => import(id); (20.3638ms)
+✔ dependency gate rejects opaque capability acquisition: const load = require; export const client = load('@yunqi/client'); (18.2097ms)
+✔ dependency gate rejects opaque capability acquisition: import { createRequire as factory } from 'node:module'; const load = factory(import.meta.url); load('@yunqi/client'); (20.9653ms)
+✔ dependency gate rejects opaque capability acquisition: export const load = Function('return import("@yunqi/client")'); (16.6954ms)
+✔ dependency gate rejects a template literal reverse import (21.1834ms)
+✔ dependency gate rejects a client relative import of Service runtime (18.159ms)
+✔ dependency gate rejects reverse dependencies from packages/yunqi-domain (27.0314ms)
+✔ dependency gate rejects reverse dependencies from packages/calendar-adapters/tyme4ts (18.6585ms)
+✔ dependency gate rejects browser package escape via dynamic import (17.6654ms)
+✔ dependency gate rejects browser package escape via commented dynamic import (16.8888ms)
+✔ dependency gate rejects browser package escape via template dynamic import (20.7662ms)
+✔ dependency gate rejects browser package escape via TypeScript generic loader (17.2162ms)
+✔ dependency gate rejects browser package escape via require (17.1661ms)
+✔ dependency gate rejects browser package escape via Windows relative path (16.0011ms)
+✔ dependency gate rejects browser package escape via absolute path (16.568ms)
+✔ dependency gate rejects browser package escape via file URL (26.9445ms)
+✔ dependency gate ignores import examples in comments and strings (18.3588ms)
+✔ dependency gate accepts internal relative imports and rejects local reverse imports (51.4478ms)
+✔ dependency gate rejects forbidden manifest and source dependencies (41.45ms)
+✔ dependency gate passes against the production repository (233.2022ms)
+✔ GitHub quality-gates workflow contains the required ordered gates (12.3059ms)
+✔ byte-compared contract artifacts are pinned to LF line endings (0.4085ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1167.2113
+
+> yunqi@ test:time-purity D:\Projects\YunQi
+> pnpm test:time-governance && pnpm --filter @yunqi/domain test:time-purity && pnpm --filter @yunqi/service test:time-purity
+
+
+> yunqi@ test:time-governance D:\Projects\YunQi
+> node --test tests/yunqi-time-governance.test.mjs && node scripts/check-yunqi-time-governance.mjs
+
+✔ rejects computed recovery of a forbidden time global (303.9591ms)
+✔ rejects reflective recovery through a passed global object (331.2113ms)
+✔ accepts React rendering of canonical localTime (297.3052ms)
+✔ rejects Date reinterpretation of YunQi epochMilliseconds (306.5462ms)
+✔ rejects Intl reinterpretation of YunQi epochMilliseconds (283.539ms)
+✔ rejects Date reinterpretation hidden behind a frontend helper (303.8949ms)
+✔ rejects epoch reinterpretation in an apps-directory Workbench (320.8376ms)
+✔ rejects Temporal and IANA reinterpretation in YunQi time modules (292.7509ms)
+✔ rejects incomplete persistence governance (313.9633ms)
+✔ rejects root guidance without its time-rules pointer (295.5402ms)
+✔ rejects a missing time-rules document even with a valid root pointer (299.1737ms)
+✔ rejects an ambiguous YunQiInstant declaration (294.1962ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3721.4461
+
+> @yunqi/domain@1.2.0 test:time-purity D:\Projects\YunQi\packages\yunqi-domain
+> node scripts/check-time-purity.mjs
+
+Domain time purity passed for 27 files.
+
+> @yunqi/service@2.1.0 test:time-purity D:\Projects\YunQi\packages\yunqi-service
+> node scripts/check-time-purity.mjs
+
+
+> @yunqi/service@2.1.0 test:timezone D:\Projects\YunQi\packages\yunqi-service
+> node scripts/check-time-zone-independence.mjs
+
+timezone-independence: ok
+
+> @yunqi/service@2.1.0 smoke:production-entry D:\Projects\YunQi\packages\yunqi-service
+> node scripts/smoke-production-entry.mjs
+
+production-smoke: ok
+
+> @yunqi/service@2.1.0 openapi:lint D:\Projects\YunQi\packages\yunqi-service
+> redocly lint openapi/yunqi-service.openapi.yaml --config redocly.yaml
+
+
+    ╔═══════════════════════════════════════════════════════╗
+    ║                                                       ║
+    ║  A new version of Redocly CLI (2.64.1) is available.  ║
+    ║  Update now: `npm i -g @redocly/cli@latest`.          ║
+    ║  Changelog: https://redocly.com/docs/cli/changelog/   ║
+    ║                                                       ║
+    ╚═══════════════════════════════════════════════════════╝
+
+validating openapi\yunqi-service.openapi.yaml...
+[1] openapi\yunqi-service.openapi.yaml:699:10 at #/servers/0/url
+
+Server `url` should not point to example.com or localhost.
+
+697 |                 $ref: "#/components/schemas/ErrorResponse"
+698 | servers:
+699 |   - url: http://localhost:3000
+    |          ^^^^^^^^^^^^^^^^^^^^^
+700 |     description: Local server
+701 | tags:
+
+Warning was generated by the no-server-example.com rule.
+
+Reference: https://redocly.com/docs/cli/rules/oas/no-server-example-com
+
+
+[2] openapi\yunqi-service.openapi.yaml:578:7 at #/paths/~1health/get/responses
+
+Operation must have at least one `4XX` response.
+
+576 | tags:
+577 |   - system
+578 | responses:
+    | ^^^^^^^^^
+579 |   "200":
+580 |     description: Default Response
+
+Warning was generated by the operation-4xx-response rule.
+
+Reference: https://redocly.com/docs/cli/rules/oas/operation-4xx-response
+
+
+[3] openapi\yunqi-service.openapi.yaml:467:5 at #/components/schemas/YearParams
+
+Component: "YearParams" is never used.
+
+465 |     - dateTime: 2024-05-20T13:00:00Z
+466 |     - dateTime: 2024-05-20T21:00:00+08:00
+467 | YearParams:
+    | ^^^^^^^^^^
+468 |   type: object
+469 |   required:
+
+Warning was generated by the no-unused-components rule.
+
+Reference: https://redocly.com/docs/cli/rules/oas/no-unused-components
+
+
+openapi\yunqi-service.openapi.yaml: validated in 32ms
+
+Woohoo! Your API description is valid. 🎉
+You have 3 warnings.
+
+
+> @yunqi/service@2.1.0 openapi:check D:\Projects\YunQi\packages\yunqi-service
+> node scripts/check-generated.mjs
+
+
+> yunqi@ test:project-guidance D:\Projects\YunQi
+> node --test tests/project-guidance.test.mjs && node scripts/check-project-guidance.mjs
+
+✔ production guidance and a portable copied fixture both pass (460.0631ms)
+✔ oversized root instructions fail (387.9941ms)
+✔ missing document fails before delivery (395.9993ms)
+✔ missing anchor fails before delivery (393.5316ms)
+✔ parent escape fails before delivery (393.6767ms)
+✔ Windows absolute path fails before delivery (388.0037ms)
+✔ a nonexistent pnpm command fails (402.542ms)
+✔ historical archive edits fail integrity checks (376.5857ms)
+✔ dropping a migrated section fails coverage (378.0399ms)
+✔ duplicate sessions fail provenance and counts (510.3218ms)
+✔ a cyclic subagent ancestry fails without hanging (418.799ms)
+✔ a machine-local private log path fails the portable index (440.2295ms)
+✔ removing CI and root-test wiring fails (394.8872ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5415.3452
+Project guidance passed: budgets, links, commands, migration integrity and session provenance.

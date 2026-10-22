@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
 
 export interface TimeAnalysisFormProps {
   readonly inputError: string | null;
@@ -45,11 +46,6 @@ export function TimeAnalysisForm({
           type="datetime-local"
           value={inputValue}
         />
-        <p id="time-analysis-hint">
-          输入一个北京标准时间，格式为 YYYY-MM-DDTHH:mm 或
-          YYYY-MM-DDTHH:mm:ss。
-          <span>北京时间 UTC+08</span>
-        </p>
         {inputError ? (
           <p id="time-analysis-error" role="alert">
             {inputError}
@@ -59,6 +55,10 @@ export function TimeAnalysisForm({
       <button disabled={isPending} type="submit">
         {isPending ? '正在分析' : '开始分析'}
       </button>
+      <p id="time-analysis-hint" className="time-analysis-form__hint">
+        按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
+        <span><strong>北京时间 UTC+08</strong> · 支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。</span>
+      </p>
     </form>
   );
 }

@@ -1,0 +1,26 @@
+
+> yunqi@ test:project-guidance D:\Projects\YunQi
+> node --test tests/project-guidance.test.mjs && node scripts/check-project-guidance.mjs
+
+✔ production guidance and a portable copied fixture both pass (422.1816ms)
+✔ oversized root instructions fail (361.0811ms)
+✔ missing document fails before delivery (365.2118ms)
+✔ missing anchor fails before delivery (360.4902ms)
+✔ parent escape fails before delivery (368.7479ms)
+✔ Windows absolute path fails before delivery (391.6195ms)
+✔ a nonexistent pnpm command fails (365.159ms)
+✔ historical archive edits fail integrity checks (359.4517ms)
+✔ dropping a migrated section fails coverage (354.1173ms)
+✔ duplicate sessions fail provenance and counts (457.9635ms)
+✔ a cyclic subagent ancestry fails without hanging (367.624ms)
+✔ a machine-local private log path fails the portable index (356.4664ms)
+✔ removing CI and root-test wiring fails (373.266ms)
+ℹ tests 13
+ℹ suites 0
+ℹ pass 13
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 4978.0282
+Project guidance passed: budgets, links, commands, migration integrity and session provenance.

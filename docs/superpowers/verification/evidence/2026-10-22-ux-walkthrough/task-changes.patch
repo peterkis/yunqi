@@ -1,0 +1,1369 @@
+--- before/apps/yunqi-workbench/src/app/App.tsx
++++ after/apps/yunqi-workbench/src/app/App.tsx
+@@ -8,19 +8,13 @@
+       <AppRoutes />
+ 
+       <footer className="workbench-footer">
+-        <section
+-          className="contract-panel"
+-          aria-labelledby="contract-title"
+-        >
+-          <div>
+-            <p className="section-label">Frozen API Contract</p>
+-            <h3 id="contract-title">契约消费边界</h3>
+-          </div>
++        <details className="contract-disclosure">
++          <summary>技术信息 · 接口契约</summary>
+           <div className="contract-detail">
+             <code>{YUNQI_API_CONTRACT_ID}</code>
+             <p>仅消费冻结契约，不在展示层计算五运六气规则。</p>
+           </div>
+-        </section>
++        </details>
+ 
+         <aside className="safety-note" aria-label="系统边界">
+           <span aria-hidden="true">界</span>
+--- before/apps/yunqi-workbench/src/components/layout/AppShell.tsx
++++ after/apps/yunqi-workbench/src/components/layout/AppShell.tsx
+@@ -1,4 +1,5 @@
+-import type { ReactNode } from 'react';
++import { useEffect, useRef, type ReactNode } from 'react';
++import { useLocation } from 'react-router-dom';
+ import { useTheme } from '../../providers/ThemeProvider';
+ import { Navigation } from './Navigation';
+ 
+@@ -7,11 +8,25 @@
+ }
+ 
+ export function AppShell({ children }: AppShellProps) {
++  const mainRef = useRef<HTMLElement>(null);
++  const { pathname } = useLocation();
++  // Changing years keeps the selector's focus; switching work areas starts at
++  // the new content, including when the sticky navigation is used mid-page.
++  const workArea = pathname.split('/').slice(0, 3).join('/');
++  const previousWorkArea = useRef(workArea);
++  useEffect(() => {
++    if (previousWorkArea.current !== workArea) {
++      mainRef.current?.focus({ preventScroll: true });
++      mainRef.current?.scrollIntoView?.({ block: 'start' });
++    }
++    previousWorkArea.current = workArea;
++  }, [workArea]);
+   const { theme, toggleTheme } = useTheme();
+   const nextThemeLabel = theme === 'light' ? '深色' : '浅色';
+ 
+   return (
+     <div className="app-shell">
++      <a className="skip-link" href="#workbench-content">跳至主要内容</a>
+       <header className="product-header">
+         <div className="product-lockup">
+           <span className="product-seal" aria-hidden="true">
+@@ -56,7 +71,7 @@
+ 
+       <div className="shell-body">
+         <Navigation />
+-        <main className="workbench-main">{children}</main>
++        <main className="workbench-main" id="workbench-content" ref={mainRef} tabIndex={-1}>{children}</main>
+       </div>
+     </div>
+   );
+--- before/apps/yunqi-workbench/src/components/layout/Navigation.tsx
++++ after/apps/yunqi-workbench/src/components/layout/Navigation.tsx
+@@ -20,6 +20,7 @@
+                   {item.mark}
+                 </span>
+                 {item.label}
++                {item.id === 'inquiry' ? <span className="navigation-status">规划中</span> : null}
+               </NavLink>
+             ) : (
+               <span
+--- before/apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.tsx
++++ after/apps/yunqi-workbench/src/features/inquiry/pages/InquiryEntryPage.tsx
+@@ -5,7 +5,6 @@
+   return (
+     <div className="inquiry-entry-page">
+       <header className="inquiry-entry-page__header">
+-        <p className="section-label">Workbench / Inquiry</p>
+         <h2>问诊结构化入口</h2>
+         <p>
+           为未来患者上下文、历史记录和结构化记录能力建立安全入口。本阶段不创建、保存或分析患者记录。
+@@ -13,7 +12,6 @@
+       </header>
+ 
+       <Panel
+-        eyebrow="Inquiry Workspace Foundation"
+         title="未来能力"
+         description="以下能力仅展示规划边界，尚未开放操作。"
+       >
+--- before/apps/yunqi-workbench/src/features/yunqi/components/CurrentStepCard.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/CurrentStepCard.tsx
+@@ -12,9 +12,8 @@
+ export function CurrentStepCard({ step }: CurrentStepCardProps) {
+   return (
+     <Panel
+-      eyebrow="Current Position"
+       title="当前所在六步"
+-      description="当前位置由 API 返回的 currentStep 标识，前端不重新判断边界。"
++      description="交接时刻起进入下一步，时间均为北京时间 UTC+08。"
+     >
+       <Card title={step.name}>
+         <div className="current-step__badge">
+--- before/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+@@ -1,21 +1,22 @@
+ import { render, screen, within } from '@testing-library/react';
++import { MemoryRouter } from 'react-router-dom';
+ import { describe, expect, it } from 'vitest';
+ import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
+ import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
+ import { CurrentYunQiPage } from './CurrentYunQiPage';
+ 
+ describe('CurrentYunQiPage', () => {
+-  it('renders the complete summary-first current YunQi view', () => {
++  it('renders the current stage before the annual context', () => {
+     render(
+       <CurrentYunQiPage
+         viewModel={mapCurrentYunQi(createYunQiCalculationDto())}
+-      />,
++      />, { wrapper: MemoryRouter },
+     );
+ 
+     expect(
+       screen.getByRole('heading', { name: '当前五运六气' }),
+     ).toBeInTheDocument();
+-    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
++    expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+ 
+     const inputTime = screen.getByText('2026-06-19 12:00:00');
+     expect(inputTime).toHaveAttribute(
+@@ -85,7 +86,7 @@
+     expect(explanation).toHaveTextContent(
+       '传统理论说明仅供医生学习与复盘。',
+     );
+-    expect(explanation).toHaveTextContent('前端未扩写');
++    expect(explanation).toHaveTextContent('供规则学习与核对');
+ 
+     const trace = screen.getByRole('region', {
+       name: '追溯信息',
+--- before/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.tsx
+@@ -1,3 +1,4 @@
++import { Link } from 'react-router-dom';
+ import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
+ import type { CurrentYunQiViewModel } from '../presentation/view-model';
+ import { CurrentStepCard } from './CurrentStepCard';
+@@ -17,20 +18,22 @@
+     <div className="current-yunqi-page">
+       <header className="current-yunqi-hero">
+         <div>
+-          <p className="section-label">Workbench / Current</p>
+           <h2>当前五运六气</h2>
+           <p className="current-yunqi-hero__summary">
+-            基于固定北京时间 UTC+08 的规范输入，呈现当前运气年与六步位置。
++            查看当前时气，再对照全年六步的主气、客气与交接时间。
+           </p>
++          <Link className="context-link" to={`/yunqi/year/${viewModel.summary.year}`}>
++            查看 {viewModel.summary.year} 年六气
++          </Link>
+         </div>
+         <div className="current-yunqi-hero__time">
+-          <span>规范输入时间</span>
++          <span>本次查询时间</span>
+           <YunQiTimeDisplay value={viewModel.inputTime} />
+         </div>
+       </header>
+ 
++      <CurrentStepCard step={viewModel.currentStep} />
+       <YunQiYearSummaryPanel summary={viewModel.summary} />
+-      <CurrentStepCard step={viewModel.currentStep} />
+       <SixQiTimeline
+         steps={viewModel.timeline}
+         currentStepIndex={viewModel.currentStep.index}
+--- before/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/rule-traceability-panels.test.tsx
+@@ -22,7 +22,7 @@
+       name: '追溯信息',
+     });
+     expect(explanation).toHaveTextContent('API 原文');
+-    expect(explanation).toHaveTextContent('前端未扩写');
++    expect(explanation).toHaveTextContent('供规则学习与核对');
+     expect(trace).not.toHaveTextContent('API 原文');
+     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
+     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
+--- before/apps/yunqi-workbench/src/features/yunqi/components/RuleExplanationPanel.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/RuleExplanationPanel.tsx
+@@ -9,9 +9,8 @@
+ }: RuleExplanationPanelProps) {
+   return (
+     <Panel
+-      eyebrow="Rule Explanation"
+       title="规则结果说明"
+-      description="以下说明来自 API 结果，前端未扩写领域结论。"
++      description="按本次计算结果逐条说明，供规则学习与核对。"
+     >
+       {explanations.length === 0 ? (
+         <p>本次结果未提供规则说明</p>
+--- before/apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/SixQiTimeline.tsx
+@@ -55,7 +55,6 @@
+ 
+   return (
+     <Panel
+-      eyebrow="Six-Qi Sequence"
+       title="六步交接时间线"
+       description="当前步默认展开；可同时展开多个节点比较客主关系。"
+     >
+--- before/apps/yunqi-workbench/src/features/yunqi/components/TraceabilityPanel.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/TraceabilityPanel.tsx
+@@ -16,7 +16,6 @@
+ }: TraceabilityPanelProps) {
+   return (
+     <Panel
+-      eyebrow="Traceability"
+       title="追溯信息"
+       description="用于核对本次结果的接口、规则版本与时间标准。"
+     >
+--- before/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/components/YunQiYearSummaryPanel.tsx
+@@ -1,4 +1,3 @@
+-import { Card } from '../../../components/ui/Card';
+ import { DataLabel } from '../../../components/ui/DataLabel';
+ import { Panel } from '../../../components/ui/Panel';
+ import type { YunQiYearSummaryViewModel } from '../presentation/view-model';
+@@ -13,37 +12,26 @@
+ }: YunQiYearSummaryPanelProps) {
+   return (
+     <Panel
+-      eyebrow="Annual Frame"
+       title="年度概览"
+-      description="已版本化的 Phase 1 实现基线，待正式专家冻结与验证。"
++      description="规则实现基线，待正式专家冻结与验证。"
+     >
+       <div className="summary-grid">
+-        <Card title="运气年">
+-          <DataLabel label="年份" value={summary.year} />
++          <DataLabel label="运气年" value={summary.year} />
+           <DataLabel
+             label="干支"
+             value={summary.stemBranch.ganzhi}
+           />
+           <DataLabel
+-            label="年界"
+-            value={
+-              <YunQiTimeRange
+-                start={summary.interval.start}
+-                end={summary.interval.end}
+-              />
+-            }
+-          />
+-        </Card>
+-        <Card title="岁运">
+-          <DataLabel
+             label="岁运"
+             value={`${summary.suiYun.element}运${summary.suiYun.state}（${summary.suiYun.tone}）`}
+           />
+-        </Card>
+-        <Card title="司天与在泉">
+           <DataLabel label="司天" value={summary.sitian} />
+           <DataLabel label="在泉" value={summary.zaiquan} />
+-        </Card>
++      </div>
++      <div className="summary-year-range">
++        <span>年界 · 北京时间 UTC+08</span>
++        <YunQiTimeRange start={summary.interval.start} end={summary.interval.end} />
++        <span>起点包含，终点不包含</span>
+       </div>
+     </Panel>
+   );
+--- before/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisForm.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisForm.tsx
+@@ -1,4 +1,5 @@
+ import type { FormEvent } from 'react';
++import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
+ 
+ export interface TimeAnalysisFormProps {
+   readonly inputError: string | null;
+@@ -45,11 +46,6 @@
+           type="datetime-local"
+           value={inputValue}
+         />
+-        <p id="time-analysis-hint">
+-          输入一个北京标准时间，格式为 YYYY-MM-DDTHH:mm 或
+-          YYYY-MM-DDTHH:mm:ss。
+-          <span>北京时间 UTC+08</span>
+-        </p>
+         {inputError ? (
+           <p id="time-analysis-error" role="alert">
+             {inputError}
+@@ -59,6 +55,10 @@
+       <button disabled={isPending} type="submit">
+         {isPending ? '正在分析' : '开始分析'}
+       </button>
++      <p id="time-analysis-hint" className="time-analysis-form__hint">
++        按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
++        <span><strong>北京时间 UTC+08</strong> · 支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。</span>
++      </p>
+     </form>
+   );
+ }
+--- before/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.test.tsx
+@@ -36,7 +36,7 @@
+   it('renders the canonical success result with neutral selected-time semantics', () => {
+     renderPage();
+ 
+-    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
++    expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+ 
+     const result = screen.getByRole('region', {
+       name: '指定时点分析结果',
+--- before/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisPage.tsx
+@@ -37,7 +37,6 @@
+     <div className="time-analysis-page">
+       <header className="time-analysis-hero">
+         <div>
+-          <p className="section-label">Workbench / Specified Time</p>
+           <h2>指定时点分析</h2>
+           <p className="time-analysis-hero__summary">
+             输入一个北京标准时间，查看该时点对应的五运六气规则结构。
+@@ -50,7 +49,6 @@
+         className="time-analysis-form-panel"
+       >
+         <header>
+-          <p className="section-label">Analysis Input</p>
+           <h3 id="time-analysis-form-title">选择分析时间</h3>
+           <p>本页面只用于规则结果核对与阶段验证。</p>
+         </header>
+@@ -87,20 +85,20 @@
+           aria-label="指定时点分析结果"
+           className="time-analysis-result"
+         >
++          <p className="analysis-success" role="status">分析完成，所选时点位于{viewModel.selectedStage.name}。</p>
+           <header className="time-analysis-result__time">
+             <div>
+-              <p className="section-label">Canonical Analysis Time</p>
+               <h3>规范分析时间</h3>
+             </div>
+             <YunQiTimeDisplay value={viewModel.analysisTime} />
+           </header>
++          <TimeAnalysisStageDetailPanel
++            stage={viewModel.selectedStage}
++          />
+           <YunQiYearSummaryPanel summary={viewModel.summary} />
+           <TimeAnalysisSixQiRail
+             selectedStageIndex={viewModel.selectedStage.index}
+             stages={viewModel.stages}
+-          />
+-          <TimeAnalysisStageDetailPanel
+-            stage={viewModel.selectedStage}
+           />
+           <RuleExplanationPanel
+             explanations={viewModel.explanations}
+--- before/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisSixQiRail.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisSixQiRail.tsx
+@@ -17,7 +17,6 @@
+ }: TimeAnalysisSixQiRailProps) {
+   return (
+     <Panel
+-      eyebrow="Six-Qi Stages"
+       title="六气阶段概览"
+       description="六阶段等宽展示，不代表实际时长比例。"
+     >
+--- before/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisStageDetailPanel.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/time-analysis/components/TimeAnalysisStageDetailPanel.tsx
+@@ -20,14 +20,11 @@
+       role="region"
+     >
+       <header className="time-analysis-stage-detail__header">
+-        <p className="time-analysis-stage-detail__eyebrow">
+-          Selected Stage
+-        </p>
+         <h2 id={titleId}>所选时点所在阶段：{stage.name}</h2>
+-        <p>以下内容来自指定时点计算 API，前端仅展示所选阶段事实。</p>
++        <p>核对所选时点的主气、客气和客主关系。</p>
+       </header>
+       <div className="time-analysis-stage-detail__facts">
+-        <DataLabel label="API 阶段序号" value={stage.index} />
++        <DataLabel label="阶段序号" value={stage.index} />
+         <DataLabel
+           label="阶段区间"
+           value={
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiDetailPanel.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiDetailPanel.tsx
+@@ -20,12 +20,11 @@
+       role="region"
+     >
+       <header className="annual-six-qi-detail__header">
+-        <p className="annual-six-qi-detail__eyebrow">Stage Detail</p>
+-        <h2 id={titleId}>已选择：{stage.name}</h2>
+-        <p>以下内容来自年度查询 API，前端仅按所选阶段展示。</p>
++        <h2 id={titleId} aria-live="polite" aria-atomic="true">已选择：{stage.name}</h2>
++        <p>核对本阶段的主气、客气和客主关系。</p>
+       </header>
+       <div className="annual-six-qi-detail__facts">
+-        <DataLabel label="API 阶段序号" value={stage.index} />
++        <DataLabel label="阶段序号" value={stage.index} />
+         <DataLabel
+           label="阶段区间"
+           value={
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiSelector.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualSixQiSelector.tsx
+@@ -21,6 +21,7 @@
+   return (
+     <fieldset className="annual-six-qi-selector">
+       <legend>选择六气阶段</legend>
++      <p className="stage-selector-hint">选择后在下方查看详情 · 北京时间 UTC+08</p>
+       <div className="annual-six-qi-selector__options">
+         {stages.map((stage) => (
+           <label
+@@ -28,20 +29,22 @@
+             key={stage.index}
+           >
+             <input
++              aria-label={`第 ${stage.index} 步 ${stage.name}`}
++              aria-describedby={`${groupName}-${stage.index}-range`}
+               checked={stage.index === selectedStepIndex}
+               name={groupName}
+               onChange={() => onSelect(stage.index)}
+               type="radio"
+               value={String(stage.index)}
+             />
+-            <span className="annual-six-qi-selector__index">
+-              第 {stage.index} 步
+-            </span>
+             <strong>{stage.name}</strong>
+             <span className="annual-six-qi-selector__range">
+-              <YunQiTimeDisplay value={stage.start} />
++              <YunQiTimeDisplay value={stage.start} showStandard={false} variant="compact" />
+               <span aria-hidden="true">—</span>
+-              <YunQiTimeDisplay value={stage.end} />
++              <YunQiTimeDisplay value={stage.end} showStandard={false} variant="compact" />
++            </span>
++            <span className="visually-hidden" id={`${groupName}-${stage.index}-range`}>
++              开始 {stage.start.localTime}，结束 {stage.end.localTime}，北京时间 UTC+08
+             </span>
+           </label>
+         ))}
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.test.tsx
+@@ -11,7 +11,7 @@
+     const viewModel = mapAnnualYunQi(createYunQiYearDto());
+     render(<AnnualYunQiPage viewModel={viewModel} />);
+ 
+-    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
++    expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+ 
+     const radios = screen.getAllByRole('radio');
+     expect(radios).toHaveLength(6);
+@@ -62,16 +62,17 @@
+     ).toBeInTheDocument();
+   });
+ 
+-  it('keeps the detail eyebrow neutral outside checked-selection styling', () => {
++  it('announces the selected stage and preserves exact boundaries for assistive technology', () => {
+     render(
+       <AnnualYunQiPage
+         viewModel={mapAnnualYunQi(createYunQiYearDto())}
+       />,
+     );
+ 
+-    const eyebrow = screen.getByText('Stage Detail');
+-    expect(eyebrow).toHaveClass('annual-six-qi-detail__eyebrow');
+-    expect(eyebrow).not.toHaveClass('section-label');
++    expect(screen.getByRole('heading', { name: '已选择：初之气' }))
++      .toHaveAttribute('aria-live', 'polite');
++    expect(screen.getByRole('radio', { name: '第 1 步 初之气' }))
++      .toHaveAccessibleDescription(/开始 .*\+08:00，结束 .*\+08:00，北京时间 UTC\+08/);
+   });
+ 
+   it('contains annual overflow locally without clipping the document', () => {
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/AnnualYunQiPage.tsx
+@@ -34,12 +34,14 @@
+   return (
+     <div className="annual-yunqi-page">
+       <YunQiYearSummaryPanel summary={viewModel.summary} />
+-      <AnnualSixQiSelector
+-        onSelect={setSelectedStepIndex}
+-        selectedStepIndex={selectedStepIndex}
+-        stages={viewModel.stages}
+-      />
+-      <AnnualSixQiDetailPanel stage={selected} />
++      <div className="annual-stage-workspace">
++        <AnnualSixQiSelector
++          onSelect={setSelectedStepIndex}
++          selectedStepIndex={selectedStepIndex}
++          stages={viewModel.stages}
++        />
++        <AnnualSixQiDetailPanel stage={selected} />
++      </div>
+       <RuleExplanationPanel explanations={viewModel.explanations} />
+       <TraceabilityPanel
+         dataSource="YunQi 年度查询 API"
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearAnalysisLayout.tsx
+@@ -9,7 +9,6 @@
+   return (
+     <div className="annual-yunqi-layout">
+       <header>
+-        <p className="section-label">Workbench / Annual</p>
+         <h2>年度五运六气分析</h2>
+         <p>选择年份，查看该运气年的五运六气与六步交接。</p>
+         <YearSelector
+--- before/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
++++ after/apps/yunqi-workbench/src/features/yunqi/year-analysis/components/YearSelector.tsx
+@@ -1,5 +1,5 @@
+ import { useNavigate } from 'react-router-dom';
+-import { YUNQI_YEAR_OPTIONS } from '../../../../lib/yunqi-year-range';
++import { YUNQI_YEAR_OPTIONS, YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
+ 
+ export interface YearSelectorProps {
+   readonly selectedYear?: number;
+@@ -9,13 +9,15 @@
+   const navigate = useNavigate();
+ 
+   return (
+-    <label className="year-selector">
++    <div className="year-navigation">
++      <label className="year-selector">
+       <span>分析年份</span>
+       <select
+         aria-label="分析年份"
+         value={selectedYear?.toString() ?? ''}
+         onChange={(event) => {
+-          navigate(`/yunqi/year/${event.currentTarget.value}`);
++          const value = event.currentTarget.value;
++          navigate(value ? `/yunqi/year/${value}` : '/yunqi/year');
+         }}
+       >
+         <option value="">选择年份</option>
+@@ -25,6 +27,20 @@
+           </option>
+         ))}
+       </select>
+-    </label>
++      </label>
++      <div className="year-navigation__steps" aria-label="相邻年份">
++        <button
++          type="button"
++          disabled={selectedYear === undefined || selectedYear <= YUNQI_YEAR_RANGE.min}
++          onClick={() => selectedYear !== undefined && navigate(`/yunqi/year/${selectedYear - 1}`)}
++        >上一年</button>
++        <button
++          type="button"
++          disabled={selectedYear === undefined || selectedYear >= YUNQI_YEAR_RANGE.max}
++          onClick={() => selectedYear !== undefined && navigate(`/yunqi/year/${selectedYear + 1}`)}
++        >下一年</button>
++      </div>
++      <p className="year-navigation__hint">支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年</p>
++    </div>
+   );
+ }
+--- before/apps/yunqi-workbench/src/styles/global.css
++++ after/apps/yunqi-workbench/src/styles/global.css
+@@ -71,10 +71,6 @@
+   margin-inline: auto;
+   border-inline: 1px solid var(--rule);
+   background-color: var(--paper-raised);
+-  background-image:
+-    linear-gradient(var(--paper-grid) 1px, transparent 1px),
+-    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+-  background-size: 3rem 3rem;
+   animation: shell-enter 280ms ease-out both;
+ }
+ 
+@@ -83,8 +79,8 @@
+   align-items: center;
+   justify-content: space-between;
+   gap: 2rem;
+-  min-height: 7.5rem;
+-  padding: 1.4rem clamp(1.25rem, 4vw, 4rem);
++  min-height: 5rem;
++  padding: 0.8rem clamp(1.25rem, 3vw, 2rem);
+   border-bottom: 1px solid var(--rule-strong);
+ }
+ 
+@@ -171,14 +167,18 @@
+ 
+ .shell-body {
+   display: grid;
+-  grid-template-columns: minmax(13rem, 17rem) minmax(0, 1fr);
+-  min-height: calc(100vh - 7.5rem);
++  grid-template-columns: 13rem minmax(0, 1fr);
++  min-height: calc(100vh - 5rem);
+ }
+ 
+ .workbench-navigation {
++  position: sticky;
++  top: 0;
++  align-self: start;
++  min-height: calc(100vh - 5rem);
+   display: flex;
+   flex-direction: column;
+-  padding: 2.5rem 1.5rem 1.75rem;
++  padding: 1.5rem 1rem;
+   border-right: 1px solid var(--rule);
+   background: var(--paper-muted);
+ }
+@@ -227,7 +227,9 @@
+ }
+ 
+ .workbench-main {
+-  padding: clamp(2.5rem, 5vw, 5rem) clamp(1.5rem, 5vw, 5rem);
++  min-width: 0;
++  scroll-margin-top: 1rem;
++  padding: 2rem clamp(1rem, 3vw, 2.5rem);
+ }
+ 
+ .foundation-intro {
+@@ -314,7 +316,7 @@
+ 
+ .current-yunqi-page {
+   display: grid;
+-  gap: clamp(3.5rem, 7vw, 6.5rem);
++  gap: 2rem;
+   max-width: 74rem;
+   margin-inline: auto;
+ }
+@@ -324,14 +326,14 @@
+   width: 100%;
+   max-width: 74rem;
+   min-width: 0;
+-  gap: clamp(3.5rem, 7vw, 6.5rem);
++  gap: 2rem;
+   margin-inline: auto;
+ }
+ 
+ .annual-yunqi-layout {
+   display: grid;
+   min-width: 0;
+-  gap: clamp(2.5rem, 5vw, 4rem);
++  gap: 1.5rem;
+ }
+ 
+ .annual-yunqi-layout > header {
+@@ -379,6 +381,133 @@
+   outline-offset: 3px;
+ }
+ 
++.year-navigation {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: end;
++  gap: 0.75rem;
++}
++
++.year-navigation__steps {
++  display: flex;
++  gap: 0.5rem;
++}
++
++.year-navigation__steps button {
++  min-height: 2.75rem;
++  padding: 0.55rem 0.85rem;
++  border: 1px solid var(--rule-strong);
++  background: var(--paper-raised);
++  color: var(--ink);
++  cursor: pointer;
++}
++
++.year-navigation__steps button:hover:not(:disabled) {
++  background: var(--cinnabar-wash);
++}
++
++.year-navigation__steps button:disabled {
++  color: var(--ink-muted);
++  opacity: 0.55;
++  cursor: default;
++}
++
++.year-navigation__hint {
++  margin: 0 0 0.65rem;
++  color: var(--ink-muted);
++  font-size: 0.8rem;
++}
++
++.annual-stage-workspace {
++  display: grid;
++  min-width: 0;
++  gap: 1rem;
++}
++
++.stage-selector-hint {
++  margin: 0 0 0.75rem;
++  color: var(--ink-muted);
++  font-size: 0.85rem;
++  line-height: 1.6;
++}
++
++.summary-year-range {
++  display: flex;
++  flex-wrap: wrap;
++  align-items: baseline;
++  gap: 0.5rem 1rem;
++  padding-top: 0.75rem;
++  color: var(--ink-muted);
++  font-size: 0.8rem;
++  line-height: 1.6;
++}
++
++.summary-grid dd {
++  font-weight: 600;
++}
++
++.context-link {
++  display: inline-flex;
++  align-items: center;
++  min-height: 2.75rem;
++  color: var(--cinnabar-deep);
++  text-underline-offset: 0.2em;
++}
++
++.navigation-status {
++  margin-left: auto;
++  color: var(--ink-muted);
++  font-family: inherit;
++  font-size: 0.75rem;
++  font-weight: 400;
++}
++
++.contract-disclosure {
++  border-block: 1px solid var(--rule);
++  color: var(--ink-muted);
++  font-size: 0.85rem;
++}
++
++.contract-disclosure summary {
++  padding-block: 0.85rem;
++  cursor: pointer;
++}
++
++.contract-disclosure .contract-detail {
++  padding: 0.5rem 0 1rem;
++}
++
++.skip-link {
++  position: absolute;
++  top: 0.5rem;
++  left: 1rem;
++  z-index: 20;
++  padding: 0.75rem 1rem;
++  transform: translateY(-200%);
++  background: var(--paper-raised);
++  color: var(--ink);
++}
++
++.skip-link:focus {
++  transform: none;
++}
++
++a:focus-visible,
++summary:focus-visible,
++.year-navigation__steps button:focus-visible {
++  outline: 3px solid var(--focus);
++  outline-offset: 3px;
++}
++
++::selection {
++  background: var(--cinnabar-wash);
++  color: var(--ink);
++}
++
++input {
++  caret-color: var(--cinnabar);
++}
++
+ .inquiry-entry-page {
+   display: grid;
+   width: 100%;
+@@ -403,7 +532,7 @@
+ 
+ .inquiry-entry-page__header h2 {
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(2.65rem, 6vw, 5.2rem);
++  font-size: clamp(1.8rem, 3vw, 2.5rem);
+   font-weight: 500;
+   line-height: 1.05;
+   letter-spacing: -0.045em;
+@@ -452,10 +581,10 @@
+ 
+ .annual-six-qi-selector legend {
+   width: 100%;
+-  padding: 1.2rem 0 1.75rem;
++  padding: 1rem 0 0.5rem;
+   border-top: 1px solid var(--rule-strong);
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
++  font-size: 1.5rem;
+   font-weight: 550;
+   letter-spacing: -0.025em;
+ }
+@@ -471,10 +600,10 @@
+ .annual-six-qi-selector__option {
+   display: grid;
+   min-width: 0;
+-  min-height: 13rem;
+-  gap: 0.6rem;
++  min-height: 9rem;
++  gap: 0.5rem;
+   align-content: start;
+-  padding: 1rem 0.8rem;
++  padding: 0.85rem 0.65rem;
+   border-right: 1px solid var(--rule);
+   background: var(--paper-raised);
+   color: var(--ink);
+@@ -521,7 +650,7 @@
+   gap: 0.35rem;
+   margin-top: auto;
+   color: var(--ink-muted);
+-  font-size: 0.7rem;
++  font-size: 0.75rem;
+   line-height: 1.45;
+   overflow-wrap: anywhere;
+ }
+@@ -532,7 +661,7 @@
+ }
+ 
+ .annual-six-qi-selector__range time {
+-  white-space: normal;
++  white-space: nowrap;
+ }
+ 
+ .annual-six-qi-selector__range > span[aria-hidden="true"] {
+@@ -542,8 +671,8 @@
+ .annual-six-qi-detail {
+   display: grid;
+   min-width: 0;
+-  gap: 1.75rem;
+-  padding: clamp(1.25rem, 3vw, 2rem);
++  gap: 1rem;
++  padding: 1.25rem;
+   border: 1px solid var(--rule-strong);
+   background: var(--paper-raised);
+ }
+@@ -562,7 +691,7 @@
+ 
+ .annual-six-qi-detail__header h2 {
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
++  font-size: 1.5rem;
+   font-weight: 550;
+   letter-spacing: -0.025em;
+ }
+@@ -601,7 +730,7 @@
+ 
+ .workbench-footer {
+   max-width: 74rem;
+-  margin: clamp(3.5rem, 7vw, 6.5rem) auto 0;
++  margin: 2rem auto 0;
+ }
+ 
+ .workbench-footer .contract-panel {
+@@ -611,16 +740,16 @@
+ .current-yunqi-hero {
+   display: grid;
+   grid-template-columns: minmax(0, 1.5fr) minmax(17rem, 0.8fr);
+-  gap: clamp(2rem, 5vw, 5rem);
++  gap: 1rem;
+   align-items: end;
+-  padding-bottom: 2rem;
++  padding-bottom: 1.25rem;
+   border-bottom: 1px solid var(--rule-strong);
+ }
+ 
+ .current-yunqi-hero h2 {
+-  margin: 0.55rem 0 1rem;
++  margin: 0 0 0.75rem;
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(2rem, 4.5vw, 4.5rem);
++  font-size: clamp(1.8rem, 3vw, 2.5rem);
+   font-weight: 500;
+   line-height: 1.05;
+   letter-spacing: -0.03em;
+@@ -637,8 +766,8 @@
+ .current-yunqi-hero__time {
+   display: grid;
+   gap: 0.8rem;
+-  padding: 1.25rem 0 0.3rem 1.5rem;
+-  border-left: 3px solid var(--cinnabar);
++  padding: 0.5rem 0 0.5rem 1rem;
++  border-left: 1px solid var(--rule);
+ }
+ 
+ .current-yunqi-hero__time > span:first-child {
+@@ -649,13 +778,13 @@
+ 
+ .time-analysis-page {
+   display: grid;
+-  gap: clamp(2.5rem, 5vw, 4.5rem);
++  gap: 1.5rem;
+ }
+ 
+ .time-analysis-hero {
+   display: grid;
+   gap: 0.9rem;
+-  padding-bottom: 2rem;
++  padding-bottom: 1.25rem;
+   border-bottom: 1px solid var(--rule-strong);
+ }
+ 
+@@ -665,13 +794,12 @@
+ }
+ 
+ .time-analysis-hero h2 {
+-  max-width: 10ch;
+-  margin: 0.55rem 0 1rem;
++  margin: 0 0 0.75rem;
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(2.65rem, 6vw, 5.2rem);
++  font-size: clamp(1.8rem, 3vw, 2.5rem);
+   font-weight: 500;
+   line-height: 1.05;
+-  letter-spacing: -0.045em;
++  letter-spacing: -0.025em;
+ }
+ 
+ .time-analysis-hero__summary {
+@@ -682,8 +810,8 @@
+ 
+ .time-analysis-form-panel {
+   display: grid;
+-  gap: 1.5rem;
+-  padding: clamp(1.25rem, 3vw, 2rem);
++  gap: 1rem;
++  padding: 1.25rem;
+   border: 1px solid var(--rule-strong);
+   background: var(--paper-muted);
+ }
+@@ -700,7 +828,7 @@
+ 
+ .time-analysis-form-panel h3 {
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.6rem, 3vw, 2.25rem);
++  font-size: 1.4rem;
+   font-weight: 550;
+ }
+ 
+@@ -718,7 +846,7 @@
+ 
+ .time-analysis-form__field {
+   display: grid;
+-  flex: 1 1 24rem;
++  flex: 1 1 19rem;
+   min-width: 0;
+   gap: 0.45rem;
+ }
+@@ -809,9 +937,26 @@
+   margin: 0;
+ }
+ 
++.time-analysis-form__hint {
++  flex-basis: 100%;
++  color: var(--ink-muted);
++  font-size: 0.85rem;
++  line-height: 1.65;
++}
++
++.time-analysis-form__hint span {
++  display: block;
++}
++
++.analysis-success {
++  margin: 0;
++  color: var(--cinnabar-deep);
++  font-weight: 600;
++}
++
+ .time-analysis-result {
+   display: grid;
+-  gap: clamp(2.5rem, 5vw, 4rem);
++  gap: 1.5rem;
+ }
+ 
+ .time-analysis-result__time {
+@@ -827,7 +972,7 @@
+ .time-analysis-result__time h3 {
+   margin: 0.45rem 0 0;
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.6rem, 3vw, 2.25rem);
++  font-size: 1.25rem;
+   font-weight: 550;
+ }
+ 
+@@ -893,8 +1038,8 @@
+ .time-analysis-stage-detail {
+   display: grid;
+   min-width: 0;
+-  gap: 1.75rem;
+-  padding: clamp(1.25rem, 3vw, 2rem);
++  gap: 1rem;
++  padding: 1.25rem;
+   border: 1px solid var(--rule-strong);
+   background: var(--paper-raised);
+ }
+@@ -913,7 +1058,7 @@
+ 
+ .time-analysis-stage-detail__header h2 {
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
++  font-size: 1.5rem;
+   font-weight: 550;
+   letter-spacing: -0.025em;
+ }
+@@ -985,7 +1130,7 @@
+   display: grid;
+   width: 100%;
+   min-width: 0;
+-  gap: 1.75rem;
++  gap: 1rem;
+ }
+ 
+ .ui-panel__header {
+@@ -1004,7 +1149,7 @@
+ .ui-panel__header h2 {
+   margin: 0;
+   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+-  font-size: clamp(1.8rem, 3.5vw, 2.8rem);
++  font-size: 1.5rem;
+   font-weight: 550;
+   letter-spacing: -0.025em;
+ }
+@@ -1017,9 +1162,10 @@
+ 
+ .summary-grid {
+   display: grid;
+-  grid-template-columns: 1.25fr 0.8fr 0.9fr;
++  grid-template-columns: 0.65fr 0.7fr 1.5fr 1fr 1fr;
++  gap: 1rem;
++  padding-block: 1rem;
+   border-block: 1px solid var(--rule);
+-  border-left: 1px solid var(--rule);
+ }
+ 
+ .ui-card {
+@@ -1053,8 +1199,8 @@
+ 
+ .data-label dt {
+   color: var(--ink-muted);
+-  font-size: 0.7rem;
+-  letter-spacing: 0.12em;
++  font-size: 0.8rem;
++  letter-spacing: 0.04em;
+ }
+ 
+ .data-label dd {
+@@ -1453,7 +1599,6 @@
+ @media (min-width: 46.01rem) and (max-width: 64rem) {
+   .current-yunqi-hero,
+   .ui-panel__header,
+-  .summary-grid,
+   .current-step__grid,
+   .relation-detail {
+     grid-template-columns: 1fr;
+@@ -1474,6 +1619,10 @@
+ 
+   .inquiry-capability-grid {
+     grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .summary-grid {
++    grid-template-columns: repeat(3, minmax(0, 1fr));
+   }
+ }
+ 
+@@ -1489,12 +1638,39 @@
+   }
+ 
+   .product-header {
+-    gap: 1.25rem;
++    flex-direction: row;
++    align-items: center;
++    gap: 0.5rem;
++    padding: 0.75rem 1rem;
++  }
++
++  .product-lockup {
++    gap: 0.5rem;
++  }
++
++  .product-seal {
++    width: 2rem;
++  }
++
++  .product-name {
++    font-size: 1.25rem;
++  }
++
++  .product-kicker {
++    font-size: 0.6rem;
++    letter-spacing: 0;
++  }
++
++  .foundation-status {
++    display: none;
+   }
+ 
+   .header-status {
+-    width: 100%;
+-    justify-content: space-between;
++    flex-shrink: 0;
++  }
++
++  .theme-toggle {
++    padding-inline: 0.5rem;
+   }
+ 
+   .shell-body {
+@@ -1502,22 +1678,45 @@
+   }
+ 
+   .workbench-navigation {
+-    padding: 1.25rem;
++    min-height: 0;
++    padding: 0.35rem 0.5rem;
++    z-index: 5;
+     border-right: 0;
+     border-bottom: 1px solid var(--rule);
+   }
+ 
+   .navigation-list {
+     grid-template-columns: repeat(4, minmax(0, 1fr));
+-    margin-bottom: 0;
++    margin: 0;
++    border: 0;
+   }
+ 
+   .navigation-item {
+-    align-items: flex-start;
++    align-items: center;
++    justify-content: center;
+     flex-direction: column;
+-    gap: 0.4rem;
+-    min-height: 5.2rem;
+-    padding: 0.75rem 0.35rem;
++    gap: 0.2rem;
++    min-height: 3.5rem;
++    padding: 0.35rem;
++    border: 0;
++    font-size: 0.85rem;
++    text-align: center;
++    text-decoration: none;
++  }
++
++  .navigation-item.is-active {
++    background: var(--cinnabar-wash);
++    box-shadow: inset 0 -2px var(--cinnabar);
++  }
++
++  .navigation-status {
++    margin: 0;
++    font-size: 0.65rem;
++  }
++
++  .navigation-mark,
++  .navigation-eyebrow {
++    display: none;
+   }
+ 
+   .navigation-note {
+@@ -1525,7 +1724,8 @@
+   }
+ 
+   .workbench-main {
+-    padding-block: 3.5rem;
++    padding: 1.5rem 1rem;
++    scroll-margin-top: 5rem;
+   }
+ 
+   .contract-panel {
+@@ -1538,15 +1738,24 @@
+     grid-template-columns: 1fr;
+   }
+ 
+-  .summary-grid,
+   .current-step__grid,
+   .relation-detail,
+   .time-analysis-stage-detail__facts {
+-    grid-template-columns: 1fr;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .current-step__grid > :first-child,
++  .annual-six-qi-detail__facts > :nth-child(2),
++  .time-analysis-stage-detail__facts > :nth-child(2) {
++    grid-column: 1 / -1;
+   }
+ 
+   .summary-grid {
+-    border-bottom: 0;
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
++  .summary-grid > :nth-child(3) {
++    grid-column: 1 / -1;
+   }
+ 
+   .annual-stage-rail {
+@@ -1554,22 +1763,50 @@
+   }
+ 
+   .time-analysis-stage-rail {
+-    grid-template-columns: 1fr;
+-  }
+-
+-  .annual-six-qi-selector__options,
+-  .annual-six-qi-detail__facts,
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
+   .inquiry-capability-grid {
+     grid-template-columns: 1fr;
+   }
+ 
++  .annual-six-qi-detail__facts {
++    grid-template-columns: repeat(2, minmax(0, 1fr));
++  }
++
+   .annual-six-qi-selector__options {
+-    border-bottom: 0;
++    grid-template-columns: repeat(3, minmax(0, 1fr));
+   }
+ 
+   .annual-six-qi-selector__option {
+     min-height: 0;
++    padding: 0.75rem 0.4rem;
+     border-bottom: 1px solid var(--rule);
++  }
++
++  .annual-six-qi-selector__range {
++    font-size: 0.75rem;
++  }
++
++  .annual-six-qi-selector__option strong {
++    font-size: 1rem;
++  }
++
++  .annual-six-qi-selector__range > span[aria-hidden="true"] {
++    display: none;
++  }
++
++  .time-analysis-form__field {
++    flex-basis: 100%;
++  }
++
++  .time-analysis-form > button {
++    width: 100%;
++  }
++
++  .current-yunqi-hero__time {
++    border: 0;
++    padding: 0;
+   }
+ 
+   .ui-card {
+--- before/tests/browser/README.md
++++ after/tests/browser/README.md
+@@ -95,7 +95,10 @@
+ | desktop-dark | 1440 × 1000 | Dark |
+ | mobile-dark | 390 × 844 | Dark |
+ 
+-This is 14 workflow tests plus 56 visual/accessibility tests. Narrow viewport
++This is 17 workflow tests plus 56 visual/accessibility tests. The three UX
++walkthrough regressions cover the current-year shortcut and bounded adjacent-year
++navigation, compact mobile stage selection with canonical time descriptions, and
++sticky navigation/skip-link/technical-disclosure keyboard recovery. Narrow viewport
+ emulation does not establish physical device, touch, screen-reader, Firefox or
+ WebKit compatibility. Screenshots are evidence for human inspection; there is
+ no approved pixel baseline and no claim of pixel-perfect regression coverage.
+--- before/tests/browser/ux-walkthrough.flows.spec.mjs
++++ after/tests/browser/ux-walkthrough.flows.spec.mjs
+@@ -0,0 +1,76 @@
++import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
++
++test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
++  await page.goto('/yunqi/year');
++  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
++  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
++  await settle(page);
++  expect(diagnostics.requests).toHaveLength(0);
++
++  await loadCurrent(page);
++  await page.getByRole('link', { name: '查看 2024 年六气' }).click();
++  await expect(page.locator('.summary-grid')).toContainText('2024');
++  await page.getByRole('radio', { name: '第 3 步 三之气', exact: true }).check();
++  await page.getByRole('button', { name: '下一年', exact: true }).click();
++  await expect(page).toHaveURL(/\/yunqi\/year\/2025$/);
++  await expect(page.locator('.summary-grid')).toContainText('2025');
++  await expect(page.getByRole('radio').first()).toBeChecked();
++  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeFocused();
++  await page.getByRole('button', { name: '上一年', exact: true }).click();
++  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2024');
++  await page.goBack();
++  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2025');
++
++  await page.getByRole('combobox', { name: '分析年份' }).selectOption('1900');
++  await expect(page.locator('.summary-grid')).toContainText('1900');
++  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
++  await page.getByRole('combobox', { name: '分析年份' }).selectOption('2100');
++  await expect(page.locator('.summary-grid')).toContainText('2100');
++  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
++  await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
++  await expect(page).toHaveURL(/\/yunqi\/year$/);
++  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
++  expect(diagnostics.requests.every(request => !/\/year\/(1899|2101)$/.test(request.url))).toBe(true);
++});
++
++test('mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions', async ({ page, diagnostics }, testInfo) => {
++  await page.setViewportSize({ width: 390, height: 844 });
++  await page.goto('/yunqi/year/2024');
++  const third = page.getByRole('radio', { name: '第 3 步 三之气', exact: true });
++  await third.check();
++  await expect(third).toHaveAccessibleDescription(/开始 2024-.*\+08:00，结束 2024-.*\+08:00，北京时间 UTC\+08/);
++  const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
++  await expect(detail).toBeVisible();
++  const selector = await page.locator('.annual-six-qi-selector__options').boundingBox();
++  const detailBox = await detail.boundingBox();
++  expect(selector.height, 'All six choices fit within a compact area').toBeLessThan(300);
++  expect(detailBox.y - (selector.y + selector.height), 'Feedback follows the choices without a large gap').toBeLessThan(32);
++  const detailDocumentY = await detail.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
++  expect(detailDocumentY, 'Selected details do not require several full-screen scrolls').toBeLessThan(1500);
++  await third.press('ArrowRight');
++  await expect(page.getByRole('region', { name: '已选择：四之气', exact: true })).toBeVisible();
++  await settle(page);
++  expect(diagnostics.requests).toHaveLength(1);
++  await screenshot(page, testInfo, 'mobile-stage-comparison');
++});
++
++test('sticky navigation, skip link and technical disclosure support keyboard recovery', async ({ page }, testInfo) => {
++  await page.setViewportSize({ width: 390, height: 844 });
++  await page.goto('/yunqi/year/2024');
++  await page.getByRole('region', { name: '追溯信息', exact: true }).scrollIntoViewIfNeeded();
++  await page.getByRole('link', { name: '指定时点', exact: true }).click();
++  await expect(page.getByRole('main')).toBeFocused();
++  await expect(page.getByRole('heading', { name: '指定时点分析', exact: true })).toBeInViewport();
++  await page.reload();
++  await page.keyboard.press('Tab');
++  await expect(page.getByRole('link', { name: '跳至主要内容' })).toBeFocused();
++  await page.keyboard.press('Enter');
++  await expect(page.getByRole('main')).toBeFocused();
++  const disclosure = page.locator('.contract-disclosure');
++  await disclosure.locator('summary').focus();
++  await page.keyboard.press('Enter');
++  await expect(disclosure.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeVisible();
++  await page.keyboard.press('Space');
++  await expect(disclosure.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeHidden();
++  await screenshot(page, testInfo, 'keyboard-technical-disclosure');
++});
+--- before/tests/browser/workbench.flows.spec.mjs
++++ after/tests/browser/workbench.flows.spec.mjs
+@@ -270,7 +270,8 @@
+   await page.goto('/yunqi/inquiry');
+   await expect(page.getByRole('heading', { name: '问诊结构化入口', exact: true })).toBeVisible();
+   await expect(page.getByRole('article')).toHaveCount(3);
+-  await expect(page.getByText('规划中', { exact: true })).toHaveCount(3);
++  await expect(page.getByRole('article').getByText('规划中', { exact: true })).toHaveCount(3);
++  await expect(page.getByRole('navigation', { name: '工作台导航' }).getByRole('link', { name: /问诊.*规划中/ })).toBeVisible();
+   await expect(page.getByRole('main').locator('button, input, select, textarea, a, [tabindex]')).toHaveCount(0);
+   await settle(page);
+   expect(diagnostics.requests).toHaveLength(0);

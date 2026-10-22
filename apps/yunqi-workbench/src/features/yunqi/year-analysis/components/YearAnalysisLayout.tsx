@@ -9,9 +9,8 @@ export function YearAnalysisLayout() {
   return (
     <div className="annual-yunqi-layout">
       <header>
-        <p className="section-label">Workbench / Annual</p>
         <h2>年度五运六气分析</h2>
-        <p>按规范 URL 年份查询冻结契约结果。</p>
+        <p>选择年份，查看该运气年的五运六气与六步交接。</p>
         <YearSelector
           selectedYear={yearResult.ok ? yearResult.year : undefined}
         />

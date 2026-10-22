@@ -1,6 +1,6 @@
 export const YUNQI_YEAR_RANGE = {
-  min: 1901,
-  max: 2099,
+  min: 1900,
+  max: 2100,
 } as const;
 
 function createYearOptions(): readonly number[] {

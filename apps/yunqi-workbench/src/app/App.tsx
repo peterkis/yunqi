@@ -8,19 +8,13 @@ export function App() {
       <AppRoutes />
 
       <footer className="workbench-footer">
-        <section
-          className="contract-panel"
-          aria-labelledby="contract-title"
-        >
-          <div>
-            <p className="section-label">Frozen API Contract</p>
-            <h3 id="contract-title">契约消费边界</h3>
-          </div>
+        <details className="contract-disclosure">
+          <summary>技术信息 · 接口契约</summary>
           <div className="contract-detail">
             <code>{YUNQI_API_CONTRACT_ID}</code>
             <p>仅消费冻结契约，不在展示层计算五运六气规则。</p>
           </div>
-        </section>
+        </details>
 
         <aside className="safety-note" aria-label="系统边界">
           <span aria-hidden="true">界</span>

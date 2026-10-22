@@ -1,0 +1,21 @@
+{
+  "scope": "Supplemental full reads to complete production-source coverage",
+  "files": [
+    {
+      "path": "packages/calendar-adapters/tyme4ts/src/date-time-input.ts",
+      "status": "REVIEWED",
+      "sha256": "b97bc7cbb16cb9dd90bce97fdcb456b67c3d3088f2e36d80f6a9db841cbde189"
+    },
+    {
+      "path": "packages/yunqi-service/src/server-config.ts",
+      "status": "REVIEWED",
+      "sha256": "0b7bfe22350785567dea8b4e5782f2e2ebf362dbb31bb6a8814688907d22b964"
+    }
+  ],
+  "findings": [],
+  "notes": [
+    "Legacy toYunQiInstant is explicitly retained in adapter README and not used by Service input normalization; explicit offset parsing uses UTC fields and never IANA/DST.",
+    "Terminal LF, CR, CRLF, Unicode line/paragraph separators and space were each probed against built adapter and all rejected with RangeError; no parser discrepancy confirmed.",
+    "server-config only controls loopback host/port and contributes no business time or rule semantics."
+  ]
+}

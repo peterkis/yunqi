@@ -158,7 +158,7 @@ export const SixQiDtoSchema = Type.Object(
 export const YunQiYearDtoSchema = Type.Object(
   {
     ruleVersion: Type.String({ minLength: 1 }),
-    year: Type.Integer({ minimum: 1901, maximum: 2099 }),
+    year: Type.Integer({ minimum: 1900, maximum: 2100 }),
     stemBranch: Type.Ref('StemBranchDto'),
     interval: Type.Ref('YunQiIntervalDto'),
     suiYun: Type.Ref('SuiYunDto'),
@@ -178,7 +178,7 @@ export const YunQiCalculationDtoSchema = Type.Object(
 );
 
 export const YearParamsSchema = Type.Object(
-  { year: Type.Integer({ minimum: 1901, maximum: 2099 }) },
+  { year: Type.Integer({ minimum: 1900, maximum: 2100 }) },
   { $id: 'YearParams', additionalProperties: false },
 );
 

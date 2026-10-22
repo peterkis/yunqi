@@ -17,3 +17,10 @@ Thumbs.db
 # Superpowers transient execution artifacts
 .superpowers/
 
+# Local execution artifacts and reproducible frontend caches
+.artifacts/
+docs/superpowers/verification/evidence/**/vite-cache/
+
+# Reviewed, repository-owned acceptance logs are durable evidence.
+!docs/superpowers/verification/evidence/2026-10-22-ux-walkthrough/*.log
+

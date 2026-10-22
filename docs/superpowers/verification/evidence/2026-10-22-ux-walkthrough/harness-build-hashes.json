@@ -1,0 +1,30 @@
+[
+  {
+    "Path": "D:\\Projects\\YunQi\\playwright.config.mjs",
+    "Hash": "70250F6B13A78D36FF8A596EEE6C566A7F57C1889E07F76B39D89402F69FC8BC"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\tests\\browser\\global-setup.mjs",
+    "Hash": "E6AC5E2E837031423993F721B210349300868418708409407424F1A01E0E73A4"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\tests\\browser\\fixtures.mjs",
+    "Hash": "4A8257C1F4BAFAFB95481490174274B374EE33E5E6A57273654BAE243F04B07A"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\tests\\browser\\ux-walkthrough.flows.spec.mjs",
+    "Hash": "EF3FA6E688CF805D9FCE922E6AF8D382F9EE34278912B6218059D8177FA9CACA"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\tests\\browser\\workbench.flows.spec.mjs",
+    "Hash": "D92A33B215346A1F755DEF39F7D5FE6D131C07E00C2CE7C96BBA01C76E1DAB99"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\tests\\browser\\workbench.visual.spec.mjs",
+    "Hash": "7DC2DC96B48DECF1A6C2CCCBC1B79E46D10EC983C489CEF23B4656E624EB1ACB"
+  },
+  {
+    "Path": "D:\\Projects\\YunQi\\apps\\yunqi-workbench\\dist\\index.html",
+    "Hash": "AF38820A487935CFC705DA459CD53D9A0AF33466C33BC70FB060325887A11A00"
+  }
+]

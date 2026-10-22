@@ -21,9 +21,14 @@ The Workbench uses declarative React Router routes:
 | `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
 | any other path | Workbench not-found page | Makes no YunQi request |
 
-Annual parameters must be exact four-digit years in the inclusive `1901–2099`
+Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without
 mounting the annual query owner or calling the API.
+
+The active API Contract is `YQ-API-CONTRACT-1.1.0`; the rule result identifies
+`YQ-MVP-RULES-1.1.0`. For `GUEST_GENERATES_HOST`, the direction label remains
+`客生主`, while the API-provided traditional description is `客生主，相得`.
+The Workbench renders these separate fields without deriving a rule relation.
 
 The URL is the only owner of the selected year. Browser history therefore
 restores both the year URL and its query result; no React state mirrors the
@@ -230,6 +235,26 @@ The shared annual summary displays the versioned implementation baseline's
 pending expert freeze/validation status. While `rules/RULE_FREEZE_NOTE.md`
 remains pending, production copy cannot claim frozen rules. API Contract
 freeze is a separate status and does not establish clinical validation.
+
+## Doctor-oriented walkthrough refinements
+
+The current view presents its current stage before annual context and links to
+the returned YunQi year. Annual navigation keeps the year in the URL, with
+bounded previous/next controls and no inferred default year. Changing the year
+keeps focus on the year controls; switching work areas moves focus to the main
+content. A keyboard skip link and sticky navigation support long-page reading.
+
+The six annual radio choices retain keyboard selection. Their compact labels
+share one Beijing-time note, while accessible descriptions and the selected
+detail retain the full API canonical boundaries. On narrow screens all six
+choices fit in two rows, immediately followed by the selected detail.
+
+Specified-time success announces the selected stage and shows its details
+before the annual overview. Native date/time entry, explicit submission,
+pending protection and dirty-result hiding are preserved. The inquiry link is
+marked as planned, and the repeated footer API-contract explanation is a
+keyboard-operable disclosure. Rule explanations and traceability remain
+available; no patient workflow or rule calculation is introduced.
 
 ## Runtime API base URL
 

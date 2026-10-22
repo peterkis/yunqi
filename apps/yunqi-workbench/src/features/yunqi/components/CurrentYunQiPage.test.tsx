@@ -1,21 +1,22 @@
 import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
 
 describe('CurrentYunQiPage', () => {
-  it('renders the complete summary-first current YunQi view', () => {
+  it('renders the current stage before the annual context', () => {
     render(
       <CurrentYunQiPage
         viewModel={mapCurrentYunQi(createYunQiCalculationDto())}
-      />,
+      />, { wrapper: MemoryRouter },
     );
 
     expect(
       screen.getByRole('heading', { name: '当前五运六气' }),
     ).toBeInTheDocument();
-    expect(screen.getByText('已版本化的 Phase 1 实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
+    expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
 
     const inputTime = screen.getByText('2026-06-19 12:00:00');
     expect(inputTime).toHaveAttribute(
@@ -32,7 +33,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(yearSummary).getByText('2026')).toBeInTheDocument();
     expect(within(yearSummary).getByText('丙午')).toBeInTheDocument();
     expect(
-      within(yearSummary).getByText('太羽 · 水 · 太过'),
+      within(yearSummary).getByText('水运太过（太羽）'),
     ).toBeInTheDocument();
     expect(
       within(yearSummary).getByText('少阳相火'),
@@ -47,7 +48,7 @@ describe('CurrentYunQiPage', () => {
     expect(
       within(current).getByRole('heading', { name: '三之气' }),
     ).toBeInTheDocument();
-    expect(within(current).getByText('客生主')).toBeInTheDocument();
+    expect(within(current).getByText('客生主，相得')).toBeInTheDocument();
 
     const timeline = screen.getByRole('region', {
       name: '六步交接时间线',
@@ -70,6 +71,11 @@ describe('CurrentYunQiPage', () => {
         name: '收起三之气详情',
       }),
     ).toHaveAttribute('aria-expanded', 'true');
+    const currentDetails = within(timeline).getByRole('region', {
+      name: '三之气详情',
+    });
+    expect(within(currentDetails).getByText('客生主')).toBeInTheDocument();
+    expect(within(currentDetails).getByText('客生主，相得')).toBeInTheDocument();
 
     const explanation = screen.getByRole('region', {
       name: '规则结果说明',
@@ -80,7 +86,7 @@ describe('CurrentYunQiPage', () => {
     expect(explanation).toHaveTextContent(
       '传统理论说明仅供医生学习与复盘。',
     );
-    expect(explanation).toHaveTextContent('前端未扩写');
+    expect(explanation).toHaveTextContent('供规则学习与核对');
 
     const trace = screen.getByRole('region', {
       name: '追溯信息',
@@ -89,8 +95,8 @@ describe('CurrentYunQiPage', () => {
       '本结果依据冻结规则计算。',
     );
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.0.0');
-    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.0.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
+    expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });
 });
