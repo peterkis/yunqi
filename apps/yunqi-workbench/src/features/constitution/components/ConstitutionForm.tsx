@@ -100,10 +100,11 @@ export function ConstitutionForm({ questionnaire }: { readonly questionnaire: Co
             </div>
             <div className="question-page-actions">
               <button className="secondary-button" type="button" disabled={pageIndex === 0 || mutation.isPending} onClick={() => changePage(pageIndex - 1)}>上一组</button>
+              {/* Keep the clicked navigation node from acquiring a submit default action on the last page. */}
               {pageIndex < pageCount - 1 ? (
-                <button className="primary-button" type="button" disabled={mutation.isPending} onClick={() => changePage(pageIndex + 1)}>下一组</button>
+                <button key="next-group" className="primary-button" type="button" disabled={mutation.isPending} onClick={() => changePage(pageIndex + 1)}>下一组</button>
               ) : (
-                <button className="primary-button" type="submit" disabled={mutation.isPending}>{mutation.isPending ? '正在计算…' : '生成体质测评结果'}</button>
+                <button key="submit-assessment" className="primary-button" type="submit" disabled={mutation.isPending}>{mutation.isPending ? '正在计算…' : '生成体质测评结果'}</button>
               )}
             </div>
           </>

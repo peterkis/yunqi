@@ -89,23 +89,44 @@ test('constitution workflow keeps the current context, prevents partial scoring 
   await expect(page.getByRole('form', { name: '中医体质量表' })).toBeVisible();
   await page.getByRole('radio', { name: '男', exact: true }).check();
   await expect(page.locator('.question-list input:checked')).toHaveCount(0);
-  while (await page.getByRole('button', { name: '下一组', exact: true }).isVisible()) {
-    await page.getByRole('button', { name: '下一组', exact: true }).click();
+  const groupCount = 5;
+  const groupHeading = page.locator('.question-group-heading');
+  const next = page.getByRole('button', { name: '下一组', exact: true });
+  const submit = page.getByRole('button', { name: '生成体质测评结果', exact: true });
+  await expect(groupHeading).toHaveText(`第 1 组 / 共 ${groupCount} 组`);
+  await expect(page.getByRole('alert')).toHaveCount(0);
+  for (let group = 2; group <= groupCount; group += 1) {
+    await expect(next).toHaveAttribute('type', 'button');
+    await next.click();
+    await expect(groupHeading).toHaveText(`第 ${group} 组 / 共 ${groupCount} 组`);
+    await expect(page.getByRole('alert')).toHaveCount(0);
   }
-  await page.getByRole('button', { name: '生成体质测评结果', exact: true }).click();
+  await expect(next).toHaveCount(0);
+  await expect(submit).toHaveAttribute('type', 'submit');
+  await submit.click();
   await expect(page.getByRole('alert')).toContainText('题未作答');
+  await expect(groupHeading).toHaveText(`第 1 组 / 共 ${groupCount} 组`);
   expect(diagnostics.requests.filter((request) => request.method === 'POST')).toHaveLength(0);
-  while (true) {
+  for (let group = 1; group <= groupCount; group += 1) {
+    await expect(groupHeading).toHaveText(`第 ${group} 组 / 共 ${groupCount} 组`);
     const questions = page.locator('.constitution-question');
-    for (let index = 0; index < await questions.count(); index += 1) {
+    const questionCount = group === groupCount ? 2 : 6;
+    await expect(questions).toHaveCount(questionCount);
+    for (let index = 0; index < questionCount; index += 1) {
       await questions.nth(index).getByRole('radio').first().check();
     }
-    const next = page.getByRole('button', { name: '下一组', exact: true });
-    if (!(await next.isVisible())) break;
-    await next.click();
+    await expect(page.getByRole('alert')).toHaveCount(0);
+    if (group < groupCount) {
+      await next.click();
+      await expect(groupHeading).toHaveText(`第 ${group + 1} 组 / 共 ${groupCount} 组`);
+      await expect(page.getByRole('alert')).toHaveCount(0);
+    }
   }
+  await expect(next).toHaveCount(0);
+  await expect(page.getByText('已答 26 / 26 题', { exact: true })).toBeVisible();
+  expect(diagnostics.requests.filter((request) => request.method === 'POST')).toHaveLength(0);
   const scoreResponsePromise = page.waitForResponse((response) => response.url().endsWith('/constitution/assess'));
-  await page.getByRole('button', { name: '生成体质测评结果', exact: true }).click();
+  await submit.click();
   const scoreResponse = await scoreResponsePromise;
   expect(scoreResponse.status()).toBe(200);
   const { data } = await scoreResponse.json();

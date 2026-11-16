@@ -12,6 +12,32 @@ async function answerVisible(user: ReturnType<typeof userEvent.setup>, label = '
 }
 
 describe('ConstitutionForm', () => {
+  it('replaces the final next control without converting the clicked button into a submit control', async () => {
+    const user = userEvent.setup();
+    const client = createClientStub();
+    render(<ConstitutionForm questionnaire={createQuestionnaireDto()} />, { wrapper: createTestWrapper(client) });
+    await user.click(screen.getByRole('radio', { name: '男' }));
+    const next = screen.getByRole('button', { name: '下一组' });
+    expect(next).toHaveAttribute('type', 'button');
+
+    await user.click(next);
+
+    const submit = screen.getByRole('button', { name: '生成体质测评结果' });
+    expect(submit).not.toBe(next);
+    expect(next).not.toBeInTheDocument();
+    expect(next).toHaveAttribute('type', 'button');
+    expect(submit).toHaveAttribute('type', 'submit');
+    expect(screen.getByRole('heading', { name: '第 2 组 / 共 2 组' })).toHaveFocus();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(client.assessConstitution).not.toHaveBeenCalled();
+
+    await user.click(submit);
+
+    expect(screen.getByRole('alert')).toHaveTextContent('还有 8 题未作答');
+    expect(screen.getByRole('heading', { name: '第 1 组 / 共 2 组' })).toHaveFocus();
+    expect(client.assessConstitution).not.toHaveBeenCalled();
+  });
+
   it('starts unanswered, prevents partial scoring, submits applicable answers and presents all returned dimensions', async () => {
     const user = userEvent.setup();
     const questionnaire = createQuestionnaireDto();
