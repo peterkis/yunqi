@@ -3,11 +3,13 @@ import { describe, expect, it } from 'vitest';
 import {
   compareCalendarTimes,
   formatYunQiCalendarTime,
+  nextCalendarMillisecond,
   normalizeApiDateTime,
   normalizeBirthRequest,
   normalizeCalculateRequest,
   normalizeEpochMilliseconds,
   normalizeYunQiInstant,
+  previousCalendarMillisecond,
 } from '../src/modules/time-normalizer/index.js';
 
 const EXPECTED_2026_NOON: YunQiCalendarTime = {
@@ -85,6 +87,21 @@ describe('Business Time Normalizer', () => {
     expect(compareCalendarTimes(boundary, equivalent)).toBe(0);
     expect(compareCalendarTimes(before, boundary)).toBeLessThan(0);
     expect(compareCalendarTimes(after, boundary)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    ['2026-11-16T12:00:00', '2026-11-16T12:00:00.001'],
+    ['2026-11-16T23:59:59.999', '2026-11-17T00:00:00'],
+    ['2025-12-31T23:59:59.999', '2026-01-01T00:00:00'],
+    ['2024-02-28T23:59:59.999', '2024-02-29T00:00:00'],
+    ['2024-02-29T23:59:59.999', '2024-03-01T00:00:00'],
+  ])('normalizes adjacent fixed-Beijing milliseconds across %s → %s', (before, after) => {
+    expect(formatYunQiCalendarTime(nextCalendarMillisecond(
+      normalizeApiDateTime(before),
+    )).localTime).toBe(`${after}+08:00`);
+    expect(formatYunQiCalendarTime(previousCalendarMillisecond(
+      normalizeApiDateTime(after),
+    )).localTime).toBe(`${before}+08:00`);
   });
 
   it('projects UTC across a calendar-year boundary without server time-zone input', () => {

@@ -278,8 +278,109 @@ describe('learning, birth comparison and constitution API with the real calendar
     expect(result.ambiguous).toBe(false);
     expect(result.candidates).toHaveLength(1);
     expect(itemAt(result.candidates, 0).from.localTime).toBe('2026-11-16T00:00:00+08:00');
-    expect(itemAt(result.candidates, 0).until.localTime).toBe('2026-11-16T12:00:00+08:00');
+    expect(itemAt(result.candidates, 0).until.localTime).toBe('2026-11-16T12:00:00.001+08:00');
     expect(now).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(
+    (['year', 'qi', 'movement'] as const).flatMap((kind) =>
+      [-1, 0, 1].map((delta) => ({ kind, delta })),
+    ),
+  )('includes the current millisecond for date-only today at $kind boundary $delta ms', async ({ kind, delta }) => {
+    const year = await annual(2024);
+    const boundary = kind === 'year'
+      ? year.interval.start
+      : kind === 'qi'
+        ? itemAt(year.sixQi.steps, 1).start
+        : itemAt((await learning('2024-08-15T12:00:00')).movements, 1).start;
+    currentEpoch = boundary.epochMilliseconds + delta;
+    const birthDate = boundary.localTime.slice(0, 10);
+    const result = await birth({ birthDate });
+
+    expect(result.birthPrecision).toBe('date');
+    expect(result.ambiguous).toBe(delta >= 0);
+    expect(result.candidates).toHaveLength(delta < 0 ? 1 : 2);
+    expect(result.current.facts.input.epochMilliseconds).toBe(currentEpoch);
+    expect(itemAt(result.candidates, 0).from.localTime).toBe(`${birthDate}T00:00:00+08:00`);
+    const last = itemAt(result.candidates, result.candidates.length - 1);
+    expect(last.until.epochMilliseconds).toBe(currentEpoch + 1);
+
+    const coveringNow = result.candidates.filter((candidate) =>
+      candidate.from.epochMilliseconds <= currentEpoch
+      && currentEpoch < candidate.until.epochMilliseconds,
+    );
+    expect(coveringNow).toHaveLength(1);
+    expect(itemAt(coveringNow, 0).learning.facts.year).toBe(result.current.facts.year);
+    expect(itemAt(coveringNow, 0).learning.facts.currentStep).toEqual(result.current.facts.currentStep);
+    expect(itemAt(coveringNow, 0).learning.currentMovement).toEqual(result.current.currentMovement);
+
+    for (let index = 0; index < result.candidates.length; index += 1) {
+      const candidate = itemAt(result.candidates, index);
+      expect(candidate.from.epochMilliseconds).toBeLessThan(candidate.until.epochMilliseconds);
+      expect(candidate.learning.facts.input.epochMilliseconds).toBeLessThanOrEqual(currentEpoch);
+      expect(candidate.until.epochMilliseconds).toBeLessThanOrEqual(currentEpoch + 1);
+      if (index > 0) {
+        expect(itemAt(result.candidates, index - 1).until).toEqual(candidate.from);
+      }
+    }
+    if (delta >= 0) {
+      expect(last.from).toEqual(boundary);
+      expect(itemAt(result.candidates, 0).until).toEqual(boundary);
+    }
+
+    // BirthRequest accepts whole seconds. Verify the latest representable
+    // precise time against the unique date-only interval that contains it.
+    const precise = await birth({ birthDate, birthTime: canonicalAt(currentEpoch).slice(11, 19) });
+    const exact = itemAt(precise.candidates, 0);
+    const matching = result.candidates.filter((candidate) =>
+      candidate.from.epochMilliseconds <= exact.from.epochMilliseconds
+      && exact.from.epochMilliseconds < candidate.until.epochMilliseconds,
+    );
+    expect(matching).toHaveLength(1);
+    expect(exact.until).toEqual(exact.from);
+    const matched = itemAt(matching, 0);
+    expect(matched.learning.facts.year).toBe(exact.learning.facts.year);
+    expect(matched.learning.facts.currentStep).toEqual(exact.learning.facts.currentStep);
+    expect(matched.learning.currentMovement).toEqual(exact.learning.currentMovement);
+    expect(matched.comparisons).toEqual(exact.comparisons);
+  });
+
+  it('returns a nonempty one-millisecond date-only interval at midnight', async () => {
+    currentEpoch = (await learning('2026-11-16T00:00:00')).facts.input.epochMilliseconds;
+    const result = await birth({ birthDate: '2026-11-16' });
+    expect(result.ambiguous).toBe(false);
+    expect(result.candidates).toHaveLength(1);
+    const candidate = itemAt(result.candidates, 0);
+    expect(candidate.from.localTime).toBe('2026-11-16T00:00:00+08:00');
+    expect(candidate.until.localTime).toBe('2026-11-16T00:00:00.001+08:00');
+    expect(candidate.until.epochMilliseconds - candidate.from.epochMilliseconds).toBe(1);
+    const exact = itemAt((await birth({ birthDate: '2026-11-16', birthTime: '00:00:00' })).candidates, 0);
+    expect(candidate.learning).toEqual(exact.learning);
+    expect(candidate.comparisons).toEqual(exact.comparisons);
+  });
+
+  it('caps the last current millisecond at the next midnight without spilling into another date', async () => {
+    currentEpoch = (await learning('2026-11-16T23:59:59.999')).facts.input.epochMilliseconds;
+    const result = await birth({ birthDate: '2026-11-16' });
+    const last = itemAt(result.candidates, result.candidates.length - 1);
+    expect(last.until.localTime).toBe('2026-11-17T00:00:00+08:00');
+    expect(last.until.epochMilliseconds).toBe(currentEpoch + 1);
+    expect(last.learning.facts.input.epochMilliseconds).toBeLessThanOrEqual(currentEpoch);
+    assertInvalid(await app.inject({ method: 'POST', url: BIRTH, payload: { birthDate: '2026-11-17' } }));
+  });
+
+  it('includes the final supported millisecond without calculating at the excluded 2101 DaHan endpoint', async () => {
+    const boundary = (await annual(2100)).interval.end;
+    currentEpoch = boundary.epochMilliseconds - 1;
+    const result = await birth({ birthDate: boundary.localTime.slice(0, 10) });
+    expect(result.current.facts.year).toBe(2100);
+    expect(result.ambiguous).toBe(false);
+    expect(result.candidates).toHaveLength(1);
+    const candidate = itemAt(result.candidates, 0);
+    expect(candidate.learning.facts.year).toBe(2100);
+    expect(candidate.until).toEqual(boundary);
+    expect(candidate.from.epochMilliseconds).toBeLessThanOrEqual(currentEpoch);
+    expect(currentEpoch).toBeLessThan(candidate.until.epochMilliseconds);
   });
 
   it('accepts today at the injected current instant but rejects a future time', async () => {

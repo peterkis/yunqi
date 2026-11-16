@@ -15,9 +15,11 @@ import { mapCalculationResult } from '../mappers/yunqi-mapper.js';
 import {
   compareCalendarTimes,
   formatYunQiCalendarTime,
+  nextCalendarMillisecond,
   normalizeBirthRequest,
   normalizeCalculateRequest,
   normalizeYunQiInstant,
+  previousCalendarMillisecond,
 } from '../modules/time-normalizer/index.js';
 import type {
   BirthComparisonDto,
@@ -177,8 +179,12 @@ export function calculateBirthComparison(
   }
 
   const nextDay = addBeijingCalendarDays(from, 1);
-  const until = compareCalendarTimes(nextDay, now) > 0 ? now : nextDay;
-  const final = learningAt(until, provider);
+  // Include the current valid millisecond while retaining a right-open range.
+  const afterNow = nextCalendarMillisecond(now);
+  const until = compareCalendarTimes(nextDay, afterNow) > 0 ? afterNow : nextDay;
+  // The excluded endpoint may belong to another, even unsupported, year.
+  // Only sample the last millisecond that actually belongs to the interval.
+  const final = learningAt(previousCalendarMillisecond(until), provider);
 
   // Partition the date at every actual qi/year or selected movement boundary.
   // A date-only request therefore never silently assumes midnight or noon.

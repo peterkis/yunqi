@@ -78,3 +78,15 @@ export function normalizeEpochMilliseconds(
 ): YunQiCalendarTime {
   return normalizeYunQiInstant(createYunQiInstant(epochMilliseconds));
 }
+
+export function nextCalendarMillisecond(
+  input: YunQiCalendarTime,
+): YunQiCalendarTime {
+  return normalizeEpochMilliseconds(input.instant.epochMilliseconds + 1);
+}
+
+export function previousCalendarMillisecond(
+  input: YunQiCalendarTime,
+): YunQiCalendarTime {
+  return normalizeEpochMilliseconds(input.instant.epochMilliseconds - 1);
+}
