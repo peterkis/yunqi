@@ -59,6 +59,26 @@ test('development origin serves real YunQi GET and POST responses through Vite',
     const invalid = await calculate('invalid');
     assert.equal(invalid.status, 400);
     assert.equal((await invalid.json()).code, 'INVALID_ARGUMENT');
+
+    const learning = await fetch(baseUrl + '/api/v1/yunqi/learning/current');
+    assert.equal(learning.status, 200);
+    assert.equal((await learning.json()).data.facts.input.localTime, '2024-01-20T22:07:22+08:00');
+
+    // The questionnaire uses a separate proxy prefix. Exercise both HTTP
+    // methods so a missing prefix cannot silently return the Vite HTML shell.
+    const questionnaire = await fetch(baseUrl + '/api/v1/constitution/questionnaire');
+    assert.equal(questionnaire.status, 200);
+    assert.match(questionnaire.headers.get('content-type') ?? '', /application\/json/);
+    const { data: questions } = await questionnaire.json();
+    assert.equal(questions.id, 'GBT46939-2025');
+    const assessment = await fetch(baseUrl + '/api/v1/constitution/assess', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ questionnaireId: questions.id, sex: 'male', answers: {} }),
+    });
+    assert.equal(assessment.status, 400);
+    assert.equal(assessment.headers.get('cache-control'), 'no-store');
+    assert.equal((await assessment.json()).code, 'INVALID_ARGUMENT');
   } finally {
     await vite?.close();
     await app.close();

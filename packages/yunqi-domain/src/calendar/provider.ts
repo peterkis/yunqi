@@ -1,6 +1,6 @@
 import type { YunQiInstant } from './time.js';
 
-export type SolarTerm = '大寒' | '春分' | '小满' | '大暑' | '秋分' | '小雪';
+export type SolarTerm = '大寒' | '春分' | '小满' | '芒种' | '大暑' | '处暑' | '秋分' | '立冬' | '小雪';
 
 /**
  * Provides astronomical solar-term instants only.

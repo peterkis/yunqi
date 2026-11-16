@@ -26,7 +26,8 @@ export default async function globalSetup() {
     expectedLocalTime: '2024-01-20T22:07:22+08:00',
     service: 'real local Fastify + tyme4ts',
     frontend: 'Vite same-origin proxy',
-    browserChannel: process.env.YUNQI_BROWSER_CHANNEL || 'bundled-chromium',
+    browserChannel: process.env.YUNQI_BROWSER_CHANNEL || (process.env.YUNQI_BROWSER_EXECUTABLE ? 'explicit-executable' : 'bundled-chromium'),
+    browserExecutable: process.env.YUNQI_BROWSER_EXECUTABLE ?? null,
     cleanupPassed: false,
   };
 

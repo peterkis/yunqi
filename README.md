@@ -4,16 +4,23 @@
 
 ## 项目简介
 
-中医五运六气与问诊结构化原型系统。
-
-项目目标： - 五运六气规则推算； - 中医问诊结构化； - 教学复盘； -
-专家规则审核。
+面向院内医生的五运六气计算、理论学习、出生时令对照和体质量表原型。
+项目保留问诊结构化与专家审核的后续规划；当前能力和授权边界见下文。
 
 本项目不是自动诊断、自动开方或医疗决策系统。
 
 ## 当前版本
 
-V1.0 MVP
+当前为 2026-11-16 医生反馈迭代，实施范围、选型和验收计划见
+[五项反馈实施计划](docs/plans/2026-11-16-clinician-feedback.md)。
+
+| 组件或契约 | 当前版本 |
+| --- | --- |
+| `@yunqi/domain` | `1.3.0` |
+| `@yunqi/service` | `2.2.0` |
+| `@yunqi/contracts` / `@yunqi/client` | `1.2.0` |
+| 业务 API Contract | `YQ-API-CONTRACT-1.2.0` |
+| OpenAPI 文档版本 / 规范版本 | `1.4.0` / `3.1.0` |
 
 第一阶段规则是已版本化的实现基线，待正式专家冻结与验证，状态以
 `rules/RULE_FREEZE_NOTE.md` 为准。API Contract 冻结不代表专家验证通过。
@@ -21,28 +28,45 @@ V1.0 MVP
 
 当前规则为 [YQ-MVP-RULES-1.1.0](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)。
 2026-10-18 按用户确认采用 Word R-08/R-21：支持1900–2100运气年，
-客生主传统描述为“客生主，相得”。[契约迁移说明](docs/contracts/YQ-API-CONTRACT-1.1.0.md)
-记录版本、兼容性和时间边界；原始确认单与旧冻结文件保留。
+客生主传统描述为“客生主，相得”。新增教学规则为
+[YQ-LEARNING-RULES-1.0.0](rules/LEARNING_RULES_V1.md)，量表规则为
+[YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
+[当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.2.0.md)记录新增接口及消费方影响；
+[1.0.0](docs/contracts/YQ-API-CONTRACT-1.0.0.md)、
+[1.1.0](docs/contracts/YQ-API-CONTRACT-1.1.0.md)说明、原始确认单与历史冻结文件保留。
+
+## 当前工作台能力
+
+- 当前页聚焦年度中运、司天、在泉，以及当下所属的运与气；其余阶段按需展开。
+- 年度司天与中运、当步主客气分别显示生克方向和传统关系提示，经典摘录、阅读释义及出处分别展示。
+- `/yunqi/birth` 将出生时令与当前运气并列对照。时刻不详时保留当日交界候选，不将取样点当作出生时刻；不从生日推断疾病或替代体质测评。
+- `/yunqi/constitution` 提供 `GB/T 46939-2025` 体质量表，每个性别实际作答 26 题，完整作答后显示九质评分、倾向及兼夹结果，并可同时查看当前运气。
+- `/yunqi/year` 与 `/yunqi/calculate` 保留年度及指定时点分析；`/yunqi/inquiry` 仍为问诊规划入口。
+
+五步运采用已标识的节气偏移教学口径，待专家确认。出生信息与量表答卷仅用于本次页面会话，
+不建立患者身份关联或答卷存储。量表依据公开正式标准实现，随后已与用户本地同版 PDF 的
+第5章及附录A核对；初始设备离线及后续核对证据见[量表说明](rules/CONSTITUTION-GBT46939-2025.md)。
 
 ## Workspace packages
 
-- `@yunqi/domain`: deterministic YunQi rules and authoritative calendar-time
-  calculation;
+- `@yunqi/domain`: deterministic YunQi rules, sourced learning explanations,
+  authoritative calendar-time calculation and constitution scoring;
 - `@yunqi/calendar-adapter-tyme4ts`: solar-term adapter;
 - `@yunqi/service`: Fastify runtime and OpenAPI schema source;
 - `@yunqi/contracts`: generated, browser-safe public DTO facade;
 - `@yunqi/client`: Fetch/Axios-structural typed browser client.
-- `@yunqi/workbench`: Phase3-E1 Vite/React read-only current, annual and
-  specified-time analysis, with an inquiry-planning entry.
+- `@yunqi/workbench`: Vite/React current, annual and specified-time analysis,
+  birth/current comparison, constitution assessment and an inquiry-planning entry.
 
-The Phase3 business API is frozen as `YQ-API-CONTRACT-1.1.0`. React consumers
+The current business API is defined by `YQ-API-CONTRACT-1.2.0`; machine freeze
+registration and drift checks are owned by `@yunqi/contracts`. React consumers
 must import DTOs from `@yunqi/contracts` and client behavior from
 `@yunqi/client`; they must not duplicate API DTOs.
 
 The Workbench dependency path is
 `@yunqi/workbench -> @yunqi/client -> @yunqi/contracts`. Provider
 infrastructure owns QueryClient, YunQiClient, and transport creation.
-The `/current` result passes through a pure DTO-to-ViewModel mapper before
+Business results pass through pure DTO-to-ViewModel mappers before
 rendering. Components do not import DTOs, perform transport, construct API
 paths, or call client methods. React Router owns navigation; feature hooks own
 queries and explicit specified-time submissions. Business time is rendered from canonical `localTime` and
@@ -67,27 +91,44 @@ re-exports remain allowed; mixed type/runtime re-exports are rejected.
 Feature presentation mappers may derive types from `@yunqi/contracts`, but
 cannot depend on React, TanStack Query, transport, or `@yunqi/client`.
 
+## Business API overview
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/yunqi/year/{year}` | Annual facts for YunQi years 1900–2100 |
+| GET | `/api/v1/yunqi/current` | Current core facts |
+| POST | `/api/v1/yunqi/calculate` | Core facts for an explicitly submitted time |
+| GET | `/api/v1/yunqi/learning/current` | Current facts, movements, relations and classical passages |
+| POST | `/api/v1/yunqi/learning/calculate` | Learning result for a submitted time |
+| POST | `/api/v1/yunqi/learning/birth-comparison` | Birth-period candidates and a current snapshot |
+| GET | `/api/v1/constitution/questionnaire` | Versioned questionnaire and scoring-item definitions |
+| POST | `/api/v1/constitution/assess` | Complete-answer assessment with all nine results |
+
+See the [Service README](packages/yunqi-service/README.md) for request formats,
+time boundaries and local startup. The five learning/constitution endpoints
+return `Cache-Control: no-store`.
+
 ## Workbench development
 
-From the repository root:
+Use Node.js 22 or newer and pnpm 10.32.1. From the repository root:
 
 ```text
-pnpm --filter @yunqi/workbench dev
-pnpm --filter @yunqi/workbench build
-pnpm --filter @yunqi/workbench test
-pnpm test:workbench-governance
+pnpm install --frozen-lockfile
+pnpm build
 ```
 
-For local development, run `pnpm build` first, then start the Service and
-Workbench in separate terminals:
+After the build, start the Service and Workbench in separate terminals:
 
 ```text
 pnpm --filter @yunqi/service start
 pnpm --filter @yunqi/workbench dev
 ```
 
+Workbench-only commands are `pnpm --filter @yunqi/workbench build`,
+`pnpm --filter @yunqi/workbench test` and `pnpm test:workbench-governance`.
+
 Leave `VITE_YUNQI_API_BASE_URL` unset (or empty). The Vite development server
-proxies `/api/v1/yunqi/` to `http://127.0.0.1:3000`, preserving the request
+proxies `/api/v1/yunqi/` and `/api/v1/constitution/` to `http://127.0.0.1:3000`, preserving the request
 path, method and body. The browser uses the Workbench origin for API requests.
 If the Service uses another port, set this server-only value in
 `apps/yunqi-workbench/.env.local` and restart Vite:
@@ -135,8 +176,9 @@ pnpm test:browser
 ```
 
 `pnpm test:browser:flows` 只检查流程；`pnpm test:browser:visual` 检查页面截图、
-布局和自动可访问性规则。测试覆盖当前状态、年度分析、指定时点分析、问诊规划入口
-和错误恢复，并接入 `quality-gates`。每次运行在 `.artifacts/browser/` 下保留独立报告、
+布局和自动可访问性规则。测试范围包括当前状态、年度分析、指定时点分析、出生对照、体质测评、
+问诊规划入口和错误恢复，并接入 `quality-gates`。具体执行状态以当次报告为准。
+每次运行在 `.artifacts/browser/` 下保留独立报告、
 截图和失败 trace，不覆盖之前的失败证据。
 
 详见 [浏览器验收说明](tests/browser/README.md)。这些是合成输入的工程验收，

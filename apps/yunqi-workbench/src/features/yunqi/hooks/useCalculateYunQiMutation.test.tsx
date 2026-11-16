@@ -1,3 +1,4 @@
+import { createClientStub } from '../../../test/learning-fixtures';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import type { YunQiClient } from '@yunqi/client';
 import { describe, expect, it, vi } from 'vitest';
@@ -9,6 +10,7 @@ describe('useCalculateYunQiMutation', () => {
   it('does not request before mutate and passes the exact request to the injected client', async () => {
     const response = createYunQiCalculationDto();
     const client: YunQiClient = {
+      ...createClientStub(),
       getCurrent: vi.fn(),
       getYear: vi.fn(),
       calculate: vi.fn().mockResolvedValue(response),
@@ -37,6 +39,7 @@ describe('useCalculateYunQiMutation', () => {
   it('exposes client errors without rewriting them', async () => {
     const error = new Error('service unavailable');
     const client: YunQiClient = {
+      ...createClientStub(),
       getCurrent: vi.fn(),
       getYear: vi.fn(),
       calculate: vi.fn().mockRejectedValue(error),

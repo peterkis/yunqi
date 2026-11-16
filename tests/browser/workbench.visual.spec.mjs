@@ -8,6 +8,10 @@ const cases = [
   { name: 'calculate-entry', path: '/yunqi/calculate', ready: '指定时点分析' },
   { name: 'calculate-result', path: '/yunqi/calculate', ready: '指定时点分析', calculate: true },
   { name: 'inquiry', path: '/yunqi/inquiry', ready: '问诊结构化入口' },
+  { name: 'birth-entry', path: '/yunqi/birth', ready: '出生运气对照' },
+  { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
+  { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
+  { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
 ];
 
@@ -19,6 +23,15 @@ for (const state of cases) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
       await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
+    }
+    if (state.birth) {
+      await page.getByLabel('出生日期（公历）').fill('1990-05-12');
+      await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+      await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
+    }
+    if (state.questionnaire) {
+      await page.getByRole('radio', { name: '男', exact: true }).check();
+      await expect(page.locator('.constitution-question')).toHaveCount(6);
     }
     if (acceptanceTheme === 'dark') {
       await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();

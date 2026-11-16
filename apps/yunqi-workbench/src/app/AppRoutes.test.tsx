@@ -1,3 +1,4 @@
+import { createClientStub } from '../test/learning-fixtures';
 import {
   fireEvent,
   render,
@@ -54,6 +55,7 @@ function renderAppAt(route: string, client: YunQiClient) {
 
 function createClient(overrides: Partial<YunQiClient> = {}): YunQiClient {
   return {
+    ...createClientStub(),
     getCurrent: vi.fn(),
     getYear: vi.fn(),
     calculate: vi.fn(),
@@ -80,6 +82,7 @@ function deferred<T>() {
 describe('AppRoutes', () => {
   it('replaces the root route with the current YunQi route', async () => {
     const client = createClient({
+      ...createClientStub(),
       getCurrent: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
     });
 
@@ -136,6 +139,7 @@ describe('AppRoutes', () => {
 
   it('queries exactly the validated URL year', async () => {
     const client = createClient({
+      ...createClientStub(),
       getYear: vi.fn().mockResolvedValue(createYunQiYearDto()),
     });
 
@@ -488,6 +492,7 @@ describe('AppRoutes', () => {
     const user = userEvent.setup();
     const pending2027 = deferred<ReturnType<typeof createYunQiYearDto>>();
     const client = createClient({
+      ...createClientStub(),
       getYear: vi.fn((year: number) =>
         year === 2026
           ? Promise.resolve(createYunQiYearDto())

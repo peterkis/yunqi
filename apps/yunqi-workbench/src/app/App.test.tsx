@@ -1,3 +1,4 @@
+import { createClientStub } from '../test/learning-fixtures';
 import { render, within } from '@testing-library/react';
 import type { YunQiClient } from '@yunqi/client';
 import { MemoryRouter } from 'react-router-dom';
@@ -10,6 +11,7 @@ import { App } from './App';
 describe('App', () => {
   it('renders the real current view against the frozen contract', async () => {
     const client: YunQiClient = {
+      ...createClientStub(),
       getCurrent: vi
         .fn()
         .mockResolvedValue(createYunQiCalculationDto()),
@@ -35,7 +37,7 @@ describe('App', () => {
     ).toBeInTheDocument();
     const footer = within(view.container).getByRole('contentinfo');
     expect(
-      within(footer).getByText('YQ-API-CONTRACT-1.1.0'),
+      within(footer).getByText('YQ-API-CONTRACT-1.2.0'),
     ).toBeInTheDocument();
     expect(
       within(footer).getByText(

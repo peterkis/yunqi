@@ -223,7 +223,7 @@ export const CalculationSuccessSchema = Type.Object(
   { $id: 'CalculationSuccessResponse', additionalProperties: false },
 );
 
-type YunQiSchemaContext = {
+export type YunQiSchemaContext = {
   YunQiTimeDto: typeof YunQiTimeDtoSchema;
   HostGuestRelationDto: typeof HostGuestRelationDtoSchema;
   SixQiStepDto: typeof SixQiStepDtoSchema;

@@ -1,17 +1,18 @@
+import { createClientStub, createLearningDto } from '../../../test/learning-fixtures';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { YunQiClient } from '@yunqi/client';
-import type { YunQiCalculationDto } from '@yunqi/contracts';
+import type { YunQiLearningDto } from '@yunqi/contracts';
 import { describe, expect, it, vi } from 'vitest';
 import { createTestWrapper } from '../../../test/test-utils';
-import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { CurrentYunQiView } from './CurrentYunQiView';
 
 describe('CurrentYunQiView', () => {
   it('renders loading while the current request is pending', () => {
     const client: YunQiClient = {
-      getCurrent: vi.fn(
-        () => new Promise<YunQiCalculationDto>(() => undefined),
+      ...createClientStub(),
+      getLearningCurrent: vi.fn(
+        () => new Promise<YunQiLearningDto>(() => undefined),
       ),
       getYear: vi.fn(),
       calculate: vi.fn(),
@@ -27,12 +28,13 @@ describe('CurrentYunQiView', () => {
   it('renders a sanitized failure and retries through the query hook', async () => {
     const user = userEvent.setup();
     const client: YunQiClient = {
-      getCurrent: vi
+      ...createClientStub(),
+      getLearningCurrent: vi
         .fn()
         .mockRejectedValueOnce(
           new Error('backend database password leaked'),
         )
-        .mockResolvedValueOnce(createYunQiCalculationDto()),
+        .mockResolvedValueOnce(createLearningDto()),
       getYear: vi.fn(),
       calculate: vi.fn(),
     };
@@ -54,14 +56,15 @@ describe('CurrentYunQiView', () => {
         name: '当前五运六气',
       }),
     ).toBeInTheDocument();
-    expect(client.getCurrent).toHaveBeenCalledTimes(2);
+    expect(client.getLearningCurrent).toHaveBeenCalledTimes(2);
   });
 
   it('maps successful current data into the read-only page', async () => {
     const client: YunQiClient = {
-      getCurrent: vi
+      ...createClientStub(),
+      getLearningCurrent: vi
         .fn()
-        .mockResolvedValue(createYunQiCalculationDto()),
+        .mockResolvedValue(createLearningDto()),
       getYear: vi.fn(),
       calculate: vi.fn(),
     };
@@ -76,6 +79,6 @@ describe('CurrentYunQiView', () => {
       }),
     ).toBeInTheDocument();
     expect(screen.getByText('丙午')).toBeInTheDocument();
-    expect(client.getCurrent).toHaveBeenCalledOnce();
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
   });
 });

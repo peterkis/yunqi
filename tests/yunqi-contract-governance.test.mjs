@@ -29,6 +29,40 @@ const repositoryRoot = resolve(
   '..',
 );
 
+const learningEndpoints = [
+  ['/api/v1/yunqi/learning/current', 'get', 'getLearningCurrent'],
+  ['/api/v1/yunqi/learning/calculate', 'post', 'calculateLearning'],
+  ['/api/v1/yunqi/learning/birth-comparison', 'post', 'compareBirth'],
+  ['/api/v1/constitution/questionnaire', 'get', 'getConstitutionQuestionnaire'],
+  ['/api/v1/constitution/assess', 'post', 'assessConstitution'],
+];
+
+const learningSchemaNames = [
+  'AssessmentSuccessResponse',
+  'BirthComparisonDto',
+  'BirthRequest',
+  'BirthSuccessResponse',
+  'ClassicalPassageDto',
+  'ConstitutionAssessmentDto',
+  'ConstitutionQuestionnaireDto',
+  'ConstitutionRequest',
+  'LearningRelationDto',
+  'LearningSuccessResponse',
+  'MovementStepDto',
+  'QuestionnaireSuccessResponse',
+  'YunQiLearningDto',
+];
+
+function readFrozenContract(contractId) {
+  return JSON.parse(readFileSync(join(repositoryRoot,
+    'packages/yunqi-contracts/contract', `${contractId}.freeze.json`), 'utf8'));
+}
+
+function readProductionDocument() {
+  return parse(readFileSync(join(repositoryRoot,
+    'packages/yunqi-service/openapi/yunqi-service.openapi.yaml'), 'utf8'));
+}
+
 test('Contract 1.1.0 changes only the approved year range and version identity', () => {
   const contractDirectory = join(
     repositoryRoot,
@@ -66,6 +100,113 @@ test('Contract 1.1.0 changes only the approved year range and version identity',
   ));
   assert.ok(registry.contractIds.includes(previous.contractId));
   assert.ok(registry.contractIds.includes(actual.contractId));
+});
+
+test('Contract 1.2.0 freezes all five added endpoints and exactly their new reachable schemas', () => {
+  const previous = readFrozenContract('YQ-API-CONTRACT-1.1.0');
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  const production = createContractProjection(readProductionDocument());
+
+  assert.equal(frozen.contractId, 'YQ-API-CONTRACT-1.2.0');
+  assert.equal(frozen.documentVersion, '1.4.0');
+  assert.equal(frozen.openapi, previous.openapi);
+  assert.deepEqual(Object.keys(frozen.paths).sort(), [
+    ...Object.keys(previous.paths), ...learningEndpoints.map(([path]) => path),
+  ].sort());
+  for (const [path, method, operationId] of learningEndpoints) {
+    assert.deepEqual(Object.keys(frozen.paths[path]), [method], path);
+    assert.equal(frozen.paths[path][method].operationId, operationId, path);
+  }
+  assert.deepEqual(Object.keys(frozen.schemas).filter((name) => !(name in previous.schemas)).sort(),
+    [...learningSchemaNames].sort());
+  assertContractProjectionMatchesFreeze(frozen, production);
+
+  const registry = JSON.parse(readFileSync(join(repositoryRoot,
+    'packages/yunqi-contracts/contract/registry.json'), 'utf8'));
+  assert.deepEqual(registry.contractIds, [
+    'YQ-API-CONTRACT-1.0.0', 'YQ-API-CONTRACT-1.1.0', 'YQ-API-CONTRACT-1.2.0',
+  ]);
+});
+
+test('Contract 1.2.0 preserves every legacy path, operation and schema from 1.1.0 exactly', () => {
+  const previous = readFrozenContract('YQ-API-CONTRACT-1.1.0');
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  const production = createContractProjection(readProductionDocument());
+
+  assert.equal(Object.keys(previous.paths).length, 3);
+  for (const [path, pathItem] of Object.entries(previous.paths)) {
+    assert.deepEqual(frozen.paths[path], pathItem, `frozen legacy path ${path}`);
+    assert.deepEqual(production.paths[path], pathItem, `production legacy path ${path}`);
+  }
+  for (const [name, schema] of Object.entries(previous.schemas)) {
+    assert.deepEqual(frozen.schemas[name], schema, `frozen legacy schema ${name}`);
+    assert.deepEqual(production.schemas[name], schema, `production legacy schema ${name}`);
+  }
+});
+
+test('Contract 1.2.0 requires every added path instead of silently projecting only the legacy API', () => {
+  const document = readProductionDocument();
+  for (const [path] of learningEndpoints) {
+    const changed = structuredClone(document);
+    delete changed.paths[path];
+    assert.throws(() => createContractProjection(changed),
+      (error) => error instanceof Error && error.message.includes(`business path missing: ${path}`), path);
+  }
+});
+
+test('Contract 1.2.0 detects missing methods and operation identity drift on every added endpoint', () => {
+  const document = readProductionDocument();
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  for (const [path, method] of learningEndpoints) {
+    const removed = structuredClone(document);
+    delete removed.paths[path][method];
+    assert.throws(() => assertContractProjectionMatchesFreeze(frozen, createContractProjection(removed)),
+      /frozen projection changed/i, `removed ${method} ${path}`);
+    const renamed = structuredClone(document);
+    renamed.paths[path][method].operationId += 'Changed';
+    assert.throws(() => assertContractProjectionMatchesFreeze(frozen, createContractProjection(renamed)),
+      /frozen projection changed/i, `renamed ${method} ${path}`);
+  }
+});
+
+test('Contract 1.2.0 detects drift in every new reachable schema', () => {
+  const document = readProductionDocument();
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  for (const name of learningSchemaNames) {
+    const changed = structuredClone(document);
+    const schema = changed.components.schemas[name];
+    assert.equal(schema.type, 'object', name);
+    schema.properties.freezeMutationProbe = { type: 'boolean' };
+    const projection = createContractProjection(changed);
+    assert.throws(() => assertContractProjectionMatchesFreeze(frozen, projection),
+      /frozen projection changed/i, name);
+    assert.throws(() => assertFreezeMayBeWritten(frozen, projection),
+      /Contract ID.*unchanged/i, name);
+  }
+});
+
+test('Contract 1.2.0 protects birth precision, questionnaire answers, movement bounds and source fields', () => {
+  const document = readProductionDocument();
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  const mutations = [
+    ['birth date required', (doc) => { doc.components.schemas.BirthRequest.required = []; }],
+    ['birth time grammar', (doc) => { doc.components.schemas.BirthRequest.properties.birthTime.pattern = '.*'; }],
+    ['birth precision enum', (doc) => { doc.components.schemas.BirthComparisonDto.properties.birthPrecision.anyOf.push({ type: 'string', enum: ['unknown'] }); }],
+    ['closed request object', (doc) => { doc.components.schemas.BirthRequest.additionalProperties = true; }],
+    ['five movement count', (doc) => { doc.components.schemas.YunQiLearningDto.properties.movements.maxItems = 6; }],
+    ['movement index', (doc) => { doc.components.schemas.MovementStepDto.properties.index.maximum = 6; }],
+    ['questionnaire version', (doc) => { doc.components.schemas.ConstitutionQuestionnaireDto.properties.id.enum.push('another-version'); }],
+    ['answer lower bound', (doc) => { doc.components.schemas.ConstitutionRequest.properties.answers.additionalProperties.minimum = 0; }],
+    ['answer integer type', (doc) => { doc.components.schemas.ConstitutionRequest.properties.answers.additionalProperties.type = 'number'; }],
+    ['relation sources required', (doc) => { doc.components.schemas.LearningRelationDto.required = doc.components.schemas.LearningRelationDto.required.filter((field) => field !== 'sources'); }],
+    ['classical quote type', (doc) => { doc.components.schemas.ClassicalPassageDto.properties.quote.type = 'number'; }],
+  ];
+  for (const [name, mutate] of mutations) {
+    const changed = structuredClone(document);
+    mutate(changed);
+    assert.throws(() => assertContractProjectionMatchesFreeze(frozen, createContractProjection(changed)),
+      /frozen projection changed/i, name);
+  }
 });
 
 function createDocument() {

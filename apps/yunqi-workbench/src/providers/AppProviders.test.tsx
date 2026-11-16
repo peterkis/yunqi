@@ -1,3 +1,4 @@
+import { createClientStub } from '../test/learning-fixtures';
 import { useQueryClient } from '@tanstack/react-query';
 import type { YunQiClient } from '@yunqi/client';
 import { render, screen } from '@testing-library/react';
@@ -9,6 +10,7 @@ import { useYunQiClient } from './YunQiClientProvider';
 
 function createFakeClient(): YunQiClient {
   return {
+    ...createClientStub(),
     getYear: async () => {
       throw new Error('not implemented');
     },

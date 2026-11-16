@@ -5,6 +5,16 @@ import type {
   YearSuccessResponse,
   YunQiCalculationDto,
   YunQiYearDto,
+  YunQiLearningDto,
+  LearningSuccessResponse,
+  BirthComparisonRequest,
+  BirthComparisonDto,
+  BirthSuccessResponse,
+  ConstitutionQuestionnaireDto,
+  ConstitutionRequest,
+  ConstitutionAssessmentDto,
+  QuestionnaireSuccessResponse,
+  AssessmentSuccessResponse,
 } from '@yunqi/contracts';
 
 export interface TransportRequest {
@@ -39,6 +49,11 @@ export interface YunQiClient {
   getYear(year: number): Promise<YunQiYearDto>;
   getCurrent(): Promise<YunQiCalculationDto>;
   calculate(request: CalculateRequest): Promise<YunQiCalculationDto>;
+  getLearningCurrent(): Promise<YunQiLearningDto>;
+  calculateLearning(request: CalculateRequest): Promise<YunQiLearningDto>;
+  compareBirth(request: BirthComparisonRequest): Promise<BirthComparisonDto>;
+  getConstitutionQuestionnaire(): Promise<ConstitutionQuestionnaireDto>;
+  assessConstitution(request: ConstitutionRequest): Promise<ConstitutionAssessmentDto>;
 }
 
 export interface FetchTransportOptions {
@@ -122,6 +137,26 @@ export function createYunQiClient(
           path: '/api/v1/yunqi/calculate',
           body: request,
         });
+      return response.data;
+    },
+    async getLearningCurrent() {
+      const response = await transport.request<LearningSuccessResponse>({ method: 'GET', path: '/api/v1/yunqi/learning/current' });
+      return response.data;
+    },
+    async calculateLearning(request) {
+      const response = await transport.request<LearningSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/calculate', body: request });
+      return response.data;
+    },
+    async compareBirth(request) {
+      const response = await transport.request<BirthSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/birth-comparison', body: request });
+      return response.data;
+    },
+    async getConstitutionQuestionnaire() {
+      const response = await transport.request<QuestionnaireSuccessResponse>({ method: 'GET', path: '/api/v1/constitution/questionnaire' });
+      return response.data;
+    },
+    async assessConstitution(request) {
+      const response = await transport.request<AssessmentSuccessResponse>({ method: 'POST', path: '/api/v1/constitution/assess', body: request });
       return response.data;
     },
   };

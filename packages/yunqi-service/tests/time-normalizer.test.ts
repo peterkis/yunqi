@@ -1,8 +1,11 @@
 import type { YunQiCalendarTime } from '@yunqi/domain';
 import { describe, expect, it } from 'vitest';
 import {
+  compareCalendarTimes,
   formatYunQiCalendarTime,
   normalizeApiDateTime,
+  normalizeBirthRequest,
+  normalizeCalculateRequest,
   normalizeEpochMilliseconds,
   normalizeYunQiInstant,
 } from '../src/modules/time-normalizer/index.js';
@@ -31,6 +34,57 @@ describe('Business Time Normalizer', () => {
     '2026-01-01T04:00:00Z',
   ])('normalizes equivalent input %s to one fixed Beijing CalendarTime', (input) => {
     expect(normalizeApiDateTime(input)).toEqual(EXPECTED_2026_NOON);
+    expect(normalizeCalculateRequest({ dateTime: input })).toEqual(
+      EXPECTED_2026_NOON,
+    );
+  });
+
+  it('preserves date-only birth precision separately from an explicit midnight', () => {
+    const dateOnly = normalizeBirthRequest({ birthDate: '2026-01-01' });
+    const explicitMidnight = normalizeBirthRequest({
+      birthDate: '2026-01-01',
+      birthTime: '00:00:00',
+    });
+
+    expect(dateOnly.precision).toBe('date');
+    expect(explicitMidnight.precision).toBe('time');
+    expect(dateOnly.from).toEqual(explicitMidnight.from);
+    expect(formatYunQiCalendarTime(dateOnly.from).localTime).toBe(
+      '2026-01-01T00:00:00+08:00',
+    );
+  });
+
+  it('normalizes a known birth time in the historical summer-time period as fixed Beijing time', () => {
+    const birth = normalizeBirthRequest({
+      birthDate: '1991-04-14',
+      birthTime: '02:30:00',
+    });
+
+    expect(birth.precision).toBe('time');
+    expect(formatYunQiCalendarTime(birth.from).localTime).toBe(
+      '1991-04-14T02:30:00+08:00',
+    );
+  });
+
+  it.each([
+    { birthDate: '2026-02-29' },
+    { birthDate: '2026-04-31', birthTime: '12:00:00' },
+    { birthDate: '2026-01-01', birthTime: '24:00:00' },
+  ])('rejects invalid Gregorian birth fields through the normalizer (%j)', (input) => {
+    expect(() => normalizeBirthRequest(input)).toThrowError(
+      expect.objectContaining({ name: 'InvalidArgumentError' }),
+    );
+  });
+
+  it('compares normalized calendar times at the year boundary with millisecond precision', () => {
+    const boundary = normalizeApiDateTime('2026-01-01T00:00:00');
+    const equivalent = normalizeApiDateTime('2025-12-31T16:00:00Z');
+    const before = normalizeApiDateTime('2025-12-31T23:59:59.999');
+    const after = normalizeApiDateTime('2026-01-01T00:00:00.001');
+
+    expect(compareCalendarTimes(boundary, equivalent)).toBe(0);
+    expect(compareCalendarTimes(before, boundary)).toBeLessThan(0);
+    expect(compareCalendarTimes(after, boundary)).toBeGreaterThan(0);
   });
 
   it('projects UTC across a calendar-year boundary without server time-zone input', () => {
@@ -98,6 +152,9 @@ describe('Business Time Normalizer', () => {
     '2026-01-01T24:00:00',
   ])('rejects unsupported or invalid input %s', (input) => {
     expect(() => normalizeApiDateTime(input)).toThrowError(
+      expect.objectContaining({ name: 'InvalidArgumentError' }),
+    );
+    expect(() => normalizeCalculateRequest({ dateTime: input })).toThrowError(
       expect.objectContaining({ name: 'InvalidArgumentError' }),
     );
   });

@@ -12,6 +12,8 @@ import {
 } from './plugins/openapi.js';
 import { healthRoutes } from './routes/health.js';
 import { yunqiRoutes } from './routes/yunqi.js';
+import { learningRoutes } from './routes/learning.js';
+import { constitutionRoutes } from './routes/constitution.js';
 import { contractSchemas } from './schemas/index.js';
 
 export interface BuildAppOptions {
@@ -53,6 +55,8 @@ export async function buildApp(
     now: options.now,
   });
   await registerSwaggerUi(app);
+  await app.register(learningRoutes, { prefix: '/api/v1/yunqi/learning', provider: options.provider, now: options.now });
+  await app.register(constitutionRoutes, { prefix: '/api/v1/constitution' });
 
   return app;
 }

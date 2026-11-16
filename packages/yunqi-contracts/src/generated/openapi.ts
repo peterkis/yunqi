@@ -4,6 +4,40 @@
  */
 
 export interface paths {
+    readonly "/api/v1/constitution/assess": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Score a complete questionnaire without retaining responses */
+        readonly post: operations["assessConstitution"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/constitution/questionnaire": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Versioned GB/T 46939-2025 questionnaire */
+        readonly get: operations["getConstitutionQuestionnaire"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/yunqi/calculate": {
         readonly parameters: {
             readonly query?: never;
@@ -30,6 +64,57 @@ export interface paths {
         };
         /** Get YunQi facts for the current instant */
         readonly get: operations["getCurrentYunQi"];
+        readonly put?: never;
+        readonly post?: never;
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/yunqi/learning/birth-comparison": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Compare birth-period facts and current facts without disease inference or storage */
+        readonly post: operations["compareBirth"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/yunqi/learning/calculate": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** YunQi learning notes for a selected fixed-Beijing time */
+        readonly post: operations["calculateLearning"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/yunqi/learning/current": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        /** Current YunQi facts with sourced learning notes */
+        readonly get: operations["getLearningCurrent"];
         readonly put?: never;
         readonly post?: never;
         readonly delete?: never;
@@ -76,6 +161,38 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        readonly AssessmentSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["ConstitutionAssessmentDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
+        readonly BirthComparisonDto: {
+            readonly ambiguous: boolean;
+            readonly birthPrecision: "date" | "time";
+            readonly candidates: readonly {
+                readonly comparisons: readonly components["schemas"]["LearningRelationDto"][];
+                readonly from: components["schemas"]["YunQiTimeDto"];
+                readonly label: string;
+                readonly learning: components["schemas"]["YunQiLearningDto"];
+                readonly until: components["schemas"]["YunQiTimeDto"];
+            }[];
+            readonly current: components["schemas"]["YunQiLearningDto"];
+            readonly message: string;
+            readonly ruleVersion: string;
+        };
+        readonly BirthRequest: {
+            readonly birthDate: string;
+            readonly birthTime?: string;
+        };
+        readonly BirthSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["BirthComparisonDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
         /**
          * @example {
          *       "dateTime": "2024-05-20T21:00:00"
@@ -97,6 +214,69 @@ export interface components {
             readonly data: components["schemas"]["YunQiCalculationDto"];
             /** @enum {string} */
             readonly message: "";
+        };
+        readonly ClassicalPassageDto: {
+            readonly chapter: string;
+            readonly explanation: string;
+            readonly id: string;
+            readonly quote: string;
+            readonly scope: string;
+            readonly section: string;
+            readonly sourceUrl: string;
+            readonly work: string;
+        };
+        readonly ConstitutionAssessmentDto: {
+            readonly boundaryNote: string;
+            readonly matchedTypes: readonly string[];
+            readonly questionnaireId: string;
+            readonly results: readonly {
+                readonly id: string;
+                readonly itemCount: number;
+                readonly label: string;
+                readonly name: string;
+                readonly rawScore: number;
+                readonly score: number;
+                readonly status: "yes" | "tendency" | "basically" | "no";
+            }[];
+            readonly sex: "male" | "female";
+            readonly summary: string;
+            readonly tendencyTypes: readonly string[];
+            readonly version: string;
+        };
+        readonly ConstitutionQuestionnaireDto: {
+            /** @enum {string} */
+            readonly id: "GBT46939-2025";
+            readonly instructions: readonly string[];
+            readonly options: readonly {
+                readonly label: string;
+                readonly value: number;
+            }[];
+            readonly questions: readonly {
+                readonly id: string;
+                readonly sex: "all" | "male" | "female";
+                readonly text: string;
+            }[];
+            readonly scales: readonly {
+                readonly id: string;
+                readonly items: readonly {
+                    readonly questionId: string;
+                    readonly reverse: boolean;
+                }[];
+                readonly name: string;
+            }[];
+            readonly sourceNote: string;
+            readonly sourceUrl: string;
+            readonly standard: string;
+            readonly title: string;
+            readonly version: string;
+        };
+        readonly ConstitutionRequest: {
+            readonly answers: {
+                readonly [key: string]: number;
+            };
+            /** @enum {string} */
+            readonly questionnaireId: "GBT46939-2025";
+            readonly sex: "male" | "female";
         };
         /**
          * @example {
@@ -151,6 +331,42 @@ export interface components {
             readonly qiRelation: "SAME_QI" | "DIFFERENT_QI";
             readonly traditionalLabel: string;
         };
+        readonly LearningRelationDto: {
+            readonly explanation: string;
+            readonly label: string;
+            readonly relation: string;
+            readonly sourceIds: readonly string[];
+            readonly sources: readonly {
+                readonly id: string;
+                readonly title: string;
+                readonly url: string;
+            }[];
+            readonly title: string;
+        };
+        readonly LearningSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["YunQiLearningDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
+        readonly MovementStepDto: {
+            readonly boundaryMethod: string;
+            readonly end: components["schemas"]["YunQiTimeDto"];
+            readonly explanation: string;
+            readonly guest: components["schemas"]["SuiYunDto"];
+            readonly host: components["schemas"]["SuiYunDto"];
+            readonly index: number;
+            readonly name: string;
+            readonly start: components["schemas"]["YunQiTimeDto"];
+        };
+        readonly QuestionnaireSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["ConstitutionQuestionnaireDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
         readonly SixQiDto: {
             readonly sitian: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly steps: readonly components["schemas"]["SixQiStepDto"][];
@@ -200,6 +416,17 @@ export interface components {
             readonly end: components["schemas"]["YunQiTimeDto"];
             readonly start: components["schemas"]["YunQiTimeDto"];
         };
+        readonly YunQiLearningDto: {
+            readonly annualPassages: readonly components["schemas"]["ClassicalPassageDto"][];
+            readonly annualRelation: components["schemas"]["LearningRelationDto"];
+            readonly currentMovement: components["schemas"]["MovementStepDto"];
+            readonly currentPassages: readonly components["schemas"]["ClassicalPassageDto"][];
+            readonly currentQi: components["schemas"]["LearningRelationDto"];
+            readonly facts: components["schemas"]["YunQiCalculationDto"];
+            readonly movements: readonly components["schemas"]["MovementStepDto"][];
+            readonly notes: readonly string[];
+            readonly ruleVersion: string;
+        };
         readonly YunQiTimeDto: {
             /** @enum {string} */
             readonly calendarTimeStandard: "BeijingStandardTime+08:00";
@@ -226,6 +453,104 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    readonly assessConstitution: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["ConstitutionRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["AssessmentSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly getConstitutionQuestionnaire: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["QuestionnaireSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
     readonly calculateYunQi: {
         readonly parameters: {
             readonly query?: never;
@@ -293,6 +618,155 @@ export interface operations {
                 };
                 content: {
                     readonly "application/json": components["schemas"]["CalculationSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly compareBirth: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["BirthRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["BirthSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly calculateLearning: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["CalculateRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["LearningSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly getLearningCurrent: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody?: never;
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["LearningSuccessResponse"];
                 };
             };
             /** @description Default Response */

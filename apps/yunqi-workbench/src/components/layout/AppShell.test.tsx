@@ -18,7 +18,7 @@ describe('AppShell', () => {
 
     const banner = screen.getByRole('banner');
     expect(banner).toHaveTextContent('TCM YunQi Lab');
-    expect(banner).toHaveTextContent('临床教学工作台 · 只读');
+    expect(banner).toHaveTextContent('临床教学工作台 · 学习与测评');
     expect(banner).not.toHaveTextContent('当前视图');
 
     const navigation = screen.getByRole('navigation', {

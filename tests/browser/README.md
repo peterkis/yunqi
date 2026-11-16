@@ -44,6 +44,12 @@ Remove-Item Env:YUNQI_BROWSER_CHANNEL
 The optional channel accepts only `msedge` or `chrome`. The environment record
 names the channel used; an Edge run is not reported as bundled Chromium.
 
+When the pinned browser download is unavailable, an installed browser can be
+selected explicitly with `YUNQI_BROWSER_EXECUTABLE=/absolute/path/to/chromium`.
+Do not combine this with a channel. The evidence records the executable and
+each test records the actual browser version; report the failed download and
+the installed-browser run separately. CI keeps its default bundled Chromium.
+
 ## Owned environment
 
 - Service and the frontend HTTP server each bind `127.0.0.1` on an OS-assigned

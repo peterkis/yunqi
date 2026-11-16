@@ -1,15 +1,20 @@
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import userEvent from '@testing-library/user-event';
+import { createLearningDto } from '../../../test/learning-fixtures';
 import { describe, expect, it } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
+import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
 
 describe('CurrentYunQiPage', () => {
-  it('renders the current stage before the annual context', () => {
+  it('focuses the year and current step while disclosing other stages on demand', async () => {
+    const user = userEvent.setup();
     render(
       <CurrentYunQiPage
         viewModel={mapCurrentYunQi(createYunQiCalculationDto())}
+        learning={mapLearning(createLearningDto())}
       />, { wrapper: MemoryRouter },
     );
 
@@ -50,6 +55,10 @@ describe('CurrentYunQiPage', () => {
     ).toBeInTheDocument();
     expect(within(current).getByText('客生主，相得')).toBeInTheDocument();
 
+    expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
+    expect(screen.getByText('不和', { exact: true })).toBeVisible();
+    expect(screen.getByText('相得', { exact: true })).toBeVisible();
+    await user.click(screen.getByText('展开全年六气'));
     const timeline = screen.getByRole('region', {
       name: '六步交接时间线',
     });
@@ -77,6 +86,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(currentDetails).getByText('客生主')).toBeInTheDocument();
     expect(within(currentDetails).getByText('客生主，相得')).toBeInTheDocument();
 
+    await user.click(screen.getByText('计算说明与版本'));
     const explanation = screen.getByRole('region', {
       name: '规则结果说明',
     });
@@ -95,7 +105,7 @@ describe('CurrentYunQiPage', () => {
       '本结果依据冻结规则计算。',
     );
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.1.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });

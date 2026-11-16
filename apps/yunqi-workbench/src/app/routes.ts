@@ -8,6 +8,22 @@ export const navigationItems = [
     end: true,
   },
   {
+    id: 'birth',
+    label: '出生运气对照',
+    mark: '先',
+    status: 'enabled',
+    to: '/yunqi/birth',
+    end: true,
+  },
+  {
+    id: 'constitution',
+    label: '体质测评',
+    mark: '体',
+    status: 'enabled',
+    to: '/yunqi/constitution',
+    end: true,
+  },
+  {
     id: 'annual',
     label: '年度分析',
     mark: '年',
