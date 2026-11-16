@@ -1,0 +1,4 @@
+packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts:100: new blank line at EOF.
+rules/CLASSICAL_READING_V1_1.md:163: new blank line at EOF.
+
+exitCode=2

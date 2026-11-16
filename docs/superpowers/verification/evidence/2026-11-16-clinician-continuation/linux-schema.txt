@@ -1,0 +1,14 @@
+$ pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts
+$ pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-service
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  12:53:16
+   Duration  1.10s (transform 148ms, setup 0ms, import 329ms, tests 671ms, environment 0ms)
+

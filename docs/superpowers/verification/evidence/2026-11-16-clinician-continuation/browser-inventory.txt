@@ -1,0 +1,120 @@
+Listing tests:
+  [flows-chromium] › birth-assessment.flows.spec.mjs:33:1 › same-page birth assessment reads matching annual and period passages, scores once and clears its session
+  [flows-chromium] › birth-assessment.flows.spec.mjs:135:1 › same-page assessment ignores an older real scoring response after birth inputs create a new session
+  [flows-chromium] › learning.flows.spec.mjs:10:1 › current teaching view keeps other stages folded and exposes original excerpts and relationship sources by keyboard
+  [flows-chromium] › learning.flows.spec.mjs:42:1 › birth comparison submits only requested precision, displays both contexts and clears edited personal data
+  [flows-chromium] › learning.flows.spec.mjs:85:1 › constitution workflow keeps the current context, prevents partial scoring and shows all nine independent results
+  [flows-chromium] › ux-walkthrough.flows.spec.mjs:3:1 › current-year shortcut and adjacent-year controls retain URL, bounds and history
+  [flows-chromium] › ux-walkthrough.flows.spec.mjs:36:1 › mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions
+  [flows-chromium] › ux-walkthrough.flows.spec.mjs:57:1 › sticky navigation, skip link and technical disclosure support keyboard recovery
+  [flows-chromium] › workbench.flows.spec.mjs:3:1 › current route redirects, renders canonical time and closes every stage disclosure
+  [flows-chromium] › workbench.flows.spec.mjs:32:1 › annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop
+  [flows-chromium] › workbench.flows.spec.mjs:117:3 › invalid year abc shows a recoverable message without a business query
+  [flows-chromium] › workbench.flows.spec.mjs:117:3 › invalid year 2024extra shows a recoverable message without a business query
+  [flows-chromium] › workbench.flows.spec.mjs:117:3 › invalid year 1899 shows a recoverable message without a business query
+  [flows-chromium] › workbench.flows.spec.mjs:117:3 › invalid year 2101 shows a recoverable message without a business query
+  [flows-chromium] › workbench.flows.spec.mjs:129:1 › specified time is submit-only, rejects empty input and hides stale results after editing
+  [flows-chromium] › workbench.flows.spec.mjs:163:1 › supported annual boundary years load directly from the real API
+  [flows-chromium] › workbench.flows.spec.mjs:183:1 › a real unsupported calculation receives sanitized feedback and recovers after editing
+  [flows-chromium] › workbench.flows.spec.mjs:198:1 › pending calculation disables input and repeated activation sends only one real request
+  [flows-chromium] › workbench.flows.spec.mjs:228:1 › calculation outage is sanitized and retry recovers using the real API
+  [flows-chromium] › workbench.flows.spec.mjs:254:3 › /yunqi/current recovers after a single failed GET
+  [flows-chromium] › workbench.flows.spec.mjs:254:3 › /yunqi/year/2024 recovers after a single failed GET
+  [flows-chromium] › workbench.flows.spec.mjs:272:1 › inquiry remains a no-query planning entry and invalid child routes return to current
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [desktop-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [breakpoint-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [tablet-boundary-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [tablet-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [mobile-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [narrow-light] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [desktop-dark] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual current: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual annual-entry: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual annual-result: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual calculate-entry: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual calculate-result: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual inquiry: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-entry: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-result: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual constitution-entry: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual constitution-questions: screenshot, readable layout and accessibility
+  [mobile-dark] › workbench.visual.spec.mjs:20:3 › @visual not-found: screenshot, readable layout and accessibility
+Total: 118 tests in 5 files

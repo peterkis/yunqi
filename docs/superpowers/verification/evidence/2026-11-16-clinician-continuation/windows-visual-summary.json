@@ -1,0 +1,301 @@
+{
+  "runDirectory": ".artifacts/browser/continuation-9f27c178dad3-visual",
+  "sourceResultsSha256": "26e47a10098c9aff82fe5952f3914c49d921a1bfbce6849c8a7d09494f4c3bd2",
+  "stats": {
+    "startTime": "2026-11-16T03:57:23.837Z",
+    "duration": 52825.591,
+    "expected": 8,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserVersions": [
+    "157.0.8103.39"
+  ],
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "chrome",
+    "browserExecutable": null,
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:49252",
+    "serviceURL": "http://127.0.0.1:49251",
+    "cleanupErrors": []
+  },
+  "tests": [
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 9729,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-desktop-light\\attachments\\birth-assessment-7dd1626ad2382faa9407fbad6943194bdf25862f.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 8800,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-breakpoint-light\\attachments\\birth-assessment-b62af739333c8cfc252873b70ccf84b4e667b23b.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 8699,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-tablet-boundary-light\\attachments\\birth-assessment-b8094983d68295ce4ba88f6eb9362d4434887837.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 8033,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-tablet-light\\attachments\\birth-assessment-704602c11d6c089ddee8b05e672a97488ac14644.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 7630,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-mobile-light\\attachments\\birth-assessment-89d5c6f4b15ee93a1f61da5080744ac81780f27f.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 7002,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-narrow-light\\attachments\\birth-assessment-915bbe1c1cb34e95b3830bc23836043fe6a649f9.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 7660,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-desktop-dark\\attachments\\birth-assessment-1ce6b12378ea10d061ac83a19e7ad82e850e76d2.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-assessment: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 20,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 7063,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-assessment",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-visual\\results\\workbench.visual--visual-b-7804b-le-layout-and-accessibility-mobile-dark\\attachments\\birth-assessment-b8d6c7ccc0c27b8e1dec9727585658820f07e018.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

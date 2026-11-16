@@ -1,0 +1,193 @@
+﻿{
+    "head":  "d31e038f4b6c5650288063cf44d52d267a01494a",
+    "trackedStatus":  "",
+    "files":  [
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\2026-10-22-expert-consensus-audit.md",
+                      "expected":  "b3c598fdaa877c3555ff180972f9fa81e8cf751be66ca498d93a119918cef4c8",
+                      "actual":  "b3c598fdaa877c3555ff180972f9fa81e8cf751be66ca498d93a119918cef4c8",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\中医体质分类与判定.pdf",
+                      "expected":  "9395f4e137971be3d2950fcd267f7c09b8c40eafefc54093fbdb0e892109fa5b",
+                      "actual":  "9395f4e137971be3d2950fcd267f7c09b8c40eafefc54093fbdb0e892109fa5b",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\annual-boundary-1900.png",
+                      "expected":  "0232e8bafea363c77354292127938beebb2e89ed19471e38b7382ccbe757a52f",
+                      "actual":  "0232e8bafea363c77354292127938beebb2e89ed19471e38b7382ccbe757a52f",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\annual-boundary-2100.png",
+                      "expected":  "e3eaf445842f8c107b5c4c1a1a40492330a30d5a4789bbb43000638b07fe7435",
+                      "actual":  "e3eaf445842f8c107b5c4c1a1a40492330a30d5a4789bbb43000638b07fe7435",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\annual-upgraded-guest-generates-host.png",
+                      "expected":  "7adb3a311c41d2275ce25c483982586b30cacbae492a4f948b260f16e799ad9d",
+                      "actual":  "7adb3a311c41d2275ce25c483982586b30cacbae492a4f948b260f16e799ad9d",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\browser-environment.json",
+                      "expected":  "f5f1c6d6f9a6151aae078676c628ce797b3c66c59f6aa3aeb3aeeb292b43d6b0",
+                      "actual":  "f5f1c6d6f9a6151aae078676c628ce797b3c66c59f6aa3aeb3aeeb292b43d6b0",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\browser-flows.log",
+                      "expected":  "c04a9d61604a912faff81aaee29732b203deae734caac783064ebfde2168777d",
+                      "actual":  "c04a9d61604a912faff81aaee29732b203deae734caac783064ebfde2168777d",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\browser-results.json",
+                      "expected":  "1235f2789806ebf3cc82e195a8ae6bff6c293c31034ccd4e987a1673da48a8e4",
+                      "actual":  "1235f2789806ebf3cc82e195a8ae6bff6c293c31034ccd4e987a1673da48a8e4",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\browser-summary.json",
+                      "expected":  "7272c8cf238a11ebda515c5aa68fdfa9d7edc43808816e71cf8999eac7a02fc6",
+                      "actual":  "7272c8cf238a11ebda515c5aa68fdfa9d7edc43808816e71cf8999eac7a02fc6",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\build-manifest.json",
+                      "expected":  "816baa62a7941ef9d4805c41536a6c1ebed68d42cf5935bfb632dd5c9eb82c91",
+                      "actual":  "816baa62a7941ef9d4805c41536a6c1ebed68d42cf5935bfb632dd5c9eb82c91",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\calculated-real-api.png",
+                      "expected":  "a36dbf3fb33859035fa82622cfdc48d8aad3a054a6926dc7dde7a98534afa2ce",
+                      "actual":  "a36dbf3fb33859035fa82622cfdc48d8aad3a054a6926dc7dde7a98534afa2ce",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\check-results.json",
+                      "expected":  "b2a40c71d647e8d417fa547a2edfe0f18db504c3a83bff56414a7efe7f48947d",
+                      "actual":  "b2a40c71d647e8d417fa547a2edfe0f18db504c3a83bff56414a7efe7f48947d",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\contracts-check.log",
+                      "expected":  "b23fae7e7501c3b6685cee6f3f37a15d2a644089e183a8b9c9872aef86ddb85c",
+                      "actual":  "b23fae7e7501c3b6685cee6f3f37a15d2a644089e183a8b9c9872aef86ddb85c",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\full-test.log",
+                      "expected":  "a41ca86d0b487b6e4df513757588e7b54a7adc6dd7253699663b863be9908f4b",
+                      "actual":  "a41ca86d0b487b6e4df513757588e7b54a7adc6dd7253699663b863be9908f4b",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\http-cleanup.json",
+                      "expected":  "9e2aa0f795e2248ab57f3b9ff14757e3640c2008a61355c3a44198df57602518",
+                      "actual":  "9e2aa0f795e2248ab57f3b9ff14757e3640c2008a61355c3a44198df57602518",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\openapi-check.log",
+                      "expected":  "9ff74bb83df067d41d7c93d88cf76cc7970ca4b3c84bfdab7b1f08d07b633278",
+                      "actual":  "9ff74bb83df067d41d7c93d88cf76cc7970ca4b3c84bfdab7b1f08d07b633278",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\openapi-lint-recheck.log",
+                      "expected":  "8adbc1f345b3a2680e49ea3b94447da8a4b2a67d4d93adb9fee3bc0e2a35d6b9",
+                      "actual":  "8adbc1f345b3a2680e49ea3b94447da8a4b2a67d4d93adb9fee3bc0e2a35d6b9",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\preservation.json",
+                      "expected":  "e8688b4cdb790fd5822136e4a76e456632f1636b445862ee27a95e7061aa7a46",
+                      "actual":  "e8688b4cdb790fd5822136e4a76e456632f1636b445862ee27a95e7061aa7a46",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\probe-initial-failure.json",
+                      "expected":  "450bcc4a1bb4a490bdbcf16a516c9d60cb8df0a7387966c47d4c7db5ea026f7a",
+                      "actual":  "450bcc4a1bb4a490bdbcf16a516c9d60cb8df0a7387966c47d4c7db5ea026f7a",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\project-guidance.log",
+                      "expected":  "2db7d7dd0357ad6e1aa035a5081aedf88cd9b923e01bcdadd1cb253ccdae6bca",
+                      "actual":  "2db7d7dd0357ad6e1aa035a5081aedf88cd9b923e01bcdadd1cb253ccdae6bca",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\rule-consistency.log",
+                      "expected":  "2b79c485518d51cf28f8d7459b450f39dd497b1ff215f70011c9b28f5a0c82b0",
+                      "actual":  "2b79c485518d51cf28f8d7459b450f39dd497b1ff215f70011c9b28f5a0c82b0",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\schema-validate.log",
+                      "expected":  "d45c61853c50a2f39c82a5989425c399b42c22431679f53b47665dd9fc506922",
+                      "actual":  "d45c61853c50a2f39c82a5989425c399b42c22431679f53b47665dd9fc506922",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\source-before.json",
+                      "expected":  "73d6aa852d3246702aa6032a85dcd4289a6de9679091e2f659108af53e9fef65",
+                      "actual":  "73d6aa852d3246702aa6032a85dcd4289a6de9679091e2f659108af53e9fef65",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\summary.json",
+                      "expected":  "dae71f65f25c816ee0b41ca536d35f45e18e7c19cd8e826d57fc747435138b9a",
+                      "actual":  "dae71f65f25c816ee0b41ca536d35f45e18e7c19cd8e826d57fc747435138b9a",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime-audit.mjs",
+                      "expected":  "12e24c4283a5377ba4fbd186d5cca6feedfe4787bada577b95f23a2c28c68bd0",
+                      "actual":  "12e24c4283a5377ba4fbd186d5cca6feedfe4787bada577b95f23a2c28c68bd0",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime-final.log",
+                      "expected":  "ff1dea5ee7f5e185033d42999545dd24a2bf382f8ee2f25f65333307b3cb8448",
+                      "actual":  "ff1dea5ee7f5e185033d42999545dd24a2bf382f8ee2f25f65333307b3cb8448",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime-initial-failure.log",
+                      "expected":  "6d28dc8446c288f0ae4423dcb1b26c65902f49f727c93625c006c31a032fac58",
+                      "actual":  "6d28dc8446c288f0ae4423dcb1b26c65902f49f727c93625c006c31a032fac58",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime-initial.mjs.txt",
+                      "expected":  "abd0f5f0e28f1afd218b4db014486554459a8d3ede36c5d392ae01609cf67109",
+                      "actual":  "abd0f5f0e28f1afd218b4db014486554459a8d3ede36c5d392ae01609cf67109",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime-results.json",
+                      "expected":  "a3319a311793246c5d9997d9ec1f56115c7ecd7a5e4ec9e0e01123f08596c2de",
+                      "actual":  "a3319a311793246c5d9997d9ec1f56115c7ecd7a5e4ec9e0e01123f08596c2de",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-runtime.log",
+                      "expected":  "6d28dc8446c288f0ae4423dcb1b26c65902f49f727c93625c006c31a032fac58",
+                      "actual":  "6d28dc8446c288f0ae4423dcb1b26c65902f49f727c93625c006c31a032fac58",
+                      "unchanged":  true
+                  },
+                  {
+                      "path":  "D:\\Projects\\YunQi\\docs\\superpowers\\verification\\evidence\\2026-10-22-expert-consensus\\word-source.json",
+                      "expected":  "b5605ad83d28b4c4f4a67bb5c8f2fcf1add67812dc275f98221f083d9b4d24c6",
+                      "actual":  "b5605ad83d28b4c4f4a67bb5c8f2fcf1add67812dc275f98221f083d9b4d24c6",
+                      "unchanged":  true
+                  }
+              ],
+    "allPreserved":  true
+}

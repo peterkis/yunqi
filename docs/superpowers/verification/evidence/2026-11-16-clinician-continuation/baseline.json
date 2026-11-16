@@ -1,0 +1,20 @@
+{
+  "baseHead": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "baseTree": "ab5c9e63535931e374e9d86b2aaba2aa89ec6272",
+  "branch": "feat/clinical-learning-workbench",
+  "initialTrackedState": "clean before this turn",
+  "githubPR": 16,
+  "githubHead": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "githubMain": "bbd2a696656afba39b914fe7b4fedeefa03c3be1",
+  "previousCiRun": 43791214951,
+  "previousCiConclusion": "success; applies only to baseline",
+  "linuxNode": "v24.22.1",
+  "linuxPnpm": "11.25.0",
+  "windowsHead": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "windowsTrackedState": "clean",
+  "windowsOriginalUntracked": [
+    "docs/superpowers/verification/2026-10-22-expert-consensus-audit.md",
+    "docs/superpowers/verification/evidence/2026-10-22-expert-consensus/",
+    "docs/中医体质分类与判定.pdf"
+  ]
+}

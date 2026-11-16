@@ -1,0 +1,120 @@
+{
+  "axis": "Standards whitespace follow-up",
+  "reviewedAtUTC": "2026-11-16T03:56:04.490397+00:00",
+  "base": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "head": "9f27c178dad3e6d16685608917dc4022b14d0e3f",
+  "originalReviewPath": ".artifacts/clinician-continuation-20261116/standards-review.json",
+  "originalReviewFileSha256": "6eba1629e35eedca63dea4eed1698666de7cefc6cf73731630be5984ffac3be4",
+  "originalReviewPreserved": true,
+  "scope": "仅核对所列两个文件的尾部换行和git index；未重审或重读其他产品文件。",
+  "method": "将当前完整文件追加一个LF，SHA256即与原独立审查记录逐一相同；同时比对git index和工作树字节。",
+  "changes": [
+    {
+      "path": "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+      "originalReviewSha256": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b",
+      "currentSha256": "86e9fb989c7a0e9a30f4da8d23757d65ecc9440681e9bb228fb944fa0b750507",
+      "originalExactlyEqualsCurrentPlusOneFinalLF": true,
+      "indexMatchesWorktree": true,
+      "conclusion": "唯一差异是文件末尾少一个LF；全部既有内容与其余空白保持逐字节相同，无源码或文档语义变更。"
+    },
+    {
+      "path": "rules/CLASSICAL_READING_V1_1.md",
+      "originalReviewSha256": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d",
+      "currentSha256": "53ec4c3f86b8f612739ad9ca35cb87ee33ba72bc3262d73c34994cb33c46647a",
+      "originalExactlyEqualsCurrentPlusOneFinalLF": true,
+      "indexMatchesWorktree": true,
+      "conclusion": "唯一差异是文件末尾少一个LF；全部既有内容与其余空白保持逐字节相同，无源码或文档语义变更。"
+    }
+  ],
+  "confirmedViolations": [],
+  "heuristicSmells": [],
+  "conclusion": "两个改动均为删除一个额外末尾LF；原Standards静态审查结论保持。",
+  "recordedDiffCheckEvidence": {
+    "initial": {
+      "path": ".artifacts/clinician-continuation-20261116/staging-diff-check-initial.txt",
+      "recordedExitCode": 2
+    },
+    "final": {
+      "path": ".artifacts/clinician-continuation-20261116/staging-diff-check-final.txt",
+      "recordedExitCode": 0
+    },
+    "note": "读取并保留主流程记录，未在此重跑git diff --check。"
+  },
+  "sourceManifestSha256Before": "91a03a5d6464ac57a02b581d75a1d2d65483b11a0c5fc9ccb97bf77404f6275b",
+  "sourceManifestSha256After": "2346ad11cd4e6e61b0482d5fc0b25e0e0752cfb636d91517c1ab3f0269c82f78",
+  "updatedSourceHashes": [
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/components/ConstitutionAssessmentPanel.tsx",
+      "sha256": "bb7fdf5f18bb458c10e9462f74eb3205ee87c8349e960b85a942d07b654f99cf"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/pages/ConstitutionPage.tsx",
+      "sha256": "a005b34fc412432ac1821c4a72608eb65f19598b68c8cfc20da8ae94cc14039c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx",
+      "sha256": "20cadf5fd0bcc43d93d1f2a2dc95acac00f23fb043086d85ccaa8ccc49c33cd9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx",
+      "sha256": "074df3bef147b6f9fc00b7180dca7ddd5fc25a7e28d27a842614c5ba1bf273e6"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx",
+      "sha256": "6a36b495cc6c0aada6a4ebf128303749cdf6439e7809cb2424e5cd9e035de7f5"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.test.ts",
+      "sha256": "1e8c7c3dad5a2dd2eb4b7bdc193619d1b3ea336051fe39e3bfd567f8edb1c691"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.ts",
+      "sha256": "2dc78d3b604de21a0b11df19e0e686e4804c907c9d63e34ece7b75b00743033d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/styles/global.css",
+      "sha256": "846435221ce52162dfd03a8b6343fb80a436c5d4833ade705b447e347c9c35c2"
+    },
+    {
+      "path": "packages/yunqi-domain/package.json",
+      "sha256": "678d5b2930d3173cb5384d5f3ff370d7fa495a2a75f9d0515e6fd9b7d1bd9cb1"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/calculate-learning.ts",
+      "sha256": "4bca41c40a724ea33ff636ab754c264ca53f549c88556f080b14cb0db183f188"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/passages.ts",
+      "sha256": "bae4f229ac06c79785214d24a38b6a658975498147d73284488f277bd5201a38"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/sources.ts",
+      "sha256": "dc96d2176545335c567ad9954eaf1eb5cc972d7c4757ffcb1df4b8266862af39"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/classical-reading.test.ts",
+      "sha256": "ec7a63b95e2efc3ffc3009a33796b6d82357af37239d623b63604299193f99e6"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+      "sha256": "86e9fb989c7a0e9a30f4da8d23757d65ecc9440681e9bb228fb944fa0b750507"
+    },
+    {
+      "path": "tests/browser/birth-assessment.flows.spec.mjs",
+      "sha256": "aecfebf87182a1b4167f538f1c78bafd23c2551d892f324ad08b08de18919e07"
+    },
+    {
+      "path": "tests/browser/workbench.visual.spec.mjs",
+      "sha256": "5c1e20d62233afe8c594512e61dcc12e2afa881254d3646a1a0df51fe898a29f"
+    }
+  ],
+  "manifestLimitation": "除fixture的新哈希外，其余源码哈希沿用原审查记录，本次未重新核对全树。",
+  "notExecuted": [
+    "构建",
+    "测试",
+    "浏览器运行",
+    "全树重审",
+    "提交或推送"
+  ],
+  "acceptanceLimit": "静态审查及无语义换行核对不代表浏览器、专家或临床验收通过。"
+}

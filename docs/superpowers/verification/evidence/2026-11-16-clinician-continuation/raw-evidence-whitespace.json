@@ -1,0 +1,45 @@
+{
+  "allStagedCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check"
+    ],
+    "exitCode": 2,
+    "warningCountsByFile": {
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/ci-45-quality-gates.txt": 428,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/domain-all-green.txt": 1,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/domain-classical-focused-green.txt": 1,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-01.txt": 4,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-02.txt": 1,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-final.txt": 1,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/linux-coverage.txt": 42,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/linux-schema.txt": 1,
+      "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/original-files-baseline.json": 193
+    },
+    "rawOutputSha256": "6271ab9064734e7f092a7a70d1cb1e52724abc1180fb37219d636c88b3295290",
+    "rawOutputFile": "raw-evidence-whitespace.txt.gz"
+  },
+  "authoredSourceAndDocumentationCheck": {
+    "command": [
+      "git",
+      "diff",
+      "--cached",
+      "--check",
+      "--",
+      ".",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/ci-45-quality-gates.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/domain-all-green.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/domain-classical-focused-green.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-01.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-02.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/frontend-session-green-final.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/linux-coverage.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/linux-schema.txt",
+      ":(exclude)docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/original-files-baseline.json"
+    ],
+    "exitCode": 0
+  },
+  "decision": "Preserve original terminal-log trailing whitespace and original PowerShell JSON CRLF bytes. Do not normalize raw evidence. Exact evidence paths with observed whitespace warnings are excluded only from the authored-content whitespace check; CI rules and assertions are unchanged."
+}

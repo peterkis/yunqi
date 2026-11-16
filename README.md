@@ -14,6 +14,7 @@
 当前为 2026-11-16 医生反馈迭代，实施范围、选型和验收计划见
 [五项反馈实施计划](docs/plans/2026-11-16-clinician-feedback.md)。
 后续病候对读与同页测评见[第二轮计划](docs/plans/2026-11-16-clinician-feedback-continuation.md)。
+第二轮实现、来源核对与测试结果见[第二轮工程验收报告](docs/superpowers/verification/2026-11-16-clinician-feedback-continuation.md)。
 首轮实现结果、原件核对、失败修复和验收证据见
 [首轮工程验收报告](docs/superpowers/verification/2026-11-16-clinician-feedback.md)。
 

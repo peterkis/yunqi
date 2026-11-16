@@ -1,0 +1,506 @@
+{
+  "axis": "Spec",
+  "findingCount": 0,
+  "findings": [],
+  "base": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "scope": "Frozen working tree; read-only product/source review; no build or test-suite execution.",
+  "sourceChecks": {
+    "count": 52,
+    "failed": [],
+    "matchMetadataUnchanged": true,
+    "checks": [
+      {
+        "index": 0,
+        "locator": "岁木太过",
+        "sourceRef": "turn47view0",
+        "sourceLine": 141,
+        "continuous": true
+      },
+      {
+        "index": 1,
+        "locator": "岁火太过",
+        "sourceRef": "turn47view0",
+        "sourceLine": 142,
+        "continuous": true
+      },
+      {
+        "index": 2,
+        "locator": "岁土太过",
+        "sourceRef": "turn47view0",
+        "sourceLine": 144,
+        "continuous": true
+      },
+      {
+        "index": 3,
+        "locator": "岁金太过",
+        "sourceRef": "turn47view0",
+        "sourceLine": 146,
+        "continuous": true
+      },
+      {
+        "index": 4,
+        "locator": "岁水太过",
+        "sourceRef": "turn47view0",
+        "sourceLine": 147,
+        "continuous": true
+      },
+      {
+        "index": 5,
+        "locator": "岁木不及",
+        "sourceRef": "turn47view0",
+        "sourceLine": 151,
+        "continuous": true
+      },
+      {
+        "index": 6,
+        "locator": "岁火不及",
+        "sourceRef": "turn47view0",
+        "sourceLine": 152,
+        "continuous": true
+      },
+      {
+        "index": 7,
+        "locator": "岁土不及",
+        "sourceRef": "turn47view0",
+        "sourceLine": 154,
+        "continuous": true
+      },
+      {
+        "index": 8,
+        "locator": "岁金不及",
+        "sourceRef": "turn47view0",
+        "sourceLine": 156,
+        "continuous": true
+      },
+      {
+        "index": 9,
+        "locator": "岁水不及",
+        "sourceRef": "turn47view0",
+        "sourceLine": 157,
+        "continuous": true
+      },
+      {
+        "index": 10,
+        "locator": "太阳寒水/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 11,
+        "locator": "太阳寒水/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 12,
+        "locator": "太阳寒水/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 13,
+        "locator": "太阳寒水/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 14,
+        "locator": "太阳寒水/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 15,
+        "locator": "太阳寒水/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 16,
+        "locator": "太阳寒水/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 138,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 17,
+        "locator": "阳明燥金/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 18,
+        "locator": "阳明燥金/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 19,
+        "locator": "阳明燥金/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 20,
+        "locator": "阳明燥金/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 21,
+        "locator": "阳明燥金/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 22,
+        "locator": "阳明燥金/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 23,
+        "locator": "阳明燥金/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 142,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 24,
+        "locator": "少阳相火/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 25,
+        "locator": "少阳相火/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 26,
+        "locator": "少阳相火/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 27,
+        "locator": "少阳相火/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 28,
+        "locator": "少阳相火/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 29,
+        "locator": "少阳相火/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 30,
+        "locator": "少阳相火/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 146,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 31,
+        "locator": "太阴湿土/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 32,
+        "locator": "太阴湿土/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 33,
+        "locator": "太阴湿土/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 34,
+        "locator": "太阴湿土/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 35,
+        "locator": "太阴湿土/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 36,
+        "locator": "太阴湿土/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 37,
+        "locator": "太阴湿土/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 150,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 38,
+        "locator": "少阴君火/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 39,
+        "locator": "少阴君火/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 40,
+        "locator": "少阴君火/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 41,
+        "locator": "少阴君火/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 42,
+        "locator": "少阴君火/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 43,
+        "locator": "少阴君火/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 44,
+        "locator": "少阴君火/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 154,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 45,
+        "locator": "厥阴风木/年度",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 46,
+        "locator": "厥阴风木/初之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 47,
+        "locator": "厥阴风木/二之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 48,
+        "locator": "厥阴风木/三之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 49,
+        "locator": "厥阴风木/四之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 50,
+        "locator": "厥阴风木/五之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      },
+      {
+        "index": 51,
+        "locator": "厥阴风木/终之气",
+        "sourceRef": "turn46view0",
+        "sourceLine": 158,
+        "continuous": true,
+        "correctStart": true
+      }
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://zh.wikisource.org/zh-hans/黃帝內經/素問第二十卷",
+      "ref": "turn47view0",
+      "readScope": "气交变大论; ten annual movement paragraphs, live retrieved text."
+    },
+    {
+      "url": "https://zh.wikisource.org/zh-hans/黃帝內經/素問第二十一卷",
+      "ref": "turn46view0",
+      "readScope": "六元正纪大论; six annual qi paragraphs and their 36 periods, live retrieved text."
+    }
+  ],
+  "inspectedRequirements": [
+    {
+      "spec": "docs/plans/2026-11-16-clinician-feedback-continuation.md:15-21,28-34",
+      "result": "No confirmed missing, partial, scope-expanded or incorrect implementation."
+    },
+    {
+      "spec": "docs/plans/2026-11-16-clinician-feedback-continuation.md:38-41",
+      "result": "Static test review: native browser controls and real HTTP path; separate external classical-text audit. Browser API-response comparisons are rendering oracles only, not independent scoring or clinical oracles."
+    }
+  ],
+  "limitations": [
+    "No build, full test suite, typecheck, schema, coverage, contract gate, or browser execution by this reviewer; main agent owns these gates.",
+    "Electronic transcription checked; no independent facsimile, scholarly critical edition, expert/clinical acceptance, or astronomical verification.",
+    "No bibliographic replication of all modern studies in the research document; review focuses on implemented classical-content and questionnaire-session scope.",
+    "No current remote CI or Windows acceptance performed by this reviewer."
+  ],
+  "reviewedFileSha256": {
+    "AGENTS.md": "af413068497bb24b3234f9288351af2c6071e9a6008d6c6dc93f7c056416e202",
+    "CODING_STANDARDS.md": "55d86b3efb5189f39fe6a599e03c204c936e67ad51d219495b9fe3274fec11b8",
+    "README.md": "f77a4269ea546a1e39b5e51a4b5a76bfdbecd70e964a63540a52700696f97030",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionAssessmentPanel.tsx": "bb7fdf5f18bb458c10e9462f74eb3205ee87c8349e960b85a942d07b654f99cf",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx": "a14dfe77bfe15c7cae1e8e2b28dadddfdc4c9b67416f1706f8fde7bd7ae629b9",
+    "apps/yunqi-workbench/src/features/constitution/hooks/useConstitution.ts": "87729fde31059f27b858c5a3761820cb6042cd8aeee8fb9b7fb7ef3a356455ec",
+    "apps/yunqi-workbench/src/features/constitution/pages/ConstitutionPage.tsx": "a005b34fc412432ac1821c4a72608eb65f19598b68c8cfc20da8ae94cc14039c",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx": "20cadf5fd0bcc43d93d1f2a2dc95acac00f23fb043086d85ccaa8ccc49c33cd9",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx": "074df3bef147b6f9fc00b7180dca7ddd5fc25a7e28d27a842614c5ba1bf273e6",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx": "6a36b495cc6c0aada6a4ebf128303749cdf6439e7809cb2424e5cd9e035de7f5",
+    "apps/yunqi-workbench/src/features/yunqi/components/LearningPanels.tsx": "49b536a1ee5480c40e70859ef40bea4032e0847bd6c01d42c4ce2eb62c4e3e2f",
+    "apps/yunqi-workbench/src/features/yunqi/hooks/useLearningQueries.ts": "5d1b2f060eff7d86e542ee23ab7a06a7bbd32c83f186d2a31304897b4dd0060d",
+    "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.test.ts": "1e8c7c3dad5a2dd2eb4b7bdc193619d1b3ea336051fe39e3bfd567f8edb1c691",
+    "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.ts": "2dc78d3b604de21a0b11df19e0e686e4804c907c9d63e34ece7b75b00743033d",
+    "apps/yunqi-workbench/src/styles/global.css": "846435221ce52162dfd03a8b6343fb80a436c5d4833ade705b447e347c9c35c2",
+    "docs/agents/README.md": "8a03fc5db5bdc7d5fb9c3c1caa585e20f3e7589943aaf86d19635d1c1fd22682",
+    "docs/agents/api-contracts.md": "653db9fa214ab1e40b12453e19b255f7c5853967688c318c3418d754a82330f2",
+    "docs/agents/clinical-scope.md": "ac230c3a9acf75a03d963edc4b8580b952808bc5d267d098c3473a2ac5969fc7",
+    "docs/agents/rules-and-time.md": "963bfeb73eb0f4e8932a2027455ed156e9661ce5abc65960b341ddf687091948",
+    "docs/agents/verification.md": "0a540e5b8b8981e1f6eed741eb38ee2fa9ff7172c1f5672b7d67e9a72e553cee",
+    "docs/agents/workbench.md": "049d04faa01fafd26ddc07aa9fb50ef64184740d8117133f8d3f83c1ddc89e6e",
+    "docs/plans/2026-11-16-clinician-feedback-continuation.md": "b87874497113437fb084812a9c442fbf791e7010fc824c4fcc8445814ae831b9",
+    "docs/research/2026-11-16-birth-current-theory.md": "c7dbe7c4b9590ea540d45d01535f948809690ef0cac7d9d28285fb9becffa16b",
+    "packages/yunqi-domain/README.md": "e3f4273e379a60f86731eeb0973deac02b94794779846eece28156668a15bada",
+    "packages/yunqi-domain/package.json": "678d5b2930d3173cb5384d5f3ff370d7fa495a2a75f9d0515e6fd9b7d1bd9cb1",
+    "packages/yunqi-domain/src/learning/calculate-learning.ts": "4bca41c40a724ea33ff636ab754c264ca53f549c88556f080b14cb0db183f188",
+    "packages/yunqi-domain/src/learning/passages.ts": "bae4f229ac06c79785214d24a38b6a658975498147d73284488f277bd5201a38",
+    "packages/yunqi-domain/src/learning/sources.ts": "dc96d2176545335c567ad9954eaf1eb5cc972d7c4757ffcb1df4b8266862af39",
+    "packages/yunqi-domain/tests/classical-reading.test.ts": "ec7a63b95e2efc3ffc3009a33796b6d82357af37239d623b63604299193f99e6",
+    "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b",
+    "packages/yunqi-domain/tests/learning.test.ts": "2e7299d309e0110eb1831f22be3f6c61244b4ad4328976a5a484ca0491e917e1",
+    "playwright.config.mjs": "44a0e3705ea18e340765f8a9b13f1843dc802d228384c7f0d2f1cbf2e395786e",
+    "rules/CLASSICAL_READING_V1_1.md": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d",
+    "tests/browser/README.md": "45de077a10c5be56d799331ff5cd09424b9ecec7042405e4cfdbed948b68bd76",
+    "tests/browser/birth-assessment.flows.spec.mjs": "aecfebf87182a1b4167f538f1c78bafd23c2551d892f324ad08b08de18919e07",
+    "tests/browser/fixtures.mjs": "4a8257c1f4bafafb95481490174274b374ee33e5e6a57273654bae243f04b07a",
+    "tests/browser/global-setup.mjs": "7a63e7bee77c58335476651f3a4a7fdd39beb5c476de6f74fd75e56729e1f9c2",
+    "tests/browser/workbench.visual.spec.mjs": "5c1e20d62233afe8c594512e61dcc12e2afa881254d3646a1a0df51fe898a29f"
+  },
+  "reviewedProductionManifestFormat": "Sorted path + literal \\0 + sha256 + literal \\n",
+  "reviewedProductionManifestSha256": "9cda3c23b5c81553a6b96091910268c5df455c3ecd155ae03661b91c94c3d63c",
+  "headAtReview": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "trackedDiffSha256": "5f81ffdb83493fee173fae0f6d29a115e6b5e6ea666e83ca41b6c62b2f657427",
+  "diffCommand": "git diff d31e038 --",
+  "untrackedAtReview": [
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionAssessmentPanel.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.test.ts",
+    "docs/plans/2026-11-16-clinician-feedback-continuation.md",
+    "docs/research/2026-11-16-birth-current-theory.md",
+    "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/baseline.json",
+    "packages/yunqi-domain/tests/classical-reading.test.ts",
+    "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+    "rules/CLASSICAL_READING_V1_1.md",
+    "tests/browser/birth-assessment.flows.spec.mjs"
+  ]
+}

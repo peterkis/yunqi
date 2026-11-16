@@ -1,0 +1,14 @@
+[
+  {
+    "path": "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+    "beforeSha256": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b",
+    "afterSha256": "86e9fb989c7a0e9a30f4da8d23757d65ecc9440681e9bb228fb944fa0b750507",
+    "change": "Remove only extra final LF; non-whitespace bytes and all text unchanged"
+  },
+  {
+    "path": "rules/CLASSICAL_READING_V1_1.md",
+    "beforeSha256": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d",
+    "afterSha256": "53ec4c3f86b8f612739ad9ca35cb87ee33ba72bc3262d73c34994cb33c46647a",
+    "change": "Remove only extra final LF; non-whitespace bytes and all text unchanged"
+  }
+]
