@@ -1,5 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
+import { isAbsolute } from 'node:path';
+import { existsSync } from 'node:fs';
 import { defineConfig } from '@playwright/test';
 
 // This timestamp labels test evidence only; it never supplies business time.
@@ -7,6 +9,10 @@ const runId = `${new Date().toISOString().replace(/[:.]/g, '-')}-${randomUUID().
 const runDirectory = process.env.YUNQI_BROWSER_RUN_DIRECTORY || resolve('.artifacts/browser', runId);
 process.env.YUNQI_BROWSER_RUN_DIRECTORY = runDirectory;
 const browserChannel = process.env.YUNQI_BROWSER_CHANNEL;
+const browserExecutable = process.env.YUNQI_BROWSER_EXECUTABLE;
+if (browserExecutable && (browserChannel || !isAbsolute(browserExecutable) || !existsSync(browserExecutable))) {
+  throw new Error('YUNQI_BROWSER_EXECUTABLE must be an existing absolute path, without YUNQI_BROWSER_CHANNEL');
+}
 if (browserChannel && !['chrome', 'msedge'].includes(browserChannel)) {
   throw new Error('YUNQI_BROWSER_CHANNEL must be chrome or msedge, or unset for bundled Chromium');
 }
@@ -35,6 +41,7 @@ export default defineConfig({
   use: {
     browserName: 'chromium',
     channel: browserChannel,
+    launchOptions: browserExecutable ? { executablePath: browserExecutable } : {},
     viewport: { width: 1440, height: 1000 },
     locale: 'zh-CN',
     // A non-Beijing browser zone verifies canonical API time is not reinterpreted.

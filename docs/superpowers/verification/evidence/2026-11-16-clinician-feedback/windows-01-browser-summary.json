@@ -1,0 +1,2324 @@
+{
+  "runDirectory": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-11-16T01-39-46-053Z-190dcd69",
+  "sourceResultsSha256": "cf3ea52941628981532e98475338e8d3c1545da9946cede12aca2672d0bfd25e",
+  "stats": {
+    "startTime": "2026-11-16T01:39:46.067Z",
+    "duration": 424466.261,
+    "expected": 107,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "browserVersions": [
+    "157.0.8103.39"
+  ],
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "chrome",
+    "browserExecutable": null,
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:65521",
+    "serviceURL": "http://127.0.0.1:65519",
+    "cleanupErrors": []
+  },
+  "tests": [
+    {
+      "title": "current teaching view keeps other stages folded and exposes original excerpts and relationship sources by keyboard",
+      "file": "learning.flows.spec.mjs",
+      "line": 10,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4280,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "birth comparison submits only requested precision, displays both contexts and clears edited personal data",
+      "file": "learning.flows.spec.mjs",
+      "line": 42,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4886,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "constitution workflow keeps the current context, prevents partial scoring and shows all nine independent results",
+      "file": "learning.flows.spec.mjs",
+      "line": 85,
+      "project": "flows-chromium",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "timedOut",
+          "duration": 49953,
+          "retry": 0,
+          "errors": [
+            {
+              "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+            },
+            {
+              "location": {
+                "file": "D:\\Projects\\YunQi\\tests\\browser\\learning.flows.spec.mjs",
+                "column": 66,
+                "line": 93
+              },
+              "message": "Error: locator.click: Test timeout of 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '下一组', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"primary-button\">下一组</button>\u001b[22m\n\n\n  91 |   await expect(page.locator('.question-list input:checked')).toHaveCount(0);\n  92 |   while (await page.getByRole('button', { name: '下一组', exact: true }).isVisible()) {\n> 93 |     await page.getByRole('button', { name: '下一组', exact: true }).click();\n     |                                                                  ^\n  94 |   }\n  95 |   await page.getByRole('button', { name: '生成体质测评结果', exact: true }).click();\n  96 |   await expect(page.getByRole('alert')).toContainText('题未作答');\n    at D:\\Projects\\YunQi\\tests\\browser\\learning.flows.spec.mjs:93:66"
+            }
+          ],
+          "attachments": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-11-16T01-39-46-053Z-190dcd69\\results\\learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium\\test-failed-1.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-11-16T01-39-46-053Z-190dcd69\\results\\learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium\\error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\2026-11-16T01-39-46-053Z-190dcd69\\results\\learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium\\trace.zip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "current-year shortcut and adjacent-year controls retain URL, bounds and history",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 3,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 6158,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 36,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1712,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "sticky navigation, skip link and technical disclosure support keyboard recovery",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 57,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1973,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "current route redirects, renders canonical time and closes every stage disclosure",
+      "file": "workbench.flows.spec.mjs",
+      "line": 3,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3098,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop",
+      "file": "workbench.flows.spec.mjs",
+      "line": 32,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4635,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year abc shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1636,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 2024extra shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1526,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 1899 shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1901,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 2101 shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1628,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "specified time is submit-only, rejects empty input and hides stale results after editing",
+      "file": "workbench.flows.spec.mjs",
+      "line": 129,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2157,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "supported annual boundary years load directly from the real API",
+      "file": "workbench.flows.spec.mjs",
+      "line": 163,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2648,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+      "file": "workbench.flows.spec.mjs",
+      "line": 183,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1397,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "pending calculation disables input and repeated activation sends only one real request",
+      "file": "workbench.flows.spec.mjs",
+      "line": 198,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1819,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "calculation outage is sanitized and retry recovers using the real API",
+      "file": "workbench.flows.spec.mjs",
+      "line": 228,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1688,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "/yunqi/current recovers after a single failed GET",
+      "file": "workbench.flows.spec.mjs",
+      "line": 254,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1718,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "/yunqi/year/2024 recovers after a single failed GET",
+      "file": "workbench.flows.spec.mjs",
+      "line": 254,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1476,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "inquiry remains a no-query planning entry and invalid child routes return to current",
+      "file": "workbench.flows.spec.mjs",
+      "line": 272,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 5157,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3384,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2945,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3852,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2851,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3629,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2610,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4141,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3933,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2695,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4519,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2903,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3422,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3358,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3022,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3537,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3409,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2837,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3464,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3557,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3067,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4062,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2497,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3830,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3423,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3437,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2544,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3832,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2959,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2600,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3645,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3050,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3190,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2935,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2792,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2684,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3169,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2547,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4489,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2797,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4240,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3839,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2947,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2946,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2232,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3873,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2927,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2912,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2437,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3011,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2246,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3305,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2714,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2620,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3530,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3771,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2860,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3435,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4235,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2918,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4081,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2562,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2440,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4155,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2863,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3292,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2903,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3117,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3744,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3969,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3024,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4365,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4938,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3216,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3371,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4525,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3878,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2953,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4209,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2893,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 4039,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2728,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2975,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3365,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2569,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3256,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3553,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2963,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2402,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

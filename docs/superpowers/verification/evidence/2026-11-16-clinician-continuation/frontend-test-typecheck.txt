@@ -1,0 +1,37 @@
+$ tsc -p tsconfig.test.json --noEmit
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(20,65): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(22,75): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(56,58): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(64,67): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(65,71): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(71,62): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(85,67): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(86,71): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(99,58): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(100,68): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+src/features/yunqi/birth/components/BirthComparisonSession.test.tsx(121,58): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+/workspace/scratch/f0fdd99861f7/yunqi/apps/yunqi-workbench:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @yunqi/workbench@0.1.0 test:typecheck: `tsc -p tsconfig.test.json --noEmit`
+Exit status 1

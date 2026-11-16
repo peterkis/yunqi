@@ -1,0 +1,108 @@
+{
+  "runId": 43789009725,
+  "artifactId": 14192065910,
+  "head": "72a861ba0e55e6c5b25b5b860dd50622e1553fae",
+  "ciCheckoutCommit": "311da6f046a408c2bb84358dcd217dddef154e8e",
+  "sourceArchive": "yunqi-ci-43-browser.zip",
+  "sourceArchiveSha256": "8c57c6a988f7ae9b5c7321b0a0898789854185f5751bba989d7430c648c412ad",
+  "sourceArchiveBytes": 55055368,
+  "sourceResultsSha256": "16282aefed07446c5efb2307d20f4f9260d7354a71a3a4aef355abb1d00bca10",
+  "screenshots": [
+    {
+      "file": "ci-43-desktop-birth-result.png",
+      "zipEntry": "2026-11-16T01-59-14-092Z-8b32bfb8/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-desktop-light/attachments/birth-result-8f0291aa0c87cbf2df94182fbb9bdc850144827e.png",
+      "sha256": "b0f1e6d5af30faf7227bcc18d1164d35afeae66a033209622bf65b7205573c04",
+      "bytes": 230480,
+      "testTitle": "@visual birth-result: screenshot, readable layout and accessibility",
+      "testFile": "workbench.visual.spec.mjs",
+      "project": "desktop-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "viewportEvidence": {
+        "configurationPath": "playwright.config.mjs",
+        "configurationHead": "72a861ba0e55e6c5b25b5b860dd50622e1553fae",
+        "configurationSha256": "44a0e3705ea18e340765f8a9b13f1843dc802d228384c7f0d2f1cbf2e395786e",
+        "runtimeLayoutViewportWidth": 1440,
+        "note": "Viewport height is from the tested-head project configuration; full-page image height is recorded separately."
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1699
+      },
+      "fullPage": true,
+      "browserVersion": "156.0.8078.4",
+      "layout": {
+        "documentWidth": 1440,
+        "overflowingControls": []
+      },
+      "axeViolationCount": 0
+    },
+    {
+      "file": "ci-43-desktop-constitution-questions.png",
+      "zipEntry": "2026-11-16T01-59-14-092Z-8b32bfb8/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-desktop-light/attachments/constitution-questions-434a60e9d38648f5e9809e6b1a49605def6e9345.png",
+      "sha256": "6b3452ee28eda6ddb5a22b7e5b7a0a5c7641dbec8c85cecfae4f1324134262fb",
+      "bytes": 256841,
+      "testTitle": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "testFile": "workbench.visual.spec.mjs",
+      "project": "desktop-light",
+      "theme": "light",
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "viewportEvidence": {
+        "configurationPath": "playwright.config.mjs",
+        "configurationHead": "72a861ba0e55e6c5b25b5b860dd50622e1553fae",
+        "configurationSha256": "44a0e3705ea18e340765f8a9b13f1843dc802d228384c7f0d2f1cbf2e395786e",
+        "runtimeLayoutViewportWidth": 1440,
+        "note": "Viewport height is from the tested-head project configuration; full-page image height is recorded separately."
+      },
+      "imageDimensions": {
+        "width": 1440,
+        "height": 1842
+      },
+      "fullPage": true,
+      "browserVersion": "156.0.8078.4",
+      "layout": {
+        "documentWidth": 1440,
+        "overflowingControls": []
+      },
+      "axeViolationCount": 0
+    },
+    {
+      "file": "ci-43-narrow-current.png",
+      "zipEntry": "2026-11-16T01-59-14-092Z-8b32bfb8/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-narrow-light/attachments/current-7ae631fc388ca618f99cca5a8b3ab0a34f6d71b5.png",
+      "sha256": "ccb690aca4dd8a7d1b778dcaa3bba1af39bb0835879e2e624edfffbbbb2b6870",
+      "bytes": 197509,
+      "testTitle": "@visual current: screenshot, readable layout and accessibility",
+      "testFile": "workbench.visual.spec.mjs",
+      "project": "narrow-light",
+      "theme": "light",
+      "viewport": {
+        "width": 320,
+        "height": 800
+      },
+      "viewportEvidence": {
+        "configurationPath": "playwright.config.mjs",
+        "configurationHead": "72a861ba0e55e6c5b25b5b860dd50622e1553fae",
+        "configurationSha256": "44a0e3705ea18e340765f8a9b13f1843dc802d228384c7f0d2f1cbf2e395786e",
+        "runtimeLayoutViewportWidth": 320,
+        "note": "Viewport height is from the tested-head project configuration; full-page image height is recorded separately."
+      },
+      "imageDimensions": {
+        "width": 320,
+        "height": 2973
+      },
+      "fullPage": true,
+      "browserVersion": "156.0.8078.4",
+      "layout": {
+        "documentWidth": 320,
+        "overflowingControls": []
+      },
+      "axeViolationCount": 0
+    }
+  ]
+}

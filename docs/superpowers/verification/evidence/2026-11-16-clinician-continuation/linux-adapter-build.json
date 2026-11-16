@@ -1,0 +1,30 @@
+{
+  "head": "9f27c178dad3e6d16685608917dc4022b14d0e3f",
+  "purpose": "Supplement the Linux gate collector, which recorded direct package dist directories but not this nested adapter directory. No rebuild or source mutation intervened.",
+  "files": [
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/date-time-input.d.ts",
+      "sha256": "a116cbeb1e8874e1dc4fe6ac566ca4fc0bc5ad537e1d7ce2cb9c9581dc085578"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/date-time-input.js",
+      "sha256": "50f4c789dbf795ce1c772890af4b56764617fda6357def98b607be3c8b30b4ab"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/index.d.ts",
+      "sha256": "9e518837753325b7f20c7b484a3e70b3b9952a3c17ef96fb3a09b0879b5f3041"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/index.js",
+      "sha256": "da8aeb5597aacb2dd1c11d68382cc7b30767ed12dfc6c8379671859b69e869f1"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/provider.d.ts",
+      "sha256": "557ea561f59f8fa5c2edc4267a7fd8e8885ac9a10d76e66e94a41ce606e901c3"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/provider.js",
+      "sha256": "51f7b8ebe07e27fd36e43e3617a7d0ef5da4f9bac95d8fab3eb3fb73155e90f4"
+    }
+  ]
+}

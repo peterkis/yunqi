@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: YunQi Service API
-  version: 1.3.0
+  version: 1.4.0
   description: Versioned YunQi time-fact and rule-mapping contract.
 components:
   schemas:
@@ -568,6 +568,492 @@ components:
         - code: INTERNAL_ERROR
           message: 服务内部错误
           details: {}
+    LearningRelationDto:
+      type: object
+      required:
+        - title
+        - label
+        - relation
+        - explanation
+        - sourceIds
+        - sources
+      properties:
+        title:
+          type: string
+        label:
+          type: string
+        relation:
+          type: string
+        explanation:
+          type: string
+        sourceIds:
+          type: array
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - title
+              - url
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    ClassicalPassageDto:
+      type: object
+      required:
+        - id
+        - work
+        - chapter
+        - section
+        - scope
+        - quote
+        - explanation
+        - sourceUrl
+      properties:
+        id:
+          type: string
+        work:
+          type: string
+        chapter:
+          type: string
+        section:
+          type: string
+        scope:
+          type: string
+        quote:
+          type: string
+        explanation:
+          type: string
+        sourceUrl:
+          type: string
+      additionalProperties: false
+    MovementStepDto:
+      type: object
+      required:
+        - index
+        - name
+        - start
+        - end
+        - host
+        - guest
+        - boundaryMethod
+        - explanation
+      properties:
+        index:
+          type: integer
+          minimum: 1
+          maximum: 5
+        name:
+          type: string
+        start:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        end:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        host:
+          $ref: "#/components/schemas/SuiYunDto"
+        guest:
+          $ref: "#/components/schemas/SuiYunDto"
+        boundaryMethod:
+          type: string
+        explanation:
+          type: string
+      additionalProperties: false
+    YunQiLearningDto:
+      type: object
+      required:
+        - ruleVersion
+        - facts
+        - annualRelation
+        - currentQi
+        - currentMovement
+        - movements
+        - annualPassages
+        - currentPassages
+        - notes
+      properties:
+        ruleVersion:
+          type: string
+        facts:
+          $ref: "#/components/schemas/YunQiCalculationDto"
+        annualRelation:
+          $ref: "#/components/schemas/LearningRelationDto"
+        currentQi:
+          $ref: "#/components/schemas/LearningRelationDto"
+        currentMovement:
+          $ref: "#/components/schemas/MovementStepDto"
+        movements:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovementStepDto"
+          minItems: 5
+          maxItems: 5
+        annualPassages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassicalPassageDto"
+        currentPassages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassicalPassageDto"
+        notes:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    BirthRequest:
+      type: object
+      required:
+        - birthDate
+      properties:
+        birthDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        birthTime:
+          type: string
+          pattern: ^\d{2}:\d{2}:\d{2}$
+      additionalProperties: false
+    BirthComparisonDto:
+      type: object
+      required:
+        - ruleVersion
+        - birthPrecision
+        - ambiguous
+        - message
+        - current
+        - candidates
+      properties:
+        ruleVersion:
+          type: string
+        birthPrecision:
+          anyOf:
+            - type: string
+              enum:
+                - date
+            - type: string
+              enum:
+                - time
+        ambiguous:
+          type: boolean
+        message:
+          type: string
+        current:
+          $ref: "#/components/schemas/YunQiLearningDto"
+        candidates:
+          type: array
+          items:
+            type: object
+            required:
+              - label
+              - from
+              - until
+              - learning
+              - comparisons
+            properties:
+              label:
+                type: string
+              from:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              until:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              learning:
+                $ref: "#/components/schemas/YunQiLearningDto"
+              comparisons:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningRelationDto"
+            additionalProperties: false
+          minItems: 1
+          maxItems: 4
+      additionalProperties: false
+    LearningSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiLearningDto"
+      additionalProperties: false
+    BirthSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthComparisonDto"
+      additionalProperties: false
+    ConstitutionQuestionnaireDto:
+      type: object
+      required:
+        - id
+        - version
+        - title
+        - standard
+        - sourceUrl
+        - sourceNote
+        - instructions
+        - questions
+        - scales
+        - options
+      properties:
+        id:
+          type: string
+          enum:
+            - GBT46939-2025
+        version:
+          type: string
+        title:
+          type: string
+        standard:
+          type: string
+        sourceUrl:
+          type: string
+        sourceNote:
+          type: string
+        instructions:
+          type: array
+          items:
+            type: string
+        questions:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - text
+              - sex
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+              sex:
+                anyOf:
+                  - type: string
+                    enum:
+                      - all
+                  - type: string
+                    enum:
+                      - male
+                  - type: string
+                    enum:
+                      - female
+            additionalProperties: false
+        scales:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - items
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - questionId
+                    - reverse
+                  properties:
+                    questionId:
+                      type: string
+                    reverse:
+                      type: boolean
+                  additionalProperties: false
+            additionalProperties: false
+        options:
+          type: array
+          items:
+            type: object
+            required:
+              - value
+              - label
+            properties:
+              value:
+                type: integer
+                minimum: 1
+                maximum: 5
+              label:
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    ConstitutionRequest:
+      type: object
+      required:
+        - questionnaireId
+        - sex
+        - answers
+      properties:
+        questionnaireId:
+          type: string
+          enum:
+            - GBT46939-2025
+        sex:
+          anyOf:
+            - type: string
+              enum:
+                - male
+            - type: string
+              enum:
+                - female
+        answers:
+          type: object
+          maxProperties: 27
+          additionalProperties:
+            type: integer
+            minimum: 1
+            maximum: 5
+      additionalProperties: false
+    ConstitutionAssessmentDto:
+      type: object
+      required:
+        - questionnaireId
+        - version
+        - sex
+        - results
+        - matchedTypes
+        - tendencyTypes
+        - summary
+        - boundaryNote
+      properties:
+        questionnaireId:
+          type: string
+        version:
+          type: string
+        sex:
+          anyOf:
+            - type: string
+              enum:
+                - male
+            - type: string
+              enum:
+                - female
+        results:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - itemCount
+              - rawScore
+              - score
+              - status
+              - label
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              itemCount:
+                type: integer
+              rawScore:
+                type: integer
+              score:
+                type: number
+                minimum: 0
+                maximum: 100
+              status:
+                anyOf:
+                  - type: string
+                    enum:
+                      - yes
+                  - type: string
+                    enum:
+                      - tendency
+                  - type: string
+                    enum:
+                      - basically
+                  - type: string
+                    enum:
+                      - no
+              label:
+                type: string
+            additionalProperties: false
+          minItems: 9
+          maxItems: 9
+        matchedTypes:
+          type: array
+          items:
+            type: string
+        tendencyTypes:
+          type: array
+          items:
+            type: string
+        summary:
+          type: string
+        boundaryNote:
+          type: string
+      additionalProperties: false
+    QuestionnaireSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/ConstitutionQuestionnaireDto"
+      additionalProperties: false
+    AssessmentSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/ConstitutionAssessmentDto"
+      additionalProperties: false
 paths:
   /health:
     get:
@@ -695,6 +1181,180 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/current:
+    get:
+      operationId: getLearningCurrent
+      summary: Current YunQi facts with sourced learning notes
+      tags:
+        - yunqi
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/calculate:
+    post:
+      operationId: calculateLearning
+      summary: YunQi learning notes for a selected fixed-Beijing time
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-comparison:
+    post:
+      operationId: compareBirth
+      summary: Compare birth-period facts and current facts without disease inference
+        or storage
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/constitution/questionnaire:
+    get:
+      operationId: getConstitutionQuestionnaire
+      summary: Versioned GB/T 46939-2025 questionnaire
+      tags:
+        - constitution
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionnaireSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/constitution/assess:
+    post:
+      operationId: assessConstitution
+      summary: Score a complete questionnaire without retaining responses
+      tags:
+        - constitution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConstitutionRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 servers:
   - url: http://localhost:3000
     description: Local server
@@ -703,4 +1363,6 @@ tags:
     description: Service status endpoints
   - name: yunqi
     description: YunQi contract endpoints
-x-yunqi-contract-id: YQ-API-CONTRACT-1.1.0
+  - name: constitution
+    description: Versioned questionnaire and non-persistent scoring
+x-yunqi-contract-id: YQ-API-CONTRACT-1.2.0

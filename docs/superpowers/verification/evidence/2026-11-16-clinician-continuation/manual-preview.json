@@ -1,0 +1,29 @@
+{
+  "sourceHead": "9f27c178dad3e6d16685608917dc4022b14d0e3f",
+  "frontendURL": "http://127.0.0.1:64777",
+  "serviceURL": "http://127.0.0.1:64772",
+  "ownedRemoteSessionPid": 33364,
+  "ownedPreviewNodePid": 21936,
+  "startupScript": "D:\\Projects\\YunQi\\.artifacts\\clinician-continuation-20261116\\preview.mjs",
+  "mode": "real Windows clock; real Fastify + tyme4ts + Vite proxy",
+  "currentReadings": {
+    "status": "PASS",
+    "observedLocalTime": "2026-11-16T12:04:46.082+08:00",
+    "year": "2026 丙午",
+    "annualMovement": "水运太过",
+    "sitian": "少阴君火",
+    "zaiquan": "阳明燥金",
+    "period": "五之气",
+    "checks": ["Annual and current period disclosures opened", "Expanded annual text includes the illness context", "Period preserves 民迺康，其病温", "Original quotation and reading explanation are visibly separate"],
+    "screenshot": "screenshots/manual-current-reading.png",
+    "screenshotSha256": "f0896f44c102b5d901f50d558687e3dd3a00698f84bd0b2ec8dd069502a56f67"
+  },
+  "extensionBirthEntry": {
+    "status": "NOT_COMPLETED",
+    "observations": ["Extension fill reported native input value 1990-05-12 with valid=true; after submit the page showed its comparison error and the input was empty", "Segmented keyboard attempts through the extension left the native input invalid", "No network body was captured for that manual attempt, so its cause is not assigned"],
+    "scope": "This browser-extension attempt is not counted as a passed birth workflow. The repository's separate real Chrome Playwright run passed all five learning and birth workflows, including 26 answers and delayed real scoring responses.",
+    "action": "No product workaround or weakened validation was introduced. Navigating to current cleared the synthetic birth input."
+  },
+  "captureLimit": "Full-page extension capture timed out at 5000 ms; a viewport capture succeeded. No browser test timeout or retry configuration was changed.",
+  "handoff": "Current reading preview marked as deliverable; browser task completion_summary sent."
+}

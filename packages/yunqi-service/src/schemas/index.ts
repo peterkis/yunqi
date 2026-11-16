@@ -18,6 +18,8 @@ import {
   YunQiTimeDtoSchema,
   YunQiYearDtoSchema,
 } from './yunqi.js';
+import { learningSchemas } from './learning.js';
+import { constitutionSchemas } from './constitution.js';
 
 export const contractSchemas = [
   HealthDataSchema,
@@ -36,4 +38,6 @@ export const contractSchemas = [
   YearSuccessSchema,
   CalculationSuccessSchema,
   ErrorResponseSchema,
+  ...learningSchemas,
+  ...constitutionSchemas,
 ] as const;

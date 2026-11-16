@@ -69,8 +69,8 @@ test('sticky navigation, skip link and technical disclosure support keyboard rec
   const disclosure = page.locator('.contract-disclosure');
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');
-  await expect(disclosure.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeVisible();
+  await expect(disclosure.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
   await page.keyboard.press('Space');
-  await expect(disclosure.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeHidden();
+  await expect(disclosure.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeHidden();
   await screenshot(page, testInfo, 'keyboard-technical-disclosure');
 });

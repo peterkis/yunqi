@@ -36,6 +36,7 @@ export {
   createYunQiCalendarTime,
   createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
+  compareBeijingLocalDateTime,
   formatYunQiCalendarTime,
   formatYunQiInstant,
   getBeijingCivilYear,
@@ -53,6 +54,16 @@ export {
 } from './services/calculate-yunqi.js';
 export { getCurrentStep } from './services/get-current-step.js';
 export { calculateSuiYun } from './wuyun/sui-yun.js';
+export { calculateLearning, type YunQiLearning } from './learning/calculate-learning.js';
+export { annualRelation, currentQiRelation, compareElements, type LearningRelation } from './learning/relations.js';
+export { addBeijingCalendarDays, buildMovementSteps, type MovementStep } from './learning/movements.js';
+export { LEARNING_RULE_VERSION } from './learning/rules.js';
+export { CLASSICAL_PASSAGES, type ClassicalPassage } from './learning/passages.js';
+export { CLASSICAL_SOURCES, CLASSICAL_READING_VERSION } from './learning/sources.js';
+export { getConstitutionQuestionnaire, evaluateConstitution,
+  CONSTITUTION_QUESTIONNAIRE_ID, CONSTITUTION_RULE_VERSION } from './constitution/index.js';
+export type { ConstitutionAssessment, ConstitutionAssessmentInput, ConstitutionQuestionnaire,
+  ConstitutionScaleResult, ConstitutionSex } from './constitution/index.js';
 
 export {
   BRANCH_QI_RULES,

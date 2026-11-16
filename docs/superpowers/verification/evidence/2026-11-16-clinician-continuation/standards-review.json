@@ -1,0 +1,279 @@
+{
+  "axis": "Standards",
+  "reviewedAtUTC": "2026-11-16T03:53:14.270866+00:00",
+  "base": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "head": "d31e038f4b6c5650288063cf44d52d267a01494a",
+  "comparison": "git diff d31e038f4b6c5650288063cf44d52d267a01494a --; git ls-files --others --exclude-standard",
+  "commits": [],
+  "treeState": "Reviewed frozen working-tree source; no new commits. Source hashes, not HEAD alone, bind this review.",
+  "conclusion": "未发现可确认的仓库规范违反；未报告基线代码气味。这是静态 Standards 结论，不代表浏览器、专家或临床验收通过。",
+  "confirmedViolations": [],
+  "heuristicSmells": [],
+  "reviewNotes": [
+    {
+      "observation": "ConstitutionAssessmentPanel 拥有按需题库查询；BirthAssessmentSession 只接收 presentation 模型，使用 birth response 当前快照。挂载边界、重新对照 key 与 mutation.reset 覆盖答卷销毁及旧评分隔离。",
+      "files": [
+        "apps/yunqi-workbench/src/features/constitution/components/ConstitutionAssessmentPanel.tsx:7-17",
+        "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx:19-80",
+        "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx:10-49,122"
+      ],
+      "standards": [
+        "docs/agents/workbench.md:18-35,55-60"
+      ]
+    },
+    {
+      "observation": "经典数据独立升至1.1.0、Domain补丁升至1.3.1；变更经现有notes可追溯，未修改Service/OpenAPI/Contracts/Client或历史freeze。原文、阅读说明及专家待审状态保持分离，无新增个体疾病/处方推断。",
+      "files": [
+        "packages/yunqi-domain/src/learning/calculate-learning.ts:36-40",
+        "packages/yunqi-domain/src/learning/sources.ts:6-41",
+        "rules/CLASSICAL_READING_V1_1.md:1-35,137-145"
+      ],
+      "standards": [
+        "docs/agents/rules-and-time.md:8-22",
+        "docs/agents/api-contracts.md:17-36",
+        "docs/agents/clinical-scope.md:6-22"
+      ]
+    },
+    {
+      "observation": "经典测试读取独立较长上下文与字面锚点，包含同序号/同客气反例；新增浏览器测试操作真实日期及单选控件，使用真实Service评分响应并仅延迟交付。响应字段作展示oracle，不冒称医学独立金标准。",
+      "files": [
+        "packages/yunqi-domain/tests/classical-reading.test.ts:15-117",
+        "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts:1-100",
+        "tests/browser/birth-assessment.flows.spec.mjs:4-175"
+      ],
+      "standards": [
+        "CODING_STANDARDS.md:8-16",
+        "docs/agents/verification.md:26,31-43"
+      ]
+    },
+    {
+      "observation": "已阅读Domain与前端局部RED/GREEN日志尾部；规则文档保留28失败/2通过的初始RED，并将局部63项和Domain243项分开。最终全仓、构建、浏览器及远端证据由主流程另行绑定。",
+      "files": [
+        "rules/CLASSICAL_READING_V1_1.md:147-159",
+        ".artifacts/clinical-reading-continuation/domain-classical-red.txt",
+        ".artifacts/clinical-reading-continuation/domain-classical-focused-green.txt",
+        ".artifacts/clinical-reading-continuation/domain-all-green.txt",
+        ".artifacts/clinician-continuation-20261116/frontend-session-red.txt",
+        ".artifacts/clinician-continuation-20261116/frontend-session-green-final.txt"
+      ],
+      "standards": [
+        "docs/agents/verification.md:45-57"
+      ]
+    }
+  ],
+  "scope": {
+    "trackedChangedFiles": 15,
+    "untrackedFiles": 11,
+    "sourceAndPackageFiles": 16,
+    "standards": [
+      "AGENTS.md",
+      "CODING_STANDARDS.md",
+      "docs/agents/workbench.md",
+      "docs/agents/verification.md",
+      "docs/agents/rules-and-time.md",
+      "docs/agents/api-contracts.md",
+      "docs/agents/clinical-scope.md",
+      "docs/architecture/ADR-002-yunqi-contract-freeze.md"
+    ],
+    "supportingContext": [
+      "rules/LEARNING_RULES_V1.md",
+      "docs/contracts/YQ-API-CONTRACT-1.2.0.md",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx",
+      "apps/yunqi-workbench/src/features/constitution/hooks/useConstitution.ts",
+      "apps/yunqi-workbench/src/features/yunqi/hooks/useLearningQueries.ts",
+      "apps/yunqi-workbench/src/features/yunqi/components/LearningPanels.tsx",
+      "packages/yunqi-domain/tests/learning.test.ts",
+      "tests/browser/fixtures.mjs",
+      "tests/browser/global-setup.mjs",
+      "playwright.config.mjs"
+    ]
+  },
+  "notExecuted": [
+    "No product source edits; no build, test command, browser launch, shared dist writes, commit, push or cleanup.",
+    "No independent external scholarly/textual collation or expert/clinical acceptance.",
+    "No assertion about final full gates, browser PASS or current remote CI."
+  ],
+  "sourceManifestSha256": "91a03a5d6464ac57a02b581d75a1d2d65483b11a0c5fc9ccb97bf77404f6275b",
+  "sourceHashes": [
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/components/ConstitutionAssessmentPanel.tsx",
+      "sha256": "bb7fdf5f18bb458c10e9462f74eb3205ee87c8349e960b85a942d07b654f99cf"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/pages/ConstitutionPage.tsx",
+      "sha256": "a005b34fc412432ac1821c4a72608eb65f19598b68c8cfc20da8ae94cc14039c"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx",
+      "sha256": "20cadf5fd0bcc43d93d1f2a2dc95acac00f23fb043086d85ccaa8ccc49c33cd9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx",
+      "sha256": "074df3bef147b6f9fc00b7180dca7ddd5fc25a7e28d27a842614c5ba1bf273e6"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx",
+      "sha256": "6a36b495cc6c0aada6a4ebf128303749cdf6439e7809cb2424e5cd9e035de7f5"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.test.ts",
+      "sha256": "1e8c7c3dad5a2dd2eb4b7bdc193619d1b3ea336051fe39e3bfd567f8edb1c691"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/presentation/map-learning.ts",
+      "sha256": "2dc78d3b604de21a0b11df19e0e686e4804c907c9d63e34ece7b75b00743033d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/styles/global.css",
+      "sha256": "846435221ce52162dfd03a8b6343fb80a436c5d4833ade705b447e347c9c35c2"
+    },
+    {
+      "path": "packages/yunqi-domain/package.json",
+      "sha256": "678d5b2930d3173cb5384d5f3ff370d7fa495a2a75f9d0515e6fd9b7d1bd9cb1"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/calculate-learning.ts",
+      "sha256": "4bca41c40a724ea33ff636ab754c264ca53f549c88556f080b14cb0db183f188"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/passages.ts",
+      "sha256": "bae4f229ac06c79785214d24a38b6a658975498147d73284488f277bd5201a38"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/sources.ts",
+      "sha256": "dc96d2176545335c567ad9954eaf1eb5cc972d7c4757ffcb1df4b8266862af39"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/classical-reading.test.ts",
+      "sha256": "ec7a63b95e2efc3ffc3009a33796b6d82357af37239d623b63604299193f99e6"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+      "sha256": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b"
+    },
+    {
+      "path": "tests/browser/birth-assessment.flows.spec.mjs",
+      "sha256": "aecfebf87182a1b4167f538f1c78bafd23c2551d892f324ad08b08de18919e07"
+    },
+    {
+      "path": "tests/browser/workbench.visual.spec.mjs",
+      "sha256": "5c1e20d62233afe8c594512e61dcc12e2afa881254d3646a1a0df51fe898a29f"
+    }
+  ],
+  "otherReviewedChangedFiles": [
+    {
+      "path": "README.md",
+      "sha256": "f77a4269ea546a1e39b5e51a4b5a76bfdbecd70e964a63540a52700696f97030"
+    },
+    {
+      "path": "docs/agents/README.md",
+      "sha256": "8a03fc5db5bdc7d5fb9c3c1caa585e20f3e7589943aaf86d19635d1c1fd22682"
+    },
+    {
+      "path": "docs/agents/rules-and-time.md",
+      "sha256": "963bfeb73eb0f4e8932a2027455ed156e9661ce5abc65960b341ddf687091948"
+    },
+    {
+      "path": "docs/agents/workbench.md",
+      "sha256": "049d04faa01fafd26ddc07aa9fb50ef64184740d8117133f8d3f83c1ddc89e6e"
+    },
+    {
+      "path": "docs/plans/2026-11-16-clinician-feedback-continuation.md",
+      "sha256": "b87874497113437fb084812a9c442fbf791e7010fc824c4fcc8445814ae831b9"
+    },
+    {
+      "path": "docs/research/2026-11-16-birth-current-theory.md",
+      "sha256": "c7dbe7c4b9590ea540d45d01535f948809690ef0cac7d9d28285fb9becffa16b"
+    },
+    {
+      "path": "docs/superpowers/verification/evidence/2026-11-16-clinician-continuation/baseline.json",
+      "sha256": "e80ca97bd0549da253023619d33cceff6db88adf4a2e0bc7035a993403c1ba66"
+    },
+    {
+      "path": "packages/yunqi-domain/README.md",
+      "sha256": "e3f4273e379a60f86731eeb0973deac02b94794779846eece28156668a15bada"
+    },
+    {
+      "path": "rules/CLASSICAL_READING_V1_1.md",
+      "sha256": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d"
+    },
+    {
+      "path": "tests/browser/README.md",
+      "sha256": "45de077a10c5be56d799331ff5cd09424b9ecec7042405e4cfdbed948b68bd76"
+    }
+  ],
+  "standardsAndContextHashes": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "af413068497bb24b3234f9288351af2c6071e9a6008d6c6dc93f7c056416e202"
+    },
+    {
+      "path": "CODING_STANDARDS.md",
+      "sha256": "55d86b3efb5189f39fe6a599e03c204c936e67ad51d219495b9fe3274fec11b8"
+    },
+    {
+      "path": "docs/agents/workbench.md",
+      "sha256": "049d04faa01fafd26ddc07aa9fb50ef64184740d8117133f8d3f83c1ddc89e6e"
+    },
+    {
+      "path": "docs/agents/verification.md",
+      "sha256": "0a540e5b8b8981e1f6eed741eb38ee2fa9ff7172c1f5672b7d67e9a72e553cee"
+    },
+    {
+      "path": "docs/agents/rules-and-time.md",
+      "sha256": "963bfeb73eb0f4e8932a2027455ed156e9661ce5abc65960b341ddf687091948"
+    },
+    {
+      "path": "docs/agents/api-contracts.md",
+      "sha256": "653db9fa214ab1e40b12453e19b255f7c5853967688c318c3418d754a82330f2"
+    },
+    {
+      "path": "docs/agents/clinical-scope.md",
+      "sha256": "ac230c3a9acf75a03d963edc4b8580b952808bc5d267d098c3473a2ac5969fc7"
+    },
+    {
+      "path": "docs/architecture/ADR-002-yunqi-contract-freeze.md",
+      "sha256": "9b0e6414e8077986641006644ab30e11409a05749830f649cca0b04d9c2115cd"
+    },
+    {
+      "path": "rules/LEARNING_RULES_V1.md",
+      "sha256": "8eb90b348f0e7cfacf586dac2210a6cee91a1310d4a031b486f4aba053f12726"
+    },
+    {
+      "path": "docs/contracts/YQ-API-CONTRACT-1.2.0.md",
+      "sha256": "5914613225626ca405fcc4841e4b78d54a1299ebe718b6371466c96e135f1313"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx",
+      "sha256": "a14dfe77bfe15c7cae1e8e2b28dadddfdc4c9b67416f1706f8fde7bd7ae629b9"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/constitution/hooks/useConstitution.ts",
+      "sha256": "87729fde31059f27b858c5a3761820cb6042cd8aeee8fb9b7fb7ef3a356455ec"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/hooks/useLearningQueries.ts",
+      "sha256": "5d1b2f060eff7d86e542ee23ab7a06a7bbd32c83f186d2a31304897b4dd0060d"
+    },
+    {
+      "path": "apps/yunqi-workbench/src/features/yunqi/components/LearningPanels.tsx",
+      "sha256": "49b536a1ee5480c40e70859ef40bea4032e0847bd6c01d42c4ce2eb62c4e3e2f"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/learning.test.ts",
+      "sha256": "2e7299d309e0110eb1831f22be3f6c61244b4ad4328976a5a484ca0491e917e1"
+    },
+    {
+      "path": "tests/browser/fixtures.mjs",
+      "sha256": "4a8257c1f4bafafb95481490174274b374ee33e5e6a57273654bae243f04b07a"
+    },
+    {
+      "path": "tests/browser/global-setup.mjs",
+      "sha256": "7a63e7bee77c58335476651f3a4a7fdd39beb5c476de6f74fd75e56729e1f9c2"
+    },
+    {
+      "path": "playwright.config.mjs",
+      "sha256": "44a0e3705ea18e340765f8a9b13f1843dc802d228384c7f0d2f1cbf2e395786e"
+    }
+  ]
+}

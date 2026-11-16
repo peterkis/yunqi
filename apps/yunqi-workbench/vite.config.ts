@@ -11,6 +11,9 @@ export default defineConfig(({ mode }) => {
         '/api/v1/yunqi/': {
           target: env.YUNQI_DEV_API_TARGET || 'http://127.0.0.1:3000',
         },
+        '/api/v1/constitution/': {
+          target: env.YUNQI_DEV_API_TARGET || 'http://127.0.0.1:3000',
+        },
       },
     },
   };

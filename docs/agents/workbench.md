@@ -25,7 +25,7 @@ Contracts/Client公共包入口是允许边界，不允许改为内部文件路�
 | feature query/hook | 使用注入client与Client query options获取数据 |
 | AppRoutes/Router/Navigation | URL匹配、页面、导航、重定向、历史恢复 |
 | presentation mapper | 纯DTO转换；不依赖React Router、TanStack Query或Client |
-| component/Page | 接收状态和DTO/展示模型，呈现与局部交互 |
+| component/Page | 接收状态和展示模型，呈现与局部交互；冻结DTO在presentation mapper转换 |
 
 Router、Page、Navigation不直接调用client，数据获取继续通过feature query/hook。
 component职责按路径判定：`src/components/**`、`src/app/**`、
@@ -44,11 +44,20 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | /yunqi/year/:year | URL驱动指定运气年分析 |
 | /yunqi/calculate | E1指定时点，仅用户提交后查询 |
 | /yunqi/inquiry | 只读规划入口，零业务查询 |
+| /yunqi/birth | 用户提交公历生日与可选时刻后对照；不持久化 |
+| /yunqi/constitution | 现行标准量表，完整作答后评分，与当前时气并列 |
 
 年份是URL导航状态，阶段选择是页面局部状态；年度子路径继续激活年度导航。
 当前范围1900–2100，列表、校验和提示使用
 [共享年份范围](../../apps/yunqi-workbench/src/lib/yunqi-year-range.ts)。
 “enabled”只表示入口可访问，不代表问诊业务上线。不得自动新增问诊子路由。
+
+2026-11-16新增两个独立入口及当前教学复合查询已获用户授权，见[实施计划](../plans/2026-11-16-clinician-feedback.md)。
+组件不导入DTO或计分规则；时间、解释和结果经纯presentation投影。出生与答案只保留会话态，
+mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果，切换性别清空不再适用的答案。
+第二轮允许在出生对照内按需组合现有量表，详见[同页测评计划](../plans/2026-11-16-clinician-feedback-continuation.md)。
+该组合只使用本次birth response的current快照；多个出生候选共用一份答卷。
+出生输入变更、清空、重新对照或结束测评时销毁答卷，旧异步评分不能恢复到新会话。
 
 ## 展示和交互
 

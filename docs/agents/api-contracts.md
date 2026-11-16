@@ -2,7 +2,7 @@
 
 修改Service、OpenAPI、Contracts或Client前读取
 [ADR-002](../architecture/ADR-002-yunqi-contract-freeze.md)和
-[当前契约](../contracts/YQ-API-CONTRACT-1.1.0.md)。
+[当前契约](../contracts/YQ-API-CONTRACT-1.2.0.md)。
 
 ## 所有权
 
@@ -14,12 +14,17 @@
 
 ## 冻结与升级
 
-当前Contract为 `YQ-API-CONTRACT-1.1.0`，精确覆盖：
+当前Contract为 `YQ-API-CONTRACT-1.2.0`，精确覆盖：
 
 ```text
 GET /api/v1/yunqi/year/{year}
 GET /api/v1/yunqi/current
 POST /api/v1/yunqi/calculate
+GET /api/v1/yunqi/learning/current
+POST /api/v1/yunqi/learning/calculate
+POST /api/v1/yunqi/learning/birth-comparison
+GET /api/v1/constitution/questionnaire
+POST /api/v1/constitution/assess
 ```
 
 冻结投影包括路径、method、operationId、参数、请求体、响应状态及所有可达schema：

@@ -1,10 +1,10 @@
 import { AsyncState } from '../../../components/feedback/AsyncState';
-import { useCurrentYunQiQuery } from '../hooks/useCurrentYunQiQuery';
-import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
+import { useLearningCurrentQuery } from '../hooks/useLearningQueries';
+import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
 
 export function CurrentYunQiView() {
-  const query = useCurrentYunQiQuery();
+  const query = useLearningCurrentQuery();
 
   return (
     <AsyncState
@@ -14,9 +14,10 @@ export function CurrentYunQiView() {
       onRetry={() => {
         void query.refetch();
       }}
-      renderData={(data) => (
-        <CurrentYunQiPage viewModel={mapCurrentYunQi(data)} />
-      )}
+      renderData={(data) => {
+        const learning = mapLearning(data);
+        return <CurrentYunQiPage viewModel={learning.facts} learning={learning} />;
+      }}
     />
   );
 }

@@ -85,6 +85,15 @@ function compileTimeOnlyPublicContracts(
 
 void compileTimeOnlyPublicContracts;
 
+function expectDeeplyFrozen(value: unknown, path: string): void {
+  if (value === null || typeof value !== 'object') return;
+
+  expect(Object.isFrozen(value), `${path} must be runtime immutable`).toBe(true);
+  for (const [key, nested] of Object.entries(value)) {
+    expectDeeplyFrozen(nested, `${path}.${key}`);
+  }
+}
+
 describe('stable package API', () => {
   it('exports the approved services, pure contracts, public result types, and rule version', () => {
     const provider: CalendarProvider = fixedCalendarProvider;
@@ -145,6 +154,8 @@ describe('stable package API', () => {
 
     expect(objectExports.map(([name]) => name)).toEqual([
       'BRANCH_QI_RULES',
+      'CLASSICAL_PASSAGES',
+      'CLASSICAL_SOURCES',
       'ELEMENT_CONTROL_MAP',
       'ELEMENT_GENERATION_MAP',
       'GUEST_QI_SEQUENCE',
@@ -160,6 +171,9 @@ describe('stable package API', () => {
     expect(objectExports.every(([, value]) => Object.isFrozen(value))).toBe(true);
     expect(Object.values(publicApi.STEM_RULES).every(Object.isFrozen)).toBe(true);
     expect(Object.values(publicApi.BRANCH_QI_RULES).every(Object.isFrozen)).toBe(true);
+    for (const [name, value] of objectExports) {
+      expectDeeplyFrozen(value, name);
+    }
   });
 });
 

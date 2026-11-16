@@ -3,10 +3,17 @@
 根 [AGENTS.md](../../AGENTS.md) 是任务入口；匹配任务后读取本目录的详细约束。
 这些文档承接原AGENTS要求，不赋予新业务或医疗能力。
 
+当前 API Contract 为 [1.2.0](../contracts/YQ-API-CONTRACT-1.2.0.md)：
+Domain `1.3.1`、Service `2.2.0`、Contracts / Client `1.2.0`，OpenAPI 文档 `1.4.0`。
+本轮授权范围与验收计划见[医生反馈实施计划](../plans/2026-11-16-clinician-feedback.md)；
+本地启动与接口概览见[根 README](../../README.md)。
+病候对读与同页测评增量见[第二轮计划](../plans/2026-11-16-clinician-feedback-continuation.md)。
+
 | 主题 | 入口 | 权威来源 |
 | --- | --- | --- |
 | 领域、规则、时间、未来持久化 | [rules-and-time.md](rules-and-time.md) | [规则表](../../rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)、[ADR-001](../architecture/adr/ADR-001-fixed-beijing-time-semantics.md) |
-| DTO所有权、契约、服务及客户端 | [api-contracts.md](api-contracts.md) | [ADR-002](../architecture/ADR-002-yunqi-contract-freeze.md)、[Contract 1.1.0](../contracts/YQ-API-CONTRACT-1.1.0.md) |
+| DTO所有权、契约、服务及客户端 | [api-contracts.md](api-contracts.md) | [ADR-002](../architecture/ADR-002-yunqi-contract-freeze.md)、[Contract 1.2.0](../contracts/YQ-API-CONTRACT-1.2.0.md) |
+| 教学关系、经典摘录、五步运、出生对照和体质量表 | [rules-and-time.md](rules-and-time.md)、[clinical-scope.md](clinical-scope.md) | [教学规则](../../rules/LEARNING_RULES_V1.md)、[量表规则](../../rules/CONSTITUTION-GBT46939-2025.md) |
 | React依赖、路由、Provider、展示 | [workbench.md](workbench.md) | [Workbench README](../../apps/yunqi-workbench/README.md)、[治理脚本](../../scripts/check-yunqi-workbench-governance.mjs) |
 | 医疗边界、问诊、Phase3-E | [clinical-scope.md](clinical-scope.md) | [临床验证入口](../clinical-validation/phase3-e/README.md) |
 | 相关检查、浏览器、交付证据 | [verification.md](verification.md) | [根命令](../../package.json)、[CI](../../.github/workflows/ci.yml) |
@@ -20,6 +27,8 @@
 - 当前规则状态仍以 [RULE_FREEZE_NOTE.md](../../rules/RULE_FREEZE_NOTE.md) 为准。
   API工程冻结、专家规则冻结和临床Gate是不同状态。
 - 改动规则或契约版本时，同步当前入口与生成物；保留旧版本和迁移影响。
+  [Contract 1.0.0](../contracts/YQ-API-CONTRACT-1.0.0.md) 与
+  [Contract 1.1.0](../contracts/YQ-API-CONTRACT-1.1.0.md) 及其冻结记录仍作为历史依据。
 - 更新指引后执行 `pnpm test:project-guidance`。根文件预算为4KiB/70行，是本项目约定。
   链接、命令、来源索引及原文覆盖映射由检查器验证；语义强度仍需人工复核。
 - 原文归档及条款去向见 [迁移映射](../retrospectives/2026-10-18-guidance-migration.md)。

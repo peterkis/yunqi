@@ -1,0 +1,15 @@
+Scope: all 7 workspace projects
+✓ Lockfile passes supply-chain policies (verified 2h ago)
+Lockfile is up to date, resolution step is skipped
+Already up to date
+
+Done in 900ms using pnpm v11.25.0
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain
+
+
+ Test Files  2 passed (2)
+      Tests  63 passed (63)
+   Start at  12:47:29
+   Duration  367ms (transform 174ms, setup 0ms, import 236ms, tests 137ms, environment 0ms)
+

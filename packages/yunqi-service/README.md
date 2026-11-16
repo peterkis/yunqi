@@ -1,7 +1,16 @@
 # @yunqi/service
 
 Fastify 5 service-contract package for the accepted `@yunqi/domain` facts.
-It exposes time boundaries and versioned rule mappings only.
+It exposes time boundaries, versioned rule mappings, sourced learning material,
+birth/current comparisons and constitution questionnaire assessment.
+
+Service package `2.2.0` implements
+[`YQ-API-CONTRACT-1.2.0`](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md).
+The OpenAPI dialect is `3.1.0` and its document release is `1.4.0`; API paths
+remain under `/api/v1`. The [implementation plan](../../docs/plans/2026-11-16-clinician-feedback.md)
+records the clinician-feedback scope. The original
+[1.0.0](../../docs/contracts/YQ-API-CONTRACT-1.0.0.md) and
+[1.1.0](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md) contract notes remain historical references.
 
 The standalone listener defaults to `127.0.0.1`; set `HOST` explicitly when
 network access is required. Each service instance enforces 128 connections,
@@ -21,7 +30,7 @@ and multi-instance ingress budgets still require deployment load testing.
 
 ## Commands
 
-From the repository root:
+Use Node.js 22 or newer and pnpm 10.32.1. From the repository root:
 
     pnpm install --frozen-lockfile
     pnpm build
@@ -31,14 +40,25 @@ From the repository root:
     pnpm openapi:generate
 
 Swagger UI is served at `/docs/`. The checked-in contract is
-`openapi/yunqi-service.openapi.yaml`.
+[`openapi/yunqi-service.openapi.yaml`](openapi/yunqi-service.openapi.yaml).
+The default listener is `http://127.0.0.1:3000`; `HOST` and `PORT` configure it.
+Run `pnpm --filter @yunqi/workbench dev` in another terminal for the UI.
+Vite proxies both `/api/v1/yunqi/` and `/api/v1/constitution/` to the Service;
+see the [root startup guide](../../README.md#workbench-development) for a custom port.
 
 ## Endpoints
 
-- `GET /health`
-- `GET /api/v1/yunqi/year/:year`, where the YunQi year is 1900-2100
-- `GET /api/v1/yunqi/current`
-- `POST /api/v1/yunqi/calculate`
+| Method | Path | Result |
+| --- | --- | --- |
+| GET | `/health` | Runtime health |
+| GET | `/api/v1/yunqi/year/:year` | Annual core facts for YunQi years 1900–2100 |
+| GET | `/api/v1/yunqi/current` | Current core facts |
+| POST | `/api/v1/yunqi/calculate` | Core facts at the requested time |
+| GET | `/api/v1/yunqi/learning/current` | Current facts, five movements, relations and matched classical passages |
+| POST | `/api/v1/yunqi/learning/calculate` | Learning result at the requested time |
+| POST | `/api/v1/yunqi/learning/birth-comparison` | Birth-period candidates compared with a current snapshot |
+| GET | `/api/v1/constitution/questionnaire` | Versioned questions, options and scale mappings |
+| POST | `/api/v1/constitution/assess` | All nine assessment scores, classifications and compatible types |
 
 Success responses use:
 
@@ -50,7 +70,7 @@ Errors use:
 
 ## Date-time input
 
-The calculate endpoint uses fixed Beijing Standard Time, UTC+08:00. Historical
+Both calculate endpoints use fixed Beijing Standard Time, UTC+08:00. Historical
 IANA `Asia/Shanghai` daylight-saving rules and the server's default time zone
 do not participate in YunQi calculation.
 
@@ -87,11 +107,61 @@ Public time values use:
       "calendarTimeStandard": "BeijingStandardTime+08:00"
     }
 
-The OpenAPI dialect remains 3.1.0, the contract document release is 1.3.0,
-the business Contract ID is `YQ-API-CONTRACT-1.1.0`, and API paths remain
-under `/api/v1`. Service package 2.1.0 returns rule version
-`YQ-MVP-RULES-1.1.0`; the approved guest-generates-host label is
-`客生主，相得`. These are neutral rule descriptions, not medical conclusions.
+Core facts retain `YQ-MVP-RULES-1.1.0`; the approved guest-generates-host label
+is `客生主，相得`. The original three business endpoints retain their schemas.
+The new learning and constitution outputs carry their separate versions.
+
+## Learning and birth comparison
+
+Learning responses contain core `facts`, separate annual and current-qi
+relations, the current movement, all five movements, and classical excerpts
+with reading explanations and source links. The teaching movement boundaries
+and interpretation status are explicit in
+[YQ-LEARNING-RULES-1.0.0](../../rules/LEARNING_RULES_V1.md).
+
+Birth comparison accepts:
+
+```json
+{ "birthDate": "1990-08-15", "birthTime": "12:30:00" }
+```
+
+`birthDate` must be a real Gregorian `YYYY-MM-DD`; optional `birthTime` must
+be `HH:mm:ss`, interpreted at fixed UTC+08:00. Future inputs are rejected.
+Omitting the time preserves all supported candidate intervals for that day,
+including year, qi and movement boundaries. An internal sampling instant is
+not a known birth time. A precise-time candidate has equal `from` and `until`;
+an unknown-time candidate is an interval. The response includes a snapshot of
+current facts for comparison, not an individual disease prediction.
+
+The full queried birth period must be supported: a date-only request for the
+1900 大寒 day includes time in unsupported YunQi year 1899 and is rejected;
+an explicitly known time at or after that boundary can be assessed. For
+today, the date-only interval stops at the request's current time.
+
+## Constitution assessment
+
+The questionnaire uses the final `GB/T 46939-2025` standard with questionnaire
+ID `GBT46939-2025` and implementation version `YQ-CONSTITUTION-1.0.0`.
+Its 27 distinct questions include two alternative sex-specific questions,
+so a respondent answers 26 applicable questions. The public standard source,
+reverse items and threshold rules are recorded in the
+[constitution rule note](../../rules/CONSTITUTION-GBT46939-2025.md).
+After the initially offline Windows device became available, the user's
+same-edition PDF was checked against Chapter 5 and Appendix A. Its checksum,
+the initial extraction failure and the subsequent visual verification are
+recorded in that rule note; the original PDF was not modified.
+
+Submit `{ questionnaireId, sex, answers }`, with `sex` equal to `male` or
+`female` and `answers` a complete map of applicable question IDs to JSON
+integers 1–5. Missing, unknown or inapplicable answers, numeric strings,
+booleans, arrays and invalid values return `400 INVALID_ARGUMENT`.
+No unanswered item receives a default score. Results include all nine raw
+and unrounded converted scores; classification uses unrounded thresholds
+and retains compatible and tendency types instead of choosing one maximum.
+
+All five learning/constitution endpoints return `Cache-Control: no-store`.
+Birth and answer inputs use POST bodies, are not persisted or linked to
+patient identities, and detailed answers are not echoed in the assessment.
 
 ## Browser contracts and client
 
@@ -107,6 +177,9 @@ under `/api/v1`. Service package 2.1.0 returns rule version
     } from '@yunqi/client';
 
     const annual = await yunqiClient.getYear(2024);
+    const learning = await yunqiClient.getLearningCurrent();
+    const comparison = await yunqiClient.compareBirth({ birthDate: '1990-08-15' });
+    const questionnaire = await yunqiClient.getConstitutionQuestionnaire();
     const yearOptions = yunqiQueryOptions.year(2024);
     const axiosClient = createYunQiClient(createAxiosTransport(axios));
 
@@ -123,5 +196,8 @@ behavior from `@yunqi/client`.
 The package does not produce diagnosis, disease judgment, prescriptions,
 treatment advice, dosage, prognosis, or individual prediction. It does not
 change or duplicate YunQi rules; `@yunqi/domain` remains the only calculation
-layer. Outputs are limited to rule facts and theoretical explanations, and
-doctors retain final interpretation.
+layer. Outputs are limited to rule facts, theoretical explanations and questionnaire
+assessment. A birth-period comparison does not determine a constitution;
+questionnaire results do not establish a diagnosis. The teaching movement
+method and excerpts still require expert review, and doctors retain final
+interpretation.

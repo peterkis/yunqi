@@ -4,6 +4,9 @@ test('current route redirects, renders canonical time and closes every stage dis
   await loadCurrent(page);
   await expect(page.locator('.current-yunqi-hero time')).toHaveText('2024-01-20 22:07:22');
   await expect(page.getByRole('link', { name: '当前五运六气', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.locator('.annual-disclosure')).not.toHaveAttribute('open');
+  await expect(page.locator('.timeline-item__toggle').first()).toBeHidden();
+  await page.locator('.annual-disclosure > summary').click();
   const toggles = page.locator('.timeline-item__toggle');
   await expect(toggles).toHaveCount(6);
   for (let index = 0; index < 6; index += 1) {
@@ -88,7 +91,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   }).locator('dd')).toHaveText(relatedStage.relation.traditionalLabel);
   const trace = page.getByRole('region', { name: '追溯信息', exact: true });
   await expect(trace.getByText(nextYear.ruleVersion, { exact: true })).toBeVisible();
-  await expect(trace.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeVisible();
+  await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
   await screenshot(page, testInfo, 'annual-upgraded-guest-generates-host');
   await page.goBack();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2024');
@@ -171,7 +174,7 @@ test('supported annual boundary years load directly from the real API', async ({
     await expect(page.getByRole('radio')).toHaveCount(6);
     const trace = page.getByRole('region', { name: '追溯信息', exact: true });
     await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
-    await expect(trace.getByText('YQ-API-CONTRACT-1.1.0', { exact: true })).toBeVisible();
+    await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
     await screenshot(page, testInfo, `annual-boundary-${year}`);
   }
   expect(diagnostics.requests).toHaveLength(2);
@@ -245,7 +248,7 @@ test('calculation outage is sanitized and retry recovers using the real API', as
 });
 
 for (const [path, endpoint, error] of [
-  ['/yunqi/current', '/api/v1/yunqi/current', '加载失败'],
+  ['/yunqi/current', '/api/v1/yunqi/learning/current', '加载失败'],
   ['/yunqi/year/2024', '/api/v1/yunqi/year/2024', '年度数据加载失败'],
 ]) {
   test(`${path} recovers after a single failed GET`, async ({ page, diagnostics }) => {
@@ -283,5 +286,5 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   }
   await page.getByRole('link', { name: '返回当前五运六气', exact: true }).click();
   await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
-  expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/current']);
+  expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });

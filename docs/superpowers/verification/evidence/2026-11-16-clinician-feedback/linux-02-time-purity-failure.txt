@@ -1,0 +1,111 @@
+$ pnpm build && node --test tests/yunqi-dev-proxy.test.mjs tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check && pnpm test:project-guidance
+$ pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+$ pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json --noEmit && vite build
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 140 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:  0.30 kB
+dist/assets/index-Ujg0s2Mw.css   38.80 kB │ gzip:  7.01 kB
+dist/assets/index-COxhzSkX.js   321.23 kB │ gzip: 99.53 kB
+
+✓ built in 141ms
+✔ development origin serves real YunQi GET and POST responses through Vite (384.630198ms)
+✔ tracked rule document supplies complete, distinct baseline tables (1.479116ms)
+✔ public calculators agree with the document for every stem, branch and Qi sequence (0.501978ms)
+✔ every 1900-2100 numeric year follows the documented 60-cycle anchor (0.40924ms)
+✔ 60 real-adapter annual results and 360 steps match the tracked business rules (31.840993ms)
+✔ all 36 ordered Qi pairs match both the documented priority and independent matrix (0.507387ms)
+✔ all 201 supported years preserve seven real boundaries at -1/0/+1 ms and three input forms (665.759841ms)
+✔ Service accepts precisely 1900-2100 YunQi years at the 1900 and 2101 Dahan endpoints (172.984726ms)
+✔ normalization preserves Gregorian century rules, milliseconds, and strict input syntax (0.661747ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1061.851284
+$ vitest run
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain
+
+
+ Test Files  12 passed (12)
+      Tests  212 passed (212)
+   Start at  10:23:59
+   Duration  689ms (transform 1.52s, setup 0ms, import 2.23s, tests 370ms, environment 1ms)
+
+$ vitest run
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/calendar-adapters/tyme4ts
+
+
+ Test Files  3 passed (3)
+      Tests  37 passed (37)
+   Start at  10:24:00
+   Duration  575ms (transform 435ms, setup 0ms, import 582ms, tests 228ms, environment 0ms)
+
+$ tsc -p tsconfig.test.json
+$ vitest run
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-client
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  10:24:02
+   Duration  160ms (transform 55ms, setup 0ms, import 76ms, tests 17ms, environment 0ms)
+
+$ vitest run
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-service
+
+src/routes/learning.ts: Raw API dateTime access outside normalizer boundary
+src/services/learning-service.ts: Domain time factory outside normalizer
+src/services/learning-service.ts: Domain time conversion import outside normalizer
+ ❯ tests/time-purity-gate.test.ts (44 tests | 1 failed) 6483ms
+     × passes against the production Service source tree 288ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/time-purity-gate.test.ts > Service business-time purity gate > passes against the production Service source tree
+AssertionError: expected [Function] to not throw an error but 'Error: Command failed: /opt/codex/run…' was thrown
+
+- Expected:
+undefined
+
++ Received:
+"Error: Command failed: /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-service/scripts/check-time-purity.mjs
+src/routes/learning.ts: Raw API dateTime access outside normalizer boundary
+src/services/learning-service.ts: Domain time factory outside normalizer
+src/services/learning-service.ts: Domain time conversion import outside normalizer
+"
+
+ ❯ tests/time-purity-gate.test.ts:242:64
+    240|
+    241|   it('passes against the production Service source tree', () => {
+    242|     expect(() => execFileSync(process.execPath, [script])).not.toThrow…
+       |                                                                ^
+    243|   });
+    244| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 15 passed (16)
+      Tests  1 failed | 230 passed (231)
+   Start at  10:24:03
+   Duration  7.45s (transform 3.03s, setup 0ms, import 8.29s, tests 28.30s, environment 5ms)
+
+/workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-service:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @yunqi/service@2.2.0 test: `vitest run`
+Exit status 1
+[ELIFECYCLE] Test failed. See above for more details.

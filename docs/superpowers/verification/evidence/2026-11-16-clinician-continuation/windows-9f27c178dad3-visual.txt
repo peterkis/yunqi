@@ -1,0 +1,14 @@
+Browser acceptance evidence: D:\Projects\YunQi\.artifacts\browser\continuation-9f27c178dad3-visual
+
+Running 8 tests using 2 workers
+
+  ✓  2 [breakpoint-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (8.8s)
+  ✓  1 [desktop-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (9.7s)
+  ✓  3 [tablet-boundary-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (8.7s)
+  ✓  4 [tablet-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (8.0s)
+  ✓  5 [mobile-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (7.6s)
+  ✓  6 [narrow-light] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (7.0s)
+  ✓  7 [desktop-dark] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (7.7s)
+  ✓  8 [mobile-dark] › tests\browser\workbench.visual.spec.mjs:20:3 › @visual birth-assessment: screenshot, readable layout and accessibility (7.1s)
+
+  8 passed (52.8s)

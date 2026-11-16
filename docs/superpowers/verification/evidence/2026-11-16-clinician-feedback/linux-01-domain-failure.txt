@@ -1,0 +1,81 @@
+$ pnpm build && node --test tests/yunqi-dev-proxy.test.mjs tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs && pnpm --filter @yunqi/domain test && pnpm --filter @yunqi/calendar-adapter-tyme4ts test && pnpm --filter @yunqi/contracts test && pnpm --filter @yunqi/client test && pnpm --filter @yunqi/service test && pnpm --filter @yunqi/workbench test && pnpm test:workbench-governance && pnpm test:contract-governance && pnpm test:time-purity && pnpm --filter @yunqi/service test:timezone && pnpm --filter @yunqi/service smoke:production-entry && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check && pnpm test:project-guidance
+$ pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+$ pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json --noEmit && vite build
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 140 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:  0.30 kB
+dist/assets/index-Ujg0s2Mw.css   38.80 kB │ gzip:  7.01 kB
+dist/assets/index-COxhzSkX.js   321.23 kB │ gzip: 99.53 kB
+
+✓ built in 114ms
+✔ development origin serves real YunQi GET and POST responses through Vite (398.373597ms)
+✔ tracked rule document supplies complete, distinct baseline tables (1.402481ms)
+✔ public calculators agree with the document for every stem, branch and Qi sequence (0.668848ms)
+✔ every 1900-2100 numeric year follows the documented 60-cycle anchor (0.384223ms)
+✔ 60 real-adapter annual results and 360 steps match the tracked business rules (29.216116ms)
+✔ all 36 ordered Qi pairs match both the documented priority and independent matrix (0.397853ms)
+✔ all 201 supported years preserve seven real boundaries at -1/0/+1 ms and three input forms (644.180297ms)
+✔ Service accepts precisely 1900-2100 YunQi years at the 1900 and 2101 Dahan endpoints (226.465699ms)
+✔ normalization preserves Gregorian century rules, milliseconds, and strict input syntax (0.751381ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1076.038549
+$ vitest run
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain
+
+ ❯ tests/public-api.test.ts (4 tests | 1 failed) 32ms
+     × keeps every root-exported singleton object and collection runtime immutable 17ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/public-api.test.ts > stable package API > keeps every root-exported singleton object and collection runtime immutable
+AssertionError: expected [ 'BRANCH_QI_RULES', …(13) ] to deeply equal [ 'BRANCH_QI_RULES', …(11) ]
+
+- Expected
++ Received
+
+@@ -1,7 +1,9 @@
+  [
+    "BRANCH_QI_RULES",
++   "CLASSICAL_PASSAGES",
++   "CLASSICAL_SOURCES",
+    "ELEMENT_CONTROL_MAP",
+    "ELEMENT_GENERATION_MAP",
+    "GUEST_QI_SEQUENCE",
+    "HOST_GUEST_RELATION_PRIORITY",
+    "HOST_QI_SEQUENCE",
+
+ ❯ tests/public-api.test.ts:146:49
+    144|       .sort(([left], [right]) => left.localeCompare(right));
+    145|
+    146|     expect(objectExports.map(([name]) => name)).toEqual([
+       |                                                 ^
+    147|       'BRANCH_QI_RULES',
+    148|       'ELEMENT_CONTROL_MAP',
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 11 passed (12)
+      Tests  1 failed | 211 passed (212)
+   Start at  10:15:45
+   Duration  478ms (transform 604ms, setup 0ms, import 985ms, tests 263ms, environment 1ms)
+
+/workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain:
+[ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL] @yunqi/domain@1.3.0 test: `vitest run`
+Exit status 1
+[ELIFECYCLE] Test failed. See above for more details.

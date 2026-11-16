@@ -1,0 +1,42 @@
+[
+  {
+    "label": "full-test",
+    "command": "pnpm test",
+    "started": "2026-11-16T01:32:29.190930+00:00",
+    "finished": "2026-11-16T01:33:17.802707+00:00",
+    "head": "6565d9b4d6548268d9d50edad05f0c5aff2edc03",
+    "exitCode": 0
+  },
+  {
+    "label": "typecheck",
+    "command": "pnpm typecheck",
+    "started": "2026-11-16T01:33:17.803200+00:00",
+    "finished": "2026-11-16T01:33:31.015514+00:00",
+    "head": "6565d9b4d6548268d9d50edad05f0c5aff2edc03",
+    "exitCode": 0
+  },
+  {
+    "label": "coverage",
+    "command": "pnpm test:coverage",
+    "started": "2026-11-16T01:33:31.015815+00:00",
+    "finished": "2026-11-16T01:34:35.439043+00:00",
+    "head": "6565d9b4d6548268d9d50edad05f0c5aff2edc03",
+    "exitCode": 0
+  },
+  {
+    "label": "schema",
+    "command": "pnpm schema:validate",
+    "started": "2026-11-16T01:34:35.439413+00:00",
+    "finished": "2026-11-16T01:34:40.356281+00:00",
+    "head": "6565d9b4d6548268d9d50edad05f0c5aff2edc03",
+    "exitCode": 0
+  },
+  {
+    "label": "contracts",
+    "command": "pnpm contracts:check",
+    "started": "2026-11-16T01:34:40.356585+00:00",
+    "finished": "2026-11-16T01:34:44.706534+00:00",
+    "head": "6565d9b4d6548268d9d50edad05f0c5aff2edc03",
+    "exitCode": 0
+  }
+]

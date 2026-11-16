@@ -1,0 +1,38 @@
+{
+  "axis": "Spec",
+  "scope": "Only two extra final LF removals; no full-tree rereview or tests",
+  "originalReview": "spec-review.json",
+  "originalReviewSha256": "c58264145298797ba98fba68c60af504a49ed773bb79584b4cbf7aa9a348aa79",
+  "headAtFollowup": "9f27c178dad3e6d16685608917dc4022b14d0e3f",
+  "confirmedFindingCount": 0,
+  "conclusion": "Both current and staged files differ from the original reviewed bytes only by removing exactly one final LF; no semantic change. Original Spec conclusion remains applicable to these two files.",
+  "files": [
+    {
+      "path": "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+      "originalReviewedSha256": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b",
+      "currentSha256": "86e9fb989c7a0e9a30f4da8d23757d65ecc9440681e9bb228fb944fa0b750507",
+      "stagedSha256": "86e9fb989c7a0e9a30f4da8d23757d65ecc9440681e9bb228fb944fa0b750507",
+      "restoringExactlyOneLfSha256": "55fd41ec93b0459643fbc96fc07a9e08a6a861e8c3c2b07314ada863de4b4c2b",
+      "onlyRemovedOneFinalLf": true,
+      "exactlyOneFinalLf": true,
+      "indexMatchesWorktree": true
+    },
+    {
+      "path": "rules/CLASSICAL_READING_V1_1.md",
+      "originalReviewedSha256": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d",
+      "currentSha256": "53ec4c3f86b8f612739ad9ca35cb87ee33ba72bc3262d73c34994cb33c46647a",
+      "stagedSha256": "53ec4c3f86b8f612739ad9ca35cb87ee33ba72bc3262d73c34994cb33c46647a",
+      "restoringExactlyOneLfSha256": "172b658ff6fb4dab8e8d7e239ccba56e61958a1a13fdb6d2d5c7a20c952ad43d",
+      "onlyRemovedOneFinalLf": true,
+      "exactlyOneFinalLf": true,
+      "indexMatchesWorktree": true
+    }
+  ],
+  "notRun": [
+    "build",
+    "tests",
+    "full-tree rereview",
+    "browser",
+    "remote CI"
+  ]
+}

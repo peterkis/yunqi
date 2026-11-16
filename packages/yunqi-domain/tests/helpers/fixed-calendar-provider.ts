@@ -11,8 +11,11 @@ const FIXED_TERM_FIELDS = Object.freeze({
   大寒: Object.freeze([1, 20, 22, 7, 22] as const),
   春分: Object.freeze([3, 20, 11, 6, 25] as const),
   小满: Object.freeze([5, 20, 20, 59, 31] as const),
+  芒种: Object.freeze([6, 5, 12, 9, 54] as const),
   大暑: Object.freeze([7, 22, 15, 44, 26] as const),
+  处暑: Object.freeze([8, 22, 22, 55, 3] as const),
   秋分: Object.freeze([9, 22, 20, 43, 42] as const),
+  立冬: Object.freeze([11, 7, 6, 19, 49] as const),
   小雪: Object.freeze([11, 22, 3, 56, 31] as const),
 } satisfies Record<SolarTerm, readonly [number, number, number, number, number]>);
 
@@ -59,8 +62,8 @@ function epochMillisecondsForFixedTerm(year: number, term: SolarTerm): number {
 
 function getSolarTermInstant(year: number, term: SolarTerm): YunQiInstant {
   if (year === 2024) {
-    const index = Object.keys(FIXED_TERM_FIELDS).indexOf(term);
-    return fixed2024BoundaryInstants[index];
+    const index = ['大寒', '春分', '小满', '大暑', '秋分', '小雪'].indexOf(term);
+    if (index !== -1) return fixed2024BoundaryInstants[index];
   }
 
   if (year === 2025 && term === '大寒') {

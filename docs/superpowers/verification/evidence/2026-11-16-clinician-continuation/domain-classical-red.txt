@@ -1,0 +1,492 @@
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain
+
+ ❯ tests/classical-reading.test.ts (30 tests | 28 failed) 35ms
+     × retains the annual illness passage for 木 太过 without inventing a diagnosis 5ms
+     × retains the annual illness passage for 火 太过 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 土 太过 without inventing a diagnosis 3ms
+     × retains the annual illness passage for 金 太过 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 水 太过 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 木 不及 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 火 不及 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 土 不及 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 金 不及 without inventing a diagnosis 1ms
+     × retains the annual illness passage for 水 不及 without inventing a diagnosis 1ms
+     × preserves the omitted context for 太阳寒水 period 3 1ms
+     × preserves the omitted context for 太阳寒水 period 4 1ms
+     × preserves the omitted context for 阳明燥金 period 1 0ms
+     × preserves the omitted context for 阳明燥金 period 2 0ms
+     × preserves the omitted context for 少阳相火 period 1 0ms
+     × preserves the omitted context for 少阳相火 period 2 1ms
+     × preserves the omitted context for 少阳相火 period 3 1ms
+     × preserves the omitted context for 少阳相火 period 6 0ms
+     × preserves the omitted context for 太阴湿土 period 1 1ms
+     × preserves the omitted context for 太阴湿土 period 3 2ms
+     × preserves the omitted context for 太阴湿土 period 4 0ms
+     × preserves the omitted context for 太阴湿土 period 6 0ms
+     × preserves the omitted context for 少阴君火 period 1 0ms
+     × preserves the omitted context for 少阴君火 period 2 0ms
+     × preserves the omitted context for 少阴君火 period 3 0ms
+     × preserves the omitted context for 少阴君火 period 6 0ms
+     × marks doubtful source glyphs instead of silently normalizing them 0ms
+     × exposes data provenance through the existing notes field while keeping annual and period selection separate 5ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 28 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 木 太过 without inventing a diagnosis
+AssertionError: expected '岁木太过，风气流行，脾土受邪。' to contain '民病飧泄食减，体重烦冤，肠鸣腹支满'
+
+Expected: "民病飧泄食减，体重烦冤，肠鸣腹支满"
+Received: "岁木太过，风气流行，脾土受邪。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 火 太过 without inventing a diagnosis
+AssertionError: expected '岁火太过，炎暑流行，金肺受邪。' to contain '民病疟，少气欬喘'
+
+Expected: "民病疟，少气欬喘"
+Received: "岁火太过，炎暑流行，金肺受邪。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 土 太过 without inventing a diagnosis
+AssertionError: expected '岁土太过，雨湿流行，肾水受邪。' to contain '民病腹痛，清厥意不乐'
+
+Expected: "民病腹痛，清厥意不乐"
+Received: "岁土太过，雨湿流行，肾水受邪。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 金 太过 without inventing a diagnosis
+AssertionError: expected '岁金太过，燥气流行，肝木受邪。' to contain '民病两恢下少腹痛'
+
+Expected: "民病两恢下少腹痛"
+Received: "岁金太过，燥气流行，肝木受邪。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 水 太过 without inventing a diagnosis
+AssertionError: expected '岁水太过，寒气流行，邪害心火。' to contain '民病身热烦心躁悸'
+
+Expected: "民病身热烦心躁悸"
+Received: "岁水太过，寒气流行，邪害心火。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 木 不及 without inventing a diagnosis
+AssertionError: expected '岁木不及，燥乃大行，生气失应，草木晚荣，' to contain '民病中清，胠恢痛少腹痛'
+
+Expected: "民病中清，胠恢痛少腹痛"
+Received: "岁木不及，燥乃大行，生气失应，草木晚荣，"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 火 不及 without inventing a diagnosis
+AssertionError: expected '岁火不及，寒迺大行，长政不用，物荣而下凝，' to contain '民病胸中痛恢支满两恢痛'
+
+Expected: "民病胸中痛恢支满两恢痛"
+Received: "岁火不及，寒迺大行，长政不用，物荣而下凝，"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 土 不及 without inventing a diagnosis
+AssertionError: expected '岁土不及，风迺大行，化气不令，草木茂荣，飘扬而甚，秀而不实，上应岁星。' to contain '民病飧泄霍乱，体重腹痛'
+
+Expected: "民病飧泄霍乱，体重腹痛"
+Received: "岁土不及，风迺大行，化气不令，草木茂荣，飘扬而甚，秀而不实，上应岁星。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 金 不及 without inventing a diagnosis
+AssertionError: expected '岁金不及，炎火迺行，生气迺用，长气专胜，庶物以茂，燥烁以行，上应荧惑星。' to contain '民病肩背瞀重，鼽嚏血便注下'
+
+Expected: "民病肩背瞀重，鼽嚏血便注下"
+Received: "岁金不及，炎火迺行，生气迺用，长气专胜，庶物以茂，燥烁以行，上应荧惑星。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > retains the annual illness passage for 水 不及 without inventing a diagnosis
+AssertionError: expected '岁水不及，湿迺大行，长气反用，其化迺速，暑雨数至，上应镇星。' to contain '民病腹满身重，濡泄寒疡流水'
+
+Expected: "民病腹满身重，濡泄寒疡流水"
+Received: "岁水不及，湿迺大行，长气反用，其化迺速，暑雨数至，上应镇星。"
+
+ ❯ tests/classical-reading.test.ts:42:59
+     40|     ['水', '不及', '民病腹满身重，濡泄寒疡流水'],
+     41|   ])('retains the annual illness passage for %s %s without inventing a…
+     42|     expect(passage(`suwen-69-${element}-${state}`).quote).toContain(an…
+       |                                                           ^
+     43|   });
+     44|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阳寒水 period 3
+AssertionError: expected '三之气，天政布，寒气行，雨迺降，' to contain '民病寒，反热中，痈疽注下'
+
+Expected: "民病寒，反热中，痈疽注下"
+Received: "三之气，天政布，寒气行，雨迺降，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阳寒水 period 4
+AssertionError: expected '四之气，风湿交争，风化为雨，迺长迺化迺成，' to contain '民病大热，少气肌肉萎足痿'
+
+Expected: "民病大热，少气肌肉萎足痿"
+Received: "四之气，风湿交争，风化为雨，迺长迺化迺成，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 阳明燥金 period 1
+AssertionError: expected '初之气，地气迁，阴始凝，气始肃，水迺冰，寒雨化，' to contain '其病中热胀面目浮肿'
+
+Expected: "其病中热胀面目浮肿"
+Received: "初之气，地气迁，阴始凝，气始肃，水迺冰，寒雨化，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 阳明燥金 period 2
+AssertionError: expected '二之气，阳迺布，民迺舒，物迺生荣，' to contain '物迺生荣，厉大至，'
+
+Expected: "物迺生荣，厉大至，"
+Received: "二之气，阳迺布，民迺舒，物迺生荣，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阳相火 period 1
+AssertionError: expected '初之气，地气迁，风胜迺摇，寒迺去，候迺大温，草木早荣。' to contain '寒来不杀，温病迺起'
+
+Expected: "寒来不杀，温病迺起"
+Received: "初之气，地气迁，风胜迺摇，寒迺去，候迺大温，草木早荣。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阳相火 period 2
+AssertionError: expected '二之气，火反郁，白埃四起，云趋雨府，风不胜湿，雨迺零，民迺康。' to contain '民迺康。其病热郁于上'
+
+Expected: "民迺康。其病热郁于上"
+Received: "二之气，火反郁，白埃四起，云趋雨府，风不胜湿，雨迺零，民迺康。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阳相火 period 3
+AssertionError: expected '三之气，天政布，炎暑至，少阳临上，雨迺涯。' to contain '民病热中，聋瞑血溢'
+
+Expected: "民病热中，聋瞑血溢"
+Received: "三之气，天政布，炎暑至，少阳临上，雨迺涯。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阳相火 period 6
+AssertionError: expected '终之气，地气正，风迺至，万物反生，霿雾以行。' to contain '其病关闭不禁，心痛'
+
+Expected: "其病关闭不禁，心痛"
+Received: "终之气，地气正，风迺至，万物反生，霿雾以行。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阴湿土 period 1
+AssertionError: expected '初之气，地气迁，寒迺去，春气正，风迺来，生布万物以荣，民气条舒，风湿相薄，…' to contain '民病血溢，筋络拘强'
+
+Expected: "民病血溢，筋络拘强"
+Received: "初之气，地气迁，寒迺去，春气正，风迺来，生布万物以荣，民气条舒，风湿相薄，雨迺后。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阴湿土 period 3
+AssertionError: expected '三之气，天政布，湿气降，地气腾，雨迺时降，寒迺随之。' to contain '感于寒湿，则民病身重胕肿'
+
+Expected: "感于寒湿，则民病身重胕肿"
+Received: "三之气，天政布，湿气降，地气腾，雨迺时降，寒迺随之。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[20/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阴湿土 period 4
+AssertionError: expected '四之气，畏火临，溽蒸化，地气腾，天气否隔，寒风晓暮，蒸热相薄，草木凝烟，湿…' to contain '民病腠理热，血暴溢疟'
+
+Expected: "民病腠理热，血暴溢疟"
+Received: "四之气，畏火临，溽蒸化，地气腾，天气否隔，寒风晓暮，蒸热相薄，草木凝烟，湿化不流，则白露阴布，以成秋令。"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[21/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 太阴湿土 period 6
+AssertionError: expected '终之气，寒大举，湿大化，霜迺积，阴迺凝，水坚冰，阳光不治，' to contain '感于寒则病人关节禁固腰脽痛'
+
+Expected: "感于寒则病人关节禁固腰脽痛"
+Received: "终之气，寒大举，湿大化，霜迺积，阴迺凝，水坚冰，阳光不治，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阴君火 period 1
+AssertionError: expected '初之气，地气迁，燥将去，寒迺始，蛰复藏，水迺冰，霜复降，风迺至，阳气郁，' to contain '民反周密，关节禁固腰脽痛'
+
+Expected: "民反周密，关节禁固腰脽痛"
+Received: "初之气，地气迁，燥将去，寒迺始，蛰复藏，水迺冰，霜复降，风迺至，阳气郁，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[23/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阴君火 period 2
+AssertionError: expected '二之气，阳气布，风迺行，春气以正，万物应荣，寒气时至，民迺和，' to contain '民迺和，其病淋'
+
+Expected: "民迺和，其病淋"
+Received: "二之气，阳气布，风迺行，春气以正，万物应荣，寒气时至，民迺和，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[24/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阴君火 period 3
+AssertionError: expected '三之气，天政布，大火行，庶类蕃鲜，寒气时至，' to contain '民病气厥心痛，寒热更作'
+
+Expected: "民病气厥心痛，寒热更作"
+Received: "三之气，天政布，大火行，庶类蕃鲜，寒气时至，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[25/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > preserves the omitted context for 少阴君火 period 6
+AssertionError: expected '终之气，燥令行，馀火内格，肿于上，欬喘甚则血溢，寒气数举，则霿雾翳，' to contain '病生皮腠，内舍于恢'
+
+Expected: "病生皮腠，内舍于恢"
+Received: "终之气，燥令行，馀火内格，肿于上，欬喘甚则血溢，寒气数举，则霿雾翳，"
+
+ ❯ tests/classical-reading.test.ts:63:57
+     61|     ['少阴君火', 6, '病生皮腠，内舍于恢'],
+     62|   ])('preserves the omitted context for %s period %s', (sitian, step, …
+     63|     expect(passage(`suwen-71-${sitian}-${step}`).quote).toContain(anch…
+       |                                                         ^
+     64|   });
+     65|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[26/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > marks doubtful source glyphs instead of silently normalizing them
+AssertionError: expected '岁金太过，燥气流行，肝木受邪。' to contain '两恢'
+
+Expected: "两恢"
+Received: "岁金太过，燥气流行，肝木受邪。"
+
+ ❯ tests/classical-reading.test.ts:75:44
+     73|
+     74|   it('marks doubtful source glyphs instead of silently normalizing the…
+     75|     expect(passage('suwen-69-金-太过').quote).toContain('两恢');
+       |                                            ^
+     76|     expect(passage('suwen-69-金-太过').explanation).toContain('校勘');
+     77|     expect(passage('suwen-71-太阴湿土-annual').quote).toContain('身(月真)');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[27/28]⎯
+
+ FAIL  tests/classical-reading.test.ts > classical reading 1.1 text witnesses > exposes data provenance through the existing notes field while keeping annual and period selection separate
+AssertionError: expected 'YQ-CLASSICAL-READING-1.0.0' to be 'YQ-CLASSICAL-READING-1.1.0' // Object.is equality
+
+Expected: "YQ-CLASSICAL-READING-1.1.0"
+Received: "YQ-CLASSICAL-READING-1.0.0"
+
+ ❯ tests/classical-reading.test.ts:85:39
+     83|       year: 2026, month: 11, day: 16, hour: 10, minute: 0, second: 0, …
+     84|     }), fixedCalendarProvider);
+     85|     expect(CLASSICAL_READING_VERSION).toBe('YQ-CLASSICAL-READING-1.1.0…
+       |                                       ^
+     86|     expect(result.notes.some((note) => note.includes(CLASSICAL_READING…
+     87|     expect(result.annualPassages[0]?.quote).toContain('岁水太过，寒气流行，邪害心火。…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/28]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  28 failed | 2 passed (30)
+   Start at  12:42:25
+   Duration  288ms (transform 85ms, setup 0ms, import 111ms, tests 35ms, environment 1ms)
+
+undefined
+/workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain:
+[ERR_PNPM_RECURSIVE_EXEC_FIRST_FAIL] Command failed with exit code 1: vitest run tests/classical-reading.test.ts

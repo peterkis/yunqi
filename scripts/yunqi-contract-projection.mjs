@@ -3,6 +3,13 @@ const BUSINESS_PATHS = [
   '/api/v1/yunqi/current',
   '/api/v1/yunqi/calculate',
 ];
+const LEARNING_PATHS = [
+  '/api/v1/yunqi/learning/current',
+  '/api/v1/yunqi/learning/calculate',
+  '/api/v1/yunqi/learning/birth-comparison',
+  '/api/v1/constitution/questionnaire',
+  '/api/v1/constitution/assess',
+];
 
 const HTTP_METHODS = new Set([
   'get',
@@ -117,7 +124,9 @@ function schemaNameFromReference(reference) {
 function selectBusinessPaths(document) {
   const selected = {};
 
-  for (const path of BUSINESS_PATHS) {
+  const requiredPaths = document['x-yunqi-contract-id'] === 'YQ-API-CONTRACT-1.2.0'
+    ? [...BUSINESS_PATHS, ...LEARNING_PATHS] : BUSINESS_PATHS;
+  for (const path of requiredPaths) {
     const pathItem = document.paths?.[path];
     if (typeof pathItem !== 'object' || pathItem === null) {
       throw new Error(`OpenAPI business path missing: ${path}`);

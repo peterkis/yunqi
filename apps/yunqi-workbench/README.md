@@ -1,11 +1,11 @@
 # @yunqi/workbench
 
-Phase3-E1 React Workbench for TCM YunQi Lab. It is a read-only presentation
-host for the frozen YunQi API Contract. It shows the current YunQi state, an
-arbitrary-year analysis, and a specified-time analysis while providing a safe
-inquiry-planning entry. It does not calculate rules in React, infer calendar
-boundaries, create patient records, diagnose, prescribe, or provide treatment
-decisions.
+React Workbench for TCM YunQi Lab. The 2026-11-16 doctor-feedback release adds
+progressive disclosure, sourced classical excerpts, birth/current comparison,
+and constitution self-assessment to the existing annual and specified-time
+analysis. All calculations remain behind the versioned API. React does not
+infer calendar boundaries, create patient records, diagnose, predict diseases,
+prescribe, or provide treatment decisions.
 
 ## Routes and state ownership
 
@@ -14,7 +14,9 @@ The Workbench uses declarative React Router routes:
 | Route | Meaning | Request behavior |
 |---|---|---|
 | `/` | Entry redirect | Replaces the URL with `/yunqi/current` |
-| `/yunqi/current` | Current YunQi state and six-stage timeline | Calls the current-query endpoint |
+| `/yunqi/current` | Annual context, current movement/Qi, concise relations and excerpts | Calls the composite learning-current endpoint; refreshes visible current context every minute |
+| `/yunqi/birth` | Birth background beside current YunQi | Submit-only comparison; optional known birth time |
+| `/yunqi/constitution` | Versioned constitution questionnaire beside current context | GET questionnaire/current context; assessment POST only after complete explicit submission |
 | `/yunqi/year` | Annual-analysis entry and year selector | Makes no annual request |
 | `/yunqi/year/:year` | Annual structure for one validated year | Calls the annual endpoint only after strict URL validation |
 | `/yunqi/calculate` | Specified-time rule analysis | Makes one calculate request only after an explicit valid submit |
@@ -25,7 +27,7 @@ Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without
 mounting the annual query owner or calling the API.
 
-The active API Contract is `YQ-API-CONTRACT-1.1.0`; the rule result identifies
+The active API Contract is `YQ-API-CONTRACT-1.2.0`; the rule result identifies
 `YQ-MVP-RULES-1.1.0`. For `GUEST_GENERATES_HOST`, the direction label remains
 `客生主`, while the API-provided traditional description is `客生主，相得`.
 The Workbench renders these separate fields without deriving a rule relation.
@@ -63,11 +65,11 @@ The current route follows the equivalent current-query flow:
 
 ```text
 Router
-  -> useCurrentYunQiQuery
-  -> @yunqi/client
-  -> @yunqi/contracts YunQiCalculationDto
-  -> pure presentation mapper
-  -> CurrentYunQiViewModel
+  -> useLearningCurrentQuery
+  -> @yunqi/client.getLearningCurrent()
+  -> @yunqi/contracts YunQiLearningDto
+  -> mapLearning / mapCurrentYunQi
+  -> LearningViewModel / CurrentYunQiViewModel
   -> presentational components
 ```
 
@@ -96,8 +98,8 @@ feature query hooks consume the injected client. Components receive
 ViewModels only: they do not import DTOs, call `fetch`, Axios, or YunQi client
 methods, or construct `/api/v1/yunqi/**` paths.
 
-Only `src/features/yunqi/presentation/**` may consume frozen DTO types for
-presentation mapping. These pure mappers cannot depend on React, TanStack
+Feature `presentation/**` modules consume frozen DTO types for presentation
+mapping; current owners are `yunqi/presentation` and `constitution/presentation`. These pure mappers cannot depend on React, TanStack
 Query, React Router, or `@yunqi/client`, and they cannot perform transport or
 business calculation. DTOs come only from `@yunqi/contracts`; the Workbench
 does not depend on Service, Domain, calendar adapters, or generated OpenAPI
@@ -238,8 +240,9 @@ freeze is a separate status and does not establish clinical validation.
 
 ## Doctor-oriented walkthrough refinements
 
-The current view presents its current stage before annual context and links to
-the returned YunQi year. Annual navigation keeps the year in the URL, with
+The current view shows annual context and the current movement/Qi first and
+links to the returned YunQi year. The full six-stage timeline, classical
+excerpts, and technical calculation details are collapsed by default. Annual navigation keeps the year in the URL, with
 bounded previous/next controls and no inferred default year. Changing the year
 keeps focus on the year controls; switching work areas moves focus to the main
 content. A keyboard skip link and sticky navigation support long-page reading.
@@ -267,7 +270,8 @@ pnpm --filter @yunqi/workbench dev
 ```
 
 Keep `VITE_YUNQI_API_BASE_URL` unset or empty for this local setup. Vite proxies
-`/api/v1/yunqi/` to `http://127.0.0.1:3000` without rewriting paths. The browser
+`/api/v1/yunqi/` and `/api/v1/constitution/` to
+`http://127.0.0.1:3000` without rewriting paths. The browser
 sends GET and POST requests to the Workbench origin.
 
 To target a different Service port, create `apps/yunqi-workbench/.env.local`:
@@ -287,3 +291,32 @@ Production hosting must provide its own same-origin API reverse proxy.
 `VITE_YUNQI_API_BASE_URL` is supported for separate origins only when the API
 host provides CORS and POST preflight support; Service has no default CORS.
 Do not append `/api/v1/yunqi/**` to either origin; the Client owns those paths.
+
+
+## Birth comparison and constitution assessment
+
+Birth entry uses a public-calendar date and optional known Beijing standard
+time. Date-only input never invents an exact birth time in the UI. If the
+service returns several boundary-day candidates, every candidate and its
+canonical interval is shown beside the current context. Editing or clearing
+input immediately removes the old result. These are traditional time
+backgrounds, not a constitution diagnosis or an individual disease forecast.
+
+The questionnaire uses the complete service-provided GB/T 46939-2025 version.
+The UI does not score, reverse-score, choose thresholds, or use YunQi facts to
+change the assessment. Applicable questions are displayed once, in groups of
+six, with no default answers. A sex change clears answers and results. Partial
+submission returns focus to the first incomplete group without sending a
+scoring request. The nine returned scores and statuses remain separate so
+mixed constitutions are not reduced to a single maximum-score label.
+
+Birth inputs, questionnaire answers and results remain in page memory only;
+they are not placed in a URL, localStorage, sessionStorage or a patient record.
+Sensitive mutations use `gcTime: 0`; leaving their page drops the observer and
+releases the cached mutation. Current YunQi queries carry no individual data.
+
+Learning relations and classical excerpts are mapped into display-specific
+ViewModels. Their source URLs remain reviewable. Excerpts and modern reading
+notes are explicitly separated. The five-movement card visibly labels its
+teaching segmentation as pending expert confirmation; the underlying core
+rule freeze status is unchanged.

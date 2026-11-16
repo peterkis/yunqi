@@ -1,0 +1,147 @@
+$ pnpm build && pnpm --filter @yunqi/domain test:coverage && pnpm --filter @yunqi/client test:coverage && pnpm --filter @yunqi/service test:coverage && pnpm --filter @yunqi/workbench test:coverage
+$ pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+$ pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json
+$ tsc -p tsconfig.json --noEmit && vite build
+vite v8.1.5 building client environment for production...
+[2Ktransforming...✓ 140 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.46 kB │ gzip:  0.30 kB
+dist/assets/index-Ujg0s2Mw.css   38.80 kB │ gzip:  7.01 kB
+dist/assets/index-COxhzSkX.js   321.23 kB │ gzip: 99.53 kB
+
+✓ built in 123ms
+$ vitest run --coverage
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-domain
+      Coverage enabled with v8
+
+
+ Test Files  12 passed (12)
+      Tests  212 passed (212)
+   Start at  10:33:36
+   Duration  702ms (transform 1.15s, setup 0ms, import 1.65s, tests 428ms, environment 1ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   95.12 |    92.94 |     100 |   96.93 |                   
+ src/calendar      |   95.68 |    91.46 |     100 |   95.68 |                   
+  time.ts          |   95.41 |    91.25 |     100 |   95.41 | ...64,323,370,401 
+ src/learning      |   88.88 |    89.55 |     100 |   97.26 |                   
+  ...e-learning.ts |    90.9 |       90 |     100 |     100 | 26                
+  movements.ts     |   92.59 |     90.9 |     100 |   94.44 | 37                
+  relations.ts     |      80 |     86.2 |     100 |      96 | 66                
+ src/liuqi         |   93.93 |       80 |     100 |   93.75 |                   
+  host-guest.ts    |   84.61 |       50 |     100 |   84.61 | 8,18              
+ src/relation      |   94.11 |      100 |     100 |   94.11 |                   
+  ...t-relation.ts |   94.11 |      100 |     100 |   94.11 | 93                
+ src/services      |      96 |     87.5 |     100 |      96 |                   
+  ...late-yunqi.ts |   92.85 |       75 |     100 |   92.85 | 50                
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 95.12% ( 410/431 )
+Branches     : 92.94% ( 224/241 )
+Functions    : 100% ( 96/96 )
+Lines        : 96.93% ( 379/391 )
+================================================================================
+$ vitest run --coverage --maxWorkers=1
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-client
+      Coverage enabled with v8
+
+
+ Test Files  2 passed (2)
+      Tests  10 passed (10)
+   Start at  10:33:38
+   Duration  348ms (transform 38ms, setup 0ms, import 57ms, tests 17ms, environment 0ms)
+
+ % Coverage report from v8
+--------------|---------|----------|---------|---------|-------------------
+File          | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+--------------|---------|----------|---------|---------|-------------------
+--------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 100% ( 39/39 )
+Branches     : 100% ( 10/10 )
+Functions    : 100% ( 19/19 )
+Lines        : 100% ( 39/39 )
+================================================================================
+$ vitest run --coverage --maxWorkers=1
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/packages/yunqi-service
+      Coverage enabled with v8
+
+
+ Test Files  16 passed (16)
+      Tests  237 passed (237)
+   Start at  10:33:39
+   Duration  23.81s (transform 238ms, setup 0ms, import 2.28s, tests 19.07s, environment 1ms)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   97.93 |    90.99 |     100 |   98.56 |                   
+ ...ime-normalizer |   96.29 |    94.73 |     100 |   96.29 |                   
+  normalizer.ts    |   93.75 |     87.5 |     100 |   93.75 | 59                
+ src/plugins       |      96 |    85.29 |     100 |    98.5 |                   
+  error-handler.ts |     100 |    93.33 |     100 |     100 | 22                
+  openapi.ts       |   83.33 |       50 |     100 |   93.75 | 45                
+ src/routes        |   97.14 |    85.71 |     100 |   96.87 |                   
+  constitution.ts  |   93.75 |    85.71 |     100 |    92.3 | 31                
+ src/services      |   98.68 |     90.9 |     100 |   98.66 |                   
+  ...ng-service.ts |   97.72 |    86.36 |     100 |   97.67 | 100               
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 97.93% ( 284/290 )
+Branches     : 90.99% ( 101/111 )
+Functions    : 100% ( 80/80 )
+Lines        : 98.56% ( 274/278 )
+================================================================================
+$ vitest run --coverage --maxWorkers=1
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/apps/yunqi-workbench
+      Coverage enabled with v8
+
+
+ Test Files  35 passed (35)
+      Tests  126 passed (126)
+   Start at  10:34:03
+   Duration  31.73s (transform 539ms, setup 3.14s, import 1.80s, tests 7.64s, environment 12.86s)
+
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |   98.75 |     93.6 |   98.88 |   98.71 |                   
+ ...ponents/layout |     100 |       75 |     100 |     100 |                   
+  AppShell.tsx     |     100 |    66.66 |     100 |     100 | 25-58             
+  Navigation.tsx   |     100 |    83.33 |     100 |     100 | 11                
+ src/components/ui |     100 |    93.75 |     100 |     100 |                   
+  Card.tsx         |     100 |       50 |     100 |     100 | 11                
+ ...i/presentation |     100 |       90 |     100 |     100 |                   
+  map-learning.ts  |     100 |       50 |     100 |     100 | 82                
+ ...sis/components |   95.55 |    93.75 |     100 |   95.55 |                   
+  ...lysisView.tsx |   94.11 |       80 |     100 |   94.11 | 71-72             
+ ...sis/components |   94.28 |    72.22 |   89.47 |   94.28 |                   
+  YearSelector.tsx |   71.42 |    58.33 |      60 |   71.42 | 35-40             
+ src/providers     |   96.66 |    81.81 |     100 |   96.66 |                   
+  ...eProvider.tsx |    90.9 |       50 |     100 |    90.9 | 49                
+-------------------|---------|----------|---------|---------|-------------------
+
+=============================== Coverage summary ===============================
+Statements   : 98.75% ( 398/403 )
+Branches     : 93.6% ( 205/219 )
+Functions    : 98.88% ( 178/180 )
+Lines        : 98.71% ( 383/388 )
+================================================================================

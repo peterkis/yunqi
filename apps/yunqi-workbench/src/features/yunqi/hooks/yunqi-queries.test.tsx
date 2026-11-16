@@ -1,3 +1,4 @@
+import { createClientStub } from '../../../test/learning-fixtures';
 import { renderHook, waitFor } from '@testing-library/react';
 import type { YunQiClient } from '@yunqi/client';
 import type {
@@ -15,6 +16,7 @@ describe('YunQi query hooks', () => {
       marker: 'current',
     } as unknown as YunQiCalculationDto;
     const client: YunQiClient = {
+      ...createClientStub(),
       getCurrent: vi.fn().mockResolvedValue(currentResult),
       getYear: vi.fn(),
       calculate: vi.fn(),
@@ -35,6 +37,7 @@ describe('YunQi query hooks', () => {
       marker: 'year',
     } as unknown as YunQiYearDto;
     const client: YunQiClient = {
+      ...createClientStub(),
       getCurrent: vi.fn(),
       getYear: vi.fn().mockResolvedValue(yearResult),
       calculate: vi.fn(),

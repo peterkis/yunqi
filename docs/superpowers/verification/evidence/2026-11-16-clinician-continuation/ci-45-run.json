@@ -1,0 +1,30 @@
+{
+  "id": 43801298881,
+  "runNumber": 45,
+  "status": "completed",
+  "conclusion": "success",
+  "headSha": "9f27c178dad3e6d16685608917dc4022b14d0e3f",
+  "url": "https://github.com/peterkis/yunqi/actions/runs/43801298881",
+  "startedAt": "2026-11-16T03:58:56Z",
+  "updatedAt": "2026-11-16T04:04:30Z",
+  "jobId": 133081956121,
+  "artifact": {
+    "id": 14196596339,
+    "name": "browser-acceptance-43801298881-1",
+    "size_in_bytes": 69740730,
+    "url": "https://api.github.com/repos/peterkis/yunqi/actions/artifacts/14196596339",
+    "archive_download_url": "https://api.github.com/repos/peterkis/yunqi/actions/artifacts/14196596339/zip",
+    "expired": false,
+    "created_at": "2026-11-16T04:04:28Z",
+    "expires_at": "2026-11-30T04:04:25Z",
+    "updated_at": "2026-11-16T04:04:28Z",
+    "digest": "sha256:23d6314c5af8e6b863719e15ceba6cfbcefb6fe554f5910ee717480c9c8d5fa7",
+    "workflow_run": {
+      "id": 43801298881,
+      "repository_id": 1301711436,
+      "head_repository_id": 1301711436,
+      "head_branch": "feat/clinical-learning-workbench",
+      "head_sha": "9f27c178dad3e6d16685608917dc4022b14d0e3f"
+    }
+  }
+}

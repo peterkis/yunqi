@@ -1,0 +1,11 @@
+Browser acceptance evidence: D:\Projects\YunQi\.artifacts\browser\continuation-9f27c178dad3-flows
+
+Running 5 tests using 2 workers
+
+  ✓  2 [flows-chromium] › tests\browser\birth-assessment.flows.spec.mjs:135:1 › same-page assessment ignores an older real scoring response after birth inputs create a new session (13.3s)
+  ✓  3 [flows-chromium] › tests\browser\learning.flows.spec.mjs:10:1 › current teaching view keeps other stages folded and exposes original excerpts and relationship sources by keyboard (6.7s)
+  ✓  1 [flows-chromium] › tests\browser\birth-assessment.flows.spec.mjs:33:1 › same-page birth assessment reads matching annual and period passages, scores once and clears its session (21.0s)
+  ✓  4 [flows-chromium] › tests\browser\learning.flows.spec.mjs:42:1 › birth comparison submits only requested precision, displays both contexts and clears edited personal data (8.8s)
+  ✓  5 [flows-chromium] › tests\browser\learning.flows.spec.mjs:85:1 › constitution workflow keeps the current context, prevents partial scoring and shows all nine independent results (12.6s)
+
+  5 passed (45.7s)

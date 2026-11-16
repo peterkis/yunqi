@@ -1,0 +1,12 @@
+{
+  "review": "Read-only final delivery prose check by Standards reviewer",
+  "findings": [
+    {
+      "severity": "minor evidence pointer",
+      "finding": "Report said startup script path existed in manual-preview.json, but that field was missing.",
+      "resolution": "Added the actually written and launched path D:\\Projects\\YunQi\\.artifacts\\clinician-continuation-20261116\\preview.mjs."
+    }
+  ],
+  "otherChecks": "CI45 118 cases, 100 axe scans, Windows 5 + 8 split, 31 original hashes, screenshots, Linux counts and explicit manual NOT_COMPLETED scope matched evidence.",
+  "status": "RESOLVED; no product change"
+}

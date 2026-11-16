@@ -1,3 +1,4 @@
+import { createClientStub } from '../../../../test/learning-fixtures';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { YunQiClient } from '@yunqi/client';
@@ -8,6 +9,7 @@ import { AnnualYunQiView } from './AnnualYunQiView';
 
 function createClient(overrides: Partial<YunQiClient> = {}): YunQiClient {
   return {
+    ...createClientStub(),
     getCurrent: vi.fn(),
     getYear: vi.fn(),
     calculate: vi.fn(),
@@ -18,6 +20,7 @@ function createClient(overrides: Partial<YunQiClient> = {}): YunQiClient {
 describe('AnnualYunQiView', () => {
   it('renders a dedicated pending state without annual facts', () => {
     const client = createClient({
+      ...createClientStub(),
       getYear: vi.fn(
         () =>
           new Promise<ReturnType<typeof createYunQiYearDto>>(
@@ -41,6 +44,7 @@ describe('AnnualYunQiView', () => {
   it('sanitizes annual errors and retries the query', async () => {
     const user = userEvent.setup();
     const client = createClient({
+      ...createClientStub(),
       getYear: vi
         .fn()
         .mockRejectedValueOnce(
@@ -70,6 +74,7 @@ describe('AnnualYunQiView', () => {
 
   it('renders an explicit annual empty state', async () => {
     const client = createClient({
+      ...createClientStub(),
       getYear: vi.fn().mockResolvedValue(null),
     });
 
@@ -84,6 +89,7 @@ describe('AnnualYunQiView', () => {
 
   it('maps successful annual data using canonical localTime only', async () => {
     const client = createClient({
+      ...createClientStub(),
       getYear: vi.fn().mockResolvedValue(createYunQiYearDto()),
     });
 

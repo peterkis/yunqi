@@ -36,7 +36,7 @@ export function Navigation() {
           </li>
         ))}
       </ul>
-      <p className="navigation-note">规则学习 · 只读分析</p>
+      <p className="navigation-note">规则学习 · 运气对照 · 体质测评</p>
     </nav>
   );
 }

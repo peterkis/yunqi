@@ -281,6 +281,11 @@ function hasDirectClientMethodAccess(sourceFile) {
     'calculate',
     'getCurrent',
     'getYear',
+    'getLearningCurrent',
+    'calculateLearning',
+    'compareBirth',
+    'getConstitutionQuestionnaire',
+    'assessConstitution',
   ]);
   let found = false;
 

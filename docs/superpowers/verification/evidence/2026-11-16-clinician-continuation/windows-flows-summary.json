@@ -1,0 +1,175 @@
+{
+  "runDirectory": ".artifacts/browser/continuation-9f27c178dad3-flows",
+  "sourceResultsSha256": "9ff11ae531b87b390f170fdad06d28ccf16a267cc371ef46336890d998a9897b",
+  "stats": {
+    "startTime": "2026-11-16T03:56:34.631Z",
+    "duration": 45710.522000000004,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  },
+  "browserVersions": [
+    "157.0.8103.39"
+  ],
+  "environment": {
+    "fixedNowEpochMilliseconds": 1705759642000,
+    "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+    "service": "real local Fastify + tyme4ts",
+    "frontend": "Vite same-origin proxy",
+    "browserChannel": "chrome",
+    "browserExecutable": null,
+    "cleanupPassed": true,
+    "baseURL": "http://127.0.0.1:59603",
+    "serviceURL": "http://127.0.0.1:59602",
+    "cleanupErrors": []
+  },
+  "tests": [
+    {
+      "title": "same-page birth assessment reads matching annual and period passages, scores once and clears its session",
+      "file": "birth-assessment.flows.spec.mjs",
+      "line": 33,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 20983,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-classical-reading-narrow",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-flows\\results\\birth-assessment.flows-sam-e6bce-once-and-clears-its-session-flows-chromium\\attachments\\birth-classical-reading-narrow-c35ac1942a6c0a2af0652520fa290e08968c6601.png"
+            },
+            {
+              "name": "birth-assessment-axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "birth-assessment-nine-results",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-flows\\results\\birth-assessment.flows-sam-e6bce-once-and-clears-its-session-flows-chromium\\attachments\\birth-assessment-nine-results-512f34b5db0aeba677208b9f290e1ecd46fba6ef.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "same-page assessment ignores an older real scoring response after birth inputs create a new session",
+      "file": "birth-assessment.flows.spec.mjs",
+      "line": 135,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 13319,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "current teaching view keeps other stages folded and exposes original excerpts and relationship sources by keyboard",
+      "file": "learning.flows.spec.mjs",
+      "line": 10,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 6739,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "learning-axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "current-focused-learning",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-flows\\results\\learning.flows-current-tea-cb1c8-ionship-sources-by-keyboard-flows-chromium\\attachments\\current-focused-learning-631019c9bb3f8bb8fff7558eba4c162e9d1d1f67.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "birth comparison submits only requested precision, displays both contexts and clears edited personal data",
+      "file": "learning.flows.spec.mjs",
+      "line": 42,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 8773,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "learning-axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "birth-and-current-comparison",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-flows\\results\\learning.flows-birth-compa-3794f-clears-edited-personal-data-flows-chromium\\attachments\\birth-and-current-comparison-ca3c97fd4d884f367491412223ed73d7ebcef551.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "constitution workflow keeps the current context, prevents partial scoring and shows all nine independent results",
+      "file": "learning.flows.spec.mjs",
+      "line": 85,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 12615,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "learning-axe-results",
+              "contentType": "application/json"
+            },
+            {
+              "name": "constitution-nine-dimensions",
+              "contentType": "image/png",
+              "path": "D:\\Projects\\YunQi\\.artifacts\\browser\\continuation-9f27c178dad3-flows\\results\\learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium\\attachments\\constitution-nine-dimensions-c43e027baf9ac0eef2237eaf773e47d9264421a4.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

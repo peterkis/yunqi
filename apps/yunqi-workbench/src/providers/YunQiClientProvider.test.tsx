@@ -1,3 +1,4 @@
+import { createClientStub } from '../test/learning-fixtures';
 import type { YunQiClient } from '@yunqi/client';
 import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
@@ -8,6 +9,7 @@ import {
 
 function createFakeClient(): YunQiClient {
   return {
+    ...createClientStub(),
     getYear: async () => {
       throw new Error('not implemented');
     },

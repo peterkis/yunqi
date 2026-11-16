@@ -1,0 +1,41 @@
+
+> yunqi@ build D:\Projects\YunQi
+> pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+
+
+> yunqi@ build:contract-source D:\Projects\YunQi
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.3.1 build D:\Projects\YunQi\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build D:\Projects\YunQi\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.2.0 build D:\Projects\YunQi\packages\yunqi-service
+> tsc -p tsconfig.json
+
+
+> @yunqi/contracts@1.2.0 build D:\Projects\YunQi\packages\yunqi-contracts
+> tsc -p tsconfig.json
+
+
+> @yunqi/client@1.2.0 build D:\Projects\YunQi\packages\yunqi-client
+> tsc -p tsconfig.json
+
+
+> @yunqi/workbench@0.1.0 build D:\Projects\YunQi\apps\yunqi-workbench
+> tsc -p tsconfig.json --noEmit && vite build
+
+[36mvite v8.1.5 [32mbuilding client environment for production...[36m[39m
+[2Ktransforming...✓ 142 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.47 kB │ gzip:   0.31 kB
+dist/assets/index-Dan3UTX8.css   40.81 kB │ gzip:   7.26 kB
+dist/assets/index-DrcW_Feq.js   325.43 kB │ gzip: 100.43 kB
+
+[32m✓ built in 767ms[39m

@@ -38,7 +38,7 @@ export function AppShell({ children }: AppShellProps) {
           </div>
         </div>
         <div className="header-status">
-          <span className="foundation-status">临床教学工作台 · 只读</span>
+          <span className="foundation-status">临床教学工作台 · 学习与测评</span>
           <button
             className="theme-toggle"
             type="button"

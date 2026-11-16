@@ -1,0 +1,16 @@
+{
+  "standards-review.json": {
+    "files": 16,
+    "onlyRecordedFinalNewlineChanges": [
+      "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts"
+    ]
+  },
+  "spec-review.json": {
+    "files": 38,
+    "onlyRecordedFinalNewlineChanges": [
+      "packages/yunqi-domain/tests/fixtures/classical-reading-witnesses.ts",
+      "rules/CLASSICAL_READING_V1_1.md"
+    ]
+  },
+  "candidateHead": "9f27c178dad3e6d16685608917dc4022b14d0e3f"
+}
