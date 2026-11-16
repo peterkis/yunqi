@@ -6,6 +6,7 @@ import { CLASSICAL_PASSAGES, type ClassicalPassage } from './passages.js';
 import { buildMovementSteps, movementContains, type MovementStep } from './movements.js';
 import { annualRelation, currentQiRelation, type LearningRelation } from './relations.js';
 import { LEARNING_RULE_VERSION } from './rules.js';
+import { CLASSICAL_READING_VERSION } from './sources.js';
 
 export interface YunQiLearning {
   readonly ruleVersion: string;
@@ -35,7 +36,7 @@ export function calculateLearning(input: YunQiCalendarTime, provider: CalendarPr
     notes: [
       '传统理论学习提示，须结合实际气候、症状及医师辨识；不作个人疾病预测。',
       '五步运采用节气交节后整日偏移的教学口径：春分后13日、芒种后10日、处暑后7日、立冬后4日。不是古代定长计刻法，交界判断待专家确认。',
-      '经典所述病候是原文内容，工程释义另列；摘录已核对电子文本，尚待专家审校。',
+      `经典摘录数据版本：${CLASSICAL_READING_VERSION}。病候是原文内容，工程释义另列；摘录已核对电子文本，疑字待校勘，尚待专家审校。`,
     ],
   };
 }

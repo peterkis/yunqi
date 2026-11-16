@@ -72,6 +72,9 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 - Success paths use real HTTP responses. Three outage/retry cases inject one
   synthetic `503` response; a pending case delays one real request. These are
   explicit transport fault tests, not service reliability measurements.
+- The same-page birth assessment regression also delays delivery of one real
+  scoring response while birth inputs create a new session. It verifies that
+  the older response cannot restore discarded answers or results.
 
 ## Coverage
 
@@ -82,12 +85,17 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Upgraded rule trace | A real 2025 `GUEST_GENERATES_HOST` stage keeps direction `客生主`, displays API traditional description `客生主，相得`, and identifies `YQ-MVP-RULES-1.1.0` plus `YQ-API-CONTRACT-1.2.0`; both annual range endpoints also verify these version identifiers |
 | Invalid year | Malformed years and unsupported 1899/2101 URL years send no business request; selecting a valid year recovers |
 | Specified time | No query on entry; required input; one explicit POST; minute/second normalization; dirty-result hiding; resubmit; pending disabled controls and duplicate activation; sanitized error/retry; real unsupported-year rejection then recovery |
+| Learning | Current annual/period focus, folded annual timeline, keyboard relationship sources and original excerpts |
+| Birth comparison | Requested date/time precision, all returned boundary candidates, canonical current snapshot, symmetric birth/current annual and period readings, edited-result hiding and clearing |
+| Constitution | No partial scoring, bounded five-group navigation, 26 applicable answers, nine result dimensions, sex-change clearing, current context |
+| Same-page assessment | Explicit lazy opening, one questionnaire, no nested forms or independent current query, birth-response snapshot, real scoring, end/reopen/reset, stale scoring response isolation, keyboard focus |
 | Inquiry | Three planning cards, no controls or business requests, forbidden child routes show not-found, return to current |
 | Runtime | No unhandled page errors or unexpected console errors; injected HTTP errors allowed only for the matching endpoint and status |
 | UI | Full-page screenshots; horizontal overflow; control content fitting; year selector target height; stage-name/time line counts; desktop title line count; automated WCAG A/AA checks including contrast |
 
-Seven visible states are scanned: current, annual entry/result, specified-time
-entry/result, inquiry and not-found. Each runs in the following Chromium
+Twelve visible states are scanned: current, annual entry/result, specified-time
+entry/result, inquiry, birth entry/result/assessment, constitution entry/questions
+and not-found. Each runs in the following Chromium
 viewport/theme projects:
 
 | Project | Viewport | Theme |
@@ -101,7 +109,7 @@ viewport/theme projects:
 | desktop-dark | 1440 × 1000 | Dark |
 | mobile-dark | 390 × 844 | Dark |
 
-This is 17 workflow tests plus 56 visual/accessibility tests. The three UX
+This is 22 workflow tests plus 96 visual/accessibility tests (118 total). The three UX
 walkthrough regressions cover the current-year shortcut and bounded adjacent-year
 navigation, compact mobile stage selection with canonical time descriptions, and
 sticky navigation/skip-link/technical-disclosure keyboard recovery. Narrow viewport

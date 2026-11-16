@@ -1,6 +1,6 @@
 # @yunqi/domain
 
-`@yunqi/domain` 是独立的 TypeScript 领域包。当前版本 `1.3.0`，以纯函数计算运气年、年干支、岁运、太过不及、五音、司天在泉、主气、客气、六步时间轴、五步运、教学关系与经典摘录，并独立完成版本化体质量表计分。不依赖 UI、数据库、API 框架、HIS、EMR 或大模型，也没有运行时依赖。
+`@yunqi/domain` 是独立的 TypeScript 领域包。当前版本 `1.3.1`，以纯函数计算运气年、年干支、岁运、太过不及、五音、司天在泉、主气、客气、六步时间轴、五步运、教学关系与经典摘录，并独立完成版本化体质量表计分。不依赖 UI、数据库、API 框架、HIS、EMR 或大模型，也没有运行时依赖。
 
 本轮范围见[医生反馈实施计划](../../docs/plans/2026-11-16-clinician-feedback.md)，
 API 消费方变更见[Contract 1.2.0](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md)。
@@ -130,7 +130,9 @@ interface CalendarProvider {
 
 `buildMovementSteps` 独立生成五步运。采用 `TERM_OFFSET_TEACHING_V1`：初运起于大寒；其后边界分别为春分后 13 日、芒种后 10 日、处暑后 7 日、立冬后 4 日，保留交节钟点；终运止于次年大寒。该教学工程口径须由专家确认，不能替换为六步气索引或冒称古代定长计刻法。
 
-教学规则版本为 `YQ-LEARNING-RULES-1.0.0`，经典数据版本为 `YQ-CLASSICAL-READING-1.0.0`，来源及选型见[教学规则说明](../../rules/LEARNING_RULES_V1.md)。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
+教学规则版本为 `YQ-LEARNING-RULES-1.0.0`，经典数据版本为 `YQ-CLASSICAL-READING-1.1.0`。本次逐条复核 52 则摘录，扩充其中 32 则的气候、病候上下文；无病候的段落不增加疾病提示，底本疑字保留或在疑字前结束摘录。阅读说明与古典原文分开，不将古典脏腑、病候直接换成现代病名。来源及计算选型见[教学规则说明](../../rules/LEARNING_RULES_V1.md)，本次逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。
+
+`calculateLearning().notes` 包含经典数据版本，沿用现有返回结构，消费者无需迁移接口。摘录 ID、匹配键、条目数及教学规则版本保持不变，原文与阅读说明的字符串已更新；消费者不应把旧文案作为匹配条件。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
 
 ## 体质量表
 

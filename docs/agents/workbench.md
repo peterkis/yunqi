@@ -55,6 +55,9 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 2026-11-16新增两个独立入口及当前教学复合查询已获用户授权，见[实施计划](../plans/2026-11-16-clinician-feedback.md)。
 组件不导入DTO或计分规则；时间、解释和结果经纯presentation投影。出生与答案只保留会话态，
 mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果，切换性别清空不再适用的答案。
+第二轮允许在出生对照内按需组合现有量表，详见[同页测评计划](../plans/2026-11-16-clinician-feedback-continuation.md)。
+该组合只使用本次birth response的current快照；多个出生候选共用一份答卷。
+出生输入变更、清空、重新对照或结束测评时销毁答卷，旧异步评分不能恢复到新会话。
 
 ## 展示和交互
 

@@ -77,23 +77,24 @@ function mapMovement(value: MovementStepDto): MovementViewModel {
     boundaryMethod: value.boundaryMethod, explanation: value.explanation };
 }
 
-function mapPassage(value: ClassicalPassageDto): ClassicalPassageViewModel {
+function mapPassage(value: ClassicalPassageDto, periodScopeLabel: '当前阶段' | '出生阶段'): ClassicalPassageViewModel {
   return { id: value.id, work: value.work, chapter: value.chapter, section: value.section,
-    scopeLabel: PASSAGE_SCOPE_LABELS[value.scope] ?? '经典学习', quote: value.quote,
+    scopeLabel: value.scope === 'qi-period' ? periodScopeLabel : PASSAGE_SCOPE_LABELS[value.scope] ?? '经典学习', quote: value.quote,
     explanation: value.explanation, sourceUrl: value.sourceUrl };
 }
 
-export function mapLearning(value: YunQiLearningDto): LearningViewModel {
+export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前阶段' | '出生阶段' = '当前阶段'): LearningViewModel {
   return { facts: mapCurrentYunQi(value.facts), ruleVersion: value.ruleVersion,
     annualRelation: mapRelation(value.annualRelation), currentQi: mapRelation(value.currentQi),
     currentMovement: mapMovement(value.currentMovement), movements: value.movements.map(mapMovement),
-    annualPassages: value.annualPassages.map(mapPassage), currentPassages: value.currentPassages.map(mapPassage), notes: [...value.notes] };
+    annualPassages: value.annualPassages.map((passage) => mapPassage(passage, periodScopeLabel)),
+    currentPassages: value.currentPassages.map((passage) => mapPassage(passage, periodScopeLabel)), notes: [...value.notes] };
 }
 
 export function mapBirthComparison(value: BirthComparisonDto): BirthComparisonViewModel {
   return { birthPrecision: value.birthPrecision, ambiguous: value.ambiguous, message: value.message,
     current: mapLearning(value.current), candidates: value.candidates.map((candidate) => ({
       label: candidate.label, from: mapYunQiTime(candidate.from), until: mapYunQiTime(candidate.until),
-      learning: mapLearning(candidate.learning), comparisons: candidate.comparisons.map(mapRelation),
+      learning: mapLearning(candidate.learning, '出生阶段'), comparisons: candidate.comparisons.map(mapRelation),
     })) };
 }

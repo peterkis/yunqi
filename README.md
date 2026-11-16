@@ -13,12 +13,13 @@
 
 当前为 2026-11-16 医生反馈迭代，实施范围、选型和验收计划见
 [五项反馈实施计划](docs/plans/2026-11-16-clinician-feedback.md)。
-实现结果、原件核对、失败修复和完整验收证据见
-[本轮工程验收报告](docs/superpowers/verification/2026-11-16-clinician-feedback.md)。
+后续病候对读与同页测评见[第二轮计划](docs/plans/2026-11-16-clinician-feedback-continuation.md)。
+首轮实现结果、原件核对、失败修复和验收证据见
+[首轮工程验收报告](docs/superpowers/verification/2026-11-16-clinician-feedback.md)。
 
 | 组件或契约 | 当前版本 |
 | --- | --- |
-| `@yunqi/domain` | `1.3.0` |
+| `@yunqi/domain` | `1.3.1` |
 | `@yunqi/service` | `2.2.0` |
 | `@yunqi/contracts` / `@yunqi/client` | `1.2.0` |
 | 业务 API Contract | `YQ-API-CONTRACT-1.2.0` |
@@ -33,6 +34,8 @@
 客生主传统描述为“客生主，相得”。新增教学规则为
 [YQ-LEARNING-RULES-1.0.0](rules/LEARNING_RULES_V1.md)，量表规则为
 [YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
+经典内容更新为[YQ-CLASSICAL-READING-1.1.0](rules/CLASSICAL_READING_V1_1.md)，
+补充连续气候与病候选段，不改变运气计算、量表计分或API结构。
 [当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.2.0.md)记录新增接口及消费方影响；
 [1.0.0](docs/contracts/YQ-API-CONTRACT-1.0.0.md)、
 [1.1.0](docs/contracts/YQ-API-CONTRACT-1.1.0.md)说明、原始确认单与历史冻结文件保留。
@@ -41,7 +44,8 @@
 
 - 当前页聚焦年度中运、司天、在泉，以及当下所属的运与气；其余阶段按需展开。
 - 年度司天与中运、当步主客气分别显示生克方向和传统关系提示，经典摘录、阅读释义及出处分别展示。
-- `/yunqi/birth` 将出生时令与当前运气并列对照。时刻不详时保留当日交界候选，不将取样点当作出生时刻；不从生日推断疾病或替代体质测评。
+- `/yunqi/birth` 将出生时令与当前运气并列对照，双方均提供年度与阶段原文。时刻不详时保留当日交界候选，不将取样点当作出生时刻；不从生日推断疾病或替代体质测评。
+- 出生对照内可主动打开一份体质量表，与本次当前快照同时查看。结束测评、修改出生资料、清空或重新对照会销毁本次答卷及结果；不会额外刷新成另一份当前快照。
 - `/yunqi/constitution` 提供 `GB/T 46939-2025` 体质量表，每个性别实际作答 26 题，完整作答后显示九质评分、倾向及兼夹结果，并可同时查看当前运气。
 - `/yunqi/year` 与 `/yunqi/calculate` 保留年度及指定时点分析；`/yunqi/inquiry` 仍为问诊规划入口。
 

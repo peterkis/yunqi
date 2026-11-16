@@ -3,9 +3,9 @@
  * These are traceable digital transcriptions, not an expert-approved edition.
  * Quotations and the project's reading notes are deliberately separate.
  */
-export const CLASSICAL_READING_VERSION = 'YQ-CLASSICAL-READING-1.0.0' as const;
+export const CLASSICAL_READING_VERSION = 'YQ-CLASSICAL-READING-1.1.0' as const;
 
-export const CLASSICAL_READING_STATUS = '摘录已核对电子文本，待中医专家审校' as const;
+export const CLASSICAL_READING_STATUS = '摘录已核对电子文本，疑字待校勘，待中医专家审校' as const;
 
 export interface ClassicalSource {
   readonly id: string;
@@ -27,7 +27,7 @@ export const CLASSICAL_SOURCES = Object.freeze({
     witness: '维基文库《黄帝内经／素问第二十卷》简体电子文本',
     checkedOn: '2026-11-16',
     note:
-      '所录为原典选段，保留迺、欬等字形；标点沿用电子文本。病候属于经典论述，不作为个体诊断或疾病预测。工程释义不是原文译本。',
+      '所录为原典连续选段，保留迺、欬等字形及电子文本标点；“恢”等疑字照录并在阅读说明中标明待校勘，部分摘录止于未定字形之前。病候属于经典论述，不作为个体诊断或疾病预测；工程释义不是原文译本。选段不含治法、方药或剂量。',
   }),
   'suwen-71': Object.freeze({
     id: 'suwen-71',
@@ -38,7 +38,7 @@ export const CLASSICAL_SOURCES = Object.freeze({
     witness: '维基文库《黄帝内经／素问第二十一卷》简体电子文本',
     checkedOn: '2026-11-16',
     note:
-      '依“凡此某司天之政”定位年度段，并依该段内的初至终之气定位阶段段。原文的“先天／后天”指气化先后时序，不是出生体质。选段不含治法、方药或剂量。',
+      '依“凡此某司天之政”定位年度段，并依该段内的初至终之气定位阶段段，保留气候、病候及条件的连续语境。“先天／后天”指气化先后时序，不是出生体质。“身(月真)愤”“恢”等电子底本疑字照录并标明待校勘。选段不含治法、方药或剂量。',
   }),
   'yizong-jinjian-yunqi': Object.freeze({
     id: 'yizong-jinjian-yunqi',

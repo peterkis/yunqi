@@ -4,9 +4,10 @@
 这些文档承接原AGENTS要求，不赋予新业务或医疗能力。
 
 当前 API Contract 为 [1.2.0](../contracts/YQ-API-CONTRACT-1.2.0.md)：
-Domain `1.3.0`、Service `2.2.0`、Contracts / Client `1.2.0`，OpenAPI 文档 `1.4.0`。
+Domain `1.3.1`、Service `2.2.0`、Contracts / Client `1.2.0`，OpenAPI 文档 `1.4.0`。
 本轮授权范围与验收计划见[医生反馈实施计划](../plans/2026-11-16-clinician-feedback.md)；
 本地启动与接口概览见[根 README](../../README.md)。
+病候对读与同页测评增量见[第二轮计划](../plans/2026-11-16-clinician-feedback-continuation.md)。
 
 | 主题 | 入口 | 权威来源 |
 | --- | --- | --- |

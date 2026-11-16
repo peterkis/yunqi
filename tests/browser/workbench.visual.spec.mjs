@@ -10,6 +10,7 @@ const cases = [
   { name: 'inquiry', path: '/yunqi/inquiry', ready: '问诊结构化入口' },
   { name: 'birth-entry', path: '/yunqi/birth', ready: '出生运气对照' },
   { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
+  { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
@@ -28,6 +29,9 @@ for (const state of cases) {
       await page.getByLabel('出生日期（公历）').fill('1990-05-12');
       await page.getByRole('button', { name: '查看出生与当前运气' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
+    }
+    if (state.birthAssessment) {
+      await page.getByRole('button', { name: '开始本次体质测评', exact: true }).click();
     }
     if (state.questionnaire) {
       await page.getByRole('radio', { name: '男', exact: true }).check();

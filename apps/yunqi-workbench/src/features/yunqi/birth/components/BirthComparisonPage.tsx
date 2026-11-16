@@ -3,15 +3,17 @@ import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { ClassicalPassages, LearningSnapshot, RelationHint } from '../../components/LearningPanels';
 import { useBirthComparisonMutation } from '../../hooks/useLearningQueries';
 import { mapBirthComparison } from '../../presentation/map-learning';
+import { BirthAssessmentSession } from './BirthAssessmentSession';
 
 export function BirthComparisonPage() {
   const mutation = useBirthComparisonMutation();
-  const result = mutation.data ? mapBirthComparison(mutation.data) : undefined;
+  const result = mutation.isSuccess && mutation.data ? mapBirthComparison(mutation.data) : undefined;
   const [birthDate, setBirthDate] = useState('');
   const [birthTime, setBirthTime] = useState('');
   const [knowsTime, setKnowsTime] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
   const [wasEdited, setWasEdited] = useState(false);
+  const [comparisonRevision, setComparisonRevision] = useState(0);
 
   function edited() {
     setWasEdited(mutation.data !== undefined || wasEdited);
@@ -32,6 +34,9 @@ export function BirthComparisonPage() {
       : { birthDate };
     setInputError(null);
     setWasEdited(false);
+    // A fast response can batch away the pending render; an explicit new
+    // comparison must still discard the previous local questionnaire.
+    setComparisonRevision((revision) => revision + 1);
     mutation.mutate(request);
   }
 
@@ -103,15 +108,18 @@ export function BirthComparisonPage() {
                       {candidate.comparisons.map((relation, position) => <RelationHint key={position} relation={relation} />)}
                     </div>
                   </details>
-                  <ClassicalPassages title="出生运气 · 经典原文" passages={candidate.learning.annualPassages} />
+                  <ClassicalPassages title="出生年度 · 经典原文" passages={candidate.learning.annualPassages} />
+                  <ClassicalPassages title="出生阶段 · 经典原文" passages={candidate.learning.currentPassages} />
                 </article>
               ))}
             </div>
             <aside className="birth-current" aria-label="对照时的当前运气">
               <LearningSnapshot learning={result.current} title="当前运气" />
+              <ClassicalPassages title="当前年度 · 经典原文" passages={result.current.annualPassages} />
               <ClassicalPassages title="当前阶段 · 经典原文" passages={result.current.currentPassages} />
             </aside>
           </div>
+          <BirthAssessmentSession key={comparisonRevision} comparison={result} />
           <p className="learning-boundary">出生运气是传统理论中的时间背景，不能替代体质量表与四诊，也不能确定个人易患何种疾病。</p>
         </section>
       ) : (
