@@ -1,0 +1,33 @@
+{
+  "productHead": "72a861ba0e55e6c5b25b5b860dd50622e1553fae",
+  "device": "DESKTOP-MOSHDQK",
+  "browser": "Chrome 157.0.8103.39",
+  "url": "http://127.0.0.1:51706",
+  "clock": "real current clock",
+  "screenshots": [
+    {
+      "file": "windows-preview-current.jpg",
+      "sha256": "d33b1f60834ecebc0aea0455fc157156161506f3d32dc2439b0d4f935b0792db",
+      "imageWidth": 1665,
+      "imageHeight": 919,
+      "capture": "visible viewport",
+      "displayedCalculationLocalTime": "2026-11-16T10:04:23.840+08:00",
+      "state": "当前五运六气：年度概览、终运、五之气，其他内容默认折叠"
+    },
+    {
+      "file": "windows-preview-constitution.jpg",
+      "sha256": "d7c751d61ed50800e26e3475fe8b02e9942a5b45758a54de889489c3f51aaace",
+      "imageWidth": 1665,
+      "imageHeight": 919,
+      "capture": "visible viewport",
+      "displayedCalculationLocalTime": "2026-11-16T10:09:16.665+08:00",
+      "state": "量表男分支，0/26，第1组，当前运气侧栏；未填写答案"
+    }
+  ],
+  "manualVerification": {
+    "birthExample": "1990-05-20, time unknown; successful side-by-side result, then navigated away to clear data",
+    "birthInputObservation": "Automation fill showed a native date value, but submit reset the field and displayed an error; confirming with native arrow keys produced the correct result. The difference was observed in automated filling; no normal-input product defect was established.",
+    "screenshotLimit": "Full-page screenshot attempts timed out in browser tooling. Saved visible viewport screenshots; CI has full-page captures.",
+    "finalState": "Returned to /yunqi/current and marked as deliverable; questionnaire sample selection cleared."
+  }
+}

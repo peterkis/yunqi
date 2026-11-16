@@ -13,6 +13,8 @@
 
 当前为 2026-11-16 医生反馈迭代，实施范围、选型和验收计划见
 [五项反馈实施计划](docs/plans/2026-11-16-clinician-feedback.md)。
+实现结果、原件核对、失败修复和完整验收证据见
+[本轮工程验收报告](docs/superpowers/verification/2026-11-16-clinician-feedback.md)。
 
 | 组件或契约 | 当前版本 |
 | --- | --- |

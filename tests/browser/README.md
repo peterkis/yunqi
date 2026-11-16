@@ -79,7 +79,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | --- | --- |
 | Current | Root redirect, canonical time, current navigation, six disclosure controls with Enter/Space, rail navigation, return path |
 | Annual | Empty entry sends no query; 2024 real response; all six radio selections and keyboard movement; API boundary display; URL/navigation agreement; year change; back/forward; refresh; 1900/2100 supported years with real responses |
-| Upgraded rule trace | A real 2025 `GUEST_GENERATES_HOST` stage keeps direction `客生主`, displays API traditional description `客生主，相得`, and identifies `YQ-MVP-RULES-1.1.0` plus `YQ-API-CONTRACT-1.1.0`; both annual range endpoints also verify these version identifiers |
+| Upgraded rule trace | A real 2025 `GUEST_GENERATES_HOST` stage keeps direction `客生主`, displays API traditional description `客生主，相得`, and identifies `YQ-MVP-RULES-1.1.0` plus `YQ-API-CONTRACT-1.2.0`; both annual range endpoints also verify these version identifiers |
 | Invalid year | Malformed years and unsupported 1899/2101 URL years send no business request; selecting a valid year recovers |
 | Specified time | No query on entry; required input; one explicit POST; minute/second normalization; dirty-result hiding; resubmit; pending disabled controls and duplicate activation; sanitized error/retry; real unsupported-year rejection then recovery |
 | Inquiry | Three planning cards, no controls or business requests, forbidden child routes show not-found, return to current |

@@ -1,0 +1,9 @@
+
+ RUN  v4.1.10 /workspace/scratch/f0fdd99861f7/yunqi/apps/yunqi-workbench
+
+
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Start at  10:54:03
+   Duration  2.47s (transform 107ms, setup 130ms, import 153ms, tests 1.44s, environment 582ms)
+

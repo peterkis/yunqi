@@ -1,0 +1,3820 @@
+{
+  "runId": 43787542905,
+  "head": "1d96d87b8620a021e4ce39e850803c20d1a29fe2",
+  "sourceResultsSha256": "f666ba0a31aea285bddec879cac369a0600fd9fa591c414841f9d20c8a132da7",
+  "stats": {
+    "startTime": "2026-11-16T01:43:06.043Z",
+    "duration": 131641.909,
+    "expected": 107,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  },
+  "config": {
+    "version": "1.64.1",
+    "workers": 2,
+    "forbidOnly": true,
+    "globalSetup": "/home/runner/work/yunqi/yunqi/tests/browser/global-setup.mjs"
+  },
+  "tests": [
+    {
+      "title": "current teaching view keeps other stages folded and exposes original excerpts and relationship sources by keyboard",
+      "file": "learning.flows.spec.mjs",
+      "line": 10,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2620,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "learning-axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "current-focused-learning",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/learning.flows-current-tea-cb1c8-ionship-sources-by-keyboard-flows-chromium/attachments/current-focused-learning-8cb4b543969615eac7a52efa5884d20e4f0b69b3.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "birth comparison submits only requested precision, displays both contexts and clears edited personal data",
+      "file": "learning.flows.spec.mjs",
+      "line": 42,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3091,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "learning-axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "birth-and-current-comparison",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/learning.flows-birth-compa-3794f-clears-edited-personal-data-flows-chromium/attachments/birth-and-current-comparison-275bab409924385bc731ed6f0319880c4b97d4ab.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "constitution workflow keeps the current context, prevents partial scoring and shows all nine independent results",
+      "file": "learning.flows.spec.mjs",
+      "line": 85,
+      "project": "flows-chromium",
+      "status": "unexpected",
+      "results": [
+        {
+          "status": "timedOut",
+          "duration": 47274,
+          "retry": 0,
+          "errors": [
+            {
+              "message": "\u001b[31mTest timeout of 45000ms exceeded.\u001b[39m"
+            },
+            {
+              "location": {
+                "file": "/home/runner/work/yunqi/yunqi/tests/browser/learning.flows.spec.mjs",
+                "column": 66,
+                "line": 93
+              },
+              "message": "Error: locator.click: Test timeout of 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '下一组', exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <button type=\"button\" class=\"primary-button\">下一组</button>\u001b[22m\n\u001b[2m  - attempting click action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and stable\u001b[22m\n\u001b[2m    - element is visible, enabled and stable\u001b[22m\n\u001b[2m    - scrolling into view if needed\u001b[22m\n\u001b[2m    - done scrolling\u001b[22m\n\u001b[2m    - performing click action\u001b[22m\n\n\n  91 |   await expect(page.locator('.question-list input:checked')).toHaveCount(0);\n  92 |   while (await page.getByRole('button', { name: '下一组', exact: true }).isVisible()) {\n> 93 |     await page.getByRole('button', { name: '下一组', exact: true }).click();\n     |                                                                  ^\n  94 |   }\n  95 |   await page.getByRole('button', { name: '生成体质测评结果', exact: true }).click();\n  96 |   await expect(page.getByRole('alert')).toContainText('题未作答');\n    at /home/runner/work/yunqi/yunqi/tests/browser/learning.flows.spec.mjs:93:66"
+            }
+          ],
+          "attachments": [
+            {
+              "name": "screenshot",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium/test-failed-1.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "error-context",
+              "contentType": "text/markdown",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium/error-context.md"
+            },
+            {
+              "name": "trace",
+              "contentType": "application/zip",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/learning.flows-constitutio-7895e-ll-nine-independent-results-flows-chromium/trace.zip"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "current-year shortcut and adjacent-year controls retain URL, bounds and history",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 3,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2234,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 36,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1161,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "mobile-stage-comparison",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/ux-walkthrough.flows-mobil-aeee8-ves-exact-time-descriptions-flows-chromium/attachments/mobile-stage-comparison-e0c6d9e2c3a20e723057f75903851822a8eafcc3.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "sticky navigation, skip link and technical disclosure support keyboard recovery",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "line": 57,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1227,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "keyboard-technical-disclosure",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/ux-walkthrough.flows-stick-ef4b6-e-support-keyboard-recovery-flows-chromium/attachments/keyboard-technical-disclosure-4884dee2e4fc3610652ce3ef8241f2e3ead20578.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "current route redirects, renders canonical time and closes every stage disclosure",
+      "file": "workbench.flows.spec.mjs",
+      "line": 3,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2096,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current-disclosures",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-current-ro-f8917-oses-every-stage-disclosure-flows-chromium/attachments/current-disclosures-eabfde77007f31ab1d05a3f259854cb1fa18688c.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop",
+      "file": "workbench.flows.spec.mjs",
+      "line": 32,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3631,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-six-stage-selection",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-annual-ent-17876-load-and-return-form-a-loop-flows-chromium/attachments/annual-six-stage-selection-3ac57b9b6e06cecbd34c5728b275c0a1ac3ad744.png"
+            },
+            {
+              "name": "annual-upgraded-guest-generates-host",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-annual-ent-17876-load-and-return-form-a-loop-flows-chromium/attachments/annual-upgraded-guest-generates-host-780e2bd7ca52fedf65270e578826c096a9ae3af7.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year abc shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1059,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 2024extra shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1136,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 1899 shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1199,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-invalid-boundary-1899",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-invalid-ye-188af-ge-without-a-business-query-flows-chromium/attachments/annual-invalid-boundary-1899-b56029b5d9827ec8b2b42fe0c59895e5684dc68a.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "invalid year 2101 shows a recoverable message without a business query",
+      "file": "workbench.flows.spec.mjs",
+      "line": 117,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1226,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-invalid-boundary-2101",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-invalid-ye-9ef19-ge-without-a-business-query-flows-chromium/attachments/annual-invalid-boundary-2101-2ca43d00d203116281bb6cff7fdd0d2f35db6d92.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "specified time is submit-only, rejects empty input and hides stale results after editing",
+      "file": "workbench.flows.spec.mjs",
+      "line": 129,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1625,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculated-real-api",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-specified--dee2b-stale-results-after-editing-flows-chromium/attachments/calculated-real-api-97f3da4a0a92f62712877c7d5c5573c6d0f09dbd.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "supported annual boundary years load directly from the real API",
+      "file": "workbench.flows.spec.mjs",
+      "line": 163,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1590,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-boundary-1900",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-supported--f2705--directly-from-the-real-API-flows-chromium/attachments/annual-boundary-1900-05b055dc68b6f994ed082a396f15ac668631992a.png"
+            },
+            {
+              "name": "annual-boundary-2100",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-supported--f2705--directly-from-the-real-API-flows-chromium/attachments/annual-boundary-2100-27aabce14dbe2b208dddec375676b8256c49eb21.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+      "file": "workbench.flows.spec.mjs",
+      "line": 183,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 865,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "pending calculation disables input and repeated activation sends only one real request",
+      "file": "workbench.flows.spec.mjs",
+      "line": 198,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1251,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "calculation outage is sanitized and retry recovers using the real API",
+      "file": "workbench.flows.spec.mjs",
+      "line": 228,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1072,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculation-error",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.flows-calculatio-dd0d7-recovers-using-the-real-API-flows-chromium/attachments/calculation-error-9b44cb0cf8425e28b4a9410869ace200f5f40e68.png"
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "/yunqi/current recovers after a single failed GET",
+      "file": "workbench.flows.spec.mjs",
+      "line": 254,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 806,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "/yunqi/year/2024 recovers after a single failed GET",
+      "file": "workbench.flows.spec.mjs",
+      "line": 254,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 768,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "inquiry remains a no-query planning entry and invalid child routes return to current",
+      "file": "workbench.flows.spec.mjs",
+      "line": 272,
+      "project": "flows-chromium",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 3267,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2213,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-desktop-light/attachments/current-ad9deea944bf91fff088e2aa40bcfa13c86057d9.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1852,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-desktop-light/attachments/annual-entry-82af8b9b538184e2f5245f8ac925c218d9ed7ccf.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2246,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-desktop-light/attachments/annual-result-603c06519b8c7cd88ab350296652e517175a20fd.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1681,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-desktop-light/attachments/calculate-entry-13a25eb872ff3b944ff188241002303c5453ebe4.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2202,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-desktop-light/attachments/calculate-result-1e933a336aff696ca66b09a8e94cd16c624401fe.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1643,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-desktop-light/attachments/inquiry-9e2c53c03c4298e2b5e876f0297e4282b20ec946.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1653,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-desktop-light/attachments/birth-entry-638f6912022ee36ccf64f473954406f15b646d99.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2099,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-desktop-light/attachments/birth-result-0c7c5fc148fb5c934d6a11998bbc13e36031b2f5.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1938,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-desktop-light/attachments/constitution-entry-9f3e1109f69eb2829ba6f6a52aed60df02fa74e0.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2347,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-desktop-light/attachments/constitution-questions-0c5c8a3fc309dd259b94d4422b294b8da5dd3c21.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1636,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-desktop-light/attachments/not-found-fa129422a985cf282eac049929f20ec3b87f50de.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2412,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-breakpoint-light/attachments/current-0db94bbcf0368ed1a09a5cfc1dccf99980884da7.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2007,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-breakpoint-light/attachments/annual-entry-5b0a0a10d2084d5a294946476a1298e283e5515e.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2307,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-breakpoint-light/attachments/annual-result-8f9eb9891fb7b2e4df71de682d4cf5d7c20527cc.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1643,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-breakpoint-light/attachments/calculate-entry-04c452b2f9cd86bea3923b21f95f3a76b3ad7253.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2254,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-breakpoint-light/attachments/calculate-result-468bbf04c198d4c8da2d395b840ea319e21d56d8.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1649,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-breakpoint-light/attachments/inquiry-06ade34d287182ac8da6c675b1ba6448cfed8350.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1576,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-breakpoint-light/attachments/birth-entry-16d9f6eb2f1ae87b5b56c8e3474032b30be2a5fd.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2055,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-breakpoint-light/attachments/birth-result-79007a4975286e10a51df71b784076ba7354a616.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1830,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-breakpoint-light/attachments/constitution-entry-e34fde291d7f29e66c2f17873aa9eaa72482d866.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1998,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-breakpoint-light/attachments/constitution-questions-fda09d071d517185bbdb45ee3123afdbe63c1b82.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "breakpoint-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1664,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-breakpoint-light/attachments/not-found-975271fbe1d66006e4460c37b27fe01beda7fd2d.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2071,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-tablet-boundary-light/attachments/current-e7fc166f797cae38b624d90fc5e7f4ff71e6e855.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1949,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-tablet-boundary-light/attachments/annual-entry-2416321aa47944bb9a18c0744c1c26b10f107337.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2155,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-tablet-boundary-light/attachments/annual-result-c1945684c3036b94eab7b9ae166a5191b2a1598d.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1516,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-tablet-boundary-light/attachments/calculate-entry-4fe6ae2cfcabb150d1ba09d7e1873a0cbbf4d22c.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2270,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-tablet-boundary-light/attachments/calculate-result-f07b2e1a23fa3bc008958fb30b9a45c868cdbcf7.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1552,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-tablet-boundary-light/attachments/inquiry-5f656dd2d92a5e5546d902f18df9b69d6d6e2700.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1567,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-tablet-boundary-light/attachments/birth-entry-17f3c4530ffbb81b30014de77ef6878415b60248.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1941,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-tablet-boundary-light/attachments/birth-result-216508ecd8c05345ed2cd27153bfc1558f964b08.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1849,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-tablet-boundary-light/attachments/constitution-entry-62c6506585bc172bf857d07a1c34bb3639dbd86c.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1941,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-tablet-boundary-light/attachments/constitution-questions-ac428abc8d517a40e1354d4924c47fce6abf4117.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-boundary-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1520,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-tablet-boundary-light/attachments/not-found-93cf8868d4e9383445756a2f36b01c1875594f22.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2158,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-tablet-light/attachments/current-45a9343a68873d01f5835197c227ece3e739421e.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1876,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-tablet-light/attachments/annual-entry-537d47ef3c1334a5335a75bb0f3dbef4b75c5329.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2309,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-tablet-light/attachments/annual-result-07e5ab9ba33ba615f7f55092e5111e6e55b9e5e7.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1601,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-tablet-light/attachments/calculate-entry-5693b62362aba92d8ec404e12994d9d9a90eecd2.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2197,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-tablet-light/attachments/calculate-result-148b439bc8f124816cefc17a5c80c91ea72e102f.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1649,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-tablet-light/attachments/inquiry-df9ec12415ed3dbc41cc151ec4978bccbda9637c.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1551,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-tablet-light/attachments/birth-entry-46aab8a5ba78e810eb014c62c589dea53577209a.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2067,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-tablet-light/attachments/birth-result-45803b324684f7ccc21c42c60f3f38b800cf6cc6.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1742,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-tablet-light/attachments/constitution-entry-fcc5a9b98877c70e334d219e0a93c13369280791.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1907,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-tablet-light/attachments/constitution-questions-bb07f3ea249188bd557ce39a754f9ad92b66d949.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "tablet-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1569,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-tablet-light/attachments/not-found-6326a127e8c007691254131dc73ab0069931e136.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2042,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-mobile-light/attachments/current-d9184088716a038ac3565a85c92b49d9c5946047.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1813,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-mobile-light/attachments/annual-entry-d83a853a47cc4bbbd2c46525b6f24b5d3d35010a.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1994,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-mobile-light/attachments/annual-result-8feab3210e2dc8ef2db0c64cc6bbb746a3809a33.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1566,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-mobile-light/attachments/calculate-entry-cf6349362f80c89c4c91e381e36342f6409846ed.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2197,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-mobile-light/attachments/calculate-result-64e32ca1a82b8ac2626cdafbc3bed904d4855118.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1611,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-mobile-light/attachments/inquiry-f1afe536274157ab7f81e28c767115703ec956e1.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1469,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-mobile-light/attachments/birth-entry-40d6bdcc8802cb9995502e8dfe34b34184ce4d29.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1909,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-mobile-light/attachments/birth-result-0718f6efa076ec93c21bae047a97767ba0ae5c1b.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1748,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-mobile-light/attachments/constitution-entry-2dcbc43eb231545c85d0c9eef2323c94209c877b.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1891,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-mobile-light/attachments/constitution-questions-919578aa9905f5bf3ac4b69bdcb2e0a6898d5d61.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1471,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-mobile-light/attachments/not-found-794202936a424654dad5915a226ac98f7bc6071e.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2059,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-narrow-light/attachments/current-89fbd4575a3a9e51d6cbbf81dc5e0881bc0c4bb1.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1847,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-narrow-light/attachments/annual-entry-486d98b5102b15e5a3031c8ffff2db73e147cb0a.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2064,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-narrow-light/attachments/annual-result-60d244cb3831f1883a797671149a051c4b617de9.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1566,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-narrow-light/attachments/calculate-entry-1915dc352eead6ea7bf6d5a02d72106acd401162.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2215,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-narrow-light/attachments/calculate-result-37f7b9af63ab80b934f0ab88432291a2237ec17d.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1634,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-narrow-light/attachments/inquiry-48a0c799a753a320eec5fe3eeceb438a6f8658e7.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1509,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-narrow-light/attachments/birth-entry-117402a388cc386c88f17854561b878f379f6903.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1829,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-narrow-light/attachments/birth-result-3223b974da470ca26d3a23dcba1a66038da83264.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1715,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-narrow-light/attachments/constitution-entry-6ce5aff20f464d1c50696d0de2b657aab091cf7c.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1820,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-narrow-light/attachments/constitution-questions-5076fdcd20bbe05f75d3bf8a620727ef13ebe16a.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "narrow-light",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1505,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-narrow-light/attachments/not-found-e70ff8339af4f97604e833a1cffd06c2e7f8a2ef.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2353,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-desktop-dark/attachments/current-8d6bd270c80e69e7ad3a29b97f0ebf43ecfaf5ee.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2075,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-desktop-dark/attachments/annual-entry-9699596d60dc479d6acefa14af828fa22f964ac7.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2373,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-desktop-dark/attachments/annual-result-53d2632a4002f59903e6b24cc01b82960eba0c99.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1727,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-desktop-dark/attachments/calculate-entry-ea8b46aacac3bad3c799024fde4499cee81980dd.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2340,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-desktop-dark/attachments/calculate-result-549cd2778c5b1ea4c965a5484a422e41057d9760.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1714,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-desktop-dark/attachments/inquiry-7f0c2731e00d46af80e80c0908e0f2c46c0bb965.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1608,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-desktop-dark/attachments/birth-entry-2547b4dc13d480908a5abb6d837ca8fada9ac38c.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2133,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-desktop-dark/attachments/birth-result-5fdca83a81c75968066677fce0a944a0d1b5dd0f.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1880,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-desktop-dark/attachments/constitution-entry-8b59ecdb46b6382bd021b802ad1dd41a967f5ab8.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2093,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-desktop-dark/attachments/constitution-questions-5b6f4ac048537a622d6d1b3c92bb3a03ce993889.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "desktop-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1584,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-desktop-dark/attachments/not-found-2935a6402bcc2e9ee8eb603111c7a27d0278e203.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual current: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2119,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "current",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-2145e-le-layout-and-accessibility-mobile-dark/attachments/current-6eb93415d696e4d6210fa4cb0d5b074893cbeea1.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1901,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-66481-le-layout-and-accessibility-mobile-dark/attachments/annual-entry-94124197e48f5a72e24d1144616fe0f9e8e5b039.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual annual-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2064,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "annual-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-a-ece07-le-layout-and-accessibility-mobile-dark/attachments/annual-result-2e357458d1245a037c4a58363c51c2ee53d6dd5d.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1584,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-0bcad-le-layout-and-accessibility-mobile-dark/attachments/calculate-entry-89a72aa6324e1d4dcb8b20cdfd879db4124b6736.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual calculate-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 2272,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "calculate-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b484d-le-layout-and-accessibility-mobile-dark/attachments/calculate-result-ff03885d69f4407368a46629561f204daf69b5c4.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual inquiry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1654,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "inquiry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-i-2c3b0-le-layout-and-accessibility-mobile-dark/attachments/inquiry-d311386877d6044339753a501b5a8545898ff147.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1560,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-be1a3-le-layout-and-accessibility-mobile-dark/attachments/birth-entry-4c8faff1f36082e73f0f441e304663c1f0d53d73.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual birth-result: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1950,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "birth-result",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-b-a2da9-le-layout-and-accessibility-mobile-dark/attachments/birth-result-ae713aecc5d1394f62ced868255269922f12ce02.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-entry: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1769,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-entry",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-b26dd-le-layout-and-accessibility-mobile-dark/attachments/constitution-entry-54458b1bdc00b86e68aee28060616111a9b9f8d4.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual constitution-questions: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1904,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "constitution-questions",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-c-8e976-le-layout-and-accessibility-mobile-dark/attachments/constitution-questions-da37bb2a9f5305a7bf0d51b682392763c1b1ecab.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "@visual not-found: screenshot, readable layout and accessibility",
+      "file": "workbench.visual.spec.mjs",
+      "line": 19,
+      "project": "mobile-dark",
+      "status": "expected",
+      "results": [
+        {
+          "status": "passed",
+          "duration": 1405,
+          "retry": 0,
+          "errors": [],
+          "attachments": [
+            {
+              "name": "not-found",
+              "contentType": "image/png",
+              "path": "/home/runner/work/yunqi/yunqi/.artifacts/browser/2026-11-16T01-43-06-040Z-1b779ba2/results/workbench.visual--visual-n-8c3eb-le-layout-and-accessibility-mobile-dark/attachments/not-found-44e9e0559ff703081c258f687ed1faafaca7c917.png"
+            },
+            {
+              "name": "layout-metrics",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "axe-results",
+              "contentType": "application/json",
+              "path": null
+            },
+            {
+              "name": "browser-diagnostics",
+              "contentType": "application/json",
+              "path": null
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "note": "Derived lossless status/error index; embedded large axe attachments remain in original CI artifact 14190923973."
+}
