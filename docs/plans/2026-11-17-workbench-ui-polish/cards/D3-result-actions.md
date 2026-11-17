@@ -49,3 +49,7 @@
 - `pnpm --filter @yunqi/workbench test`、`typecheck`、`test:typecheck`、`test:coverage`、`build`
 - `pnpm test:workbench-governance`、`pnpm test:time-governance`、`pnpm test:project-guidance`
 - `pnpm test:browser`（评审方运行）
+
+## 补充（D2 评审遗留）
+
+- 量表作答页：眉标“男性版 · 更换”与进度行“GB/T 46939-2025 · 男性版 · 26 题”重复“男性版”。保留眉标中的版本与“更换”，进度行去掉版本，只留标准号与题数。
