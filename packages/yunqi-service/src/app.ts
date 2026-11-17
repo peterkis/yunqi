@@ -5,7 +5,12 @@ import Fastify, {
   type FastifyServerOptions,
 } from 'fastify';
 import { installErrorHandler } from './plugins/error-handler.js';
-import { DEFAULT_INGRESS_LIMITS, installIngress, type IngressLimits } from './plugins/ingress.js';
+import {
+  DEFAULT_INGRESS_LIMITS,
+  installIngress,
+  type IngressClock,
+  type IngressLimits,
+} from './plugins/ingress.js';
 import {
   registerOpenApi,
   registerSwaggerUi,
@@ -21,6 +26,8 @@ export interface BuildAppOptions {
   now: () => number;
   logger?: FastifyServerOptions['logger'];
   ingress?: Partial<IngressLimits>;
+  /** Internal test seam for the ingress rate window; defaults to a monotonic clock. */
+  ingressClock?: IngressClock;
 }
 
 export async function buildApp(
@@ -41,7 +48,7 @@ export async function buildApp(
   })
     .withTypeProvider<TypeBoxTypeProvider>();
 
-  installIngress(app, ingress);
+  installIngress(app, ingress, options.ingressClock);
 
   await registerOpenApi(app);
   for (const schema of contractSchemas) {

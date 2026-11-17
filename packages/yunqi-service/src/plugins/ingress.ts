@@ -21,7 +21,16 @@ export const DEFAULT_INGRESS_LIMITS: Readonly<IngressLimits> = Object.freeze({
   requestsPerPeer: 20,
 });
 
-export function installIngress(app: FastifyInstance, limits: IngressLimits): void {
+/** Monotonic milliseconds used only for rate windows, never for business time. */
+export type IngressClock = () => number;
+
+const monotonicNow: IngressClock = () => performance.now();
+
+export function installIngress(
+  app: FastifyInstance,
+  limits: IngressLimits,
+  clock: IngressClock = monotonicNow,
+): void {
   app.server.maxConnections = limits.maxConnections;
   app.server.headersTimeout = limits.requestDeadlineMs;
   // Bound the entire socket lifetime, including drip-fed headers on reused sockets.
@@ -30,13 +39,14 @@ export function installIngress(app: FastifyInstance, limits: IngressLimits): voi
     deadline.unref();
     socket.once('close', () => clearTimeout(deadline));
   });
-  let windowStart = 0;
+  // The first window opens at the first request; a clock origin is not a window edge.
+  let windowStart = Number.NEGATIVE_INFINITY;
   let accepted = 0;
   let active = 0;
   const peers = new Map<string, number>();
   // Unlike an inactivity timeout, this deadline cannot be extended by drip traffic.
   app.addHook('onRequest', async (request, reply) => {
-    const now = performance.now();
+    const now = clock();
     if (now - windowStart >= limits.windowMs) {
       windowStart = now;
       accepted = 0;
