@@ -20,7 +20,7 @@ export function BirthAssessmentSession({ comparison }: { readonly comparison: Bi
   return (
     <section className="birth-session" aria-label="本次对照体质测评">
       <header className="birth-session-header">
-        <Button variant="primary" ref={actionRef} aria-expanded={active} aria-controls={active ? panelId : undefined} hidden={active} onClick={() => setActive(true)}>同时测评体质</Button>
+        <Button variant="secondary" ref={actionRef} aria-expanded={active} aria-controls={active ? panelId : undefined} hidden={active} onClick={() => setActive(true)}>同时测评体质</Button>
       </header>
       <p className="birth-note">问卷按需打开。结束测评、修改出生资料、清空或重新对照，都会清除本次作答和测评结果。</p>
       {active ? (

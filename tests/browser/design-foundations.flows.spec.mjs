@@ -64,8 +64,8 @@ for (const theme of ['light', 'dark']) {
     });
     let metrics;
     try {
-      // Theme changes can still be transitioning under reduced motion. Retry the
-      // complete measurement so style assertions never depend on one sample.
+      // Retry the complete measurement across initial stylesheet application.
+      // Keep this gate and the C1 focus retries after removing demo transitions.
       await expect.poll(async () => {
         metrics = await readMetrics();
         return {

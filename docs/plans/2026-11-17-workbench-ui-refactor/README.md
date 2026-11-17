@@ -38,7 +38,7 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 | [C5](cards/C5-constitution.md) | 体质量表一题一屏 + 结果互参 + 对照内同页测评 | C4、T1 | 通过（3 轮，[评审](reviews/C5-review-1.md)） |
 | [C6](cards/C6-drilldown-pages.md) | 年度、指定时点、问诊规划、未找到与反馈状态改为下钻页 | C2 | 通过并合并 |
 | [T1](cards/T1-type-scale.md) | 全应用 5 档字号阶梯统一（[决定](../../design/type-scale.md)） | C3、C4、C6 合并 | 通过（1 轮，[评审](reviews/T1-review-1.md)） |
-| [C7](cards/C7-acceptance-cleanup.md) | 浏览器验收矩阵迁移、demo 样式清理、文档收口 | C3–C6 | 开发中 |
+| [C7](cards/C7-acceptance-cleanup.md) | 浏览器验收矩阵迁移、demo 样式清理、文档收口 | C3–C6 | 通过（2 轮，[评审](reviews/C7-review-1.md)） |
 
 后续阶段（另行授权）：Tauri 2 外壳、停靠窗口与收起胶囊、宿主适配层、离线安装与 WebView2、Windows 构建与签名。
 

@@ -48,15 +48,15 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await current.locator(':scope > summary').press('Enter');
   await expect(current).not.toHaveAttribute('open');
   const originalViewport = page.viewportSize();
-  await page.setViewportSize({ width: 320, height: 800 });
-  const narrowReading = await reading.evaluate(element => ({
+  await page.setViewportSize({ width: 400, height: 640 });
+  const panelReading = await reading.evaluate(element => ({
     viewport: document.documentElement.clientWidth,
     page: document.documentElement.scrollWidth,
     quotes: [...element.querySelectorAll('blockquote')].filter(quote => quote.getClientRects().length).map(quote => ({ width: quote.clientWidth, scroll: quote.scrollWidth })),
   }));
-  expect(narrowReading.page).toBeLessThanOrEqual(narrowReading.viewport + 1);
-  for (const quote of narrowReading.quotes) expect(quote.scroll).toBeLessThanOrEqual(quote.width + 1);
-  await screenshot(page, testInfo, 'birth-classical-reading-narrow');
+  expect(panelReading.page).toBeLessThanOrEqual(panelReading.viewport + 1);
+  for (const quote of panelReading.quotes) expect(quote.scroll).toBeLessThanOrEqual(quote.width + 1);
+  await screenshot(page, testInfo, 'birth-classical-reading-min-height');
   await page.setViewportSize(originalViewport);
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(allReadings).toBeFocused();

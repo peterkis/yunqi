@@ -92,7 +92,7 @@ export function BirthComparisonPage() {
             </div>
             <p id="birth-input-note" className="birth-note">手动填写，按北京时间 UTC+08 展示；时刻不详时保留当天所有可能归属。</p>
             <div className="birth-input__actions">
-              <Button variant={result ? 'text' : 'primary'} type="submit">{mutation.isPending ? '正在对照…' : '查看出生与当前运气'}</Button>
+              <Button type="submit">{mutation.isPending ? '正在对照…' : '查看出生与当前运气'}</Button>
               <Button variant="text" onClick={clear}>清空本次资料</Button>
             </div>
           </fieldset>

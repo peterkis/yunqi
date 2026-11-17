@@ -2,13 +2,12 @@
 
 React Workbench for TCM YunQi Lab.
 
-> **UI refactor (2026-11-17).** The visual and interaction design is defined
-> only by [docs/design](../../docs/design/README.md): a 400px outpatient side
-> panel with three segments (当下运气 / 先天对照 / 体质量表), drill-down pages
-> and a collapsed pill. The pre-refactor page layouts, styles and screenshots
-> are demos and must not be reused as a design reference or acceptance
-> baseline. `PanelShell` now provides this shared frame. View interiors migrate
-> in C3–C6; their existing data flow, time and medical boundaries stay in force.
+> **Current panel UI.** [docs/design](../../docs/design/README.md) defines
+> the 400px outpatient panel, three segments (当下运气 / 先天对照 / 体质量表),
+> drill-down pages, light/dark themes and the 400 × 64 collapsed pill.
+> `PanelShell` frames every view. Demo CSS, aliases and unused demo components
+> have been removed; historical screenshots remain historical evidence.
+> Typography uses only the five tiers in `styles/type-scale.css`.
 
 The 2026-11-16 doctor-feedback release adds progressive disclosure, sourced classical excerpts, birth/current comparison,
 and constitution self-assessment to the existing annual and specified-time
@@ -45,9 +44,10 @@ inquiry planning. Specified-time results put the selected stage before the annua
 
 The browser frame docks a 400px panel on the right, with a 52px header, segment
 navigation (or drill-down heading), one scrolling content region, an optional
-action slot and a 36px teaching disclaimer footer. Narrower viewports fit the
-panel to their width. Existing view breakpoints respond to the panel container
-width. This is browser layout only; it does not control a host window.
+action slot and a 36px teaching disclaimer footer. The minimum panel height
+is 640px. The 1366 × 900 workstation viewport places it on the right; its annual
+and current cards fit without scrolling at height 900 or above. This is browser
+layout only; it does not control a host window.
 
 Collapse produces a 400 × 64 button. Enter, Space or a click expands it;
 collapse focuses the pill and expansion returns focus to the collapse trigger.
@@ -202,19 +202,17 @@ stages as current, completed, or upcoming.
 
 `CurrentYunQiViewModel` enriches the same neutral stage facts with the
 status-enhanced `CurrentSixQiStageViewModel`. This preserves the existing
-current-page current/completed/upcoming timeline, disclosure behavior, and
-desktop annual rail without leaking current-time semantics into annual
-analysis.
+current/completed/upcoming timeline and its six categorical navigation buttons
+inside the folded stage section, without leaking current-time semantics into
+annual analysis.
 
 ## Explanation and traceability
 
-Rule explanation and traceability are separate responsibilities:
-
-- `RuleExplanationPanel` renders API `explanations` verbatim, with a neutral
-  empty state. It does not expand theory, infer causality, or add medical
-  meaning.
-- `TraceabilityPanel` renders metadata only: rule version, frozen Contract ID,
-  source label, and `北京时间 UTC+08`. It contains no theoretical explanation.
+`DrilldownResultNotes` keeps API explanations and traceability in separate
+named cards. Explanations render verbatim, with a neutral empty state;
+metadata contains only the rule version, frozen Contract ID, source label
+and `北京时间 UTC+08`. The current page exposes the same separation inside
+计算说明与版本. Neither adds theory, causality or medical meaning.
 
 ## Fixed Beijing time
 
@@ -237,6 +235,17 @@ The specified-time page has six observable states: idle, invalid-input,
 pending, success, dirty-after-success, and error. Errors are sanitized and
 retryable; no raw response, stack, patient data, diagnosis, treatment,
 prescription, medication, risk, or recommendation copy is rendered.
+
+## Browser acceptance
+
+The current matrix is panel 400 × 860 light/dark, panel 400 × 640, collapsed
+pill 400 × 64 light/dark, and workstation 1366 × 900. There are 49
+flow/foundation/oracle tests and 98 visual/accessibility tests (147 total), discoverable with
+`pnpm exec playwright test --list`. All visual states check the five-tier type
+scale; panel states also check control targets, focus rings and at most one
+primary button. See [coverage and evidence](../../tests/browser/README.md).
+`tests/browser-fixtures.test.mjs` runs with root `pnpm test`; its synthetic
+geometry checks selector/retry behavior, not browser layout.
 
 ## Local commands
 
@@ -316,13 +325,17 @@ service returns several boundary-day candidates, every candidate and its
 canonical interval is shown beside the current context. Editing or clearing
 input immediately removes the old result. These are traditional time
 backgrounds, not a constitution diagnosis or an individual disease forecast.
+The sole primary action throughout birth comparison is 查看出生与当前运气;
+opening the optional questionnaire and its 查看结果 submission use secondary
+buttons. The standalone questionnaire retains its primary 查看结果 action.
 
 The questionnaire uses the complete service-provided GB/T 46939-2025 version.
 The UI does not score, reverse-score, choose thresholds, or use YunQi facts to
 change the assessment. Applicable questions have no default answers; the
-target layout is one question per screen as specified in the design system.
+layout shows one question per screen, with keys 1–5, previous-question
+navigation and 160ms automatic advance (immediate for reduced motion).
 A sex change clears answers and results. Partial
-submission returns focus to the first incomplete group without sending a
+submission returns focus to the first unanswered question without sending a
 scoring request. The nine returned scores and statuses remain separate so
 mixed constitutions are not reduced to a single maximum-score label.
 

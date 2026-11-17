@@ -46,4 +46,4 @@
 ## 实现与验证
 
 - 实现约束：[Workbench 约束 · 界面设计](docs/agents/workbench.md#界面设计)
-- 门禁与浏览器验收迁移：[验证与交付 · UI重构期间的门禁](docs/agents/verification.md#ui重构期间的门禁)、[浏览器验收说明](tests/browser/README.md#ui-refactor-migration)
+- 门禁与浏览器验收：[验证与交付 · UI验收门禁](docs/agents/verification.md#ui验收门禁)、[浏览器验收说明](tests/browser/README.md#ui-refactor-migration)

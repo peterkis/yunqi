@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
@@ -20,6 +21,7 @@ const cases = [
   { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
+  { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
@@ -30,20 +32,6 @@ const cases = [
 
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme, diagnostics }, testInfo) => {
-    // Only the birth and constitution cards migrate their viewport targets here.
-    if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
-      const birthViewports = {
-        'desktop-light': { width: 400, height: 860 },
-        'breakpoint-light': { width: 400, height: 640 },
-        'tablet-boundary-light': { width: 1366, height: 900 },
-        'tablet-light': { width: 400, height: 860 },
-        'mobile-light': { width: 390, height: 844 },
-        'narrow-light': { width: 320, height: 800 },
-        'desktop-dark': { width: 400, height: 860 },
-        'mobile-dark': { width: 400, height: 640 },
-      };
-      await page.setViewportSize(birthViewports[testInfo.project.name]);
-    }
     if (state.outage) {
       diagnostics.allowHttpFailure(state.outage, 503);
       await page.route(`**${state.outage}`, route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
@@ -111,7 +99,23 @@ for (const state of cases) {
       await expect(page.getByRole('button', { name: '切换至浅色主题', exact: true })).toBeVisible();
     }
     await settle(page);
-    await expectPanelLayout(page);
+    const panelLayout = await expectPanelLayout(page);
+    if (state.current && panelLayout.viewport.height === 640) {
+      const main = page.getByRole('main');
+      await main.evaluate(content => { content.scrollTop = content.scrollHeight; });
+      expect(await main.evaluate(content => content.scrollTop), 'Minimum-height panel scrolls its content').toBeGreaterThan(0);
+      const scrolled = await expectPanelLayout(page);
+      expect(scrolled.header).toEqual(panelLayout.header);
+      expect(scrolled.navigation).toEqual(panelLayout.navigation);
+      expect(scrolled.footer).toEqual(panelLayout.footer);
+      await screenshot(page, testInfo, 'current-min-height-scrolled');
+      await main.evaluate(content => { content.scrollTop = 0; });
+    }
+    const controls = await expectViewControls(page, testInfo);
+    if (state.name.startsWith('birth') && !state.birthClassics) {
+      expect(controls.primary.map(control => control.label)).toEqual(['查看出生与当前运气']);
+      if (state.birthAssessment && state.constitutionComplete) await expect(page.getByRole('button', { name: '查看结果', exact: true })).toHaveClass(/ds-button--secondary/);
+    }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
       const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
       await expect(destroy).toHaveCount(state.constitutionComplete || state.constitutionResult ? 1 : 0);
@@ -206,6 +210,7 @@ for (const state of cases) {
         stageTimes: measure('.drilldown-stage-selector__range time'),
         currentTitle: measure('.current-year-heading h3'),
         currentCards: measure('.current-overview__annual, .current-overview__now'),
+        annualValues: measure('.current-annual-grid .ds-element > span:last-child, .drilldown-annual-facts .ds-element > span:last-child'),
         mainBounds: document.querySelector('main').getBoundingClientRect().toJSON(),
         cardBounds: [...document.querySelectorAll('.current-overview__annual, .current-overview__now')].map(element => element.getBoundingClientRect().toJSON()),
         viewportHeight: innerHeight,
@@ -232,9 +237,9 @@ for (const state of cases) {
     for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector meets the design control-height token (40 px)').toBeGreaterThanOrEqual(40);
     for (const name of layout.stageNames) expect.soft(name.lines, `Stage name remains readable: ${name.text}`).toBe(1);
     for (const time of layout.stageTimes) expect.soft(time.lines, `Stage time remains on one line: ${time.text}`).toBe(1);
-    if (layout.viewportWidth >= 1400) {
-      for (const title of layout.currentTitle) expect.soft(title.lines, 'Desktop current heading fits on one line').toBe(1);
-    }
+    for (const value of layout.annualValues) expect.soft(value.lines, `Annual three-column values fit on one line: ${value.text}`).toBe(1);
+    for (const title of layout.currentTitle) expect.soft(title.lines, 'Current heading fits on one line').toBe(1);
+    await expectFocusRings(page, testInfo);
 
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     await testInfo.attach('axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });

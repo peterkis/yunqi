@@ -132,6 +132,12 @@
   font-weight: var(--type-title-weight);
 }
 
+/* The actual 400x64 viewport clips an outer outline at its edges. Keep the
+   standard outline and also paint the same 2px ring inside the pill. */
+.panel-pill:focus-visible {
+  box-shadow: inset 0 0 0 var(--space-0_5) var(--focus-ring), var(--shadow-float);
+}
+
 .panel-pill__text { flex: 1; min-width: 0; }
 .panel-pill__annual {
   display: block;

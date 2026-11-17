@@ -18,6 +18,7 @@ async function complete(user: ReturnType<typeof userEvent.setup>, sex = '男') {
     await user.keyboard(String((index - 1) % 5 + 1));
   }
   expect(screen.getByRole('heading', { name: '8 题已全部作答' })).toHaveFocus();
+  expect(screen.getByRole('button', { name: '查看结果' })).toHaveClass('ds-button--primary');
 }
 
 beforeEach(() => { vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }))); });

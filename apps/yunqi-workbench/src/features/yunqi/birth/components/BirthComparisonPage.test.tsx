@@ -13,9 +13,13 @@ describe('BirthComparisonPage', () => {
     expect(client.compareBirth).not.toHaveBeenCalled();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(screen.queryByLabelText('出生时刻（北京时间）')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: '查看出生与当前运气' })).toHaveClass('ds-button--primary');
     fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     const result = await screen.findByRole('region', { name: '出生与当前运气对照结果' });
+    expect(screen.getByRole('button', { name: '查看出生与当前运气' })).toHaveClass('ds-button--primary');
+    expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveClass('ds-button--secondary');
+    expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12' });
     const table = within(result).getByRole('table', { name: '出生运气 · 先天与当下并列对照' });
     expect(within(table).getByRole('columnheader', { name: /先天 · 出生/ })).toBeVisible();

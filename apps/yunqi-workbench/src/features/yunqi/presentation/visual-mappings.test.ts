@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { createLearningDto } from '../../../test/learning-fixtures';
+import { createBirthComparisonDto, createLearningDto } from '../../../test/learning-fixtures';
 import { createYunQiYearDto } from '../../../test/yunqi-fixtures';
+import { mapBirthView } from '../birth/presentation/map-birth-view';
 import { mapAnnualYunQi } from './map-annual-yunqi';
 import { mapDrilldownStage, mapDrilldownSummary } from './map-drilldown';
 import { mapLearning } from './map-learning';
 import { mapMovementElement, mapQiElement, mapRelationDirection, mapRelationTone } from './visual-mappings';
+
+function birthForLearning(learning: ReturnType<typeof createLearningDto>) {
+  const dto = createBirthComparisonDto();
+  return mapBirthView({ ...dto, current: learning, candidates: [{ ...dto.candidates[0], learning }] });
+}
 
 describe('API visual classifications', () => {
   it.each([
@@ -21,6 +27,11 @@ describe('API visual classifications', () => {
     expect(mapped.currentQi.tone).toBe(expected);
     expect(mapped.currentQi.label).toBe(label);
     expect(mapRelationTone(label)).toBe(expected);
+    const birth = createBirthComparisonDto();
+    const candidate = birth.candidates[0];
+    const comparison = { ...candidate.comparisons[0], title: '中运对照', label, explanation: '此说明包含顺、逆、相生，不用于分类。' };
+    const row = mapBirthView({ ...birth, candidates: [{ ...candidate, comparisons: [comparison] }] }).candidates[0].rows[0];
+    expect(row.relation).toMatchObject({ label, tone: expected, explanation: comparison.explanation });
   });
 
   it.each([
@@ -46,6 +57,11 @@ describe('API visual classifications', () => {
     const summary = mapDrilldownSummary(current.summary);
     expect(summary.sitianElement).toBe(expected);
     expect(summary.zaiquanElement).toBe(expected);
+    const birth = birthForLearning({ ...dto, facts: { ...dto.facts, sixQi } });
+    for (const row of birth.candidates[0].rows.slice(1, 3)) {
+      expect(row.birth).toMatchObject({ label: qi, element: expected });
+      expect(row.current).toMatchObject({ label: qi, element: expected });
+    }
   });
 
   it.each([['木', 'wood'], ['火', 'fire'], ['土', 'earth'], ['金', 'metal'], ['水', 'water'], ['水运太过', undefined], ['__proto__', undefined], ['constructor', undefined], ['', undefined]])(
@@ -57,6 +73,9 @@ describe('API visual classifications', () => {
       const current = mapLearning({ ...dto, facts: { ...dto.facts, suiYun } }).facts;
       expect(current.annualElements.suiYun).toBe(expected);
       expect(mapDrilldownSummary(current.summary).movementElement).toBe(expected);
+      const row = birthForLearning({ ...dto, facts: { ...dto.facts, suiYun } }).candidates[0].rows[0];
+      expect(row.birth.element).toBe(expected);
+      expect(row.current.element).toBe(expected);
     },
   );
 

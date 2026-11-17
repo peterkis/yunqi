@@ -72,6 +72,7 @@
 }
 .current-annual-grid dd { margin: var(--space-1) 0 0; font-weight: var(--type-body-strong-weight); }
 .current-annual-grid dd.current-meta { font-weight: var(--type-meta-weight); }
+.current-annual-grid .ds-element { white-space: nowrap; }
 .current-overview .ds-element { gap: var(--space-1_5); font-size: var(--ts-body); }
 .current-overview .ds-relation { align-items: flex-start; }
 .current-overview .ds-relation__explanation {

@@ -1,14 +1,12 @@
 import type { BirthComparisonDto, YunQiLearningDto } from '@yunqi/contracts';
 import { mapBirthComparison, type BirthComparisonViewModel, type LearningRelationViewModel } from '../../presentation/map-learning';
 import { mapPanelSummary, type PanelSummaryViewModel } from '../../presentation/panel-summary';
-import type { YunQiTimeViewModel } from '../../presentation/view-model';
-
-type Element = 'wood' | 'fire' | 'earth' | 'metal' | 'water';
-type Tone = 'favorable' | 'adverse' | 'neutral';
+import { mapMovementElement, mapQiElement } from '../../presentation/visual-mappings';
+import type { ElementKind, YunQiTimeViewModel } from '../../presentation/view-model';
 
 export interface BirthFactViewModel {
   readonly label: string;
-  readonly element?: Element;
+  readonly element?: ElementKind;
   readonly detail: readonly string[];
 }
 
@@ -16,7 +14,7 @@ export interface BirthRowViewModel {
   readonly label: string;
   readonly birth: BirthFactViewModel;
   readonly current: BirthFactViewModel;
-  readonly relation?: LearningRelationViewModel & { readonly tone: Tone };
+  readonly relation?: LearningRelationViewModel;
 }
 
 export interface BirthReadingViewModel {
@@ -53,24 +51,13 @@ export interface BirthPageViewModel {
   readonly currentReadings: readonly BirthReadingViewModel[];
 }
 
-// Visual identities of API enum values; no element relationships are computed here.
-const elementNames = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' } as const;
-const qiElements = {
-  厥阴风木: 'wood', 少阴君火: 'fire', 太阴湿土: 'earth',
-  少阳相火: 'fire', 阳明燥金: 'metal', 太阳寒水: 'water',
-} as const;
-const comparisonTones: Readonly<Record<string, Tone>> = {
-  出生生当前: 'favorable', 当前生出生: 'favorable',
-  出生克当前: 'adverse', 当前克出生: 'adverse', 同五行: 'neutral',
-};
-
 function facts(value: YunQiLearningDto): readonly BirthFactViewModel[] {
   const { suiYun, sixQi, currentStep } = value.facts;
   const movement = value.currentMovement;
   return [
-    { label: `${suiYun.element}运${suiYun.state}`, element: elementNames[suiYun.element], detail: [suiYun.tone] },
-    { label: sixQi.sitian, element: qiElements[sixQi.sitian], detail: [] },
-    { label: sixQi.zaiquan, element: qiElements[sixQi.zaiquan], detail: [] },
+    { label: `${suiYun.element}运${suiYun.state}`, element: mapMovementElement(suiYun.element), detail: [suiYun.tone] },
+    { label: sixQi.sitian, element: mapQiElement(sixQi.sitian), detail: [] },
+    { label: sixQi.zaiquan, element: mapQiElement(sixQi.zaiquan), detail: [] },
     { label: currentStep.name, detail: [`主气 ${currentStep.hostQi}`, `客气 ${currentStep.guestQi}`] },
     { label: movement.name, detail: [
       `主运 ${movement.host.element}运${movement.host.state}（${movement.host.tone}）`,
@@ -118,8 +105,7 @@ export function mapBirthView(value: BirthComparisonDto): BirthPageViewModel {
         birthYear: candidate.learning.facts.year, birthGanzhi: candidate.learning.facts.stemBranch.ganzhi,
         rows: dimensions.map(([label, title], position) => {
           const relation = relations.find((item) => item.title === title);
-          return { label, birth: birthFacts[position], current: currentFacts[position],
-            relation: relation ? { ...relation, tone: comparisonTones[relation.label] ?? 'neutral' } : undefined };
+          return { label, birth: birthFacts[position], current: currentFacts[position], relation };
         }),
         annualReadings, periodReadings,
         excerpts: [...annualReadings.slice(0, 1), ...periodReadings.slice(0, 1)],

@@ -7,7 +7,7 @@ export const test = base.extend({
     if (!baseURL) throw new Error('Run with the repository Playwright configuration');
     await use(baseURL);
   },
-  diagnostics: [async ({ page, browser, baseURL }, use, testInfo) => {
+  diagnostics: [async ({ page, context, browser, baseURL }, use, testInfo) => {
     const pageErrors = [];
     const consoleMessages = [];
     const requests = [];
@@ -19,10 +19,17 @@ export const test = base.extend({
       }
     });
     const externalRequests = [];
+    const leavesOrigin = value => {
+      const url = new URL(value);
+      return ['http:', 'https:', 'ws:', 'wss:'].includes(url.protocol) && url.host !== new URL(baseURL).host;
+    };
+    // Block external HTTP resources before they leave the owned environment;
+    // the request diagnostic below still makes every attempt fail acceptance.
+    await context.route('**/*', route => leavesOrigin(route.request().url()) ? route.abort('blockedbyclient') : route.continue());
     page.on('request', request => {
       const url = new URL(request.url());
       // Hospital networks have no internet: every font, icon, style and script ships with the app.
-      if (['http:', 'https:', 'ws:', 'wss:'].includes(url.protocol) && url.host !== new URL(baseURL).host) {
+      if (leavesOrigin(request.url())) {
         externalRequests.push({ method: request.method(), url: request.url(), resourceType: request.resourceType() });
       }
       if (url.pathname.startsWith('/api/')) {

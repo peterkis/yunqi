@@ -171,7 +171,7 @@
 .drilldown-relation-facts dd,
 .drilldown-trace dd { min-width: 0; margin: var(--space-1) 0 0; }
 .drilldown-annual-facts dd { display: grid; gap: var(--space-1); }
-.drilldown-annual-facts .ds-element { align-items: baseline; }
+.drilldown-annual-facts .ds-element { align-items: baseline; white-space: nowrap; }
 .drilldown-annual-facts .ds-element__dot { align-self: center; }
 .drilldown-annual-facts .ds-element > span:last-child { min-width: 0; }
 

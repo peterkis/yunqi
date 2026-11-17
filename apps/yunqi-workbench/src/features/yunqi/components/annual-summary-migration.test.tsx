@@ -2,9 +2,9 @@ import { render, screen, within } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { createYunQiYearDto } from '../../../test/yunqi-fixtures';
 import { mapAnnualYunQi } from '../presentation/map-annual-yunqi';
-import { YunQiYearSummaryPanel } from './YunQiYearSummaryPanel';
+import { DrilldownYearSummaryCard } from '../year-analysis/components/DrilldownYearSummaryCard';
 
-describe('YunQiYearSummaryPanel', () => {
+describe('DrilldownYearSummaryCard', () => {
   // Consensus R-12 puts the movement/state first; the rule table supplies
   // the actual element/state/tone combinations for these display cases.
   it.each([
@@ -22,12 +22,16 @@ describe('YunQiYearSummaryPanel', () => {
   }) => {
     const { summary } = mapAnnualYunQi(createYunQiYearDto());
     render(
-      <YunQiYearSummaryPanel summary={{ ...summary, suiYun }} />,
+      <DrilldownYearSummaryCard summary={{ ...summary, suiYun }} />,
     );
 
     expect(
       within(screen.getByRole('region', { name: '年度概览' }))
         .getByText(expected),
     ).toBeInTheDocument();
+    const values = screen.getByRole('region', { name: '年度概览' }).querySelectorAll('.drilldown-annual-facts .ds-element');
+    expect(values).toHaveLength(3);
+    expect(values[0]).toHaveTextContent(`${suiYun.element}运${suiYun.state}`);
+    expect(values[0].parentElement?.children).toHaveLength(1);
   });
 });

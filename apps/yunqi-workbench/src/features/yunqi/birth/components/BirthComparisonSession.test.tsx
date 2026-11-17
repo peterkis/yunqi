@@ -22,6 +22,8 @@ async function openAssessment(user: ReturnType<typeof userEvent.setup>) {
 async function completeAssessment(user: ReturnType<typeof userEvent.setup>, form: HTMLElement) {
   await user.click(within(form).getByRole('radio', { name: '男' }));
   for (let index = 0; index < 8; index += 1) await user.keyboard('1');
+  expect(within(form).getByRole('button', { name: '查看结果' })).toHaveClass('ds-button--secondary');
+  expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
   await user.click(within(form).getByRole('button', { name: '查看结果' }));
 }
 

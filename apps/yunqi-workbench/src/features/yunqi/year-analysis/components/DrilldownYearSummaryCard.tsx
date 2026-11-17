@@ -15,7 +15,7 @@ export function DrilldownYearSummaryCard({ summary, compact = false }: {
         <h2 className="drilldown-ganzhi" aria-label="年度概览">{summary.stemBranch.ganzhi}</h2>
         <p className="drilldown-copy">{summary.suiYun.element}运{summary.suiYun.state}（{summary.suiYun.tone}）</p>
         <dl className="drilldown-annual-facts">
-          <div><dt>岁运</dt><dd><ElementDot element={display.movementElement} label={`${summary.suiYun.element}运`} /><span>{summary.suiYun.state}</span></dd></div>
+          <div><dt>岁运</dt><dd><ElementDot element={display.movementElement} label={`${summary.suiYun.element}运${summary.suiYun.state}`} /></dd></div>
           <div><dt>司天</dt><dd><ElementDot element={display.sitianElement} label={summary.sitian} /></dd></div>
           <div><dt>在泉</dt><dd><ElementDot element={display.zaiquanElement} label={summary.zaiquan} /></dd></div>
         </dl>

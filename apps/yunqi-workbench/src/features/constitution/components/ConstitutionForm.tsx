@@ -157,7 +157,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
               <div className="constitution-complete">
                 <h3 tabIndex={-1} ref={headingRef}>{questions.length} 题已全部作答</h3>
                 <p>提交后计算九种体质的转化分</p>
-                <Button key="view-result" type="submit" disabled={mutation.isPending}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button>
+                <Button key="view-result" variant={context?.birth ? 'secondary' : 'primary'} type="submit" disabled={mutation.isPending}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button>
                 <Button variant="text" disabled={mutation.isPending} onClick={previous}>返回修改</Button>
               </div>
             )}

@@ -73,11 +73,11 @@ test('panel stage selection keeps six single-column choices above nearby detail 
   await settle(page);
   expect(diagnostics.requests).toHaveLength(1);
   await expectPanelLayout(page);
-  await screenshot(page, testInfo, 'mobile-stage-comparison');
+  await screenshot(page, testInfo, 'panel-stage-comparison');
 });
 
 test('panel navigation, skip link and result traceability support keyboard recovery', async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  await page.setViewportSize({ width: 400, height: 860 });
   await page.goto('/yunqi/year/2024');
   await page.getByRole('region', { name: '追溯信息', exact: true }).scrollIntoViewIfNeeded();
   await page.getByRole('button', { name: '返回', exact: true }).click();

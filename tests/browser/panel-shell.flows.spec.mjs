@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
 test('annual absolute descriptions remain inside the scrolling content without growing the document', async ({ page }, testInfo) => {
-  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.setViewportSize({ width: 1366, height: 900 });
   await page.goto('/yunqi/year/2024');
   const main = page.getByRole('main', { name: '年度详情', exact: true });
   await expect(main.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
@@ -23,8 +23,8 @@ test('annual absolute descriptions remain inside the scrolling content without g
   });
   expect(scrollTop).toBeGreaterThan(0);
   const after = await expectPanelLayout(page);
-  expect(before.documentHeight).toBe(1000);
-  expect(after.documentHeight).toBe(1000);
+  expect(before.documentHeight).toBe(900);
+  expect(after.documentHeight).toBe(900);
   expect(after.header).toEqual(before.header);
   expect(after.footer).toEqual(before.footer);
   await testInfo.attach('annual-scroll-containment', { body: JSON.stringify({ descriptions, before, after }, null, 2), contentType: 'application/json' });
@@ -59,7 +59,7 @@ test('control-free inquiry content has a named Tab stop, visible focus and keybo
   await screenshot(page, testInfo, 'inquiry-keyboard-scroll');
 });
 
-for (const viewport of [{ width: 1440, height: 900 }, { width: 400, height: 860 }, { width: 400, height: 640 }]) {
+for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 }, { width: 400, height: 640 }]) {
   for (const theme of ['light', 'dark']) {
     test(`panel ${viewport.width}x${viewport.height} ${theme}: fixed shell, pill and keyboard recovery`, async ({ page, diagnostics }, testInfo) => {
       await page.setViewportSize(viewport);
