@@ -58,7 +58,7 @@
   background: var(--surface-page);
 }
 
-.birth-input fieldset {
+.birth-input > fieldset {
   display: grid;
   min-width: 0;
   margin: 0;
@@ -83,17 +83,13 @@
 }
 
 .birth-input__fields > .birth-input__known-time {
-  display: flex;
   grid-column: 1 / -1;
-  grid-row: 2;
-  align-items: center;
-  gap: var(--space-1_5);
-  min-height: var(--segment-height);
-  cursor: pointer;
 }
 
-.birth-input input[type="date"],
+.birth-input__fields > .ds-date-field { grid-column: 1 / -1; }
+
 .birth-input input[type="time"] {
+  appearance: none;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -109,12 +105,7 @@
   font-weight: var(--type-body-weight);
 }
 
-.birth-input input[type="checkbox"] {
-  width: var(--space-4);
-  height: var(--space-4);
-  margin: 0;
-  accent-color: var(--accent);
-}
+.birth-input input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 
 .birth-input__actions {
   display: flex;
@@ -124,7 +115,6 @@
 }
 
 .birth-input__actions > .ds-button,
-.birth-session-header > .ds-button,
 .birth-classics > .ds-button {
   max-width: 100%;
 }
@@ -297,7 +287,7 @@
   padding-top: var(--space-3);
   border-top: var(--birth-hairline) solid var(--border-default);
 }
-.birth-session-header .ds-button { width: 100%; }
+.birth-actions .ds-button { width: 100%; }
 .birth-session > .birth-note { margin-top: var(--space-2); }
 .birth-session .birth-assessment-layout {
   grid-template-columns: minmax(0, 1fr);
@@ -346,3 +336,25 @@
 .birth-page--reading > .birth-classics { display: flex; flex: 1; flex-direction: column; min-height: 0; }
 .birth-classics__readings { position: relative; display: grid; flex: 1; gap: var(--space-3); min-height: 0; overflow: auto; padding: var(--space-1); }
 .birth-classics__notice { flex: none; }
+
+/* D1: keep the submitted input and current snapshot above the comparison. */
+.birth-input-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+  color: var(--ink-secondary);
+  font-size: var(--ts-body);
+  white-space: nowrap;
+}
+.birth-input-summary .ds-button { padding-inline: var(--space-1); font-size: var(--ts-small); }
+.birth-input-summary .ds-button:last-child { margin-left: auto; }
+.birth-table__time { display: block; color: var(--ink-tertiary); font-size: var(--ts-small); font-weight: var(--type-meta-weight); }
+.birth-table__time .yunqi-time { gap: var(--space-0_5); }
+.birth-table__time time { font-family: var(--font-sans); }
+.birth-table__time .yunqi-time__standard { font-size: var(--ts-small); letter-spacing: normal; }
+.birth-technical { color: var(--ink-secondary); font-size: var(--ts-small); }
+.birth-technical > summary { cursor: pointer; min-height: var(--segment-height); }
+.birth-technical > :not(summary) { margin-top: var(--space-2); }
+.birth-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.birth-technical .yunqi-time-details dd { margin: 0; }

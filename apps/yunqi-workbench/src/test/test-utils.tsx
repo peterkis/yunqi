@@ -6,16 +6,18 @@ import {
   QueryProvider,
 } from '../providers/QueryProvider';
 import { YunQiClientProvider } from '../providers/YunQiClientProvider';
+import { ThemeProvider } from '../providers/ThemeProvider';
+import { PanelShell } from '../components/layout/PanelShell';
 
-export function createTestWrapper(client: YunQiClient) {
+export function createTestWrapper(client: YunQiClient, panelRoute?: string) {
   const queryClient = createWorkbenchQueryClient();
 
   return function TestWrapper({ children }: PropsWithChildren) {
     return (
-      <MemoryRouter>
+      <MemoryRouter initialEntries={panelRoute ? [panelRoute] : undefined}>
         <QueryProvider client={queryClient}>
           <YunQiClientProvider client={client}>
-            {children}
+            {panelRoute ? <ThemeProvider><PanelShell>{children}</PanelShell></ThemeProvider> : children}
           </YunQiClientProvider>
         </QueryProvider>
       </MemoryRouter>

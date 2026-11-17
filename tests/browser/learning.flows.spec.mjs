@@ -1,7 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
-import { expectBirthComparison } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
+import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
+import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -34,6 +35,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(sourceDetails.getByText(data.currentQi.explanation, { exact: true })).toBeVisible();
   await expect(sourceDetails.getByText(data.annualRelation.explanation, { exact: true })).toBeVisible();
   await expect(sourceDetails.locator('a').first()).toHaveAttribute('href', data.annualRelation.sources[0].url);
+  await expectRelationSources(sourceDetails);
+  await expect(page.getByRole('contentinfo')).toContainText('教学口径，待专家确认');
+  expect(await page.getByRole('contentinfo').evaluate(footer => footer.textContent.match(/教学口径，待专家确认/g)?.length)).toBe(1);
   await sourceDetails.locator('summary').press('Space');
   await expect(sourceDetails.locator('a').first()).toBeHidden();
   await otherStages.locator(':scope > summary').focus();
@@ -50,6 +54,7 @@ test('current cards retain real API facts, folded stages and sourced original re
 
   // Activate the card's stretched area, outside the link text; SPA navigation
   // must preserve this document and must not issue a document request.
+  await expectTextLink(page, page.getByRole('link', { name: '原文与释义', exact: true }));
   await page.evaluate(() => { window.c3NavigationSentinel = 'same-document'; });
   await page.locator('.current-overview__quote').scrollIntoViewIfNeeded();
   const cardBody = await page.locator('.current-overview__quote .ds-info-card__content').boundingBox();
@@ -62,10 +67,12 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveCSS('height', '30px');
   await expect(page.getByText('正在此段', { exact: true })).toBeVisible();
   await expect(page.getByText('阅读释义', { exact: true })).toBeVisible();
+  await expectClassicsAlignment(page);
+  const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+  await expect(notice).toBeInViewport({ ratio: 1 });
   const currentSource = page.getByRole('link', { name: /查看原文出处/ }).first();
   await expect(currentSource).toHaveAttribute('href', data.currentPassages[0].sourceUrl);
-  await currentSource.focus();
-  await expect(currentSource).toBeFocused();
+  await expectTextLink(page, currentSource);
   const annualScope = page.getByRole('button', { name: '全年', exact: true });
   await annualScope.focus();
   await page.keyboard.press('Enter');
@@ -73,6 +80,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByText('正在此段', { exact: true })).toHaveCount(0);
   const cards = page.locator('.current-classics__readings > .ds-info-card');
   await expect(cards).toHaveCount(data.annualPassages.length);
+  await expectClassicsAlignment(page);
   for (let index = 0; index < data.annualPassages.length; index += 1) {
     const passage = data.annualPassages[index];
     const card = cards.nth(index);
@@ -84,6 +92,8 @@ test('current cards retain real API facts, folded stages and sourced original re
       await page.keyboard.press('Space');
       await expect(full.locator('blockquote')).toHaveText(`“${passage.quote}”`);
       await expect(full.locator('blockquote')).toBeVisible();
+      await full.locator('blockquote').scrollIntoViewIfNeeded();
+      await expect(notice).toBeInViewport({ ratio: 1 });
       await full.locator('summary').press('Enter');
       await expect(full.locator('blockquote')).toBeHidden();
     } else {
@@ -92,6 +102,11 @@ test('current cards retain real API facts, folded stages and sourced original re
   }
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toBeInViewport();
+  const readings = page.getByRole('region', { name: '全年原文', exact: true });
+  for (const end of ['bottom', 'top']) {
+    await readings.evaluate((region, end) => { region.scrollTop = end === 'bottom' ? region.scrollHeight : 0; }, end);
+    await expect(notice).toBeInViewport({ ratio: 1 });
+  }
   await settle(page);
   expect(diagnostics.requests.filter((request) => request.url.endsWith('/learning/current'))).toHaveLength(2);
   await checkAccessibility(page, testInfo);
@@ -100,7 +115,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await page.reload();
   await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
 });
 
 test('birth comparison submits only requested precision, displays both contexts and clears edited personal data', async ({ page, diagnostics }, testInfo) => {
@@ -108,13 +123,13 @@ test('birth comparison submits only requested precision, displays both contexts 
   await expect(page.getByRole('heading', { name: '出生运气对照' })).toBeVisible();
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
-  const date = page.getByLabel('出生日期（公历）');
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  const date = page.getByRole('textbox', { name: '年', exact: true });
+  await page.getByRole('button', { name: '查看对照' }).click();
   await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
   await expect(date).toBeFocused();
-  await date.fill('1990-05-12');
+  await fillBirthDate(page, '1990-05-12');
   const responsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  await page.getByRole('button', { name: '查看对照' }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
@@ -122,13 +137,18 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ birthDate: '1990-05-12' });
   const result = page.getByRole('region', { name: '出生与当前运气对照结果' });
   await expectBirthComparison(page, data);
+  const birthRelations = result.locator('.birth-relation-details').first();
+  await birthRelations.locator(':scope > summary').press('Enter');
+  await expectRelationSources(birthRelations);
+  await birthRelations.locator(':scope > summary').press('Space');
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
-  await page.getByLabel('知道出生时刻').check();
+  await expandBirthInput(page);
+  await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
   await expect(result).toHaveCount(0);
   await page.getByLabel('出生时刻（北京时间）').fill('09:30:21');
   const exactResponsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  await page.getByRole('button', { name: '查看对照' }).click();
   const exactResponse = await exactResponsePromise;
   expect(exactResponse.status()).toBe(200);
   const { data: exact } = await exactResponse.json();
@@ -137,8 +157,8 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(JSON.parse(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison')).at(-1).body)).toEqual({ birthDate: '1990-05-12', birthTime: '09:30:21' });
   await page.getByRole('button', { name: '清空本次资料' }).click();
   await expect(result).toHaveCount(0);
-  await expect(date).toHaveValue('');
-  await expect(page.getByLabel('知道出生时刻')).not.toBeChecked();
+  await expectBirthDate(page, '');
+  await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
   expect(new URL(page.url()).search).toBe('');
 });
 
@@ -147,16 +167,16 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   const form = page.getByRole('form', { name: '中医体质量表' });
   await expect(form).toBeVisible();
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await expect(context.locator('time')).toHaveCount(1);
+  await expect(context.locator('.constitution-context-time time')).toHaveCount(1);
   await expect(context).toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
-  await page.getByRole('radio', { name: '男', exact: true }).check();
+  await page.getByRole('radio', { name: '男', exact: true }).click();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('26 题未作答');
   expect(diagnostics.requests.filter(request => request.method === 'POST')).toHaveLength(0);
-  await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
@@ -176,11 +196,13 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await result.scrollIntoViewIfNeeded();
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'constitution-nine-dimensions');
-  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true }).click();
+  await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+  await changeConstitutionSex(page, '女', 26);
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
@@ -189,3 +211,47 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(1);
 });
+
+for (const theme of ['light', 'dark']) {
+  test(`constitution gender change: ${theme} inline confirmation, cancellation, Escape and empty answers`, async ({ page, diagnostics }, testInfo) => {
+    await page.goto('/yunqi/constitution');
+    if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
+    const gender = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
+    await expect(gender).toBeVisible();
+    await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+    await checkAccessibility(page, testInfo);
+    await gender.getByRole('radio', { name: '男', exact: true }).click();
+    await expect(gender).toHaveCount(0);
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+    await changeConstitutionSex(page, '女', 0);
+    await expect(page.getByRole('button', { name: '确认', exact: true })).toHaveCount(0);
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('女性版 · 更换');
+    await page.keyboard.press('3');
+    await expect(page.locator('.constitution-position')).toHaveText('2/26');
+    const change = page.getByRole('button', { name: '更换', exact: true });
+    const confirmation = page.getByRole('group', { name: '更换将清空已作答的 1 题', exact: true });
+    for (const method of ['button', 'Escape']) {
+      await change.click();
+      await expect(confirmation).toBeVisible();
+      await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
+      await checkAccessibility(page, testInfo);
+      await screenshot(page, testInfo, `constitution-gender-confirmation-${theme}-${method}`);
+      if (method === 'button') await page.getByRole('button', { name: '取消', exact: true }).click();
+      else await page.keyboard.press('Escape');
+      await expect(confirmation).toHaveCount(0);
+      await expect(change).toBeFocused();
+      await expect(page.locator('.constitution-position')).toHaveText('2/26');
+      await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
+    }
+    await page.getByRole('button', { name: '上一题', exact: true }).click();
+    await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
+    await change.click();
+    await page.getByRole('button', { name: '确认', exact: true }).click();
+    await expect(gender.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
+    await gender.getByRole('radio', { name: '男', exact: true }).click();
+    await expect(page.locator('.constitution-position')).toHaveText('1/26');
+    await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
+    expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+  });
+}

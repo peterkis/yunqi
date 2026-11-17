@@ -76,7 +76,7 @@ export function ScaleOption({
       onClick={onSelect}
       onKeyDown={handleOptionKeyDown}
     >
-      <span className="ds-scale-option__key" aria-hidden="true">{shortcut}</span>
+      <span className="ds-scale-option__key num" aria-hidden="true">{shortcut}</span>
       <span className="ds-scale-option__label" id={labelId}>{label}</span>
       <span className="ds-scale-option__description" id={descriptionId}>{description}</span>
     </button>

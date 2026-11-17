@@ -7,6 +7,7 @@ import { ThemeProvider } from '../../providers/ThemeProvider';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { PanelShell } from './PanelShell';
 import { PanelSummary } from './PanelSummary';
+import { PanelView } from './PanelView';
 
 function LocationProbe() {
   const { pathname, search, hash } = useLocation();
@@ -42,7 +43,7 @@ describe('PanelShell', () => {
     if (route !== '/') expect(within(nav).getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('main', { name: label })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: '跳至主要内容' })).toHaveAttribute('href', '#workbench-content');
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据');
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
     expect(document.title).toBe(`${label} · 运气通`);
   });
 
@@ -105,6 +106,8 @@ describe('PanelShell', () => {
     collapse.focus();
     await user.keyboard('{Enter}');
     const expand = screen.getByRole('button', { name: /^展开运气通/ });
+    expect(expand.parentElement).toHaveClass('panel-viewport--collapsed');
+    expect(expand.querySelector('.panel-pill__ganzhi')).toHaveTextContent(snapshot.ganzhi);
     expect(expand).toHaveFocus();
     expect(expand).toHaveAttribute('aria-expanded', 'false');
     expect(expand).toHaveTextContent(snapshot.annual);
@@ -115,6 +118,7 @@ describe('PanelShell', () => {
     expect(screen.getByLabelText('测试地址')).toHaveTextContent('/yunqi/birth?mode=local');
     expect(storage).not.toHaveBeenCalled();
     await user.keyboard(' ');
+    expect(collapse.closest('.panel-viewport')).not.toHaveClass('panel-viewport--collapsed');
     expect(collapse).toHaveFocus();
     expect(screen.getByLabelText('本地草稿')).toHaveValue('会话内容');
     expect(main.scrollTop).toBe(200);
@@ -152,5 +156,36 @@ describe('PanelShell', () => {
     await user.click(screen.getByRole('button', { name: '收起为胶囊条' }));
     expect(screen.getByRole('button', { name: /^展开运气通/ })).toHaveTextContent('本视图暂无运气摘要');
     expect(screen.getByRole('button', { name: /^展开运气通/ })).not.toHaveTextContent('丁未');
+    expect(screen.getByRole('button', { name: /^展开运气通/ }).querySelector('.panel-pill__ganzhi')).toBeNull();
+  });
+
+  it('renders session actions outside scrolling content and releases hidden or unmounted result navigation', async () => {
+    const user = userEvent.setup();
+    function Session() {
+      const [visible, setVisible] = useState(true);
+      const [mounted, setMounted] = useState(true);
+      const [result, setResult] = useState(false);
+      return <>
+        {mounted && <PanelView enabled={visible} actions={<button onClick={() => setResult(true)}>会话操作</button>}
+          drilldown={result ? { title: '体质测评结果', onBack: () => setResult(false) } : undefined} />}
+        <button onClick={() => setVisible((value) => !value)}>切换显示</button>
+        <button onClick={() => setMounted(false)}>卸载会话</button>
+      </>;
+    }
+    renderShell('/yunqi/constitution', <Session />);
+    expect(screen.getByRole('main').querySelector('button')).toHaveTextContent('切换显示');
+    expect(screen.getByRole('button', { name: '会话操作' }).closest('.panel-shell__actions')).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: '会话操作' }));
+    expect(screen.getByRole('main')).toHaveAccessibleName('体质测评结果');
+    expect(document.title).toBe('体质测评结果 · 运气通');
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.getByRole('navigation', { name: '工作台导航' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '切换显示' }));
+    expect(screen.queryByRole('button', { name: '会话操作' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '切换显示' }));
+    expect(screen.getByRole('button', { name: '会话操作' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '卸载会话' }));
+    expect(document.querySelector('.panel-shell__actions')).toBeNull();
+    expect(document.title).toBe('体质量表 · 运气通');
   });
 });

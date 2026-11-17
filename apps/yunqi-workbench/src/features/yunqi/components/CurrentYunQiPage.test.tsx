@@ -5,6 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { createLearningDto } from '../../../test/learning-fixtures';
 import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
+import { PanelShell } from '../../../components/layout/PanelShell';
+import { ThemeProvider } from '../../../providers/ThemeProvider';
 
 function renderPage() {
   const dto = createLearningDto();
@@ -14,6 +16,45 @@ function renderPage() {
 }
 
 describe('CurrentYunQiPage', () => {
+  it('groups four ordered More rows outside the cards, with native disclosures and route links', () => {
+    renderPage();
+    const more = screen.getByRole('navigation', { name: '更多运气分析' });
+    const rows = within(more).getAllByRole('listitem').filter((item) => item.parentElement === more.firstElementChild);
+    expect(rows).toHaveLength(4);
+    const entries = rows.map((row) => row.querySelector('.current-more__row')!);
+    expect(entries.map((entry) => entry.textContent)).toEqual(['其余阶段', '年度详情', '指定时点', '计算说明与版本']);
+    expect(entries.map((entry) => entry.tagName)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY']);
+    for (const entry of entries) {
+      expect(entry.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      expect(entry.closest('.ds-info-card')).toBeNull();
+    }
+    expect(more.querySelector('.current-all-stages')).not.toHaveAttribute('open');
+    expect(more.querySelector('.current-technical')).not.toHaveAttribute('open');
+  });
+
+  it('uses book-title source rows with decorative external icons and leaves the teaching notice to the footer', async () => {
+    const user = userEvent.setup();
+    const learning = mapLearning(createLearningDto());
+    render(<ThemeProvider><PanelShell>
+      <CurrentYunQiPage viewModel={learning.facts} learning={learning} />
+    </PanelShell></ThemeProvider>, { wrapper: MemoryRouter });
+    const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
+    await user.click(within(disclosure).getByText('这些关系怎么读？'));
+    const sources = within(disclosure).getAllByRole('link');
+    expect(sources).toHaveLength(2);
+    for (const source of sources) {
+      expect(source).toHaveTextContent('《传统理论测试来源》');
+      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
+      expect(source).toHaveAttribute('target', '_blank');
+      expect(source).toHaveAttribute('rel', 'noreferrer');
+      expect(source).not.toHaveTextContent('新窗口');
+      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    }
+    expect(disclosure.querySelector('ul, li')).toBeNull();
+    expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
+    expect(screen.getByRole('contentinfo').textContent?.match(/教学口径，待专家确认/g)).toHaveLength(1);
+  });
+
   it('omits movement relation labels and placeholders when the API supplies no relation', () => {
     renderPage();
     const movement = screen.getByRole('region', { name: '当步运' });
@@ -36,11 +77,12 @@ describe('CurrentYunQiPage', () => {
     expect(movement).not.toHaveTextContent('关系未提供');
   });
 
-  it('shows annual and current facts, exact API times, mapped dots and relations before any disclosure', async () => {
+  it('shows annual and current facts with compact times, intact API attributes, dots and relations', async () => {
     const { dto } = renderPage();
-    const annual = screen.getByRole('region', { name: '全年 · 2026' });
+    const annual = screen.getByRole('region', { name: '全年\u202f·\u202f2026' });
     expect(within(annual).getByRole('heading', { name: '丙午' })).toBeVisible();
-    expect(annual).toHaveTextContent('交运 2026-01-20 09:00:00');
+    expect(annual).toHaveTextContent('交运 01-20 09:00');
+    expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.facts.interval.start.localTime);
     expect(annual).toHaveTextContent('水运太过之年');
     expect(within(annual).getByText('水运太过')).toBeVisible();
     expect(within(annual).getByText('太羽')).toBeVisible();
@@ -50,9 +92,10 @@ describe('CurrentYunQiPage', () => {
     expect(within(annual).getByText('不和')).toHaveClass('ds-relation__chip--adverse');
     expect(annual).toHaveTextContent(dto.annualRelation.relation);
 
-    const now = screen.getByRole('region', { name: '此刻 · 2026-06-19' });
+    const now = screen.getByRole('region', { name: '此刻\u202f·\u202f2026-06-19' });
     expect(now).toHaveTextContent('北京时间 UTC+08');
-    expect(within(now).getByText('2026-06-19 12:00:00')).toHaveAttribute('datetime', dto.facts.input.localTime);
+    expect(now.querySelector('.current-observed-time')).toBeNull();
+    expect(now.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
     const progress = within(now).getByRole('img');
     expect(progress).toHaveAccessibleName('六步气进度：第1步初之气，已结束；第2步二之气，已结束；第3步三之气，当前；第4步四之气，未开始；第5步五之气，未开始；第6步终之气，未开始');
     expect(progress.children).toHaveLength(6);
@@ -62,6 +105,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(qi).getByRole('heading', { name: '三之气' })).toBeVisible();
     expect(qi.querySelectorAll('time')[0]).toHaveAttribute('datetime', dto.facts.currentStep.start.localTime);
     expect(qi.querySelectorAll('time')[1]).toHaveAttribute('datetime', dto.facts.currentStep.end.localTime);
+    expect([...qi.querySelectorAll('time')].map((time) => time.textContent)).toEqual(['05-21 11:00', '07-23 12:00']);
     expect(within(qi).getByText('相得')).toHaveClass('ds-relation__chip--favorable');
     expect(qi).toHaveTextContent('客生主');
     const movement = within(now).getByRole('region', { name: '当步运' });
@@ -91,7 +135,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(reading.parentElement!).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
 
     expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
-    const allStages = screen.getByText('其余阶段 · 六步气与五步运');
+    const allStages = screen.getByText('其余阶段', { exact: true });
     await user.click(allStages);
     const timeline = screen.getByRole('region', { name: '六步交接时间线' });
     expect(within(timeline).getAllByRole('button', { name: /第 [1-6] 步/ })).toHaveLength(6);
@@ -107,12 +151,33 @@ describe('CurrentYunQiPage', () => {
     expect(timeline).not.toBeVisible();
 
     await user.click(screen.getByText('计算说明与版本'));
+    const precision = screen.getByRole('region', { name: '精确时刻' });
+    const expectedTimes = [dto.facts.input, dto.facts.interval.start, dto.facts.interval.end,
+      ...dto.facts.sixQi.steps.flatMap((step) => [step.start, step.end]),
+      ...dto.movements.flatMap((step) => [step.start, step.end])];
+    expect([...precision.querySelectorAll('time')].map((time) => time.dateTime)).toEqual(expectedTimes.map((time) => time.localTime));
+    for (const time of precision.querySelectorAll('time')) expect(time.textContent).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
     expect(screen.getByRole('region', { name: '规则结果说明' })).toHaveTextContent('本结果依据冻结规则计算。');
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
+  });
+
+  it('keeps API milliseconds only in calculation details', async () => {
+    const user = userEvent.setup();
+    const dto = createLearningDto();
+    const localTime = '2026-06-19T12:00:23.456+08:00';
+    const learning = mapLearning({ ...dto, facts: { ...dto.facts, input: { ...dto.facts.input, localTime } } });
+    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const visibleTimes = [...container.querySelectorAll('time')].filter((time) => !time.closest('.current-technical'));
+    for (const time of visibleTimes) expect(time.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
+    const exact = container.querySelector(`time[datetime="${localTime}"]`);
+    expect(exact).not.toBeVisible();
+    await user.click(screen.getByText('计算说明与版本'));
+    expect(exact).toBeVisible();
+    expect(exact).toHaveTextContent('2026-06-19 12:00:23.456');
   });
 
   it('keeps the original-text route reachable when no current excerpt was returned', () => {

@@ -3,6 +3,20 @@ import { createBirthComparisonDto } from '../../../../test/learning-fixtures';
 import { mapBirthView } from './map-birth-view';
 
 describe('birth presentation', () => {
+  it.each([
+    { birthPrecision: 'date', ambiguous: false, count: 1, meta: '当日无交界 · 归属唯一' },
+    { birthPrecision: 'time', ambiguous: false, count: 1, meta: '时刻已知 · 归属唯一' },
+    { birthPrecision: 'date', ambiguous: true, count: 1, meta: undefined },
+    { birthPrecision: 'date', ambiguous: false, count: 2, meta: undefined },
+  ] as const)('uses supplied precision, ambiguity and candidate count for metadata: %j', ({ birthPrecision, ambiguous, count, meta }) => {
+    const dto = createBirthComparisonDto();
+    const result = mapBirthView({ ...dto, birthPrecision, ambiguous, candidates: Array.from({ length: count }, (_, index) => ({ ...dto.candidates[0], label: `候选${index + 1}` })) });
+    expect(result.candidateMeta).toBe(meta);
+    expect(result.candidates).toHaveLength(count);
+    const times = result.candidates[0].calculationTimes;
+    expect(times[0].label).toBe(birthPrecision === 'date' ? '可能出生区间' : '计算时刻');
+    expect(times[0].start.localTime).toBe(birthPrecision === 'date' ? dto.candidates[0].from.localTime : dto.candidates[0].learning.facts.input.localTime);
+  });
   it('pairs all five named relations with the right facts even when the API order changes', () => {
     const dto = createBirthComparisonDto();
     const base = dto.candidates[0];

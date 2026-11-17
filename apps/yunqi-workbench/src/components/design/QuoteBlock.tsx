@@ -1,3 +1,5 @@
+import { InlineText } from './InlineText';
+
 export interface QuoteBlockProps {
   readonly quote: string;
   readonly source: string;
@@ -24,7 +26,7 @@ export function QuoteBlock({
 
   return (
     <figure className={`ds-quote-block${compact ? ' ds-quote-block--compact' : ''}`}>
-      {label && <div className="ds-quote-block__label">{label}</div>}
+      {label && <div className="ds-quote-block__label"><InlineText>{label}</InlineText></div>}
       <blockquote className="ds-quote-block__original">“{quote}”</blockquote>
       {fullQuote && (
         <details className="ds-quote-block__details">
@@ -38,7 +40,7 @@ export function QuoteBlock({
           <p className="ds-quote-block__reading">{interpretation}</p>
         </div>
       )}
-      <figcaption className="ds-quote-block__source">{source}</figcaption>
+      <figcaption className="ds-quote-block__source num"><InlineText>{source}</InlineText></figcaption>
       {notice && <p className="ds-quote-block__notice">{notice}</p>}
     </figure>
   );

@@ -1,5 +1,6 @@
 import type { FormEvent } from 'react';
 import { Button } from '../../../../components/design/Button';
+import { InlineText } from '../../../../components/design/InlineText';
 import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
 
 export interface TimeAnalysisFormProps {
@@ -28,6 +29,7 @@ export function TimeAnalysisForm({
       <div className="drilldown-time-form__field">
         <label htmlFor="time-analysis-input">分析时间</label>
         <input
+          className="num"
           aria-describedby={
             inputError
               ? 'time-analysis-hint time-analysis-error'
@@ -53,9 +55,9 @@ export function TimeAnalysisForm({
           </p>
         ) : null}
       </div>
-      <p id="time-analysis-hint" className="drilldown-meta">
+      <p id="time-analysis-hint" className="drilldown-meta num">
         按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
-        <span><strong>北京时间 UTC+08</strong> · 支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。</span>
+        <span><strong>北京时间 UTC+08</strong><InlineText>{` · 支持 ${YUNQI_YEAR_RANGE.min}–${YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。`}</InlineText></span>
       </p>
       <Button disabled={isPending} type="submit">
         {isPending ? '正在分析' : '开始分析'}

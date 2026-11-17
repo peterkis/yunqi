@@ -99,6 +99,29 @@
   gap: var(--space-1);
 }
 
+.drilldown-year-selector__control { position: relative; display: block; min-width: 0; }
+.drilldown-year-selector select {
+  appearance: none;
+  height: var(--input-height);
+  min-height: var(--input-height);
+  padding-block: 0;
+  padding-right: var(--segment-height);
+}
+.drilldown-year-selector__control > svg {
+  position: absolute;
+  top: 50%;
+  right: var(--space-2);
+  transform: translateY(-50%);
+  width: var(--space-4);
+  height: var(--space-4);
+  pointer-events: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--space-0_5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .drilldown-year-navigation__steps .ds-button {
   padding-inline: var(--space-2);
   font-size: var(--ts-body);
@@ -324,3 +347,8 @@
 .drilldown-inquiry__capability { min-width: 0; }
 .drilldown-inquiry__capability + article { padding-top: var(--space-3_5); border-top: var(--ds-hairline) solid var(--border-subtle); }
 .drilldown-inquiry__capability h3 { margin: 0; font-size: var(--ts-body); line-height: var(--type-body-line); font-weight: var(--type-body-strong-weight); }
+.drilldown-technical { min-width: 0; color: var(--ink-secondary); font-size: var(--ts-small); }
+.drilldown-technical > summary { cursor: pointer; min-height: var(--segment-height); }
+.drilldown-technical > .ds-info-card { margin-top: var(--space-3); }
+.drilldown-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.drilldown-technical .yunqi-time-details dd { margin: 0; }

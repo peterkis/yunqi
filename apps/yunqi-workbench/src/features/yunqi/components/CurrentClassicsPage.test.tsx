@@ -22,8 +22,15 @@ describe('CurrentClassicsPage', () => {
     expect(screen.getByText('正在此段')).toBeVisible();
     expect(screen.getByText('阅读释义')).toBeVisible();
     expect(screen.getByText(dto.currentPassages[0].explanation)).toBeVisible();
-    expect(screen.getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', dto.currentPassages[0].sourceUrl);
-    expect(screen.getAllByText('文献线索，非个体发病预测')).toHaveLength(1);
+    const source = screen.getByRole('link', { name: /查看原文出处/ });
+    expect(source).toHaveAttribute('href', dto.currentPassages[0].sourceUrl);
+    expect(source).toHaveClass('learning-text-link');
+    expect(source).toHaveAccessibleName(expect.stringContaining('新窗口打开'));
+    const notices = screen.getAllByText('文献线索，非个体发病预测');
+    expect(notices).toHaveLength(1);
+    const notice = notices[0];
+    expect(notice).toHaveClass('current-classics__notice');
+    expect(screen.getByRole('region', { name: '当下阶段原文' })).not.toContainElement(notice);
 
     annual.focus();
     await user.keyboard('{Enter}');
@@ -36,6 +43,8 @@ describe('CurrentClassicsPage', () => {
     // Native details keyboard activation is exercised in Playwright.
     await user.click(full);
     expect(screen.getByText(`“${longQuote}”`)).toBeVisible();
+    expect(notice).toBeVisible();
+    expect(screen.getByRole('region', { name: '全年原文' })).not.toContainElement(notice);
     expect(container.textContent).not.toContain('““');
     expect(screen.getByText(annualPassage.explanation)).toBeVisible();
     expect(screen.getByText(learning.annualPassages[0].source)).toBeVisible();

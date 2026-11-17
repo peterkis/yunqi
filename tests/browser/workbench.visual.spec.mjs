@@ -1,7 +1,9 @@
+import { fillBirthDate } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
+import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
@@ -37,11 +39,20 @@ for (const state of cases) {
       await page.route(`**${state.outage}`, route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
     }
     await page.goto(state.path);
-    if (state.current) await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    if (state.current) await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
     else if (state.classics) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
     } else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    if (state.name === 'annual-entry') {
+      await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
+      const inputHeight = await page.locator(':root').evaluate(root => getComputedStyle(root).getPropertyValue('--input-height').trim());
+      await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('height', inputHeight);
+      await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('appearance', 'none');
+    }
+    if (state.path === '/yunqi/birth' || state.path === '/yunqi/constitution') {
+      await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+    }
     if (state.calculate) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
@@ -59,14 +70,17 @@ for (const state of cases) {
     if (state.message) await expect(page.getByRole('alert')).toContainText(state.message);
     if (state.birth) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-      await page.getByLabel('出生日期（公历）').fill('1990-05-12');
-      await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+      await fillBirthDate(page, '1990-05-12');
+      await page.getByRole('button', { name: '查看对照' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
+      await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 时刻不详 · 修改');
       if (state.birthBoundary) {
-        await page.getByLabel('出生日期（公历）').fill(data.current.facts.interval.start.localTime.slice(0, 10));
+        await page.getByRole('button', { name: '修改', exact: true }).click();
+        await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
+        await fillBirthDate(page, data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-        await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+        await page.getByRole('button', { name: '查看对照' }).click();
         const { data: boundary } = await (await boundaryResponse).json();
         expect(boundary.ambiguous).toBe(true);
         await expect(page.locator('.birth-table')).toHaveCount(boundary.candidates.length);
@@ -89,7 +103,7 @@ for (const state of cases) {
           await expectConstitutionResults(page, data);
         }
       } else {
-        await page.getByRole('radio', { name: '男', exact: true }).check();
+        await page.getByRole('radio', { name: '男', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
       }
@@ -99,7 +113,33 @@ for (const state of cases) {
       await expect(page.getByRole('button', { name: '切换至浅色主题', exact: true })).toBeVisible();
     }
     await settle(page);
+    await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
+    if (state.current) await expectMoreRows(page);
+    if (state.classics) {
+      await expectClassicsAlignment(page);
+      const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+      const readings = page.locator('.current-classics__readings');
+      await expect(notice).toHaveCount(1);
+      await expect(notice).toBeInViewport({ ratio: 1 });
+      for (const summary of await readings.locator('details > summary').all()) {
+        await summary.press('Enter');
+        await summary.locator('..').locator('blockquote').scrollIntoViewIfNeeded();
+        await expect(notice).toBeInViewport({ ratio: 1 });
+        await summary.press('Space');
+      }
+      for (const position of ['bottom', 'top']) {
+        await readings.evaluate((region, to) => { region.scrollTop = to === 'bottom' ? region.scrollHeight : 0; }, position);
+        await expect(notice).toBeInViewport({ ratio: 1 });
+      }
+      expect(await page.getByRole('main').evaluate(main => main.scrollHeight - main.clientHeight)).toBeLessThanOrEqual(1);
+    }
+    if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
+      expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);
+      const table = page.getByRole('table').first();
+      for (const heading of await table.getByRole('columnheader').all()) await expect(heading).toBeInViewport({ ratio: 1 });
+      for (const cell of await table.locator('tbody').first().locator('tr').first().locator('th, td').all()) await expect(cell).toBeInViewport({ ratio: 1 });
+    }
     if (state.current && panelLayout.viewport.height === 640) {
       const main = page.getByRole('main');
       await main.evaluate(content => { content.scrollTop = content.scrollHeight; });
@@ -113,14 +153,31 @@ for (const state of cases) {
     }
     const controls = await expectViewControls(page, testInfo);
     if (state.name.startsWith('birth') && !state.birthClassics) {
-      expect(controls.primary.map(control => control.label)).toEqual(['查看出生与当前运气']);
-      if (state.birthAssessment && state.constitutionComplete) await expect(page.getByRole('button', { name: '查看结果', exact: true })).toHaveClass(/ds-button--secondary/);
+      const labels = state.birthAssessment ? state.constitutionComplete ? ['查看结果'] : [] : state.birth ? ['同时测评体质'] : ['查看对照'];
+      expect(controls.primary.map(control => control.label)).toEqual(labels);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
       const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
-      await expect(destroy).toHaveCount(state.constitutionComplete || state.constitutionResult ? 1 : 0);
-      if (state.constitutionComplete || state.constitutionResult) await expect(destroy).toHaveClass(/ds-button--secondary/);
+      await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
+      if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
       await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+    }
+    if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
+      for (const primary of await page.locator('.ds-button--primary').all()) {
+        expect(await primary.evaluate(button => button.closest('.panel-shell__actions') !== null)).toBe(true);
+      }
+      const actions = page.locator('.panel-shell__actions');
+      if (await actions.count()) {
+        await expect(actions).toBeInViewport({ ratio: 1 });
+        const bounds = await actions.boundingBox();
+        const main = page.getByRole('main');
+        const scrollTop = await main.evaluate(content => content.scrollTop);
+        await main.evaluate(content => { content.scrollTop = content.scrollHeight; });
+        expect(await actions.boundingBox()).toEqual(bounds);
+        await expect(actions).toBeInViewport({ ratio: 1 });
+        await main.evaluate((content, top) => { content.scrollTop = top; }, scrollTop);
+        expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
+      }
     }
     if (state.birth && !state.birthClassics) {
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
@@ -206,6 +263,7 @@ for (const state of cases) {
           return rect.left < -1 || rect.right > document.documentElement.clientWidth + 1 || element.scrollWidth > element.clientWidth + 1;
         }).map(element => ({ tag: element.tagName, label: element.getAttribute('aria-label') || element.id || element.textContent.trim(), clientWidth: element.clientWidth, scrollWidth: element.scrollWidth })),
         yearSelect: measure('select[aria-label="分析年份"]'),
+        inputHeight: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--input-height')),
         stageNames: measure('.drilldown-stage-selector__option strong'),
         stageTimes: measure('.drilldown-stage-selector__range time'),
         currentTitle: measure('.current-year-heading h3'),
@@ -234,7 +292,9 @@ for (const state of cases) {
     }
     expect.soft(layout.documentWidth, 'Page must not overflow horizontally').toBeLessThanOrEqual(layout.viewportWidth + 1);
     expect.soft(layout.overflowingControls, 'Controls must fit and keep their content readable').toEqual([]);
-    for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector meets the design control-height token (40 px)').toBeGreaterThanOrEqual(40);
+    for (const control of layout.yearSelect) {
+      expect.soft(Math.abs(control.height - layout.inputHeight), 'Year selector height equals the computed --input-height token (±1 px)').toBeLessThanOrEqual(1);
+    }
     for (const name of layout.stageNames) expect.soft(name.lines, `Stage name remains readable: ${name.text}`).toBe(1);
     for (const time of layout.stageTimes) expect.soft(time.lines, `Stage time remains on one line: ${time.text}`).toBe(1);
     for (const value of layout.annualValues) expect.soft(value.lines, `Annual three-column values fit on one line: ${value.text}`).toBe(1);

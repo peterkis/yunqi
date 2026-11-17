@@ -1,12 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot } from './fixtures.mjs';
-import { expectBirthComparison, expectBirthReadings } from './birth-helpers.mjs';
+import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
+import { expectBirthComparison, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectTextLink } from './consistency-helpers.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
-  await page.getByLabel('出生日期（公历）').fill(birthDate);
+  if (await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
+  await fillBirthDate(page, birthDate);
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看出生与当前运气', exact: true }).click();
+  await page.getByRole('button', { name: '查看对照', exact: true }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
@@ -49,6 +51,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   const historical = reading.locator('.birth-reading-candidate').first();
   await expect(reading.getByRole('button', { name: '出生阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expectBirthReadings(historical, data.candidates[0].learning.currentPassages);
+  await expectTextLink(page, historical.getByRole('link', { name: /查看原文出处/ }).first());
   await expect(historical.getByText('出生阶段', { exact: true })).toBeVisible();
   await expect(historical.getByText('当下阶段', { exact: true })).toHaveCount(0);
   await reading.getByRole('button', { name: '全年', exact: true }).click();
@@ -86,17 +89,17 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(context.locator(`time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
+  await expect(context.locator(`.constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
 
   const scoreResponsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await session.getByRole('button', { name: '查看结果', exact: true }).click();
+  await page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true }).click();
   const scoreResponse = await scoreResponsePromise;
   expect(scoreResponse.status()).toBe(200);
   const { data: assessment } = await scoreResponse.json();
-  const results = await expectConstitutionResults(session, assessment);
+  const results = await expectConstitutionResults(page, assessment, session);
   const scoreRequests = diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'));
   expect(scoreRequests).toHaveLength(1);
   const requestBody = JSON.parse(scoreRequests[0].body);
@@ -114,18 +117,18 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(start).toBeFocused();
   await start.click();
   await expect(page.getByRole('radio', { name: '男', exact: true })).not.toBeChecked();
-  await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await page.getByRole('radio', { name: '女', exact: true }).click();
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
-  await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.locator('.constitution-question-screen').first().getByRole('radio').first().click();
   await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
   await allReadings.click();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
-  await expect(page.getByRole('radio', { name: '女', exact: true })).toBeChecked();
+  await expect(page.locator('.constitution-sex-summary')).toContainText('女性版 · 更换');
   await compareBirth(page, '1990-05-13');
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
@@ -157,10 +160,11 @@ test('same-page assessment ignores an older real scoring response after birth in
   });
   const oldResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
   try {
-    await session.getByRole('button', { name: '查看结果', exact: true }).click();
+    await page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true }).click();
     expect(await reachedBackend).toBe(200);
     await expect(session.getByRole('status')).toHaveText('正在按量表规则计分');
-    await expect(page.getByLabel('出生日期（公历）')).toBeEnabled();
+    await expandBirthInput(page);
+    await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeEnabled();
     await compareBirth(page, '1991-06-01');
     await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: '同时测评体质', exact: true })).toHaveAttribute('aria-expanded', 'false');
@@ -170,9 +174,9 @@ test('same-page assessment ignores an older real scoring response after birth in
     expect((await oldResponse).status()).toBe(200);
     await settle(page);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-    await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+    await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
     await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
-    await page.getByRole('radio', { name: '女', exact: true }).check();
+    await page.getByRole('radio', { name: '女', exact: true }).click();
     await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(1);
     expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
@@ -228,11 +232,11 @@ test('birth inputs enforce required time, block repeated pending activation and 
   await page.goto('/yunqi/birth');
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
-  const date = page.getByLabel('出生日期（公历）');
-  await date.fill('1990-05-12');
-  await page.getByLabel('知道出生时刻').check();
+  const date = page.getByRole('textbox', { name: '年', exact: true });
+  await fillBirthDate(page, '1990-05-12');
+  await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
   const time = page.getByLabel('出生时刻（北京时间）');
-  await page.getByRole('button', { name: '查看出生与当前运气', exact: true }).click();
+  await page.getByRole('button', { name: '查看对照', exact: true }).click();
   await expect(time).toBeFocused();
   await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
   expect(diagnostics.requests).toHaveLength(0);
@@ -254,11 +258,11 @@ test('birth inputs enforce required time, block repeated pending activation and 
       responseDelivered = true;
       return response;
     });
-    await page.getByRole('button', { name: '查看出生与当前运气', exact: true }).click();
+    await page.getByRole('button', { name: '查看对照', exact: true }).click();
     expect(await reached).toBe(200);
     await expect(date).toBeDisabled();
     await expect(time).toBeDisabled();
-    await expect(page.getByLabel('知道出生时刻')).toBeDisabled();
+    await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: '清空本次资料', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: '正在对照…', exact: true })).toBeDisabled();
     await expect(page.getByRole('form', { name: '出生运气输入' })).toHaveAttribute('aria-busy', 'true');
@@ -284,20 +288,26 @@ test('birth inputs enforce required time, block repeated pending activation and 
   }
 
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 09:30 · 修改');
+  await expandBirthInput(page);
   await time.fill('09:31:21');
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('status')).toContainText('原结果已隐藏');
   await compareBirth(page, '1990-05-12');
-  await date.fill('1990-05-13');
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31');
+  await expectCompactTimes(page);
+  await expandBirthInput(page);
+  await fillBirthDate(page, '1990-05-13');
   await expect(result).toHaveCount(0);
   await compareBirth(page, '1990-05-13');
-  await page.getByLabel('知道出生时刻').uncheck();
+  await expandBirthInput(page);
+  await page.getByRole('radio', { name: '时刻不详', exact: true }).click();
   await expect(result).toHaveCount(0);
   await compareBirth(page, '1990-05-13');
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();
   await expect(result).toHaveCount(0);
-  await expect(date).toHaveValue('');
-  await expect(page.getByLabel('知道出生时刻')).not.toBeChecked();
+  await expectBirthDate(page, '');
+  await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
   await expect(time).toHaveCount(0);
   await expect(page.getByRole('status')).toHaveCount(0);
 });
@@ -309,7 +319,7 @@ test('direct or reloaded birth classics never restore personal data or make an a
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.getByLabel('出生日期（公历）')).toHaveValue('');
+  await expectBirthDate(page, '');
   await compareBirth(page);
   await page.getByRole('link', { name: '全部原文', exact: true }).click();
   const requestCount = diagnostics.requests.length;
@@ -318,6 +328,6 @@ test('direct or reloaded birth classics never restore personal data or make an a
   await settle(page);
   expect(diagnostics.requests).toHaveLength(requestCount);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.getByLabel('出生日期（公历）')).toHaveValue('');
+  await expectBirthDate(page, '');
   await expect(page.getByRole('region', { name: '出生与当前运气对照结果', exact: true })).toHaveCount(0);
 });

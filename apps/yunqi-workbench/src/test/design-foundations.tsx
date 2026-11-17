@@ -3,6 +3,8 @@ import { useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { MemoryRouter } from 'react-router-dom';
 import { Button } from '../components/design/Button';
+import { DateField } from '../components/design/DateField';
+import { SegmentedControl } from '../components/design/SegmentedControl';
 import { ElementDot } from '../components/design/ElementDot';
 import { InfoCard } from '../components/design/InfoCard';
 import { PanelHeader } from '../components/design/PanelHeader';
@@ -16,6 +18,8 @@ import '../styles/tokens.css';
 import '../styles/type-scale.css';
 import '../styles/global.css';
 import '../styles/design-components.css';
+import '../styles/views/form-controls.css';
+import '../styles/views/craft.css';
 
 const choices = [
   { shortcut: 1, label: '没有', description: '根本不' },
@@ -28,6 +32,8 @@ const choices = [
 function DesignFoundations() {
   const { theme, toggleTheme } = useTheme();
   const [answer, setAnswer] = useState(1);
+  const [date, setDate] = useState('');
+  const [sex, setSex] = useState<'male' | 'female' | ''>('');
   return (
     <main style={{
       boxSizing: 'border-box', width: 'var(--panel-width)', padding: 'var(--space-4)',
@@ -64,6 +70,9 @@ function DesignFoundations() {
         <ElementDot element="metal" compact />
         <RelationChip tone="neutral" label="天符" compact />
       </InfoCard>
+      <DateField label="出生日期（公历）" value={date} onChange={setDate} />
+      <SegmentedControl label="量表所用性别" compact value={sex} onChange={setSex}
+        segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
     </main>
   );
 }

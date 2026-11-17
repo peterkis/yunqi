@@ -1,3 +1,5 @@
+import { InlineText } from '../../../components/design/InlineText';
+
 interface InquiryCapabilityCardProps {
   readonly description: string;
   readonly title: string;
@@ -14,7 +16,7 @@ export function InquiryCapabilityCard({
         {description}
       </p>
       <p className="drilldown-meta">
-        状态 · <span>规划中</span>
+        <InlineText>状态 · </InlineText><span>规划中</span>
       </p>
     </article>
   );

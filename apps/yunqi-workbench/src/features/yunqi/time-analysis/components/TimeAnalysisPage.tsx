@@ -5,6 +5,7 @@ import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { DrilldownResultNotes } from '../../year-analysis/components/DrilldownResultNotes';
 import { DrilldownYearSummaryCard } from '../../year-analysis/components/DrilldownYearSummaryCard';
 import type { TimeAnalysisYunQiViewModel } from '../../presentation/view-model';
+import { mapCalculationTimes } from '../../presentation/map-drilldown';
 import { TimeAnalysisForm } from './TimeAnalysisForm';
 import { TimeAnalysisSixQiRail } from './TimeAnalysisSixQiRail';
 import { TimeAnalysisStageDetailPanel } from './TimeAnalysisStageDetailPanel';
@@ -65,7 +66,7 @@ export function TimeAnalysisPage({
         >
           <InfoCard label="规范分析时间" compact>
             <div className="drilldown-time-result__time">
-              <YunQiTimeDisplay value={viewModel.analysisTime} />
+              <YunQiTimeDisplay value={viewModel.analysisTime} variant="compact" />
             </div>
             <p className="drilldown-copy" role="status">分析完成，所选时点位于{viewModel.selectedStage.name}。</p>
           </InfoCard>
@@ -81,6 +82,7 @@ export function TimeAnalysisPage({
             explanations={viewModel.explanations}
             dataSource="YunQi 指定时点计算 API"
             ruleVersion={viewModel.ruleVersion}
+            times={mapCalculationTimes({ ...viewModel, inputTime: viewModel.analysisTime })}
           />
         </section>
       ) : null}

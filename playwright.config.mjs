@@ -57,7 +57,9 @@ export default defineConfig({
     visualProject('panel-light', 400, 860),
     visualProject('panel-dark', 400, 860, 'dark'),
     visualProject('panel-min-height', 400, 640),
-    visualProject('collapsed-pill', 400, 64, 'light', '**/panel-pill.visual.spec.mjs'),
+    visualProject('collapsed-pill', 416, 80, 'light', '**/panel-pill.visual.spec.mjs'),
     visualProject('workstation-light', 1366, 900),
+    visualProject('workstation-768', 1366, 768),
+    visualProject('workstation-1080', 1920, 1080),
   ],
 });

@@ -1,4 +1,25 @@
-import { expect } from './fixtures.mjs';
+import { expect, expectCompactTimes } from './fixtures.mjs';
+
+export async function fillBirthDate(page, value) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  const field = page.getByRole('group', { name: '出生日期（公历）', exact: true });
+  for (const [index, name] of ['年', '月', '日'].entries()) {
+    await field.getByRole('textbox', { name, exact: true }).fill(parts[index]);
+  }
+  await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+}
+
+export async function expectBirthDate(page, value) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  for (const [index, name] of ['年', '月', '日'].entries()) {
+    await expect(page.getByRole('textbox', { name, exact: true })).toHaveValue(parts[index]);
+  }
+}
+
+export async function expandBirthInput(page) {
+  await page.getByRole('button', { name: '修改', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
+}
 
 export async function expectBirthReadings(container, passages) {
   const cards = container.locator('.birth-reading');
@@ -24,8 +45,12 @@ export async function expectBirthReadings(container, passages) {
 export async function expectBirthComparison(page, data) {
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
   await expect(result).toBeVisible();
-  await expect(result.locator('.birth-api-message')).toHaveText(data.message);
-  await expect(result.locator('.birth-current-time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
+  const single = !data.ambiguous && data.candidates.length === 1;
+  if (single) await expect(result.locator('.birth-candidate-meta')).toHaveText(data.birthPrecision === 'date' ? '当日无交界 · 归属唯一' : '时刻已知 · 归属唯一');
+  else await expect(result.locator('.birth-api-message')).toHaveText(data.message);
+  await expect(result.locator('.birth-current-time')).toHaveCount(0);
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toBeVisible();
+  await expect(page.getByRole('form', { name: '出生运气输入' })).toHaveCount(0);
   const candidates = result.locator('.birth-candidate-card');
   await expect(candidates).toHaveCount(data.candidates.length);
   const names = ['岁运', '司天', '在泉', '所处气', '所处运'];
@@ -33,6 +58,7 @@ export async function expectBirthComparison(page, data) {
   for (const [index, candidate] of data.candidates.entries()) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
+    await expect(table.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
     await expect(table.getByRole('columnheader', { name: /先天 · 出生/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: /当下 · 今日/ })).toBeVisible();
     await expect(table.getByRole('rowheader')).toHaveText(names);
@@ -65,7 +91,11 @@ export async function expectBirthComparison(page, data) {
         }
       }
     }
-    if (data.birthPrecision === 'date') {
+    if (single) {
+      await expect(article.locator('.birth-candidate-interval, .birth-candidate-time')).toHaveCount(0);
+      const precision = result.locator('.birth-technical').getByRole('region', { name: `${candidate.label}精确时刻`, includeHidden: true });
+      await expect(precision.locator('time').first()).toHaveAttribute('datetime', data.birthPrecision === 'date' ? candidate.from.localTime : candidate.learning.facts.input.localTime);
+    } else if (data.birthPrecision === 'date') {
       const interval = article.locator('.birth-candidate-interval');
       await expect(interval).toContainText('起点包含，终点不包含');
       await expect(interval.locator('time')).toHaveCount(2);
@@ -80,4 +110,5 @@ export async function expectBirthComparison(page, data) {
   await expect(result.getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。', { exact: true })).toBeVisible();
   await expect(result.getByText('综合结论', { exact: true })).toHaveCount(0);
   await expect(result.locator('.birth-tables')).not.toContainText('→');
+  await expectCompactTimes(page);
 }

@@ -1,9 +1,10 @@
 import { useId, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
+import { InlineText } from './InlineText';
 
 export type InfoCardProps = {
   readonly label: string;
-  readonly meta?: string;
+  readonly meta?: ReactNode;
   readonly children: ReactNode;
   readonly hint?: ReactNode;
   readonly compact?: boolean;
@@ -31,9 +32,9 @@ export function InfoCard({
       aria-labelledby={labelId}
     >
       <div className="ds-info-card__eyebrow">
-        <span className="ds-info-card__label" id={labelId}>{label}</span>
+        <span className="ds-info-card__label num" id={labelId}><InlineText>{label}</InlineText></span>
         <span className="ds-info-card__meta">
-          {meta && <span>{meta}</span>}
+          {meta && <span>{typeof meta === 'string' ? <InlineText>{meta}</InlineText> : meta}</span>}
           {to !== undefined ? (
             <Link className="ds-info-card__link" to={to}>
               {linkLabel}<span aria-hidden="true"> ›</span>

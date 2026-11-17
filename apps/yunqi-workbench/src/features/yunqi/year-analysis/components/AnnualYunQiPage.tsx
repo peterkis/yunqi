@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { DrilldownResultNotes } from './DrilldownResultNotes';
 import { DrilldownYearSummaryCard } from './DrilldownYearSummaryCard';
 import type { AnnualYunQiViewModel } from '../../presentation/view-model';
+import { mapCalculationTimes } from '../../presentation/map-drilldown';
 import { AnnualSixQiDetailPanel } from './AnnualSixQiDetailPanel';
 import { AnnualSixQiSelector } from './AnnualSixQiSelector';
 
@@ -45,6 +46,7 @@ function AnnualYunQiContent({ viewModel }: AnnualYunQiPageProps) {
         explanations={viewModel.explanations}
         dataSource="YunQi 年度查询 API"
         ruleVersion={viewModel.ruleVersion}
+        times={mapCalculationTimes(viewModel)}
       />
     </div>
   );

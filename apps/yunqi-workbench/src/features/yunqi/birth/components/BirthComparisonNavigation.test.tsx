@@ -1,3 +1,4 @@
+import { fillBirthDate } from '../../../../test/birth-input';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
@@ -23,8 +24,8 @@ describe('birth classics navigation', () => {
     const user = userEvent.setup();
     const storage = vi.spyOn(Storage.prototype, 'setItem');
     const client = renderBirth();
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
@@ -35,10 +36,13 @@ describe('birth classics navigation', () => {
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
     expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
+    expect(document.querySelector('.panel-shell__actions')).toBeNull();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByRole('link', { name: '全部原文' })).toHaveFocus();
     expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('1990-05-12');
+    expect(screen.getByRole('button', { name: '结束并销毁答卷' }).closest('.panel-shell__actions')).not.toBeNull();
+    expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
+    expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(storage).not.toHaveBeenCalled();
@@ -51,7 +55,7 @@ describe('birth classics navigation', () => {
     expect(screen.getByText('本页尚无出生对照，请先填写出生资料。')).toBeVisible();
     expect(client.compareBirth).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: '返回出生输入' }));
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth$/);
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
   });
@@ -63,8 +67,8 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, ambiguous: true, candidates: [candidate, {
       ...candidate, label: '交界后', learning: { ...candidate.learning, annualPassages: [], currentPassages: [] },
     }] });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('table', { name: /交界后/ });
     expect(within(screen.getByRole('region', { name: '先天原文线索' })).getByText('此范围暂未收录已核对原文。')).toBeVisible();
     await user.click(screen.getByRole('link', { name: '全部原文' }));
@@ -83,14 +87,19 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, birthPrecision: 'time', candidates: [{ ...candidate, learning: { ...candidate.learning,
       annualPassages: [{ ...candidate.learning.annualPassages[0], quote: `“${quote}”` }],
     } }] });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByLabelText('知道出生时刻'));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30:21' } });
-    await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
+    await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     const reading = screen.getByRole('region', { name: '先天原文与释义' });
     expect(within(reading).queryByText(/可能出生区间/)).not.toBeInTheDocument();
+    const source = within(screen.getByRole('region', { name: '出生运气原文' })).getByRole('link', { name: /查看原文出处/ });
+    expect(source).toHaveClass('learning-text-link');
+    expect(source).toHaveAccessibleName(expect.stringContaining('新窗口打开'));
+    expect(source).toHaveAttribute('target', '_blank');
+    expect(source).toHaveAttribute('rel', 'noreferrer');
     await user.click(within(reading).getByRole('button', { name: '全年' }));
     await user.click(within(reading).getByText('展开全段'));
     expect(within(reading).getByText(`“${quote}”`, { exact: true })).toBeVisible();

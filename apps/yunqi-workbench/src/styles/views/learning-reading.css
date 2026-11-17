@@ -1,0 +1,41 @@
+/* D4 P1-6/P1-10: shared source typography for current and birth readings. */
+.learning-sources {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.current-overview .learning-source,
+.birth-relation-details .learning-source {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+  text-decoration: none;
+}
+
+.learning-source svg {
+  flex: none;
+  width: var(--space-3);
+  height: var(--space-3);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--space-0_5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.current-overview .learning-source:hover,
+.current-overview .learning-source:focus-visible,
+.birth-relation-details .learning-source:hover,
+.birth-relation-details .learning-source:focus-visible {
+  color: var(--ink-tertiary);
+  text-decoration: underline;
+}
+
+/* The InfoCard drill-down already uses this same text-link treatment. */
+.learning-text-link { color: var(--accent); text-decoration: none; }
+.learning-text-link:hover,
+.learning-text-link:focus-visible { text-decoration: underline; }

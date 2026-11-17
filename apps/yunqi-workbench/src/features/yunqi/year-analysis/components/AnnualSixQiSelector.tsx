@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { InfoCard } from '../../../../components/design/InfoCard';
+import { InlineText } from '../../../../components/design/InlineText';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import type {
   SixQiStageTuple,
@@ -23,7 +24,7 @@ export function AnnualSixQiSelector({
     <InfoCard label="六气 · 年度阶段">
       <fieldset className="drilldown-stage-selector">
         <legend>选择六气阶段</legend>
-        <p className="drilldown-meta">选择后在下方查看详情 · 北京时间 UTC+08</p>
+        <p className="drilldown-meta"><InlineText>选择后在下方查看详情 · 北京时间 UTC+08</InlineText></p>
         <div className="drilldown-stage-selector__options">
           {stages.map((stage) => (
             <label
@@ -41,11 +42,11 @@ export function AnnualSixQiSelector({
               />
               <strong>{stage.name}</strong>
               <span className="drilldown-stage-selector__range">
-                <YunQiTimeDisplay value={stage.start} showStandard={false} />
-                <span>→ <YunQiTimeDisplay value={stage.end} showStandard={false} /></span>
+                <YunQiTimeDisplay value={stage.start} variant="compact" showStandard={false} />
+                <span>→ <YunQiTimeDisplay value={stage.end} variant="compact" showStandard={false} /></span>
               </span>
               <span className="visually-hidden" id={`${groupName}-${stage.index}-range`}>
-                开始 {stage.start.localTime}，结束 {stage.end.localTime}，北京时间 UTC+08
+                开始 {stage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 {stage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本
               </span>
             </label>
           ))}

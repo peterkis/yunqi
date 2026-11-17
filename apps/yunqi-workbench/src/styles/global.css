@@ -8,7 +8,7 @@
   text-rendering: optimizeLegibility;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; accent-color: var(--accent); }
 
 html,
 body,
@@ -26,6 +26,7 @@ body {
 h1, h2, h3, h4, h5, h6 { font-size: var(--ts-title); }
 input, select, textarea, code { font-size: var(--ts-body); }
 button { font: inherit; }
+time, .num { font-variant-numeric: tabular-nums; }
 
 .theme-root {
   color-scheme: light;
@@ -45,7 +46,6 @@ input { caret-color: var(--accent); }
 }
 .yunqi-time time {
   font-family: var(--font-sans);
-  font-variant-numeric: tabular-nums;
 }
 .yunqi-time__standard {
   color: var(--ink-tertiary);

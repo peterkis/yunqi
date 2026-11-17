@@ -3,6 +3,7 @@ import { RelationChip } from '../../../components/design/RelationChip';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import type { LearningRelationViewModel } from '../presentation/map-learning';
 import type { ElementKind, YunQiTimeViewModel } from '../presentation/view-model';
+import { RelationSourceLinks } from './RelationSourceLinks';
 
 export function CurrentElementValue({ element, label }: {
   readonly element: ElementKind | undefined;
@@ -16,10 +17,10 @@ export function CurrentTimeRange({ start, end }: {
   readonly end: YunQiTimeViewModel;
 }) {
   return <span className="current-time-range">
-    <YunQiTimeDisplay value={start} showStandard={false} />
+    <YunQiTimeDisplay value={start} variant="compact" showStandard={false} />
     <span aria-hidden="true"> → </span>
     <span className="visually-hidden">至</span>
-    <YunQiTimeDisplay value={end} showStandard={false} />
+    <YunQiTimeDisplay value={end} variant="compact" showStandard={false} />
   </span>;
 }
 
@@ -31,8 +32,6 @@ export function CurrentRelationReading({ relation }: { readonly relation: Learni
   return <section className="current-relation-reading" aria-label={relation.title}>
     <h4>{relation.title}</h4>
     <p>{relation.explanation}</p>
-    <ul>{relation.sources.map((source) => <li key={source.id}>
-      <a href={source.url} target="_blank" rel="noreferrer">{source.title}（新窗口）</a>
-    </li>)}</ul>
+    <RelationSourceLinks sources={relation.sources} />
   </section>;
 }

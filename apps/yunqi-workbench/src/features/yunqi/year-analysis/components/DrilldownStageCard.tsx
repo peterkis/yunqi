@@ -17,8 +17,8 @@ export function DrilldownStageCard({ stage, context }: {
         hint={<RelationChip label={stage.relation.direction.label} tone={display.relationTone} explanation={display.relationExplanation} />}>
         <h2 className="drilldown-title" aria-live="polite" aria-atomic="true">{title}</h2>
         <div className="drilldown-boundaries">
-          <YunQiTimeDisplay value={stage.start} showStandard={false} />
-          <span>→ <YunQiTimeDisplay value={stage.end} showStandard={false} /></span>
+          <YunQiTimeDisplay value={stage.start} variant="compact" showStandard={false} />
+          <span>→ <YunQiTimeDisplay value={stage.end} variant="compact" showStandard={false} /></span>
           <span>起点包含，终点不包含</span>
         </div>
         <dl className="drilldown-qi-facts ds-info-card__section">

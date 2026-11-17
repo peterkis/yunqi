@@ -1,4 +1,4 @@
-import { createClientStub } from '../test/learning-fixtures';
+import { createClientStub, createLearningDto } from '../test/learning-fixtures';
 import {
   fireEvent,
   render,
@@ -39,11 +39,11 @@ function RouterProbe() {
   );
 }
 
-function renderAppAt(route: string, client: YunQiClient) {
+function renderAppAt(route: string, client: YunQiClient, queryClient = createWorkbenchQueryClient()) {
   return render(
     <MemoryRouter initialEntries={[route]}>
       <AppProviders
-        queryClient={createWorkbenchQueryClient()}
+        queryClient={queryClient}
         yunqiClient={client}
       >
         <App />
@@ -94,7 +94,7 @@ describe('AppRoutes', () => {
     await waitFor(() => expect(document.title).toBe('原文与释义 · 运气通'));
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
-    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
     expect(screen.getByRole('main')).toHaveFocus();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.calculate).not.toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('AppRoutes', () => {
     expect(client.getLearningCurrent).toHaveBeenCalledOnce();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
-    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
   });
 
   it('replaces the root route with the current YunQi route', async () => {
@@ -122,7 +122,7 @@ describe('AppRoutes', () => {
     expect(
       await screen.findByRole(
         'region',
-        { name: '全年 · 2026' },
+        { name: '全年\u202f·\u202f2026' },
         { timeout: 5_000 },
       ),
     ).toBeInTheDocument();
@@ -134,15 +134,40 @@ describe('AppRoutes', () => {
     );
   });
 
-  it('does not query from the annual entry route', () => {
-    const client = createClient();
+  it('defaults the annual entry to the API current YunQi year using replace navigation', async () => {
+    const current = createLearningDto();
+    const client = createClient({
+      getLearningCurrent: vi.fn().mockResolvedValue({ ...current, facts: { ...current.facts, year: 2023 } }),
+      getYear: vi.fn().mockResolvedValue({ ...createYunQiYearDto(), year: 2023 }),
+    });
 
     renderAppAt('/yunqi/year', client);
 
-    expect(screen.getByText('请选择要分析的年份')).toBeInTheDocument();
-    expect(client.getYear).not.toHaveBeenCalled();
+    await waitFor(() => expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveValue('2023'));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/year/2023');
+    expect(screen.getByLabelText('测试导航类型')).toHaveTextContent('REPLACE');
+    expect(await screen.findByRole('region', { name: '年度概览' })).toBeVisible();
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
+    expect(client.getYear).toHaveBeenCalledWith(2023);
     expect(client.getCurrent).not.toHaveBeenCalled();
     expect(screen.getByRole('main')).toHaveAccessibleName('年度详情');
+  });
+
+  it('keeps the annual empty state while the current API is pending or unavailable, even with cached facts', async () => {
+    const current = deferred<ReturnType<typeof createLearningDto>>();
+    const client = createClient({ getLearningCurrent: vi.fn(() => current.promise) });
+    const queryClient = createWorkbenchQueryClient();
+    queryClient.setQueryData(['yunqi', 'learning', 'current'], createLearningDto());
+    renderAppAt('/yunqi/year', client, queryClient);
+    expect(screen.getByText('请选择要分析的年份')).toBeVisible();
+    expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveValue('');
+    current.reject(new Error('unavailable'));
+    await waitFor(() => expect(queryClient.getQueryState(['yunqi', 'learning', 'current'])?.status).toBe('error'));
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
+    expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveValue('');
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: '上一年' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: '下一年' })).toBeDisabled();
   });
 
   it('rejects a malformed URL year without querying', () => {
@@ -254,9 +279,9 @@ describe('AppRoutes', () => {
     expect(main).toHaveFocus();
   });
 
-  it('opens planning and specified time from the annual more links without fetching business data', async () => {
+  it('opens the planning link while the annual default is pending without querying planning data', async () => {
     const user = userEvent.setup();
-    const client = createClient();
+    const client = createClient({ getLearningCurrent: vi.fn(() => new Promise<ReturnType<typeof createLearningDto>>(() => {})) });
     renderAppAt('/yunqi/year', client);
     const more = screen.getByRole('navigation', { name: '更多' });
     expect(within(more).getByRole('link', { name: '指定时点 ›' })).toHaveAttribute('href', '/yunqi/calculate');
@@ -264,7 +289,9 @@ describe('AppRoutes', () => {
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/inquiry');
     expect(screen.getByRole('main')).toHaveFocus();
     expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
-    for (const method of Object.values(client)) expect(method).not.toHaveBeenCalled();
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(client.calculate).not.toHaveBeenCalled();
   });
 
   it.each([1900, 2100])('bounds adjacent URL navigation at %s', async (year) => {
@@ -386,8 +413,10 @@ describe('AppRoutes', () => {
   });
 
   it('submits one normalized request and renders the API canonical result', async () => {
+    const user = userEvent.setup();
+    const dto = createYunQiCalculationDto();
     const client = createClient({
-      calculate: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
+      calculate: vi.fn().mockResolvedValue(dto),
     });
 
     renderAppAt('/yunqi/calculate', client);
@@ -410,14 +439,19 @@ describe('AppRoutes', () => {
     expect(client.calculate).toHaveBeenCalledWith({
       dateTime: '2026-05-20T13:30:00+08:00',
     });
-    expect(
-      await screen.findByRole('region', {
-        name: '指定时点分析结果',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('2026-06-19 12:00:00'),
-    ).toBeInTheDocument();
+    const result = await screen.findByRole('region', { name: '指定时点分析结果' });
+    expect(result).toBeVisible();
+    const compactTime = result.querySelector('.drilldown-time-result__time time');
+    expect(compactTime).toHaveTextContent('06-19 12:00');
+    expect(compactTime).toHaveAttribute('datetime', dto.input.localTime);
+    const summary = within(result).getByText('计算说明与版本');
+    const calculation = summary.closest('details')!;
+    const exactTime = within(calculation).getByText('2026-06-19 12:00:00');
+    expect(calculation).not.toHaveAttribute('open');
+    expect(exactTime).not.toBeVisible();
+    await user.click(summary);
+    expect(exactTime).toBeVisible();
+    expect(exactTime).toHaveAttribute('datetime', dto.input.localTime);
   });
 
   it('hides the first result while a second request is pending and after it fails', async () => {

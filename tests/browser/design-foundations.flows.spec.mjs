@@ -31,6 +31,8 @@ for (const theme of ['light', 'dark']) {
         header: height('.ds-panel-header'), option: height('.ds-scale-option'),
         segment: height('.ds-segmented-nav__link'),
         compactSegment: height('.ds-segmented-nav--compact .ds-segmented-nav__link'),
+        dateInput: height('.ds-date-field input'),
+        controlSegment: height('.ds-segmented-control--compact > button'),
         dot: height('.ds-element__dot'),
         compactDot: height('.ds-element--compact .ds-element__dot'),
         metalBorder: style('.ds-element__dot--metal').borderTopWidth,
@@ -76,7 +78,7 @@ for (const theme of ['light', 'dark']) {
       }).toMatchObject({
         background: rgb(surface.value[theme]),
         primary: 40, secondary: 40, text: 36, icon: 32, header: 52,
-        option: 48, segment: 32, compactSegment: 30, dot: 8, compactDot: 7,
+        option: 48, segment: 32, compactSegment: 30, dateInput: 36, controlSegment: 30, dot: 8, compactDot: 7,
         // Inspect the painted inset ring, not the rounded CSS border width.
         metalBorder: '0px',
         metalRing: `${rgb(metalRing.value[theme])} 0px 0px 0px 1.5px inset`,
@@ -102,6 +104,13 @@ for (const theme of ['light', 'dark']) {
     await expect(quoteCard.getByText('文献线索，非个体发病预测。', { exact: true })).toHaveCount(1);
     await expect(quoteCard.locator('.ds-quote-block > :last-child')).toHaveText('文献线索，非个体发病预测。');
     await expect(quoteCard.locator('.ds-quote-block__notice')).toHaveCSS('font-size', '12px');
+    for (const selector of ['.ds-segmented-nav__link', '.ds-segmented-control > button', '.ds-scale-option', '.ds-scale-option__key']) {
+      await expect(page.locator(selector).first()).toHaveCSS('transition-duration', '0s');
+    }
+    await expect(page.locator('.ds-scale-option__key.num').first()).toHaveCSS('font-variant-numeric', 'tabular-nums');
+    if (await page.evaluate(() => CSS.supports('text-spacing-trim', 'trim-start'))) {
+      await expect(quoteCard.locator('blockquote').first()).toHaveCSS('text-spacing-trim', 'trim-start');
+    }
 
     // Start before the quote, then verify the native summary's real Tab behavior.
     await page.getByRole('button', { name: '返回修改' }).focus();
@@ -165,6 +174,26 @@ for (const theme of ['light', 'dark']) {
     await page.getByRole('link', { name: '先天对照', exact: true }).focus();
     await page.keyboard.press('Enter');
     await expect(page.getByRole('link', { name: '先天对照', exact: true })).toHaveAttribute('aria-current', 'page');
+    const date = page.getByRole('group', { name: '出生日期（公历）', exact: true });
+    await date.getByRole('textbox', { name: '年', exact: true }).focus();
+    await page.keyboard.type('1980');
+    await expect(date.getByRole('textbox', { name: '月', exact: true })).toBeFocused();
+    await page.keyboard.type('03');
+    await expect(date.getByRole('textbox', { name: '日', exact: true })).toBeFocused();
+    await page.keyboard.press('Backspace');
+    await expect(date.getByRole('textbox', { name: '月', exact: true })).toBeFocused();
+    await date.getByRole('textbox', { name: '日', exact: true }).fill('12');
+    for (const input of await date.getByRole('textbox').all()) {
+      await expect(input).toHaveClass('num');
+      await expect(input).toHaveCSS('font-variant-numeric', 'tabular-nums');
+    }
+    const gender = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
+    await gender.getByRole('radio', { name: '男', exact: true }).focus();
+    await page.keyboard.press('ArrowRight');
+    await expect(gender.getByRole('radio', { name: '女', exact: true })).toBeChecked();
+    await expect(gender.getByRole('radio', { name: '女', exact: true })).toBeFocused();
+    await expect(gender.getByRole('radio', { name: '女', exact: true })).toHaveCSS('outline-width', '2px');
+    await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
     await screenshot(page, testInfo, `design-foundations-${theme}`);
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     await testInfo.attach('foundation-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });

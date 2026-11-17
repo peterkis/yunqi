@@ -1,3 +1,5 @@
+import { InlineText } from './InlineText';
+
 export interface RelationChipProps {
   readonly tone: 'favorable' | 'adverse' | 'neutral';
   readonly label: string;
@@ -21,10 +23,10 @@ export function RelationChip({
       <span
         className={`ds-relation__chip ds-relation__chip--${tone}${compact ? ' ds-relation__chip--compact' : ''}`}
       >
-        {label}
+        <InlineText>{label}</InlineText>
       </span>
       {explanation && (
-        <span className="ds-relation__explanation">{explanation}</span>
+        <span className="ds-relation__explanation"><InlineText>{explanation}</InlineText></span>
       )}
     </span>
   );

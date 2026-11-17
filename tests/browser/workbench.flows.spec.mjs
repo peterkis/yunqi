@@ -1,12 +1,15 @@
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
+import { expectMoreRows } from './consistency-helpers.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
-  await loadCurrent(page);
-  await expect(page.locator('.current-observed-time time')).toHaveText('2024-01-20 22:07:22');
+  const data = await loadCurrent(page);
+  await expect(page.locator('.current-time-range time').first()).toHaveText(data.facts.currentStep.start.localTime.slice(5, 16).replace('T', ' '));
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expectMoreRows(page);
   await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   await page.locator('.current-all-stages > summary').click();
+  await expectMoreRows(page);
   const toggles = page.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
   for (let index = 0; index < 6; index += 1) {
@@ -26,6 +29,15 @@ test('current route redirects, renders canonical time and closes every stage dis
   await toggles.last().click();
   await expect(toggles.last()).toHaveAttribute('aria-expanded', 'true');
   await settle(page);
+  await expectCompactTimes(page);
+  await page.locator('.current-technical > summary').click();
+  await expectMoreRows(page);
+  const precision = page.locator('.current-technical');
+  for (const value of [data.facts.input, data.facts.interval.start, data.facts.interval.end,
+    ...data.facts.sixQi.steps.flatMap(step => [step.start, step.end]),
+    ...data.movements.flatMap(step => [step.start, step.end])]) {
+    await expect(precision.locator(`time[datetime="${value.localTime}"]`).first()).toHaveText(value.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+  }
   expect(diagnostics.requests).toHaveLength(1);
   await screenshot(page, testInfo, 'current-disclosures');
 });
@@ -39,10 +51,12 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   expect(response.status()).toBe(200);
   const { data } = await response.json();
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
+  const defaultResponse = page.waitForResponse(response => response.url().endsWith('/learning/current'));
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
-  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
+  const { data: current } = await (await defaultResponse).json();
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(current.facts.year));
   await settle(page);
-  // Entering the empty annual form adds no query to the shortcut's one GET.
+  // The current API supplies the default; the previously loaded year is cached.
   expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(1);
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
   expect(data.year).toBe(2024);
@@ -96,6 +110,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
     has: page.getByText('传统描述', { exact: true }),
   }).locator('dd')).toHaveText(relatedStage.relation.traditionalLabel);
   const trace = page.getByRole('region', { name: '追溯信息', exact: true });
+  await page.locator('.drilldown-technical > summary').click();
   await expect(trace.getByText(nextYear.ruleVersion, { exact: true })).toBeVisible();
   await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
   await screenshot(page, testInfo, 'annual-upgraded-guest-generates-host');
@@ -111,7 +126,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   await settle(page);
   expect(annualRequests()).toHaveLength(beforeReload + 1);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.locator('.current-observed-time time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
+  await expect(page.locator('.current-technical time').first()).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
 });
 
 for (const [year, message] of [
@@ -224,7 +239,13 @@ test('supported annual boundary years load directly from the real API', async ({
     await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(year));
     await expect(page.locator('.drilldown-annual-summary')).toContainText(String(year));
     await expect(page.getByRole('radio')).toHaveCount(6);
-    const trace = page.getByRole('region', { name: '追溯信息', exact: true });
+    const calculation = page.locator('.drilldown-technical');
+    await expect(calculation).not.toHaveAttribute('open');
+    const calculationSummary = calculation.locator(':scope > summary');
+    await calculationSummary.focus();
+    await calculationSummary.press('Enter');
+    await expect(calculation).toHaveAttribute('open');
+    const trace = calculation.getByRole('region', { name: '追溯信息', exact: true });
     await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
     await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
     await screenshot(page, testInfo, `annual-boundary-${year}`);
@@ -317,7 +338,7 @@ for (const [path, endpoint, error] of [
     await page.goto(path);
     await expect(page.getByRole('alert')).toContainText(error);
     await page.getByRole('button', { name: '重试', exact: true }).click();
-    if (path === '/yunqi/current') await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    if (path === '/yunqi/current') await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
     else await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
     expect(diagnostics.requests).toHaveLength(2);
   });
@@ -326,6 +347,9 @@ for (const [path, endpoint, error] of [
 test('inquiry remains a no-query planning entry and invalid child routes return to current', async ({ page, diagnostics }) => {
   await page.setViewportSize({ width: 400, height: 860 });
   await page.goto('/yunqi/year');
+  await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
+  await settle(page);
+  const requestsBeforeInquiry = diagnostics.requests.length;
   await page.getByRole('navigation', { name: '更多' }).getByRole('link', { name: '问诊规划 ›', exact: true }).click();
   await expect(page).toHaveURL(/\/yunqi\/inquiry$/);
   await expect(page.getByRole('main')).toBeFocused();
@@ -337,17 +361,17 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   await expect(page.getByRole('main').locator('button, input, select, textarea, a, [tabindex]')).toHaveCount(0);
   await expectPanelLayout(page);
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(diagnostics.requests).toHaveLength(requestsBeforeInquiry);
   for (const child of ['patient', 'history', 'new']) {
     await page.goto(`/yunqi/inquiry/${child}`);
     await expect(page.getByRole('main').getByRole('heading', { name: '页面未找到', exact: true })).toBeVisible();
     await expectPanelLayout(page);
     await settle(page);
-    expect(diagnostics.requests).toHaveLength(0);
+    expect(diagnostics.requests).toHaveLength(requestsBeforeInquiry);
   }
   await page.getByRole('link', { name: '返回当前五运六气', exact: true }).click();
-  await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
-  expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
+  await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
+  expect(diagnostics.requests.slice(requestsBeforeInquiry).map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });
 
 test('constitution keyboard loop answers one question at a time and destroys the session', async ({ page, diagnostics }, testInfo) => {
@@ -379,13 +403,19 @@ test('constitution keyboard loop answers one question at a time and destroys the
     await expect(page.locator('.constitution-position')).toHaveText(`${number}/26`);
     await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(form.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
-    await expect(end).toHaveCount(number === 1 ? 0 : 1);
+    await expect(end).toHaveCount(1);
     await page.keyboard.press(String((number - 1) % 5 + 1));
   }
   await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   await page.keyboard.press('Tab');
-  await expect(form.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
+  await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(end).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
   await page.keyboard.press('Enter');
   const response = await responsePromise;
@@ -397,11 +427,18 @@ test('constitution keyboard loop answers one question at a time and destroys the
   const request = JSON.parse(diagnostics.requests.find(item => item.url.endsWith('/constitution/assess')).body);
   expect(Object.keys(request.answers)).toHaveLength(26);
   expect(Object.values(request.answers).every(value => [1, 2, 3, 4, 5].includes(value))).toBe(true);
-  await expect(result.getByRole('region', { name: '与运气互参', exact: true })).toContainText(data.summary);
+  await result.getByText('判定说明与边界', { exact: true }).click();
+  await expect(result.getByText(data.summary, { exact: true })).toBeVisible();
+  await result.getByText('判定说明与边界', { exact: true }).click();
+  await result.locator('.constitution-decision h4').focus();
   await screenshot(page, testInfo, 'constitution-keyboard-result');
-  // The focused decision is followed by the two disclosures and the sole end action.
+  // Content disclosures precede the shell actions; the footer follows them in DOM.
   await page.keyboard.press('Tab');
+  await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByText('本次量表版本', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(end).toHaveCount(1);
   await expect(end).toHaveClass(/ds-button--secondary/);
@@ -410,8 +447,8 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(result).toHaveCount(0);
   await expect(end).toHaveCount(0);
   await expect(male).not.toBeChecked();
-  await expect(form.getByRole('radiogroup')).toHaveCount(0);
-  await expect(form.getByRole('group', { name: '量表所用性别' })).toBeFocused();
+  await expect(form.getByRole('radiogroup', { name: '量表所用性别' })).toHaveCount(1);
+  await expect(male).toBeFocused();
   expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
   expect(new URL(page.url()).search).toBe('');
   expect(new URL(page.url()).hash).toBe('');
@@ -420,7 +457,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
 test('constitution reduced-motion answers advance immediately and previous restores an explicit choice', async ({ page, diagnostics }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await page.getByRole('radio', { name: '女', exact: true }).click();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Space');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');
