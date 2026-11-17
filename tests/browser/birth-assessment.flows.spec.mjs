@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
 import { expectBirthComparison, expectBirthReadings, expandBirthInput } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectTextLink } from './consistency-helpers.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
   if (await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
@@ -50,6 +51,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   const historical = reading.locator('.birth-reading-candidate').first();
   await expect(reading.getByRole('button', { name: '出生阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expectBirthReadings(historical, data.candidates[0].learning.currentPassages);
+  await expectTextLink(page, historical.getByRole('link', { name: /查看原文出处/ }).first());
   await expect(historical.getByText('出生阶段', { exact: true })).toBeVisible();
   await expect(historical.getByText('当下阶段', { exact: true })).toHaveCount(0);
   await reading.getByRole('button', { name: '全年', exact: true }).click();

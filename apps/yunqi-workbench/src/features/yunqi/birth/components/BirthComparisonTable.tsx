@@ -1,6 +1,7 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { RelationChip } from '../../../../components/design/RelationChip';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
+import { RelationSourceLinks } from '../../components/RelationSourceLinks';
 import type { BirthCandidateViewModel, BirthFactViewModel, BirthPageViewModel } from '../presentation/map-birth-view';
 
 function Fact({ value }: { readonly value: BirthFactViewModel }) {
@@ -48,7 +49,7 @@ export function BirthComparisonTable({ candidate, current }: {
       {candidate.rows.map((row) => row.relation ? <div key={row.label}>
         <h4 className="birth-label">{row.label} · {row.relation.label}</h4>
         <p>{row.relation.explanation}</p>
-        <ul>{row.relation.sources.map((source) => <li key={source.id}><a href={source.url} target="_blank" rel="noreferrer">{source.title}（新窗口）</a></li>)}</ul>
+        <RelationSourceLinks sources={row.relation.sources} />
       </div> : null)}
     </details>
   </>;

@@ -1,12 +1,15 @@
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
+import { expectMoreRows } from './consistency-helpers.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   const data = await loadCurrent(page);
   await expect(page.locator('.current-time-range time').first()).toHaveText(data.facts.currentStep.start.localTime.slice(5, 16).replace('T', ' '));
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expectMoreRows(page);
   await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   await page.locator('.current-all-stages > summary').click();
+  await expectMoreRows(page);
   const toggles = page.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
   for (let index = 0; index < 6; index += 1) {
@@ -28,6 +31,7 @@ test('current route redirects, renders canonical time and closes every stage dis
   await settle(page);
   await expectCompactTimes(page);
   await page.locator('.current-technical > summary').click();
+  await expectMoreRows(page);
   const precision = page.locator('.current-technical');
   for (const value of [data.facts.input, data.facts.interval.start, data.facts.interval.end,
     ...data.facts.sixQi.steps.flatMap(step => [step.start, step.end]),

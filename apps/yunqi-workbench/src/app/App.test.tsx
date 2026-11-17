@@ -38,7 +38,7 @@ describe('App', () => {
       }, { timeout: 5_000 }),
     ).toBeVisible();
     const footer = within(view.container).getByRole('contentinfo');
-    expect(footer).toHaveTextContent('五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据');
+    expect(footer).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
     const summary = within(view.container).getByText('计算说明与版本');
     const calculation = summary.closest('details')!;
     const trace = within(calculation).getByRole('region', { name: '追溯信息' });

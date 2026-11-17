@@ -5,6 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { createLearningDto } from '../../../test/learning-fixtures';
 import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
+import { PanelShell } from '../../../components/layout/PanelShell';
+import { ThemeProvider } from '../../../providers/ThemeProvider';
 
 function renderPage() {
   const dto = createLearningDto();
@@ -14,6 +16,45 @@ function renderPage() {
 }
 
 describe('CurrentYunQiPage', () => {
+  it('groups four ordered More rows outside the cards, with native disclosures and route links', () => {
+    renderPage();
+    const more = screen.getByRole('navigation', { name: '更多运气分析' });
+    const rows = within(more).getAllByRole('listitem').filter((item) => item.parentElement === more.firstElementChild);
+    expect(rows).toHaveLength(4);
+    const entries = rows.map((row) => row.querySelector('.current-more__row')!);
+    expect(entries.map((entry) => entry.textContent)).toEqual(['其余阶段', '年度详情', '指定时点', '计算说明与版本']);
+    expect(entries.map((entry) => entry.tagName)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY']);
+    for (const entry of entries) {
+      expect(entry.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      expect(entry.closest('.ds-info-card')).toBeNull();
+    }
+    expect(more.querySelector('.current-all-stages')).not.toHaveAttribute('open');
+    expect(more.querySelector('.current-technical')).not.toHaveAttribute('open');
+  });
+
+  it('uses book-title source rows with decorative external icons and leaves the teaching notice to the footer', async () => {
+    const user = userEvent.setup();
+    const learning = mapLearning(createLearningDto());
+    render(<ThemeProvider><PanelShell>
+      <CurrentYunQiPage viewModel={learning.facts} learning={learning} />
+    </PanelShell></ThemeProvider>, { wrapper: MemoryRouter });
+    const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
+    await user.click(within(disclosure).getByText('这些关系怎么读？'));
+    const sources = within(disclosure).getAllByRole('link');
+    expect(sources).toHaveLength(2);
+    for (const source of sources) {
+      expect(source).toHaveTextContent('《传统理论测试来源》');
+      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
+      expect(source).toHaveAttribute('target', '_blank');
+      expect(source).toHaveAttribute('rel', 'noreferrer');
+      expect(source).not.toHaveTextContent('新窗口');
+      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+    }
+    expect(disclosure.querySelector('ul, li')).toBeNull();
+    expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
+    expect(screen.getByRole('contentinfo').textContent?.match(/教学口径，待专家确认/g)).toHaveLength(1);
+  });
+
   it('omits movement relation labels and placeholders when the API supplies no relation', () => {
     renderPage();
     const movement = screen.getByRole('region', { name: '当步运' });
@@ -94,7 +135,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(reading.parentElement!).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
 
     expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
-    const allStages = screen.getByText('其余阶段 · 六步气与五步运');
+    const allStages = screen.getByText('其余阶段', { exact: true });
     await user.click(allStages);
     const timeline = screen.getByRole('region', { name: '六步交接时间线' });
     expect(within(timeline).getAllByRole('button', { name: /第 [1-6] 步/ })).toHaveLength(6);

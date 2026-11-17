@@ -41,8 +41,11 @@ describe('live learning cards replacing demo panels', () => {
     expect(times[0]).toHaveAttribute('datetime', movement.start.localTime);
     expect(times[1]).toHaveAttribute('datetime', movement.end.localTime);
     await user.click(screen.getByText('这些关系怎么读？'));
-    expect(screen.getByText(`交运口径：${movement.boundaryMethod} · 教学口径，待专家确认`)).toBeVisible();
-    expect(within(screen.getByText('这些关系怎么读？').closest('details')!).getByText(movement.explanation)).toBeVisible();
+    const reading = screen.getByText('这些关系怎么读？').closest('details')!;
+    expect(within(reading).getByText(movement.explanation)).toBeVisible();
+    expect(reading).not.toHaveTextContent('教学口径，待专家确认');
+    await user.click(screen.getByText('其余阶段', { exact: true }));
+    expect(screen.getByRole('region', { name: '五步运全表' })).toHaveTextContent(movement.boundaryMethod);
   });
 
   it('hides a sampled instant when birth precision is a date', () => {

@@ -2,6 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 import { expectBirthComparison, expandBirthInput } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -34,6 +35,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(sourceDetails.getByText(data.currentQi.explanation, { exact: true })).toBeVisible();
   await expect(sourceDetails.getByText(data.annualRelation.explanation, { exact: true })).toBeVisible();
   await expect(sourceDetails.locator('a').first()).toHaveAttribute('href', data.annualRelation.sources[0].url);
+  await expectRelationSources(sourceDetails);
+  await expect(page.getByRole('contentinfo')).toContainText('教学口径，待专家确认');
+  expect(await page.getByRole('contentinfo').evaluate(footer => footer.textContent.match(/教学口径，待专家确认/g)?.length)).toBe(1);
   await sourceDetails.locator('summary').press('Space');
   await expect(sourceDetails.locator('a').first()).toBeHidden();
   await otherStages.locator(':scope > summary').focus();
@@ -50,6 +54,7 @@ test('current cards retain real API facts, folded stages and sourced original re
 
   // Activate the card's stretched area, outside the link text; SPA navigation
   // must preserve this document and must not issue a document request.
+  await expectTextLink(page, page.getByRole('link', { name: '原文与释义', exact: true }));
   await page.evaluate(() => { window.c3NavigationSentinel = 'same-document'; });
   await page.locator('.current-overview__quote').scrollIntoViewIfNeeded();
   const cardBody = await page.locator('.current-overview__quote .ds-info-card__content').boundingBox();
@@ -62,10 +67,12 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveCSS('height', '30px');
   await expect(page.getByText('正在此段', { exact: true })).toBeVisible();
   await expect(page.getByText('阅读释义', { exact: true })).toBeVisible();
+  await expectClassicsAlignment(page);
+  const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+  await expect(notice).toBeInViewport({ ratio: 1 });
   const currentSource = page.getByRole('link', { name: /查看原文出处/ }).first();
   await expect(currentSource).toHaveAttribute('href', data.currentPassages[0].sourceUrl);
-  await currentSource.focus();
-  await expect(currentSource).toBeFocused();
+  await expectTextLink(page, currentSource);
   const annualScope = page.getByRole('button', { name: '全年', exact: true });
   await annualScope.focus();
   await page.keyboard.press('Enter');
@@ -73,6 +80,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByText('正在此段', { exact: true })).toHaveCount(0);
   const cards = page.locator('.current-classics__readings > .ds-info-card');
   await expect(cards).toHaveCount(data.annualPassages.length);
+  await expectClassicsAlignment(page);
   for (let index = 0; index < data.annualPassages.length; index += 1) {
     const passage = data.annualPassages[index];
     const card = cards.nth(index);
@@ -84,6 +92,8 @@ test('current cards retain real API facts, folded stages and sourced original re
       await page.keyboard.press('Space');
       await expect(full.locator('blockquote')).toHaveText(`“${passage.quote}”`);
       await expect(full.locator('blockquote')).toBeVisible();
+      await full.locator('blockquote').scrollIntoViewIfNeeded();
+      await expect(notice).toBeInViewport({ ratio: 1 });
       await full.locator('summary').press('Enter');
       await expect(full.locator('blockquote')).toBeHidden();
     } else {
@@ -92,6 +102,11 @@ test('current cards retain real API facts, folded stages and sourced original re
   }
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toBeInViewport();
+  const readings = page.getByRole('region', { name: '全年原文', exact: true });
+  for (const end of ['bottom', 'top']) {
+    await readings.evaluate((region, end) => { region.scrollTop = end === 'bottom' ? region.scrollHeight : 0; }, end);
+    await expect(notice).toBeInViewport({ ratio: 1 });
+  }
   await settle(page);
   expect(diagnostics.requests.filter((request) => request.url.endsWith('/learning/current'))).toHaveLength(2);
   await checkAccessibility(page, testInfo);
@@ -122,6 +137,10 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ birthDate: '1990-05-12' });
   const result = page.getByRole('region', { name: '出生与当前运气对照结果' });
   await expectBirthComparison(page, data);
+  const birthRelations = result.locator('.birth-relation-details').first();
+  await birthRelations.locator(':scope > summary').press('Enter');
+  await expectRelationSources(birthRelations);
+  await birthRelations.locator(':scope > summary').press('Space');
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
   await expandBirthInput(page);

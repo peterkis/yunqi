@@ -47,7 +47,7 @@ export function PanelShell({ children, actions }: PanelShellProps) {
 
   return (
     <PanelSummaryContext.Provider value={setSummary}>
-      <div className="panel-viewport">
+      <div className={`panel-viewport${collapsed ? ' panel-viewport--collapsed' : ''}`}>
         {collapsed && (
           <button className="panel-pill" type="button" ref={expandRef}
             aria-expanded={false} aria-controls="yunqi-panel" onClick={() => setCollapsed(false)}>
@@ -95,7 +95,7 @@ export function PanelShell({ children, actions }: PanelShellProps) {
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={route.title}>{children}</main>
           {actions && <div className="panel-shell__actions">{actions}</div>}
-          <footer className="panel-shell__footer">五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据</footer>
+          <footer className="panel-shell__footer">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</footer>
         </div>
       </div>
     </PanelSummaryContext.Provider>

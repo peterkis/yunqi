@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { expectPillGeometry } from './consistency-helpers.mjs';
 
 test('annual absolute descriptions remain inside the scrolling content without growing the document', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1366, height: 900 });
@@ -104,15 +105,18 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       const collapse = page.getByRole('button', { name: '收起为胶囊条', exact: true });
       await collapse.focus();
       await page.keyboard.press('Enter');
+      // Simulate the future host resizing instead of compressing the pill.
+      const collapsedViewport = { width: Math.max(416, viewport.width), height: viewport.height };
+      await page.setViewportSize(collapsedViewport);
       const expand = page.getByRole('button', { name: /^展开运气通/ });
       await expect(expand).toBeFocused();
       await expect(expand).toHaveCSS('outline-width', '2px');
       await expect(expand).toHaveCSS('outline-offset', '2px');
       await expect(expand).toHaveCSS('border-radius', '999px');
       await expect(expand).not.toHaveCSS('box-shadow', 'none');
-      const pill = await expand.boundingBox();
-      expect(pill.width).toBe(400);
+      const pill = await expectPillGeometry(page, expand);
       expect(pill.height).toBe(64);
+      await testInfo.attach('pill-geometry', { body: JSON.stringify(pill, null, 2), contentType: 'application/json' });
       await expect(expand).toContainText(data.facts.stemBranch.ganzhi);
       await expect(expand).toContainText(`${data.facts.suiYun.element}运${data.facts.suiYun.state}`);
       await expect(expand).toContainText(`${data.facts.sixQi.sitian}司天`);
@@ -126,6 +130,7 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       await testInfo.attach('pill-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
       expect(scan.violations).toEqual([]);
       await page.keyboard.press('Space');
+      await page.setViewportSize(viewport);
       await expect(collapse).toBeFocused();
       await expect(collapse).toHaveCSS('outline-width', '2px');
       await expect(collapse).toHaveCSS('outline-offset', '2px');
@@ -135,11 +140,15 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       expect(page.url()).toBe(url);
       expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
       await collapse.click();
+      await page.setViewportSize(collapsedViewport);
       // Mouse activation anywhere on the pill also expands it.
       await expand.click({ position: { x: 180, y: 32 } });
+      await page.setViewportSize(viewport);
       await expect(collapse).toBeFocused();
       await collapse.click();
+      await page.setViewportSize(collapsedViewport);
       await page.reload();
+      await page.setViewportSize(viewport);
       await expect(page.getByRole('main')).toBeVisible();
       await expect(expand).toHaveCount(0);
     });
