@@ -25,7 +25,7 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 - 架构与依赖：`workbench → client → contracts`；组件只接收 ViewModel；见 [Workbench 约束](../../agents/workbench.md)。
 - 业务时间：只展示 API `localTime` 并标注“北京时间 UTC+08”；禁止 Date/Intl/Temporal 计算或重建（因此设计中的“还有 N 天”不实现）。
 - 医疗边界：见 [医疗与阶段范围](../../agents/clinical-scope.md) 与设计规范“医疗安全”约束。
-- 门禁：见 [验证与交付 · UI重构期间的门禁](../../agents/verification.md#ui重构期间的门禁)。每张卡在同一变更内改写受影响的浏览器用例，`pnpm test:browser` 保持全绿。
+- 门禁：见 [验证与交付 · UI验收门禁](../../agents/verification.md#ui验收门禁)。每张卡在同一变更内改写受影响的浏览器用例，`pnpm test:browser` 保持全绿。
 
 ## 任务卡
 
@@ -68,3 +68,12 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 - 验收后按卡号顺序（C3 → C4 → C6）合并回 `feat/workbench-ui-refactor`；有冲突时由评审方解决或派回 Codex，
   每次合并后在主分支复跑全部门禁与浏览器验收，再合并下一张。
 - 全部合并并验收后删除工作树与卡分支。
+
+## 完成状态（2026-11-17）
+
+C1–C7 与 T1 均已验收并合入 `feat/workbench-ui-refactor`（C3/C4/C6 并行开发后按序合并）；并行工作树与卡分支已删除。
+最终门禁（评审方本机）：`pnpm test`、`typecheck`、`test:coverage`、`schema:validate`、`contracts:check`、`test:project-guidance`、
+`test:browser`（147 项）全部通过。远端 CI 尚未运行（未推送）。
+
+未确认事项：直接加载未找到页时样式生效晚于标题可见（最终布局正确，C5 评审记录）；专家规则冻结与临床验收状态不变。
+后续阶段（另行授权）：Tauri 2 外壳、停靠窗口与收起胶囊、宿主适配层、离线安装与 WebView2、Windows 构建与签名。
