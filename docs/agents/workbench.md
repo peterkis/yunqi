@@ -34,6 +34,19 @@ component禁止runtime import/re-export Client，禁止fetch/Axios/client调用�
 optional chaining、方法引用、bracket access、解构也不能取得client方法能力。
 纯type-only client import/re-export不产生运行时能力；混合type/runtime re-export仍按runtime拒绝。
 
+## 界面设计
+
+2026-11-17起进行UI界面重构。界面视觉与交互唯一依据为[设计规范与原型](../design/README.md)：
+固定宽400px的门诊侧栏面板，分段导航“当下运气 / 先天对照 / 体质量表”，原文与结果用下钻页，可收起为胶囊条。
+重构前页面的布局、样式、组件形态和浏览器截图均为demo，不再作为设计参考或验收基线；新增或修改界面不得沿用demo样式。
+
+- 颜色、字号、间距、圆角、阴影、尺寸只取[设计令牌](../design/design-system/tokens.json)，以CSS变量实现，不写裸值；浅/深两主题。
+- 字体与图标本地加载，禁止Google Fonts、在线字体和在线图标库；思源黑体/宋体完整字库随应用分发并附OFL许可。
+  `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
+- [统一约束](../design/design-system/2-constraints.md)中的视觉、交互、文案、医疗安全和可访问性条目均为硬约束。
+- 设计中的HIS患者信息、“复制结论到病历”和宿主停靠超出当前授权，处理方式见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
+- 下方路由表描述重构前实现；原型未覆盖的路由去留由重构计划决定，确定后同步更新本页。
+
 ## 当前导航和状态
 
 | 路径 | 行为 |
@@ -61,6 +74,7 @@ mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果
 
 ## 展示和交互
 
+以下为与视觉无关的展示语义，重构后继续有效。
 直接显示API localTime并标注“北京时间 UTC+08”，不从epoch或浏览器时区重建时间。
 岁运主要展示“五行运＋太过/不及”，五音作为补充；API事实与解释不可由UI重新计算。
 方向“客生主”与传统描述“客生主，相得”是两个展示项，不能互相替代。

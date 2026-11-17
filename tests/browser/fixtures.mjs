@@ -7,7 +7,7 @@ export const test = base.extend({
     if (!baseURL) throw new Error('Run with the repository Playwright configuration');
     await use(baseURL);
   },
-  diagnostics: [async ({ page, browser }, use, testInfo) => {
+  diagnostics: [async ({ page, browser, baseURL }, use, testInfo) => {
     const pageErrors = [];
     const consoleMessages = [];
     const requests = [];
@@ -18,17 +18,24 @@ export const test = base.extend({
         consoleMessages.push({ level: message.type(), text: message.text(), url: message.location().url });
       }
     });
+    const externalRequests = [];
     page.on('request', request => {
-      if (new URL(request.url()).pathname.startsWith('/api/')) {
+      const url = new URL(request.url());
+      // Hospital networks have no internet: every font, icon, style and script ships with the app.
+      if (['http:', 'https:', 'ws:', 'wss:'].includes(url.protocol) && url.host !== new URL(baseURL).host) {
+        externalRequests.push({ method: request.method(), url: request.url(), resourceType: request.resourceType() });
+      }
+      if (url.pathname.startsWith('/api/')) {
         requests.push({ method: request.method(), url: request.url(), body: request.postData() });
       }
     });
     await use({ requests, allowHttpFailure: (path, status) => expectedHttpFailures.push({ path, status }) });
     await testInfo.attach('browser-diagnostics', {
-      body: JSON.stringify({ browserVersion: browser.version(), pageErrors, consoleMessages, requests }, null, 2),
+      body: JSON.stringify({ browserVersion: browser.version(), pageErrors, consoleMessages, requests, externalRequests }, null, 2),
       contentType: 'application/json',
     });
     expect(pageErrors, 'No unhandled browser runtime errors').toEqual([]);
+    expect(externalRequests, 'No request leaves the owned origin (fonts, icons, styles and scripts ship locally)').toEqual([]);
     for (const request of requests) {
       expect(new URL(request.url).origin, 'Business requests use the owned frontend origin').toBe(new URL(page.url()).origin);
     }

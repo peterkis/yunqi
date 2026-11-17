@@ -16,7 +16,8 @@
 | 指引、复盘和索引 | pnpm test:project-guidance |
 | 固定时间或前端展示 | pnpm test:time-governance |
 | 规则/Domain/adapter | pnpm test:rule-consistency |
-| Workbench依赖和能力边界 | pnpm test:workbench-governance |
+| Workbench依赖和能力边界、本地资源（禁远程字体/图标/样式/脚本） | pnpm test:workbench-governance |
+| UI视觉与交互（按[设计规范](../design/README.md)） | pnpm test:workbench-governance；pnpm test:browser；Workbench单测与覆盖率 |
 | API/DTO/依赖/冻结投影 | pnpm contracts:check；pnpm test:contract-governance；pnpm schema:validate |
 | 完整代码变更 | pnpm test；pnpm typecheck；pnpm test:coverage |
 | 真实页面流程与视觉 | pnpm test:browser；详见下节 |
@@ -41,6 +42,21 @@
 再用最小验证区分产品、测试环境、oracle和主机问题；未知根因保持未知。
 先清理本任务已证明拥有的端口/进程，不能按node/chrome名称或同项目路径批量终止。
 连续同类资源失败时停止增加压力；不能放宽断言、增加重试或合并不同轮结果制造全绿。
+
+## UI重构期间的门禁
+
+2026-11-17起UI按[设计规范](../design/README.md)重构。门禁随之调整的范围：
+
+- 远端：main分支保护要求固定名 `quality-gates`（strict、对管理员生效），2026-11-17经GitHub API查询确认。
+  重构不改job名、步骤和Action SHA；任何门禁都不能为了让重构通过而删除或降级。
+- 不随UI变化：时间治理、契约漂移/冻结、schema校验、Service/Domain/Client测试与类型检查。
+  设计中的HIS、写入病历等若获授权，须走新契约，届时这些门禁才随之变化。
+- 覆盖率：Workbench阈值保持行/语句/函数90、分支85；重构后的组件、mapper和hook同样计入，
+  不得用exclude或降阈值绕开。CSS不计入覆盖率，视觉约束由浏览器验收和治理检查承担。
+- 本地资源：治理检查拒绝index.html与CSS中的远程资源引用；浏览器验收拒绝任何离开自有origin的请求。
+- 浏览器验收：现有视口矩阵、DOM选择器和截图针对demo界面。重构的每个变更必须在同一提交中
+  按设计规范改写对应flows/visual用例，保持 `pnpm test:browser` 全绿；迁移目标见
+  [浏览器验收说明](../../tests/browser/README.md)。不得在UI落地前提前删除仍覆盖现有页面的用例。
 
 ## 证据和报告
 

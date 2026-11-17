@@ -3505,3 +3505,52 @@ test('CLI exits non-zero and prints every path-qualified violation', () => {
   assert.match(result.stderr, /optionalDependencies/);
   assert.match(result.stderr, /peerDependencies/);
 });
+
+const ENTRY = '<script type="module" src="/src/main.tsx"></script>';
+for (const [name, indexHtml] of [
+  ['Google Fonts stylesheet link', `<html lang="zh-CN"><head><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC"></head><body>${ENTRY}</body></html>`],
+  ['protocol-relative font preload', `<html lang="zh-CN"><head><link rel="preload" as="font" href="//cdn.example.org/a.woff2"></head><body>${ENTRY}</body></html>`],
+  ['remote image', `<html lang="zh-CN"><body><img src='http://cdn.example.org/logo.png'>${ENTRY}</body></html>`],
+  ['inline style importing a remote stylesheet', `<html lang="zh-CN"><head><style>@import "https://fonts.googleapis.com/css2";</style></head><body>${ENTRY}</body></html>`],
+]) {
+  test(`rejects remote resource in index.html: ${name}`, async () => {
+    const fixture = createFixture({ indexHtml });
+    const violations = await findWorkbenchGovernanceViolations(fixture);
+    assert.ok(violations.some((v) => /index\.html: remote/.test(v)), violations.join('\n'));
+  });
+}
+
+for (const [name, css] of [
+  ['@import url()', "@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC');"],
+  ['bare @import string', '@import "//cdn.example.org/reset.css";'],
+  ['remote font-face src', '@font-face { font-family: X; src: url(https://cdn.example.org/x.woff2) format("woff2"); }'],
+  ['remote background image', '.brand { background: URL( "http://cdn.example.org/a.png" ); }'],
+]) {
+  test(`rejects remote resource in stylesheet: ${name}`, async () => {
+    const fixture = createFixture();
+    writeFixtureFile(fixture, 'apps/yunqi-workbench/src/styles/tokens.css', css);
+    const violations = await findWorkbenchGovernanceViolations(fixture);
+    assert.ok(violations.some((v) => /src\/styles\/tokens\.css: remote stylesheet/.test(v)), violations.join('\n'));
+  });
+}
+
+test('rejects remote resource in a public stylesheet', async () => {
+  const fixture = createFixture();
+  writeFixtureFile(fixture, 'apps/yunqi-workbench/public/fonts/fonts.css', '@font-face { src: url(//cdn.example.org/x.woff2); }');
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.ok(violations.some((v) => /public\/fonts\/fonts\.css: remote stylesheet/.test(v)), violations.join('\n'));
+});
+
+test('accepts locally shipped fonts, preload, data URIs and commented-out remote references', async () => {
+  const fixture = createFixture({
+    indexHtml: `<html lang="zh-CN"><head><!-- <link href="https://fonts.googleapis.com/css2"> --><link rel="preload" href="/fonts/NotoSansSC-VF.woff2" as="font" type="font/woff2" crossorigin><link rel="icon" href="./favicon.svg"></head><body><a href="https://example.org/standard">标准原文</a>${ENTRY}</body></html>`,
+  });
+  writeFixtureFile(fixture, 'apps/yunqi-workbench/src/styles/fonts.css', [
+    '/* Formerly: @import url("https://fonts.googleapis.com/css2"); */',
+    '@font-face { font-family: "Noto Sans SC"; src: url("/fonts/NotoSansSC-VF.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }',
+    '@font-face { font-family: "Noto Serif SC"; src: url(./fonts/NotoSerifSC-VF.woff2) format("woff2"); }',
+    '.mark { background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27/%3E"); }',
+  ].join('\n'));
+  const violations = await findWorkbenchGovernanceViolations(fixture);
+  assert.deepEqual(violations.filter((v) => /remote/.test(v)), []);
+});

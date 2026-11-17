@@ -15,6 +15,7 @@ const requiredDocuments = [
   'docs/agents/clinical-scope.md',
   'docs/agents/verification.md',
   'docs/agents/history-and-evidence.md',
+  'docs/design/README.md',
   'docs/retrospectives/README.md',
   'docs/retrospectives/2026-10-18-retrospective.md',
   'docs/retrospectives/2026-10-18-sources.md',

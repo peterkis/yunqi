@@ -1,0 +1,38 @@
+<!-- @dsCard height=288 -->
+<style>
+body{margin:0}
+.cv{position:relative;width:960px;height:288px;background:var(--surface-page);overflow:hidden;font-family:var(--font-sans)}
+.cv svg{position:absolute;left:0;top:0}
+.slab{fill:var(--accent);rx:var(--radius-lg)}
+.water{fill:var(--element-water);rx:var(--radius-lg)}
+.tint{fill:var(--accent-muted);rx:var(--radius-lg)}
+.step{fill:var(--surface-page)}
+.now{fill:var(--relation-adverse-fg)}
+.name{position:absolute;left:40px;bottom:36px;width:420px}
+.name h1{margin:0;font-family:var(--font-serif);font-weight:700;font-size:96px;line-height:.95;color:var(--ink-primary);letter-spacing:.02em}
+.name p{margin:16px 0 0;font-size:14px;color:var(--ink-tertiary)}
+</style>
+<div class="cv">
+  <svg width="960" height="288" viewBox="0 0 960 288" aria-hidden="true">
+    <!--
+      blocks: accent slab 200×320 (radius-lg), element-water 156×176 (radius-lg), accent-muted 104×120 (radius-lg), relation-adverse-fg one step pill
+      arrangement: one tall slab bleeding top and bottom with two satellites, water bleeding off the right edge
+      pattern: literal motif — the six steps of 六气 as pills cut out of the slab; the fifth (当下) in relation-adverse-fg, because the product is "where in the six steps are we now"
+      steps & radii: pill 120×16 radius-full, pitch space-4 + space-3.5 = 30; gaps space-4; radius-lg 14 on blocks
+    -->
+    <rect class="slab" x="600" y="-16" width="200" height="320"></rect>
+    <rect class="water" x="816" y="-16" width="160" height="176"></rect>
+    <rect class="tint" x="480" y="168" width="104" height="136"></rect>
+    <rect class="tint" x="816" y="176" width="64" height="64"></rect>
+    <rect class="step" x="640" y="56" width="120" height="16" rx="8"></rect>
+    <rect class="step" x="640" y="86" width="120" height="16" rx="8"></rect>
+    <rect class="step" x="640" y="116" width="120" height="16" rx="8"></rect>
+    <rect class="step" x="640" y="146" width="120" height="16" rx="8"></rect>
+    <rect class="now" x="640" y="176" width="120" height="16" rx="8"></rect>
+    <rect class="step" x="640" y="206" width="120" height="16" rx="8"></rect>
+  </svg>
+  <div class="name">
+    <h1>运气通<br>YunQi</h1>
+    <p>门诊侧栏里的五运六气：一屏看清全年与此刻</p>
+  </div>
+</div>
