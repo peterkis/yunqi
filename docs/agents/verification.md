@@ -43,20 +43,26 @@
 先清理本任务已证明拥有的端口/进程，不能按node/chrome名称或同项目路径批量终止。
 连续同类资源失败时停止增加压力；不能放宽断言、增加重试或合并不同轮结果制造全绿。
 
-## UI重构期间的门禁
+<a id="ui重构期间的门禁"></a>
 
-2026-11-17起UI按[设计规范](../design/README.md)重构。门禁随之调整的范围：
+## UI验收门禁
+
+当前UI按[设计规范](../design/README.md)验收：
 
 - 远端：main分支保护要求固定名 `quality-gates`（strict、对管理员生效），2026-11-17经GitHub API查询确认。
-  重构不改job名、步骤和Action SHA；任何门禁都不能为了让重构通过而删除或降级。
-- 不随UI变化：时间治理、契约漂移/冻结、schema校验、Service/Domain/Client测试与类型检查。
+  保留job名、步骤和Action SHA；任何门禁都不能为了UI变更而删除或降级。该查询是历史证据，远端状态以实时复核为准。
+- 时间治理、契约漂移/冻结、schema校验、Service/Domain/Client测试与类型检查继续生效。
   设计中的HIS、写入病历等若获授权，须走新契约，届时这些门禁才随之变化。
-- 覆盖率：Workbench阈值保持行/语句/函数90、分支85；重构后的组件、mapper和hook同样计入，
+- 覆盖率：Workbench阈值保持行/语句/函数90、分支85；组件、mapper和hook同样计入，
   不得用exclude或降阈值绕开。CSS不计入覆盖率，视觉约束由浏览器验收和治理检查承担。
 - 本地资源：治理检查拒绝index.html与CSS中的远程资源引用；浏览器验收拒绝任何离开自有origin的请求。
-- 浏览器验收：现有视口矩阵、DOM选择器和截图针对demo界面。重构的每个变更必须在同一提交中
-  按设计规范改写对应flows/visual用例，保持 `pnpm test:browser` 全绿；迁移目标见
-  [浏览器验收说明](../../tests/browser/README.md)。不得在UI落地前提前删除仍覆盖现有页面的用例。
+- 浏览器验收：400×860浅/深、400×640最小高度、400×64胶囊、1366×900工作站右侧面板。
+  覆盖七画板状态及年度、指定时点、问诊规划、未找到下钻页，按同一变更同步更新flows/visual。
+  每个视觉状态均检查五档字号，面板状态检查图标/选项/主按钮尺寸、每视图至多一个主按钮及2px焦点环；
+  保留axe WCAG 2.1 A/AA扫描与外部请求拒绝。覆盖表、数量及复现入口以[浏览器验收说明](../../tests/browser/README.md)为准。
+- `tests/browser-fixtures.test.mjs` 随根 `pnpm test` 运行，验证面板直接子元素选择与完整测量重试；
+  合成几何不代表真实CSS验收。C1/C5焦点环和面板布局保留原期望值的重试断言，不用固定等待替代。
+  沙箱无法启动Chromium时，`pnpm test:browser` 记录NOT_RUN及原因，仍改写用例并执行`node --check`与`playwright test --list`。
 
 ## 证据和报告
 

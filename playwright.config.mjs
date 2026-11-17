@@ -17,9 +17,9 @@ if (browserChannel && !['chrome', 'msedge'].includes(browserChannel)) {
   throw new Error('YUNQI_BROWSER_CHANNEL must be chrome or msedge, or unset for bundled Chromium');
 }
 
-const visualProject = (name, width, height, theme = 'light') => ({
+const visualProject = (name, width, height, theme = 'light', testMatch = '**/workbench.visual.spec.mjs') => ({
   name,
-  testMatch: '**/*.visual.spec.mjs',
+  testMatch,
   use: { viewport: { width, height }, acceptanceTheme: theme },
 });
 
@@ -42,7 +42,7 @@ export default defineConfig({
     browserName: 'chromium',
     channel: browserChannel,
     launchOptions: browserExecutable ? { executablePath: browserExecutable } : {},
-    viewport: { width: 1440, height: 1000 },
+    viewport: { width: 400, height: 860 },
     locale: 'zh-CN',
     // A non-Beijing browser zone verifies canonical API time is not reinterpreted.
     timezoneId: 'America/New_York',
@@ -54,13 +54,10 @@ export default defineConfig({
   },
   projects: [
     { name: 'flows-chromium', testMatch: '**/*.flows.spec.mjs' },
-    visualProject('desktop-light', 1440, 1000),
-    visualProject('breakpoint-light', 1025, 900),
-    visualProject('tablet-boundary-light', 768, 900),
-    visualProject('tablet-light', 737, 900),
-    visualProject('mobile-light', 390, 844),
-    visualProject('narrow-light', 320, 800),
-    visualProject('desktop-dark', 1440, 1000, 'dark'),
-    visualProject('mobile-dark', 390, 844, 'dark'),
+    visualProject('panel-light', 400, 860),
+    visualProject('panel-dark', 400, 860, 'dark'),
+    visualProject('panel-min-height', 400, 640),
+    visualProject('collapsed-pill', 400, 64, 'light', '**/panel-pill.visual.spec.mjs'),
+    visualProject('workstation-light', 1366, 900),
   ],
 });

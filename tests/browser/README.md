@@ -28,7 +28,7 @@ pnpm test:browser:visual
 After a successful build, use the runner directly for a focused iteration:
 
 ```text
-pnpm exec playwright test --project=tablet-light --grep annual-result
+pnpm exec playwright test --project=panel-light --grep annual-result
 ```
 
 The default browser is the Chromium revision bundled with the pinned
@@ -80,73 +80,97 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 | Area | Assertions |
 | --- | --- |
-| Current | Root redirect, canonical time, current navigation, six disclosure controls with Enter/Space, rail navigation, return path |
-| Annual | Empty entry sends no query; 2024 real response; all six radio selections and keyboard movement; API boundary display; URL/navigation agreement; year change; back/forward; refresh; 1900/2100 supported years with real responses |
-| Upgraded rule trace | A real 2025 `GUEST_GENERATES_HOST` stage keeps direction `客生主`, displays API traditional description `客生主，相得`, and identifies `YQ-MVP-RULES-1.1.0` plus `YQ-API-CONTRACT-1.2.0`; both annual range endpoints also verify these version identifiers |
-| Invalid year | Malformed years and unsupported 1899/2101 URL years send no business request; selecting a valid year recovers |
-| Specified time | No query on entry; required input; one explicit POST; minute/second normalization; dirty-result hiding; resubmit; pending disabled controls and duplicate activation; sanitized error/retry; real unsupported-year rejection then recovery |
-| Learning | Current annual/period focus, folded annual timeline, keyboard relationship sources and original excerpts |
-| Birth comparison | Requested date/time precision, all returned boundary candidates, canonical current snapshot, symmetric birth/current annual and period readings, edited-result hiding and clearing |
-| Constitution | No partial scoring, bounded five-group navigation, 26 applicable answers, nine result dimensions, sex-change clearing, current context |
-| Same-page assessment | Explicit lazy opening, one questionnaire, no nested forms or independent current query, birth-response snapshot, real scoring, end/reopen/reset, stale scoring response isolation, keyboard focus |
-| Inquiry | Three planning cards, no controls or business requests, forbidden child routes show not-found, return to current |
-| Runtime | No unhandled page errors or unexpected console errors; injected HTTP errors allowed only for the matching endpoint and status |
-| UI | Full-page screenshots; horizontal overflow; control content fitting; year selector target height; stage-name/time line counts; desktop title line count; automated WCAG A/AA checks including contrast |
+| Current | Root redirect, canonical Beijing time, annual/current cards, folded stages, six disclosures with Enter/Space, sources and SPA original-text drill-down |
+| Annual | Empty entry sends no query; real 2024/2025 responses; six radio choices with keys; exact API boundaries; URL, year-change focus, history/reload and 1900/2100 bounds |
+| Rule trace | Real 2025 `GUEST_GENERATES_HOST` retains `客生主` and API `客生主，相得`; rule and Contract versions remain separate |
+| Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
+| Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
+| Birth | Date/optional known time; all boundary candidates with canonical intervals; symmetric annual/period readings; edit/clear hides old results; comparison remains the sole primary action |
+| Constitution | One question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
+| Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, complete submit as secondary action, end/reopen/reset and stale response isolation |
+| Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
+| Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
+| Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
+| Visual | Screenshots and type scale for every state; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
 
-Twelve visible states are scanned: current, annual entry/result, specified-time
-entry/result, inquiry, birth entry/result/assessment, constitution entry/questions
-and not-found. Each runs in the following Chromium
-viewport/theme projects:
+### Visual states
 
-| Project | Viewport | Theme |
-| --- | --- | --- |
-| desktop-light | 1440 × 1000 | Light |
-| breakpoint-light | 1025 × 900 | Light |
-| tablet-boundary-light | 768 × 900 | Light |
-| tablet-light | 737 × 900 | Light |
-| mobile-light | 390 × 844 | Light |
-| narrow-light | 320 × 800 | Light |
-| desktop-dark | 1440 × 1000 | Dark |
-| mobile-dark | 390 × 844 | Dark |
+`workbench.visual.spec.mjs` has 24 panel states, each run in all four panel /
+workstation projects. The collapsed-pill spec adds two theme states at its
+actual 400 × 64 viewport. The seven prototype boards are represented as follows:
 
-This is 22 workflow tests plus 96 visual/accessibility tests (118 total). The three UX
-walkthrough regressions cover the current-year shortcut and bounded adjacent-year
-navigation, compact mobile stage selection with canonical time descriptions, and
-sticky navigation/skip-link/technical-disclosure keyboard recovery. Narrow viewport
-emulation does not establish physical device, touch, screen-reader, Firefox or
-WebKit compatibility. Screenshots are evidence for human inspection; there is
-no approved pixel baseline and no claim of pixel-perfect regression coverage.
-
-The viewport matrix, UX walkthrough regressions and screenshots above exercise
-the pre-refactor demo UI. Since the 2026-11-17 UI refactor they are not a
-design reference; visual and walkthrough specs must be rewritten against
-[docs/design](../../docs/design/README.md) (400px side panel, collapsed pill)
-as the refactor lands.
+| Prototype / area | Test states |
+| --- | --- |
+| ① Current default | `current` |
+| ② Original text | `current-classics`, `annual-classics` |
+| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics` |
+| ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
+| ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
+| ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
+| ⑦ Workstation placement | All 24 panel states in `workstation-light`, including current default with both cards visible |
+| Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
+| Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
+| Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
 
 ## UI refactor migration
 
-Every test run already rejects requests that leave the owned origin
-(`externalRequests` in `browser-diagnostics`): fonts, icons, styles and scripts
-must ship with the app because hospital networks have no internet access.
+Migration is complete: projects use the panel matrix below; there are no
+per-view viewport overrides or demo responsive projects. Historical screenshots
+are retained as evidence only, not as an approved visual baseline.
 
-Kept unchanged through the refactor: the owned real Service and Vite
-environment, the `America/New_York` browser zone, same-origin business requests,
-no runtime or unexpected console errors, axe WCAG 2.1 A/AA scans, horizontal
-overflow and control-fit checks, and per-run evidence under `.artifacts/browser/`.
-
-Replaced as each refactored view lands, in the same change as its UI code so
-`pnpm test:browser` stays green:
-
-| Area | Demo-era coverage | Refactor target from the design system |
+| Project | Viewport | Theme / states |
 | --- | --- | --- |
-| Visual projects | 320–1440 px responsive matrix | Panel 400 × 860 light and dark; panel 400 × 640 (minimum height, content scrolls, header and footer fixed); collapsed pill 400 × 64; workstation 1366 × 900 with the docked panel |
-| Visual states | Demo routes and headings | The seven prototype boards: current default, original text drill-down, birth comparison, questionnaire in progress, constitution result, collapsed pill, workstation placement |
-| Layout assertions | Demo class names (`.annual-six-qi-selector`, `.current-yunqi-hero`, six questions per group) | Annual and current cards visible without scrolling at height ≥ 900; icon buttons ≥ 32 × 32; options and primary buttons ≥ 40 high; visible 2 px focus ring; no horizontal scroll at 400 px |
-| Flows | Demo navigation and forms | Three-segment navigation with `aria-current`, drill-down and back, one question per screen with keys 1–5 and previous question, answer destruction on edit/clear/end |
+| `panel-light` | 400 × 860 | Light, 24 panel states |
+| `panel-dark` | 400 × 860 | Dark, 24 panel states |
+| `panel-min-height` | 400 × 640 | Light, 24 panel states; current content scrolls while header, navigation and footer stay fixed |
+| `collapsed-pill` | 400 × 64 | Light and dark, two collapsed states |
+| `workstation-light` | 1366 × 900 | Light, 24 states; 400px panel at the right edge |
 
-Rows stay demo-era until their view is rewritten. Elements beyond the current
-authorization (HIS patient data, copying to the medical record, host docking)
-are not tested until they are approved.
+The suite discovers **49 flow/foundation/oracle tests + 98 visual/accessibility
+tests = 147 tests in 9 files**. These are test cases and repeated state checks,
+not independent clinical samples. Reproduce the inventory without launching a
+browser (global setup and browser assertions do not run):
+
+```text
+pnpm exec playwright test --list
+pnpm exec playwright test --list --project=flows-chromium
+pnpm exec playwright test --list --grep @visual
+```
+
+Every screenshot calls the shared typography gate: allowed sizes
+{40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one
+display alternative. Source tests require every CSS size to use `type-scale.css`
+tiers. The minimum-height current state also captures its scrolled view.
+
+Panel layout measures only shell-owned direct children. It retries the complete
+original expectation group, including width, right-edge placement, header 52,
+footer 36, scroll containment and document bounds. At workstation height ≥ 900,
+annual and current cards must fit inside the content viewport at scrollTop 0.
+Annual three-column values use a single `水运太过`-style label and stay on one
+line at 400px. Icon targets are ≥ 32 × 32; options and primary buttons are
+≥ 40 high; a view has at most one primary / solid-accent button, including
+content below the current scroll position.
+
+Focus checks visit every available button, link, input, select, summary and
+explicit tabindex target in keyboard modality without activation. Exact 2px
+solid outline / 2px offset assertions retry automatically, including C1/C5's
+original regression assertions. Demo global reduced-motion transitions have
+been removed. The previously observed not-found initial stylesheet timing
+issue remains unconfirmed until a real browser run; the layout retry is kept.
+
+The real Service / Vite environment, non-Beijing browser zone, external-request
+rejection, runtime diagnostics, axe WCAG 2.1 A/AA tags (including contrast), and
+per-run `.artifacts/browser/` evidence remain in force. `tests/browser-fixtures.test.mjs`
+is part of root `pnpm test` and therefore CI; its four synthetic DOM/geometry
+cases verify footer/header ownership, rejection of wrong dimensions and complete
+measurement retry, not CSS rendering.
+
+Viewport emulation does not establish physical-device, touch, screen-reader,
+Firefox or WebKit compatibility. Screenshots need human inspection; no approved
+pixel baseline exists. HIS patient data, copying to the medical record and host
+window docking remain outside authorization; workstation coverage tests browser
+placement only. A Chromium-blocked sandbox reports `pnpm test:browser` as NOT_RUN,
+checks all browser modules with `node --check` and inventories tests with `--list`.
 
 ## Evidence and CI
 

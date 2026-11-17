@@ -52,10 +52,10 @@ describe('CurrentYunQiView', () => {
     await user.click(screen.getByRole('button', { name: '重试' }));
 
     expect(
-      await screen.findByRole('heading', {
-        name: '当前五运六气',
+      await screen.findByRole('region', {
+        name: '全年 · 2026',
       }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     expect(client.getLearningCurrent).toHaveBeenCalledTimes(2);
   });
 
@@ -74,11 +74,11 @@ describe('CurrentYunQiView', () => {
     });
 
     expect(
-      await screen.findByRole('heading', {
-        name: '当前五运六气',
+      await screen.findByRole('region', {
+        name: '全年 · 2026',
       }),
-    ).toBeInTheDocument();
-    expect(screen.getByText('丙午')).toBeInTheDocument();
+    ).toBeVisible();
+    expect(screen.getByText('丙午')).toBeVisible();
     expect(client.getLearningCurrent).toHaveBeenCalledOnce();
   });
 });

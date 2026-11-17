@@ -1,0 +1,193 @@
+/* Boards ①/② and design-system/1-layout.md. Keep C3 styles local to this view. */
+.current-overview,
+.current-classics {
+  /* Source: 1-layout.md, fine section borders: 1px. */
+  --current-hairline: 1px;
+  /* Source: 1-layout.md, six-stage segment gap and compact track inset: 3px. */
+  --current-progress-gap: 3px;
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-sm-line);
+}
+
+.current-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 100%;
+  margin: 0;
+}
+
+.current-overview .ds-info-card,
+.current-classics .ds-info-card { font-size: var(--ts-body); }
+
+.current-overview .current-copy,
+.current-classics .current-copy { margin: var(--space-1) 0 0; }
+.current-overview .current-meta,
+.current-classics .current-meta,
+.current-observed-time,
+.current-time-range {
+  color: var(--ink-tertiary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-meta-weight);
+}
+
+.current-year-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2_5);
+}
+.current-year-heading h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--ts-display-hero);
+  line-height: var(--type-display-xl-line);
+  font-weight: var(--type-display-xl-weight);
+  letter-spacing: var(--type-display-xl-tracking);
+}
+.current-year-heading p { margin: 0; color: var(--ink-secondary); }
+
+.current-annual-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: var(--space-3_5) 0 0;
+  padding-top: var(--space-3);
+  border-top: var(--current-hairline) solid var(--border-subtle);
+}
+.current-annual-grid > div { min-width: 0; }
+.current-annual-grid > div + div {
+  padding-left: var(--space-3);
+  border-left: var(--current-hairline) solid var(--border-subtle);
+}
+.current-annual-grid dt,
+.current-pair dt,
+.current-relation-facts dt {
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-label-line);
+}
+.current-annual-grid dd { margin: var(--space-1) 0 0; font-weight: var(--type-body-strong-weight); }
+.current-annual-grid dd.current-meta { font-weight: var(--type-meta-weight); }
+.current-annual-grid .ds-element { white-space: nowrap; }
+.current-overview .ds-element { gap: var(--space-1_5); font-size: var(--ts-body); }
+.current-overview .ds-relation { align-items: flex-start; }
+.current-overview .ds-relation__explanation {
+  font-size: var(--ts-body);
+  line-height: var(--type-body-sm-line);
+}
+
+/* Shared scale: 40 ganzhi, 20 stage names, 15 excerpts, 14 body, 12 metadata.
+   Shell and navigation use the same body tier on every route. */
+.current-sixqi-progress {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--current-progress-gap);
+  margin-top: var(--space-2);
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-sixqi-progress__step { display: flex; flex-direction: column; gap: var(--space-1); }
+.current-sixqi-progress__bar {
+  display: block;
+  height: var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+}
+.current-sixqi-progress .is-completed .current-sixqi-progress__bar { background: var(--accent-muted); }
+.current-sixqi-progress .is-current .current-sixqi-progress__bar { background: var(--accent); }
+.current-sixqi-progress .is-current { color: var(--accent); font-weight: var(--type-body-strong-weight); }
+
+.current-period { margin-top: var(--space-2); }
+.current-period h3,
+.current-stage-row h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--ts-title);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+.current-period + .current-period,
+.current-stage-row + .current-stage-row {
+  margin-top: var(--space-3_5);
+  padding-top: var(--space-3_5);
+  border-top: var(--current-hairline) solid var(--border-subtle);
+}
+.current-time-range { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1); }
+.current-overview .yunqi-time { display: inline; font-size: var(--ts-small); line-height: inherit; }
+.current-overview .yunqi-time time { white-space: nowrap; font-family: var(--font-sans); }
+.current-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-1_5) 0;
+}
+.current-pair > div { min-width: 0; }
+.current-pair dt { margin-bottom: var(--space-1); }
+.current-pair dd { margin: 0; font-weight: var(--type-body-strong-weight); }
+
+.current-disclosure { min-width: 0; }
+.current-disclosure > summary {
+  display: list-item;
+  min-height: var(--segment-height);
+  padding-block: var(--space-1_5);
+  color: var(--accent);
+  cursor: pointer;
+  font-size: var(--ts-body);
+  line-height: var(--type-body-sm-line);
+}
+.current-relations { margin-top: var(--space-2); }
+.current-relation-reading h4 { margin: var(--space-2) 0 var(--space-1); font: inherit; font-weight: var(--type-body-strong-weight); }
+.current-relation-reading p { margin: 0; }
+.current-overview ul { margin: var(--space-2) 0; padding-left: var(--space-4_5); }
+.current-overview a,
+.current-classics a { color: var(--accent); }
+.current-overview a:hover,
+.current-classics a:hover { color: var(--accent-hover); text-decoration: underline; }
+.current-overview__quote .ds-info-card__hint { font-size: var(--ts-small); line-height: var(--type-meta-line); }
+.current-context-links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.current-context-links a { display: inline-flex; align-items: center; min-height: var(--segment-height); text-decoration: none; }
+.current-all-stages > .ds-info-card,
+.current-technical > .ds-info-card { margin-top: var(--space-3); }
+.current-stage-navigation { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-0_5); margin-block: var(--space-2); }
+.current-stage-navigation .ds-button { padding-inline: 0; font-size: var(--ts-small); }
+.current-stage-navigation [aria-current="step"] { color: var(--accent); font-weight: var(--type-body-strong-weight); }
+.current-stage-row__heading { display: flex; align-items: center; gap: var(--space-2); }
+.current-stage-row__heading .ds-button { margin-left: auto; padding-inline: var(--space-2); font-size: var(--ts-body); }
+.current-relation-facts { margin: var(--space-2) 0 0; }
+.current-relation-facts > div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-2); margin-top: var(--space-1); }
+.current-relation-facts dd { margin: 0; }
+
+.current-classics { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; min-height: 0; }
+.current-classics__segments {
+  display: flex;
+  flex: none;
+  gap: var(--space-0_5);
+  padding: var(--current-progress-gap);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.current-classics__segments .ds-button {
+  flex: 1;
+  justify-content: center;
+  height: var(--ds-segment-compact-height);
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--ts-body);
+}
+.current-classics__segments [aria-pressed="true"] {
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-segment);
+  font-weight: var(--type-body-strong-weight);
+}
+/* Keep one literature notice visible while the reading region scrolls. */
+.current-classics__readings { position: relative; flex: 1; min-height: 0; overflow: auto; padding: var(--space-1); }
+.current-classics__readings > .ds-info-card + .ds-info-card { margin-top: var(--space-3); }
+.current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--ts-small); line-height: var(--type-meta-line); }
+.current-classics__notice { flex: none; margin: 0; padding-top: var(--space-1); }
+.current-classics .ds-quote-block__details > summary { min-height: var(--segment-height); }

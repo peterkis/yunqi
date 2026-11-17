@@ -24,6 +24,7 @@
 | [design-system/README.md](design-system/README.md) | 设计原则、色彩、字体（本地加载）、字号阶梯与排版 |
 | [design-system/1-layout.md](design-system/1-layout.md) | 面板骨架、网格、间距、视觉层次、z 轴与阴影、圆角 |
 | [design-system/2-constraints.md](design-system/2-constraints.md) | 视觉、交互、文案、医疗安全、可访问性硬约束 |
+| [type-scale.md](type-scale.md) | **本地决定**：全应用 5 档字号阶梯（保留“单屏最多 5 级”并统一各视图字号），优先于规范中的逐样式字号 |
 | [design-system/tokens.json](design-system/tokens.json) | 颜色（浅/深两主题）、字体、间距、圆角、阴影、尺寸、z-index 令牌 |
 | `design-system/components/*/README.md` | 组件规范：Button、ElementDot、InfoCard、PanelHeader、QuoteBlock、RelationChip、ScaleOption、SegmentedNav |
 | `design-system/components/*/preview.html` | 组件预览片段，依赖上游生成的 `tokens.css`，单独打开不带令牌 |

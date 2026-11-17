@@ -1,21 +1,20 @@
-import { Panel } from '../../../components/ui/Panel';
+import { InfoCard } from '../../../components/design/InfoCard';
 import { InquiryCapabilityCard } from '../components/InquiryCapabilityCard';
 
 export function InquiryEntryPage() {
   return (
-    <div className="inquiry-entry-page">
-      <header className="inquiry-entry-page__header">
-        <h2>问诊结构化入口</h2>
-        <p>
+    <div className="drilldown-page drilldown-inquiry">
+      <InfoCard label="问诊规划" meta="规划中">
+        <h2 className="drilldown-title">问诊结构化入口</h2>
+        <p className="drilldown-copy">
           为未来患者上下文、历史记录和结构化记录能力建立安全入口。本阶段不创建、保存或分析患者记录。
         </p>
-      </header>
+        <p className="drilldown-meta">仅展示后续规划；患者信息、问诊采集与记录均未开放。</p>
+      </InfoCard>
 
-      <Panel
-        title="未来能力"
-        description="以下能力仅展示规划边界，尚未开放操作。"
-      >
-        <div className="inquiry-capability-grid">
+      <InfoCard label="未来能力">
+        <p className="drilldown-copy">以下能力仅展示规划边界，尚未开放操作。</p>
+        <div className="drilldown-inquiry__capabilities">
           <InquiryCapabilityCard
             title="患者上下文"
             description="为未来患者引用与展示信息预留位置。"
@@ -29,7 +28,7 @@ export function InquiryEntryPage() {
             description="为未来经确认的专业流程预留入口。"
           />
         </div>
-      </Panel>
+      </InfoCard>
     </div>
   );
 }

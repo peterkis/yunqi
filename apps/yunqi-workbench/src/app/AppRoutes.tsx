@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import { InquiryEntryPage } from '../features/inquiry/pages/InquiryEntryPage';
 import { CurrentYunQiView } from '../features/yunqi/components/CurrentYunQiView';
+import { CurrentClassicsView } from '../features/yunqi/components/CurrentClassicsView';
 import { BirthComparisonPage } from '../features/yunqi/birth/components/BirthComparisonPage';
 import { ConstitutionPage } from '../features/constitution/pages/ConstitutionPage';
 import { TimeAnalysisView } from '../features/yunqi/time-analysis/components/TimeAnalysisView';
@@ -17,7 +18,10 @@ export function AppRoutes() {
         element={<Navigate replace to="/yunqi/current" />}
       />
       <Route path="/yunqi/current" element={<CurrentYunQiView />} />
-      <Route path="/yunqi/birth" element={<BirthComparisonPage />} />
+      <Route path="/yunqi/current/classics" element={<CurrentClassicsView />} />
+      <Route path="/yunqi/birth" element={<BirthComparisonPage />}>
+        <Route path="classics" element={null} />
+      </Route>
       <Route path="/yunqi/constitution" element={<ConstitutionPage />} />
       <Route
         path="/yunqi/calculate"

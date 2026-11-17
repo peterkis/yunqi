@@ -80,6 +80,37 @@ function deferred<T>() {
 }
 
 describe('AppRoutes', () => {
+  it('opens current classics through the internal card and returns to current with route focus and titles', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/current', client);
+    const link = await screen.findByRole('link', { name: '原文与释义' });
+    link.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current/classics');
+    expect(screen.getByRole('region', { name: '页面导航' })).toHaveTextContent('原文与释义');
+    expect(await screen.findByRole('group', { name: '原文范围' })).toBeVisible();
+    expect(screen.getByRole('main')).toHaveFocus();
+    await waitFor(() => expect(document.title).toBe('原文与释义 · 运气通'));
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
+    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(screen.getByRole('main')).toHaveFocus();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('can open the classics drilldown directly and return without browser history', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/current/classics', client);
+    expect(await screen.findByRole('group', { name: '原文范围' })).toBeVisible();
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
+    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+  });
+
   it('replaces the root route with the current YunQi route', async () => {
     const client = createClient({
       ...createClientStub(),
@@ -90,8 +121,8 @@ describe('AppRoutes', () => {
 
     expect(
       await screen.findByRole(
-        'heading',
-        { name: '当前五运六气' },
+        'region',
+        { name: '全年 · 2026' },
         { timeout: 5_000 },
       ),
     ).toBeInTheDocument();
@@ -111,6 +142,7 @@ describe('AppRoutes', () => {
     expect(screen.getByText('请选择要分析的年份')).toBeInTheDocument();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();
+    expect(screen.getByRole('main')).toHaveAccessibleName('年度详情');
   });
 
   it('rejects a malformed URL year without querying', () => {
@@ -159,7 +191,7 @@ describe('AppRoutes', () => {
     renderAppAt('/not-approved', client);
 
     expect(
-      screen.getByRole('heading', { name: '页面未找到' }),
+      within(screen.getByRole('main')).getByRole('heading', { name: '页面未找到' }),
     ).toBeInTheDocument();
     expect(client.getCurrent).not.toHaveBeenCalled();
     expect(client.getYear).not.toHaveBeenCalled();
@@ -207,6 +239,49 @@ describe('AppRoutes', () => {
     expect(client.calculate).not.toHaveBeenCalled();
   });
 
+  it('makes the control-free inquiry content reachable by Tab', async () => {
+    const user = userEvent.setup();
+    renderAppAt('/yunqi/inquiry', createClient());
+    const main = screen.getByRole('main');
+    expect(main.querySelectorAll('button, input, select, textarea, a, [tabindex]')).toHaveLength(0);
+    screen.getByRole('button', { name: '返回' }).focus();
+
+    await user.tab();
+
+    expect(main).toHaveFocus();
+    expect(main).toHaveAccessibleName('问诊规划');
+    await user.click(screen.getByRole('link', { name: '跳至主要内容' }));
+    expect(main).toHaveFocus();
+  });
+
+  it('opens planning and specified time from the annual more links without fetching business data', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/year', client);
+    const more = screen.getByRole('navigation', { name: '更多' });
+    expect(within(more).getByRole('link', { name: '指定时点 ›' })).toHaveAttribute('href', '/yunqi/calculate');
+    await user.click(within(more).getByRole('link', { name: '问诊规划 ›' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/inquiry');
+    expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
+    for (const method of Object.values(client)) expect(method).not.toHaveBeenCalled();
+  });
+
+  it.each([1900, 2100])('bounds adjacent URL navigation at %s', async (year) => {
+    const user = userEvent.setup();
+    const client = createClient({ getYear: vi.fn().mockResolvedValue(createYunQiYearDto()) });
+    renderAppAt(`/yunqi/year/${year}`, client);
+    expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(year));
+    const bounded = screen.getByRole('button', { name: year === 1900 ? '上一年' : '下一年' });
+    expect(bounded).toBeDisabled();
+    await user.click(bounded);
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent(`/yunqi/year/${year}`);
+    const next = year === 1900 ? '下一年' : '上一年';
+    await user.click(screen.getByRole('button', { name: next }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent(`/yunqi/year/${year === 1900 ? 1901 : 2099}`);
+    expect(screen.getByRole('button', { name: next })).toHaveFocus();
+  });
+
   it('renders the specified-time entry and keeps the initial state request-free', () => {
     const client = createClient();
 
@@ -216,8 +291,9 @@ describe('AppRoutes', () => {
       screen.getByRole('heading', { name: '指定时点分析' }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole('link', { name: /指定时点/ }),
-    ).toHaveClass('is-active');
+      within(screen.getByRole('region', { name: '页面导航' })).getByRole('heading', { name: '指定时点' }),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
     expect(screen.getByLabelText('分析时间')).toHaveAttribute(
       'type',
       'datetime-local',
@@ -481,7 +557,7 @@ describe('AppRoutes', () => {
     renderAppAt(route, client);
 
     expect(
-      screen.getByRole('heading', { name: '页面未找到' }),
+      within(screen.getByRole('main')).getByRole('heading', { name: '页面未找到' }),
     ).toBeInTheDocument();
     expect(client.getCurrent).not.toHaveBeenCalled();
     expect(client.getYear).not.toHaveBeenCalled();
@@ -519,6 +595,12 @@ describe('AppRoutes', () => {
       screen.getByText('正在加载 2027 年年度五运六气数据'),
     ).toBeInTheDocument();
     expect(screen.queryByText('丙午')).not.toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: '收起为胶囊条' }));
+    const expand = screen.getByRole('button', { name: /^展开运气通/ });
+    expect(expand).toHaveTextContent('本视图暂无运气摘要');
+    expect(expand).not.toHaveTextContent('丙午');
+    await user.click(expand);
 
     await user.click(screen.getByRole('button', { name: '测试后退' }));
 

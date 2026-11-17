@@ -10,7 +10,7 @@ describe('ConstitutionPage', () => {
     const client = createClientStub();
     render(<ConstitutionPage />, { wrapper: createTestWrapper(client) });
     expect(await screen.findByRole('form', { name: '中医体质量表' })).toBeVisible();
-    expect(await screen.findByRole('heading', { name: '当前运气参考' })).toBeVisible();
+    expect(screen.getByRole('complementary', { name: '本次测评对照背景' }).querySelector('time')).toHaveAttribute('datetime', createLearningDto().facts.input.localTime);
     expect(client.getConstitutionQuestionnaire).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).toHaveBeenCalledOnce();
     expect(client.assessConstitution).not.toHaveBeenCalled();
@@ -27,10 +27,10 @@ describe('ConstitutionPage', () => {
     await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(2));
     expect(screen.queryByText(/private/)).not.toBeInTheDocument();
     const retries = screen.getAllByRole('button', { name: '重试' });
-    await user.click(retries[0]);
+    await user.click(retries[1]);
     await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(screen.getByRole('button', { name: '重试' }));
-    await screen.findByRole('heading', { name: '当前运气参考' });
+    await waitFor(() => expect(screen.getByRole('complementary', { name: '本次测评对照背景' }).querySelector('time')).not.toBeNull());
     expect(client.assessConstitution).not.toHaveBeenCalled();
   });
 });

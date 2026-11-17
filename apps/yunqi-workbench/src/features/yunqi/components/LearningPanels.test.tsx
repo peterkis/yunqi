@@ -1,46 +1,56 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
-import { createLearningDto } from '../../../test/learning-fixtures';
+import { createLearningDto, createBirthComparisonDto } from '../../../test/learning-fixtures';
 import { mapLearning } from '../presentation/map-learning';
-import { ClassicalPassages, LearningSnapshot, MovementCard } from './LearningPanels';
+import { CurrentClassicsPage } from './CurrentClassicsPage';
+import { CurrentYunQiPage } from './CurrentYunQiPage';
+import { mapBirthView } from '../birth/presentation/map-birth-view';
+import { BirthComparisonTable } from '../birth/components/BirthComparisonTable';
 
-describe('LearningPanels', () => {
-  it('separates source quotation and explanatory text behind a disclosure', async () => {
+describe('live learning cards replacing demo panels', () => {
+  it('separates source quotation and explanatory text in the original-text drilldown', async () => {
     const user = userEvent.setup();
     const learning = mapLearning(createLearningDto());
-    render(<ClassicalPassages title="经典原文" passages={learning.annualPassages} />);
-    expect(screen.getByText('主胜逆，客胜从。')).not.toBeVisible();
-    await user.click(screen.getByText('经典原文'));
-    expect(screen.getByText('主胜逆，客胜从。')).toBeVisible();
-    expect(screen.getByText('阅读释义（非原文）')).toBeVisible();
+    render(<CurrentClassicsPage learning={learning} />);
+    await user.click(screen.getByRole('button', { name: '全年' }));
+    expect(screen.getByRole('blockquote')).toHaveTextContent('“主胜逆，客胜从。”');
+    expect(screen.getByText('阅读释义')).toBeVisible();
+    expect(screen.getByText(learning.annualPassages[0].explanation)).toBeVisible();
     expect(screen.getByRole('link')).toHaveAttribute('href', learning.annualPassages[0].sourceUrl);
     expect(screen.getByRole('link')).toHaveAttribute('rel', 'noreferrer');
   });
 
   it('does not invent missing source text', async () => {
     const user = userEvent.setup();
-    render(<ClassicalPassages title="未收录范围" passages={[]} />);
-    await user.click(screen.getByText('未收录范围'));
+    render(<CurrentClassicsPage learning={{ ...mapLearning(createLearningDto()), annualPassages: [] }} />);
+    await user.click(screen.getByRole('button', { name: '全年' }));
     expect(screen.getByText('此范围暂未收录已核对原文。')).toBeVisible();
   });
 
   it('shows movement boundaries supplied by the API and explains their method on demand', async () => {
     const user = userEvent.setup();
-    const movement = mapLearning(createLearningDto()).currentMovement;
-    render(<MovementCard movement={movement} />);
-    expect(screen.getByText('火运太过（太徵）')).toBeVisible();
-    expect(screen.getByText('木运不及（少角）')).toBeVisible();
-    await user.click(screen.getByText('交运口径'));
-    expect(screen.getByText(movement.boundaryMethod)).toBeVisible();
-    expect(screen.getByText(movement.explanation)).toBeVisible();
+    const learning = mapLearning(createLearningDto());
+    const movement = learning.currentMovement;
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const currentMovement = screen.getByRole('region', { name: '当步运' });
+    expect(within(currentMovement).getByText('火运太过（太徵）')).toBeVisible();
+    expect(within(currentMovement).getByText('木运不及（少角）')).toBeVisible();
+    const times = currentMovement.querySelectorAll('time');
+    expect(times[0]).toHaveAttribute('datetime', movement.start.localTime);
+    expect(times[1]).toHaveAttribute('datetime', movement.end.localTime);
+    await user.click(screen.getByText('这些关系怎么读？'));
+    expect(screen.getByText(`交运口径：${movement.boundaryMethod} · 教学口径，待专家确认`)).toBeVisible();
+    expect(within(screen.getByText('这些关系怎么读？').closest('details')!).getByText(movement.explanation)).toBeVisible();
   });
 
   it('hides a sampled instant when birth precision is a date', () => {
-    const learning = mapLearning(createLearningDto());
-    const { container } = render(<LearningSnapshot learning={learning} title="出生背景" showTime={false} />);
+    const viewModel = mapBirthView(createBirthComparisonDto());
+    const candidate = viewModel.candidates[0];
+    const { container } = render(<BirthComparisonTable candidate={candidate} current={viewModel} />);
     expect(container.querySelector('time')).toBeNull();
-    expect(screen.getByText('2026 · 丙午')).toBeVisible();
-    expect(screen.getByText('三之气 · 主气')).toBeVisible();
+    expect(screen.getAllByText(candidate.birthGanzhi).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(candidate.rows[3].birth.label).length).toBeGreaterThan(0);
   });
 });

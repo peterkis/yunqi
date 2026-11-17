@@ -1,4 +1,6 @@
 import { AsyncState } from '../../../../components/feedback/AsyncState';
+import { PanelSummary } from '../../../../components/layout/PanelSummary';
+import { mapPanelSummary } from '../../presentation/panel-summary';
 import { useYunQiYearQuery } from '../../hooks/useYunQiYearQuery';
 import { mapAnnualYunQi } from '../../presentation/map-annual-yunqi';
 import { AnnualYunQiPage } from './AnnualYunQiPage';
@@ -21,9 +23,13 @@ export function AnnualYunQiView({ year }: AnnualYunQiViewProps) {
       onRetry={() => {
         void query.refetch();
       }}
-      renderData={(data) => (
-        <AnnualYunQiPage viewModel={mapAnnualYunQi(data)} />
-      )}
+      renderData={(data) => {
+        const viewModel = mapAnnualYunQi(data);
+        return <>
+          <PanelSummary viewModel={mapPanelSummary(viewModel.summary)} />
+          <AnnualYunQiPage viewModel={viewModel} />
+        </>;
+      }}
     />
   );
 }

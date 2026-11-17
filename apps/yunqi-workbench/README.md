@@ -2,14 +2,12 @@
 
 React Workbench for TCM YunQi Lab.
 
-> **UI refactor (2026-11-17).** The visual and interaction design is defined
-> only by [docs/design](../../docs/design/README.md): a 400px outpatient side
-> panel with three segments (当下运气 / 先天对照 / 体质量表), drill-down pages
-> and a collapsed pill. The pre-refactor page layouts, styles and screenshots
-> are demos and must not be reused as a design reference or acceptance
-> baseline. The routes, data flow, time and medical boundaries below describe
-> the current implementation and stay in force unless the refactor plan
-> changes them.
+> **Current panel UI.** [docs/design](../../docs/design/README.md) defines
+> the 400px outpatient panel, three segments (当下运气 / 先天对照 / 体质量表),
+> drill-down pages, light/dark themes and the 400 × 64 collapsed pill.
+> `PanelShell` frames every view. Demo CSS, aliases and unused demo components
+> have been removed; historical screenshots remain historical evidence.
+> Typography uses only the five tiers in `styles/type-scale.css`.
 
 The 2026-11-16 doctor-feedback release adds progressive disclosure, sourced classical excerpts, birth/current comparison,
 and constitution self-assessment to the existing annual and specified-time
@@ -21,17 +19,45 @@ prescribe, or provide treatment decisions.
 
 The Workbench uses declarative React Router routes:
 
-| Route | Meaning | Request behavior |
+| Route | Navigation | Request behavior |
 |---|---|---|
 | `/` | Entry redirect | Replaces the URL with `/yunqi/current` |
-| `/yunqi/current` | Annual context, current movement/Qi, concise relations and excerpts | Calls the composite learning-current endpoint; refreshes visible current context every minute |
-| `/yunqi/birth` | Birth background beside current YunQi | Submit-only comparison; optional known birth time |
-| `/yunqi/constitution` | Versioned constitution questionnaire beside current context | GET questionnaire/current context; assessment POST only after complete explicit submission |
-| `/yunqi/year` | Annual-analysis entry and year selector | Makes no annual request |
-| `/yunqi/year/:year` | Annual structure for one validated year | Calls the annual endpoint only after strict URL validation |
-| `/yunqi/calculate` | Specified-time rule analysis | Makes one calculate request only after an explicit valid submit |
-| `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
-| any other path | Workbench not-found page | Makes no YunQi request |
+| `/yunqi/current` | 当下运气 segment | Calls the composite learning-current endpoint; refreshes current context every minute |
+| `/yunqi/current/classics` | 原文与释义 drill-down; return to `/yunqi/current` | Uses the learning-current query; annual/current readings, source links and long excerpts |
+| `/yunqi/birth` | 先天对照 segment | Submit-only comparison; optional known birth time |
+| `/yunqi/birth/classics` | 原文与释义 drill-down; return to `/yunqi/birth` | Reads only the mounted birth page response; a direct visit makes no request and has no birth data |
+| `/yunqi/constitution` | 体质量表 segment | GET questionnaire/current context; assessment POST only after complete explicit submission |
+| `/yunqi/year` | 年度详情 drill-down; return to `/yunqi/current` | Makes no annual request |
+| `/yunqi/year/:year` | 年度详情 drill-down; return to `/yunqi/current` | Calls the annual endpoint only after strict URL validation |
+| `/yunqi/calculate` | 指定时点 drill-down; return to `/yunqi/current` | Makes one calculate request only after an explicit valid submit |
+| `/yunqi/inquiry` | 问诊规划 drill-down; return to `/yunqi/current` | Makes no YunQi, Patient, or Inquiry request; absent from segments |
+| any other path | Not-found drill-down; return to `/yunqi/current` | Makes no YunQi request |
+
+`src/app/routes.ts` owns segment labels, route titles and deterministic return
+targets. Returning works even when a drill-down was opened directly. Changing
+segments focuses the content region and resets its scroll; changes within the
+annual area retain the year control's focus and browser-history behavior.
+The current view links to its year's 年度详情 and the submit-only specified-time form.
+Annual stages use a single-column selection list and a neutral detail card.
+The annual page's 更多 text links open specified-time analysis and read-only
+inquiry planning. Specified-time results put the selected stage before the annual summary.
+
+The browser frame docks a 400px panel on the right, with a 52px header, segment
+navigation (or drill-down heading), one scrolling content region, an optional
+action slot and a 36px teaching disclaimer footer. The minimum panel height
+is 640px. The 1366 × 900 workstation viewport places it on the right; its annual
+and current cards fit without scrolling at height 900 or above. This is browser
+layout only; it does not control a host window.
+
+Collapse produces a 400 × 64 button. Enter, Space or a click expands it;
+collapse focuses the pill and expansion returns focus to the collapse trigger.
+The mounted route retains its draft and scroll. Collapse state remains in page
+memory, outside the URL and browser storage, and resets on reload.
+The pill receives only an already loaded ViewModel: current context for the
+current/questionnaire views, the response's current snapshot for birth
+comparison, and the selected annual summary for annual/specified-time results.
+Idle, edited, loading or failed results show a neutral placeholder instead of
+fetching another summary or reusing a different route's snapshot.
 
 Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without
@@ -176,19 +202,17 @@ stages as current, completed, or upcoming.
 
 `CurrentYunQiViewModel` enriches the same neutral stage facts with the
 status-enhanced `CurrentSixQiStageViewModel`. This preserves the existing
-current-page current/completed/upcoming timeline, disclosure behavior, and
-desktop annual rail without leaking current-time semantics into annual
-analysis.
+current/completed/upcoming timeline and its six categorical navigation buttons
+inside the folded stage section, without leaking current-time semantics into
+annual analysis.
 
 ## Explanation and traceability
 
-Rule explanation and traceability are separate responsibilities:
-
-- `RuleExplanationPanel` renders API `explanations` verbatim, with a neutral
-  empty state. It does not expand theory, infer causality, or add medical
-  meaning.
-- `TraceabilityPanel` renders metadata only: rule version, frozen Contract ID,
-  source label, and `北京时间 UTC+08`. It contains no theoretical explanation.
+`DrilldownResultNotes` keeps API explanations and traceability in separate
+named cards. Explanations render verbatim, with a neutral empty state;
+metadata contains only the rule version, frozen Contract ID, source label
+and `北京时间 UTC+08`. The current page exposes the same separation inside
+计算说明与版本. Neither adds theory, causality or medical meaning.
 
 ## Fixed Beijing time
 
@@ -211,6 +235,17 @@ The specified-time page has six observable states: idle, invalid-input,
 pending, success, dirty-after-success, and error. Errors are sanitized and
 retryable; no raw response, stack, patient data, diagnosis, treatment,
 prescription, medication, risk, or recommendation copy is rendered.
+
+## Browser acceptance
+
+The current matrix is panel 400 × 860 light/dark, panel 400 × 640, collapsed
+pill 400 × 64 light/dark, and workstation 1366 × 900. There are 49
+flow/foundation/oracle tests and 98 visual/accessibility tests (147 total), discoverable with
+`pnpm exec playwright test --list`. All visual states check the five-tier type
+scale; panel states also check control targets, focus rings and at most one
+primary button. See [coverage and evidence](../../tests/browser/README.md).
+`tests/browser-fixtures.test.mjs` runs with root `pnpm test`; its synthetic
+geometry checks selector/retry behavior, not browser layout.
 
 ## Local commands
 
@@ -290,13 +325,17 @@ service returns several boundary-day candidates, every candidate and its
 canonical interval is shown beside the current context. Editing or clearing
 input immediately removes the old result. These are traditional time
 backgrounds, not a constitution diagnosis or an individual disease forecast.
+The sole primary action throughout birth comparison is 查看出生与当前运气;
+opening the optional questionnaire and its 查看结果 submission use secondary
+buttons. The standalone questionnaire retains its primary 查看结果 action.
 
 The questionnaire uses the complete service-provided GB/T 46939-2025 version.
 The UI does not score, reverse-score, choose thresholds, or use YunQi facts to
 change the assessment. Applicable questions have no default answers; the
-target layout is one question per screen as specified in the design system.
+layout shows one question per screen, with keys 1–5, previous-question
+navigation and 160ms automatic advance (immediate for reduced motion).
 A sex change clears answers and results. Partial
-submission returns focus to the first incomplete group without sending a
+submission returns focus to the first unanswered question without sending a
 scoring request. The nine returned scores and statuses remain separate so
 mixed constitutions are not reduced to a single maximum-score label.
 

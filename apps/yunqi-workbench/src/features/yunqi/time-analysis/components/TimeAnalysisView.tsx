@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import { PanelSummary } from '../../../../components/layout/PanelSummary';
+import { mapPanelSummary } from '../../presentation/panel-summary';
 import { useCalculateYunQiMutation } from '../../hooks/useCalculateYunQiMutation';
 import { mapTimeAnalysisYunQi } from '../../presentation/map-time-analysis-yunqi';
 import {
@@ -76,6 +78,8 @@ export function TimeAnalysisView() {
   }
 
   return (
+    <>
+    {viewModel && !isDirty && !mutation.isPending && !mutation.isError && <PanelSummary viewModel={mapPanelSummary(viewModel.summary)} />}
     <TimeAnalysisPage
       inputError={inputError}
       inputValue={inputValue}
@@ -88,5 +92,6 @@ export function TimeAnalysisView() {
       onSubmit={handleSubmit}
       viewModel={viewModel}
     />
+    </>
   );
 }

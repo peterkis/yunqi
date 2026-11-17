@@ -23,7 +23,7 @@ Contracts/Client公共包入口是允许边界，不允许改为内部文件路�
 | QueryProvider | 拥有QueryClient |
 | YunQiClientProvider | 创建/注入YunQiClient和transport |
 | feature query/hook | 使用注入client与Client query options获取数据 |
-| AppRoutes/Router/Navigation | URL匹配、页面、导航、重定向、历史恢复 |
+| AppRoutes/Router/PanelShell | URL匹配、页面、分段/下钻导航、重定向、历史恢复 |
 | presentation mapper | 纯DTO转换；不依赖React Router、TanStack Query或Client |
 | component/Page | 接收状态和展示模型，呈现与局部交互；冻结DTO在presentation mapper转换 |
 
@@ -36,34 +36,49 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 
 ## 界面设计
 
-2026-11-17起进行UI界面重构。界面视觉与交互唯一依据为[设计规范与原型](../design/README.md)：
+当前界面视觉与交互唯一依据为[设计规范与原型](../design/README.md)：
 固定宽400px的门诊侧栏面板，分段导航“当下运气 / 先天对照 / 体质量表”，原文与结果用下钻页，可收起为胶囊条。
 重构前页面的布局、样式、组件形态和浏览器截图均为demo，不再作为设计参考或验收基线；新增或修改界面不得沿用demo样式。
 
 - 颜色、字号、间距、圆角、阴影、尺寸只取[设计令牌](../design/design-system/tokens.json)，以CSS变量实现，不写裸值；浅/深两主题。
 - 字体与图标本地加载，禁止Google Fonts、在线字体和在线图标库；思源黑体/宋体完整字库随应用分发并附OFL许可。
   `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
+- 字号只用[全应用 5 档字号阶梯](../design/type-scale.md)（40/30/24 首眼、20、15、14、12），每屏不超过 5 级、首眼只一个。
 - [统一约束](../design/design-system/2-constraints.md)中的视觉、交互、文案、医疗安全和可访问性条目均为硬约束。
 - 设计中的HIS患者信息、“复制结论到病历”和宿主停靠超出当前授权，处理方式见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
-- 下方路由表描述重构前实现；原型未覆盖的路由去留由重构计划决定，确定后同步更新本页。
+- `PanelShell` 承载全部视图；只有内容区滚动，标题栏与页脚固定，面板最小高度640px。
+- 年度三栏的岁运用“水运太过”式单值，400px下面板各栏值保持单行。
+- 出生对照的“查看出生与当前运气”是唯一主操作；同时测评入口和内嵌量表提交用次按钮。
+  独立量表的完成态“查看结果”和指定时点的“开始分析”各为所在视图唯一主操作。
+- 浏览器矩阵与逐状态字号、布局、焦点、可访问性检查见[浏览器验收说明](../../tests/browser/README.md#ui-refactor-migration)。
 
 ## 当前导航和状态
 
-| 路径 | 行为 |
-| --- | --- |
-| / | replace重定向到/yunqi/current |
-| /yunqi/current | 当前规则状态 |
-| /yunqi/year | 年度入口，零年度查询 |
-| /yunqi/year/:year | URL驱动指定运气年分析 |
-| /yunqi/calculate | E1指定时点，仅用户提交后查询 |
-| /yunqi/inquiry | 只读规划入口，零业务查询 |
-| /yunqi/birth | 用户提交公历生日与可选时刻后对照；不持久化 |
-| /yunqi/constitution | 现行标准量表，完整作答后评分，与当前时气并列 |
+| 路径 | 导航与返回 | 行为 |
+| --- | --- | --- |
+| / | replace到/yunqi/current | 默认入口 |
+| /yunqi/current | 分段：当下运气 | 当前规则状态 |
+| /yunqi/current/classics | 下钻：原文与释义；返回/yunqi/current | 同一教学复合查询，按全年/当下阶段阅读原文、释义与出处 |
+| /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
+| /yunqi/birth/classics | 下钻：原文与释义；返回/yunqi/birth | 仅使用本页内存中的出生响应，全年/出生阶段原文；直接打开无资料时不查询 |
+| /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
+| /yunqi/year | 下钻：年度详情；返回/yunqi/current | 年度入口，零年度查询 |
+| /yunqi/year/:year | 下钻：年度详情；返回/yunqi/current | URL驱动指定运气年分析 |
+| /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | E1指定时点，仅用户提交后查询 |
+| /yunqi/inquiry | 下钻：问诊规划；返回/yunqi/current | 只读规划入口，零业务查询；不放入分段导航 |
+| 其他路径 | 下钻：页面未找到；返回/yunqi/current | 不发业务查询 |
 
-年份是URL导航状态，阶段选择是页面局部状态；年度子路径继续激活年度导航。
+导航模型及固定返回目标由 `src/app/routes.ts` 定义；直接打开下钻页也能返回，不依赖浏览器历史。
+分段切换后焦点进入内容区；同一年度区域内改年份保留控件焦点。
+收起状态只在 `PanelShell` 的页面内存中，展开恢复收起按钮焦点；不写URL或浏览器存储。
+胶囊只接收当前视图已加载的ViewModel：当下/量表使用当前快照，出生使用本次响应的current快照，
+年度/指定时点使用所选年度摘要；空闲、无结果或已隐藏的结果不补查、不借用其他路由的缓存。
+
+年份是URL导航状态，阶段选择是页面局部状态；年度入口与子路径共用下钻标题。
 当前范围1900–2100，列表、校验和提示使用
 [共享年份范围](../../apps/yunqi-workbench/src/lib/yunqi-year-range.ts)。
-“enabled”只表示入口可访问，不代表问诊业务上线。不得自动新增问诊子路由。
+问诊规划入口可访问不代表问诊业务上线。不得自动新增问诊子路由。
+年度页的“更多”文字链接可进入指定时点和问诊规划；问诊规划只读，不放入分段导航。
 
 2026-11-16新增两个独立入口及当前教学复合查询已获用户授权，见[实施计划](../plans/2026-11-16-clinician-feedback.md)。
 组件不导入DTO或计分规则；时间、解释和结果经纯presentation投影。出生与答案只保留会话态，

@@ -1,6 +1,3 @@
-import { Badge } from '../../../components/ui/Badge';
-import { Card } from '../../../components/ui/Card';
-
 interface InquiryCapabilityCardProps {
   readonly description: string;
   readonly title: string;
@@ -11,14 +8,14 @@ export function InquiryCapabilityCard({
   title,
 }: InquiryCapabilityCardProps) {
   return (
-    <Card title={title}>
-      <p className="inquiry-capability-card__description">
+    <article className="drilldown-inquiry__capability">
+      <h3>{title}</h3>
+      <p className="drilldown-copy">
         {description}
       </p>
-      <p className="inquiry-capability-card__status">
-        <span>状态</span>
-        <Badge>规划中</Badge>
+      <p className="drilldown-meta">
+        状态 · <span>规划中</span>
       </p>
-    </Card>
+    </article>
   );
 }
