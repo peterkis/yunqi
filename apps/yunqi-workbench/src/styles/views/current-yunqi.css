@@ -191,3 +191,5 @@
 .current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--ts-small); line-height: var(--type-meta-line); }
 .current-classics__notice { flex: none; margin: 0; padding-top: var(--space-1); }
 .current-classics .ds-quote-block__details > summary { min-height: var(--segment-height); }
+.current-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.current-technical .yunqi-time-details dd { margin: 0; }

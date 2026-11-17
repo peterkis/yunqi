@@ -62,7 +62,7 @@ describe('AnnualYunQiPage', () => {
     ).toBeInTheDocument();
   });
 
-  it('announces the selected stage and preserves exact boundaries for assistive technology', () => {
+  it('announces the selected stage with compact boundaries and a precision disclosure reference', () => {
     render(
       <AnnualYunQiPage
         viewModel={mapAnnualYunQi(createYunQiYearDto())}
@@ -72,7 +72,7 @@ describe('AnnualYunQiPage', () => {
     expect(screen.getByRole('heading', { name: '已选择：初之气' }))
       .toHaveAttribute('aria-live', 'polite');
     expect(screen.getByRole('radio', { name: '第 1 步 初之气' }))
-      .toHaveAccessibleDescription(/开始 .*\+08:00，结束 .*\+08:00，北京时间 UTC\+08/);
+      .toHaveAccessibleDescription('开始 01-20 09:00，结束 03-21 10:00，北京时间 UTC+08；精确边界见计算说明与版本');
   });
 
   it('keeps the new single-column stage list and unwrapped boundary times without document clipping', () => {
@@ -107,18 +107,40 @@ describe('AnnualYunQiPage', () => {
       expect(times.map((time) => time.dateTime)).toEqual([
         viewModel.stages[index].start.localTime, viewModel.stages[index].end.localTime,
       ]);
-      for (const time of times) expect(time.textContent).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+      for (const time of times) expect(time.textContent).toBe(time.dateTime.slice(5, 16).replace('T', ' '));
     }
     const annual = screen.getByRole('region', { name: '年度概览' });
     expect(within(annual).getByText('全年 · 2026')).toBeInTheDocument();
+    expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', viewModel.summary.interval.start.localTime);
     expect(annual.querySelector('.ds-info-card')).toBeInTheDocument();
     expect([...annual.querySelectorAll('dt')].map((term) => term.textContent)).toEqual(['岁运', '司天', '在泉']);
     expect(annual.querySelectorAll('.ds-element__dot')).toHaveLength(3);
   });
 
-  it('retains an explicit explanation empty state', () => {
+  it('reserves all complete year and stage boundaries for calculation details', async () => {
+    const user = userEvent.setup();
+    const viewModel = mapAnnualYunQi(createYunQiYearDto());
+    const { container } = render(<AnnualYunQiPage viewModel={viewModel} />);
+    for (const time of container.querySelectorAll('time')) {
+      if (!time.closest('.drilldown-technical')) expect(time.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
+    }
+    const details = screen.getByText('计算说明与版本').closest('details')!;
+    expect(details).not.toHaveAttribute('open');
+    await user.click(within(details).getByText('计算说明与版本'));
+    const times = [...details.querySelectorAll('time')];
+    expect(times.map((time) => time.dateTime)).toEqual([
+      viewModel.summary.interval.start.localTime, viewModel.summary.interval.end.localTime,
+      ...viewModel.stages.flatMap((stage) => [stage.start.localTime, stage.end.localTime]),
+    ]);
+    for (const time of times) expect(time).toBeVisible();
+  });
+
+  it('retains an explicit explanation empty state inside calculation details', async () => {
+    const user = userEvent.setup();
     render(<AnnualYunQiPage viewModel={{ ...mapAnnualYunQi(createYunQiYearDto()), explanations: [] }} />);
-    expect(screen.getByText('本次结果未提供规则说明')).toBeInTheDocument();
+    expect(screen.getByText('本次结果未提供规则说明')).not.toBeVisible();
+    await user.click(screen.getByText('计算说明与版本'));
+    expect(screen.getByText('本次结果未提供规则说明')).toBeVisible();
   });
 
   it('resets selection to the first returned stage when the year changes', async () => {

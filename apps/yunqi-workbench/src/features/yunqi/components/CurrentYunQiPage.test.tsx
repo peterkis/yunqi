@@ -36,11 +36,12 @@ describe('CurrentYunQiPage', () => {
     expect(movement).not.toHaveTextContent('关系未提供');
   });
 
-  it('shows annual and current facts, exact API times, mapped dots and relations before any disclosure', async () => {
+  it('shows annual and current facts with compact times, intact API attributes, dots and relations', async () => {
     const { dto } = renderPage();
     const annual = screen.getByRole('region', { name: '全年 · 2026' });
     expect(within(annual).getByRole('heading', { name: '丙午' })).toBeVisible();
-    expect(annual).toHaveTextContent('交运 2026-01-20 09:00:00');
+    expect(annual).toHaveTextContent('交运 01-20 09:00');
+    expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.facts.interval.start.localTime);
     expect(annual).toHaveTextContent('水运太过之年');
     expect(within(annual).getByText('水运太过')).toBeVisible();
     expect(within(annual).getByText('太羽')).toBeVisible();
@@ -52,7 +53,8 @@ describe('CurrentYunQiPage', () => {
 
     const now = screen.getByRole('region', { name: '此刻 · 2026-06-19' });
     expect(now).toHaveTextContent('北京时间 UTC+08');
-    expect(within(now).getByText('2026-06-19 12:00:00')).toHaveAttribute('datetime', dto.facts.input.localTime);
+    expect(now.querySelector('.current-observed-time')).toBeNull();
+    expect(now.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
     const progress = within(now).getByRole('img');
     expect(progress).toHaveAccessibleName('六步气进度：第1步初之气，已结束；第2步二之气，已结束；第3步三之气，当前；第4步四之气，未开始；第5步五之气，未开始；第6步终之气，未开始');
     expect(progress.children).toHaveLength(6);
@@ -62,6 +64,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(qi).getByRole('heading', { name: '三之气' })).toBeVisible();
     expect(qi.querySelectorAll('time')[0]).toHaveAttribute('datetime', dto.facts.currentStep.start.localTime);
     expect(qi.querySelectorAll('time')[1]).toHaveAttribute('datetime', dto.facts.currentStep.end.localTime);
+    expect([...qi.querySelectorAll('time')].map((time) => time.textContent)).toEqual(['05-21 11:00', '07-23 12:00']);
     expect(within(qi).getByText('相得')).toHaveClass('ds-relation__chip--favorable');
     expect(qi).toHaveTextContent('客生主');
     const movement = within(now).getByRole('region', { name: '当步运' });
@@ -107,12 +110,33 @@ describe('CurrentYunQiPage', () => {
     expect(timeline).not.toBeVisible();
 
     await user.click(screen.getByText('计算说明与版本'));
+    const precision = screen.getByRole('region', { name: '精确时刻' });
+    const expectedTimes = [dto.facts.input, dto.facts.interval.start, dto.facts.interval.end,
+      ...dto.facts.sixQi.steps.flatMap((step) => [step.start, step.end]),
+      ...dto.movements.flatMap((step) => [step.start, step.end])];
+    expect([...precision.querySelectorAll('time')].map((time) => time.dateTime)).toEqual(expectedTimes.map((time) => time.localTime));
+    for (const time of precision.querySelectorAll('time')) expect(time.textContent).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
     expect(screen.getByRole('region', { name: '规则结果说明' })).toHaveTextContent('本结果依据冻结规则计算。');
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
+  });
+
+  it('keeps API milliseconds only in calculation details', async () => {
+    const user = userEvent.setup();
+    const dto = createLearningDto();
+    const localTime = '2026-06-19T12:00:23.456+08:00';
+    const learning = mapLearning({ ...dto, facts: { ...dto.facts, input: { ...dto.facts.input, localTime } } });
+    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const visibleTimes = [...container.querySelectorAll('time')].filter((time) => !time.closest('.current-technical'));
+    for (const time of visibleTimes) expect(time.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
+    const exact = container.querySelector(`time[datetime="${localTime}"]`);
+    expect(exact).not.toBeVisible();
+    await user.click(screen.getByText('计算说明与版本'));
+    expect(exact).toBeVisible();
+    expect(exact).toHaveTextContent('2026-06-19 12:00:23.456');
   });
 
   it('keeps the original-text route reachable when no current excerpt was returned', () => {

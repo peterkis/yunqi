@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
-import { expectBirthComparison } from './birth-helpers.mjs';
+import { expectBirthComparison, expandBirthInput } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
@@ -124,6 +124,7 @@ test('birth comparison submits only requested precision, displays both contexts 
   await expectBirthComparison(page, data);
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
+  await expandBirthInput(page);
   await page.getByLabel('知道出生时刻').check();
   await expect(result).toHaveCount(0);
   await page.getByLabel('出生时刻（北京时间）').fill('09:30:21');
@@ -147,7 +148,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   const form = page.getByRole('form', { name: '中医体质量表' });
   await expect(form).toBeVisible();
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await expect(context.locator('time')).toHaveCount(1);
+  await expect(context.locator('.constitution-context-time time')).toHaveCount(1);
   await expect(context).toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');

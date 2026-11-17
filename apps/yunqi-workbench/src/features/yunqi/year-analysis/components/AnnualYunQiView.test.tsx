@@ -88,20 +88,34 @@ describe('AnnualYunQiView', () => {
   });
 
   it('maps successful annual data using canonical localTime only', async () => {
+    const user = userEvent.setup();
+    const dto = createYunQiYearDto();
     const client = createClient({
       ...createClientStub(),
-      getYear: vi.fn().mockResolvedValue(createYunQiYearDto()),
+      getYear: vi.fn().mockResolvedValue(dto),
     });
 
     render(<AnnualYunQiView year={2026} />, {
       wrapper: createTestWrapper(client),
     });
 
-    expect(
-      await screen.findByRole('region', { name: '年度概览' }),
-    ).toBeInTheDocument();
+    const annual = await screen.findByRole('region', { name: '年度概览' });
+    expect(annual).toBeVisible();
     expect(screen.getAllByText('北京时间 UTC+08').length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/2026-01-20 09:00:00/).length).toBeGreaterThan(0);
+    expect(annual.querySelector('.ds-info-card__meta time')).toHaveTextContent('01-20 09:00');
+    expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.interval.start.localTime);
+    expect(annual.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
+    const summary = screen.getByText('计算说明与版本');
+    const calculation = summary.closest('details')!;
+    const boundaries = calculation.querySelectorAll('time');
+    expect(calculation).not.toHaveAttribute('open');
+    expect(boundaries[0]).not.toBeVisible();
+    await user.click(summary);
+    for (const [index, boundary] of [dto.interval.start, dto.interval.end].entries()) {
+      expect(boundaries[index]).toBeVisible();
+      expect(boundaries[index]).toHaveTextContent(boundary.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+      expect(boundaries[index]).toHaveAttribute('datetime', boundary.localTime);
+    }
     expect(screen.queryByText('当前')).not.toBeInTheDocument();
     expect(screen.queryByText('已结束')).not.toBeInTheDocument();
     expect(screen.queryByText('未开始')).not.toBeInTheDocument();

@@ -41,10 +41,12 @@ export function TimeAnalysisSixQiRail({
               </span>
               <span className="drilldown-boundaries">
                 <YunQiTimeDisplay
+                  variant="compact"
                   showStandard={false}
                   value={stage.start}
                 />
                 <span>→ <YunQiTimeDisplay
+                  variant="compact"
                   showStandard={false}
                   value={stage.end}
                 /></span>

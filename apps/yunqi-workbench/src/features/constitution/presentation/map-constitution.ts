@@ -17,7 +17,12 @@ export interface ConstitutionQuestionnaireViewModel {
 }
 
 export interface ConstitutionContextViewModel {
-  readonly current: ConstitutionContextFactsViewModel & { readonly time: YunQiTimeViewModel };
+  readonly current: ConstitutionContextFactsViewModel & {
+    readonly time: YunQiTimeViewModel;
+    readonly ruleVersion: string;
+    readonly learningRuleVersion: string;
+    readonly contractId: string;
+  };
   readonly birth?: {
     readonly ambiguous: boolean;
     readonly precision: 'date' | 'time';
@@ -45,7 +50,8 @@ function contextFacts(learning: LearningViewModel) {
 /** Only projects already loaded ViewModels; never fetches or infers a candidate. */
 export function mapConstitutionContext(current: LearningViewModel, comparison?: BirthComparisonViewModel): ConstitutionContextViewModel {
   return {
-    current: { ...contextFacts(current), time: current.facts.inputTime },
+    current: { ...contextFacts(current), time: current.facts.inputTime,
+      ruleVersion: current.facts.ruleVersion, learningRuleVersion: current.ruleVersion, contractId: current.facts.contractId },
     ...(comparison ? { birth: {
       ambiguous: comparison.ambiguous,
       precision: comparison.birthPrecision,

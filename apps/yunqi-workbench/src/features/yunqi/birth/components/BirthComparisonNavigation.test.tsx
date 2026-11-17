@@ -38,7 +38,8 @@ describe('birth classics navigation', () => {
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByRole('link', { name: '全部原文' })).toHaveFocus();
     expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('1990-05-12');
+    expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
+    expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(storage).not.toHaveBeenCalled();

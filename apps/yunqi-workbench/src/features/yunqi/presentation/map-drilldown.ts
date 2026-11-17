@@ -1,5 +1,26 @@
 import { mapMovementElement, mapQiElement, mapRelationDirection } from './visual-mappings';
-import type { SixQiStageViewModel, YunQiYearSummaryViewModel } from './view-model';
+import type { SixQiStageViewModel, YunQiTimeViewModel, YunQiYearSummaryViewModel } from './view-model';
+
+export interface YunQiTimeEntryViewModel {
+  readonly label: string;
+  readonly start: YunQiTimeViewModel;
+  readonly end?: YunQiTimeViewModel;
+}
+
+/** Projects supplied API times only; it does not derive any boundaries. */
+export function mapCalculationTimes({ summary, stages, inputTime, movements = [] }: {
+  readonly summary: YunQiYearSummaryViewModel;
+  readonly stages: readonly Pick<SixQiStageViewModel, 'name' | 'start' | 'end'>[];
+  readonly inputTime?: YunQiTimeViewModel;
+  readonly movements?: readonly { readonly name: string; readonly start: YunQiTimeViewModel; readonly end: YunQiTimeViewModel }[];
+}): readonly YunQiTimeEntryViewModel[] {
+  return [
+    ...(inputTime ? [{ label: '计算时刻', start: inputTime }] : []),
+    { label: '运气年', ...summary.interval },
+    ...stages.map((stage) => ({ label: stage.name, start: stage.start, end: stage.end })),
+    ...movements.map((movement) => ({ label: movement.name, start: movement.start, end: movement.end })),
+  ];
+}
 
 export function mapDrilldownSummary(summary: YunQiYearSummaryViewModel) {
   return {

@@ -1,8 +1,8 @@
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
-  await loadCurrent(page);
-  await expect(page.locator('.current-observed-time time')).toHaveText('2024-01-20 22:07:22');
+  const data = await loadCurrent(page);
+  await expect(page.locator('.current-time-range time').first()).toHaveText(data.facts.currentStep.start.localTime.slice(5, 16).replace('T', ' '));
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
@@ -26,6 +26,14 @@ test('current route redirects, renders canonical time and closes every stage dis
   await toggles.last().click();
   await expect(toggles.last()).toHaveAttribute('aria-expanded', 'true');
   await settle(page);
+  await expectCompactTimes(page);
+  await page.locator('.current-technical > summary').click();
+  const precision = page.locator('.current-technical');
+  for (const value of [data.facts.input, data.facts.interval.start, data.facts.interval.end,
+    ...data.facts.sixQi.steps.flatMap(step => [step.start, step.end]),
+    ...data.movements.flatMap(step => [step.start, step.end])]) {
+    await expect(precision.locator(`time[datetime="${value.localTime}"]`).first()).toHaveText(value.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+  }
   expect(diagnostics.requests).toHaveLength(1);
   await screenshot(page, testInfo, 'current-disclosures');
 });
@@ -96,6 +104,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
     has: page.getByText('传统描述', { exact: true }),
   }).locator('dd')).toHaveText(relatedStage.relation.traditionalLabel);
   const trace = page.getByRole('region', { name: '追溯信息', exact: true });
+  await page.locator('.drilldown-technical > summary').click();
   await expect(trace.getByText(nextYear.ruleVersion, { exact: true })).toBeVisible();
   await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
   await screenshot(page, testInfo, 'annual-upgraded-guest-generates-host');
@@ -111,7 +120,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   await settle(page);
   expect(annualRequests()).toHaveLength(beforeReload + 1);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.locator('.current-observed-time time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
+  await expect(page.locator('.current-technical time').first()).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
 });
 
 for (const [year, message] of [
@@ -224,7 +233,13 @@ test('supported annual boundary years load directly from the real API', async ({
     await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(year));
     await expect(page.locator('.drilldown-annual-summary')).toContainText(String(year));
     await expect(page.getByRole('radio')).toHaveCount(6);
-    const trace = page.getByRole('region', { name: '追溯信息', exact: true });
+    const calculation = page.locator('.drilldown-technical');
+    await expect(calculation).not.toHaveAttribute('open');
+    const calculationSummary = calculation.locator(':scope > summary');
+    await calculationSummary.focus();
+    await calculationSummary.press('Enter');
+    await expect(calculation).toHaveAttribute('open');
+    const trace = calculation.getByRole('region', { name: '追溯信息', exact: true });
     await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
     await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
     await screenshot(page, testInfo, `annual-boundary-${year}`);

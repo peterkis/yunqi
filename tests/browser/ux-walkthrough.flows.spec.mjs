@@ -44,10 +44,16 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
 
 test('panel stage selection keeps six single-column choices above nearby detail and preserves exact times', async ({ page, diagnostics }, testInfo) => {
   await page.setViewportSize({ width: 400, height: 860 });
+  const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/year/2024'));
   await page.goto('/yunqi/year/2024');
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  const { data } = await response.json();
+  const thirdStage = data.sixQi.steps[2];
+  expect(thirdStage.name).toBe('三之气');
   const third = page.getByRole('radio', { name: '第 3 步 三之气', exact: true });
   await third.check();
-  await expect(third).toHaveAccessibleDescription(/开始 2024-.*\+08:00，结束 2024-.*\+08:00，北京时间 UTC\+08/);
+  await expect(third).toHaveAccessibleDescription(`开始 ${thirdStage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 ${thirdStage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本`);
   const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
   await expect(detail).toBeVisible();
   const selector = await page.locator('.drilldown-stage-selector__options').boundingBox();
@@ -68,6 +74,24 @@ test('panel stage selection keeps six single-column choices above nearby detail 
     return element.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
   });
   expect(contentExtent, 'Selected details do not require several full-screen scrolls').toBeLessThan(1500);
+  const calculation = page.locator('.drilldown-technical');
+  await expect(calculation).not.toHaveAttribute('open');
+  const calculationSummary = calculation.locator(':scope > summary');
+  await calculationSummary.focus();
+  await calculationSummary.press('Enter');
+  await expect(calculation).toHaveAttribute('open');
+  const exactRange = calculation.getByRole('region', { name: '精确时刻', exact: true })
+    .locator('.yunqi-time-details > div').filter({ has: page.getByText('三之气', { exact: true }) });
+  await expect(exactRange.locator('time')).toHaveCount(2);
+  await exactRange.scrollIntoViewIfNeeded();
+  for (const [index, boundary] of [thirdStage.start, thirdStage.end].entries()) {
+    const time = exactRange.locator('time').nth(index);
+    await expect(time).toBeVisible();
+    await expect(time).toHaveText(boundary.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    await expect(time).toHaveAttribute('datetime', boundary.localTime);
+  }
+  await calculationSummary.press('Space');
+  await expect(calculation).not.toHaveAttribute('open');
   await third.press('ArrowRight');
   await expect(page.getByRole('region', { name: '已选择：四之气', exact: true })).toBeVisible();
   await settle(page);
@@ -78,9 +102,26 @@ test('panel stage selection keeps six single-column choices above nearby detail 
 
 test('panel navigation, skip link and result traceability support keyboard recovery', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 400, height: 860 });
+  const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/year/2024'));
   await page.goto('/yunqi/year/2024');
-  await page.getByRole('region', { name: '追溯信息', exact: true }).scrollIntoViewIfNeeded();
-  await page.getByRole('button', { name: '返回', exact: true }).click();
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  const { data } = await response.json();
+  const calculation = page.locator('.drilldown-technical');
+  await expect(calculation).not.toHaveAttribute('open');
+  const calculationSummary = calculation.locator(':scope > summary');
+  await calculationSummary.focus();
+  await expect(calculationSummary).toBeFocused();
+  await calculationSummary.press('Enter');
+  await expect(calculation).toHaveAttribute('open');
+  const trace = calculation.getByRole('region', { name: '追溯信息', exact: true });
+  await trace.scrollIntoViewIfNeeded();
+  expect(data.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
+  await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
+  await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
+  const back = page.getByRole('button', { name: '返回', exact: true });
+  await back.focus();
+  await back.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();

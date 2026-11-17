@@ -19,7 +19,7 @@ Claude 拆卡，本机派发 Codex CLI（`gpt-6.1-sol`、思考强度 max、fast
 
 | 卡 | 内容 | 依赖 | 波次 | 状态 |
 | --- | --- | --- | --- | --- |
-| [D1](cards/D1-time-density.md) | P0-1 时间精度、P0-3 先天提交后信息密度、工作站截图矩阵 | — | 1 | 待派发 |
+| [D1](cards/D1-time-density.md) | P0-1 时间精度、P0-3 先天提交后信息密度、工作站截图矩阵 | — | 1 | 通过（2 轮，[评审](reviews/D1-review-2.md)） |
 | [D2](cards/D2-form-controls.md) | P0-4 原生控件、P0-5 量表性别折叠 | D1 | 2 | 待派发 |
 | [D4](cards/D4-consistency.md) | P1-6、9、10、11 一致性 | D1 | 2（与 D2 并行） | 待派发 |
 | [D3](cards/D3-result-actions.md) | P0-2 结果标题、P1-8 主操作入操作区 | D2 | 3 | 待派发 |

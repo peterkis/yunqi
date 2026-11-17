@@ -17,18 +17,26 @@ describe('BirthComparisonPage', () => {
     fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     const result = await screen.findByRole('region', { name: '出生与当前运气对照结果' });
-    expect(screen.getByRole('button', { name: '查看出生与当前运气' })).toHaveClass('ds-button--primary');
+    const summary = screen.getByRole('group', { name: '出生资料摘要' });
+    expect(summary).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
+    expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveClass('ds-button--secondary');
-    expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
+    expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(0);
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12' });
     const table = within(result).getByRole('table', { name: '出生运气 · 先天与当下并列对照' });
     expect(within(table).getByRole('columnheader', { name: /先天 · 出生/ })).toBeVisible();
     expect(within(table).getByRole('columnheader', { name: /当下 · 今日/ })).toBeVisible();
     expect(within(table).getAllByRole('rowheader').map((cell) => cell.textContent)).toEqual(['岁运', '司天', '在泉', '所处气', '所处运']);
-    expect(within(result).getByText(/可能出生区间/)).toBeVisible();
-    expect(within(result).getByText(createBirthComparisonDto().message)).toBeVisible();
-    expect(result.querySelector('.birth-current-time time')).toHaveAttribute('datetime', createBirthComparisonDto().current.facts.input.localTime);
+    expect(result.querySelector('.birth-candidate-interval')).toBeNull();
+    expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();
+    expect(result.querySelector('.birth-table__time time')).toHaveAttribute('datetime', createBirthComparisonDto().current.facts.input.localTime);
+    expect(result.querySelector('.birth-table__time time')).toHaveTextContent('06-19 12:00');
+    expect(result.querySelector('.birth-current-time')).toBeNull();
     expect(within(result).getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。')).toBeVisible();
+    await user.click(within(summary).getByRole('button', { name: '修改' }));
+    expect(screen.getByLabelText('出生日期（公历）')).toHaveFocus();
+    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('1990-05-12');
+    expect(result).toBeVisible();
     fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-13' } });
     expect(screen.queryByRole('region', { name: '出生与当前运气对照结果' })).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('资料已修改');
@@ -54,9 +62,14 @@ describe('BirthComparisonPage', () => {
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12', birthTime: '09:30:00' });
     await act(async () => { resolve(response); });
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
-    expect(screen.queryByText(/可能出生区间/)).not.toBeInTheDocument();
+    expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-05-12 · 09:30 · 修改');
+    expect(screen.getByText('时刻已知 · 归属唯一')).toBeVisible();
+    expect(document.querySelector('.birth-candidate-interval')).toBeNull();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     expect(screen.getByLabelText('知道出生时刻')).not.toBeChecked();
+    expect(screen.getByRole('form', { name: '出生运气输入' })).toBeVisible();
+    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('');
+    expect(screen.queryByRole('group', { name: '出生资料摘要' })).not.toBeInTheDocument();
   });
 
   it('shows each boundary-day candidate and keeps service errors sanitized', async () => {
@@ -74,7 +87,9 @@ describe('BirthComparisonPage', () => {
     expect(screen.queryByText(/private backend/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(await screen.findByText(response.message)).toHaveClass('birth-api-message');
-    expect(screen.getByRole('heading', { name: '交节后可能结果', level: 3 })).toBeVisible();
+    expect(within(screen.getByRole('article', { name: '交节后可能结果' })).getByRole('heading', { name: '交节后可能结果', level: 3 })).toBeVisible();
+    expect(screen.queryByText('当日无交界 · 归属唯一')).not.toBeInTheDocument();
+    expect(document.querySelectorAll('.birth-candidate-interval')).toHaveLength(2);
     expect(screen.getAllByRole('table')).toHaveLength(2);
     for (const table of screen.getAllByRole('table')) expect(within(table).getAllByRole('rowheader')).toHaveLength(5);
   });
@@ -131,7 +146,8 @@ describe('BirthComparisonPage', () => {
     await waitFor(() => expect(client.compareBirth).toHaveBeenCalledOnce());
     await act(async () => { resolve(createBirthComparisonDto()); });
     await screen.findByRole('table');
-    fireEvent.submit(form);
+    await userEvent.setup().click(screen.getByRole('button', { name: '修改' }));
+    fireEvent.submit(screen.getByRole('form', { name: '出生运气输入' }));
     await waitFor(() => expect(client.compareBirth).toHaveBeenCalledTimes(2));
     await act(async () => { resolve(createBirthComparisonDto()); });
   });

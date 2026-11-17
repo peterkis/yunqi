@@ -115,3 +115,7 @@
 .constitution-session :focus-visible { outline: var(--space-0_5) solid var(--focus-ring); outline-offset: var(--space-0_5); }
 .birth-constitution { margin-top: var(--space-3); }
 .birth-session-header .ds-button[hidden] { display: none; }
+.constitution-time-details { color: var(--ink-secondary); font-size: var(--ts-small); }
+.constitution-time-details > summary { cursor: pointer; min-height: var(--segment-height); }
+.constitution-time-details .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.constitution-time-details .yunqi-time-details dd { margin: 0; }

@@ -324,3 +324,8 @@
 .drilldown-inquiry__capability { min-width: 0; }
 .drilldown-inquiry__capability + article { padding-top: var(--space-3_5); border-top: var(--ds-hairline) solid var(--border-subtle); }
 .drilldown-inquiry__capability h3 { margin: 0; font-size: var(--ts-body); line-height: var(--type-body-line); font-weight: var(--type-body-strong-weight); }
+.drilldown-technical { min-width: 0; color: var(--ink-secondary); font-size: var(--ts-small); }
+.drilldown-technical > summary { cursor: pointer; min-height: var(--segment-height); }
+.drilldown-technical > .ds-info-card { margin-top: var(--space-3); }
+.drilldown-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
+.drilldown-technical .yunqi-time-details dd { margin: 0; }

@@ -386,8 +386,10 @@ describe('AppRoutes', () => {
   });
 
   it('submits one normalized request and renders the API canonical result', async () => {
+    const user = userEvent.setup();
+    const dto = createYunQiCalculationDto();
     const client = createClient({
-      calculate: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
+      calculate: vi.fn().mockResolvedValue(dto),
     });
 
     renderAppAt('/yunqi/calculate', client);
@@ -410,14 +412,19 @@ describe('AppRoutes', () => {
     expect(client.calculate).toHaveBeenCalledWith({
       dateTime: '2026-05-20T13:30:00+08:00',
     });
-    expect(
-      await screen.findByRole('region', {
-        name: '指定时点分析结果',
-      }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText('2026-06-19 12:00:00'),
-    ).toBeInTheDocument();
+    const result = await screen.findByRole('region', { name: '指定时点分析结果' });
+    expect(result).toBeVisible();
+    const compactTime = result.querySelector('.drilldown-time-result__time time');
+    expect(compactTime).toHaveTextContent('06-19 12:00');
+    expect(compactTime).toHaveAttribute('datetime', dto.input.localTime);
+    const summary = within(result).getByText('计算说明与版本');
+    const calculation = summary.closest('details')!;
+    const exactTime = within(calculation).getByText('2026-06-19 12:00:00');
+    expect(calculation).not.toHaveAttribute('open');
+    expect(exactTime).not.toBeVisible();
+    await user.click(summary);
+    expect(exactTime).toBeVisible();
+    expect(exactTime).toHaveAttribute('datetime', dto.input.localTime);
   });
 
   it('hides the first result while a second request is pending and after it fails', async () => {

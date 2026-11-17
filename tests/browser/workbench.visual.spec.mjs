@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 
@@ -63,7 +63,10 @@ for (const state of cases) {
       await page.getByRole('button', { name: '查看出生与当前运气' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
+      await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 时刻不详 · 修改');
       if (state.birthBoundary) {
+        await page.getByRole('button', { name: '修改', exact: true }).click();
+        await expect(page.getByLabel('出生日期（公历）')).toBeFocused();
         await page.getByLabel('出生日期（公历）').fill(data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
         await page.getByRole('button', { name: '查看出生与当前运气' }).click();
@@ -99,7 +102,14 @@ for (const state of cases) {
       await expect(page.getByRole('button', { name: '切换至浅色主题', exact: true })).toBeVisible();
     }
     await settle(page);
+    await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
+    if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
+      expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);
+      const table = page.getByRole('table').first();
+      for (const heading of await table.getByRole('columnheader').all()) await expect(heading).toBeInViewport({ ratio: 1 });
+      for (const cell of await table.locator('tbody').first().locator('tr').first().locator('th, td').all()) await expect(cell).toBeInViewport({ ratio: 1 });
+    }
     if (state.current && panelLayout.viewport.height === 640) {
       const main = page.getByRole('main');
       await main.evaluate(content => { content.scrollTop = content.scrollHeight; });
@@ -113,7 +123,7 @@ for (const state of cases) {
     }
     const controls = await expectViewControls(page, testInfo);
     if (state.name.startsWith('birth') && !state.birthClassics) {
-      expect(controls.primary.map(control => control.label)).toEqual(['查看出生与当前运气']);
+      expect(controls.primary.map(control => control.label)).toEqual(state.birth ? [] : ['查看出生与当前运气']);
       if (state.birthAssessment && state.constitutionComplete) await expect(page.getByRole('button', { name: '查看结果', exact: true })).toHaveClass(/ds-button--secondary/);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {

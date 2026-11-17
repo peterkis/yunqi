@@ -1,5 +1,6 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { RelationChip } from '../../../../components/design/RelationChip';
+import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import type { BirthCandidateViewModel, BirthFactViewModel, BirthPageViewModel } from '../presentation/map-birth-view';
 
 function Fact({ value }: { readonly value: BirthFactViewModel }) {
@@ -13,7 +14,7 @@ function Fact({ value }: { readonly value: BirthFactViewModel }) {
 
 export function BirthComparisonTable({ candidate, current }: {
   readonly candidate: BirthCandidateViewModel;
-  readonly current: Pick<BirthPageViewModel, 'currentGanzhi' | 'currentYear'>;
+  readonly current: Pick<BirthPageViewModel, 'currentGanzhi' | 'currentYear' | 'currentTime'>;
 }) {
   return <>
     <table className="birth-table" aria-label={`${candidate.label} · 先天与当下并列对照`}>
@@ -21,7 +22,7 @@ export function BirthComparisonTable({ candidate, current }: {
         <tr className="birth-table__columns">
           <td />
           <th scope="col"><span className="birth-label">先天 · 出生</span><span className="birth-table__year"><strong>{candidate.birthGanzhi}</strong><span>{candidate.birthYear}</span></span></th>
-          <th scope="col"><span className="birth-label">当下 · 今日</span><span className="birth-table__year"><strong>{current.currentGanzhi}</strong><span>{current.currentYear}</span></span></th>
+          <th scope="col"><span className="birth-label">当下 · 今日</span><span className="birth-table__year"><strong>{current.currentGanzhi}</strong><span>{current.currentYear}</span></span><span className="birth-table__time"><YunQiTimeDisplay value={current.currentTime} variant="compact" /></span></th>
         </tr>
       </thead>
       {candidate.rows.map((row) => (

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export type InfoCardProps = {
   readonly label: string;
-  readonly meta?: string;
+  readonly meta?: ReactNode;
   readonly children: ReactNode;
   readonly hint?: ReactNode;
   readonly compact?: boolean;

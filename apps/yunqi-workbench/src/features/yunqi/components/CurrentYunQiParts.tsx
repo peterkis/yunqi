@@ -16,10 +16,10 @@ export function CurrentTimeRange({ start, end }: {
   readonly end: YunQiTimeViewModel;
 }) {
   return <span className="current-time-range">
-    <YunQiTimeDisplay value={start} showStandard={false} />
+    <YunQiTimeDisplay value={start} variant="compact" showStandard={false} />
     <span aria-hidden="true"> → </span>
     <span className="visually-hidden">至</span>
-    <YunQiTimeDisplay value={end} showStandard={false} />
+    <YunQiTimeDisplay value={end} variant="compact" showStandard={false} />
   </span>;
 }
 

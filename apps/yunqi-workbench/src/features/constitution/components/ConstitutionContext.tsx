@@ -1,4 +1,5 @@
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
+import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import type { ConstitutionContextViewModel } from '../presentation/map-constitution';
 
 export function ConstitutionContext({ context }: { readonly context?: ConstitutionContextViewModel }) {
@@ -11,7 +12,7 @@ export function ConstitutionContext({ context }: { readonly context?: Constituti
           <span className="constitution-context-candidate" key={index}>{birth.ambiguous ? `${candidate.label}：` : ''}{candidate.summary}</span>
         ))}</dd></div> : null}
       </dl>
-      {context ? <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} /></p> : null}
+      {context ? <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p> : null}
       {birth ? <details className="constitution-context-details">
         <summary>本次对照快照与候选区间</summary>
         <p>{context.current.detail}</p>
@@ -23,9 +24,17 @@ export function ConstitutionContext({ context }: { readonly context?: Constituti
           <p>{candidate.detail}</p>
           <p>{candidate.qiDetail}</p>
           <p>{candidate.movementDetail}</p>
-          <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} />
-            {birth.precision === 'date' ? <> 至 <YunQiTimeDisplay value={candidate.until} /></> : null}</p>
+          <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} />
+            {birth.precision === 'date' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" showStandard={false} /></> : null}</p>
         </section>)}
+      </details> : null}
+      {context ? <details className="constitution-time-details">
+        <summary>计算说明与版本</summary>
+        <YunQiTimeDetails entries={[
+          { label: '当下快照', start: context.current.time },
+          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision === 'date' ? { end: candidate.until } : {}) })) : []),
+        ]} />
+        <p>{context.current.contractId} · {context.current.ruleVersion} · {context.current.learningRuleVersion}</p>
       </details> : null}
     </aside>
   );

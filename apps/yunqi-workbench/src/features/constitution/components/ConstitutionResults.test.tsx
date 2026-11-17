@@ -43,6 +43,27 @@ describe('constitution result and snapshot', () => {
     const candidate = screen.getByRole('region', { name: '出生运气' });
     expect(candidate).toHaveTextContent('出生时刻：');
     expect(candidate.querySelectorAll('time')).toHaveLength(1);
+    expect(candidate.querySelector('time')).toHaveTextContent(comparison.candidates[0].from.localTime.slice(5, 16).replace('T', ' '));
     expect(screen.queryByText(/所有候选共用/)).not.toBeInTheDocument();
+  });
+
+  it('keeps current milliseconds and candidate boundaries inside calculation details', async () => {
+    const user = userEvent.setup();
+    const comparison = mapBirthComparison(createBirthComparisonDto());
+    const mapped = mapConstitutionContext(comparison.current, comparison);
+    const context = { ...mapped, current: { ...mapped.current, time: { ...mapped.current.time, localTime: '2026-06-19T12:00:23.456+08:00' } } };
+    const { container } = render(<ConstitutionContext context={context} />);
+    const current = container.querySelector('.constitution-context-time time');
+    expect(current).toHaveTextContent('06-19 12:00');
+    expect(current).toHaveAttribute('datetime', context.current.time.localTime);
+    const details = screen.getByText('计算说明与版本').closest('details')!;
+    expect(details).not.toHaveAttribute('open');
+    await user.click(screen.getByText('计算说明与版本'));
+    expect(within(details).getByText('2026-06-19 12:00:23.456')).toBeVisible();
+    expect(details).toHaveTextContent(context.current.ruleVersion);
+    expect([...details.querySelectorAll('time')].map((time) => time.dateTime)).toEqual([
+      context.current.time.localTime,
+      comparison.candidates[0].from.localTime, comparison.candidates[0].until.localTime,
+    ]);
   });
 });

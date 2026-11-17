@@ -23,7 +23,7 @@ async function completeAssessment(user: ReturnType<typeof userEvent.setup>, form
   await user.click(within(form).getByRole('radio', { name: '男' }));
   for (let index = 0; index < 8; index += 1) await user.keyboard('1');
   expect(within(form).getByRole('button', { name: '查看结果' })).toHaveClass('ds-button--secondary');
-  expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
+  expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(0);
   await user.click(within(form).getByRole('button', { name: '查看结果' }));
 }
 
@@ -98,6 +98,7 @@ describe('birth comparison assessment session', () => {
     const form = await openAssessment(user);
     await user.click(within(form).getByRole('radio', { name: '女' }));
     await user.click(within(form).getAllByRole('radio', { name: '经常' })[0]);
+    if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'date') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-13' } });
     if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:31' } });
     if (action === 'known-time') await user.click(screen.getByLabelText('知道出生时刻'));
@@ -125,6 +126,7 @@ describe('birth comparison assessment session', () => {
     await completeAssessment(user, await openAssessment(user));
     await waitFor(() => expect(client.assessConstitution).toHaveBeenCalledOnce());
     expect(screen.getByRole('status')).toHaveTextContent('正在按量表规则计分');
+    if (action === 'edit-birth' || action === 'resubmit') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'edit-birth') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1992-08-09' } });
     if (action === 'end') await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     if (action === 'clear') await user.click(screen.getByRole('button', { name: '清空本次资料' }));

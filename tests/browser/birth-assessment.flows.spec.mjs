@@ -1,9 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot } from './fixtures.mjs';
-import { expectBirthComparison, expectBirthReadings } from './birth-helpers.mjs';
+import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
+import { expectBirthComparison, expectBirthReadings, expandBirthInput } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
+  if (await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
   await page.getByLabel('出生日期（公历）').fill(birthDate);
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
   await page.getByRole('button', { name: '查看出生与当前运气', exact: true }).click();
@@ -86,7 +87,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(context.locator(`time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
+  await expect(context.locator(`.constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
@@ -160,6 +161,7 @@ test('same-page assessment ignores an older real scoring response after birth in
     await session.getByRole('button', { name: '查看结果', exact: true }).click();
     expect(await reachedBackend).toBe(200);
     await expect(session.getByRole('status')).toHaveText('正在按量表规则计分');
+    await expandBirthInput(page);
     await expect(page.getByLabel('出生日期（公历）')).toBeEnabled();
     await compareBirth(page, '1991-06-01');
     await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
@@ -284,13 +286,19 @@ test('birth inputs enforce required time, block repeated pending activation and 
   }
 
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 09:30 · 修改');
+  await expandBirthInput(page);
   await time.fill('09:31:21');
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('status')).toContainText('原结果已隐藏');
   await compareBirth(page, '1990-05-12');
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31');
+  await expectCompactTimes(page);
+  await expandBirthInput(page);
   await date.fill('1990-05-13');
   await expect(result).toHaveCount(0);
   await compareBirth(page, '1990-05-13');
+  await expandBirthInput(page);
   await page.getByLabel('知道出生时刻').uncheck();
   await expect(result).toHaveCount(0);
   await compareBirth(page, '1990-05-13');

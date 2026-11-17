@@ -134,12 +134,41 @@ export async function loadCurrent(page) {
   await page.goto('/');
   await expect(page).toHaveURL(/\/yunqi\/current$/);
   await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeVisible();
-  await expect(page.locator('.current-observed-time time')).toHaveAttribute(
-    'datetime', '2024-01-20T22:07:22+08:00',
-  );
   const response = await responsePromise;
   expect(response.status()).toBe(200);
-  return (await response.json()).data;
+  const { data } = await response.json();
+  await expect(page.locator('.current-observed-time')).toHaveCount(0);
+  await expect(page.locator('.current-technical time').first()).toHaveAttribute('datetime', data.facts.input.localTime);
+  await expectCompactTimes(page);
+  return data;
+}
+
+/** Inspect rendered main text, including content below the fold. Only the
+ * calculation disclosure may expose seconds; dateTime stays canonical. */
+export async function expectCompactTimes(page) {
+  const snapshot = await page.getByRole('main').evaluate(main => {
+    const technical = element => element.closest('.current-technical, .birth-technical, .drilldown-technical, .constitution-time-details');
+    const text = [];
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      const element = node.parentElement;
+      if (technical(element) || element.closest('.visually-hidden, script, style, option')) continue;
+      if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) text.push(node.textContent);
+    }
+    return {
+      text: text.join(' '),
+      times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
+        dateTime: time.getAttribute('datetime'), text: time.textContent,
+      })),
+    };
+  });
+  expect(snapshot.text, 'Main text has no seconds outside calculation details').not.toMatch(/\d{2}:\d{2}:\d{2}/);
+  expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
+  for (const time of snapshot.times) {
+    expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);
+    expect(time.text).toBe(time.dateTime.slice(5, 16).replace('T', ' '));
+  }
 }
 
 export async function expectPanelLayout(page) {

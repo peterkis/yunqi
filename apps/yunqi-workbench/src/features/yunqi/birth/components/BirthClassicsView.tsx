@@ -28,7 +28,7 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
         const readings = scope === 'annual' ? candidate.annualReadings : candidate.periodReadings;
         return <section className="birth-reading-candidate" key={`${candidate.from.localTime}-${index}`} aria-label={`${candidate.label}原文`}>
           <h3 className="birth-label">{candidate.label}</h3>
-          {viewModel.comparison.birthPrecision === 'date' ? <p className="birth-note">可能出生区间（起点包含，终点不包含）：<YunQiTimeDisplay value={candidate.from} showStandard={false} /> 至 <YunQiTimeDisplay value={candidate.until} /></p> : null}
+          {viewModel.comparison.birthPrecision === 'date' ? <p className="birth-note">可能出生区间（起点包含，终点不包含）：<YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} /> 至 <YunQiTimeDisplay value={candidate.until} variant="compact" /></p> : null}
           {readings.map((passage) => <Reading key={passage.id} value={passage} />)}
           {readings.length === 0 ? <p className="birth-note">此范围暂未收录已核对原文。</p> : null}
         </section>;

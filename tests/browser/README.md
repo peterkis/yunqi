@@ -85,17 +85,17 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Rule trace | Real 2025 `GUEST_GENERATES_HOST` retains `客生主` and API `客生主，相得`; rule and Contract versions remain separate |
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
-| Birth | Date/optional known time; all boundary candidates with canonical intervals; symmetric annual/period readings; edit/clear hides old results; comparison remains the sole primary action |
+| Birth | Date/optional known time; submitted summary, edit/date focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; entry comparison remains the sole primary action |
 | Constitution | One question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, complete submit as secondary action, end/reopen/reset and stale response isolation |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
-| Visual | Screenshots and type scale for every state; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
+| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 24 panel states, each run in all four panel /
+`workbench.visual.spec.mjs` has 24 panel states, each run in all six panel /
 workstation projects. The collapsed-pill spec adds two theme states at its
 actual 400 × 64 viewport. The seven prototype boards are represented as follows:
 
@@ -107,7 +107,7 @@ actual 400 × 64 viewport. The seven prototype boards are represented as follows
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
-| ⑦ Workstation placement | All 24 panel states in `workstation-light`, including current default with both cards visible |
+| ⑦ Workstation placement | All 24 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
 | Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
@@ -125,9 +125,11 @@ are retained as evidence only, not as an approved visual baseline.
 | `panel-min-height` | 400 × 640 | Light, 24 panel states; current content scrolls while header, navigation and footer stay fixed |
 | `collapsed-pill` | 400 × 64 | Light and dark, two collapsed states |
 | `workstation-light` | 1366 × 900 | Light, 24 states; 400px panel at the right edge |
+| `workstation-768` | 1366 × 768 | Light, 24 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+| `workstation-1080` | 1920 × 1080 | Light, 24 states; same right-edge panel |
 
-The suite discovers **49 flow/foundation/oracle tests + 98 visual/accessibility
-tests = 147 tests in 9 files**. These are test cases and repeated state checks,
+The suite discovers **49 flow/foundation/oracle tests + 146 visual/accessibility
+tests = 195 tests in 9 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 

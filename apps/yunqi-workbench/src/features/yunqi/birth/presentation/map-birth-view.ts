@@ -3,6 +3,7 @@ import { mapBirthComparison, type BirthComparisonViewModel, type LearningRelatio
 import { mapPanelSummary, type PanelSummaryViewModel } from '../../presentation/panel-summary';
 import { mapMovementElement, mapQiElement } from '../../presentation/visual-mappings';
 import type { ElementKind, YunQiTimeViewModel } from '../../presentation/view-model';
+import { mapCalculationTimes, type YunQiTimeEntryViewModel } from '../../presentation/map-drilldown';
 
 export interface BirthFactViewModel {
   readonly label: string;
@@ -39,6 +40,7 @@ export interface BirthCandidateViewModel {
   readonly annualReadings: readonly BirthReadingViewModel[];
   readonly periodReadings: readonly BirthReadingViewModel[];
   readonly excerpts: readonly BirthReadingViewModel[];
+  readonly calculationTimes: readonly YunQiTimeEntryViewModel[];
 }
 
 export interface BirthPageViewModel {
@@ -49,6 +51,8 @@ export interface BirthPageViewModel {
   readonly currentGanzhi: string;
   readonly currentTime: YunQiTimeViewModel;
   readonly currentReadings: readonly BirthReadingViewModel[];
+  readonly candidateMeta: string | undefined;
+  readonly calculationTimes: readonly YunQiTimeEntryViewModel[];
 }
 
 function facts(value: YunQiLearningDto): readonly BirthFactViewModel[] {
@@ -93,12 +97,17 @@ export function mapBirthView(value: BirthComparisonDto): BirthPageViewModel {
     currentYear: value.current.facts.year,
     currentGanzhi: value.current.facts.stemBranch.ganzhi,
     currentTime: comparison.current.facts.inputTime,
+    candidateMeta: !comparison.ambiguous && comparison.candidates.length === 1
+      ? comparison.birthPrecision === 'date' ? '当日无交界 · 归属唯一' : '时刻已知 · 归属唯一'
+      : undefined,
+    calculationTimes: mapCalculationTimes({ ...comparison.current.facts, stages: comparison.current.facts.timeline, movements: comparison.current.movements }),
     currentReadings: [...value.current.annualPassages, ...value.current.currentPassages].map((passage) => reading(passage, '当下阶段')),
     candidates: value.candidates.map((candidate, index) => {
       const birthFacts = facts(candidate.learning);
       const relations = comparison.candidates[index].comparisons;
       const annualReadings = candidate.learning.annualPassages.map((passage) => reading(passage, '出生阶段'));
       const periodReadings = candidate.learning.currentPassages.map((passage) => reading(passage, '出生阶段'));
+      const learning = comparison.candidates[index].learning;
       return {
         label: candidate.label, from: comparison.candidates[index].from, until: comparison.candidates[index].until,
         birthTime: comparison.candidates[index].learning.facts.inputTime,
@@ -109,6 +118,10 @@ export function mapBirthView(value: BirthComparisonDto): BirthPageViewModel {
         }),
         annualReadings, periodReadings,
         excerpts: [...annualReadings.slice(0, 1), ...periodReadings.slice(0, 1)],
+        calculationTimes: [
+          ...(comparison.birthPrecision === 'date' ? [{ label: '可能出生区间', start: comparison.candidates[index].from, end: comparison.candidates[index].until }] : []),
+          ...mapCalculationTimes({ ...learning.facts, stages: learning.facts.timeline, movements: learning.movements }),
+        ],
       };
     }),
   };

@@ -3,7 +3,9 @@ import { InfoCard } from '../../../components/design/InfoCard';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
+import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
+import { mapCalculationTimes } from '../presentation/map-drilldown';
 import { mapPanelSummary } from '../presentation/panel-summary';
 import type { LearningViewModel } from '../presentation/map-learning';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
@@ -24,7 +26,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
     <PanelSummary viewModel={mapPanelSummary(summary, { step: currentStep, relation: learning.currentQi })} />
     <h2 className="visually-hidden">当前五运六气</h2>
     <div className="current-overview__annual">
-      <InfoCard label={`全年 · ${summary.year}`} meta={`交运 ${summary.interval.start.localTime.replace('T', ' ').replace(/\+08:00$/, '')}`} hint={<>
+      <InfoCard label={`全年 · ${summary.year}`} meta={<>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" showStandard={false} /></>} hint={<>
         <CurrentRelation relation={learning.annualRelation} />
       </>}>
         <div className="current-year-heading">
@@ -41,7 +43,6 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
 
     <div className="current-overview__now">
       <InfoCard label={`此刻 · ${viewModel.inputDate}`} meta="北京时间 UTC+08">
-        <div className="current-observed-time"><YunQiTimeDisplay value={viewModel.inputTime} showStandard={false} /></div>
         <div className="current-sixqi-progress" role="img" aria-label={viewModel.progressLabel}>
           {viewModel.timeline.map((step) => <span className={`current-sixqi-progress__step is-${step.status.code}`} key={step.index} aria-hidden="true">
             <span className="current-sixqi-progress__bar" />
@@ -103,6 +104,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
 
     <details className="current-disclosure current-technical">
       <summary>计算说明与版本</summary>
+      <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
       <InfoCard label="规则结果说明">
         <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
         <ul>{viewModel.explanations.map((explanation) => <li key={explanation}>{explanation}</li>)}</ul>

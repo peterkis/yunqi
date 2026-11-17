@@ -44,6 +44,9 @@ describe('constitution presentation', () => {
       qiDetail: `${current.facts.currentStep.name} · 主气${current.facts.currentStep.hostQi} · 客气${current.facts.currentStep.guestQi}`,
       movementDetail: `${current.currentMovement.name} · 主运${current.currentMovement.hostLabel} · 客运${current.currentMovement.guestLabel}`,
       time: current.facts.inputTime,
+      ruleVersion: current.facts.ruleVersion,
+      learningRuleVersion: current.ruleVersion,
+      contractId: current.facts.contractId,
     } });
     const comparison = mapBirthComparison(createBirthComparisonDto());
     const context = mapConstitutionContext(comparison.current, { ...comparison, ambiguous: true, candidates: [...comparison.candidates, { ...comparison.candidates[0], label: '候选二' }] });
