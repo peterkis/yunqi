@@ -117,6 +117,12 @@ emulation does not establish physical device, touch, screen-reader, Firefox or
 WebKit compatibility. Screenshots are evidence for human inspection; there is
 no approved pixel baseline and no claim of pixel-perfect regression coverage.
 
+The viewport matrix, UX walkthrough regressions and screenshots above exercise
+the pre-refactor demo UI. Since the 2026-11-17 UI refactor they are not a
+design reference; visual and walkthrough specs must be rewritten against
+[docs/design](../../docs/design/README.md) (400px side panel, collapsed pill)
+as the refactor lands.
+
 ## Evidence and CI
 
 Each run prints a unique directory under `.artifacts/browser/`. Subsequent

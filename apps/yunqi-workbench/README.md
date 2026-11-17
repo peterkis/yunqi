@@ -1,7 +1,17 @@
 # @yunqi/workbench
 
-React Workbench for TCM YunQi Lab. The 2026-11-16 doctor-feedback release adds
-progressive disclosure, sourced classical excerpts, birth/current comparison,
+React Workbench for TCM YunQi Lab.
+
+> **UI refactor (2026-11-17).** The visual and interaction design is defined
+> only by [docs/design](../../docs/design/README.md): a 400px outpatient side
+> panel with three segments (当下运气 / 先天对照 / 体质量表), drill-down pages
+> and a collapsed pill. The pre-refactor page layouts, styles and screenshots
+> are demos and must not be reused as a design reference or acceptance
+> baseline. The routes, data flow, time and medical boundaries below describe
+> the current implementation and stay in force unless the refactor plan
+> changes them.
+
+The 2026-11-16 doctor-feedback release adds progressive disclosure, sourced classical excerpts, birth/current comparison,
 and constitution self-assessment to the existing annual and specified-time
 analysis. All calculations remain behind the versioned API. React does not
 infer calendar boundaries, create patient records, diagnose, predict diseases,
@@ -238,27 +248,6 @@ pending expert freeze/validation status. While `rules/RULE_FREEZE_NOTE.md`
 remains pending, production copy cannot claim frozen rules. API Contract
 freeze is a separate status and does not establish clinical validation.
 
-## Doctor-oriented walkthrough refinements
-
-The current view shows annual context and the current movement/Qi first and
-links to the returned YunQi year. The full six-stage timeline, classical
-excerpts, and technical calculation details are collapsed by default. Annual navigation keeps the year in the URL, with
-bounded previous/next controls and no inferred default year. Changing the year
-keeps focus on the year controls; switching work areas moves focus to the main
-content. A keyboard skip link and sticky navigation support long-page reading.
-
-The six annual radio choices retain keyboard selection. Their compact labels
-share one Beijing-time note, while accessible descriptions and the selected
-detail retain the full API canonical boundaries. On narrow screens all six
-choices fit in two rows, immediately followed by the selected detail.
-
-Specified-time success announces the selected stage and shows its details
-before the annual overview. Native date/time entry, explicit submission,
-pending protection and dirty-result hiding are preserved. The inquiry link is
-marked as planned, and the repeated footer API-contract explanation is a
-keyboard-operable disclosure. Rule explanations and traceability remain
-available; no patient workflow or rule calculation is introduced.
-
 ## Runtime API base URL
 
 Run `pnpm build` from the repository root, then run Service and Workbench in
@@ -304,8 +293,9 @@ backgrounds, not a constitution diagnosis or an individual disease forecast.
 
 The questionnaire uses the complete service-provided GB/T 46939-2025 version.
 The UI does not score, reverse-score, choose thresholds, or use YunQi facts to
-change the assessment. Applicable questions are displayed once, in groups of
-six, with no default answers. A sex change clears answers and results. Partial
+change the assessment. Applicable questions have no default answers; the
+target layout is one question per screen as specified in the design system.
+A sex change clears answers and results. Partial
 submission returns focus to the first incomplete group without sending a
 scoring request. The nine returned scores and statuses remain separate so
 mixed constitutions are not reduced to a single maximum-score label.

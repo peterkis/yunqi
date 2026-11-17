@@ -18,7 +18,7 @@
 | --- | --- |
 | 规则、Domain、历法、时间或未来持久化 | [规则与时间](docs/agents/rules-and-time.md)、[当前规则表](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md) |
 | Service、OpenAPI、DTO、Contracts、Client | [API边界](docs/agents/api-contracts.md)、[当前契约](docs/contracts/YQ-API-CONTRACT-1.2.0.md) |
-| React、路由、状态、展示、依赖 | [Workbench约束](docs/agents/workbench.md) |
+| React、路由、状态、展示、依赖、UI | [Workbench约束](docs/agents/workbench.md)、[设计规范与原型](docs/design/README.md) |
 | 问诊模型、患者信息、临床验证或后续阶段 | [医疗与阶段范围](docs/agents/clinical-scope.md) |
 | 测试、CI、浏览器、证据、交付 | [验证与交付](docs/agents/verification.md) |
 | 修改指引、做复盘、查历史错误 | [指引索引](docs/agents/README.md)、[会话与教训索引](docs/retrospectives/README.md) |
