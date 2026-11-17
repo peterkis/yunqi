@@ -19,6 +19,7 @@ import '../styles/type-scale.css';
 import '../styles/global.css';
 import '../styles/design-components.css';
 import '../styles/views/form-controls.css';
+import '../styles/views/craft.css';
 
 const choices = [
   { shortcut: 1, label: '没有', description: '根本不' },

@@ -104,6 +104,13 @@ for (const theme of ['light', 'dark']) {
     await expect(quoteCard.getByText('文献线索，非个体发病预测。', { exact: true })).toHaveCount(1);
     await expect(quoteCard.locator('.ds-quote-block > :last-child')).toHaveText('文献线索，非个体发病预测。');
     await expect(quoteCard.locator('.ds-quote-block__notice')).toHaveCSS('font-size', '12px');
+    for (const selector of ['.ds-segmented-nav__link', '.ds-segmented-control > button', '.ds-scale-option', '.ds-scale-option__key']) {
+      await expect(page.locator(selector).first()).toHaveCSS('transition-duration', '0s');
+    }
+    await expect(page.locator('.ds-scale-option__key.num').first()).toHaveCSS('font-variant-numeric', 'tabular-nums');
+    if (await page.evaluate(() => CSS.supports('text-spacing-trim', 'trim-start'))) {
+      await expect(quoteCard.locator('blockquote').first()).toHaveCSS('text-spacing-trim', 'trim-start');
+    }
 
     // Start before the quote, then verify the native summary's real Tab behavior.
     await page.getByRole('button', { name: '返回修改' }).focus();
@@ -176,6 +183,10 @@ for (const theme of ['light', 'dark']) {
     await page.keyboard.press('Backspace');
     await expect(date.getByRole('textbox', { name: '月', exact: true })).toBeFocused();
     await date.getByRole('textbox', { name: '日', exact: true }).fill('12');
+    for (const input of await date.getByRole('textbox').all()) {
+      await expect(input).toHaveClass('num');
+      await expect(input).toHaveCSS('font-variant-numeric', 'tabular-nums');
+    }
     const gender = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
     await gender.getByRole('radio', { name: '男', exact: true }).focus();
     await page.keyboard.press('ArrowRight');

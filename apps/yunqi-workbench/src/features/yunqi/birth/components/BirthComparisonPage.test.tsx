@@ -53,8 +53,8 @@ describe('BirthComparisonPage', () => {
     expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12' });
     const table = within(result).getByRole('table', { name: '出生运气 · 先天与当下并列对照' });
-    expect(within(table).getByRole('columnheader', { name: /先天 · 出生/ })).toBeVisible();
-    expect(within(table).getByRole('columnheader', { name: /当下 · 今日/ })).toBeVisible();
+    expect(within(table).getByRole('columnheader', { name: /先天\u202f·\u202f出生/ })).toBeVisible();
+    expect(within(table).getByRole('columnheader', { name: /当下\u202f·\u202f今日/ })).toBeVisible();
     expect(within(table).getAllByRole('rowheader').map((cell) => cell.textContent)).toEqual(['岁运', '司天', '在泉', '所处气', '所处运']);
     expect(result.querySelector('.birth-candidate-interval')).toBeNull();
     expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();

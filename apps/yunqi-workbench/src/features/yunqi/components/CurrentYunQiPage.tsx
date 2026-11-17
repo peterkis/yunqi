@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { InfoCard } from '../../../components/design/InfoCard';
+import { InlineText } from '../../../components/design/InlineText';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
@@ -93,7 +94,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
           <InfoCard label="五步运全表" meta="北京时间 UTC+08">
             {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
-              <h3>{step.name}{step.index === movement.index ? <span className="current-meta"> · 正在此段</span> : null}</h3>
+              <h3>{step.name}{step.index === movement.index ? <span className="current-meta"><InlineText> · 正在此段</InlineText></span> : null}</h3>
               <CurrentTimeRange start={step.start} end={step.end} />
               <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
               <p className="current-copy">{step.explanation}</p>
@@ -115,8 +116,8 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
             {learning.notes.map((note, index) => <p className="current-copy" key={index}>{note}</p>)}
           </InfoCard>
           <InfoCard label="追溯信息">
-            <p className="current-copy">YunQi 当前查询 API · {viewModel.contractId}</p>
-            <p className="current-copy">{viewModel.ruleVersion} · 北京时间 UTC+08</p>
+            <p className="current-copy num"><InlineText>{`YunQi 当前查询 API · ${viewModel.contractId}`}</InlineText></p>
+            <p className="current-copy num"><InlineText>{`${viewModel.ruleVersion} · 北京时间 UTC+08`}</InlineText></p>
             <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
           </InfoCard>
         </details></li>

@@ -39,7 +39,7 @@ for (const state of cases) {
       await page.route(`**${state.outage}`, route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
     }
     await page.goto(state.path);
-    if (state.current) await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    if (state.current) await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
     else if (state.classics) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();

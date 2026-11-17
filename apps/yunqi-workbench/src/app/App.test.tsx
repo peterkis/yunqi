@@ -34,7 +34,7 @@ describe('App', () => {
 
     expect(
       await within(view.container).findByRole('region', {
-        name: '全年 · 2026',
+        name: '全年\u202f·\u202f2026',
       }, { timeout: 5_000 }),
     ).toBeVisible();
     const footer = within(view.container).getByRole('contentinfo');

@@ -18,6 +18,7 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   for (let number = 1; number <= 26; number += 1) {
     await expect(scope.locator('.constitution-position')).toHaveText(`${number}/26`);
+    await expect(scope.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(scope.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
@@ -55,6 +56,8 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
     const row = result.locator('.constitution-bar').filter({ hasText: dimension.name });
     await expect(row).toContainText(dimension.label);
     await expect(row).toContainText(`${dimension.score.toFixed(1)} 分`);
+    await expect(row.locator('.constitution-bar-label > .num')).toHaveText(`${dimension.score.toFixed(1)} 分`);
+    await expect(row.locator('.constitution-bar-label > .num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(row.getByRole('img')).toHaveAttribute('aria-label', `${dimension.name}，转化分 ${dimension.score.toFixed(1)} 分（满分100），判定${dimension.label}；参考刻度30与40；原始分${dimension.rawScore}，${dimension.itemCount}个条目。`);
     await expect(row.locator('.constitution-bar-fill')).toHaveAttribute('style', `--constitution-fill: ${dimension.score}%;`);
     await expect(row.locator('.constitution-bar-tick')).toHaveCount(2);

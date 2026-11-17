@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button } from './Button';
+import { InlineText } from './InlineText';
 
 export type PanelHeaderProps = {
   readonly title: string;
@@ -30,7 +31,7 @@ export function PanelHeader(props: PanelHeaderProps) {
       )}
       <div className="ds-panel-header__text">
         <h2 className="ds-panel-header__title">{props.title}</h2>
-        {secondaryLine && <p className="ds-panel-header__status">{secondaryLine}</p>}
+        {secondaryLine && <p className="ds-panel-header__status num"><InlineText>{secondaryLine}</InlineText></p>}
       </div>
       {props.actions && <div className="ds-panel-header__actions">{props.actions}</div>}
     </header>

@@ -1,5 +1,6 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { InfoCard } from '../../../../components/design/InfoCard';
+import { InlineText } from '../../../../components/design/InlineText';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { mapDrilldownSummary } from '../../presentation/map-drilldown';
 import type { YunQiYearSummaryViewModel } from '../../presentation/view-model';
@@ -20,7 +21,7 @@ export function DrilldownYearSummaryCard({ summary, compact = false }: {
           <div><dt>在泉</dt><dd><ElementDot element={display.zaiquanElement} label={summary.zaiquan} /></dd></div>
         </dl>
         <div className="ds-info-card__section drilldown-boundaries">
-          <span>年界 · 北京时间 UTC+08</span>
+          <span><InlineText>年界 · 北京时间 UTC+08</InlineText></span>
           <span>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" showStandard={false} /></span>
           <span>至 <YunQiTimeDisplay value={summary.interval.end} variant="compact" showStandard={false} /></span>
           <span>起点包含，终点不包含</span>

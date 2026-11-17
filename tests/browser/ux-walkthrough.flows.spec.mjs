@@ -146,7 +146,7 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await back.focus();
   await back.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
-  await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeInViewport();
+  await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
   const birthContent = page.getByRole('main', { name: '先天对照', exact: true });
   await expect(birthContent).toBeFocused();
@@ -177,8 +177,8 @@ test('panel navigation, skip link and result traceability support keyboard recov
   const disclosure = page.locator('.current-technical');
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');
-  await expect(disclosure.getByText(/YunQi 当前查询 API · YQ-API-CONTRACT-1.2.0/)).toBeVisible();
+  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.2.0/)).toBeVisible();
   await page.keyboard.press('Space');
-  await expect(disclosure.getByText(/YunQi 当前查询 API · YQ-API-CONTRACT-1.2.0/)).toBeHidden();
+  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.2.0/)).toBeHidden();
   await screenshot(page, testInfo, 'keyboard-technical-disclosure');
 });

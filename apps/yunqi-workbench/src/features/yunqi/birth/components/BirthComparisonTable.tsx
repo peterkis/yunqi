@@ -1,4 +1,5 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
+import { InlineText } from '../../../../components/design/InlineText';
 import { RelationChip } from '../../../../components/design/RelationChip';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { RelationSourceLinks } from '../../components/RelationSourceLinks';
@@ -22,8 +23,8 @@ export function BirthComparisonTable({ candidate, current }: {
       <thead>
         <tr className="birth-table__columns">
           <td />
-          <th scope="col"><span className="birth-label">先天 · 出生</span><span className="birth-table__year"><strong>{candidate.birthGanzhi}</strong><span>{candidate.birthYear}</span></span></th>
-          <th scope="col"><span className="birth-label">当下 · 今日</span><span className="birth-table__year"><strong>{current.currentGanzhi}</strong><span>{current.currentYear}</span></span><span className="birth-table__time"><YunQiTimeDisplay value={current.currentTime} variant="compact" /></span></th>
+          <th scope="col"><span className="birth-label"><InlineText>先天 · 出生</InlineText></span><span className="birth-table__year"><strong>{candidate.birthGanzhi}</strong><span className="num">{candidate.birthYear}</span></span></th>
+          <th scope="col"><span className="birth-label"><InlineText>当下 · 今日</InlineText></span><span className="birth-table__year"><strong>{current.currentGanzhi}</strong><span className="num">{current.currentYear}</span></span><span className="birth-table__time"><YunQiTimeDisplay value={current.currentTime} variant="compact" /></span></th>
         </tr>
       </thead>
       {candidate.rows.map((row) => (
@@ -47,7 +48,7 @@ export function BirthComparisonTable({ candidate, current }: {
     <details className="birth-relation-details">
       <summary>这些关系怎么读？</summary>
       {candidate.rows.map((row) => row.relation ? <div key={row.label}>
-        <h4 className="birth-label">{row.label} · {row.relation.label}</h4>
+        <h4 className="birth-label"><InlineText>{`${row.label} · ${row.relation.label}`}</InlineText></h4>
         <p>{row.relation.explanation}</p>
         <RelationSourceLinks sources={row.relation.sources} />
       </div> : null)}

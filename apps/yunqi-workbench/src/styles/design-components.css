@@ -98,9 +98,11 @@
 
 .ds-button--secondary:hover:not(:disabled),
 .ds-button--text:hover:not(:disabled),
-.ds-button--icon:hover:not(:disabled) {
+.ds-button--icon:focus-visible:not(:disabled) {
   background: var(--surface-sunken);
 }
+
+.ds-button:not(:focus-visible) { outline: none; }
 
 .ds-button:disabled,
 .ds-scale-option:disabled {
@@ -295,6 +297,7 @@
 
 .ds-quote-block__original {
   margin: 0;
+  text-spacing-trim: trim-start;
   font-family: var(--font-serif);
   font-size: var(--ts-quote);
   line-height: var(--type-quote-line);

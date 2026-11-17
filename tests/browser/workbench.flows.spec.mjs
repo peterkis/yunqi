@@ -338,7 +338,7 @@ for (const [path, endpoint, error] of [
     await page.goto(path);
     await expect(page.getByRole('alert')).toContainText(error);
     await page.getByRole('button', { name: '重试', exact: true }).click();
-    if (path === '/yunqi/current') await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    if (path === '/yunqi/current') await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
     else await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
     expect(diagnostics.requests).toHaveLength(2);
   });
@@ -370,7 +370,7 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
     expect(diagnostics.requests).toHaveLength(requestsBeforeInquiry);
   }
   await page.getByRole('link', { name: '返回当前五运六气', exact: true }).click();
-  await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
   expect(diagnostics.requests.slice(requestsBeforeInquiry).map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });
 

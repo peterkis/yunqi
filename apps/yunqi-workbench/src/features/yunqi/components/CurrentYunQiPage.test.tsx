@@ -79,7 +79,7 @@ describe('CurrentYunQiPage', () => {
 
   it('shows annual and current facts with compact times, intact API attributes, dots and relations', async () => {
     const { dto } = renderPage();
-    const annual = screen.getByRole('region', { name: '全年 · 2026' });
+    const annual = screen.getByRole('region', { name: '全年\u202f·\u202f2026' });
     expect(within(annual).getByRole('heading', { name: '丙午' })).toBeVisible();
     expect(annual).toHaveTextContent('交运 01-20 09:00');
     expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.facts.interval.start.localTime);
@@ -92,7 +92,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(annual).getByText('不和')).toHaveClass('ds-relation__chip--adverse');
     expect(annual).toHaveTextContent(dto.annualRelation.relation);
 
-    const now = screen.getByRole('region', { name: '此刻 · 2026-06-19' });
+    const now = screen.getByRole('region', { name: '此刻\u202f·\u202f2026-06-19' });
     expect(now).toHaveTextContent('北京时间 UTC+08');
     expect(now.querySelector('.current-observed-time')).toBeNull();
     expect(now.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);

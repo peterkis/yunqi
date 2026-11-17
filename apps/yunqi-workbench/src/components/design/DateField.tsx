@@ -55,6 +55,7 @@ export function DateField({ label, value, onChange, required = false, disabled =
         {segments.map((segment, index) => (
           <label className="ds-date-field__part" key={segment.label}>
             <input
+              className="num"
               ref={(input) => { inputs.current[index] = input; }}
               type="text" inputMode="numeric" aria-label={segment.label}
               placeholder={segment.placeholder} maxLength={segment.length}

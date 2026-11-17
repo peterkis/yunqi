@@ -11,7 +11,7 @@ export function LoadingState({
   return (
     <div className="drilldown-feedback">
       <InfoCard label="加载中" compact>
-        <div role="status"><p>{message}</p></div>
+        <div role="status"><p className="num">{message}</p></div>
       </InfoCard>
     </div>
   );
@@ -32,7 +32,7 @@ export function ErrorState({
     <div className="drilldown-feedback">
       <InfoCard label="暂未完成" compact>
         <div role="alert">
-          <p>{message}</p>
+          <p className="num">{message}</p>
           {onRetry ? (
             <Button variant="secondary" onClick={onRetry}>
               {retryLabel}
@@ -54,7 +54,7 @@ export function EmptyState({
   return (
     <div className="drilldown-feedback drilldown-feedback--empty">
       <InfoCard label="待查看" compact>
-        <div role="status"><p>{message}</p></div>
+        <div role="status"><p className="num">{message}</p></div>
       </InfoCard>
     </div>
   );

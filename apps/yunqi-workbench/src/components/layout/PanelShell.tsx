@@ -4,6 +4,7 @@ import { getPanelRoute, navigationItems } from '../../app/routes';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { useTheme } from '../../providers/ThemeProvider';
 import { Button } from '../design/Button';
+import { InlineText } from '../design/InlineText';
 import { PanelHeader } from '../design/PanelHeader';
 import { RelationChip } from '../design/RelationChip';
 import { SegmentedNav } from '../design/SegmentedNav';
@@ -61,9 +62,9 @@ export function PanelShell({ children, actions }: PanelShellProps) {
               <>
                 <span className="panel-pill__ganzhi">{summary.ganzhi}</span>
                 <span className="panel-pill__text">
-                  <span className="panel-pill__annual">{summary.annual}</span>
+                  <span className="panel-pill__annual"><InlineText>{summary.annual}</InlineText></span>
                   {summary.stage && <span className="panel-pill__stage">
-                    {summary.stage}
+                    <InlineText>{summary.stage}</InlineText>
                     {summary.relation && <>
                       <RelationChip compact label={summary.relation.label} tone={summary.relation.tone} />
                       <span className="visually-hidden">{summary.relation.explanation}</span>
@@ -71,7 +72,7 @@ export function PanelShell({ children, actions }: PanelShellProps) {
                   </span>}
                 </span>
               </>
-            ) : <span className="panel-pill__text">运气通 · 教学参考<span className="panel-pill__stage">本视图暂无运气摘要</span></span>}
+            ) : <span className="panel-pill__text"><InlineText>运气通 · 教学参考</InlineText><span className="panel-pill__stage">本视图暂无运气摘要</span></span>}
             <svg className="panel-pill__expand-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="m4 10 4-4 4 4" /></svg>
           </button>
         )}
@@ -104,7 +105,7 @@ export function PanelShell({ children, actions }: PanelShellProps) {
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={title}>{children}</main>
           {viewActions && <div className="panel-shell__actions">{viewActions}</div>}
-          <footer className="panel-shell__footer">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</footer>
+          <footer className="panel-shell__footer"><InlineText>五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</InlineText></footer>
         </div>
       </div>
     </PanelViewContext.Provider>

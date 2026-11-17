@@ -115,7 +115,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await page.reload();
   await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+  await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
 });
 
 test('birth comparison submits only requested precision, displays both contexts and clears edited personal data', async ({ page, diagnostics }, testInfo) => {

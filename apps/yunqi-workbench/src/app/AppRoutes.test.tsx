@@ -94,7 +94,7 @@ describe('AppRoutes', () => {
     await waitFor(() => expect(document.title).toBe('原文与释义 · 运气通'));
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
-    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
     expect(screen.getByRole('main')).toHaveFocus();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.calculate).not.toHaveBeenCalled();
@@ -108,7 +108,7 @@ describe('AppRoutes', () => {
     expect(client.getLearningCurrent).toHaveBeenCalledOnce();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
-    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
   });
 
   it('replaces the root route with the current YunQi route', async () => {
@@ -122,7 +122,7 @@ describe('AppRoutes', () => {
     expect(
       await screen.findByRole(
         'region',
-        { name: '全年 · 2026' },
+        { name: '全年\u202f·\u202f2026' },
         { timeout: 5_000 },
       ),
     ).toBeInTheDocument();

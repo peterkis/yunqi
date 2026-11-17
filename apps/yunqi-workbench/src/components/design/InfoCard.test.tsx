@@ -12,7 +12,9 @@ describe('InfoCard', () => {
         <h3>丙午</h3><p>水运太过之年</p>
       </InfoCard>,
     );
-    const region = screen.getByRole('region', { name: '全年 · 2026' });
+    const region = screen.getByRole('region', { name: '全年\u202f·\u202f2026' });
+    expect(region.querySelector('.ds-info-card__label')).toHaveClass('num');
+    expect(region.querySelector('.ds-info-card__label')?.textContent).toBe('全年\u202f·\u202f2026');
     expect(region).toHaveTextContent('大寒起');
     expect(screen.getByRole('heading', { name: '丙午' })).toBeVisible();
     expect(screen.getByText('用于理解年度结构。').closest('.ds-info-card__hint')).toBeVisible();

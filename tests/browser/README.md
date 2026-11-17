@@ -91,6 +91,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Result/actions (D3) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, matched chips only for ≥2 matches and tendencies whenever present, all in DTO order and neutral tone; no sex-change eyebrow on results, one readonly version meta in its disclosure; API summary/boundary disclosure, result drill-down header; external form association, pinned actions and content → actions → footer order |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
+| Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
 | Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
 
@@ -142,8 +143,8 @@ clearances are retained as viewport clipping evidence: an 8px outer margin does
 not contain the full tail of `0 6px 20px` at 416×80. This check does not claim that
 the entire blur is visible; full-shadow host sizing remains a Tauri-stage decision.
 
-The suite discovers **58 flow/foundation/oracle tests + 146 visual/accessibility
-tests = 204 tests in 10 files**. These are test cases and repeated state checks,
+The suite discovers **62 flow/foundation/oracle tests + 146 visual/accessibility
+tests = 208 tests in 11 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -170,8 +171,10 @@ content below the current scroll position.
 Focus checks visit every available button, link, input, select, summary and
 explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
-original regression assertions. Demo global reduced-motion transitions have
-been removed. The previously observed not-found initial stylesheet timing
+original regression assertions. D5 uses local 140ms ease-out tokens for selection
+and disclosure motion, without transitioning outlines; reduced motion cancels
+transitions and animations. Native disclosure remains instant when intrinsic-size
+interpolation is unavailable. The previously observed not-found initial stylesheet timing
 issue remains unconfirmed until a real browser run; the layout retry is kept.
 
 The real Service / Vite environment, non-Beijing browser zone, external-request

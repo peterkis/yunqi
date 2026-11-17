@@ -15,6 +15,12 @@ import './styles/views/drilldown.css';
 import './styles/views/constitution.css';
 import './styles/views/form-controls.css';
 import './styles/views/learning-reading.css';
+import './styles/views/craft.css';
+
+if (import.meta.env.DEV) {
+  document.body.classList.add('workbench-dev-host');
+  void import('./styles/dev-host.css');
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

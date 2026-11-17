@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
+import { InlineText } from '../../../../components/design/InlineText';
 import { DateField } from '../../../../components/design/DateField';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
@@ -91,7 +92,7 @@ export function BirthComparisonPage() {
       <div className="birth-view" hidden={reading}>
         <h2 className="visually-hidden">出生运气对照</h2>
         {collapsed ? <div className="birth-input-summary" role="group" aria-label="出生资料摘要">
-          <span>{birthDate} · {knowsTime ? birthTime.slice(0, 5) : '时刻不详'} · </span>
+          <span className="num"><InlineText>{`${birthDate} · ${knowsTime ? birthTime.slice(0, 5) : '时刻不详'} · `}</InlineText></span>
           <Button variant="text" onClick={() => setFormExpanded(true)}>修改</Button>
           <Button variant="text" onClick={clear}>清空本次资料</Button>
         </div> : <form id={formId} className="birth-input" onSubmit={submit} aria-label="出生运气输入" aria-busy={mutation.isPending}>
@@ -108,7 +109,7 @@ export function BirthComparisonPage() {
               {knowsTime ? (
                 <label>
                   出生时刻（北京时间）
-                  <input type="time" step="1" value={birthTime} required onInvalid={invalid} onChange={(event) => { setBirthTime(event.target.value); edited(); }} />
+                  <input className="num" type="time" step="1" value={birthTime} required onInvalid={invalid} onChange={(event) => { setBirthTime(event.target.value); edited(); }} />
                 </label>
               ) : null}
             </div>
@@ -124,7 +125,7 @@ export function BirthComparisonPage() {
         {mutation.isPending ? <p role="status" className="birth-note">正在计算出生与当前运气</p> : null}
         {result ? (
           <section aria-label="出生与当前运气对照结果" className="birth-results">
-            <p className={result.candidateMeta ? 'birth-candidate-meta birth-note' : 'birth-api-message'}>{result.candidateMeta ?? result.comparison.message}</p>
+            <p className={result.candidateMeta ? 'birth-candidate-meta birth-note' : 'birth-api-message'}><InlineText>{result.candidateMeta ?? result.comparison.message}</InlineText></p>
             <div className="birth-tables">
                 {result.candidates.map((candidate, index) => (
                   <article key={`${candidate.from.localTime}-${index}`} className="birth-candidate-card birth-card" aria-label={candidate.label}>
@@ -159,7 +160,7 @@ export function BirthComparisonPage() {
                 <h3 className="birth-label">{candidate.label}</h3>
                 <YunQiTimeDetails entries={candidate.calculationTimes} />
               </section>)}
-              <p className="birth-note">{result.comparison.current.facts.contractId} · {result.comparison.current.facts.ruleVersion} · {result.comparison.current.ruleVersion}</p>
+              <p className="birth-note num"><InlineText>{`${result.comparison.current.facts.contractId} · ${result.comparison.current.facts.ruleVersion} · ${result.comparison.current.ruleVersion}`}</InlineText></p>
               {result.comparison.current.notes.map((note) => <p className="birth-note" key={note}>{note}</p>)}
             </details>
           </section>

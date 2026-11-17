@@ -14,6 +14,7 @@ export function YearSelector({ selectedYear }: YearSelectorProps) {
       <label className="drilldown-year-selector">
         <span>分析年份</span>
         <span className="drilldown-year-selector__control"><select
+          className="num"
           aria-label="分析年份"
           value={selectedYear?.toString() ?? ''}
           onChange={(event) => {
@@ -41,7 +42,7 @@ export function YearSelector({ selectedYear }: YearSelectorProps) {
           onClick={() => selectedYear !== undefined && navigate(`/yunqi/year/${selectedYear + 1}`)}
         >下一年</Button>
       </div>
-      <p className="drilldown-meta">支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年</p>
+      <p className="drilldown-meta num">支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年</p>
     </div>
   );
 }

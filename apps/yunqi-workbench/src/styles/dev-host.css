@@ -1,0 +1,4 @@
+/* D5 / P2-17: imported only inside import.meta.env.DEV in main.tsx. */
+body.workbench-dev-host { background: var(--surface-sunken); }
+.workbench-dev-host .theme-root,
+.workbench-dev-host .panel-viewport { background: transparent; }

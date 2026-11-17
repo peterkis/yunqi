@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 afterEach(() => {
   document.body.innerHTML = '';
+  document.body.classList.remove('workbench-dev-host');
 });
 
 describe('application bootstrap', () => {
@@ -17,5 +18,6 @@ describe('application bootstrap', () => {
     expect(
       screen.getByRole('heading', { name: '运气通' }),
     ).toBeInTheDocument();
+    expect(document.body).toHaveClass('workbench-dev-host');
   });
 });

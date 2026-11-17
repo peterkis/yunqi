@@ -24,7 +24,11 @@ describe('constitution result and snapshot', () => {
     expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(4);
     expect(result.querySelector('.constitution-result-navigation')).toBeNull();
     expect(within(result).queryByRole('button', { name: '返回修改' })).not.toBeInTheDocument();
-    for (const item of assessment.results) expect(within(result).getByRole('img', { name: item.chartLabel })).toBeVisible();
+    for (const item of assessment.results) {
+      const chart = within(result).getByRole('img', { name: item.chartLabel });
+      expect(chart).toBeVisible();
+      expect(within(chart.closest('li')!).getByText(`${item.displayScore} 分`)).toHaveClass('num');
+    }
     expect(result.querySelectorAll('[data-tone="primary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="secondary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);

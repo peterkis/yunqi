@@ -53,7 +53,7 @@ describe('CurrentYunQiView', () => {
 
     expect(
       await screen.findByRole('region', {
-        name: '全年 · 2026',
+        name: '全年\u202f·\u202f2026',
       }),
     ).toBeVisible();
     expect(client.getLearningCurrent).toHaveBeenCalledTimes(2);
@@ -75,7 +75,7 @@ describe('CurrentYunQiView', () => {
 
     expect(
       await screen.findByRole('region', {
-        name: '全年 · 2026',
+        name: '全年\u202f·\u202f2026',
       }),
     ).toBeVisible();
     expect(screen.getByText('丙午')).toBeVisible();

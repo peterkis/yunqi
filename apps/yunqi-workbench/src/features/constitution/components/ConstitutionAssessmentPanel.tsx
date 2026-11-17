@@ -1,4 +1,5 @@
 import { AsyncState } from '../../../components/feedback/AsyncState';
+import { InlineText } from '../../../components/design/InlineText';
 import { useConstitutionQuestionnaire } from '../hooks/useConstitution';
 import { mapQuestionnaire, type ConstitutionContextViewModel } from '../presentation/map-constitution';
 import { ConstitutionForm } from './ConstitutionForm';
@@ -20,7 +21,7 @@ export function ConstitutionAssessmentPanel({ context, onEnd, actionsEnabled = t
         renderData={(data) => <ConstitutionForm questionnaire={mapQuestionnaire(data)} context={context} onEnd={onEnd} actionsEnabled={actionsEnabled} />}
       />
       {(!questionnaire.data || questionnaire.isError) && onEnd ?
-        <footer className="constitution-session-footer">答卷仅存本次会话，不入库 · 结束即销毁</footer>
+        <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
       : null}
     </div>
   );

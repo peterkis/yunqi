@@ -27,7 +27,10 @@ describe('DateField', () => {
     render(<Field />);
     expect(screen.getByRole('group', { name: '出生日期（公历）' })).toBeVisible();
     const [year, month, day] = ['年', '月', '日'].map((name) => screen.getByRole('textbox', { name }));
-    for (const input of [year, month, day]) expect(input).toHaveAttribute('inputmode', 'numeric');
+    for (const input of [year, month, day]) {
+      expect(input).toHaveAttribute('inputmode', 'numeric');
+      expect(input).toHaveClass('num');
+    }
     await user.type(year, '1980');
     expect(month).toHaveFocus();
     await user.keyboard('03');

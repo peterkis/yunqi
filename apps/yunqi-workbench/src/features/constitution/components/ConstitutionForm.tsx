@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Button } from '../../../components/design/Button';
+import { InlineText } from '../../../components/design/InlineText';
 import { ScaleOption } from '../../../components/design/ScaleOption';
 import { SegmentedControl } from '../../../components/design/SegmentedControl';
 import { PanelView } from '../../../components/layout/PanelView';
@@ -173,11 +174,11 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
             segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
           <p className="constitution-meta">仅用于显示对应条目；切换后清空本次作答和结果。</p>
         </fieldset> : !mutation.result ? <div className="constitution-sex-summary">
-          <span>{sex === 'male' ? '男性版' : '女性版'} · </span>
+          <span><InlineText>{`${sex === 'male' ? '男性版' : '女性版'} · `}</InlineText></span>
           <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
         </div> : null}
         {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
-          <p id={confirmationId}>更换将清空已作答的 {completed} 题</p>
+          <p id={confirmationId}>更换将清空已作答的 <span className="num">{completed}</span> 题</p>
           <div>
             <Button variant="secondary" onClick={clearSex}>确认</Button>
             <Button ref={cancelSexRef} variant="text" onClick={cancelSexChange}>取消</Button>
@@ -189,8 +190,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         ) : sex !== '' ? (
           <>
             <div className="constitution-progress-header">
-              <span>{questionnaire.standard} · {questions.length} 题</span>
-              <span className="constitution-position" aria-live="polite">{Math.min(questionIndex + 1, questions.length)}/{questions.length}</span>
+              <span className="num"><InlineText>{`${questionnaire.standard} · ${questions.length} 题`}</InlineText></span>
+              <span className="constitution-position num" aria-live="polite">{Math.min(questionIndex + 1, questions.length)}/{questions.length}</span>
             </div>
             <div className="constitution-progress-grid" role="img" aria-label={`已答 ${completed} / ${questions.length} 题${question ? `，当前第 ${questionIndex + 1} 题` : '，全部作答完成'}`}>
               {questions.map((item, index) => <span key={item.id} data-state={index === questionIndex ? 'current' : answers[item.id] !== undefined ? 'answered' : 'unanswered'} />)}
@@ -198,7 +199,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
             {question ? (
               <div className="constitution-question-screen" key={question.id} onKeyDown={questionKey}>
                 <h3 id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
-                <p id={helpId} className="constitution-meta">请患者根据近一年的体验和感觉作答 · 可按数字键 1–5</p>
+                <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 可按数字键 1–5</InlineText></p>
                 <div role="radiogroup" aria-labelledby={questionId} aria-describedby={helpId}>
                   {questionnaire.options.map((option, index) => (
                     <ScaleOption key={option.value} shortcut={option.value} label={option.label} description={option.description}
@@ -211,7 +212,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
               </div>
             ) : (
               <div className="constitution-complete">
-                <h3 tabIndex={-1} ref={headingRef}>{questions.length} 题已全部作答</h3>
+                <h3 className="num" tabIndex={-1} ref={headingRef}>{questions.length} 题已全部作答</h3>
                 <p>提交后计算九种体质的转化分</p>
                 <Button variant="text" disabled={mutation.isPending} onClick={previous}>返回修改</Button>
               </div>
@@ -219,18 +220,18 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
           </>
         ) : <p className="constitution-meta">选择量表所用性别后开始作答，一题一屏，无默认答案。</p>}
         </div>
-        {error ? <p role="alert" className="constitution-notice">{error}</p> : null}
+        {error ? <p role="alert" className="constitution-notice num">{error}</p> : null}
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
       <details className="constitution-source">
         <summary>量表来源与适用说明</summary>
-        <p>{questionnaire.title}{!mutation.result ? ` · ${questionnaire.version}` : ''}</p>
+        <p className="num"><InlineText>{`${questionnaire.title}${!mutation.result ? ` · ${questionnaire.version}` : ''}`}</InlineText></p>
         {questionnaire.instructions.map((instruction, index) => <p key={index}>{instruction}</p>)}
         <p>{questionnaire.sourceNote}</p>
         <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
       </details>
-      <footer className="constitution-session-footer">答卷仅存本次会话，不入库 · 结束即销毁</footer>
+      <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
     </div>
   );
 }
