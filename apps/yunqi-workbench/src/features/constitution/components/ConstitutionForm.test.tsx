@@ -8,7 +8,7 @@ import { ConstitutionForm } from './ConstitutionForm';
 
 function renderForm(client = createClientStub()) {
   const questionnaire = mapQuestionnaire(createQuestionnaireDto());
-  return { ...render(<ConstitutionForm questionnaire={questionnaire} />, { wrapper: createTestWrapper(client) }), client, questionnaire };
+  return { ...render(<ConstitutionForm questionnaire={questionnaire} />, { wrapper: createTestWrapper(client, '/yunqi/constitution') }), client, questionnaire };
 }
 
 async function complete(user: ReturnType<typeof userEvent.setup>, sex = '男') {
@@ -25,14 +25,17 @@ beforeEach(() => { vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('ConstitutionForm', () => {
-  it('shows one secondary destroy action only while answers or a result exist', async () => {
+  it('keeps the secondary destroy action in the shell throughout answering and switches the result actions and header', async () => {
     const user = userEvent.setup();
     renderForm();
     const destroy = () => screen.queryAllByRole('button', { name: '结束并销毁答卷' });
     expect(destroy()).toHaveLength(0);
     expect(document.querySelector('footer.constitution-session-footer')).toHaveTextContent('答卷仅存本次会话，不入库 · 结束即销毁');
     await user.click(screen.getByRole('radio', { name: '男' }));
-    expect(destroy()).toHaveLength(0);
+    expect(destroy()).toHaveLength(1);
+    expect(destroy()[0].closest('.panel-shell__actions')).not.toBeNull();
+    expect(document.querySelector('.constitution-progress-header')).toHaveTextContent(`${createQuestionnaireDto().standard} · 8 题`);
+    expect(document.querySelector('.constitution-progress-header')).not.toHaveTextContent('男性版');
     await user.keyboard('1');
     expect(destroy()).toHaveLength(1);
     expect(destroy()[0]).toHaveClass('ds-button--secondary');
@@ -41,13 +44,32 @@ describe('ConstitutionForm', () => {
     expect(screen.getByRole('radiogroup', { name: '量表所用性别' })).toBeVisible();
     await complete(user);
     expect(destroy()).toHaveLength(1);
+    const submit = screen.getByRole('button', { name: '查看结果' });
+    expect(submit.closest('.panel-shell__actions')).not.toBeNull();
+    expect(submit).toHaveAttribute('form', screen.getByRole('form').id);
+    expect(screen.getByRole('form').querySelector('.ds-button--primary')).toBeNull();
     await user.click(screen.getByRole('button', { name: '查看结果' }));
     await screen.findByRole('region', { name: '体质测评结果' });
+    expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
+    expect(document.querySelector('.constitution-sex-summary')).toBeNull();
     expect(destroy()).toHaveLength(1);
+    const actions = document.querySelector('.panel-shell__actions')!;
+    expect(within(actions as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual(['结束并销毁答卷', '返回修改']);
+    expect(screen.getByRole('button', { name: '返回修改' })).toHaveClass('ds-button--text');
+    expect(document.querySelector('.panel-shell__content + .panel-shell__actions + .panel-shell__footer')).not.toBeNull();
+    expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
+    expect(within(screen.getByRole('region', { name: '页面导航' })).getByRole('heading', { name: '体质测评结果' })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: '工作台导航' })).toBeVisible();
+    await user.keyboard('3');
+    await user.click(screen.getByRole('button', { name: '查看结果' }));
+    await screen.findByRole('region', { name: '体质测评结果' });
+    await user.click(screen.getByRole('button', { name: '返回修改' }));
     await user.click(screen.getByRole('button', { name: '更换' }));
     await user.click(screen.getByRole('button', { name: '确认' }));
     await user.click(screen.getByRole('radio', { name: '女' }));
-    expect(destroy()).toHaveLength(0);
+    expect(destroy()).toHaveLength(1);
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: /已答 0/ })).toBeVisible();
   });
@@ -78,6 +100,14 @@ describe('ConstitutionForm', () => {
     expect(screen.queryByRole('radiogroup')).not.toBeInTheDocument();
     expect(client.assessConstitution).not.toHaveBeenCalled();
     await user.tab();
+    expect(screen.getByRole('button', { name: '返回修改' })).toHaveFocus();
+    // Exercise the last content target before the shell actions. Chromium's
+    // summary Tab sequence is also covered by the browser flow.
+    await user.click(screen.getByText('量表来源与适用说明'));
+    screen.getByRole('link', { name: '查看标准来源（新窗口）' }).focus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: '结束并销毁答卷' })).toHaveFocus();
+    await user.tab();
     expect(screen.getByRole('button', { name: '查看结果' })).toHaveFocus();
     await user.keyboard('{Enter}');
     const result = await screen.findByRole('region', { name: '体质测评结果' });
@@ -85,12 +115,15 @@ describe('ConstitutionForm', () => {
     expect(within(result).getAllByRole('img')).toHaveLength(9);
     expect(within(result).getByRole('region', { name: '与运气互参' })).toHaveTextContent('未提供出生资料');
     expect(client.assessConstitution).toHaveBeenCalledExactlyOnceWith({ questionnaireId: questionnaire.id, sex: 'male', answers: { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 1, q7: 2, q8m: 3 } });
+    expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
     await user.click(screen.getByText('本次量表版本'));
-    expect(screen.getByText('GBT46939-2025 · test-1')).toBeVisible();
+    expect(screen.getByText('男性版 · GBT46939-2025 · test-1')).toBeVisible();
+    expect(screen.getAllByText(/test-1/)).toHaveLength(1);
     await user.click(screen.getByText('量表来源与适用说明'));
     expect(screen.getByRole('link', { name: '查看标准来源（新窗口）' })).toHaveAttribute('href', questionnaire.sourceUrl);
     await user.click(screen.getByRole('button', { name: '返回修改' }));
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
+    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('男性版 · 更换');
     expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '上一题' }));
     expect(screen.getByRole('radio', { name: '很少' })).toBeChecked();
@@ -161,9 +194,12 @@ describe('ConstitutionForm', () => {
     await complete(user);
     await user.click(screen.getByRole('button', { name: '查看结果' }));
     await screen.findByRole('region', { name: '体质测评结果' });
+    expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '返回修改' }));
+    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '更换' }));
     expect(screen.getByRole('group', { name: '更换将清空已作答的 8 题' })).toBeVisible();
-    expect(screen.getByRole('region', { name: '体质测评结果' })).toBeVisible();
+    expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '确认' }));
     expect(screen.queryByRole('img', { name: /已答/ })).not.toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: '女' }));

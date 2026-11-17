@@ -85,9 +85,10 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Rule trace | Real 2025 `GUEST_GENERATES_HOST` retains `客生主` and API `客生主，相得`; rule and Contract versions remain separate |
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
-| Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; entry comparison remains the sole primary action |
+| Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; shell primary switches from 查看对照 to 同时测评体质 |
 | Constitution | Button segments for sex, collapsed version eyebrow while answering; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
-| Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, complete submit as secondary action, end/reopen/reset and stale response isolation |
+| Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared shell actions with standalone assessment, end/reopen/reset and stale response isolation |
+| Result/actions (D3) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, matched chips only for ≥2 matches and tendencies whenever present, all in DTO order and neutral tone; no sex-change eyebrow on results, one readonly version meta in its disclosure; API summary/boundary disclosure, result drill-down header; external form association, pinned actions and content → actions → footer order |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
@@ -128,8 +129,8 @@ are retained as evidence only, not as an approved visual baseline.
 | `workstation-768` | 1366 × 768 | Light, 24 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
 | `workstation-1080` | 1920 × 1080 | Light, 24 states; same right-edge panel |
 
-The suite discovers **52 flow/foundation/oracle tests + 146 visual/accessibility
-tests = 198 tests in 9 files**. These are test cases and repeated state checks,
+The suite discovers **58 flow/foundation/oracle tests + 146 visual/accessibility
+tests = 204 tests in 10 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 

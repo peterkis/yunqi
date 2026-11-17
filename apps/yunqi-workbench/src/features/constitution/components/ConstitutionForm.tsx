@@ -2,6 +2,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, ty
 import { Button } from '../../../components/design/Button';
 import { ScaleOption } from '../../../components/design/ScaleOption';
 import { SegmentedControl } from '../../../components/design/SegmentedControl';
+import { PanelView } from '../../../components/layout/PanelView';
 import type { ConstitutionContextViewModel, ConstitutionQuestionnaireViewModel, QuestionnaireSex } from '../presentation/map-constitution';
 import { useConstitutionAssessment } from '../hooks/useConstitution';
 import { ConstitutionResults } from './ConstitutionResults';
@@ -10,9 +11,10 @@ export interface ConstitutionFormProps {
   readonly questionnaire: ConstitutionQuestionnaireViewModel;
   readonly context?: ConstitutionContextViewModel;
   readonly onEnd?: () => void;
+  readonly actionsEnabled?: boolean;
 }
 
-export function ConstitutionForm({ questionnaire, context, onEnd }: ConstitutionFormProps) {
+export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled = true }: ConstitutionFormProps) {
   const mutation = useConstitutionAssessment();
   const [sex, setSex] = useState<QuestionnaireSex | ''>('');
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -32,10 +34,12 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
   const questionId = useId();
   const helpId = useId();
   const confirmationId = useId();
+  const formId = useId();
   const questions = sex === '' ? [] : questionnaire.questions.filter((question) => question.sex === 'all' || question.sex === sex);
   const question = questions[questionIndex];
   const completed = questions.filter((item) => answers[item.id] !== undefined).length;
-  const hasContent = Object.keys(answers).length > 0 || mutation.result !== undefined;
+  const hasSession = sex !== '';
+  const complete = hasSession && !question && !mutation.result;
 
   function cancelAdvance() {
     clearTimeout(timer.current);
@@ -155,16 +159,23 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
     <div className="constitution-session" onKeyDown={(event) => {
       if (confirmingSexChange && event.key === 'Escape') { event.preventDefault(); cancelSexChange(); }
     }}>
-      <form className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
+      <PanelView enabled={actionsEnabled}
+        drilldown={mutation.result ? { title: '体质测评结果', onBack: () => { if (!confirmingSexChange) previous(); } } : undefined}
+        actions={hasSession ? <div className="constitution-actions">
+          <Button variant="secondary" onClick={end}>结束并销毁答卷</Button>
+          {mutation.result ? <Button variant="text" disabled={confirmingSexChange} onClick={previous}>返回修改</Button> : null}
+          {complete ? <Button type="submit" form={formId} disabled={mutation.isPending || confirmingSexChange}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button> : null}
+        </div> : undefined} />
+      <form id={formId} className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
         {sex === '' ? <fieldset className="constitution-sex" disabled={mutation.isPending} ref={sexRef} tabIndex={-1}>
           <legend>量表所用性别</legend>
           <SegmentedControl label="量表所用性别" compact value={sex} onChange={changeSex}
             segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
           <p className="constitution-meta">仅用于显示对应条目；切换后清空本次作答和结果。</p>
-        </fieldset> : <div className="constitution-sex-summary">
+        </fieldset> : !mutation.result ? <div className="constitution-sex-summary">
           <span>{sex === 'male' ? '男性版' : '女性版'} · </span>
           <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
-        </div>}
+        </div> : null}
         {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
           <p id={confirmationId}>更换将清空已作答的 {completed} 题</p>
           <div>
@@ -174,11 +185,11 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
         </section> : null}
         <div inert={confirmingSexChange || undefined}>
         {mutation.result ? (
-          <ConstitutionResults assessment={mutation.result} context={context} onBack={previous} />
+          <ConstitutionResults assessment={mutation.result} context={context} />
         ) : sex !== '' ? (
           <>
             <div className="constitution-progress-header">
-              <span>{questionnaire.standard} · {sex === 'male' ? '男性版' : '女性版'} · {questions.length} 题</span>
+              <span>{questionnaire.standard} · {questions.length} 题</span>
               <span className="constitution-position" aria-live="polite">{Math.min(questionIndex + 1, questions.length)}/{questions.length}</span>
             </div>
             <div className="constitution-progress-grid" role="img" aria-label={`已答 ${completed} / ${questions.length} 题${question ? `，当前第 ${questionIndex + 1} 题` : '，全部作答完成'}`}>
@@ -202,7 +213,6 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
               <div className="constitution-complete">
                 <h3 tabIndex={-1} ref={headingRef}>{questions.length} 题已全部作答</h3>
                 <p>提交后计算九种体质的转化分</p>
-                <Button key="view-result" variant={context?.birth ? 'secondary' : 'primary'} type="submit" disabled={mutation.isPending}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button>
                 <Button variant="text" disabled={mutation.isPending} onClick={previous}>返回修改</Button>
               </div>
             )}
@@ -215,12 +225,11 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
       </form>
       <details className="constitution-source">
         <summary>量表来源与适用说明</summary>
-        <p>{questionnaire.title} · {questionnaire.version}</p>
+        <p>{questionnaire.title}{!mutation.result ? ` · ${questionnaire.version}` : ''}</p>
         {questionnaire.instructions.map((instruction, index) => <p key={index}>{instruction}</p>)}
         <p>{questionnaire.sourceNote}</p>
         <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
       </details>
-      {hasContent ? <div className="constitution-session-actions"><Button variant="secondary" onClick={end}>结束并销毁答卷</Button></div> : null}
       <footer className="constitution-session-footer">答卷仅存本次会话，不入库 · 结束即销毁</footer>
     </div>
   );

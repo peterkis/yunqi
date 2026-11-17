@@ -153,7 +153,7 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await expect(birthDate).toBeVisible();
   await expect(birthDate).toBeEnabled();
   await expect(birthDate).toBeInViewport();
-  await expect(birthContent.getByRole('button', { name: '查看出生与当前运气', exact: true })).toBeInViewport();
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '查看对照', exact: true })).toBeInViewport();
   await page.reload();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: '跳至主要内容' })).toBeFocused();

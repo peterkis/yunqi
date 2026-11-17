@@ -83,12 +83,13 @@ export function createQuestionnaireDto(): ConstitutionQuestionnaireDto {
 
 export function createAssessmentDto(): ConstitutionAssessmentDto {
   const names = ['平和质', '气虚质', '阳虚质', '阴虚质', '痰湿质', '湿热质', '血瘀质', '气郁质', '特禀质'];
+  const ids = ['balanced', 'qi_deficiency', 'yang_deficiency', 'yin_deficiency', 'phlegm_dampness', 'damp_heat', 'blood_stasis', 'qi_stagnation', 'special_diathesis'];
   return {
     questionnaireId: 'GBT46939-2025',
     version: 'test-1',
     sex: 'male',
-    results: names.map((name, index) => ({ id: `type-${index}`, name, itemCount: 3, rawScore: 3, score: index === 0 ? 100 : 0, status: index === 0 ? 'yes' : 'no', label: index === 0 ? '是' : '否' })),
-    matchedTypes: ['平和质'],
+    results: names.map((name, index) => ({ id: ids[index], name, itemCount: 3, rawScore: 3, score: index === 0 ? 100 : 0, status: index === 0 ? 'yes' : 'no', label: index === 0 ? '是' : '否' })),
+    matchedTypes: ['balanced'],
     tendencyTypes: [],
     summary: '符合平和质判定条件',
     boundaryNote: '量表结果供医生参考，不作为疾病诊断。',

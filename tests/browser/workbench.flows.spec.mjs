@@ -399,13 +399,19 @@ test('constitution keyboard loop answers one question at a time and destroys the
     await expect(page.locator('.constitution-position')).toHaveText(`${number}/26`);
     await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(form.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
-    await expect(end).toHaveCount(number === 1 ? 0 : 1);
+    await expect(end).toHaveCount(1);
     await page.keyboard.press(String((number - 1) % 5 + 1));
   }
   await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   await page.keyboard.press('Tab');
-  await expect(form.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
+  await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(end).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
   await page.keyboard.press('Enter');
   const response = await responsePromise;
@@ -417,11 +423,18 @@ test('constitution keyboard loop answers one question at a time and destroys the
   const request = JSON.parse(diagnostics.requests.find(item => item.url.endsWith('/constitution/assess')).body);
   expect(Object.keys(request.answers)).toHaveLength(26);
   expect(Object.values(request.answers).every(value => [1, 2, 3, 4, 5].includes(value))).toBe(true);
-  await expect(result.getByRole('region', { name: '与运气互参', exact: true })).toContainText(data.summary);
+  await result.getByText('判定说明与边界', { exact: true }).click();
+  await expect(result.getByText(data.summary, { exact: true })).toBeVisible();
+  await result.getByText('判定说明与边界', { exact: true }).click();
+  await result.locator('.constitution-decision h4').focus();
   await screenshot(page, testInfo, 'constitution-keyboard-result');
-  // The focused decision is followed by the two disclosures and the sole end action.
+  // Content disclosures precede the shell actions; the footer follows them in DOM.
   await page.keyboard.press('Tab');
+  await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByText('本次量表版本', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(end).toHaveCount(1);
   await expect(end).toHaveClass(/ds-button--secondary/);

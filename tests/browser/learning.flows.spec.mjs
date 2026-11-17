@@ -109,12 +109,12 @@ test('birth comparison submits only requested precision, displays both contexts 
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
   const date = page.getByRole('textbox', { name: '年', exact: true });
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  await page.getByRole('button', { name: '查看对照' }).click();
   await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
   await expect(date).toBeFocused();
   await fillBirthDate(page, '1990-05-12');
   const responsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  await page.getByRole('button', { name: '查看对照' }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
@@ -129,7 +129,7 @@ test('birth comparison submits only requested precision, displays both contexts 
   await expect(result).toHaveCount(0);
   await page.getByLabel('出生时刻（北京时间）').fill('09:30:21');
   const exactResponsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+  await page.getByRole('button', { name: '查看对照' }).click();
   const exactResponse = await exactResponsePromise;
   expect(exactResponse.status()).toBe(200);
   const { data: exact } = await exactResponse.json();
@@ -157,7 +157,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('26 题未作答');
   expect(diagnostics.requests.filter(request => request.method === 'POST')).toHaveLength(0);
-  await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
@@ -177,11 +177,13 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await result.scrollIntoViewIfNeeded();
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'constitution-nine-dimensions');
+  await page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true }).click();
+  await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
   await changeConstitutionSex(page, '女', 26);
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
-  await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();

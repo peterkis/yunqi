@@ -22,7 +22,7 @@ Claude 拆卡，本机派发 Codex CLI（`gpt-6.1-sol`、思考强度 max、fast
 | [D1](cards/D1-time-density.md) | P0-1 时间精度、P0-3 先天提交后信息密度、工作站截图矩阵 | — | 1 | 通过（2 轮，[评审](reviews/D1-review-2.md)） |
 | [D2](cards/D2-form-controls.md) | P0-4 原生控件、P0-5 量表性别折叠 | D1 | 2 | 通过（2 轮，[评审](reviews/D2-review-2.md)） |
 | [D4](cards/D4-consistency.md) | P1-6、9、10、11 一致性 | D1 | 2（与 D2 并行） | 待派发 |
-| [D3](cards/D3-result-actions.md) | P0-2 结果标题、P1-8 主操作入操作区 | D2 | 3 | 待派发 |
+| [D3](cards/D3-result-actions.md) | P0-2 结果标题、P1-8 主操作入操作区 | D2 | 3 | 通过（2 轮，[评审](reviews/D3-review-2.md)） |
 | [D5](cards/D5-craft.md) | P2-12～17 工艺细节 | D3、D4 | 4 | 待派发 |
 
 并行：D2 与 D4 各用工作树 `.claude/worktrees/polish-dN` 与分支 `feat/workbench-ui-polish-dN`，从 D1 验收提交切出；

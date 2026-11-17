@@ -70,7 +70,7 @@ for (const state of cases) {
     if (state.birth) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
       await fillBirthDate(page, '1990-05-12');
-      await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+      await page.getByRole('button', { name: '查看对照' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
       await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 时刻不详 · 修改');
@@ -79,7 +79,7 @@ for (const state of cases) {
         await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
         await fillBirthDate(page, data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-        await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+        await page.getByRole('button', { name: '查看对照' }).click();
         const { data: boundary } = await (await boundaryResponse).json();
         expect(boundary.ambiguous).toBe(true);
         await expect(page.locator('.birth-table')).toHaveCount(boundary.candidates.length);
@@ -133,14 +133,31 @@ for (const state of cases) {
     }
     const controls = await expectViewControls(page, testInfo);
     if (state.name.startsWith('birth') && !state.birthClassics) {
-      expect(controls.primary.map(control => control.label)).toEqual(state.birth ? [] : ['查看出生与当前运气']);
-      if (state.birthAssessment && state.constitutionComplete) await expect(page.getByRole('button', { name: '查看结果', exact: true })).toHaveClass(/ds-button--secondary/);
+      const labels = state.birthAssessment ? state.constitutionComplete ? ['查看结果'] : [] : state.birth ? ['同时测评体质'] : ['查看对照'];
+      expect(controls.primary.map(control => control.label)).toEqual(labels);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
       const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
-      await expect(destroy).toHaveCount(state.constitutionComplete || state.constitutionResult ? 1 : 0);
-      if (state.constitutionComplete || state.constitutionResult) await expect(destroy).toHaveClass(/ds-button--secondary/);
+      await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
+      if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
       await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+    }
+    if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
+      for (const primary of await page.locator('.ds-button--primary').all()) {
+        expect(await primary.evaluate(button => button.closest('.panel-shell__actions') !== null)).toBe(true);
+      }
+      const actions = page.locator('.panel-shell__actions');
+      if (await actions.count()) {
+        await expect(actions).toBeInViewport({ ratio: 1 });
+        const bounds = await actions.boundingBox();
+        const main = page.getByRole('main');
+        const scrollTop = await main.evaluate(content => content.scrollTop);
+        await main.evaluate(content => { content.scrollTop = content.scrollHeight; });
+        expect(await actions.boundingBox()).toEqual(bounds);
+        await expect(actions).toBeInViewport({ ratio: 1 });
+        await main.evaluate((content, top) => { content.scrollTop = top; }, scrollTop);
+        expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
+      }
     }
     if (state.birth && !state.birthClassics) {
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({

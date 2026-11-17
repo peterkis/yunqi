@@ -65,9 +65,11 @@ export function mapConstitutionContext(current: LearningViewModel, comparison?: 
 export interface ConstitutionAssessmentViewModel {
   readonly questionnaireId: string;
   readonly version: string;
+  readonly sexLabel: string;
   readonly summary: string;
   readonly decision: string;
-  readonly companions: string;
+  readonly matchedTypes: readonly { readonly id: string; readonly name: string }[];
+  readonly tendencyTypes: readonly { readonly id: string; readonly name: string }[];
   readonly boundaryNote: string;
   readonly results: readonly {
     readonly id: string;
@@ -99,14 +101,18 @@ export function mapQuestionnaire(value: ConstitutionQuestionnaireDto): Constitut
 
 export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAssessmentViewModel {
   // Presentation follows the API's statuses, never score thresholds or ranking.
-  const matched = value.results.filter((result) => result.status === 'yes').map((result) => result.name);
-  const basically = value.results.filter((result) => result.status === 'basically').map((result) => result.name);
-  const tendencies = value.results.filter((result) => result.status === 'tendency').map((result) => result.name);
-  const decision = matched.length ? matched.join('、') : basically.length ? `基本是${basically.join('、')}` : '未达明确类型';
-  const companions = [matched.length > 1 ? `兼夹：${matched.join('、')}` : '', tendencies.length ? `倾向：${tendencies.join('、')}` : ''].filter(Boolean).join('；');
+  const namedType = (id: string) => ({ id, name: value.results.find((result) => result.id === id)!.name });
+  const matchedTypes = value.matchedTypes.map(namedType);
+  const tendencyTypes = value.tendencyTypes.map(namedType);
+  const balanced = value.results.find((result) => result.id === 'balanced');
+  const decision = balanced?.status === 'yes' ? balanced.name
+    : balanced?.status === 'basically' ? `基本是${balanced.name}`
+    : matchedTypes.length === 1 ? matchedTypes[0].name
+    : matchedTypes.length > 1 ? '偏颇质兼夹' : '未达明确类型';
   return { questionnaireId: value.questionnaireId, version: value.version, summary: value.summary,
-    decision, companions,
-    boundaryNote: '结果基于近一年自报体验，供医师复核，不等同于诊断或先天禀赋，不能替代四诊与临床评估。',
+    sexLabel: value.sex === 'male' ? '男性版' : '女性版',
+    decision, matchedTypes, tendencyTypes,
+    boundaryNote: value.boundaryNote,
     results: value.results.map((result) => ({
       id: result.id, name: result.name, label: result.label, status: result.status, score: result.score,
       displayScore: result.score.toFixed(1), rawScore: result.rawScore, itemCount: result.itemCount,

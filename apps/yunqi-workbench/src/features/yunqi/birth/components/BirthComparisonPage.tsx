@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
 import { DateField } from '../../../../components/design/DateField';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
+import { PanelView } from '../../../../components/layout/PanelView';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import { useBirthComparison } from '../hooks/useBirthComparison';
@@ -31,6 +32,7 @@ export function BirthComparisonPage() {
   const [comparisonRevision, setComparisonRevision] = useState(0);
   const [formExpanded, setFormExpanded] = useState(false);
   const collapsed = result !== undefined && !formExpanded;
+  const formId = useId();
 
   useEffect(() => {
     if (formExpanded) dateInput.current?.focus();
@@ -83,13 +85,16 @@ export function BirthComparisonPage() {
   return (
     <div className={reading ? 'birth-page birth-page--reading' : 'birth-page'}>
       {result ? <PanelSummary viewModel={result.summary} /> : null}
+      {!reading && !collapsed ? <PanelView actions={<div className="birth-actions">
+        <Button type="submit" form={formId} disabled={mutation.isPending}>{mutation.isPending ? '正在对照…' : '查看对照'}</Button>
+      </div>} /> : null}
       <div className="birth-view" hidden={reading}>
         <h2 className="visually-hidden">出生运气对照</h2>
         {collapsed ? <div className="birth-input-summary" role="group" aria-label="出生资料摘要">
           <span>{birthDate} · {knowsTime ? birthTime.slice(0, 5) : '时刻不详'} · </span>
           <Button variant="text" onClick={() => setFormExpanded(true)}>修改</Button>
           <Button variant="text" onClick={clear}>清空本次资料</Button>
-        </div> : <form className="birth-input" onSubmit={submit} aria-label="出生运气输入" aria-busy={mutation.isPending}>
+        </div> : <form id={formId} className="birth-input" onSubmit={submit} aria-label="出生运气输入" aria-busy={mutation.isPending}>
           <fieldset disabled={mutation.isPending}>
             <legend className="visually-hidden">出生资料</legend>
             <div className="birth-input__fields">
@@ -109,7 +114,6 @@ export function BirthComparisonPage() {
             </div>
             <p id="birth-input-note" className="birth-note">手动填写，按北京时间 UTC+08 展示；时刻不详时保留当天所有可能归属。</p>
             <div className="birth-input__actions">
-              <Button type="submit">{mutation.isPending ? '正在对照…' : '查看出生与当前运气'}</Button>
               <Button variant="text" onClick={clear}>清空本次资料</Button>
             </div>
           </fieldset>
@@ -146,7 +150,7 @@ export function BirthComparisonPage() {
               </div>)}
               <p className="birth-notice">{BIRTH_NOTICE}</p>
             </section>
-            <BirthAssessmentSession key={comparisonRevision} comparison={result.comparison} />
+            <BirthAssessmentSession key={comparisonRevision} comparison={result.comparison} actionsEnabled={collapsed && !reading} />
             <details className="birth-technical">
               <summary>计算说明与版本</summary>
               <h3 className="birth-label">当下快照</h3>
