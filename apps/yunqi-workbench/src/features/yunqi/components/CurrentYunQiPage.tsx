@@ -1,4 +1,6 @@
 import { Link } from 'react-router-dom';
+import { PanelSummary } from '../../../components/layout/PanelSummary';
+import { mapPanelSummary } from '../presentation/panel-summary';
 import type { LearningViewModel } from '../presentation/map-learning';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
@@ -20,6 +22,7 @@ export function CurrentYunQiPage({
 }: CurrentYunQiPageProps) {
   return (
     <div className="current-yunqi-page">
+      <PanelSummary viewModel={mapPanelSummary(viewModel.summary, { step: viewModel.currentStep, relation: learning.currentQi })} />
       <header className="current-yunqi-hero">
         <div>
           <h2>当前五运六气</h2>

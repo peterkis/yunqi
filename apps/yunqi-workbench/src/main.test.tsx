@@ -15,7 +15,7 @@ describe('application bootstrap', () => {
     });
 
     expect(
-      screen.getByRole('heading', { name: 'TCM YunQi Lab' }),
+      screen.getByRole('heading', { name: '运气通' }),
     ).toBeInTheDocument();
   });
 });

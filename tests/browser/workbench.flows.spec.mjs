@@ -3,7 +3,7 @@ import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   await loadCurrent(page);
   await expect(page.locator('.current-yunqi-hero time')).toHaveText('2024-01-20 22:07:22');
-  await expect(page.getByRole('link', { name: '当前五运六气', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
   await expect(page.locator('.annual-disclosure')).not.toHaveAttribute('open');
   await expect(page.locator('.timeline-item__toggle').first()).toBeHidden();
   await page.locator('.annual-disclosure > summary').click();
@@ -21,8 +21,9 @@ test('current route redirects, renders canonical time and closes every stage dis
     await toggle.press('Enter');
     await expect(details).toBeHidden();
   }
-  const lastRailButton = page.getByRole('navigation', { name: '六气年度六阶段概览' }).getByRole('button').last();
-  await lastRailButton.click();
+  // A 400px panel uses the disclosure controls; the wide demo rail is hidden.
+  await expect(page.getByRole('navigation', { name: '六气年度六阶段概览' })).toBeHidden();
+  await toggles.last().click();
   await expect(toggles.last()).toHaveAttribute('aria-expanded', 'true');
   await settle(page);
   expect(diagnostics.requests).toHaveLength(1);
@@ -31,7 +32,8 @@ test('current route redirects, renders canonical time and closes every stage dis
 
 test('annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop', async ({ page, diagnostics }, testInfo) => {
   await loadCurrent(page);
-  await page.getByRole('link', { name: '年度分析', exact: true }).click();
+  // C3/C6 add the new entry points; the annual entry already supports direct URLs.
+  await page.goto('/yunqi/year');
   await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
   await settle(page);
   expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(0);
@@ -47,7 +49,8 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
     { exact: true },
   )).toBeVisible();
   await expect(page).toHaveURL(/\/yunqi\/year\/2024$/);
-  await expect(page.getByRole('link', { name: '年度分析', exact: true })).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('navigation', { name: '工作台导航' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: '页面导航' }).getByRole('heading', { name: '年度分析', exact: true })).toBeVisible();
 
   const radios = page.getByRole('radio');
   await expect(radios).toHaveCount(6);
@@ -104,7 +107,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   await expect(page.locator('.summary-grid')).toContainText('2025');
   await settle(page);
   expect(annualRequests()).toHaveLength(beforeReload + 1);
-  await page.getByRole('link', { name: '当前五运六气', exact: true }).click();
+  await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.locator('.current-yunqi-hero time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
 });
 
@@ -274,13 +277,14 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   await expect(page.getByRole('heading', { name: '问诊结构化入口', exact: true })).toBeVisible();
   await expect(page.getByRole('article')).toHaveCount(3);
   await expect(page.getByRole('article').getByText('规划中', { exact: true })).toHaveCount(3);
-  await expect(page.getByRole('navigation', { name: '工作台导航' }).getByRole('link', { name: /问诊.*规划中/ })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: '工作台导航' })).toHaveCount(0);
+  await expect(page.getByRole('region', { name: '页面导航' }).getByRole('heading', { name: '问诊规划' })).toBeVisible();
   await expect(page.getByRole('main').locator('button, input, select, textarea, a, [tabindex]')).toHaveCount(0);
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
   for (const child of ['patient', 'history', 'new']) {
     await page.goto(`/yunqi/inquiry/${child}`);
-    await expect(page.getByRole('heading', { name: '页面未找到', exact: true })).toBeVisible();
+    await expect(page.getByRole('main').getByRole('heading', { name: '页面未找到', exact: true })).toBeVisible();
     await settle(page);
     expect(diagnostics.requests).toHaveLength(0);
   }

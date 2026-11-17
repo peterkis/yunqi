@@ -23,7 +23,7 @@ Contracts/Client公共包入口是允许边界，不允许改为内部文件路�
 | QueryProvider | 拥有QueryClient |
 | YunQiClientProvider | 创建/注入YunQiClient和transport |
 | feature query/hook | 使用注入client与Client query options获取数据 |
-| AppRoutes/Router/Navigation | URL匹配、页面、导航、重定向、历史恢复 |
+| AppRoutes/Router/PanelShell | URL匹配、页面、分段/下钻导航、重定向、历史恢复 |
 | presentation mapper | 纯DTO转换；不依赖React Router、TanStack Query或Client |
 | component/Page | 接收状态和展示模型，呈现与局部交互；冻结DTO在presentation mapper转换 |
 
@@ -45,25 +45,32 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
   `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
 - [统一约束](../design/design-system/2-constraints.md)中的视觉、交互、文案、医疗安全和可访问性条目均为硬约束。
 - 设计中的HIS患者信息、“复制结论到病历”和宿主停靠超出当前授权，处理方式见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
-- 下方路由表描述重构前实现；原型未覆盖的路由去留由重构计划决定，确定后同步更新本页。
+- 公共骨架已由 `PanelShell` 承载；视图内部按重构卡逐步迁移，保留未迁移内容的现有行为。
 
 ## 当前导航和状态
 
-| 路径 | 行为 |
-| --- | --- |
-| / | replace重定向到/yunqi/current |
-| /yunqi/current | 当前规则状态 |
-| /yunqi/year | 年度入口，零年度查询 |
-| /yunqi/year/:year | URL驱动指定运气年分析 |
-| /yunqi/calculate | E1指定时点，仅用户提交后查询 |
-| /yunqi/inquiry | 只读规划入口，零业务查询 |
-| /yunqi/birth | 用户提交公历生日与可选时刻后对照；不持久化 |
-| /yunqi/constitution | 现行标准量表，完整作答后评分，与当前时气并列 |
+| 路径 | 导航与返回 | 行为 |
+| --- | --- | --- |
+| / | replace到/yunqi/current | 默认入口 |
+| /yunqi/current | 分段：当下运气 | 当前规则状态 |
+| /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
+| /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
+| /yunqi/year | 下钻：年度分析；返回/yunqi/current | 年度入口，零年度查询 |
+| /yunqi/year/:year | 下钻：年度分析；返回/yunqi/current | URL驱动指定运气年分析 |
+| /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | E1指定时点，仅用户提交后查询 |
+| /yunqi/inquiry | 下钻：问诊规划；返回/yunqi/current | 只读规划入口，零业务查询；不放入分段导航 |
+| 其他路径 | 下钻：页面未找到；返回/yunqi/current | 不发业务查询 |
 
-年份是URL导航状态，阶段选择是页面局部状态；年度子路径继续激活年度导航。
+导航模型及固定返回目标由 `src/app/routes.ts` 定义；直接打开下钻页也能返回，不依赖浏览器历史。
+分段切换后焦点进入内容区；同一年度区域内改年份保留控件焦点。
+收起状态只在 `PanelShell` 的页面内存中，展开恢复收起按钮焦点；不写URL或浏览器存储。
+胶囊只接收当前视图已加载的ViewModel：当下/量表使用当前快照，出生使用本次响应的current快照，
+年度/指定时点使用所选年度摘要；空闲、无结果或已隐藏的结果不补查、不借用其他路由的缓存。
+
+年份是URL导航状态，阶段选择是页面局部状态；年度入口与子路径共用下钻标题。
 当前范围1900–2100，列表、校验和提示使用
 [共享年份范围](../../apps/yunqi-workbench/src/lib/yunqi-year-range.ts)。
-“enabled”只表示入口可访问，不代表问诊业务上线。不得自动新增问诊子路由。
+问诊规划入口可访问不代表问诊业务上线。不得自动新增问诊子路由。
 
 2026-11-16新增两个独立入口及当前教学复合查询已获用户授权，见[实施计划](../plans/2026-11-16-clinician-feedback.md)。
 组件不导入DTO或计分规则；时间、解释和结果经纯presentation投影。出生与答案只保留会话态，

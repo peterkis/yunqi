@@ -1,0 +1,162 @@
+/* Layout: docs/design/design-system/1-layout.md. All dimensions use design tokens. */
+.panel-shell,
+.panel-pill {
+  /* Source: 1-layout.md and prototype boards 1/6, fine surface border: 1px. */
+  --panel-hairline: 1px;
+}
+
+.panel-viewport {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  min-height: 100dvh;
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.panel-shell {
+  position: relative;
+  z-index: var(--z-panel);
+  container: workbench / inline-size;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  width: var(--panel-width);
+  max-width: 100%;
+  height: 100dvh;
+  min-height: var(--panel-min-height);
+  background: var(--surface-page);
+  box-shadow: var(--shadow-dock);
+}
+
+.panel-shell[hidden] { display: none; }
+.panel-shell > .ds-panel-header,
+.panel-shell__navigation,
+.panel-shell__footer,
+.panel-shell__actions { flex: none; }
+
+.panel-shell__navigation {
+  padding: var(--space-3) var(--space-4) 0;
+}
+
+.panel-shell__drilldown { margin: 0; }
+.panel-shell__drilldown .ds-panel-header { padding: 0; }
+
+.panel-shell__content {
+  /* Keep absolute accessibility descriptions inside this scrolling block. */
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+  overflow-wrap: anywhere;
+}
+
+.panel-shell__actions {
+  padding: var(--space-3) var(--space-4);
+}
+
+.panel-shell__footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--footer-height);
+  padding-inline: var(--space-4);
+  border-top: var(--panel-hairline) solid var(--border-default);
+  color: var(--ink-tertiary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-meta-weight);
+}
+
+.panel-shell__skip-link {
+  position: absolute;
+  inset-block-start: var(--space-2);
+  inset-inline-start: var(--space-4);
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+}
+
+.panel-shell__skip-link:focus {
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  color: var(--accent);
+  /* The skip link precedes the header in DOM and needs no additional z layer. */
+  z-index: var(--z-panel);
+}
+
+.panel-shell :focus-visible,
+.panel-pill:focus-visible {
+  outline: var(--space-0_5) solid var(--focus-ring);
+  outline-offset: var(--space-0_5);
+}
+
+.panel-pill {
+  position: relative;
+  z-index: var(--z-pill);
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-2);
+  width: var(--panel-width);
+  max-width: 100%;
+  height: var(--pill-height);
+  padding: 0 var(--space-3);
+  border: var(--panel-hairline) solid var(--border-default);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-float);
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  cursor: pointer;
+  text-align: left;
+}
+
+.panel-pill__ganzhi {
+  flex: none;
+  color: var(--ink-primary);
+  font-family: var(--font-serif);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.panel-pill__text { flex: 1; min-width: 0; }
+.panel-pill__annual {
+  display: block;
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-body-strong-weight);
+}
+
+.panel-pill__stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--ink-secondary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+}
+
+.panel-pill__expand-icon {
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--space-0_5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}

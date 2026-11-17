@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 describe('InquiryEntryPage responsive layout', () => {
-  it('uses a bounded three-column capability grid with a mobile single-column fallback', () => {
+  it('retains its bounded grid and selects one column by panel width', () => {
     const stylesheet = readFileSync('src/styles/global.css', 'utf8');
     const pageDeclarations = stylesheet.match(
       /\.inquiry-entry-page\s*\{([^}]*)\}/s,
@@ -11,7 +11,7 @@ describe('InquiryEntryPage responsive layout', () => {
       /\.inquiry-capability-grid\s*\{([^}]*)\}/s,
     )?.[1];
     const mobileBlock = stylesheet.match(
-      /@media \(max-width: 46rem\)\s*\{([\s\S]*)\}\s*@media \(prefers-reduced-motion/s,
+      /@container workbench \(max-width: 46rem\)\s*\{([\s\S]*)\}\s*@media \(prefers-reduced-motion/s,
     )?.[1];
 
     expect(pageDeclarations).toContain('min-width: 0;');

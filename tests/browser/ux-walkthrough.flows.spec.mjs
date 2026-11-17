@@ -54,19 +54,23 @@ test('mobile stage selection keeps all six choices beside nearby detail and pres
   await screenshot(page, testInfo, 'mobile-stage-comparison');
 });
 
-test('sticky navigation, skip link and technical disclosure support keyboard recovery', async ({ page }, testInfo) => {
+test('panel navigation, skip link and result traceability support keyboard recovery', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/yunqi/year/2024');
   await page.getByRole('region', { name: '追溯信息', exact: true }).scrollIntoViewIfNeeded();
-  await page.getByRole('link', { name: '指定时点', exact: true }).click();
+  await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('main')).toBeFocused();
-  await expect(page.getByRole('heading', { name: '指定时点分析', exact: true })).toBeInViewport();
+  await expect(page.getByRole('heading', { name: '当前五运六气', exact: true })).toBeInViewport();
+  await page.getByRole('link', { name: '先天对照', exact: true }).click();
+  await expect(page.getByRole('main')).toBeFocused();
+  await expect(page.getByRole('heading', { name: '出生运气对照', exact: true })).toBeInViewport();
   await page.reload();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: '跳至主要内容' })).toBeFocused();
   await page.keyboard.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
-  const disclosure = page.locator('.contract-disclosure');
+  await page.getByRole('link', { name: '当下运气', exact: true }).click();
+  const disclosure = page.locator('.workbench-disclosure').filter({ has: page.getByText('计算说明与版本', { exact: true }) });
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(disclosure.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();

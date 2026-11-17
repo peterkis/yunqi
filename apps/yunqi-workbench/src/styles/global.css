@@ -1,7 +1,6 @@
 :root {
   color-scheme: light;
-  font-family:
-    "PingFang SC", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -19,7 +18,7 @@ body,
 }
 
 body {
-  min-width: 20rem;
+  min-width: 0;
 }
 
 button {
@@ -67,91 +66,28 @@ button {
 
 .theme-root {
   color-scheme: light;
-  --paper: #f3eddf;
-  --paper-raised: #faf6ec;
-  --paper-muted: #e7dfcf;
-  --paper-grid: rgb(88 73 49 / 5%);
-  --ink: #211e19;
-  --ink-muted: #625b50;
-  --rule: #b8ad9a;
-  --rule-strong: #766d60;
-  --cinnabar: #a33a2b;
-  --cinnabar-deep: #79281f;
-  --cinnabar-wash: #efe0d8;
-  --on-cinnabar: #fffaf0;
-  --focus: #16667a;
-  background: var(--paper);
-  color: var(--ink);
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
+  /* Temporary aliases for C3-C6 view styles. The new shell uses design tokens directly. */
+  --paper: var(--surface-page);
+  --paper-raised: var(--surface-card);
+  --paper-muted: var(--surface-sunken);
+  --ink: var(--ink-primary);
+  --ink-muted: var(--ink-secondary);
+  --rule: var(--border-default);
+  --rule-strong: var(--border-strong);
+  --cinnabar: var(--accent);
+  --cinnabar-deep: var(--accent-hover);
+  --cinnabar-wash: var(--accent-subtle);
+  --on-cinnabar: var(--accent-on);
+  --focus: var(--focus-ring);
+  background: var(--surface-card);
+  color: var(--ink-primary);
 }
 
 .theme-root[data-theme="dark"] {
   color-scheme: dark;
-  --paper: #181714;
-  --paper-raised: #22201c;
-  --paper-muted: #2d2a24;
-  --paper-grid: rgb(238 224 197 / 3.5%);
-  --ink: #eee6d6;
-  --ink-muted: #bcb2a1;
-  --rule: #514b41;
-  --rule-strong: #8d8374;
-  --cinnabar: #db7967;
-  --cinnabar-deep: #ef9a89;
-  --cinnabar-wash: #3b2924;
-  --on-cinnabar: #181714;
-  --focus: #70c2d1;
 }
 
-.app-shell {
-  width: min(100%, 96rem);
-  min-height: 100vh;
-  margin-inline: auto;
-  border-inline: 1px solid var(--rule);
-  background-color: var(--paper-raised);
-  animation: shell-enter 280ms ease-out both;
-}
-
-.product-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 2rem;
-  min-height: 5rem;
-  padding: 0.8rem clamp(1.25rem, 3vw, 2rem);
-  border-bottom: 1px solid var(--rule-strong);
-}
-
-.product-lockup,
-.header-status,
-.theme-toggle,
-.contract-panel,
-.safety-note {
-  display: flex;
-  align-items: center;
-}
-
-.product-lockup {
-  gap: 1rem;
-}
-
-.product-seal {
-  display: grid;
-  width: 3rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid var(--cinnabar);
-  color: var(--cinnabar);
-  font-family: "STKaiti", "KaiTi", serif;
-  font-size: 1.45rem;
-}
-
-.product-kicker,
-.section-label,
-.navigation-eyebrow,
-.navigation-note,
-.foundation-status {
+.section-label {
   margin: 0;
   color: var(--ink-muted);
   font-size: 0.72rem;
@@ -159,198 +95,8 @@ button {
   text-transform: uppercase;
 }
 
-.product-name {
-  margin: 0.28rem 0 0;
-  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(1.45rem, 2.5vw, 2.2rem);
-  font-weight: 600;
-  letter-spacing: 0.025em;
-}
-
-.header-status {
-  gap: 1.25rem;
-}
-
-.foundation-status {
-  color: var(--cinnabar);
-}
-
-.theme-toggle {
-  gap: 0.55rem;
-  min-height: 2.75rem;
-  padding: 0.55rem 0.85rem;
-  border: 1px solid var(--rule-strong);
-  background: transparent;
-  color: var(--ink);
-  cursor: pointer;
-  transition:
-    border-color 160ms ease,
-    color 160ms ease,
-    background-color 160ms ease;
-}
-
-.theme-toggle:hover {
-  border-color: var(--cinnabar);
-  color: var(--cinnabar-deep);
-}
-
-.theme-toggle:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 3px;
-}
-
-.theme-toggle > svg {
-  flex: 0 0 auto;
-  color: var(--cinnabar);
-}
-
-.shell-body {
-  display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
-  min-height: calc(100vh - 5rem);
-}
-
-.workbench-navigation {
-  position: sticky;
-  top: 0;
-  align-self: start;
-  min-height: calc(100vh - 5rem);
-  display: flex;
-  flex-direction: column;
-  padding: 1.5rem 1rem;
-  border-right: 1px solid var(--rule);
-  background: var(--paper-muted);
-}
-
-.navigation-list {
-  display: grid;
-  gap: 0;
-  margin: 1.5rem 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--rule);
-}
-
-.navigation-item {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  min-height: 3.5rem;
-  border-bottom: 1px solid var(--rule);
-  color: var(--ink);
-  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1rem;
-}
-
-.navigation-item.is-active {
-  color: var(--cinnabar-deep);
-  font-weight: 700;
-}
-
-.navigation-item.is-placeholder {
-  color: var(--ink-muted);
-}
-
-.navigation-mark {
-  display: grid;
-  width: 1.65rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid currentColor;
-  font-size: 0.65rem;
-}
-
-.navigation-note {
-  margin-top: auto;
-  line-height: 1.7;
-}
-
-.workbench-main {
-  min-width: 0;
-  scroll-margin-top: 1rem;
-  padding: 2rem clamp(1rem, 3vw, 2.5rem);
-}
-
-.foundation-intro {
-  max-width: 51rem;
-}
-
-.foundation-intro h2 {
-  max-width: 12ch;
-  margin: 0.7rem 0 1.25rem;
-  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(2.5rem, 7vw, 5.6rem);
-  font-weight: 500;
-  line-height: 1.04;
-  letter-spacing: -0.045em;
-}
-
 .section-label {
   color: var(--cinnabar);
-}
-
-.foundation-summary {
-  max-width: 44rem;
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: clamp(1rem, 1.8vw, 1.2rem);
-  line-height: 1.9;
-}
-
-.contract-panel {
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 3rem;
-  margin-top: clamp(3rem, 8vw, 7rem);
-  padding: 1.5rem 0;
-  border-block: 1px solid var(--rule-strong);
-}
-
-.contract-panel h3 {
-  margin: 0.45rem 0 0;
-  font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.45rem;
-  font-weight: 600;
-}
-
-.contract-detail {
-  width: min(100%, 31rem);
-}
-
-.contract-detail code {
-  color: var(--cinnabar-deep);
-  font-family: "Cascadia Mono", "SFMono-Regular", Consolas, monospace;
-  font-size: 0.88rem;
-}
-
-.contract-detail p {
-  margin: 0.7rem 0 0;
-  color: var(--ink-muted);
-  line-height: 1.75;
-}
-
-.safety-note {
-  align-items: flex-start;
-  gap: 1rem;
-  max-width: 45rem;
-  margin-top: 2rem;
-}
-
-.safety-note > span {
-  display: grid;
-  flex: 0 0 2rem;
-  aspect-ratio: 1;
-  place-items: center;
-  border: 1px solid var(--cinnabar);
-  color: var(--cinnabar);
-  font-family: "STKaiti", "KaiTi", serif;
-}
-
-.safety-note p {
-  margin: 0;
-  color: var(--ink-muted);
-  font-size: 0.9rem;
-  line-height: 1.8;
 }
 
 .current-yunqi-page {
@@ -491,44 +237,6 @@ button {
   min-height: 2.75rem;
   color: var(--cinnabar-deep);
   text-underline-offset: 0.2em;
-}
-
-.navigation-status {
-  margin-left: auto;
-  color: var(--ink-muted);
-  font-family: inherit;
-  font-size: 0.75rem;
-  font-weight: 400;
-}
-
-.contract-disclosure {
-  border-block: 1px solid var(--rule);
-  color: var(--ink-muted);
-  font-size: 0.85rem;
-}
-
-.contract-disclosure summary {
-  padding-block: 0.85rem;
-  cursor: pointer;
-}
-
-.contract-disclosure .contract-detail {
-  padding: 0.5rem 0 1rem;
-}
-
-.skip-link {
-  position: absolute;
-  top: 0.5rem;
-  left: 1rem;
-  z-index: 20;
-  padding: 0.75rem 1rem;
-  transform: translateY(-200%);
-  background: var(--paper-raised);
-  color: var(--ink);
-}
-
-.skip-link:focus {
-  transform: none;
 }
 
 a:focus-visible,
@@ -765,15 +473,6 @@ input {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.04em;
-}
-
-.workbench-footer {
-  max-width: 74rem;
-  margin: 2rem auto 0;
-}
-
-.workbench-footer .contract-panel {
-  margin-top: 0;
 }
 
 .current-yunqi-hero {
@@ -1598,19 +1297,7 @@ input {
   padding: 0.5rem 0.8rem;
 }
 
-@keyframes shell-enter {
-  from {
-    opacity: 0;
-    transform: translateY(0.4rem);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (min-width: 46.01rem) and (max-width: 85rem) {
+@container workbench (min-width: 46.01rem) and (max-width: 85rem) {
   .current-yunqi-hero,
   .ui-panel__header {
     grid-template-columns: 1fr;
@@ -1635,7 +1322,7 @@ input {
   }
 }
 
-@media (min-width: 46.01rem) and (max-width: 64rem) {
+@container workbench (min-width: 46.01rem) and (max-width: 64rem) {
   .current-yunqi-hero,
   .ui-panel__header,
   .current-step__grid,
@@ -1665,111 +1352,7 @@ input {
   }
 }
 
-@media (max-width: 46rem) {
-  .app-shell {
-    border-inline: 0;
-  }
-
-  .product-header,
-  .contract-panel {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .product-header {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-  }
-
-  .product-lockup {
-    gap: 0.5rem;
-  }
-
-  .product-seal {
-    width: 2rem;
-  }
-
-  .product-name {
-    font-size: 1.25rem;
-  }
-
-  .product-kicker {
-    font-size: 0.6rem;
-    letter-spacing: 0;
-  }
-
-  .foundation-status {
-    display: none;
-  }
-
-  .header-status {
-    flex-shrink: 0;
-  }
-
-  .theme-toggle {
-    padding-inline: 0.5rem;
-  }
-
-  .shell-body {
-    grid-template-columns: 1fr;
-  }
-
-  .workbench-navigation {
-    min-height: 0;
-    padding: 0.35rem 0.5rem;
-    z-index: 5;
-    border-right: 0;
-    border-bottom: 1px solid var(--rule);
-  }
-
-  .navigation-list {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    margin: 0;
-    border: 0;
-  }
-
-  .navigation-item {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 0.2rem;
-    min-height: 3.5rem;
-    padding: 0.35rem;
-    border: 0;
-    font-size: 0.85rem;
-    text-align: center;
-    text-decoration: none;
-  }
-
-  .navigation-item.is-active {
-    background: var(--cinnabar-wash);
-    box-shadow: inset 0 -2px var(--cinnabar);
-  }
-
-  .navigation-status {
-    margin: 0;
-    font-size: 0.65rem;
-  }
-
-  .navigation-mark,
-  .navigation-eyebrow {
-    display: none;
-  }
-
-  .navigation-note {
-    display: none;
-  }
-
-  .workbench-main {
-    padding: 1.5rem 1rem;
-    scroll-margin-top: 5rem;
-  }
-
-  .contract-panel {
-    gap: 1.5rem;
-  }
+@container workbench (max-width: 46rem) {
 
   .current-yunqi-hero,
   .ui-panel__header,
@@ -2619,7 +2202,7 @@ input {
   font-size: 0.75rem;
 }
 
-@media (max-width: 75rem) {
+@container workbench (max-width: 75rem) {
   .constitution-layout {
     grid-template-columns: 1fr;
   }
@@ -2638,7 +2221,7 @@ input {
   }
 }
 
-@media (max-width: 64rem) {
+@container workbench (max-width: 64rem) {
   .current-stage-pair,
   .learning-relations,
   .classical-pair,
@@ -2647,17 +2230,8 @@ input {
   }
 }
 
-@media (max-width: 46rem) {
-  .navigation-list {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
+@container workbench (max-width: 46rem) {
 
-  .navigation-item {
-    min-height: 2.75rem;
-    font-size: 0.8rem;
-  }
-
-  .workbench-main,
   .question-group-heading,
   .birth-assessment-heading {
     scroll-margin-top: 7.5rem;

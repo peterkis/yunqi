@@ -7,9 +7,8 @@ React Workbench for TCM YunQi Lab.
 > panel with three segments (当下运气 / 先天对照 / 体质量表), drill-down pages
 > and a collapsed pill. The pre-refactor page layouts, styles and screenshots
 > are demos and must not be reused as a design reference or acceptance
-> baseline. The routes, data flow, time and medical boundaries below describe
-> the current implementation and stay in force unless the refactor plan
-> changes them.
+> baseline. `PanelShell` now provides this shared frame. View interiors migrate
+> in C3–C6; their existing data flow, time and medical boundaries stay in force.
 
 The 2026-11-16 doctor-feedback release adds progressive disclosure, sourced classical excerpts, birth/current comparison,
 and constitution self-assessment to the existing annual and specified-time
@@ -21,17 +20,40 @@ prescribe, or provide treatment decisions.
 
 The Workbench uses declarative React Router routes:
 
-| Route | Meaning | Request behavior |
+| Route | Navigation | Request behavior |
 |---|---|---|
 | `/` | Entry redirect | Replaces the URL with `/yunqi/current` |
-| `/yunqi/current` | Annual context, current movement/Qi, concise relations and excerpts | Calls the composite learning-current endpoint; refreshes visible current context every minute |
-| `/yunqi/birth` | Birth background beside current YunQi | Submit-only comparison; optional known birth time |
-| `/yunqi/constitution` | Versioned constitution questionnaire beside current context | GET questionnaire/current context; assessment POST only after complete explicit submission |
-| `/yunqi/year` | Annual-analysis entry and year selector | Makes no annual request |
-| `/yunqi/year/:year` | Annual structure for one validated year | Calls the annual endpoint only after strict URL validation |
-| `/yunqi/calculate` | Specified-time rule analysis | Makes one calculate request only after an explicit valid submit |
-| `/yunqi/inquiry` | Inquiry structure planning entry | Makes no YunQi, Patient, or Inquiry request |
-| any other path | Workbench not-found page | Makes no YunQi request |
+| `/yunqi/current` | 当下运气 segment | Calls the composite learning-current endpoint; refreshes current context every minute |
+| `/yunqi/birth` | 先天对照 segment | Submit-only comparison; optional known birth time |
+| `/yunqi/constitution` | 体质量表 segment | GET questionnaire/current context; assessment POST only after complete explicit submission |
+| `/yunqi/year` | 年度分析 drill-down; return to `/yunqi/current` | Makes no annual request |
+| `/yunqi/year/:year` | 年度分析 drill-down; return to `/yunqi/current` | Calls the annual endpoint only after strict URL validation |
+| `/yunqi/calculate` | 指定时点 drill-down; return to `/yunqi/current` | Makes one calculate request only after an explicit valid submit |
+| `/yunqi/inquiry` | 问诊规划 drill-down; return to `/yunqi/current` | Makes no YunQi, Patient, or Inquiry request; absent from segments |
+| any other path | Not-found drill-down; return to `/yunqi/current` | Makes no YunQi request |
+
+`src/app/routes.ts` owns segment labels, route titles and deterministic return
+targets. Returning works even when a drill-down was opened directly. Changing
+segments focuses the content region and resets its scroll; changes within the
+annual area retain the year control's focus and browser-history behavior.
+Annual and specified-time routes retain their existing interiors; C3/C6 add
+their new entry points.
+
+The browser frame docks a 400px panel on the right, with a 52px header, segment
+navigation (or drill-down heading), one scrolling content region, an optional
+action slot and a 36px teaching disclaimer footer. Narrower viewports fit the
+panel to their width. Existing view breakpoints respond to the panel container
+width. This is browser layout only; it does not control a host window.
+
+Collapse produces a 400 × 64 button. Enter, Space or a click expands it;
+collapse focuses the pill and expansion returns focus to the collapse trigger.
+The mounted route retains its draft and scroll. Collapse state remains in page
+memory, outside the URL and browser storage, and resets on reload.
+The pill receives only an already loaded ViewModel: current context for the
+current/questionnaire views, the response's current snapshot for birth
+comparison, and the selected annual summary for annual/specified-time results.
+Idle, edited, loading or failed results show a neutral placeholder instead of
+fetching another summary or reusing a different route's snapshot.
 
 Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without

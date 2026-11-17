@@ -1,7 +1,7 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import type { ComponentPropsWithRef, ReactNode } from 'react';
 
 type ButtonAttributes = Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
+  ComponentPropsWithRef<'button'>,
   'children' | 'className' | 'style'
 >;
 

@@ -1,4 +1,6 @@
 import { useState, type FormEvent } from 'react';
+import { PanelSummary } from '../../../../components/layout/PanelSummary';
+import { mapPanelSummary } from '../../presentation/panel-summary';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { ClassicalPassages, LearningSnapshot, RelationHint } from '../../components/LearningPanels';
 import { useBirthComparisonMutation } from '../../hooks/useLearningQueries';
@@ -88,6 +90,7 @@ export function BirthComparisonPage() {
       {mutation.isPending ? <p role="status">正在计算出生与当前运气</p> : null}
       {result ? (
         <section aria-label="出生与当前运气对照结果" className="birth-result">
+          <PanelSummary viewModel={mapPanelSummary(result.current.facts.summary, { step: result.current.facts.currentStep, relation: result.current.currentQi })} />
           <p className={result.ambiguous ? 'boundary-message' : 'form-note'}>{result.message}</p>
           <div className="birth-comparison-grid">
             <div className="birth-candidates">

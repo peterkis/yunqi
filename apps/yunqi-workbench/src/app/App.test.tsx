@@ -36,13 +36,7 @@ describe('App', () => {
       }, { timeout: 5_000 }),
     ).toBeInTheDocument();
     const footer = within(view.container).getByRole('contentinfo');
-    expect(
-      within(footer).getByText('YQ-API-CONTRACT-1.2.0'),
-    ).toBeInTheDocument();
-    expect(
-      within(footer).getByText(
-        /不提供自动诊断、辨证或治疗决策/,
-      ),
-    ).toBeInTheDocument();
+    expect(footer).toHaveTextContent('五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据');
+    expect(within(view.container).getByRole('region', { name: '追溯信息' })).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
   });
 });

@@ -3,6 +3,8 @@ import { AsyncState } from '../../../components/feedback/AsyncState';
 import { LearningSnapshot } from '../../yunqi/components/LearningPanels';
 import { useLearningCurrentQuery } from '../../yunqi/hooks/useLearningQueries';
 import { ConstitutionAssessmentPanel } from '../components/ConstitutionAssessmentPanel';
+import { PanelSummary } from '../../../components/layout/PanelSummary';
+import { mapPanelSummary } from '../../yunqi/presentation/panel-summary';
 
 export function ConstitutionPage() {
   const current = useLearningCurrentQuery();
@@ -16,7 +18,13 @@ export function ConstitutionPage() {
       <div className="constitution-layout">
         <ConstitutionAssessmentPanel />
         <aside className="constitution-current" aria-label="测评时的当前运气">
-          <AsyncState data={current.data} error={current.error} isPending={current.isPending} loadingMessage="正在加载当前运气" errorMessage="当前运气暂不可用，不影响量表作答" onRetry={() => { void current.refetch(); }} renderData={(data) => <LearningSnapshot learning={mapLearning(data)} title="当前运气参考" />} />
+          <AsyncState data={current.data} error={current.error} isPending={current.isPending} loadingMessage="正在加载当前运气" errorMessage="当前运气暂不可用，不影响量表作答" onRetry={() => { void current.refetch(); }} renderData={(data) => {
+            const learning = mapLearning(data);
+            return <>
+              <PanelSummary viewModel={mapPanelSummary(learning.facts.summary, { step: learning.facts.currentStep, relation: learning.currentQi })} />
+              <LearningSnapshot learning={learning} title="当前运气参考" />
+            </>;
+          }} />
           <p className="learning-boundary">量表计分独立于运气计算，不用生日或当前时气修改体质得分。</p>
         </aside>
       </div>

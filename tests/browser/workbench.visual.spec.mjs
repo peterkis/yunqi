@@ -1,5 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', ready: '年度概览' },
@@ -19,7 +19,7 @@ const cases = [
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme }, testInfo) => {
     await page.goto(state.path);
-    await expect(page.getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
     if (state.calculate) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
@@ -42,6 +42,7 @@ for (const state of cases) {
       await expect(page.getByRole('button', { name: '切换至浅色主题', exact: true })).toBeVisible();
     }
     await settle(page);
+    await expectPanelLayout(page);
     await screenshot(page, testInfo, state.name);
 
     const layout = await page.evaluate(() => {

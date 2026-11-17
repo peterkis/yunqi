@@ -36,13 +36,13 @@ describe('local design assets and stylesheet entry', () => {
     expect(preloads[0].hasAttribute('crossorigin')).toBe(true);
   });
 
-  it('loads fonts and tokens before demo styles, without changing the demo font stack', () => {
+  it('loads local fonts and tokens before view styles, then applies the panel styles', () => {
     const main = readFileSync('src/main.tsx', 'utf8');
     expect(main.indexOf("import './styles/fonts.css'")).toBeLessThan(main.indexOf("import './styles/global.css'"));
     expect(main.indexOf("import './styles/tokens.css'")).toBeLessThan(main.indexOf("import './styles/global.css'"));
     expect(main).toContain("import './styles/design-components.css'");
     const css = readFileSync('src/styles/global.css', 'utf8');
-    expect(css).not.toContain('var(--font-sans)');
-    expect(css).not.toContain('var(--font-serif)');
+    expect(css.match(/:root\s*\{([^}]+)\}/s)?.[1]).toContain('font-family: var(--font-sans);');
+    expect(main.indexOf("import './styles/panel-shell.css'")).toBeGreaterThan(main.indexOf("import './styles/design-components.css'"));
   });
 });

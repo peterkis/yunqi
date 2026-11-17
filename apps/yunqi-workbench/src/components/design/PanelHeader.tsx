@@ -17,7 +17,7 @@ export function PanelHeader(props: PanelHeaderProps) {
   const secondaryLine = props.variant === 'drilldown' ? props.subtitle : props.status;
 
   return (
-    <header className="ds-panel-header">
+    <header className="ds-panel-header" role={props.variant === 'drilldown' ? 'presentation' : undefined}>
       {props.variant === 'drilldown' ? (
         <Button variant="text" onClick={props.onBack}>
           <svg className="ds-panel-header__back-icon" viewBox="0 0 16 16" aria-hidden="true">

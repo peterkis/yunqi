@@ -28,6 +28,7 @@ describe('PanelHeader', () => {
     const onBack = vi.fn();
     render(<PanelHeader variant="drilldown" title="原文与释义" subtitle="当下阶段" onBack={onBack} />);
     expect(screen.queryByText('运')).not.toBeInTheDocument();
+    expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
     expect(screen.getByText('当下阶段')).toBeVisible();
     await user.tab();

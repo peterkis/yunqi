@@ -72,3 +72,38 @@ export async function loadCurrent(page) {
     'datetime', '2024-01-20T22:07:22+08:00',
   );
 }
+
+export async function expectPanelLayout(page) {
+  const layout = await page.evaluate(() => {
+    const panel = document.querySelector('.panel-shell');
+    const main = panel.querySelector('main');
+    const rect = element => {
+      const { x, y, width, height, right, bottom } = element.getBoundingClientRect();
+      return { x, y, width, height, right, bottom };
+    };
+    return {
+      viewport: { width: innerWidth, height: innerHeight },
+      panel: rect(panel), header: rect(panel.querySelector(':scope > header')),
+      navigation: rect(panel.querySelector('.panel-shell__navigation')),
+      main: rect(main), footer: rect(panel.querySelector('footer')),
+      mainClientWidth: main.clientWidth, mainScrollWidth: main.scrollWidth,
+      overflowY: getComputedStyle(main).overflowY,
+      documentWidth: document.documentElement.scrollWidth,
+      documentHeight: document.documentElement.scrollHeight,
+    };
+  });
+  expect(layout.panel.width, 'Panel is 400px, or fits an explicitly narrower viewport').toBe(Math.min(400, layout.viewport.width));
+  expect(layout.panel.right, 'Panel docks on the viewport right edge').toBe(layout.viewport.width);
+  expect(layout.panel.y).toBe(0);
+  expect(layout.panel.height).toBe(Math.max(640, layout.viewport.height));
+  expect(layout.header.height).toBe(52);
+  expect(layout.footer.height).toBe(36);
+  expect(layout.footer.bottom).toBe(layout.panel.bottom);
+  expect(layout.main.y).toBe(layout.navigation.bottom);
+  expect(layout.main.bottom).toBe(layout.footer.y);
+  expect(layout.overflowY).toBe('auto');
+  expect(layout.mainScrollWidth, 'Content does not scroll horizontally').toBeLessThanOrEqual(layout.mainClientWidth + 1);
+  expect(layout.documentWidth).toBeLessThanOrEqual(layout.viewport.width + 1);
+  expect(layout.documentHeight, 'Only panel content scrolls, including on narrow screens').toBe(Math.max(640, layout.viewport.height));
+  return layout;
+}
