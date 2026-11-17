@@ -1,0 +1,305 @@
+{
+  "schema": "yunqi-public-evidence-1",
+  "audit_date": "2026-10-22",
+  "public_copy_date": "2026-11-17",
+  "historical_head": "bbd2a696656afba39b914fe7b4fedeefa03c3be1",
+  "disclosure": "院内原始资料、文字提取与标准 PDF 留在本地；本目录为脱敏公开派生证据。",
+  "transformations": [
+    "路径占位，不更改历史结果",
+    "日志从原件派生，保留失败和跳过",
+    "11 个截图引用映射到 10 个字节去重文件"
+  ],
+  "screenshots": [
+    {
+      "path": "attachments/mobile-stage-comparison.png",
+      "sha256": "3a09ff82fde67f33b4cbef807f203c2a2b743daf077714b9e97e95090340a105",
+      "source_names": [
+        "mobile-stage-comparison"
+      ]
+    },
+    {
+      "path": "attachments/keyboard-technical-disclosure.png",
+      "sha256": "e35b0d2f5e5cc20ff03d6b41e4e1d957e7f4c1e40b6b4e744426ecb44d12b465",
+      "source_names": [
+        "keyboard-technical-disclosure"
+      ]
+    },
+    {
+      "path": "attachments/current-disclosures.png",
+      "sha256": "2e2380f73d86804064070583517553dbbd8c072bcc36aeb10d503a456a0a4c2e",
+      "source_names": [
+        "current-disclosures"
+      ]
+    },
+    {
+      "path": "attachments/annual-six-stage-selection.png",
+      "sha256": "76070d59b74d9bb66836a390eafa54e6b180298641acc1b42940b611ee21894e",
+      "source_names": [
+        "annual-six-stage-selection"
+      ]
+    },
+    {
+      "path": "attachments/annual-upgraded-guest-generates-host.png",
+      "sha256": "7adb3a311c41d2275ce25c483982586b30cacbae492a4f948b260f16e799ad9d",
+      "source_names": [
+        "annual-upgraded-guest-generates-host"
+      ]
+    },
+    {
+      "path": "attachments/annual-invalid-boundary-shared.png",
+      "sha256": "41e8d48281af0fb7244f2b234863089a608916f8f35bb1cbe3d581b181a9b629",
+      "source_names": [
+        "annual-invalid-boundary-1899",
+        "annual-invalid-boundary-2101"
+      ]
+    },
+    {
+      "path": "attachments/calculated-real-api.png",
+      "sha256": "a36dbf3fb33859035fa82622cfdc48d8aad3a054a6926dc7dde7a98534afa2ce",
+      "source_names": [
+        "calculated-real-api"
+      ]
+    },
+    {
+      "path": "attachments/annual-boundary-1900.png",
+      "sha256": "0232e8bafea363c77354292127938beebb2e89ed19471e38b7382ccbe757a52f",
+      "source_names": [
+        "annual-boundary-1900"
+      ]
+    },
+    {
+      "path": "attachments/annual-boundary-2100.png",
+      "sha256": "e3eaf445842f8c107b5c4c1a1a40492330a30d5a4789bbb43000638b07fe7435",
+      "source_names": [
+        "annual-boundary-2100"
+      ]
+    },
+    {
+      "path": "attachments/calculation-error.png",
+      "sha256": "d9cb639ec43c6b40bcc7d6222d71bbe6e5e3de92f80eb7912353f1d6f4cc9a60",
+      "source_names": [
+        "calculation-error"
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "README.md",
+      "bytes": 3640,
+      "sha256": "ca993cd9d5e439d505a6ae9b6acf1da55e4263b66582ed96b8c7c743591d2ae6"
+    },
+    {
+      "path": "attachments/annual-boundary-1900.png",
+      "bytes": 149463,
+      "sha256": "0232e8bafea363c77354292127938beebb2e89ed19471e38b7382ccbe757a52f",
+      "source_sha256": "0232e8bafea363c77354292127938beebb2e89ed19471e38b7382ccbe757a52f",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/annual-boundary-2100.png",
+      "bytes": 149687,
+      "sha256": "e3eaf445842f8c107b5c4c1a1a40492330a30d5a4789bbb43000638b07fe7435",
+      "source_sha256": "e3eaf445842f8c107b5c4c1a1a40492330a30d5a4789bbb43000638b07fe7435",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/annual-invalid-boundary-shared.png",
+      "bytes": 47868,
+      "sha256": "41e8d48281af0fb7244f2b234863089a608916f8f35bb1cbe3d581b181a9b629",
+      "source_sha256": "41e8d48281af0fb7244f2b234863089a608916f8f35bb1cbe3d581b181a9b629",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/annual-six-stage-selection.png",
+      "bytes": 147755,
+      "sha256": "76070d59b74d9bb66836a390eafa54e6b180298641acc1b42940b611ee21894e",
+      "source_sha256": "76070d59b74d9bb66836a390eafa54e6b180298641acc1b42940b611ee21894e",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/annual-upgraded-guest-generates-host.png",
+      "bytes": 149395,
+      "sha256": "7adb3a311c41d2275ce25c483982586b30cacbae492a4f948b260f16e799ad9d",
+      "source_sha256": "7adb3a311c41d2275ce25c483982586b30cacbae492a4f948b260f16e799ad9d",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/calculated-real-api.png",
+      "bytes": 187255,
+      "sha256": "a36dbf3fb33859035fa82622cfdc48d8aad3a054a6926dc7dde7a98534afa2ce",
+      "source_sha256": "a36dbf3fb33859035fa82622cfdc48d8aad3a054a6926dc7dde7a98534afa2ce",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/calculation-error.png",
+      "bytes": 59962,
+      "sha256": "d9cb639ec43c6b40bcc7d6222d71bbe6e5e3de92f80eb7912353f1d6f4cc9a60",
+      "source_sha256": "d9cb639ec43c6b40bcc7d6222d71bbe6e5e3de92f80eb7912353f1d6f4cc9a60",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/current-disclosures.png",
+      "bytes": 218545,
+      "sha256": "2e2380f73d86804064070583517553dbbd8c072bcc36aeb10d503a456a0a4c2e",
+      "source_sha256": "2e2380f73d86804064070583517553dbbd8c072bcc36aeb10d503a456a0a4c2e",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/keyboard-technical-disclosure.png",
+      "bytes": 41610,
+      "sha256": "e35b0d2f5e5cc20ff03d6b41e4e1d957e7f4c1e40b6b4e744426ecb44d12b465",
+      "source_sha256": "e35b0d2f5e5cc20ff03d6b41e4e1d957e7f4c1e40b6b4e744426ecb44d12b465",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "attachments/mobile-stage-comparison.png",
+      "bytes": 126186,
+      "sha256": "3a09ff82fde67f33b4cbef807f203c2a2b743daf077714b9e97e95090340a105",
+      "source_sha256": "3a09ff82fde67f33b4cbef807f203c2a2b743daf077714b9e97e95090340a105",
+      "transformation": "原始截图逐字节复制"
+    },
+    {
+      "path": "browser-environment.json",
+      "bytes": 345,
+      "sha256": "d1da0b3b683da5080dd280b6b6656df476edf36d98737fbb955d570e2d8a04a2",
+      "source_sha256": "f5f1c6d6f9a6151aae078676c628ce797b3c66c59f6aa3aeb3aeeb292b43d6b0",
+      "transformation": "结构化派生副本，路径和未公开源文件哈希占位"
+    },
+    {
+      "path": "browser-results.json",
+      "bytes": 40414,
+      "sha256": "8fa91d21d3ddb4e5118caa874f1517855f3e9957ca20c85fbe171322a1652581",
+      "source_sha256": "1235f2789806ebf3cc82e195a8ae6bff6c293c31034ccd4e987a1673da48a8e4",
+      "transformation": "路径和 Node 可执行文件占位；11 个截图引用指向 10 个去重副本"
+    },
+    {
+      "path": "build-manifest.json",
+      "bytes": 26278,
+      "sha256": "bab1d247d07edb171d3d4f25970130e5b04aef92d4e70be42da2ae70590ba5d9",
+      "source_sha256": "816baa62a7941ef9d4805c41536a6c1ebed68d42cf5935bfb632dd5c9eb82c91",
+      "transformation": "保留产物哈希并指向公开日志副本"
+    },
+    {
+      "path": "http-cleanup.json",
+      "bytes": 60,
+      "sha256": "9e2aa0f795e2248ab57f3b9ff14757e3640c2008a61355c3a44198df57602518",
+      "source_sha256": "9e2aa0f795e2248ab57f3b9ff14757e3640c2008a61355c3a44198df57602518",
+      "transformation": "结构化派生副本，路径和未公开源文件哈希占位"
+    },
+    {
+      "path": "logs/browser-flows.log.txt",
+      "bytes": 3083,
+      "sha256": "804aeb4f35a47eac6fd64dfdd0e3a01eff86c48aed07d2e6472f28498634efab",
+      "source_sha256": "c04a9d61604a912faff81aaee29732b203deae734caac783064ebfde2168777d",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/contracts-check.log.txt",
+      "bytes": 744,
+      "sha256": "6fe4d4bc6c272257848ada989002febd900ba20b6e5406ba2d2c0bf5f45a7d9b",
+      "source_sha256": "b23fae7e7501c3b6685cee6f3f37a15d2a644089e183a8b9c9872aef86ddb85c",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/full-test.log.txt",
+      "bytes": 34640,
+      "sha256": "1b84a48aff84b262f98c1b2460dbad1951ffec308a5fca45d2fc3a96ca2cb998",
+      "source_sha256": "a41ca86d0b487b6e4df513757588e7b54a7adc6dd7253699663b863be9908f4b",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/openapi-check.log.txt",
+      "bytes": 108,
+      "sha256": "8c2cd7e5ab0751635cdf98d30eb5fa564b2bcbb6ee257deb6b9fe782a1af2aea",
+      "source_sha256": "9ff74bb83df067d41d7c93d88cf76cc7970ca4b3c84bfdab7b1f08d07b633278",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/openapi-lint-recheck.log.txt",
+      "bytes": 2258,
+      "sha256": "b4338d42c4aa21ba46bd81b12ebb583158875cfd44652647c4590e4e4bab1f0a",
+      "source_sha256": "8adbc1f345b3a2680e49ea3b94447da8a4b2a67d4d93adb9fee3bc0e2a35d6b9",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/project-guidance.log.txt",
+      "bytes": 1302,
+      "sha256": "344ebe6fa033fa99eb8c86e7f9f192fd7fb787ede27f8ee8a1c018e6d7ec0049",
+      "source_sha256": "2db7d7dd0357ad6e1aa035a5081aedf88cd9b923e01bcdadd1cb253ccdae6bca",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/rule-consistency.log.txt",
+      "bytes": 1511,
+      "sha256": "38918016ac976f57141b0efe009cda120f451c025b6b96381163a1b1c9ef5d72",
+      "source_sha256": "2b79c485518d51cf28f8d7459b450f39dd497b1ff215f70011c9b28f5a0c82b0",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/schema-validate.log.txt",
+      "bytes": 833,
+      "sha256": "e94d99385d254b6151e4509e99169174480712c3e240b04cd1418099d15b16ce",
+      "source_sha256": "d45c61853c50a2f39c82a5989425c399b42c22431679f53b47665dd9fc506922",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/word-runtime-final.log.txt",
+      "bytes": 846,
+      "sha256": "279fc61a92548e37541788b2718b6fcceae02f00397f8943a9260cab47cd011e",
+      "source_sha256": "ff1dea5ee7f5e185033d42999545dd24a2bf382f8ee2f25f65333307b3cb8448",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "logs/word-runtime-initial-failure.log.txt",
+      "bytes": 291,
+      "sha256": "e12475b9c565a8decf975b66fd5664a691111b36615f380f8066c5a9cc7e3b67",
+      "source_sha256": "6d28dc8446c288f0ae4423dcb1b26c65902f49f727c93625c006c31a032fac58",
+      "transformation": "路径及未公开源文件哈希替换为占位符，换行为 LF，末尾空行规范；原始日志保留"
+    },
+    {
+      "path": "preservation.json",
+      "bytes": 432,
+      "sha256": "fe9ec9197cb9ba0275ca2961aff0bc5728e4dde08f32c4a5bb837dde080e7358",
+      "source_sha256": "e8688b4cdb790fd5822136e4a76e456632f1636b445862ee27a95e7061aa7a46",
+      "transformation": "结构化派生副本，路径和未公开源文件哈希占位"
+    },
+    {
+      "path": "probe-initial-failure.json",
+      "bytes": 426,
+      "sha256": "449b828974bb2dd2776df4cf97ae340624a2abeb41f151f15e9c14297ef74114",
+      "source_sha256": "450bcc4a1bb4a490bdbcf16a516c9d60cb8df0a7387966c47d4c7db5ea026f7a",
+      "transformation": "结构化派生副本，路径和未公开源文件哈希占位"
+    },
+    {
+      "path": "publication-review.json",
+      "bytes": 769,
+      "sha256": "70fcd1f86aa9a92b0f9048a2a243603970c548d79cf8074dc620373733b3bd52"
+    },
+    {
+      "path": "source-before-summary.json",
+      "bytes": 174,
+      "sha256": "d6bd7a3bf590345020bdeb8154a5cc47acf08c75396cbeea8c1f9ab1db1855cc",
+      "source_sha256": "73d6aa852d3246702aa6032a85dcd4289a6de9679091e2f659108af53e9fef65",
+      "transformation": "仅公开清单统计，原始路径清单留在本地"
+    },
+    {
+      "path": "summary.json",
+      "bytes": 3651,
+      "sha256": "4dd919a2e3882663669d3626cc3d4772f9a831bf3a7bdc8f1b4b45bf5b884afc",
+      "source_sha256": "dae71f65f25c816ee0b41ca536d35f45e18e7c19cd8e826d57fc747435138b9a",
+      "transformation": "本机路径占位并重定向到公开日志副本"
+    },
+    {
+      "path": "verify.mjs",
+      "bytes": 2975,
+      "sha256": "b570d30a45111c6d830c4eab93562eb8537aea05fe866940afcc929d3421c693"
+    },
+    {
+      "path": "word-runtime-summary.json",
+      "bytes": 862,
+      "sha256": "9ebefc33e2cfe1b45105d4eaab12e93168d6475d7785550f8b47923515f5865c",
+      "source_sha256": "a3319a311793246c5d9997d9ec1f56115c7ecd7a5e4ec9e0e01123f08596c2de",
+      "transformation": "仅公开工程计数和限制，不公开内部来源及样本"
+    }
+  ]
+}

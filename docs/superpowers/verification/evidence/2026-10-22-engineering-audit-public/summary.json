@@ -1,0 +1,125 @@
+{
+  "head": "bbd2a696656afba39b914fe7b4fedeefa03c3be1",
+  "initialWorktreeClean": true,
+  "ruleVersion": "YQ-MVP-RULES-1.1.0",
+  "contractId": "YQ-API-CONTRACT-1.1.0",
+  "conclusion": "NO_CONFIRMED_CALCULATION_DEVIATION_WITHIN_IMPLEMENTED_SCOPE",
+  "fullConsensusImplemented": false,
+  "expertFreeze": "PENDING",
+  "expertReferenceSet": "NOT_PRESENT",
+  "clinicalGates": "NOT_RUN",
+  "confirmedProductCalculationBugs": 0,
+  "gaps": [
+    "G-01 Inquiry and clinician-feedback workflow not implemented",
+    "G-02 Expert signing and independent expected cases absent",
+    "G-03 Independent full-range astronomy and detailed source provenance incomplete",
+    "G-04 Real clinician authentication and RBAC not implemented"
+  ],
+  "clausesReviewed": {
+    "exclusions": 10,
+    "R": 35,
+    "C": 9
+  },
+  "ruleConsistency": {
+    "command": "pnpm test:rule-consistency",
+    "exitCode": 0,
+    "failed": 0,
+    "passed": 8
+  },
+  "wordRuntimeAudit": {
+    "stepStarts": 1206,
+    "httpRequests": 1628,
+    "currentRequests": 201,
+    "initialLog": "logs/word-runtime-initial-failure.log.txt",
+    "orderedQiPairs": 36,
+    "independentExpertCases": 0,
+    "annualYears": 201,
+    "initialAttempt": "FAIL_ECONNRESET",
+    "edgeInputForms": 18,
+    "exitCode": 0,
+    "finalLog": "logs/word-runtime-final.log.txt",
+    "unsupportedAnnualRequests": 2
+  },
+  "fullTest": {
+    "status": "FAIL",
+    "cause": "UNCONFIRMED",
+    "remainingStagesExecutedSeparately": true,
+    "childExitCode": 3221226505,
+    "productSuites": {
+      "domain": 132,
+      "adapter": 37,
+      "client": 8,
+      "service": 164,
+      "workbench": 112
+    },
+    "command": "pnpm test",
+    "retainedSkip": "Windows does not grant file symlink creation",
+    "failureStage": "openapi:lint native UV_HANDLE_CLOSING assertion after valid output",
+    "shellExitCode": -1073740791
+  },
+  "separateChecks": [
+    {
+      "command": "pnpm contracts:check",
+      "log": "logs/contracts-check.log.txt",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm schema:validate",
+      "log": "logs/schema-validate.log.txt",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/service openapi:lint",
+      "log": "logs/openapi-lint-recheck.log.txt",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/service openapi:check",
+      "log": "logs/openapi-check.log.txt",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm test:project-guidance",
+      "log": "logs/project-guidance.log.txt",
+      "exitCode": 0
+    }
+  ],
+  "browser": {
+    "runDirectory": "<WORKSPACE>\\.artifacts\\browser\\2026-10-22T12-23-06-121Z-e006d1f4",
+    "workers": 1,
+    "browserChannel": "chrome",
+    "timezoneId": "America/New_York",
+    "stats": {
+      "startTime": "2026-10-22T12:23:06.128Z",
+      "duration": 37662.213,
+      "expected": 17,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0
+    },
+    "cleanupPassed": true,
+    "cleanupErrors": [],
+    "scope": "17 workflow cases only; 56 visual/accessibility cases not run in this audit"
+  },
+  "notRun": [
+    "Standalone pnpm typecheck",
+    "Coverage",
+    "56 visual and accessibility scenarios in this audit",
+    "Independent astronomy accuracy validation",
+    "Independent expert cases",
+    "Clinical G1-G6"
+  ],
+  "changes": "New report and evidence only; original tracked files and builds preserved",
+  "committed": false,
+  "pushed": false,
+  "published": false,
+  "publicCopy": {
+    "kind": "历史摘要的脱敏派生副本",
+    "historical_original_retained_locally": true,
+    "path_placeholders": [
+      "<WORKSPACE>",
+      "<USER_TEMP>",
+      "<USER_HOME>"
+    ]
+  }
+}

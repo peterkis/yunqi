@@ -1,0 +1,22 @@
+
+> yunqi@ contracts:check <WORKSPACE>
+> pnpm build:contract-source && node scripts/check-yunqi-contracts.mjs
+
+
+> yunqi@ build:contract-source <WORKSPACE>
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.2.0 build <WORKSPACE>\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build <WORKSPACE>\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.1.0 build <WORKSPACE>\packages\yunqi-service
+> tsc -p tsconfig.json
+
+✨ openapi-typescript 7.13.0
+🚀 <USER_TEMP>\yunqi-contract-check-uujOYd\yunqi-service.openapi.yaml → <USER_TEMP>\yunqi-contract-check-uujOYd\openapi.ts [73.6ms]

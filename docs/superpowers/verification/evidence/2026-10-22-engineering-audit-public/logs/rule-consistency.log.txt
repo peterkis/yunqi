@@ -1,0 +1,36 @@
+
+> yunqi@ test:rule-consistency <WORKSPACE>
+> pnpm build:contract-source && node --test tests/yunqi-rule-consistency.test.mjs tests/yunqi-time-consistency.test.mjs
+
+
+> yunqi@ build:contract-source <WORKSPACE>
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.2.0 build <WORKSPACE>\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build <WORKSPACE>\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.1.0 build <WORKSPACE>\packages\yunqi-service
+> tsc -p tsconfig.json
+
+✔ tracked rule document supplies complete, distinct baseline tables (2.0842ms)
+✔ public calculators agree with the document for every stem, branch and Qi sequence (0.4396ms)
+✔ every 1900-2100 numeric year follows the documented 60-cycle anchor (0.4491ms)
+✔ 60 real-adapter annual results and 360 steps match the tracked business rules (38.7853ms)
+✔ all 36 ordered Qi pairs match both the documented priority and independent matrix (1.005ms)
+✔ all 201 supported years preserve seven real boundaries at -1/0/+1 ms and three input forms (832.4531ms)
+✔ Service accepts precisely 1900-2100 YunQi years at the 1900 and 2101 Dahan endpoints (3406.2657ms)
+✔ normalization preserves Gregorian century rules, milliseconds, and strict input syntax (1.5265ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7500.8813

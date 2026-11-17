@@ -1,0 +1,1001 @@
+{
+  "config": {
+    "argv": [
+      "<NODE_EXECUTABLE>",
+      "<WORKSPACE>\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--project=flows-chromium",
+      "--workers=1"
+    ],
+    "configFile": "<WORKSPACE>\\playwright.config.mjs",
+    "rootDir": "<WORKSPACE>/tests/browser",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "<WORKSPACE>\\tests\\browser\\global-setup.mjs",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "flows-chromium",
+        "name": "flows-chromium",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.flows.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-light",
+        "name": "desktop-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "breakpoint-light",
+        "name": "breakpoint-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-boundary-light",
+        "name": "tablet-boundary-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "tablet-light",
+        "name": "tablet-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-light",
+        "name": "mobile-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "narrow-light",
+        "name": "narrow-light",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "desktop-dark",
+        "name": "desktop-dark",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      },
+      {
+        "outputDir": "<WORKSPACE>/.artifacts/browser/2026-10-22T12-23-06-121Z-e006d1f4/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "mobile-dark",
+        "name": "mobile-dark",
+        "testDir": "<WORKSPACE>/tests/browser",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.visual.spec.mjs"
+        ],
+        "timeout": 45000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "<WORKSPACE>\\.artifacts\\browser\\2026-10-22T12-23-06-121Z-e006d1f4\\results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "flows-chromium",
+        "testDir": "<WORKSPACE>\\tests\\browser",
+        "snapshotDir": "<WORKSPACE>\\tests\\browser",
+        "testIgnore": [],
+        "testMatch": "**/*.flows.spec.mjs",
+        "timeout": 45000,
+        "use": {
+          "browserName": "chromium",
+          "channel": "chrome",
+          "viewport": {
+            "width": 1440,
+            "height": 1000
+          },
+          "locale": "zh-CN",
+          "timezoneId": "America/New_York",
+          "reducedMotion": "reduce",
+          "serviceWorkers": "block",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "actionTimeout": 10000
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "flows-chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "<WORKSPACE>\\.artifacts\\browser\\2026-10-22T12-23-06-121Z-e006d1f4\\report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "<WORKSPACE>\\.artifacts\\browser\\2026-10-22T12-23-06-121Z-e006d1f4\\results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "ux-walkthrough.flows.spec.mjs",
+      "file": "ux-walkthrough.flows.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "current-year shortcut and adjacent-year controls retain URL, bounds and history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2262,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:08.096Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jdXJyZW50IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMDI0IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMDI1IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8xOTAwIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMTAwIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00c21683123f6d3bd49b-430d49db86ae7be030ab",
+          "file": "ux-walkthrough.flows.spec.mjs",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1253,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:10.694Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "mobile-stage-comparison",
+                      "contentType": "image/png",
+                      "path": "attachments/mobile-stage-comparison.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00c21683123f6d3bd49b-086bc629a31de96a38bd",
+          "file": "ux-walkthrough.flows.spec.mjs",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "sticky navigation, skip link and technical disclosure support keyboard recovery",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1518,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:11.957Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "keyboard-technical-disclosure",
+                      "contentType": "image/png",
+                      "path": "attachments/keyboard-technical-disclosure.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "00c21683123f6d3bd49b-d2487b1dec399449a7a8",
+          "file": "ux-walkthrough.flows.spec.mjs",
+          "line": 57,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "workbench.flows.spec.mjs",
+      "file": "workbench.flows.spec.mjs",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "current route redirects, renders canonical time and closes every stage disclosure",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:13.516Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "current-disclosures",
+                      "contentType": "image/png",
+                      "path": "attachments/current-disclosures.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jdXJyZW50IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-ba2162f441838ab44035",
+          "file": "workbench.flows.spec.mjs",
+          "line": 3,
+          "column": 1
+        },
+        {
+          "title": "annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4951,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:15.914Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "annual-six-stage-selection",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-six-stage-selection.png"
+                    },
+                    {
+                      "name": "annual-upgraded-guest-generates-host",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-upgraded-guest-generates-host.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jdXJyZW50IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMDI0IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMDI1IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkveWVhci8yMDI1IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY3VycmVudCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-100198310ec335bccb86",
+          "file": "workbench.flows.spec.mjs",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "invalid year abc shows a recoverable message without a business query",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2180,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:20.880Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-960f411e7fa32ea93028",
+          "file": "workbench.flows.spec.mjs",
+          "line": 114,
+          "column": 3
+        },
+        {
+          "title": "invalid year 2024extra shows a recoverable message without a business query",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2178,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:23.082Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-85979b160d5d5925cd70",
+          "file": "workbench.flows.spec.mjs",
+          "line": 114,
+          "column": 3
+        },
+        {
+          "title": "invalid year 1899 shows a recoverable message without a business query",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2239,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:25.279Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "annual-invalid-boundary-1899",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-invalid-boundary-shared.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-c16cf7b5871b378f0f49",
+          "file": "workbench.flows.spec.mjs",
+          "line": 114,
+          "column": 3
+        },
+        {
+          "title": "invalid year 2101 shows a recoverable message without a business query",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2037,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:27.536Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "annual-invalid-boundary-2101",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-invalid-boundary-shared.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIwMjQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-40da92ad1ff2faba2e95",
+          "file": "workbench.flows.spec.mjs",
+          "line": 114,
+          "column": 3
+        },
+        {
+          "title": "specified time is submit-only, rejects empty input and hides stale results after editing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2061,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:29.588Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "calculated-real-api",
+                      "contentType": "image/png",
+                      "path": "attachments/calculated-real-api.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY2FsY3VsYXRlIiwKICAgICAgImJvZHkiOiAie1wiZGF0ZVRpbWVcIjpcIjIwMjQtMDEtMjBUMjI6MDc6MDArMDg6MDBcIn0iCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIlBPU1QiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL2NhbGN1bGF0ZSIsCiAgICAgICJib2R5IjogIntcImRhdGVUaW1lXCI6XCIyMDI0LTAxLTIwVDIyOjA3OjIyKzA4OjAwXCJ9IgogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-d60c3bf4e0adcd779779",
+          "file": "workbench.flows.spec.mjs",
+          "line": 126,
+          "column": 1
+        },
+        {
+          "title": "supported annual boundary years load directly from the real API",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1880,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:31.665Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "annual-boundary-1900",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-boundary-1900.png"
+                    },
+                    {
+                      "name": "annual-boundary-2100",
+                      "contentType": "image/png",
+                      "path": "attachments/annual-boundary-2100.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzE5MDAiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS95ZWFyLzIxMDAiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0KICBdCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-cc619199966f0222ebe4",
+          "file": "workbench.flows.spec.mjs",
+          "line": 160,
+          "column": 1
+        },
+        {
+          "title": "a real unsupported calculation receives sanitized feedback and recovers after editing",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1170,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:33.557Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbCiAgICB7CiAgICAgICJsZXZlbCI6ICJlcnJvciIsCiAgICAgICJ0ZXh0IjogIkZhaWxlZCB0byBsb2FkIHJlc291cmNlOiB0aGUgc2VydmVyIHJlc3BvbmRlZCB3aXRoIGEgc3RhdHVzIG9mIDQwMCAoQmFkIFJlcXVlc3QpIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jYWxjdWxhdGUiCiAgICB9CiAgXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY2FsY3VsYXRlIiwKICAgICAgImJvZHkiOiAie1wiZGF0ZVRpbWVcIjpcIjE4MDAtMDYtMTlUMTI6MDA6MDArMDg6MDBcIn0iCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIlBPU1QiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL2NhbGN1bGF0ZSIsCiAgICAgICJib2R5IjogIntcImRhdGVUaW1lXCI6XCIyMDI0LTAxLTIwVDIyOjA3OjIyKzA4OjAwXCJ9IgogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-06e42155abb9865ecdc6",
+          "file": "workbench.flows.spec.mjs",
+          "line": 180,
+          "column": 1
+        },
+        {
+          "title": "pending calculation disables input and repeated activation sends only one real request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1466,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:34.738Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY2FsY3VsYXRlIiwKICAgICAgImJvZHkiOiAie1wiZGF0ZVRpbWVcIjpcIjIwMjQtMDEtMjBUMjI6MDc6MjIrMDg6MDBcIn0iCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-e59fb225fe0d15a1a9e7",
+          "file": "workbench.flows.spec.mjs",
+          "line": 195,
+          "column": 1
+        },
+        {
+          "title": "calculation outage is sanitized and retry recovers using the real API",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1364,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:36.216Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "calculation-error",
+                      "contentType": "image/png",
+                      "path": "attachments/calculation-error.png"
+                    },
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbCiAgICB7CiAgICAgICJsZXZlbCI6ICJlcnJvciIsCiAgICAgICJ0ZXh0IjogIkZhaWxlZCB0byBsb2FkIHJlc291cmNlOiB0aGUgc2VydmVyIHJlc3BvbmRlZCB3aXRoIGEgc3RhdHVzIG9mIDUwMyAoU2VydmljZSBVbmF2YWlsYWJsZSkiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL2NhbGN1bGF0ZSIKICAgIH0KICBdLAogICJyZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgIm1ldGhvZCI6ICJQT1NUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jYWxjdWxhdGUiLAogICAgICAiYm9keSI6ICJ7XCJkYXRlVGltZVwiOlwiMjAyNC0wMS0yMFQyMjowNzoyMiswODowMFwifSIKICAgIH0sCiAgICB7CiAgICAgICJtZXRob2QiOiAiUE9TVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY2FsY3VsYXRlIiwKICAgICAgImJvZHkiOiAie1wiZGF0ZVRpbWVcIjpcIjIwMjQtMDEtMjBUMjI6MDc6MjIrMDg6MDBcIn0iCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-3717b54444f9fc59c416",
+          "file": "workbench.flows.spec.mjs",
+          "line": 225,
+          "column": 1
+        },
+        {
+          "title": "/yunqi/current recovers after a single failed GET",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1106,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:37.593Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbCiAgICB7CiAgICAgICJsZXZlbCI6ICJlcnJvciIsCiAgICAgICJ0ZXh0IjogIkZhaWxlZCB0byBsb2FkIHJlc291cmNlOiB0aGUgc2VydmVyIHJlc3BvbmRlZCB3aXRoIGEgc3RhdHVzIG9mIDUwMyAoU2VydmljZSBVbmF2YWlsYWJsZSkiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL2N1cnJlbnQiCiAgICB9CiAgXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jdXJyZW50IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo1OTQ2Ny9hcGkvdjEveXVucWkvY3VycmVudCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-c9aa4a7c5c1c02bb1d7a",
+          "file": "workbench.flows.spec.mjs",
+          "line": 251,
+          "column": 3
+        },
+        {
+          "title": "/yunqi/year/2024 recovers after a single failed GET",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1076,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:38.710Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbCiAgICB7CiAgICAgICJsZXZlbCI6ICJlcnJvciIsCiAgICAgICJ0ZXh0IjogIkZhaWxlZCB0byBsb2FkIHJlc291cmNlOiB0aGUgc2VydmVyIHJlc3BvbmRlZCB3aXRoIGEgc3RhdHVzIG9mIDUwMyAoU2VydmljZSBVbmF2YWlsYWJsZSkiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL3llYXIvMjAyNCIKICAgIH0KICBdLAogICJyZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL3llYXIvMjAyNCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NTk0NjcvYXBpL3YxL3l1bnFpL3llYXIvMjAyNCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfQogIF0KfQ=="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-8979c42f83da559b2bfd",
+          "file": "workbench.flows.spec.mjs",
+          "line": 251,
+          "column": 3
+        },
+        {
+          "title": "inquiry remains a no-query planning entry and invalid child routes return to current",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 45000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "flows-chromium",
+              "projectName": "flows-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3768,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-22T12:23:39.798Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "browser-diagnostics",
+                      "contentType": "application/json",
+                      "body": "ewogICJicm93c2VyVmVyc2lvbiI6ICIxNTUuMC44MDU5Ljg1IiwKICAicGFnZUVycm9ycyI6IFtdLAogICJjb25zb2xlTWVzc2FnZXMiOiBbXSwKICAicmVxdWVzdHMiOiBbCiAgICB7CiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjU5NDY3L2FwaS92MS95dW5xaS9jdXJyZW50IiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9CiAgXQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "950a2ae1a3b908f9332f-717913c5714f75a5572b",
+          "file": "workbench.flows.spec.mjs",
+          "line": 269,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-22T12:23:06.128Z",
+    "duration": 37662.213,
+    "expected": 17,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

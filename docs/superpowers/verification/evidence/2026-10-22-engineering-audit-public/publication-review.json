@@ -1,0 +1,20 @@
+{
+  "date": "2026-11-17",
+  "scope": "公开派生证据的整理与检查",
+  "initial_findings": [
+    {
+      "check": "公开副本路径与敏感信息模式检查",
+      "result": "FAIL",
+      "finding": "浏览器结果中保留 1 处本机 Node 可执行文件绝对路径",
+      "resolution": "已替换为 <NODE_EXECUTABLE>，并将绝对路径检查加入验证器"
+    },
+    {
+      "check": "git diff --cached --check",
+      "result": "FAIL",
+      "exit_code": 2,
+      "finding": "3 份公开日志副本的末尾存在多余空行",
+      "resolution": "仅规范派生副本末尾换行，保留本地原始日志并更新哈希"
+    }
+  ],
+  "limitations": "这些记录属于公开整理过程，不改变 2026-10-22 的历史验证结果。"
+}

@@ -1,0 +1,25 @@
+Browser acceptance evidence: <WORKSPACE>\.artifacts\browser\2026-10-22T12-23-06-121Z-e006d1f4
+
+Running 17 tests using 1 worker
+
+(node:35532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ok  1 [flows-chromium] › tests\browser\ux-walkthrough.flows.spec.mjs:3:1 › current-year shortcut and adjacent-year controls retain URL, bounds and history (2.3s)
+  ok  2 [flows-chromium] › tests\browser\ux-walkthrough.flows.spec.mjs:36:1 › mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions (1.3s)
+  ok  3 [flows-chromium] › tests\browser\ux-walkthrough.flows.spec.mjs:57:1 › sticky navigation, skip link and technical disclosure support keyboard recovery (1.5s)
+  ok  4 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:3:1 › current route redirects, renders canonical time and closes every stage disclosure (2.4s)
+  ok  5 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:29:1 › annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop (5.0s)
+  ok  6 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:114:3 › invalid year abc shows a recoverable message without a business query (2.2s)
+  ok  7 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:114:3 › invalid year 2024extra shows a recoverable message without a business query (2.2s)
+  ok  8 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:114:3 › invalid year 1899 shows a recoverable message without a business query (2.2s)
+  ok  9 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:114:3 › invalid year 2101 shows a recoverable message without a business query (2.0s)
+  ok 10 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:126:1 › specified time is submit-only, rejects empty input and hides stale results after editing (2.1s)
+  ok 11 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:160:1 › supported annual boundary years load directly from the real API (1.9s)
+  ok 12 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:180:1 › a real unsupported calculation receives sanitized feedback and recovers after editing (1.2s)
+  ok 13 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:195:1 › pending calculation disables input and repeated activation sends only one real request (1.5s)
+  ok 14 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:225:1 › calculation outage is sanitized and retry recovers using the real API (1.4s)
+  ok 15 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:251:3 › /yunqi/current recovers after a single failed GET (1.1s)
+  ok 16 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:251:3 › /yunqi/year/2024 recovers after a single failed GET (1.1s)
+  ok 17 [flows-chromium] › tests\browser\workbench.flows.spec.mjs:269:1 › inquiry remains a no-query planning entry and invalid child routes return to current (3.8s)
+
+  17 passed (37.7s)
