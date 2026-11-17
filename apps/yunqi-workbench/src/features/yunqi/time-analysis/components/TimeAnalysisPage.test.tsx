@@ -64,6 +64,13 @@ describe('TimeAnalysisPage', () => {
         name: '所选时点所在阶段：三之气',
       }),
     ).toBeInTheDocument();
+    const stage = within(result).getByRole('region', { name: '所选时点所在阶段：三之气' });
+    const annual = within(result).getByRole('region', { name: '年度概览' });
+    expect(stage.compareDocumentPosition(annual) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(stage.querySelector('.ds-info-card')).toBeInTheDocument();
+    expect([...stage.querySelectorAll('time')].map((time) => time.dateTime)).toEqual([
+      '2026-05-21T11:00:00+08:00', '2026-07-23T12:00:00+08:00',
+    ]);
     expect(
       within(result).getByText('YunQi 指定时点计算 API'),
     ).toBeInTheDocument();

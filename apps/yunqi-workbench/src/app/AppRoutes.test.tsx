@@ -142,6 +142,7 @@ describe('AppRoutes', () => {
     expect(screen.getByText('请选择要分析的年份')).toBeInTheDocument();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();
+    expect(screen.getByRole('main')).toHaveAccessibleName('年度详情');
   });
 
   it('rejects a malformed URL year without querying', () => {
@@ -251,6 +252,34 @@ describe('AppRoutes', () => {
     expect(main).toHaveAccessibleName('问诊规划');
     await user.click(screen.getByRole('link', { name: '跳至主要内容' }));
     expect(main).toHaveFocus();
+  });
+
+  it('opens planning and specified time from the annual more links without fetching business data', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/year', client);
+    const more = screen.getByRole('navigation', { name: '更多' });
+    expect(within(more).getByRole('link', { name: '指定时点 ›' })).toHaveAttribute('href', '/yunqi/calculate');
+    await user.click(within(more).getByRole('link', { name: '问诊规划 ›' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/inquiry');
+    expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
+    for (const method of Object.values(client)) expect(method).not.toHaveBeenCalled();
+  });
+
+  it.each([1900, 2100])('bounds adjacent URL navigation at %s', async (year) => {
+    const user = userEvent.setup();
+    const client = createClient({ getYear: vi.fn().mockResolvedValue(createYunQiYearDto()) });
+    renderAppAt(`/yunqi/year/${year}`, client);
+    expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(year));
+    const bounded = screen.getByRole('button', { name: year === 1900 ? '上一年' : '下一年' });
+    expect(bounded).toBeDisabled();
+    await user.click(bounded);
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent(`/yunqi/year/${year}`);
+    const next = year === 1900 ? '下一年' : '上一年';
+    await user.click(screen.getByRole('button', { name: next }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent(`/yunqi/year/${year === 1900 ? 1901 : 2099}`);
+    expect(screen.getByRole('button', { name: next })).toHaveFocus();
   });
 
   it('renders the specified-time entry and keeps the initial state request-free', () => {

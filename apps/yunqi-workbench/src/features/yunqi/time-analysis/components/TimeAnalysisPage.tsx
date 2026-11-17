@@ -1,8 +1,9 @@
 import type { FormEvent } from 'react';
+import { InfoCard } from '../../../../components/design/InfoCard';
+import { EmptyState, ErrorState, LoadingState } from '../../../../components/feedback/FeedbackStates';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
-import { RuleExplanationPanel } from '../../components/RuleExplanationPanel';
-import { TraceabilityPanel } from '../../components/TraceabilityPanel';
-import { YunQiYearSummaryPanel } from '../../components/YunQiYearSummaryPanel';
+import { DrilldownResultNotes } from '../../year-analysis/components/DrilldownResultNotes';
+import { DrilldownYearSummaryCard } from '../../year-analysis/components/DrilldownYearSummaryCard';
 import type { TimeAnalysisYunQiViewModel } from '../../presentation/view-model';
 import { TimeAnalysisForm } from './TimeAnalysisForm';
 import { TimeAnalysisSixQiRail } from './TimeAnalysisSixQiRail';
@@ -34,24 +35,10 @@ export function TimeAnalysisPage({
   viewModel,
 }: TimeAnalysisPageProps) {
   return (
-    <div className="time-analysis-page">
-      <header className="time-analysis-hero">
-        <div>
-          <h2>指定时点分析</h2>
-          <p className="time-analysis-hero__summary">
-            输入一个北京标准时间，查看该时点对应的五运六气规则结构。
-          </p>
-        </div>
-      </header>
-
-      <section
-        aria-labelledby="time-analysis-form-title"
-        className="time-analysis-form-panel"
-      >
-        <header>
-          <h3 id="time-analysis-form-title">选择分析时间</h3>
-          <p>本页面只用于规则结果核对与阶段验证。</p>
-        </header>
+    <div className="drilldown-page">
+      <InfoCard label="提交后分析">
+        <h2 className="drilldown-title">指定时点分析</h2>
+        <p className="drilldown-copy">填写北京时间，核对该时点的五运六气与所处阶段。</p>
         <TimeAnalysisForm
           inputError={inputError}
           inputValue={inputValue}
@@ -60,50 +47,38 @@ export function TimeAnalysisPage({
           onInvalid={onInvalid}
           onSubmit={onSubmit}
         />
-      </section>
+      </InfoCard>
 
       {isPending ? (
-        <p className="time-analysis-feedback" role="status">
-          正在分析指定时点
-        </p>
+        <LoadingState message="正在分析指定时点" />
       ) : null}
       {isDirty ? (
-        <p className="time-analysis-feedback" role="status">
-          输入已修改，请重新分析
-        </p>
+        <EmptyState message="输入已修改，请重新分析" />
       ) : null}
       {isError ? (
-        <div className="time-analysis-feedback" role="alert">
-          <p>指定时点分析失败，请重试</p>
-          <button type="button" onClick={onRetry}>
-            重试
-          </button>
-        </div>
+        <ErrorState message="指定时点分析失败，请重试" onRetry={onRetry} retryLabel="重试" />
       ) : null}
       {!isPending && !isDirty && !isError && viewModel ? (
         <section
           aria-label="指定时点分析结果"
-          className="time-analysis-result"
+          className="drilldown-page drilldown-time-result"
         >
-          <p className="analysis-success" role="status">分析完成，所选时点位于{viewModel.selectedStage.name}。</p>
-          <header className="time-analysis-result__time">
-            <div>
-              <h3>规范分析时间</h3>
+          <InfoCard label="规范分析时间" compact>
+            <div className="drilldown-time-result__time">
+              <YunQiTimeDisplay value={viewModel.analysisTime} />
             </div>
-            <YunQiTimeDisplay value={viewModel.analysisTime} />
-          </header>
+            <p className="drilldown-copy" role="status">分析完成，所选时点位于{viewModel.selectedStage.name}。</p>
+          </InfoCard>
           <TimeAnalysisStageDetailPanel
             stage={viewModel.selectedStage}
           />
-          <YunQiYearSummaryPanel summary={viewModel.summary} />
+          <DrilldownYearSummaryCard summary={viewModel.summary} compact />
           <TimeAnalysisSixQiRail
             selectedStageIndex={viewModel.selectedStage.index}
             stages={viewModel.stages}
           />
-          <RuleExplanationPanel
+          <DrilldownResultNotes
             explanations={viewModel.explanations}
-          />
-          <TraceabilityPanel
             dataSource="YunQi 指定时点计算 API"
             ruleVersion={viewModel.ruleVersion}
           />

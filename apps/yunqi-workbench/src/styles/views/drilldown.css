@@ -1,0 +1,326 @@
+/* C6: panel drill-downs. Layout and typography use the design-system tokens.
+   The annual card follows C3's 全年 / 干支 / 岁运-司天-在泉 hierarchy. */
+.drilldown-page {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+}
+
+.drilldown-title {
+  margin: 0;
+  color: var(--ink-primary);
+  font-family: var(--font-serif);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.drilldown-copy {
+  margin: var(--space-1) 0 0;
+  color: var(--ink-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.drilldown-meta,
+.drilldown-boundaries {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-tertiary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-meta-weight);
+}
+
+.drilldown-page .yunqi-time {
+  display: inline-flex;
+  flex-wrap: wrap;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.drilldown-page .yunqi-time time,
+.drilldown-page code {
+  font-family: var(--font-sans);
+  font-variant-numeric: tabular-nums;
+}
+
+.drilldown-page .yunqi-time__standard {
+  color: var(--ink-tertiary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-meta-weight);
+  letter-spacing: normal;
+}
+
+.drilldown-boundaries {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+}
+
+.drilldown-boundaries time,
+.drilldown-stage-selector__range time {
+  white-space: nowrap;
+}
+
+.drilldown-year-navigation {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.drilldown-year-selector {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--ink-secondary);
+}
+
+.drilldown-year-selector select,
+.drilldown-time-form input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: var(--control-height);
+  padding: var(--space-2) var(--space-3);
+  border: calc(var(--space-0_5) / 2) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.drilldown-year-navigation__steps {
+  display: flex;
+  gap: var(--space-1);
+}
+
+.drilldown-year-navigation__steps .ds-button {
+  padding-inline: var(--space-2);
+  font-size: var(--ds-text-button-size);
+}
+
+.drilldown-year-navigation > .drilldown-meta { grid-column: 1 / -1; margin: 0; }
+.drilldown-year-navigation .ds-button:disabled { color: var(--ink-tertiary); }
+
+.drilldown-more {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.drilldown-more a,
+.drilldown-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--input-height);
+  color: var(--accent);
+  font-size: var(--type-body-size);
+  text-decoration: none;
+}
+
+.drilldown-more a:hover,
+.drilldown-link:hover { text-decoration: underline; }
+
+.drilldown-ganzhi {
+  margin: var(--space-2) 0;
+  font-family: var(--font-serif);
+  font-size: var(--type-display-xl-size);
+  line-height: var(--type-display-xl-line);
+  font-weight: var(--type-display-xl-weight);
+  letter-spacing: var(--type-display-xl-tracking);
+}
+
+/* The selected-time stage leads; its supporting annual card shares the title
+   tier, keeping the visible panel within five type sizes. */
+.drilldown-annual-summary--compact .drilldown-ganzhi {
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.drilldown-annual-facts,
+.drilldown-qi-facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin: var(--space-3_5) 0;
+}
+
+.drilldown-annual-facts > div + div {
+  border-left: var(--ds-hairline) solid var(--border-subtle);
+  padding-left: var(--space-3);
+}
+
+.drilldown-annual-facts dt,
+.drilldown-qi-facts dt,
+.drilldown-relation-facts dt,
+.drilldown-trace dt {
+  color: var(--ink-tertiary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+}
+
+.drilldown-annual-facts dd,
+.drilldown-qi-facts dd,
+.drilldown-relation-facts dd,
+.drilldown-trace dd { min-width: 0; margin: var(--space-1) 0 0; }
+.drilldown-annual-facts dd { display: grid; gap: var(--space-1); }
+.drilldown-annual-facts .ds-element { align-items: baseline; }
+.drilldown-annual-facts .ds-element__dot { align-self: center; }
+.drilldown-annual-facts .ds-element > span:last-child { min-width: 0; }
+
+.drilldown-annual-summary .drilldown-boundaries,
+.drilldown-stage-detail .ds-info-card__section {
+  margin-top: var(--space-3_5);
+  padding-top: var(--space-3_5);
+  border-top: var(--ds-hairline) solid var(--border-subtle);
+}
+
+.drilldown-qi-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.drilldown-stage-detail .ds-relation { align-items: flex-start; flex-wrap: wrap; }
+.drilldown-stage-detail .ds-relation__explanation { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+
+.drilldown-relation-facts,
+.drilldown-trace {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-3);
+  margin: 0;
+  color: var(--ink-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.drilldown-relation-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.drilldown-relation-facts dl { min-width: 0; margin: 0; }
+.drilldown-trace code { overflow-wrap: anywhere; }
+
+.drilldown-stage-selector {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.drilldown-stage-selector legend {
+  padding: 0;
+  font-family: var(--font-serif);
+  font-size: var(--type-title-size);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+
+.drilldown-stage-selector__options {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.drilldown-stage-selector__option {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding: var(--space-2);
+  border: var(--ds-hairline) solid var(--border-default);
+  border-radius: var(--radius-sm);
+  color: var(--ink-primary);
+  cursor: pointer;
+}
+
+.drilldown-stage-selector__option:has(input:checked) {
+  border-color: var(--border-strong);
+  background: var(--surface-sunken);
+}
+
+.drilldown-stage-selector__option:has(input:focus-visible) {
+  outline: var(--space-0_5) solid var(--focus-ring);
+  outline-offset: var(--space-0_5);
+}
+
+.drilldown-stage-selector__option input {
+  width: var(--space-4);
+  height: var(--space-4);
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+.drilldown-stage-selector__option strong {
+  font-family: var(--font-serif);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-strong-weight);
+  white-space: nowrap;
+}
+
+.drilldown-stage-selector__range {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-1);
+  color: var(--ink-tertiary);
+  font-size: var(--type-meta-size);
+  line-height: var(--type-meta-line);
+}
+
+.drilldown-explanations {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding-left: var(--space-4_5);
+  color: var(--ink-secondary);
+  font-size: var(--type-body-size);
+  line-height: var(--type-body-line);
+}
+
+.drilldown-time-form,
+.drilldown-time-form__field {
+  display: grid;
+  min-width: 0;
+  gap: var(--space-2);
+}
+
+.drilldown-time-form { margin-top: var(--space-3); }
+.drilldown-time-form .drilldown-meta { margin: 0; }
+.drilldown-time-form .drilldown-meta span { display: block; }
+.drilldown-time-form [role="alert"] { margin: 0; color: var(--ink-secondary); }
+.drilldown-time-form input:disabled { color: var(--ink-tertiary); }
+.drilldown-time-form .ds-button:disabled { background: var(--surface-sunken); color: var(--ink-tertiary); }
+.drilldown-time-result__time { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+
+.drilldown-stage-overview {
+  display: grid;
+  gap: var(--space-3);
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.drilldown-stage-overview__stage { min-width: 0; }
+.drilldown-stage-overview__stage + li {
+  padding-top: var(--space-3_5);
+  border-top: var(--ds-hairline) solid var(--border-subtle);
+}
+.drilldown-stage-overview__stage > strong { display: block; font-family: var(--font-serif); font-size: var(--type-body-size); }
+.drilldown-stage-overview__stage > .drilldown-copy { display: block; }
+.drilldown-selection-label { color: var(--ink-secondary); font-size: var(--type-meta-size); font-weight: var(--type-body-strong-weight); }
+
+.drilldown-feedback { min-width: 0; color: var(--ink-secondary); }
+.drilldown-feedback p { margin: 0; }
+.drilldown-feedback .ds-button { margin-top: var(--space-3); }
+.drilldown-feedback--empty { text-align: center; }
+.drilldown-feedback--empty .ds-info-card__eyebrow { justify-content: center; }
+
+.drilldown-inquiry__capabilities { display: grid; gap: var(--space-3_5); margin-top: var(--space-3_5); }
+.drilldown-inquiry__capability { min-width: 0; }
+.drilldown-inquiry__capability + article { padding-top: var(--space-3_5); border-top: var(--ds-hairline) solid var(--border-subtle); }
+.drilldown-inquiry__capability h3 { margin: 0; font-size: var(--type-body-size); line-height: var(--type-body-line); font-weight: var(--type-body-strong-weight); }

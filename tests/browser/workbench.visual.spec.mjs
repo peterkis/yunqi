@@ -5,10 +5,14 @@ const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
   { name: 'current-classics', path: '/yunqi/current/classics', classics: true },
   { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true },
-  { name: 'annual-entry', path: '/yunqi/year', ready: '年度五运六气分析' },
+  { name: 'annual-entry', path: '/yunqi/year', ready: '选择运气年' },
   { name: 'annual-result', path: '/yunqi/year/2024', ready: '年度概览' },
+  { name: 'annual-invalid', path: '/yunqi/year/1899', ready: '选择运气年', message: '年份范围应为 1900–2100' },
+  { name: 'annual-error', path: '/yunqi/year/2024', ready: '选择运气年', outage: '/api/v1/yunqi/year/2024', message: '年度数据加载失败' },
   { name: 'calculate-entry', path: '/yunqi/calculate', ready: '指定时点分析' },
   { name: 'calculate-result', path: '/yunqi/calculate', ready: '指定时点分析', calculate: true },
+  { name: 'calculate-error', path: '/yunqi/calculate', ready: '指定时点分析', calculate: true, outage: '/api/v1/yunqi/calculate', message: '指定时点分析失败，请重试' },
+  { name: 'calculate-dirty', path: '/yunqi/calculate', ready: '指定时点分析', calculate: true, dirty: true },
   { name: 'inquiry', path: '/yunqi/inquiry', ready: '问诊结构化入口' },
   { name: 'birth-entry', path: '/yunqi/birth', ready: '出生运气对照' },
   { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
@@ -21,7 +25,7 @@ const cases = [
 ];
 
 for (const state of cases) {
-  test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme }, testInfo) => {
+  test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme, diagnostics }, testInfo) => {
     // Birth migration targets only; other cards keep their existing viewport cases.
     if (state.name.startsWith('birth')) {
       const birthViewports = {
@@ -36,6 +40,10 @@ for (const state of cases) {
       };
       await page.setViewportSize(birthViewports[testInfo.project.name]);
     }
+    if (state.outage) {
+      diagnostics.allowHttpFailure(state.outage, 503);
+      await page.route(`**${state.outage}`, route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
+    }
     await page.goto(state.path);
     if (state.current) await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
     else if (state.classics) {
@@ -45,8 +53,18 @@ for (const state of cases) {
     if (state.calculate) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
-      await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
+      if (state.outage) {
+        await expect(page.getByRole('alert')).toContainText(state.message);
+      } else {
+        await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
+      }
+      if (state.dirty) {
+        await page.getByLabel('分析时间', { exact: true }).fill('2024-01-21T22:07:22');
+        await expect(page.getByRole('status')).toHaveText('输入已修改，请重新分析');
+        await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toHaveCount(0);
+      }
     }
+    if (state.message) await expect(page.getByRole('alert')).toContainText(state.message);
     if (state.birth) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
       await page.getByLabel('出生日期（公历）').fill('1990-05-12');
@@ -134,8 +152,8 @@ for (const state of cases) {
           return rect.left < -1 || rect.right > document.documentElement.clientWidth + 1 || element.scrollWidth > element.clientWidth + 1;
         }).map(element => ({ tag: element.tagName, label: element.getAttribute('aria-label') || element.id || element.textContent.trim(), clientWidth: element.clientWidth, scrollWidth: element.scrollWidth })),
         yearSelect: measure('select[aria-label="分析年份"]'),
-        stageNames: measure('.annual-six-qi-selector__option strong'),
-        stageTimes: measure('.annual-six-qi-selector__range time'),
+        stageNames: measure('.drilldown-stage-selector__option strong'),
+        stageTimes: measure('.drilldown-stage-selector__range time'),
         currentTitle: measure('.current-year-heading h3'),
         currentCards: measure('.current-overview__annual, .current-overview__now'),
         currentFonts: [...new Set([...document.querySelectorAll('.panel-shell *')].filter(visible).filter(element => [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim())).filter(element => !element.closest('details:not([open])') && !element.closest('.visually-hidden')).map(element => getComputedStyle(element).fontSize))],
@@ -163,7 +181,7 @@ for (const state of cases) {
     }
     expect.soft(layout.documentWidth, 'Page must not overflow horizontally').toBeLessThanOrEqual(layout.viewportWidth + 1);
     expect.soft(layout.overflowingControls, 'Controls must fit and keep their content readable').toEqual([]);
-    for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector has a usable 44 px target').toBeGreaterThanOrEqual(44);
+    for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector meets the design control-height token (40 px)').toBeGreaterThanOrEqual(40);
     for (const name of layout.stageNames) expect.soft(name.lines, `Stage name remains readable: ${name.text}`).toBe(1);
     for (const time of layout.stageTimes) expect.soft(time.lines, `Stage time remains on one line: ${time.text}`).toBe(1);
     if (layout.viewportWidth >= 1400) {

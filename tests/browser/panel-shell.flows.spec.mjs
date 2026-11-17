@@ -4,12 +4,12 @@ import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from
 test('annual absolute descriptions remain inside the scrolling content without growing the document', async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 1440, height: 1000 });
   await page.goto('/yunqi/year/2024');
-  const main = page.getByRole('main', { name: '年度分析', exact: true });
+  const main = page.getByRole('main', { name: '年度详情', exact: true });
   await expect(main.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
   await settle(page);
   await page.evaluate(() => document.fonts.ready);
-  await expect(main.locator('.annual-six-qi-selector .visually-hidden')).toHaveCount(6);
-  const descriptions = await main.evaluate(content => [...content.querySelectorAll('.annual-six-qi-selector .visually-hidden')].map(description => ({
+  await expect(main.locator('.drilldown-stage-selector .visually-hidden')).toHaveCount(6);
+  const descriptions = await main.evaluate(content => [...content.querySelectorAll('.drilldown-stage-selector .visually-hidden')].map(description => ({
     position: getComputedStyle(description).position,
     containingBlockInsideContent: content.contains(description.offsetParent),
   })));
@@ -170,8 +170,8 @@ test('segments move focus to content and collapse preserves a birth draft withou
 });
 
 for (const [path, title] of [
-  ['/yunqi/year', '年度分析'], ['/yunqi/year/2024', '年度分析'],
-  ['/yunqi/year/abc', '年度分析'], ['/yunqi/calculate', '指定时点'],
+  ['/yunqi/year', '年度详情'], ['/yunqi/year/2024', '年度详情'],
+  ['/yunqi/year/abc', '年度详情'], ['/yunqi/calculate', '指定时点'],
   ['/yunqi/inquiry', '问诊规划'], ['/not-approved', '页面未找到'],
 ]) {
   test(`direct drilldown ${path} has a deterministic return`, async ({ page }) => {

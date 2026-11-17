@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { createYunQiYearDto } from '../../../../test/yunqi-fixtures';
@@ -75,26 +75,50 @@ describe('AnnualYunQiPage', () => {
       .toHaveAccessibleDescription(/开始 .*\+08:00，结束 .*\+08:00，北京时间 UTC\+08/);
   });
 
-  it('contains annual overflow locally without clipping the document', () => {
-    const stylesheet = readFileSync('src/styles/global.css', 'utf8');
-    const bodyDeclarations = stylesheet.match(
+  it('keeps the new single-column stage list and unwrapped boundary times without document clipping', () => {
+    const stylesheet = readFileSync('src/styles/views/drilldown.css', 'utf8');
+    const bodyDeclarations = readFileSync('src/styles/global.css', 'utf8').match(
       /\nbody\s*\{([^}]*)\}/s,
     )?.[1];
     const pageDeclarations = stylesheet.match(
-      /\.annual-yunqi-page\s*\{([^}]*)\}/s,
+      /\.drilldown-page\s*\{([^}]*)\}/s,
     )?.[1];
     const selectorDeclarations = stylesheet.match(
-      /\.annual-six-qi-selector__options\s*\{([^}]*)\}/s,
+      /\.drilldown-stage-selector__options\s*\{([^}]*)\}/s,
     )?.[1];
     const rangeDeclarations = stylesheet.match(
-      /\.annual-six-qi-selector__range\s*\{([^}]*)\}/s,
+      /\.drilldown-stage-selector__range time\s*\{([^}]*)\}/s,
     )?.[1];
 
     expect(bodyDeclarations).not.toContain('overflow-x');
     expect(pageDeclarations).toContain('min-width: 0;');
     expect(selectorDeclarations).toContain('min-width: 0;');
-    expect(selectorDeclarations).toContain('grid-template-columns:');
-    expect(rangeDeclarations).toContain('overflow-wrap: anywhere;');
+    expect(selectorDeclarations).toContain('grid-template-columns: minmax(0, 1fr);');
+    expect(rangeDeclarations).toContain('white-space: nowrap;');
+  });
+
+  it('shows both complete API boundaries for all six choices and a three-column annual card', () => {
+    const viewModel = mapAnnualYunQi(createYunQiYearDto());
+    const { container } = render(<AnnualYunQiPage viewModel={viewModel} />);
+    const options = container.querySelectorAll('.drilldown-stage-selector__option');
+    expect(options).toHaveLength(6);
+    for (const [index, option] of [...options].entries()) {
+      const times = [...option.querySelectorAll('time')];
+      expect(times.map((time) => time.dateTime)).toEqual([
+        viewModel.stages[index].start.localTime, viewModel.stages[index].end.localTime,
+      ]);
+      for (const time of times) expect(time.textContent).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+    }
+    const annual = screen.getByRole('region', { name: '年度概览' });
+    expect(within(annual).getByText('全年 · 2026')).toBeInTheDocument();
+    expect(annual.querySelector('.ds-info-card')).toBeInTheDocument();
+    expect([...annual.querySelectorAll('dt')].map((term) => term.textContent)).toEqual(['岁运', '司天', '在泉']);
+    expect(annual.querySelectorAll('.ds-element__dot')).toHaveLength(3);
+  });
+
+  it('retains an explicit explanation empty state', () => {
+    render(<AnnualYunQiPage viewModel={{ ...mapAnnualYunQi(createYunQiYearDto()), explanations: [] }} />);
+    expect(screen.getByText('本次结果未提供规则说明')).toBeInTheDocument();
   });
 
   it('resets selection to the first returned stage when the year changes', async () => {

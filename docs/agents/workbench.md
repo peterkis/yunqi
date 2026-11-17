@@ -58,8 +58,8 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
 | /yunqi/birth/classics | 下钻：原文与释义；返回/yunqi/birth | 仅使用本页内存中的出生响应，全年/出生阶段原文；直接打开无资料时不查询 |
 | /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
-| /yunqi/year | 下钻：年度分析；返回/yunqi/current | 年度入口，零年度查询 |
-| /yunqi/year/:year | 下钻：年度分析；返回/yunqi/current | URL驱动指定运气年分析 |
+| /yunqi/year | 下钻：年度详情；返回/yunqi/current | 年度入口，零年度查询 |
+| /yunqi/year/:year | 下钻：年度详情；返回/yunqi/current | URL驱动指定运气年分析 |
 | /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | E1指定时点，仅用户提交后查询 |
 | /yunqi/inquiry | 下钻：问诊规划；返回/yunqi/current | 只读规划入口，零业务查询；不放入分段导航 |
 | 其他路径 | 下钻：页面未找到；返回/yunqi/current | 不发业务查询 |
@@ -74,6 +74,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 当前范围1900–2100，列表、校验和提示使用
 [共享年份范围](../../apps/yunqi-workbench/src/lib/yunqi-year-range.ts)。
 问诊规划入口可访问不代表问诊业务上线。不得自动新增问诊子路由。
+年度页的“更多”文字链接可进入指定时点和问诊规划；问诊规划只读，不放入分段导航。
 
 2026-11-16新增两个独立入口及当前教学复合查询已获用户授权，见[实施计划](../plans/2026-11-16-clinician-feedback.md)。
 组件不导入DTO或计分规则；时间、解释和结果经纯presentation投影。出生与答案只保留会话态，

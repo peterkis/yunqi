@@ -1,3 +1,4 @@
+import { ErrorState } from '../../../../components/feedback/FeedbackStates';
 import type { YearParamResult } from '../../../../lib/year-validator';
 import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
 
@@ -11,9 +12,5 @@ const messages = {
 } as const;
 
 export function InvalidYearPage({ reason }: InvalidYearPageProps) {
-  return (
-    <div className="feedback-state feedback-state--error" role="alert">
-      <p>{messages[reason]}</p>
-    </div>
-  );
+  return <ErrorState message={messages[reason]} />;
 }
