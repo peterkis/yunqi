@@ -37,7 +37,7 @@ describe('birth classics navigation', () => {
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByRole('link', { name: '全部原文' })).toHaveFocus();
-    expect(within(form).getByText('已答 1 / 8 题')).toBeVisible();
+    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
     expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('1990-05-12');
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();

@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot } from './fixtures.mjs';
 import { expectBirthComparison, expectBirthReadings } from './birth-helpers.mjs';
+import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
   await page.getByLabel('出生日期（公历）').fill(birthDate);
@@ -15,19 +16,7 @@ async function compareBirth(page, birthDate = '1990-05-12') {
 
 async function answerQuestionnaire(page) {
   const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
-  await session.getByRole('radio', { name: '男', exact: true }).check();
-  for (let group = 1; group <= 5; group += 1) {
-    await expect(session.locator('.question-group-heading')).toHaveText(`第 ${group} 组 / 共 5 组`);
-    const questions = session.locator('.constitution-question');
-    const count = group === 5 ? 2 : 6;
-    await expect(questions).toHaveCount(count);
-    for (let index = 0; index < count; index += 1) {
-      await questions.nth(index).getByRole('radio').first().check();
-    }
-    await expect(session.getByRole('alert')).toHaveCount(0);
-    if (group < 5) await session.getByRole('button', { name: '下一组', exact: true }).click();
-  }
-  await expect(session.getByText('已答 26 / 26 题', { exact: true })).toBeVisible();
+  await answerConstitution(page, session);
   return session;
 }
 
@@ -88,16 +77,11 @@ test('same-page birth assessment reads matching annual and period passages, scor
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
 
   const scoreResponsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await session.getByRole('button', { name: '生成体质测评结果', exact: true }).click();
+  await session.getByRole('button', { name: '查看结果', exact: true }).click();
   const scoreResponse = await scoreResponsePromise;
   expect(scoreResponse.status()).toBe(200);
   const { data: assessment } = await scoreResponse.json();
-  const results = session.getByRole('region', { name: '体质测评结果', exact: true });
-  await expect(results).toBeVisible();
-  await expect(results.getByRole('progressbar')).toHaveCount(9);
-  for (const dimension of assessment.results) {
-    await expect(results.getByRole('progressbar', { name: `${dimension.name}转换分` })).toHaveAttribute('value', String(dimension.score));
-  }
+  const results = await expectConstitutionResults(session, assessment);
   const scoreRequests = diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'));
   expect(scoreRequests).toHaveLength(1);
   const requestBody = JSON.parse(scoreRequests[0].body);
@@ -109,28 +93,30 @@ test('same-page birth assessment reads matching annual and period passages, scor
   expect(scan.violations.map(violation => ({ id: violation.id, targets: violation.nodes.map(node => node.target) }))).toEqual([]);
   await screenshot(page, testInfo, 'birth-assessment-nine-results');
 
-  await page.getByRole('button', { name: '结束本次测评', exact: true }).click();
+  await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
   await expect(start).toBeFocused();
   await start.click();
   await expect(page.getByRole('radio', { name: '男', exact: true })).not.toBeChecked();
+  await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
   await page.getByRole('radio', { name: '女', exact: true }).check();
-  await expect(page.getByText('已答 0 / 26 题', { exact: true })).toBeVisible();
-  await page.locator('.constitution-question').first().getByRole('radio').first().check();
-  await expect(page.getByText('已答 1 / 26 题', { exact: true })).toBeVisible();
+  await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
+  await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await page.locator('.constitution-question-screen').first().getByRole('radio').first().click();
+  await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
   await allReadings.click();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.getByText('已答 1 / 26 题', { exact: true })).toBeVisible();
+  await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radio', { name: '女', exact: true })).toBeChecked();
   await compareBirth(page, '1990-05-13');
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
   await start.click();
   await expect(page.getByRole('radio', { name: '女', exact: true })).not.toBeChecked();
-  await expect(page.locator('.constitution-question')).toHaveCount(0);
+  await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();
   await expect(session).toHaveCount(0);
   await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toHaveCount(0);
@@ -156,7 +142,7 @@ test('same-page assessment ignores an older real scoring response after birth in
   });
   const oldResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
   try {
-    await session.getByRole('button', { name: '生成体质测评结果', exact: true }).click();
+    await session.getByRole('button', { name: '查看结果', exact: true }).click();
     expect(await reachedBackend).toBe(200);
     await expect(session.getByRole('status')).toHaveText('正在按量表规则计分');
     await expect(page.getByLabel('出生日期（公历）')).toBeEnabled();
@@ -169,9 +155,10 @@ test('same-page assessment ignores an older real scoring response after birth in
     expect((await oldResponse).status()).toBe(200);
     await settle(page);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-    await expect(page.locator('.constitution-question')).toHaveCount(0);
+    await expect(session.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+    await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
     await page.getByRole('radio', { name: '女', exact: true }).check();
-    await expect(page.getByText('已答 0 / 26 题', { exact: true })).toBeVisible();
+    await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(1);
     expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
   } finally {
@@ -205,7 +192,13 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(1);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await expect(context.locator('.birth-assessment-birth-context > section')).toHaveCount(data.candidates.length);
+  await context.getByText('本次对照快照与候选区间', { exact: true }).click();
+  await expect(context.locator('.constitution-birth-candidate')).toHaveCount(data.candidates.length);
+  for (const [index, candidate] of data.candidates.entries()) {
+    const row = context.locator('.constitution-birth-candidate').nth(index);
+    await expect(row.locator('time').first()).toHaveAttribute('datetime', candidate.from.localTime);
+    await expect(row.locator('time').last()).toHaveAttribute('datetime', candidate.until.localTime);
+  }
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();

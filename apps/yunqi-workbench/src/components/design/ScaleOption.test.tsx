@@ -56,7 +56,7 @@ describe('ScaleOption', () => {
     }
   });
 
-  it('moves with arrows, wraps at boundaries, and supports Home and End', async () => {
+  it('moves focus with arrows, Home and End without changing the answer', async () => {
     const user = userEvent.setup();
     render(<Question />);
     await user.tab();
@@ -66,7 +66,8 @@ describe('ScaleOption', () => {
     ]) {
       await user.keyboard(key);
       expect(screen.getByRole('radio', { name: label })).toHaveFocus();
-      expect(screen.getByRole('radio', { name: label })).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getByRole('radio', { name: '没有' })).toHaveAttribute('aria-checked', 'true');
+      expect(screen.getAllByRole('radio').filter((radio) => radio.getAttribute('aria-checked') === 'true')).toHaveLength(1);
     }
   });
 

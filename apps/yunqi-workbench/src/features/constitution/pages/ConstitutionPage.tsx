@@ -1,33 +1,20 @@
 import { mapLearning } from '../../yunqi/presentation/map-learning';
 import { AsyncState } from '../../../components/feedback/AsyncState';
-import { LearningSnapshot } from '../../yunqi/components/LearningPanels';
 import { useLearningCurrentQuery } from '../../yunqi/hooks/useLearningQueries';
 import { ConstitutionAssessmentPanel } from '../components/ConstitutionAssessmentPanel';
+import { mapConstitutionContext } from '../presentation/map-constitution';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
 import { mapPanelSummary } from '../../yunqi/presentation/panel-summary';
 
 export function ConstitutionPage() {
   const current = useLearningCurrentQuery();
+  const learning = current.data ? mapLearning(current.data) : undefined;
   return (
-    <div className="constitution-page learning-page">
-      <header className="learning-page__hero">
-        <p className="section-label">当下状态 · 独立测评</p>
-        <h2>中医体质测评</h2>
-        <p>按量表回顾自身表现，同时参考当前运气。出生运气与量表体质分别解释。</p>
-      </header>
-      <div className="constitution-layout">
-        <ConstitutionAssessmentPanel />
-        <aside className="constitution-current" aria-label="测评时的当前运气">
-          <AsyncState data={current.data} error={current.error} isPending={current.isPending} loadingMessage="正在加载当前运气" errorMessage="当前运气暂不可用，不影响量表作答" onRetry={() => { void current.refetch(); }} renderData={(data) => {
-            const learning = mapLearning(data);
-            return <>
-              <PanelSummary viewModel={mapPanelSummary(learning.facts.summary, { step: learning.facts.currentStep, relation: learning.currentQi })} />
-              <LearningSnapshot learning={learning} title="当前运气参考" />
-            </>;
-          }} />
-          <p className="learning-boundary">量表计分独立于运气计算，不用生日或当前时气修改体质得分。</p>
-        </aside>
-      </div>
+    <div className="constitution-page">
+      <h2 className="visually-hidden">中医体质测评</h2>
+      {learning ? <PanelSummary viewModel={mapPanelSummary(learning.facts.summary, { step: learning.facts.currentStep, relation: learning.currentQi })} /> : null}
+      {!learning ? <AsyncState data={current.data} error={current.error} isPending={current.isPending} loadingMessage="正在加载当前运气" errorMessage="当前运气暂不可用，不影响量表作答" onRetry={() => { void current.refetch(); }} renderData={() => null} /> : null}
+      <ConstitutionAssessmentPanel context={learning ? mapConstitutionContext(learning) : undefined} />
     </div>
   );
 }

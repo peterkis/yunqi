@@ -1,6 +1,9 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AppProviders } from '../../../../providers/AppProviders';
+import { createWorkbenchQueryClient } from '../../../../providers/QueryProvider';
 import { createAssessmentDto, createBirthComparisonDto, createClientStub, createQuestionnaireDto } from '../../../../test/learning-fixtures';
 import { createTestWrapper } from '../../../../test/test-utils';
 import { BirthComparisonPage } from './BirthComparisonPage';
@@ -18,12 +21,12 @@ async function openAssessment(user: ReturnType<typeof userEvent.setup>) {
 
 async function completeAssessment(user: ReturnType<typeof userEvent.setup>, form: HTMLElement) {
   await user.click(within(form).getByRole('radio', { name: '男' }));
-  for (let group = 0; group < 2; group += 1) {
-    for (const answer of within(form).getAllByRole('radio', { name: '没有' })) await user.click(answer);
-    if (group === 0) await user.click(within(form).getByRole('button', { name: '下一组' }));
-  }
-  await user.click(within(form).getByRole('button', { name: '生成体质测评结果' }));
+  for (let index = 0; index < 8; index += 1) await user.keyboard('1');
+  await user.click(within(form).getByRole('button', { name: '查看结果' }));
 }
+
+beforeEach(() => { vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }))); });
+afterEach(() => { vi.unstubAllGlobals(); });
 
 describe('birth comparison assessment session', () => {
   it('drills into birth-scoped readings while retaining matching current readings separately', async () => {
@@ -65,13 +68,15 @@ describe('birth comparison assessment session', () => {
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(client.assessConstitution).not.toHaveBeenCalled();
     const context = screen.getByRole('complementary', { name: '本次测评对照背景' });
-    expect(within(context).getByText('第二个可能归属')).toBeVisible();
+    expect(context).toHaveTextContent('第二个可能归属');
+    await user.click(within(context).getByText('本次对照快照与候选区间'));
+    expect(within(context).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
     expect(context.querySelector('time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
     expect(form.parentElement?.closest('form')).toBeNull();
     await user.click(within(form).getByRole('radio', { name: '男' }));
     await user.click(within(form).getAllByRole('radio', { name: '有时' })[0]);
-    expect(within(form).getByText('已答 1 / 8 题')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: '结束本次测评' }));
+    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveFocus();
     const restarted = await openAssessment(user);
@@ -105,7 +110,7 @@ describe('birth comparison assessment session', () => {
     const fresh = await openAssessment(user);
     expect(within(fresh).getByRole('radio', { name: '女' })).not.toBeChecked();
     await user.click(within(fresh).getByRole('radio', { name: '女' }));
-    expect(within(fresh).getByText('已答 0 / 8 题')).toBeVisible();
+    expect(within(fresh).getByRole('img', { name: /已答 0 \/ 8/ })).toBeVisible();
     expect(client.assessConstitution).not.toHaveBeenCalled();
   });
 
@@ -119,7 +124,7 @@ describe('birth comparison assessment session', () => {
     await waitFor(() => expect(client.assessConstitution).toHaveBeenCalledOnce());
     expect(screen.getByRole('status')).toHaveTextContent('正在按量表规则计分');
     if (action === 'edit-birth') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1992-08-09' } });
-    if (action === 'end') await user.click(screen.getByRole('button', { name: '结束本次测评' }));
+    if (action === 'end') await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     if (action === 'clear') await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     if (action === 'resubmit') await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
@@ -147,4 +152,50 @@ describe('birth comparison assessment session', () => {
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
   });
+  it('keeps empty loading and failed sessions free of a destroy action and ignores discarded loads', async () => {
+    const user = userEvent.setup();
+    let reject!: (reason: Error) => void;
+    const client = createClientStub({ getConstitutionQuestionnaire: vi.fn(() => new Promise<ReturnType<typeof createQuestionnaireDto>>((_, fail) => { reject = fail; })) });
+    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
+    await submitBirth(user);
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+    expect(screen.getByRole('status')).toHaveTextContent('正在加载体质量表');
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(document.querySelector('footer.constitution-session-footer')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    await act(async () => { reject(new Error('private questionnaire failure')); });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    await submitBirth(user);
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+    await act(async () => { reject(new Error('private questionnaire failure')); });
+    expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(screen.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
+    expect(client.assessConstitution).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
+  it('does not offer destruction for an empty reopened session when the cached questionnaire refresh fails', async () => {
+    const user = userEvent.setup();
+    const client = createClientStub({ getConstitutionQuestionnaire: vi.fn().mockResolvedValueOnce(createQuestionnaireDto()).mockRejectedValueOnce(new Error('private refresh failure')) });
+    const queryClient = createWorkbenchQueryClient();
+    render(<MemoryRouter><AppProviders queryClient={queryClient} yunqiClient={client}><BirthComparisonPage /></AppProviders></MemoryRouter>);
+    await submitBirth(user);
+    const form = await openAssessment(user);
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    await user.click(within(form).getByRole('radio', { name: '男' }));
+    await user.keyboard('1');
+    await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
+    // The production cache stays fresh for five minutes. Mark this owned
+    // cache stale explicitly, then exercise the real reopening/refetch path.
+    await queryClient.invalidateQueries({ queryKey: ['constitution', 'questionnaire'], refetchType: 'none' });
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(document.querySelector('footer.constitution-session-footer')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
 });

@@ -349,3 +349,89 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
   expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });
+
+test('constitution keyboard loop answers one question at a time and destroys the session', async ({ page, diagnostics }, testInfo) => {
+  await page.setViewportSize({ width: 400, height: 860 });
+  await page.goto('/yunqi/constitution');
+  const form = page.getByRole('form', { name: '中医体质量表', exact: true });
+  await expect(form).toBeVisible();
+  const end = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
+  await expect(end).toHaveCount(0);
+  const storageBefore = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
+  const male = form.getByRole('radio', { name: '男', exact: true });
+  await male.focus();
+  await page.keyboard.press('Space');
+  await expect(page.locator('.constitution-question-title')).toBeFocused();
+  await expect(page.locator('.constitution-position')).toHaveText('1/26');
+  await page.keyboard.press('Tab');
+  await expect(form.getByRole('radio', { name: '没有', exact: true })).toBeFocused();
+  await page.keyboard.press('ArrowDown');
+  await expect(form.getByRole('radio', { name: '很少', exact: true })).toBeFocused();
+  await page.keyboard.press('End');
+  await expect(form.getByRole('radio', { name: '总是', exact: true })).toBeFocused();
+  await page.keyboard.press('Home');
+  await page.keyboard.press('ArrowUp');
+  await page.waitForTimeout(200); // Longer than auto-advance: focus browsing cannot start it.
+  await expect(form.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
+  await expect(form.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
+  await expect(page.locator('.constitution-position')).toHaveText('1/26');
+  for (let number = 1; number <= 26; number += 1) {
+    await expect(page.locator('.constitution-position')).toHaveText(`${number}/26`);
+    await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
+    await expect(form.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
+    await expect(end).toHaveCount(number === 1 ? 0 : 1);
+    await page.keyboard.press(String((number - 1) % 5 + 1));
+  }
+  await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
+  expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+  await page.keyboard.press('Tab');
+  await expect(form.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
+  const responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
+  await page.keyboard.press('Enter');
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  const { data } = await response.json();
+  const result = page.getByRole('region', { name: '体质测评结果', exact: true });
+  await expect(result.locator('.constitution-decision h4')).toBeFocused();
+  await expect(result.getByRole('img')).toHaveCount(9);
+  const request = JSON.parse(diagnostics.requests.find(item => item.url.endsWith('/constitution/assess')).body);
+  expect(Object.keys(request.answers)).toHaveLength(26);
+  expect(Object.values(request.answers).every(value => [1, 2, 3, 4, 5].includes(value))).toBe(true);
+  await expect(result.getByRole('region', { name: '与运气互参', exact: true })).toContainText(data.summary);
+  await screenshot(page, testInfo, 'constitution-keyboard-result');
+  // The focused decision is followed by the two disclosures and the sole end action.
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Tab');
+  await expect(end).toHaveCount(1);
+  await expect(end).toHaveClass(/ds-button--secondary/);
+  await expect(end).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(result).toHaveCount(0);
+  await expect(end).toHaveCount(0);
+  await expect(male).not.toBeChecked();
+  await expect(form.getByRole('radiogroup')).toHaveCount(0);
+  await expect(form.getByRole('group', { name: '量表所用性别' })).toBeFocused();
+  expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
+  expect(new URL(page.url()).search).toBe('');
+  expect(new URL(page.url()).hash).toBe('');
+});
+
+test('constitution reduced-motion answers advance immediately and previous restores an explicit choice', async ({ page, diagnostics }) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/yunqi/constitution');
+  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Space');
+  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-question-title')).toBeFocused();
+  await page.keyboard.press('Tab');
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.constitution-position')).toHaveText('3/26');
+  const previous = page.getByRole('button', { name: '上一题', exact: true });
+  await previous.focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.getByRole('radiogroup').getByRole('radio', { name: '没有', exact: true })).toBeChecked();
+  expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+});

@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale } from './fixtures.mjs';
+import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
@@ -19,15 +20,18 @@ const cases = [
   { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
+  { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
+  { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
+  { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
 ];
 
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme, diagnostics }, testInfo) => {
-    // Birth migration targets only; other cards keep their existing viewport cases.
-    if (state.name.startsWith('birth')) {
+    // Only the birth and constitution cards migrate their viewport targets here.
+    if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
       const birthViewports = {
         'desktop-light': { width: 400, height: 860 },
         'breakpoint-light': { width: 400, height: 640 },
@@ -88,8 +92,19 @@ for (const state of cases) {
       await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
     }
     if (state.questionnaire) {
-      await page.getByRole('radio', { name: '男', exact: true }).check();
-      await expect(page.locator('.constitution-question')).toHaveCount(6);
+      if (state.constitutionComplete || state.constitutionResult) {
+        await answerConstitution(page);
+        if (state.constitutionResult) {
+          const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
+          await page.getByRole('button', { name: '查看结果', exact: true }).click();
+          const { data } = await (await scoreResponse).json();
+          await expectConstitutionResults(page, data);
+        }
+      } else {
+        await page.getByRole('radio', { name: '男', exact: true }).check();
+        await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
+        await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
+      }
     }
     if (acceptanceTheme === 'dark') {
       await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
@@ -97,6 +112,12 @@ for (const state of cases) {
     }
     await settle(page);
     await expectPanelLayout(page);
+    if (state.birthAssessment || state.name.startsWith('constitution')) {
+      const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
+      await expect(destroy).toHaveCount(state.constitutionComplete || state.constitutionResult ? 1 : 0);
+      if (state.constitutionComplete || state.constitutionResult) await expect(destroy).toHaveClass(/ds-button--secondary/);
+      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+    }
     if (state.birth && !state.birthClassics) {
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
         columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
@@ -126,6 +147,35 @@ for (const state of cases) {
         expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
       }
       await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
+    }
+    if (state.questionnaire) {
+      const typography = await expectTypeScale(page, testInfo, `${state.name}-constitution`);
+      expect(typography.sizes.every(size => [12, 14, 15, 20, 24, 30, 40].includes(size))).toBe(true);
+      const question = page.locator('.constitution-question-title');
+      if (!state.constitutionResult && !state.constitutionComplete) {
+        const metrics = await question.evaluate(element => ({ size: getComputedStyle(element).fontSize, font: getComputedStyle(element).fontFamily }));
+        expect(metrics.size).toBe('20px');
+        expect(metrics.font).toContain('Noto Serif SC');
+        const progress = await page.locator('.constitution-progress-grid').evaluate(element => ({
+          columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
+          rows: getComputedStyle(element).gridTemplateRows.split(' ').length,
+          cells: element.children.length,
+        }));
+        expect(progress).toEqual({ columns: 13, rows: 2, cells: 26 });
+        const options = await page.locator('.ds-scale-option').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height));
+        expect(options).toHaveLength(5);
+        for (const height of options) expect(height).toBeGreaterThanOrEqual(40);
+        await page.getByRole('radiogroup').getByRole('radio').first().focus();
+        await page.keyboard.press('ArrowDown');
+        await expect(page.locator('.constitution-position')).toHaveText('1/26');
+        const focusedOption = page.getByRole('radiogroup').getByRole('radio').nth(1);
+        await expect(focusedOption).toHaveCSS('outline-width', '2px');
+        await expect(focusedOption).toHaveCSS('outline-style', 'solid');
+      }
+      if (state.constitutionResult) {
+        expect(await page.locator('.constitution-decision h4').evaluate(element => getComputedStyle(element).fontSize)).toBe('30px');
+        await expect(page.locator('.constitution-bar-track[role="img"]')).toHaveCount(9);
+      }
     }
     await screenshot(page, testInfo, state.name);
 

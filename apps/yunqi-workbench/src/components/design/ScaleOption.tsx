@@ -12,6 +12,7 @@ export interface ScaleOptionProps {
 }
 
 function handleOptionKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+  if (event.repeat) return;
   const group = event.currentTarget.closest('[role="radiogroup"]');
   if (!group) return;
 
@@ -43,7 +44,8 @@ function handleOptionKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
   if (target && !event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey) {
     event.preventDefault();
     target.focus();
-    target.click();
+    // Browsing a scale must not answer it: callers may advance after a choice.
+    if (/^[1-5]$/.test(event.key)) target.click();
   }
 }
 

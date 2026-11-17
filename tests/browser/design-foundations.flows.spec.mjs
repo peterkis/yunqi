@@ -157,6 +157,10 @@ for (const theme of ['light', 'dark']) {
     await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
     await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeFocused();
     await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('radio', { name: '经常', exact: true })).toBeFocused();
+    await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
+    await expect(page.getByRole('radio', { name: '经常', exact: true })).not.toBeChecked();
+    await page.keyboard.press('Space');
     await expect(page.getByRole('radio', { name: '经常', exact: true })).toBeChecked();
     await page.getByRole('link', { name: '先天对照', exact: true }).focus();
     await page.keyboard.press('Enter');
