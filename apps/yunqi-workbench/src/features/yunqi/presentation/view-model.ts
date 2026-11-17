@@ -4,6 +4,9 @@ import type {
   YunQiYearDto,
 } from '@yunqi/contracts';
 
+export type RelationTone = 'favorable' | 'adverse' | 'neutral';
+export type ElementKind = 'wood' | 'fire' | 'earth' | 'metal' | 'water';
+
 export interface LabeledCodeViewModel<
   Code extends string = string,
 > {
@@ -53,6 +56,9 @@ export type SixQiStageTuple<
 export interface CurrentSixQiStageViewModel
   extends SixQiStageViewModel {
   readonly status: LabeledCodeViewModel<YunQiStageStatusCode>;
+  readonly hostElement: ElementKind | undefined;
+  readonly guestElement: ElementKind | undefined;
+  readonly tickLabel: string;
 }
 
 export type CurrentSixQiStageTuple =
@@ -95,7 +101,15 @@ export interface TimeAnalysisYunQiViewModel {
 }
 
 export interface CurrentYunQiViewModel {
+  readonly contractId: string;
   readonly inputTime: YunQiTimeViewModel;
+  readonly inputDate: string;
+  readonly progressLabel: string;
+  readonly annualElements: {
+    readonly suiYun: ElementKind | undefined;
+    readonly sitian: ElementKind | undefined;
+    readonly zaiquan: ElementKind | undefined;
+  };
   readonly summary: YunQiYearSummaryViewModel;
   readonly currentStep: CurrentSixQiStageViewModel;
   readonly timeline: CurrentSixQiStageTuple;

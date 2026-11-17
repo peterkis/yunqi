@@ -2,7 +2,9 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
 const cases = [
-  { name: 'current', path: '/yunqi/current', ready: '年度概览' },
+  { name: 'current', path: '/yunqi/current', current: true },
+  { name: 'current-classics', path: '/yunqi/current/classics', classics: true },
+  { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true },
   { name: 'annual-entry', path: '/yunqi/year', ready: '年度五运六气分析' },
   { name: 'annual-result', path: '/yunqi/year/2024', ready: '年度概览' },
   { name: 'calculate-entry', path: '/yunqi/calculate', ready: '指定时点分析' },
@@ -19,7 +21,11 @@ const cases = [
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme }, testInfo) => {
     await page.goto(state.path);
-    await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    if (state.current) await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    else if (state.classics) {
+      await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
+      if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
+    } else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
     if (state.calculate) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
@@ -70,7 +76,12 @@ for (const state of cases) {
         yearSelect: measure('select[aria-label="分析年份"]'),
         stageNames: measure('.annual-six-qi-selector__option strong'),
         stageTimes: measure('.annual-six-qi-selector__range time'),
-        currentTitle: measure('.current-yunqi-hero h2'),
+        currentTitle: measure('.current-year-heading h3'),
+        currentCards: measure('.current-overview__annual, .current-overview__now'),
+        currentFonts: [...new Set([...document.querySelectorAll('.panel-shell *')].filter(visible).filter(element => [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim())).filter(element => !element.closest('details:not([open])') && !element.closest('.visually-hidden')).map(element => getComputedStyle(element).fontSize))],
+        mainBounds: document.querySelector('main').getBoundingClientRect().toJSON(),
+        cardBounds: [...document.querySelectorAll('.current-overview__annual, .current-overview__now')].map(element => element.getBoundingClientRect().toJSON()),
+        viewportHeight: innerHeight,
       };
     });
     await testInfo.attach('layout-metrics', { body: JSON.stringify(layout, null, 2), contentType: 'application/json' });
@@ -81,7 +92,15 @@ for (const state of cases) {
       expect.soft(layout.stageNames, 'Annual result retains all six named stages').toHaveLength(6);
       expect.soft(layout.stageTimes, 'Every annual stage retains both boundary times').toHaveLength(12);
     }
-    if (state.name === 'current') expect.soft(layout.currentTitle, 'Current page retains its heading').toHaveLength(1);
+    if (state.name === 'current') {
+      expect.soft(layout.currentTitle, 'Annual ganzhi is the primary heading').toHaveLength(1);
+      expect.soft(layout.currentCards, 'The default view retains both fact cards').toHaveLength(2);
+      expect.soft(layout.currentFonts.length, 'Default screen uses at most five visible font sizes').toBeLessThanOrEqual(5);
+      if (layout.viewportHeight >= 900) for (const card of layout.cardBounds) {
+        expect.soft(card.top, 'Fact card starts inside the content viewport without scrolling').toBeGreaterThanOrEqual(layout.mainBounds.top);
+        expect.soft(card.bottom, 'Annual and current cards fit without scrolling').toBeLessThanOrEqual(layout.mainBounds.bottom);
+      }
+    }
     expect.soft(layout.documentWidth, 'Page must not overflow horizontally').toBeLessThanOrEqual(layout.viewportWidth + 1);
     expect.soft(layout.overflowingControls, 'Controls must fit and keep their content readable').toEqual([]);
     for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector has a usable 44 px target').toBeGreaterThanOrEqual(44);

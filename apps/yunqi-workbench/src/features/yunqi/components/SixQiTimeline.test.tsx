@@ -154,7 +154,7 @@ describe('SixQiTimeline', () => {
       </>,
     );
 
-    const rails = container.querySelectorAll('.annual-stage-rail');
+    const rails = container.querySelectorAll('.current-stage-navigation');
     expect(rails).toHaveLength(2);
     const firstControl = rails[0]?.querySelector('button');
     const secondControl = rails[1]?.querySelector('button');

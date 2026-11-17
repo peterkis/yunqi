@@ -2,12 +2,12 @@ import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   await loadCurrent(page);
-  await expect(page.locator('.current-yunqi-hero time')).toHaveText('2024-01-20 22:07:22');
+  await expect(page.locator('.current-observed-time time')).toHaveText('2024-01-20 22:07:22');
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
-  await expect(page.locator('.annual-disclosure')).not.toHaveAttribute('open');
-  await expect(page.locator('.timeline-item__toggle').first()).toBeHidden();
-  await page.locator('.annual-disclosure > summary').click();
-  const toggles = page.locator('.timeline-item__toggle');
+  await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');
+  await expect(page.locator('.current-stage-row button').first()).toBeHidden();
+  await page.locator('.current-all-stages > summary').click();
+  const toggles = page.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
   for (let index = 0; index < 6; index += 1) {
     const toggle = toggles.nth(index);
@@ -21,8 +21,8 @@ test('current route redirects, renders canonical time and closes every stage dis
     await toggle.press('Enter');
     await expect(details).toBeHidden();
   }
-  // A 400px panel uses the disclosure controls; the wide demo rail is hidden.
-  await expect(page.getByRole('navigation', { name: '六气年度六阶段概览' })).toBeHidden();
+  // The compact stage navigation and details both remain keyboard reachable.
+  await expect(page.getByRole('navigation', { name: '六气年度六阶段概览' })).toBeVisible();
   await toggles.last().click();
   await expect(toggles.last()).toHaveAttribute('aria-expanded', 'true');
   await settle(page);
@@ -32,17 +32,18 @@ test('current route redirects, renders canonical time and closes every stage dis
 
 test('annual entry, real year query, six-stage keyboard selection, history, reload and return form a loop', async ({ page, diagnostics }, testInfo) => {
   await loadCurrent(page);
-  // C3/C6 add the new entry points; the annual entry already supports direct URLs.
-  await page.goto('/yunqi/year');
-  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
-  await settle(page);
-  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(0);
-
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/year/2024'));
-  await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
+  await page.getByRole('link', { name: '年度详情', exact: true }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
+  await expect(page.locator('.summary-grid')).toContainText('2024');
+  await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
+  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
+  await settle(page);
+  // Entering the empty annual form adds no query to the shortcut's one GET.
+  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(1);
+  await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
   expect(data.year).toBe(2024);
   await expect(page.locator('.summary-grid').getByText(
     `${data.suiYun.element}运${data.suiYun.state}（${data.suiYun.tone}）`,
@@ -108,7 +109,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   await settle(page);
   expect(annualRequests()).toHaveLength(beforeReload + 1);
   await page.getByRole('button', { name: '返回', exact: true }).click();
-  await expect(page.locator('.current-yunqi-hero time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
+  await expect(page.locator('.current-observed-time time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
 });
 
 for (const [year, message] of [
@@ -130,16 +131,20 @@ for (const [year, message] of [
 }
 
 test('specified time is submit-only, rejects empty input and hides stale results after editing', async ({ page, diagnostics }, testInfo) => {
-  await page.goto('/yunqi/calculate');
+  await loadCurrent(page);
+  await page.getByRole('link', { name: '指定时点', exact: true }).click();
+  const calculationRequests = () => diagnostics.requests.filter(request => request.url.endsWith('/api/v1/yunqi/calculate'));
   await expect(page.getByRole('heading', { name: '指定时点分析', exact: true })).toBeVisible();
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(calculationRequests()).toHaveLength(0);
+  expect(diagnostics.requests).toHaveLength(1);
   const input = page.getByLabel('分析时间', { exact: true });
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   await expect(page.getByRole('alert')).toHaveText('请输入合法的北京时间');
   await expect(input).toBeFocused();
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(calculationRequests()).toHaveLength(0);
+  expect(diagnostics.requests).toHaveLength(1);
 
   await input.fill('2024-01-20T22:07');
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/calculate'));
@@ -150,17 +155,19 @@ test('specified time is submit-only, rejects empty input and hides stale results
   const result = page.getByRole('region', { name: '指定时点分析结果', exact: true });
   await expect(result).toBeVisible();
   await expect(result.locator('.time-analysis-result__time time')).toHaveAttribute('datetime', data.input.localTime);
-  expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ dateTime: '2024-01-20T22:07:00+08:00' });
+  expect(JSON.parse(calculationRequests()[0].body)).toEqual({ dateTime: '2024-01-20T22:07:00+08:00' });
   await screenshot(page, testInfo, 'calculated-real-api');
 
   await input.fill('2024-01-20T22:07:22');
   await expect(page.getByRole('status')).toHaveText('输入已修改，请重新分析');
   await expect(result).toHaveCount(0);
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(1);
+  expect(calculationRequests()).toHaveLength(1);
+  expect(diagnostics.requests).toHaveLength(2);
   await input.press('Enter');
   await expect(result.locator('.time-analysis-result__time time')).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
-  expect(diagnostics.requests).toHaveLength(2);
+  expect(calculationRequests()).toHaveLength(2);
+  expect(diagnostics.requests).toHaveLength(3);
 });
 
 test('supported annual boundary years load directly from the real API', async ({ page, diagnostics }, testInfo) => {
@@ -267,7 +274,8 @@ for (const [path, endpoint, error] of [
     await page.goto(path);
     await expect(page.getByRole('alert')).toContainText(error);
     await page.getByRole('button', { name: '重试', exact: true }).click();
-    await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
+    if (path === '/yunqi/current') await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
+    else await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
     expect(diagnostics.requests).toHaveLength(2);
   });
 }
@@ -289,6 +297,6 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
     expect(diagnostics.requests).toHaveLength(0);
   }
   await page.getByRole('link', { name: '返回当前五运六气', exact: true }).click();
-  await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
+  await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
   expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });

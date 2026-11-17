@@ -31,10 +31,10 @@ describe('App', () => {
     );
 
     expect(
-      await within(view.container).findByRole('heading', {
-        name: '当前五运六气',
+      await within(view.container).findByRole('region', {
+        name: '全年 · 2026',
       }, { timeout: 5_000 }),
-    ).toBeInTheDocument();
+    ).toBeVisible();
     const footer = within(view.container).getByRole('contentinfo');
     expect(footer).toHaveTextContent('五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据');
     expect(within(view.container).getByRole('region', { name: '追溯信息' })).toHaveTextContent('YQ-API-CONTRACT-1.2.0');

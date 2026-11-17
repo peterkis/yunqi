@@ -1,14 +1,16 @@
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
-  await page.goto('/yunqi/year');
+  await loadCurrent(page);
+  await page.getByRole('link', { name: '年度详情', exact: true }).click();
+  await expect(page.locator('.summary-grid')).toContainText('2024');
+  await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
   await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(1);
 
-  await loadCurrent(page);
-  await page.getByRole('link', { name: '查看 2024 年六气' }).click();
+  await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
   await expect(page.locator('.summary-grid')).toContainText('2024');
   await page.getByRole('radio', { name: '第 3 步 三之气', exact: true }).check();
   await page.getByRole('button', { name: '下一年', exact: true }).click();
@@ -60,7 +62,7 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await page.getByRole('region', { name: '追溯信息', exact: true }).scrollIntoViewIfNeeded();
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('main')).toBeFocused();
-  await expect(page.getByRole('heading', { name: '当前五运六气', exact: true })).toBeInViewport();
+  await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('heading', { name: '出生运气对照', exact: true })).toBeInViewport();
@@ -70,11 +72,11 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await page.keyboard.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('link', { name: '当下运气', exact: true }).click();
-  const disclosure = page.locator('.workbench-disclosure').filter({ has: page.getByText('计算说明与版本', { exact: true }) });
+  const disclosure = page.locator('.current-technical');
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');
-  await expect(disclosure.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
+  await expect(disclosure.getByText(/YunQi 当前查询 API · YQ-API-CONTRACT-1.2.0/)).toBeVisible();
   await page.keyboard.press('Space');
-  await expect(disclosure.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeHidden();
+  await expect(disclosure.getByText(/YunQi 当前查询 API · YQ-API-CONTRACT-1.2.0/)).toBeHidden();
   await screenshot(page, testInfo, 'keyboard-technical-disclosure');
 });

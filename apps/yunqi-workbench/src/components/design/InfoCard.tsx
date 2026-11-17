@@ -1,4 +1,5 @@
 import { useId, type ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
 export type InfoCardProps = {
   readonly label: string;
@@ -7,12 +8,14 @@ export type InfoCardProps = {
   readonly hint?: ReactNode;
   readonly compact?: boolean;
 } & (
-  | { readonly href?: never; readonly linkLabel?: never }
-  | { readonly href: string; readonly linkLabel?: string }
+  | { readonly href?: never; readonly to?: never; readonly linkLabel?: never }
+  | { readonly href: string; readonly to?: never; readonly linkLabel?: string }
+  | { readonly to: string; readonly href?: never; readonly linkLabel?: string }
 );
 
 export function InfoCard({
   href,
+  to,
   linkLabel = '原文与释义',
   label,
   meta,
@@ -31,7 +34,11 @@ export function InfoCard({
         <span className="ds-info-card__label" id={labelId}>{label}</span>
         <span className="ds-info-card__meta">
           {meta && <span>{meta}</span>}
-          {href !== undefined && (
+          {to !== undefined ? (
+            <Link className="ds-info-card__link" to={to}>
+              {linkLabel}<span aria-hidden="true"> ›</span>
+            </Link>
+          ) : href !== undefined && (
             <a className="ds-info-card__link" href={href}>
               {linkLabel}<span aria-hidden="true"> ›</span>
             </a>

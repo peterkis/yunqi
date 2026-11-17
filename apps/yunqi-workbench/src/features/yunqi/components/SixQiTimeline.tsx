@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
-import { Panel } from '../../../components/ui/Panel';
+import { Button } from '../../../components/design/Button';
+import { InfoCard } from '../../../components/design/InfoCard';
 import type { CurrentSixQiStageTuple } from '../presentation/view-model';
-import { AnnualStageRail } from './AnnualStageRail';
+import { getSixQiTimelineIds } from './six-qi-timeline-ids';
 import { SixQiTimelineItem } from './SixQiTimelineItem';
 
 export interface SixQiTimelineProps {
@@ -54,17 +55,17 @@ export function SixQiTimeline({
   }
 
   return (
-    <Panel
-      title="六步交接时间线"
-      description="当前步默认展开；可同时展开多个节点比较客主关系。"
-    >
-      <AnnualStageRail
-        timelineId={timelineId}
-        steps={steps}
-        expandedSteps={expandedSteps}
-        onRevealStep={revealStep}
-      />
-      <div className="sixqi-timeline">
+    <InfoCard label="六步交接时间线" meta="北京时间 UTC+08">
+      <p className="current-copy">当前步默认展开；可同时展开多个节点比较客主关系。</p>
+      <nav className="current-stage-navigation" aria-label="六气年度六阶段概览">
+        {steps.map((step) => <Button key={step.index} variant="text"
+          aria-label={`第 ${step.index} 步 ${step.name}，${step.status.label}`}
+          aria-controls={getSixQiTimelineIds(timelineId, step.index).rootId}
+          aria-expanded={expandedSteps.has(step.index)}
+          aria-current={step.status.code === 'current' ? 'step' : undefined}
+          onClick={() => revealStep(step.index)}>{step.tickLabel}</Button>)}
+      </nav>
+      <div className="current-stage-list">
         {steps.map((step) => (
           <SixQiTimelineItem
             key={step.index}
@@ -82,6 +83,6 @@ export function SixQiTimeline({
           />
         ))}
       </div>
-    </Panel>
+    </InfoCard>
   );
 }

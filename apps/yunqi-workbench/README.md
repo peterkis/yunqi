@@ -24,6 +24,7 @@ The Workbench uses declarative React Router routes:
 |---|---|---|
 | `/` | Entry redirect | Replaces the URL with `/yunqi/current` |
 | `/yunqi/current` | 当下运气 segment | Calls the composite learning-current endpoint; refreshes current context every minute |
+| `/yunqi/current/classics` | 原文与释义 drill-down; return to `/yunqi/current` | Uses the learning-current query; annual/current readings, source links and long excerpts |
 | `/yunqi/birth` | 先天对照 segment | Submit-only comparison; optional known birth time |
 | `/yunqi/constitution` | 体质量表 segment | GET questionnaire/current context; assessment POST only after complete explicit submission |
 | `/yunqi/year` | 年度分析 drill-down; return to `/yunqi/current` | Makes no annual request |
@@ -36,8 +37,8 @@ The Workbench uses declarative React Router routes:
 targets. Returning works even when a drill-down was opened directly. Changing
 segments focuses the content region and resets its scroll; changes within the
 annual area retain the year control's focus and browser-history behavior.
-Annual and specified-time routes retain their existing interiors; C3/C6 add
-their new entry points.
+Annual and specified-time routes retain their existing interiors. The current
+view links to its year's annual details and the submit-only specified-time form.
 
 The browser frame docks a 400px panel on the right, with a 52px header, segment
 navigation (or drill-down heading), one scrolling content region, an optional

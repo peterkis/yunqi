@@ -13,10 +13,11 @@ describe('mapPanelSummary', () => {
     expect(summary.relation).toBeUndefined();
   });
 
-  it.each([['相得', 'favorable'], ['不和', 'adverse'], ['同五行', 'neutral']])('retains the API term %s and its explanation with only a visual tone', (label, tone) => {
-    const learning = mapLearning(createLearningDto());
+  it.each([['相得', 'favorable'], ['不和', 'adverse'], ['同五行', 'neutral'], ['顺 · 客胜主', 'favorable'], ['逆 · 臣位君', 'adverse'], ['未知', 'neutral']])('retains the API term %s and its explanation with only a visual tone', (label, tone) => {
+    const dto = createLearningDto();
+    const learning = mapLearning({ ...dto, currentQi: { ...dto.currentQi, label } });
     const summary = mapPanelSummary(learning.facts.summary, {
-      step: learning.facts.currentStep, relation: { ...learning.currentQi, label },
+      step: learning.facts.currentStep, relation: learning.currentQi,
     });
     expect(summary.stage).toBe(`${learning.facts.currentStep.name} · 客气${learning.facts.currentStep.guestQi}`);
     expect(summary.relation).toEqual({ label, tone, explanation: learning.currentQi.explanation });

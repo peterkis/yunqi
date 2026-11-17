@@ -53,6 +53,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | --- | --- | --- |
 | / | replace到/yunqi/current | 默认入口 |
 | /yunqi/current | 分段：当下运气 | 当前规则状态 |
+| /yunqi/current/classics | 下钻：原文与释义；返回/yunqi/current | 同一教学复合查询，按全年/当下阶段阅读原文、释义与出处 |
 | /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
 | /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
 | /yunqi/year | 下钻：年度分析；返回/yunqi/current | 年度入口，零年度查询 |

@@ -1,11 +1,13 @@
 import type { BirthComparisonDto, ClassicalPassageDto, LearningRelationDto, MovementStepDto, YunQiLearningDto } from '@yunqi/contracts';
 import { mapCurrentYunQi } from './map-current-yunqi';
 import { mapYunQiTime } from './map-yunqi-shared';
-import type { CurrentYunQiViewModel, YunQiTimeViewModel } from './view-model';
+import { mapMovementElement, mapRelationTone } from './visual-mappings';
+import type { CurrentYunQiViewModel, ElementKind, RelationTone, YunQiTimeViewModel } from './view-model';
 
 export interface LearningRelationViewModel {
   readonly title: string;
   readonly label: string;
+  readonly tone: RelationTone;
   readonly relation: string;
   readonly explanation: string;
   readonly sources: readonly { readonly id: string; readonly title: string; readonly url: string }[];
@@ -18,6 +20,9 @@ export interface MovementViewModel {
   readonly end: YunQiTimeViewModel;
   readonly hostLabel: string;
   readonly guestLabel: string;
+  readonly hostElement: ElementKind | undefined;
+  readonly guestElement: ElementKind | undefined;
+  readonly relation?: Pick<LearningRelationViewModel, 'label' | 'tone' | 'explanation'>;
   readonly boundaryMethod: string;
   readonly explanation: string;
 }
@@ -29,6 +34,10 @@ export interface ClassicalPassageViewModel {
   readonly section: string;
   readonly scopeLabel: string;
   readonly quote: string;
+  readonly displayQuote: string;
+  readonly previewQuote: string;
+  readonly fullQuote: string | undefined;
+  readonly source: string;
   readonly explanation: string;
   readonly sourceUrl: string;
 }
@@ -66,20 +75,31 @@ const PASSAGE_SCOPE_LABELS: Record<string, string> = {
 };
 
 function mapRelation(value: LearningRelationDto): LearningRelationViewModel {
-  return { title: value.title, label: value.label, relation: value.relation, explanation: value.explanation,
+  return { title: value.title, label: value.label, tone: mapRelationTone(value.label), relation: value.relation, explanation: value.explanation,
     sources: value.sources.map((source) => ({ id: source.id, title: source.title, url: source.url })) };
 }
 
 function mapMovement(value: MovementStepDto): MovementViewModel {
+  // Contract 1.2.0 supplies no movement relation. Leave it absent; neither
+  // host/guest values nor the method explanation imply a relation label.
   return { index: value.index, name: value.name, start: mapYunQiTime(value.start), end: mapYunQiTime(value.end),
     hostLabel: `${value.host.element}运${value.host.state}（${value.host.tone}）`,
     guestLabel: `${value.guest.element}运${value.guest.state}（${value.guest.tone}）`,
+    hostElement: mapMovementElement(value.host.element), guestElement: mapMovementElement(value.guest.element),
     boundaryMethod: value.boundaryMethod, explanation: value.explanation };
 }
 
 function mapPassage(value: ClassicalPassageDto, periodScopeLabel: '当前阶段' | '出生阶段'): ClassicalPassageViewModel {
+  // QuoteBlock supplies the outer Chinese quotation marks. Preserve the raw
+  // quote for existing consumers and strip only an already paired outer set.
+  const trimmed = value.quote.trim();
+  const displayQuote = trimmed.startsWith('“') && trimmed.endsWith('”') ? trimmed.slice(1, -1) : trimmed;
+  const isLong = displayQuote.length > 90;
   return { id: value.id, work: value.work, chapter: value.chapter, section: value.section,
     scopeLabel: value.scope === 'qi-period' ? periodScopeLabel : PASSAGE_SCOPE_LABELS[value.scope] ?? '经典学习', quote: value.quote,
+    displayQuote, previewQuote: isLong ? `${displayQuote.slice(0, 90)}……` : displayQuote,
+    fullQuote: isLong ? displayQuote : undefined,
+    source: `《${value.work}·${value.chapter}》${value.section}（摘录）`,
     explanation: value.explanation, sourceUrl: value.sourceUrl };
 }
 

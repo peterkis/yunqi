@@ -80,6 +80,37 @@ function deferred<T>() {
 }
 
 describe('AppRoutes', () => {
+  it('opens current classics through the internal card and returns to current with route focus and titles', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/current', client);
+    const link = await screen.findByRole('link', { name: '原文与释义' });
+    link.focus();
+    await user.keyboard('{Enter}');
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current/classics');
+    expect(screen.getByRole('region', { name: '页面导航' })).toHaveTextContent('原文与释义');
+    expect(await screen.findByRole('group', { name: '原文范围' })).toBeVisible();
+    expect(screen.getByRole('main')).toHaveFocus();
+    await waitFor(() => expect(document.title).toBe('原文与释义 · 运气通'));
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
+    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+    expect(screen.getByRole('main')).toHaveFocus();
+    expect(client.getYear).not.toHaveBeenCalled();
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('can open the classics drilldown directly and return without browser history', async () => {
+    const user = userEvent.setup();
+    const client = createClient();
+    renderAppAt('/yunqi/current/classics', client);
+    expect(await screen.findByRole('group', { name: '原文范围' })).toBeVisible();
+    expect(client.getLearningCurrent).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
+    expect(await screen.findByRole('region', { name: '全年 · 2026' })).toBeVisible();
+  });
+
   it('replaces the root route with the current YunQi route', async () => {
     const client = createClient({
       ...createClientStub(),
@@ -90,8 +121,8 @@ describe('AppRoutes', () => {
 
     expect(
       await screen.findByRole(
-        'heading',
-        { name: '当前五运六气' },
+        'region',
+        { name: '全年 · 2026' },
         { timeout: 5_000 },
       ),
     ).toBeInTheDocument();

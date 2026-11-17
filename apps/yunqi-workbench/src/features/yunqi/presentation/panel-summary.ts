@@ -12,12 +12,6 @@ export interface PanelSummaryViewModel {
   };
 }
 
-// These are visual categories for API-provided terms, never calculated relations.
-const relationTones: Readonly<Record<string, 'favorable' | 'adverse'>> = {
-  顺: 'favorable', 从: 'favorable', 相得: 'favorable', 顺化: 'favorable', 相生: 'favorable',
-  逆: 'adverse', 不和: 'adverse', 天刑: 'adverse', 小逆: 'adverse', 相克: 'adverse',
-};
-
 export function mapPanelSummary(
   summary: YunQiYearSummaryViewModel,
   current?: { readonly step: SixQiStageViewModel; readonly relation: LearningRelationViewModel },
@@ -29,7 +23,7 @@ export function mapPanelSummary(
     relation: current ? {
       label: current.relation.label,
       explanation: current.relation.explanation,
-      tone: relationTones[current.relation.label] ?? 'neutral',
+      tone: current.relation.tone,
     } : undefined,
   };
 }

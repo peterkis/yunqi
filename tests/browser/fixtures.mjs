@@ -65,12 +65,16 @@ export async function screenshot(page, testInfo, name) {
 }
 
 export async function loadCurrent(page) {
+  const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/learning/current'));
   await page.goto('/');
   await expect(page).toHaveURL(/\/yunqi\/current$/);
-  await expect(page.getByRole('heading', { name: '年度概览', exact: true })).toBeVisible();
-  await expect(page.locator('.current-yunqi-hero time')).toHaveAttribute(
+  await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeVisible();
+  await expect(page.locator('.current-observed-time time')).toHaveAttribute(
     'datetime', '2024-01-20T22:07:22+08:00',
   );
+  const response = await responsePromise;
+  expect(response.status()).toBe(200);
+  return (await response.json()).data;
 }
 
 export async function expectPanelLayout(page) {

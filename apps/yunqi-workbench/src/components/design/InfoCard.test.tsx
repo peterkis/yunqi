@@ -1,6 +1,7 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { InfoCard } from './InfoCard';
 import { RelationChip } from './RelationChip';
 
@@ -92,4 +93,25 @@ describe('InfoCard', () => {
       window.history.replaceState(null, '', originalUrl);
     }
   });
+});
+
+it('uses React Router for an internal card link, preserving its accessible name and single tab stop', async () => {
+  const user = userEvent.setup();
+  render(<MemoryRouter initialEntries={['/yunqi/current']}><Routes>
+    <Route path="/yunqi/current" element={<><button type="button">之前</button><InfoCard label="阶段原文" to="/yunqi/current/classics"><p>摘句</p></InfoCard><button type="button">之后</button></>} />
+    <Route path="/yunqi/current/classics" element={<p>原文下钻已到达</p>} />
+  </Routes></MemoryRouter>);
+  await user.tab();
+  expect(screen.getByRole('button', { name: '之前' })).toHaveFocus();
+  await user.tab();
+  const link = screen.getByRole('link', { name: '原文与释义' });
+  expect(link).toHaveFocus();
+  expect(link).toHaveAttribute('href', '/yunqi/current/classics');
+  expect(link).not.toHaveAttribute('aria-label');
+  expect(screen.getByRole('region', { name: '阶段原文' })).not.toHaveAttribute('tabindex');
+  await user.tab();
+  expect(screen.getByRole('button', { name: '之后' })).toHaveFocus();
+  await user.tab({ shift: true });
+  await user.keyboard('{Enter}');
+  expect(screen.getByText('原文下钻已到达')).toBeVisible();
 });
