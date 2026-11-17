@@ -1,3 +1,4 @@
+import { fillBirthDate } from '../../../../test/birth-input';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
@@ -6,6 +7,31 @@ import { createTestWrapper } from '../../../../test/test-utils';
 import { BirthComparisonPage } from './BirthComparisonPage';
 
 describe('BirthComparisonPage', () => {
+  it('leaves month-day validity to the API and presents its sanitized error through the existing path', async () => {
+    const user = userEvent.setup();
+    const client = createClientStub({ compareBirth: vi.fn().mockRejectedValue(new Error('invalid calendar date: private details')) });
+    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
+    fillBirthDate('1980-02-31');
+    expect(document.querySelectorAll('input[type="date"], input[type="radio"]')).toHaveLength(0);
+    await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
+    expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1980-02-31' });
+    expect(await screen.findByRole('alert')).toHaveTextContent('无法完成对照，请核对出生日期、支持范围和网络后重试。');
+    expect(screen.queryByText(/private details/)).not.toBeInTheDocument();
+  });
+
+  it('clears incomplete segmented input and restores year focus without retaining a draft', async () => {
+    const user = userEvent.setup();
+    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub()) });
+    await user.type(screen.getByRole('textbox', { name: '年' }), '198');
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveFocus();
+    await user.type(screen.getByRole('textbox', { name: '年' }), '20');
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveFocus();
+  });
+
   it('submits a date without inventing a time, compares beside current and removes edited results', async () => {
     const user = userEvent.setup();
     const client = createClientStub();
@@ -14,7 +40,7 @@ describe('BirthComparisonPage', () => {
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(screen.queryByLabelText('出生时刻（北京时间）')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '查看出生与当前运气' })).toHaveClass('ds-button--primary');
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     const result = await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     const summary = screen.getByRole('group', { name: '出生资料摘要' });
@@ -34,14 +60,16 @@ describe('BirthComparisonPage', () => {
     expect(result.querySelector('.birth-current-time')).toBeNull();
     expect(within(result).getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。')).toBeVisible();
     await user.click(within(summary).getByRole('button', { name: '修改' }));
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveFocus();
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('1990-05-12');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveFocus();
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('1990');
     expect(result).toBeVisible();
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-13' } });
+    await user.click(screen.getByRole('radio', { name: '时刻不详' }));
+    expect(result).toBeVisible();
+    fillBirthDate('1990-05-13');
     expect(screen.queryByRole('region', { name: '出生与当前运气对照结果' })).not.toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('资料已修改');
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
@@ -51,11 +79,11 @@ describe('BirthComparisonPage', () => {
     const response = { ...createBirthComparisonDto(), birthPrecision: 'time' as const };
     const client = createClientStub({ compareBirth: vi.fn(() => new Promise<ReturnType<typeof createBirthComparisonDto>>((done) => { resolve = done; })) });
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByLabelText('知道出生时刻'));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30' } });
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
-    expect(screen.getByLabelText('出生日期（公历）')).toBeDisabled();
+    expect(screen.getByRole('textbox', { name: '年' })).toBeDisabled();
     expect(screen.getByLabelText('出生时刻（北京时间）')).toBeDisabled();
     expect(screen.getByRole('button', { name: '清空本次资料' })).toBeDisabled();
     fireEvent.submit(screen.getByRole('form', { name: '出生运气输入' }));
@@ -66,9 +94,9 @@ describe('BirthComparisonPage', () => {
     expect(screen.getByText('时刻已知 · 归属唯一')).toBeVisible();
     expect(document.querySelector('.birth-candidate-interval')).toBeNull();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
-    expect(screen.getByLabelText('知道出生时刻')).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: '已知时刻' })).not.toBeChecked();
     expect(screen.getByRole('form', { name: '出生运气输入' })).toBeVisible();
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
     expect(screen.queryByRole('group', { name: '出生资料摘要' })).not.toBeInTheDocument();
   });
 
@@ -81,7 +109,7 @@ describe('BirthComparisonPage', () => {
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(screen.getByRole('alert')).toHaveTextContent('请填写有效的出生日期');
     expect(client.compareBirth).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('无法完成对照');
     expect(screen.queryByText(/private backend/)).not.toBeInTheDocument();
@@ -98,8 +126,8 @@ describe('BirthComparisonPage', () => {
     const user = userEvent.setup();
     const client = createClientStub();
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByLabelText('知道出生时刻'));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(screen.getByRole('alert')).toBeVisible();
     expect(client.compareBirth).not.toHaveBeenCalled();
@@ -118,7 +146,7 @@ describe('BirthComparisonPage', () => {
     const comparisons = titles.map((title, index) => ({ ...candidate.comparisons[0], title, label: labels[index], relation: `${title}的API方向`, explanation: `${title}的API释义` }));
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue({ ...dto, candidates: [{ ...candidate, comparisons }] }) });
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     const table = await screen.findByRole('table');
     for (const [index, row] of [...table.querySelectorAll('tbody')].entries()) {
@@ -137,7 +165,7 @@ describe('BirthComparisonPage', () => {
     let resolve!: (value: ReturnType<typeof createBirthComparisonDto>) => void;
     const client = createClientStub({ compareBirth: vi.fn(() => new Promise<ReturnType<typeof createBirthComparisonDto>>((done) => { resolve = done; })) });
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     const form = screen.getByRole('form', { name: '出生运气输入' });
     act(() => {
       form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));

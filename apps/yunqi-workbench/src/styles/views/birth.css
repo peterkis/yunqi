@@ -58,7 +58,7 @@
   background: var(--surface-page);
 }
 
-.birth-input fieldset {
+.birth-input > fieldset {
   display: grid;
   min-width: 0;
   margin: 0;
@@ -83,17 +83,13 @@
 }
 
 .birth-input__fields > .birth-input__known-time {
-  display: flex;
   grid-column: 1 / -1;
-  grid-row: 2;
-  align-items: center;
-  gap: var(--space-1_5);
-  min-height: var(--segment-height);
-  cursor: pointer;
 }
 
-.birth-input input[type="date"],
+.birth-input__fields > .ds-date-field { grid-column: 1 / -1; }
+
 .birth-input input[type="time"] {
+  appearance: none;
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
@@ -109,12 +105,7 @@
   font-weight: var(--type-body-weight);
 }
 
-.birth-input input[type="checkbox"] {
-  width: var(--space-4);
-  height: var(--space-4);
-  margin: 0;
-  accent-color: var(--accent);
-}
+.birth-input input[type="time"]::-webkit-calendar-picker-indicator { display: none; }
 
 .birth-input__actions {
   display: flex;

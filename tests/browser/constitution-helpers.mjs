@@ -1,8 +1,20 @@
 import { expect } from './fixtures.mjs';
 
+export async function changeConstitutionSex(scope, sex, answered) {
+  await scope.getByRole('button', { name: '更换', exact: true }).click();
+  if (answered > 0) {
+    await expect(scope.getByRole('group', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
+    await scope.getByRole('button', { name: '确认', exact: true }).click();
+  }
+  await expect(scope.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+  await scope.getByRole('radio', { name: sex, exact: true }).click();
+}
+
 export async function answerConstitution(page, scope = page, { sex = '男', value = 1 } = {}) {
   await expect(scope.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-  await scope.getByRole('radio', { name: sex, exact: true }).check();
+  await scope.getByRole('radio', { name: sex, exact: true }).click();
+  await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
+  await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   for (let number = 1; number <= 26; number += 1) {
     await expect(scope.locator('.constitution-position')).toHaveText(`${number}/26`);
     await expect(scope.locator('.constitution-question-screen')).toHaveCount(1);

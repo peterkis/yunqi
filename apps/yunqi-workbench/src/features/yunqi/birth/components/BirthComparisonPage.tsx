@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
+import { DateField } from '../../../../components/design/DateField';
+import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
@@ -21,6 +23,7 @@ export function BirthComparisonPage() {
   // A ref also blocks a second submit in the same event turn before pending renders.
   const submitting = useRef(false);
   const [birthDate, setBirthDate] = useState('');
+  const [dateRevision, setDateRevision] = useState(0);
   const [birthTime, setBirthTime] = useState('');
   const [knowsTime, setKnowsTime] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
@@ -31,7 +34,7 @@ export function BirthComparisonPage() {
 
   useEffect(() => {
     if (formExpanded) dateInput.current?.focus();
-  }, [formExpanded]);
+  }, [formExpanded, dateRevision]);
 
   useEffect(() => {
     if (wasReading.current && !reading) readingLink.current?.focus();
@@ -68,6 +71,7 @@ export function BirthComparisonPage() {
   function clear() {
     mutation.reset();
     setBirthDate('');
+    setDateRevision((value) => value + 1);
     setBirthTime('');
     setKnowsTime(false);
     setInputError(null);
@@ -89,14 +93,13 @@ export function BirthComparisonPage() {
           <fieldset disabled={mutation.isPending}>
             <legend className="visually-hidden">出生资料</legend>
             <div className="birth-input__fields">
-              <label>
-                出生日期（公历）
-                <input ref={dateInput} type="date" value={birthDate} required min="1900-01-01" max="2100-12-31" onInvalid={invalid} onChange={(event) => { setBirthDate(event.target.value); edited(); }} aria-describedby="birth-input-note" />
-              </label>
-              <label className="birth-input__known-time">
-                <input type="checkbox" checked={knowsTime} onChange={(event) => { setKnowsTime(event.target.checked); edited(); }} />
-                知道出生时刻
-              </label>
+              <DateField key={dateRevision} ref={dateInput} label="出生日期（公历）" value={birthDate} required onInvalid={invalid}
+                onChange={(value) => { setBirthDate(value); edited(); }} describedBy="birth-input-note" />
+              <div className="birth-input__known-time">
+                <SegmentedControl label="出生时刻是否已知" compact value={knowsTime ? 'known' : 'unknown'}
+                  segments={[{ value: 'unknown', label: '时刻不详' }, { value: 'known', label: '已知时刻' }]}
+                  onChange={(value) => { setKnowsTime(value === 'known'); edited(); }} />
+              </div>
               {knowsTime ? (
                 <label>
                   出生时刻（北京时间）

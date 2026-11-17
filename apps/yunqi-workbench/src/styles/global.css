@@ -8,7 +8,7 @@
   text-rendering: optimizeLegibility;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; accent-color: var(--accent); }
 
 html,
 body,

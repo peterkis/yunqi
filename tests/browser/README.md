@@ -81,12 +81,12 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Area | Assertions |
 | --- | --- |
 | Current | Root redirect, canonical Beijing time, annual/current cards, folded stages, six disclosures with Enter/Space, sources and SPA original-text drill-down |
-| Annual | Empty entry sends no query; real 2024/2025 responses; six radio choices with keys; exact API boundaries; URL, year-change focus, history/reload and 1900/2100 bounds |
+| Annual | Direct entry defaults to the current API's YunQi year; current outage keeps the empty selector and manual recovery; real 2024/2025 responses; six radio choices with keys; exact API boundaries; URL, year-change focus, history/reload and 1900/2100 bounds |
 | Rule trace | Real 2025 `GUEST_GENERATES_HOST` retains `客生主` and API `客生主，相得`; rule and Contract versions remain separate |
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
-| Birth | Date/optional known time; submitted summary, edit/date focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; entry comparison remains the sole primary action |
-| Constitution | One question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
+| Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; entry comparison remains the sole primary action |
+| Constitution | Button segments for sex, collapsed version eyebrow while answering; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, complete submit as secondary action, end/reopen/reset and stale response isolation |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
@@ -128,8 +128,8 @@ are retained as evidence only, not as an approved visual baseline.
 | `workstation-768` | 1366 × 768 | Light, 24 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
 | `workstation-1080` | 1920 × 1080 | Light, 24 states; same right-edge panel |
 
-The suite discovers **49 flow/foundation/oracle tests + 146 visual/accessibility
-tests = 195 tests in 9 files**. These are test cases and repeated state checks,
+The suite discovers **52 flow/foundation/oracle tests + 146 visual/accessibility
+tests = 198 tests in 9 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 

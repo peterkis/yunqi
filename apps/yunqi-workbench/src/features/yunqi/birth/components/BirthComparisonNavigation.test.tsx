@@ -1,3 +1,4 @@
+import { fillBirthDate } from '../../../../test/birth-input';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router-dom';
@@ -23,7 +24,7 @@ describe('birth classics navigation', () => {
     const user = userEvent.setup();
     const storage = vi.spyOn(Storage.prototype, 'setItem');
     const client = renderBirth();
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
@@ -52,7 +53,7 @@ describe('birth classics navigation', () => {
     expect(screen.getByText('本页尚无出生对照，请先填写出生资料。')).toBeVisible();
     expect(client.compareBirth).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: '返回出生输入' }));
-    expect(screen.getByLabelText('出生日期（公历）')).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth$/);
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
   });
@@ -64,7 +65,7 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, ambiguous: true, candidates: [candidate, {
       ...candidate, label: '交界后', learning: { ...candidate.learning, annualPassages: [], currentPassages: [] },
     }] });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+    fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     await screen.findByRole('table', { name: /交界后/ });
     expect(within(screen.getByRole('region', { name: '先天原文线索' })).getByText('此范围暂未收录已核对原文。')).toBeVisible();
@@ -84,8 +85,8 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, birthPrecision: 'time', candidates: [{ ...candidate, learning: { ...candidate.learning,
       annualPassages: [{ ...candidate.learning.annualPassages[0], quote: `“${quote}”` }],
     } }] });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByLabelText('知道出生时刻'));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30:21' } });
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     await screen.findByRole('table');

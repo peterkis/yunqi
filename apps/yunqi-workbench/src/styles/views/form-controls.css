@@ -1,0 +1,68 @@
+/* D2 local extensions; compact dimensions match SegmentedNav's documented
+   30px segments and 3px track inset without changing the synced system. */
+.ds-segmented-control {
+  --form-segment-inset: 3px;
+  --form-segment-compact-height: 30px;
+  display: flex;
+  min-width: 0;
+  gap: var(--space-0_5);
+  padding: var(--form-segment-inset);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-family: var(--font-sans);
+}
+.ds-segmented-control > button {
+  flex: 1;
+  min-width: 0;
+  height: var(--segment-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-weight);
+  cursor: pointer;
+}
+.ds-segmented-control--compact > button { height: var(--form-segment-compact-height); }
+.ds-segmented-control > [aria-checked="true"] {
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  box-shadow: var(--shadow-segment);
+  font-weight: var(--type-body-strong-weight);
+}
+.ds-segmented-control > button:disabled { cursor: default; }
+.ds-date-field {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: var(--ink-tertiary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-small);
+}
+.ds-date-field legend { padding: 0; margin-bottom: var(--space-1); }
+.ds-date-field__segments { display: flex; min-width: 0; gap: var(--space-1); }
+.ds-date-field__part { display: flex; flex: 1; align-items: center; min-width: 0; gap: var(--space-1); }
+.ds-date-field__part:first-child { flex: 2; }
+.ds-date-field input {
+  width: 100%;
+  min-width: 0;
+  height: var(--input-height);
+  padding: 0 var(--space-1_5);
+  border: calc(var(--space-0_5) / 2) solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+}
+.ds-date-field input::placeholder { color: var(--ink-tertiary); opacity: 1; }
+.ds-date-field input:focus-visible,
+.ds-segmented-control > button:focus-visible {
+  outline: var(--space-0_5) solid var(--focus-ring);
+  outline-offset: var(--space-0_5);
+}

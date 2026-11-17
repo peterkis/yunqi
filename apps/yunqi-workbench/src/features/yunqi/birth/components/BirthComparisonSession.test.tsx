@@ -1,3 +1,4 @@
+import { fillBirthDate } from '../../../../test/birth-input';
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
@@ -9,7 +10,7 @@ import { createTestWrapper } from '../../../../test/test-utils';
 import { BirthComparisonPage } from './BirthComparisonPage';
 
 async function submitBirth(user: ReturnType<typeof userEvent.setup>) {
-  fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
+  fillBirthDate('1990-05-12');
   await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
   return screen.findByRole('region', { name: '出生与当前运气对照结果' });
 }
@@ -90,8 +91,8 @@ describe('birth comparison assessment session', () => {
     const user = userEvent.setup();
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue({ ...createBirthComparisonDto(), birthPrecision: 'time' }) });
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
-    fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-12' } });
-    await user.click(screen.getByLabelText('知道出生时刻'));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30' } });
     await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
@@ -99,14 +100,14 @@ describe('birth comparison assessment session', () => {
     await user.click(within(form).getByRole('radio', { name: '女' }));
     await user.click(within(form).getAllByRole('radio', { name: '经常' })[0]);
     if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
-    if (action === 'date') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1990-05-13' } });
+    if (action === 'date') fillBirthDate('1990-05-13');
     if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:31' } });
-    if (action === 'known-time') await user.click(screen.getByLabelText('知道出生时刻'));
+    if (action === 'known-time') await user.click(screen.getByRole('radio', { name: '时刻不详' }));
     if (action === 'clear') await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     if (action === 'resubmit') await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     if (action !== 'resubmit') {
-      if (action === 'clear') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1991-06-13' } });
+      if (action === 'clear') fillBirthDate('1991-06-13');
       await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     }
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
@@ -127,12 +128,12 @@ describe('birth comparison assessment session', () => {
     await waitFor(() => expect(client.assessConstitution).toHaveBeenCalledOnce());
     expect(screen.getByRole('status')).toHaveTextContent('正在按量表规则计分');
     if (action === 'edit-birth' || action === 'resubmit') await user.click(screen.getByRole('button', { name: '修改' }));
-    if (action === 'edit-birth') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1992-08-09' } });
+    if (action === 'edit-birth') fillBirthDate('1992-08-09');
     if (action === 'end') await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     if (action === 'clear') await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     if (action === 'resubmit') await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
-    if (action === 'clear') fireEvent.change(screen.getByLabelText('出生日期（公历）'), { target: { value: '1993-05-14' } });
+    if (action === 'clear') fillBirthDate('1993-05-14');
     if (action === 'clear' || action === 'edit-birth') await user.click(screen.getByRole('button', { name: '查看出生与当前运气' }));
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     const fresh = await openAssessment(user);

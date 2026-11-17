@@ -1,0 +1,56 @@
+import { useRef, type KeyboardEvent } from 'react';
+
+export interface ControlSegmentViewModel<Value extends string> {
+  readonly value: Value;
+  readonly label: string;
+  readonly disabled?: boolean;
+}
+
+export interface SegmentedControlProps<Value extends string> {
+  readonly label: string;
+  readonly segments: readonly ControlSegmentViewModel<Value>[];
+  readonly value: Value | '';
+  readonly onChange: (value: Value) => void;
+  readonly compact?: boolean;
+  readonly disabled?: boolean;
+}
+
+/** Local selection only; navigation remains SegmentedNav's responsibility. */
+export function SegmentedControl<Value extends string>({ label, segments, value, onChange, compact = false, disabled = false }: SegmentedControlProps<Value>) {
+  const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const enabled = segments.map((segment, index) => ({ ...segment, index })).filter((segment) => !segment.disabled);
+  const tabStop = enabled.find((segment) => segment.value === value) ?? enabled[0];
+
+  function keyDown(event: KeyboardEvent<HTMLButtonElement>, index: number) {
+    if (disabled || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+    const position = enabled.findIndex((segment) => segment.index === index);
+    let next;
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowDown': next = enabled[(position + 1) % enabled.length]; break;
+      case 'ArrowLeft':
+      case 'ArrowUp': next = enabled[(position + enabled.length - 1) % enabled.length]; break;
+      case 'Home': next = enabled[0]; break;
+      case 'End': next = enabled[enabled.length - 1]; break;
+      default: return;
+    }
+    if (!next) return;
+    event.preventDefault();
+    buttons.current[next.index]?.focus();
+    if (next.value !== value) onChange(next.value);
+  }
+
+  return (
+    <div role="radiogroup" aria-label={label} aria-disabled={disabled || undefined}
+      className={`ds-segmented-control${compact ? ' ds-segmented-control--compact' : ''}`}>
+      {segments.map((segment, index) => (
+        <button key={segment.value} ref={(button) => { buttons.current[index] = button; }}
+          type="button" role="radio" aria-checked={value === segment.value}
+          disabled={disabled || segment.disabled} tabIndex={tabStop?.index === index ? 0 : -1}
+          onClick={() => { if (segment.value !== value) onChange(segment.value); }} onKeyDown={(event) => keyDown(event, index)}>
+          {segment.label}
+        </button>
+      ))}
+    </div>
+  );
+}

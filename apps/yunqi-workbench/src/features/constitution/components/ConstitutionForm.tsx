@@ -1,6 +1,7 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { Button } from '../../../components/design/Button';
 import { ScaleOption } from '../../../components/design/ScaleOption';
+import { SegmentedControl } from '../../../components/design/SegmentedControl';
 import type { ConstitutionContextViewModel, ConstitutionQuestionnaireViewModel, QuestionnaireSex } from '../presentation/map-constitution';
 import { useConstitutionAssessment } from '../hooks/useConstitution';
 import { ConstitutionResults } from './ConstitutionResults';
@@ -17,14 +18,20 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [questionIndex, setQuestionIndex] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingSexChange, setConfirmingSexChange] = useState(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sexRef = useRef<HTMLFieldSetElement>(null);
+  const changeSexRef = useRef<HTMLButtonElement>(null);
+  const cancelSexRef = useRef<HTMLButtonElement>(null);
+  const focusSex = useRef(false);
+  const focusChangeSex = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const advancing = useRef(false);
   const submitting = useRef(false);
   const revision = useRef(0);
   const questionId = useId();
   const helpId = useId();
+  const confirmationId = useId();
   const questions = sex === '' ? [] : questionnaire.questions.filter((question) => question.sex === 'all' || question.sex === sex);
   const question = questions[questionIndex];
   const completed = questions.filter((item) => answers[item.id] !== undefined).length;
@@ -39,7 +46,18 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
   useEffect(() => cancelAdvance, []);
   useLayoutEffect(() => {
     if (sex !== '' && !mutation.result) headingRef.current?.focus();
+    else if (sex === '' && focusSex.current) {
+      sexRef.current?.querySelector('button')?.focus();
+      focusSex.current = false;
+    }
   }, [sex, questionIndex, mutation.result !== undefined]);
+  useLayoutEffect(() => {
+    if (confirmingSexChange) cancelSexRef.current?.focus();
+    else if (focusChangeSex.current) {
+      changeSexRef.current?.focus();
+      focusChangeSex.current = false;
+    }
+  }, [confirmingSexChange]);
 
   function resetScoring() {
     revision.current += 1;
@@ -56,13 +74,29 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
     setQuestionIndex(0);
   }
 
-  function end() {
+  function clearSex() {
     cancelAdvance();
     resetScoring();
+    setConfirmingSexChange(false);
+    focusSex.current = true;
     setSex('');
     setAnswers({});
     setQuestionIndex(0);
-    sexRef.current?.focus();
+  }
+
+  function requestSexChange() {
+    cancelAdvance();
+    if (completed === 0) clearSex();
+    else setConfirmingSexChange(true);
+  }
+
+  function cancelSexChange() {
+    focusChangeSex.current = true;
+    setConfirmingSexChange(false);
+  }
+
+  function end() {
+    clearSex();
     onEnd?.();
   }
 
@@ -73,7 +107,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
   }
 
   function answer(value: number) {
-    if (!question || advancing.current || mutation.isPending) return;
+    if (!question || advancing.current || mutation.isPending || confirmingSexChange) return;
     resetScoring();
     setAnswers((current) => ({ ...current, [question.id]: value }));
     advancing.current = true;
@@ -94,7 +128,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (mutation.isPending || submitting.current || mutation.result) return;
+    if (mutation.isPending || submitting.current || mutation.result || confirmingSexChange) return;
     if (sex === '') {
       setError('请先选择量表所用性别。');
       sexRef.current?.focus();
@@ -118,16 +152,27 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
   }
 
   return (
-    <div className="constitution-session">
+    <div className="constitution-session" onKeyDown={(event) => {
+      if (confirmingSexChange && event.key === 'Escape') { event.preventDefault(); cancelSexChange(); }
+    }}>
       <form className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
-        <fieldset className="constitution-sex" disabled={mutation.isPending} ref={sexRef} tabIndex={-1}>
+        {sex === '' ? <fieldset className="constitution-sex" disabled={mutation.isPending} ref={sexRef} tabIndex={-1}>
           <legend>量表所用性别</legend>
-          <div className="constitution-sex__options">
-            <label><input type="radio" name="constitution-sex" value="male" checked={sex === 'male'} onChange={() => changeSex('male')} />男</label>
-            <label><input type="radio" name="constitution-sex" value="female" checked={sex === 'female'} onChange={() => changeSex('female')} />女</label>
-          </div>
+          <SegmentedControl label="量表所用性别" compact value={sex} onChange={changeSex}
+            segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
           <p className="constitution-meta">仅用于显示对应条目；切换后清空本次作答和结果。</p>
-        </fieldset>
+        </fieldset> : <div className="constitution-sex-summary">
+          <span>{sex === 'male' ? '男性版' : '女性版'} · </span>
+          <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
+        </div>}
+        {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
+          <p id={confirmationId}>更换将清空已作答的 {completed} 题</p>
+          <div>
+            <Button variant="secondary" onClick={clearSex}>确认</Button>
+            <Button ref={cancelSexRef} variant="text" onClick={cancelSexChange}>取消</Button>
+          </div>
+        </section> : null}
+        <div inert={confirmingSexChange || undefined}>
         {mutation.result ? (
           <ConstitutionResults assessment={mutation.result} context={context} onBack={previous} />
         ) : sex !== '' ? (
@@ -163,6 +208,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd }: Constitution
             )}
           </>
         ) : <p className="constitution-meta">选择量表所用性别后开始作答，一题一屏，无默认答案。</p>}
+        </div>
         {error ? <p role="alert" className="constitution-notice">{error}</p> : null}
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}

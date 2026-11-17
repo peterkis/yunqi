@@ -1,8 +1,24 @@
 import { expect, expectCompactTimes } from './fixtures.mjs';
 
+export async function fillBirthDate(page, value) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  const field = page.getByRole('group', { name: '出生日期（公历）', exact: true });
+  for (const [index, name] of ['年', '月', '日'].entries()) {
+    await field.getByRole('textbox', { name, exact: true }).fill(parts[index]);
+  }
+  await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+}
+
+export async function expectBirthDate(page, value) {
+  const parts = value ? value.split('-') : ['', '', ''];
+  for (const [index, name] of ['年', '月', '日'].entries()) {
+    await expect(page.getByRole('textbox', { name, exact: true })).toHaveValue(parts[index]);
+  }
+}
+
 export async function expandBirthInput(page) {
   await page.getByRole('button', { name: '修改', exact: true }).click();
-  await expect(page.getByLabel('出生日期（公历）')).toBeFocused();
+  await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
 }
 
 export async function expectBirthReadings(container, passages) {

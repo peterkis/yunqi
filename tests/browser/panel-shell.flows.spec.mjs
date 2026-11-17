@@ -1,3 +1,4 @@
+import { fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
@@ -153,14 +154,13 @@ test('segments move focus to content and collapse preserves a birth draft withou
   await expect(page).toHaveTitle('先天对照 · 运气通');
   const nav = page.getByRole('navigation', { name: '工作台导航', exact: true });
   await expect(nav.locator('[aria-current="page"]')).toHaveText('先天对照');
-  const input = page.getByLabel('出生日期（公历）');
-  await input.fill('1990-05-12');
+  await fillBirthDate(page, '1990-05-12');
   const count = diagnostics.requests.length;
   await page.getByRole('button', { name: '收起为胶囊条' }).click();
   const expand = page.getByRole('button', { name: /^展开运气通/ });
   await expect(expand).toContainText('本视图暂无运气摘要');
   await expand.press('Enter');
-  await expect(input).toHaveValue('1990-05-12');
+  await expectBirthDate(page, '1990-05-12');
   await settle(page);
   expect(diagnostics.requests).toHaveLength(count);
   await nav.getByRole('link', { name: '体质量表', exact: true }).click();

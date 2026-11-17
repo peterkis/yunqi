@@ -1,3 +1,4 @@
+import { fillBirthDate } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
@@ -42,6 +43,15 @@ for (const state of cases) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
     } else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    if (state.name === 'annual-entry') {
+      await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
+      const inputHeight = await page.locator(':root').evaluate(root => getComputedStyle(root).getPropertyValue('--input-height').trim());
+      await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('height', inputHeight);
+      await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('appearance', 'none');
+    }
+    if (state.path === '/yunqi/birth' || state.path === '/yunqi/constitution') {
+      await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+    }
     if (state.calculate) {
       await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
@@ -59,15 +69,15 @@ for (const state of cases) {
     if (state.message) await expect(page.getByRole('alert')).toContainText(state.message);
     if (state.birth) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-      await page.getByLabel('出生日期（公历）').fill('1990-05-12');
+      await fillBirthDate(page, '1990-05-12');
       await page.getByRole('button', { name: '查看出生与当前运气' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
       await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 时刻不详 · 修改');
       if (state.birthBoundary) {
         await page.getByRole('button', { name: '修改', exact: true }).click();
-        await expect(page.getByLabel('出生日期（公历）')).toBeFocused();
-        await page.getByLabel('出生日期（公历）').fill(data.current.facts.interval.start.localTime.slice(0, 10));
+        await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
+        await fillBirthDate(page, data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
         await page.getByRole('button', { name: '查看出生与当前运气' }).click();
         const { data: boundary } = await (await boundaryResponse).json();
@@ -92,7 +102,7 @@ for (const state of cases) {
           await expectConstitutionResults(page, data);
         }
       } else {
-        await page.getByRole('radio', { name: '男', exact: true }).check();
+        await page.getByRole('radio', { name: '男', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
       }
@@ -216,6 +226,7 @@ for (const state of cases) {
           return rect.left < -1 || rect.right > document.documentElement.clientWidth + 1 || element.scrollWidth > element.clientWidth + 1;
         }).map(element => ({ tag: element.tagName, label: element.getAttribute('aria-label') || element.id || element.textContent.trim(), clientWidth: element.clientWidth, scrollWidth: element.scrollWidth })),
         yearSelect: measure('select[aria-label="分析年份"]'),
+        inputHeight: Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--input-height')),
         stageNames: measure('.drilldown-stage-selector__option strong'),
         stageTimes: measure('.drilldown-stage-selector__range time'),
         currentTitle: measure('.current-year-heading h3'),
@@ -244,7 +255,9 @@ for (const state of cases) {
     }
     expect.soft(layout.documentWidth, 'Page must not overflow horizontally').toBeLessThanOrEqual(layout.viewportWidth + 1);
     expect.soft(layout.overflowingControls, 'Controls must fit and keep their content readable').toEqual([]);
-    for (const control of layout.yearSelect) expect.soft(control.height, 'Year selector meets the design control-height token (40 px)').toBeGreaterThanOrEqual(40);
+    for (const control of layout.yearSelect) {
+      expect.soft(Math.abs(control.height - layout.inputHeight), 'Year selector height equals the computed --input-height token (±1 px)').toBeLessThanOrEqual(1);
+    }
     for (const name of layout.stageNames) expect.soft(name.lines, `Stage name remains readable: ${name.text}`).toBe(1);
     for (const time of layout.stageTimes) expect.soft(time.lines, `Stage time remains on one line: ${time.text}`).toBe(1);
     for (const value of layout.annualValues) expect.soft(value.lines, `Annual three-column values fit on one line: ${value.text}`).toBe(1);

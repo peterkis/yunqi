@@ -1,21 +1,28 @@
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
+  const currentResponse = page.waitForResponse(response => response.url().endsWith('/learning/current'));
   await page.goto('/yunqi/year');
-  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
-  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
+  const { data: current } = await (await currentResponse).json();
+  const apiYear = String(current.facts.year);
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(apiYear);
+  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}$`));
+  await expect(page.locator('.drilldown-annual-summary')).toContainText(apiYear);
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual([
+    '/api/v1/yunqi/learning/current', `/api/v1/yunqi/year/${apiYear}`,
+  ]);
 
   await loadCurrent(page);
   await page.getByRole('link', { name: '年度详情', exact: true }).click();
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
-  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
-  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(apiYear);
+  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeEnabled();
   await settle(page);
-  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(1);
-  expect(diagnostics.requests).toHaveLength(2);
+  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(2);
+  expect(diagnostics.requests).toHaveLength(5);
 
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
@@ -37,9 +44,24 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2100');
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
-  await expect(page).toHaveURL(/\/yunqi\/year$/);
-  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}$`));
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(apiYear);
   expect(diagnostics.requests.every(request => !/\/year\/(1899|2101)$/.test(request.url))).toBe(true);
+});
+
+test('annual entry keeps the empty selector when the current API is unavailable and allows manual recovery', async ({ page, diagnostics }) => {
+  diagnostics.allowHttpFailure('/api/v1/yunqi/learning/current', 503);
+  await page.route('**/api/v1/yunqi/learning/current', route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
+  await page.goto('/yunqi/year');
+  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
+  await settle(page);
+  await expect(page).toHaveURL(/\/yunqi\/year$/);
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('');
+  await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
+  await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
+  expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(0);
+  await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
+  await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
 });
 
 test('panel stage selection keeps six single-column choices above nearby detail and preserves exact times', async ({ page, diagnostics }, testInfo) => {
@@ -127,7 +149,7 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
   const birthContent = page.getByRole('main', { name: '先天对照', exact: true });
   await expect(birthContent).toBeFocused();
-  const birthDate = birthContent.getByLabel('出生日期（公历）');
+  const birthDate = birthContent.getByRole('textbox', { name: '年', exact: true });
   await expect(birthDate).toBeVisible();
   await expect(birthDate).toBeEnabled();
   await expect(birthDate).toBeInViewport();

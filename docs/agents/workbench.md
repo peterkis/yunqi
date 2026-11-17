@@ -52,6 +52,18 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
   独立量表的完成态“查看结果”和指定时点的“开始分析”各为所在视图唯一主操作。
 - 浏览器矩阵与逐状态字号、布局、焦点、可访问性检查见[浏览器验收说明](../../tests/browser/README.md#ui-refactor-migration)。
 
+## 组件
+
+- `DateField` 是年/月/日数字输入；调用方必须提供 `label`，同时用于可见legend与整体可访问名称；出生页传“出生日期（公历）”，各段有可访问名称。
+  满位跳格、空段退格返回、支持粘贴 `YYYY-MM-DD`；对外只输出规范字符串或空值。
+  仅校验整数位数和年1900–2100、月1–12、日1–31，不判断月份天数，日期有效性由API校验。
+  输入高度使用 `--input-height`；外部清空不完整草稿时由会话重建控件。出生时刻保留统一令牌样式的 `type="time"`。
+- `SegmentedControl` 用于性别与“时刻不详 / 已知时刻”的局部选择，不依赖路由；
+  使用按钮、radiogroup/radio、aria-checked和单Tab入口，方向键切换，Home/End选择首尾。
+  默认高度为 `--segment-height`，compact为与现有分段一致的30px。路由导航继续使用 `SegmentedNav`。
+- 量表选性别进入第一题后收为“男性版/女性版 · 更换”；有答案时页内确认清空题数，取消与Esc恢复“更换”焦点，
+  确认后清空并聚焦性别选择；零作答直接返回选择。确认期间暂停题目推进并阻止作答和评分。
+
 ## 当前导航和状态
 
 | 路径 | 导航与返回 | 行为 |
@@ -62,7 +74,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
 | /yunqi/birth/classics | 下钻：原文与释义；返回/yunqi/birth | 仅使用本页内存中的出生响应，全年/出生阶段原文；直接打开无资料时不查询 |
 | /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
-| /yunqi/year | 下钻：年度详情；返回/yunqi/current | 年度入口，零年度查询 |
+| /yunqi/year | 下钻：年度详情；返回/yunqi/current | 当下API成功后replace到其运气年；不可用时保留空态，允许手动选年 |
 | /yunqi/year/:year | 下钻：年度详情；返回/yunqi/current | URL驱动指定运气年分析 |
 | /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | E1指定时点，仅用户提交后查询 |
 | /yunqi/inquiry | 下钻：问诊规划；返回/yunqi/current | 只读规划入口，零业务查询；不放入分段导航 |

@@ -47,10 +47,12 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   expect(response.status()).toBe(200);
   const { data } = await response.json();
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
+  const defaultResponse = page.waitForResponse(response => response.url().endsWith('/learning/current'));
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
-  await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
+  const { data: current } = await (await defaultResponse).json();
+  await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(String(current.facts.year));
   await settle(page);
-  // Entering the empty annual form adds no query to the shortcut's one GET.
+  // The current API supplies the default; the previously loaded year is cached.
   expect(diagnostics.requests.filter(request => request.url.includes('/year/'))).toHaveLength(1);
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('2024');
   expect(data.year).toBe(2024);
@@ -341,6 +343,9 @@ for (const [path, endpoint, error] of [
 test('inquiry remains a no-query planning entry and invalid child routes return to current', async ({ page, diagnostics }) => {
   await page.setViewportSize({ width: 400, height: 860 });
   await page.goto('/yunqi/year');
+  await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
+  await settle(page);
+  const requestsBeforeInquiry = diagnostics.requests.length;
   await page.getByRole('navigation', { name: '更多' }).getByRole('link', { name: '问诊规划 ›', exact: true }).click();
   await expect(page).toHaveURL(/\/yunqi\/inquiry$/);
   await expect(page.getByRole('main')).toBeFocused();
@@ -352,17 +357,17 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   await expect(page.getByRole('main').locator('button, input, select, textarea, a, [tabindex]')).toHaveCount(0);
   await expectPanelLayout(page);
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(diagnostics.requests).toHaveLength(requestsBeforeInquiry);
   for (const child of ['patient', 'history', 'new']) {
     await page.goto(`/yunqi/inquiry/${child}`);
     await expect(page.getByRole('main').getByRole('heading', { name: '页面未找到', exact: true })).toBeVisible();
     await expectPanelLayout(page);
     await settle(page);
-    expect(diagnostics.requests).toHaveLength(0);
+    expect(diagnostics.requests).toHaveLength(requestsBeforeInquiry);
   }
   await page.getByRole('link', { name: '返回当前五运六气', exact: true }).click();
   await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
-  expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
+  expect(diagnostics.requests.slice(requestsBeforeInquiry).map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });
 
 test('constitution keyboard loop answers one question at a time and destroys the session', async ({ page, diagnostics }, testInfo) => {
@@ -425,8 +430,8 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(result).toHaveCount(0);
   await expect(end).toHaveCount(0);
   await expect(male).not.toBeChecked();
-  await expect(form.getByRole('radiogroup')).toHaveCount(0);
-  await expect(form.getByRole('group', { name: '量表所用性别' })).toBeFocused();
+  await expect(form.getByRole('radiogroup', { name: '量表所用性别' })).toHaveCount(1);
+  await expect(male).toBeFocused();
   expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
   expect(new URL(page.url()).search).toBe('');
   expect(new URL(page.url()).hash).toBe('');
@@ -435,7 +440,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
 test('constitution reduced-motion answers advance immediately and previous restores an explicit choice', async ({ page, diagnostics }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await page.getByRole('radio', { name: '女', exact: true }).click();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Space');
   await expect(page.locator('.constitution-position')).toHaveText('2/26');

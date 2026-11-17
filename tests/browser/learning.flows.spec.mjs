@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
-import { expectBirthComparison, expandBirthInput } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
+import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -108,11 +108,11 @@ test('birth comparison submits only requested precision, displays both contexts 
   await expect(page.getByRole('heading', { name: '出生运气对照' })).toBeVisible();
   await settle(page);
   expect(diagnostics.requests).toHaveLength(0);
-  const date = page.getByLabel('出生日期（公历）');
+  const date = page.getByRole('textbox', { name: '年', exact: true });
   await page.getByRole('button', { name: '查看出生与当前运气' }).click();
   await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
   await expect(date).toBeFocused();
-  await date.fill('1990-05-12');
+  await fillBirthDate(page, '1990-05-12');
   const responsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
   await page.getByRole('button', { name: '查看出生与当前运气' }).click();
   const response = await responsePromise;
@@ -125,7 +125,7 @@ test('birth comparison submits only requested precision, displays both contexts 
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
   await expandBirthInput(page);
-  await page.getByLabel('知道出生时刻').check();
+  await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
   await expect(result).toHaveCount(0);
   await page.getByLabel('出生时刻（北京时间）').fill('09:30:21');
   const exactResponsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
@@ -138,8 +138,8 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(JSON.parse(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison')).at(-1).body)).toEqual({ birthDate: '1990-05-12', birthTime: '09:30:21' });
   await page.getByRole('button', { name: '清空本次资料' }).click();
   await expect(result).toHaveCount(0);
-  await expect(date).toHaveValue('');
-  await expect(page.getByLabel('知道出生时刻')).not.toBeChecked();
+  await expectBirthDate(page, '');
+  await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
   expect(new URL(page.url()).search).toBe('');
 });
 
@@ -152,7 +152,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await expect(context).toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
-  await page.getByRole('radio', { name: '男', exact: true }).check();
+  await page.getByRole('radio', { name: '男', exact: true }).click();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('26 题未作答');
@@ -177,7 +177,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await result.scrollIntoViewIfNeeded();
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'constitution-nine-dimensions');
-  await page.getByRole('radio', { name: '女', exact: true }).check();
+  await changeConstitutionSex(page, '女', 26);
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
@@ -190,3 +190,47 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(1);
 });
+
+for (const theme of ['light', 'dark']) {
+  test(`constitution gender change: ${theme} inline confirmation, cancellation, Escape and empty answers`, async ({ page, diagnostics }, testInfo) => {
+    await page.goto('/yunqi/constitution');
+    if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
+    const gender = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
+    await expect(gender).toBeVisible();
+    await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+    await checkAccessibility(page, testInfo);
+    await gender.getByRole('radio', { name: '男', exact: true }).click();
+    await expect(gender).toHaveCount(0);
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+    await changeConstitutionSex(page, '女', 0);
+    await expect(page.getByRole('button', { name: '确认', exact: true })).toHaveCount(0);
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('女性版 · 更换');
+    await page.keyboard.press('3');
+    await expect(page.locator('.constitution-position')).toHaveText('2/26');
+    const change = page.getByRole('button', { name: '更换', exact: true });
+    const confirmation = page.getByRole('group', { name: '更换将清空已作答的 1 题', exact: true });
+    for (const method of ['button', 'Escape']) {
+      await change.click();
+      await expect(confirmation).toBeVisible();
+      await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
+      await checkAccessibility(page, testInfo);
+      await screenshot(page, testInfo, `constitution-gender-confirmation-${theme}-${method}`);
+      if (method === 'button') await page.getByRole('button', { name: '取消', exact: true }).click();
+      else await page.keyboard.press('Escape');
+      await expect(confirmation).toHaveCount(0);
+      await expect(change).toBeFocused();
+      await expect(page.locator('.constitution-position')).toHaveText('2/26');
+      await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
+    }
+    await page.getByRole('button', { name: '上一题', exact: true }).click();
+    await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
+    await change.click();
+    await page.getByRole('button', { name: '确认', exact: true }).click();
+    await expect(gender.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
+    await gender.getByRole('radio', { name: '男', exact: true }).click();
+    await expect(page.locator('.constitution-position')).toHaveText('1/26');
+    await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
+    expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+  });
+}

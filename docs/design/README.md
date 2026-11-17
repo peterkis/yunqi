@@ -51,6 +51,18 @@
 
 原型中的“演示：一键填完 26 题”只用于演示，不属于产品功能。
 
+## 本地扩展
+
+- `DateField`：年/月/日三段数字输入，`label` 必填并作为可见legend和整体可访问名称，出生页传“出生日期（公历）”；统一 `--input-height` 与焦点环；
+  支持满位跳格、空段退格和完整日期粘贴，各段有年/月/日可访问名称。
+  对外为 `YYYY-MM-DD` 或空；只校验位数与年1900–2100、月1–12、日1–31，月份天数交给API。
+  出生时刻保留 `type="time"`，统一令牌外观，业务时区仍为北京时间 UTC+08。
+- `SegmentedControl`：非路由的按钮分段，用于量表性别和出生时刻是否已知。
+  采用radiogroup/radio与aria-checked、单Tab入口、方向键和Home/End；
+  默认 `--segment-height`，compact为30px，与 `SegmentedNav` compact视觉一致；不替换路由导航或原文范围控件。
+- 量表作答时性别收为眉标；有答案的更换操作在页内确认清空题数，支持取消与Esc及焦点恢复。
+  本地扩展样式位于Workbench的 `styles/views/form-controls.css`、`birth.css`、`constitution.css`，不改同步副本。
+
 ## 超出当前授权的原型元素
 
 以下元素出现在规范或原型中，但超出 [医疗与阶段范围](../agents/clinical-scope.md) 的现有授权。
