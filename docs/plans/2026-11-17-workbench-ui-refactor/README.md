@@ -31,8 +31,8 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 
 | 卡 | 内容 | 依赖 | 状态 |
 | --- | --- | --- | --- |
-| [C1](cards/C1-foundation.md) | 设计令牌、本地字体、主题、基础组件 | — | 待派发 |
-| [C2](cards/C2-panel-shell.md) | 面板骨架、分段导航、下钻框架、收起态、路由 | C1 | 待派发 |
+| [C1](cards/C1-foundation.md) | 设计令牌、本地字体、主题、基础组件 | — | 通过（4 轮，[评审](reviews/C1-review-1.md)） |
+| [C2](cards/C2-panel-shell.md) | 面板骨架、分段导航、下钻框架、收起态、路由 | C1 | 开发中 |
 | [C3](cards/C3-current-view.md) | 当下运气默认态 + 原文与释义下钻 | C2 | 待派发 |
 | [C4](cards/C4-birth-comparison.md) | 先天 × 当下对照 | C2 | 待派发 |
 | [C5](cards/C5-constitution.md) | 体质量表一题一屏 + 结果互参 + 对照内同页测评 | C4 | 待派发 |
@@ -44,6 +44,7 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 ## 工作流
 
 1. 分支 `feat/workbench-ui-refactor`。Codex 不提交；Claude 评审通过后按卡在本地提交，推送需用户同意。
-2. 派发：`codex exec -C <repo> --sandbox workspace-write -o <结果文件>`，提示词为卡片全文与通用要求。
+2. 派发：`codex exec -C <repo> --sandbox workspace-write -m gpt-6.1-sol -c model_reasoning_effort="max" -c service_tier="fast" -o <结果文件>`，
+   提示词为通用要求与卡片全文。模型、思考强度 max 与 fast 模式按用户 2026-11-17 要求固定；C1 首轮已按用户配置使用 gpt-6.1-sol / max，未开 fast。
 3. 评审：Claude 核对差异、按卡运行检查、对照设计规范与原型；结论写入 `reviews/Cn-review-k.md`。
 4. 未达标项写成返工意见再次派发，直至通过；无法在卡内解决的问题记录为待决项交用户。

@@ -15,6 +15,28 @@ function ThemeControl() {
 }
 
 describe('ThemeProvider', () => {
+  it('applies the design token theme to the existing data-theme wrapper', async () => {
+    const user = userEvent.setup();
+    const style = document.createElement('style');
+    style.textContent = readFileSync('src/styles/tokens.css', 'utf8');
+    document.head.append(style);
+    try {
+      const { container } = render(<ThemeProvider><ThemeControl /></ThemeProvider>);
+      const wrapper = container.firstElementChild!;
+      expect(getComputedStyle(wrapper).getPropertyValue('--surface-page').trim()).toBe('#fbfaf7');
+      expect(getComputedStyle(wrapper).getPropertyValue('--accent').trim()).toBe('#2e5b4f');
+
+      await user.click(screen.getByRole('button', { name: '切换至深色主题' }));
+      expect(getComputedStyle(wrapper).getPropertyValue('--surface-page').trim()).toBe('#151816');
+      expect(getComputedStyle(wrapper).getPropertyValue('--accent').trim()).toBe('#7fb3a2');
+
+      await user.click(screen.getByRole('button', { name: '切换至浅色主题' }));
+      expect(getComputedStyle(wrapper).getPropertyValue('--surface-page').trim()).toBe('#fbfaf7');
+    } finally {
+      style.remove();
+    }
+  });
+
   it('keeps the UA color scheme aligned with the explicit theme', () => {
     const stylesheet = readFileSync(
       'src/styles/global.css',
