@@ -64,8 +64,13 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('region', { name: '全年 · 2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
-  await expect(page.getByRole('main')).toBeFocused();
-  await expect(page.getByRole('heading', { name: '出生运气对照', exact: true })).toBeInViewport();
+  const birthContent = page.getByRole('main', { name: '先天对照', exact: true });
+  await expect(birthContent).toBeFocused();
+  const birthDate = birthContent.getByLabel('出生日期（公历）');
+  await expect(birthDate).toBeVisible();
+  await expect(birthDate).toBeEnabled();
+  await expect(birthDate).toBeInViewport();
+  await expect(birthContent.getByRole('button', { name: '查看出生与当前运气', exact: true })).toBeInViewport();
   await page.reload();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: '跳至主要内容' })).toBeFocused();

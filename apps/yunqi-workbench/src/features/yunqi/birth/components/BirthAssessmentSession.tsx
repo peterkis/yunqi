@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { Button } from '../../../../components/design/Button';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { ConstitutionAssessmentPanel } from '../../../constitution/components/ConstitutionAssessmentPanel';
 import type { BirthComparisonViewModel, LearningViewModel } from '../../presentation/map-learning';
@@ -32,17 +33,13 @@ export function BirthAssessmentSession({ comparison }: { readonly comparison: Bi
   }
 
   return (
-    <section className="birth-assessment" aria-label="本次对照体质测评">
-      <header className="birth-assessment-header">
-        <div>
-          <p className="section-label">同次资料 · 独立计分</p>
-          <h3>结合本次对照完成体质测评</h3>
-        </div>
-        <button type="button" className="secondary-button" ref={actionRef} aria-expanded={active} aria-controls={active ? panelId : undefined} onClick={toggleAssessment}>
-          {active ? '结束本次测评' : '开始本次体质测评'}
-        </button>
+    <section className="birth-session" aria-label="本次对照体质测评">
+      <header className="birth-session-header">
+        <Button variant={active ? 'secondary' : 'primary'} ref={actionRef} aria-expanded={active} aria-controls={active ? panelId : undefined} onClick={toggleAssessment}>
+          {active ? '结束本次测评' : '同时测评体质'}
+        </Button>
       </header>
-      <p className="form-note">问卷按需打开。结束测评、修改出生资料、清空或重新对照，都会清除本次作答和测评结果。</p>
+      <p className="birth-note">问卷按需打开。结束测评、修改出生资料、清空或重新对照，都会清除本次作答和测评结果。</p>
       {active ? (
         <div className="birth-assessment-layout" id={panelId}>
           <aside className="birth-assessment-context" aria-label="本次测评对照背景">

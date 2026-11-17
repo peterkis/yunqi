@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+import { expectBirthComparison } from './birth-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -119,11 +120,7 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(data.birthPrecision).toBe('date');
   expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ birthDate: '1990-05-12' });
   const result = page.getByRole('region', { name: '出生与当前运气对照结果' });
-  await expect(result).toBeVisible();
-  await expect(page.locator('.birth-candidate')).toHaveCount(data.candidates.length);
-  await expect(page.locator('.birth-current time').first()).toHaveAttribute('datetime', data.current.facts.input.localTime);
-  await expect(page.locator('.birth-candidate__interval time').first()).toHaveAttribute('datetime', data.candidates[0].from.localTime);
-  await expect(page.locator('.birth-candidate > .ui-panel time')).toHaveCount(0);
+  await expectBirthComparison(page, data);
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
   await page.getByLabel('知道出生时刻').check();
@@ -135,8 +132,8 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(exactResponse.status()).toBe(200);
   const { data: exact } = await exactResponse.json();
   expect(exact.birthPrecision).toBe('time');
-  await expect(result).toBeVisible();
-  await expect(page.locator('.birth-candidate > .ui-panel time').first()).toHaveAttribute('datetime', exact.candidates[0].learning.facts.input.localTime);
+  await expectBirthComparison(page, exact);
+  expect(JSON.parse(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison')).at(-1).body)).toEqual({ birthDate: '1990-05-12', birthTime: '09:30:21' });
   await page.getByRole('button', { name: '清空本次资料' }).click();
   await expect(result).toHaveCount(0);
   await expect(date).toHaveValue('');

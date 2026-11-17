@@ -9,6 +9,7 @@ import './styles/global.css';
 import './styles/design-components.css';
 import './styles/panel-shell.css';
 import './styles/views/current-yunqi.css';
+import './styles/views/birth.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

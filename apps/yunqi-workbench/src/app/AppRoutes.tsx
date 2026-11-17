@@ -19,7 +19,9 @@ export function AppRoutes() {
       />
       <Route path="/yunqi/current" element={<CurrentYunQiView />} />
       <Route path="/yunqi/current/classics" element={<CurrentClassicsView />} />
-      <Route path="/yunqi/birth" element={<BirthComparisonPage />} />
+      <Route path="/yunqi/birth" element={<BirthComparisonPage />}>
+        <Route path="classics" element={null} />
+      </Route>
       <Route path="/yunqi/constitution" element={<ConstitutionPage />} />
       <Route
         path="/yunqi/calculate"

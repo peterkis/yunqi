@@ -12,6 +12,8 @@ const cases = [
   { name: 'inquiry', path: '/yunqi/inquiry', ready: '问诊结构化入口' },
   { name: 'birth-entry', path: '/yunqi/birth', ready: '出生运气对照' },
   { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
+  { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
+  { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
@@ -20,6 +22,20 @@ const cases = [
 
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme }, testInfo) => {
+    // Birth migration targets only; other cards keep their existing viewport cases.
+    if (state.name.startsWith('birth')) {
+      const birthViewports = {
+        'desktop-light': { width: 400, height: 860 },
+        'breakpoint-light': { width: 400, height: 640 },
+        'tablet-boundary-light': { width: 1366, height: 900 },
+        'tablet-light': { width: 400, height: 860 },
+        'mobile-light': { width: 390, height: 844 },
+        'narrow-light': { width: 320, height: 800 },
+        'desktop-dark': { width: 400, height: 860 },
+        'mobile-dark': { width: 400, height: 640 },
+      };
+      await page.setViewportSize(birthViewports[testInfo.project.name]);
+    }
     await page.goto(state.path);
     if (state.current) await expect(page.getByRole('region', { name: '全年 · 2024' })).toBeVisible();
     else if (state.classics) {
@@ -32,12 +48,26 @@ for (const state of cases) {
       await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
     }
     if (state.birth) {
+      const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
       await page.getByLabel('出生日期（公历）').fill('1990-05-12');
       await page.getByRole('button', { name: '查看出生与当前运气' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
+      const { data } = await (await responsePromise).json();
+      if (state.birthBoundary) {
+        await page.getByLabel('出生日期（公历）').fill(data.current.facts.interval.start.localTime.slice(0, 10));
+        const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+        await page.getByRole('button', { name: '查看出生与当前运气' }).click();
+        const { data: boundary } = await (await boundaryResponse).json();
+        expect(boundary.ambiguous).toBe(true);
+        await expect(page.locator('.birth-table')).toHaveCount(boundary.candidates.length);
+      }
+      if (state.birthClassics) {
+        await page.getByRole('link', { name: '全部原文', exact: true }).click();
+        await expect(page.getByRole('region', { name: '先天原文与释义', exact: true })).toBeVisible();
+      }
     }
     if (state.birthAssessment) {
-      await page.getByRole('button', { name: '开始本次体质测评', exact: true }).click();
+      await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
     }
     if (state.questionnaire) {
       await page.getByRole('radio', { name: '男', exact: true }).check();
@@ -49,6 +79,36 @@ for (const state of cases) {
     }
     await settle(page);
     await expectPanelLayout(page);
+    if (state.birth && !state.birthClassics) {
+      const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
+        columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
+        headings: [...table.querySelectorAll('.birth-table__year strong')].map(element => Number.parseFloat(getComputedStyle(element).fontSize)),
+        years: [...table.querySelectorAll('.birth-table__year > span')].map(element => Number.parseFloat(getComputedStyle(element).fontSize)),
+        values: [...table.querySelectorAll('.birth-table__value')].map(element => ({
+          size: Number.parseFloat(getComputedStyle(element).fontSize),
+          weight: getComputedStyle(element).fontWeight,
+          line: Number.parseFloat(getComputedStyle(element).lineHeight),
+        })),
+        chips: [...table.querySelectorAll('.ds-relation__chip')].map(element => element.getBoundingClientRect().height),
+        dots: [...table.querySelectorAll('.ds-element__dot')].map(element => element.getBoundingClientRect().width),
+        textSizes: [...new Set([...table.closest('.birth-page').querySelectorAll('*')]
+          .filter(element => element.getClientRects().length && element.textContent.trim() && !element.closest('.visually-hidden'))
+          .map(element => getComputedStyle(element).fontSize))],
+      }));
+      expect(birthLayout.columns[0]).toBe(52);
+      expect(birthLayout.columns[1]).toBeCloseTo(birthLayout.columns[2], 1);
+      expect(birthLayout.headings).toEqual([24, 24]);
+      expect(birthLayout.years).toEqual([13, 13]);
+      expect(birthLayout.values).toHaveLength(10);
+      for (const value of birthLayout.values) expect(value).toEqual({ size: 14, weight: '600', line: 21 });
+      expect(birthLayout.chips).toEqual([20, 20, 20, 20, 20]);
+      expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7]);
+      if (!state.birthAssessment) {
+        expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
+        expect([...birthLayout.textSizes].sort()).toEqual(['11px', '12px', '13px', '14px', '24px']);
+      }
+      await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
+    }
     await screenshot(page, testInfo, state.name);
 
     const layout = await page.evaluate(() => {

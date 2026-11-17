@@ -17,6 +17,7 @@ export type PanelRouteViewModel = {
 
 const drilldownRoutes = [
   { id: 'classics', path: '/yunqi/current/classics', title: '原文与释义', subtitle: '全年与当下阶段 · 文献阅读', backTo: '/yunqi/current' },
+  { id: 'birth-classics', path: '/yunqi/birth/classics', title: '原文与释义', subtitle: '先天 · 出生阶段', backTo: '/yunqi/birth' },
   { id: 'annual', path: '/yunqi/year/:year?', title: '年度分析', subtitle: '指定运气年 · 教学参考', backTo: '/yunqi/current' },
   { id: 'calculate', path: '/yunqi/calculate', title: '指定时点', subtitle: '北京时间 UTC+08 · 提交后分析', backTo: '/yunqi/current' },
   { id: 'inquiry', path: '/yunqi/inquiry', title: '问诊规划', subtitle: '只读规划 · 尚未上线', backTo: '/yunqi/current' },

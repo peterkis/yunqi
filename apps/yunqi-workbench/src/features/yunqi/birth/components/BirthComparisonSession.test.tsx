@@ -12,7 +12,7 @@ async function submitBirth(user: ReturnType<typeof userEvent.setup>) {
 }
 
 async function openAssessment(user: ReturnType<typeof userEvent.setup>) {
-  await user.click(screen.getByRole('button', { name: '开始本次体质测评' }));
+  await user.click(screen.getByRole('button', { name: '同时测评体质' }));
   return screen.findByRole('form', { name: '中医体质量表' });
 }
 
@@ -26,19 +26,26 @@ async function completeAssessment(user: ReturnType<typeof userEvent.setup>, form
 }
 
 describe('birth comparison assessment session', () => {
-  it('offers symmetric collapsed annual and period readings with historical scope labels', async () => {
+  it('drills into birth-scoped readings while retaining matching current readings separately', async () => {
     const user = userEvent.setup();
     const client = createClientStub();
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
     await submitBirth(user);
-    for (const title of ['出生年度', '出生阶段', '当前年度', '当前阶段']) {
-      const summary = screen.getByText(`${title} · 经典原文`);
-      expect(summary.closest('details')).not.toHaveAttribute('open');
-    }
-    await user.click(screen.getByText('出生阶段 · 经典原文'));
-    const historical = screen.getByText('出生阶段 · 经典原文').closest('details')!;
+    await user.click(screen.getByRole('link', { name: '全部原文' }));
+    const reading = screen.getByRole('region', { name: '先天原文与释义' });
+    expect(within(reading).getByRole('button', { name: '出生阶段' })).toHaveAttribute('aria-pressed', 'true');
+    const historical = within(reading).getByRole('region', { name: '出生运气原文' });
     expect(within(historical).getByText('出生阶段', { exact: true })).toBeVisible();
     expect(within(historical).queryByText('当前阶段', { exact: true })).not.toBeInTheDocument();
+    expect(within(historical).getByText('阅读释义')).toBeVisible();
+    expect(within(historical).getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', 'https://example.org/classics');
+    await user.click(within(reading).getByRole('button', { name: '全年' }));
+    expect(within(historical).getByText('全年 · 司天')).toBeVisible();
+    const current = within(reading).getByText('对照时的当下原文').closest('details')!;
+    expect(current).not.toHaveAttribute('open');
+    await user.click(within(current).getByText('对照时的当下原文'));
+    expect(within(current).getAllByRole('blockquote')).toHaveLength(2);
+    expect(within(current).getByText('当下阶段', { exact: true })).toBeVisible();
     expect(client.getConstitutionQuestionnaire).not.toHaveBeenCalled();
   });
 
@@ -66,7 +73,7 @@ describe('birth comparison assessment session', () => {
     expect(within(form).getByText('已答 1 / 8 题')).toBeVisible();
     await user.click(screen.getByRole('button', { name: '结束本次测评' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: '开始本次体质测评' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveFocus();
     const restarted = await openAssessment(user);
     expect(within(restarted).getByRole('radio', { name: '男' })).not.toBeChecked();
     expect(within(restarted).queryByRole('radio', { name: '有时' })).not.toBeInTheDocument();
@@ -131,7 +138,7 @@ describe('birth comparison assessment session', () => {
     const client = createClientStub({ getConstitutionQuestionnaire: vi.fn().mockRejectedValueOnce(new Error('private questionnaire error')).mockResolvedValueOnce(createQuestionnaireDto()) });
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client) });
     const comparison = await submitBirth(user);
-    await user.click(screen.getByRole('button', { name: '开始本次体质测评' }));
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
     expect(comparison).toBeVisible();
     expect(screen.queryByText(/private questionnaire/)).not.toBeInTheDocument();
