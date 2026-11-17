@@ -1,0 +1,25 @@
+/* Local decision: docs/design/type-scale.md. Five tiers; the display tier has
+   three alternatives, only one of which may appear on the same screen. */
+:root {
+  --ts-display-hero: var(--type-display-xl-size);
+  --ts-display-hero-line: var(--type-display-xl-line);
+  --ts-display-hero-weight: var(--type-display-xl-weight);
+  --ts-display-result: var(--type-display-lg-size);
+  --ts-display-result-line: var(--type-display-lg-line);
+  --ts-display-result-weight: var(--type-display-lg-weight);
+  --ts-display-column: var(--type-display-md-size);
+  --ts-display-column-line: var(--type-display-md-line);
+  --ts-display-column-weight: var(--type-display-md-weight);
+  --ts-title: var(--type-title-size);
+  --ts-title-line: var(--type-title-line);
+  --ts-title-weight: var(--type-title-weight);
+  --ts-quote: var(--type-quote-size);
+  --ts-quote-line: var(--type-quote-line);
+  --ts-quote-weight: var(--type-quote-weight);
+  --ts-body: var(--type-body-size);
+  --ts-body-line: var(--type-body-line);
+  --ts-body-weight: var(--type-body-weight);
+  --ts-small: var(--type-caption-size);
+  --ts-small-line: var(--type-caption-line);
+  --ts-small-weight: var(--type-caption-weight);
+}

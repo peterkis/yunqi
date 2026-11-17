@@ -45,12 +45,17 @@ for (const theme of ['light', 'dark']) {
         interpretationBorder: style('.ds-quote-block__interpretation').borderTopStyle,
         selectedBorder: style('.ds-scale-option[aria-checked="true"]').borderTopWidth,
         primaryPadding: style('.ds-button--primary').paddingLeft,
+        primarySize: style('.ds-button--primary').fontSize,
         secondarySize: style('.ds-button--secondary').fontSize,
         textSize: style('.ds-button--text').fontSize,
         segmentSize: style('.ds-segmented-nav__link').fontSize,
         segmentInset: style('.ds-segmented-nav').paddingTop,
         headerTitleSize: style('.ds-panel-header__title').fontSize,
         headerTitleLine: style('.ds-panel-header__title').lineHeight,
+        eyebrowSize: style('.ds-info-card__label').fontSize,
+        metaSize: style('.ds-info-card__meta').fontSize,
+        sourceSize: style('.ds-quote-block__source').fontSize,
+        quoteSize: style('.ds-quote-block__original').fontSize,
         optionLabelOffsets: [...document.querySelectorAll('.ds-scale-option')].map(option => (
           option.querySelector('.ds-scale-option__label').getBoundingClientRect().left - option.getBoundingClientRect().left
         )),
@@ -79,8 +84,9 @@ for (const theme of ['light', 'dark']) {
         metalFill: rgb(metalFill.value[theme]),
         chip: 22, compactChip: 20, cardPadding: '18px',
         cardShadow: 'none', interpretationBorder: 'dashed', selectedBorder: '2px', overflow: false,
-        primaryPadding: '20px', secondarySize: '13.5px', textSize: '13px', segmentSize: '13px',
-        segmentInset: '3px', headerTitleSize: '13px', headerTitleLine: '16.25px',
+        primaryPadding: '20px', primarySize: '14px', secondarySize: '14px', textSize: '14px', segmentSize: '14px',
+        segmentInset: '3px', headerTitleSize: '14px', headerTitleLine: '17.5px',
+        eyebrowSize: '12px', metaSize: '12px', sourceSize: '12px', quoteSize: '15px',
         optionCount: 5, optionLabelPositions: 1,
         quoteFont: expect.stringContaining('Noto Serif SC'),
         readingFont: expect.stringContaining('Noto Sans SC'),
@@ -95,7 +101,7 @@ for (const theme of ['light', 'dark']) {
     const quoteCard = page.getByRole('region', { name: '当下原文', exact: true });
     await expect(quoteCard.getByText('文献线索，非个体发病预测。', { exact: true })).toHaveCount(1);
     await expect(quoteCard.locator('.ds-quote-block > :last-child')).toHaveText('文献线索，非个体发病预测。');
-    await expect(quoteCard.locator('.ds-quote-block__notice')).toHaveCSS('font-size', '11px');
+    await expect(quoteCard.locator('.ds-quote-block__notice')).toHaveCSS('font-size', '12px');
 
     // Start before the quote, then verify the native summary's real Tab behavior.
     await page.getByRole('button', { name: '返回修改' }).focus();

@@ -19,6 +19,17 @@ body,
 
 body {
   min-width: 0;
+  font-size: var(--ts-body);
+}
+
+/* Keep browser defaults from introducing extra sizes. Leave the root size
+   unchanged so the remaining demo layout's rem dimensions do not shift. */
+h1, h2, h3, h4, h5, h6 {
+  font-size: var(--ts-title);
+}
+
+input, select, textarea, code {
+  font-size: var(--ts-body);
 }
 
 button {
@@ -52,7 +63,7 @@ button {
   display: block;
   margin-left: 1rem;
   color: var(--ink-muted);
-  font-size: 0.83rem;
+  font-size: var(--ts-small);
   font-weight: 400;
 }
 
@@ -90,7 +101,7 @@ button {
 .section-label {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -133,7 +144,7 @@ button {
 
 .annual-yunqi-layout > header h2 {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(2rem, 3vw, 3rem);
+  font-size: var(--ts-title);
   font-weight: 500;
   line-height: 1.2;
   text-wrap: balance;
@@ -200,7 +211,7 @@ button {
 .year-navigation__hint {
   margin: 0 0 0.65rem;
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
 }
 
 .annual-stage-workspace {
@@ -212,7 +223,7 @@ button {
 .stage-selector-hint {
   margin: 0 0 0.75rem;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   line-height: 1.6;
 }
 
@@ -223,7 +234,7 @@ button {
   gap: 0.5rem 1rem;
   padding-top: 0.75rem;
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   line-height: 1.6;
 }
 
@@ -279,7 +290,7 @@ input {
 
 .inquiry-entry-page__header h2 {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: var(--ts-title);
   font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.045em;
@@ -316,7 +327,7 @@ input {
   align-items: center;
   margin: auto 0 0;
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
 }
 
 .annual-six-qi-selector {
@@ -331,7 +342,7 @@ input {
   padding: 1rem 0 0.5rem;
   border-top: 1px solid var(--rule-strong);
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
   letter-spacing: -0.025em;
 }
@@ -382,12 +393,12 @@ input {
 
 .annual-six-qi-selector__option strong {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.1rem;
+  font-size: var(--ts-body);
 }
 
 .annual-six-qi-selector__index {
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.06em;
 }
 
@@ -397,7 +408,7 @@ input {
   gap: 0.35rem;
   margin-top: auto;
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
   line-height: 1.45;
   overflow-wrap: anywhere;
 }
@@ -438,14 +449,14 @@ input {
 
 .annual-six-qi-detail__header h2 {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
   letter-spacing: -0.025em;
 }
 
 .annual-six-qi-detail__eyebrow {
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -470,7 +481,7 @@ input {
 
 .annual-six-qi-detail__time > span:last-child {
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -487,7 +498,7 @@ input {
 .current-yunqi-hero h2 {
   margin: 0 0 0.75rem;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: var(--ts-title);
   font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.03em;
@@ -510,7 +521,7 @@ input {
 
 .current-yunqi-hero__time > span:first-child {
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.12em;
 }
 
@@ -534,7 +545,7 @@ input {
 .time-analysis-hero h2 {
   margin: 0 0 0.75rem;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  font-size: var(--ts-title);
   font-weight: 500;
   line-height: 1.05;
   letter-spacing: -0.025em;
@@ -566,7 +577,7 @@ input {
 
 .time-analysis-form-panel h3 {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.4rem;
+  font-size: var(--ts-title);
   font-weight: 550;
 }
 
@@ -591,7 +602,7 @@ input {
 
 .time-analysis-form__field label {
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -618,7 +629,7 @@ input {
 .time-analysis-form__field p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 0.78rem;
+  font-size: var(--ts-small);
   line-height: 1.6;
 }
 
@@ -678,7 +689,7 @@ input {
 .time-analysis-form__hint {
   flex-basis: 100%;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   line-height: 1.65;
 }
 
@@ -710,7 +721,7 @@ input {
 .time-analysis-result__time h3 {
   margin: 0.45rem 0 0;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.25rem;
+  font-size: var(--ts-title);
   font-weight: 550;
 }
 
@@ -743,14 +754,14 @@ input {
 
 .time-analysis-stage-rail__stage strong {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.1rem;
+  font-size: var(--ts-body);
 }
 
 .time-analysis-stage-rail__index,
 .time-analysis-stage-rail__qi,
 .time-analysis-stage-rail__range {
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   line-height: 1.45;
 }
 
@@ -796,14 +807,14 @@ input {
 
 .time-analysis-stage-detail__header h2 {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
   letter-spacing: -0.025em;
 }
 
 .time-analysis-stage-detail__eyebrow {
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }
@@ -828,7 +839,7 @@ input {
 
 .time-analysis-stage-detail__time > span:last-child {
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -848,7 +859,7 @@ input {
 
 .yunqi-time__standard {
   color: var(--cinnabar-deep);
-  font-size: 0.78rem;
+  font-size: var(--ts-small);
   font-weight: 700;
   letter-spacing: 0.04em;
 }
@@ -887,7 +898,7 @@ input {
 .ui-panel__header h2 {
   margin: 0;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
   letter-spacing: -0.025em;
 }
@@ -918,7 +929,7 @@ input {
   margin: 0 0 1.25rem;
   color: var(--cinnabar-deep);
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.25rem;
+  font-size: var(--ts-title);
   font-weight: 650;
 }
 
@@ -937,7 +948,7 @@ input {
 
 .data-label dt {
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.04em;
 }
 
@@ -955,7 +966,7 @@ input {
   padding: 0.15rem 0.5rem;
   border: 1px solid var(--rule-strong);
   color: var(--ink-muted);
-  font-size: 0.7rem;
+  font-size: var(--ts-small);
   font-weight: 700;
   letter-spacing: 0.08em;
 }
@@ -1045,14 +1056,14 @@ input {
 
 .annual-stage-rail__button strong {
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.1rem;
+  font-size: var(--ts-body);
 }
 
 .annual-stage-rail__index,
 .annual-stage-rail__status,
 .annual-stage-rail__disclaimer {
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   letter-spacing: 0.06em;
 }
 
@@ -1067,7 +1078,7 @@ input {
   gap: 0.2rem;
   margin-top: auto;
   color: var(--ink-muted);
-  font-size: 0.72rem;
+  font-size: var(--ts-small);
   line-height: 1.45;
 }
 
@@ -1168,7 +1179,7 @@ input {
 .timeline-item__title-line h3 {
   margin: 0;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: 1.35rem;
+  font-size: var(--ts-title);
 }
 
 .timeline-item__summary {
@@ -1181,7 +1192,7 @@ input {
   gap: 0.5rem 1.2rem;
   align-items: baseline;
   color: var(--ink-muted);
-  font-size: 0.88rem;
+  font-size: var(--ts-body);
   line-height: 1.7;
 }
 
@@ -1207,12 +1218,12 @@ input {
 }
 
 .timeline-item__toggle span:first-child {
-  font-size: 0.78rem;
+  font-size: var(--ts-small);
 }
 
 .timeline-item__toggle span:last-child {
   color: var(--cinnabar);
-  font-size: 1.15rem;
+  font-size: var(--ts-body);
 }
 
 .timeline-item__toggle:hover,
@@ -1261,7 +1272,7 @@ input {
   padding-top: 1rem;
   border-top: 1px solid var(--rule);
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
 }
 
 .rule-trace code {
@@ -1407,11 +1418,11 @@ input {
   }
 
   .annual-six-qi-selector__range {
-    font-size: 0.75rem;
+    font-size: var(--ts-small);
   }
 
   .annual-six-qi-selector__option strong {
-    font-size: 1rem;
+    font-size: var(--ts-body);
   }
 
   .annual-six-qi-selector__range > span[aria-hidden="true"] {
@@ -1494,7 +1505,7 @@ input {
 }
 
 .movement-pair dd {
-  font-size: 1.15rem;
+  font-size: var(--ts-body);
   color: var(--cinnabar-deep);
 }
 
@@ -1515,7 +1526,7 @@ input {
 
 .relation-hint h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: var(--ts-body);
   font-weight: 600;
 }
 
@@ -1525,7 +1536,7 @@ input {
   border: 1px solid var(--rule-strong);
   color: var(--cinnabar-deep);
   background: var(--paper-raised);
-  font-size: 0.9rem;
+  font-size: var(--ts-body);
   font-weight: 700;
 }
 
@@ -1533,18 +1544,18 @@ input {
   margin: 0.65rem 0 0;
   color: var(--ink-muted);
   line-height: 1.75;
-  font-size: 0.87rem;
+  font-size: var(--ts-body);
 }
 
 .relation-hint .relation-hint__direction {
   color: var(--ink);
-  font-size: 1rem;
+  font-size: var(--ts-body);
 }
 
 .learning-boundary,
 .form-note {
   color: var(--ink-muted);
-  font-size: 0.84rem;
+  font-size: var(--ts-small);
   line-height: 1.8;
   overflow-wrap: anywhere;
 }
@@ -1571,13 +1582,13 @@ input {
 
 .classical-passage h3 {
   margin: 0.5rem 0;
-  font-size: 1.05rem;
+  font-size: var(--ts-title);
   line-height: 1.7;
 }
 
 .classical-passage__section {
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   margin: 0;
 }
 
@@ -1586,6 +1597,7 @@ input {
   padding-left: 1rem;
   border-left: 2px solid var(--cinnabar);
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
+  font-size: var(--ts-quote);
   line-height: 2;
   white-space: pre-wrap;
 }
@@ -1593,7 +1605,7 @@ input {
 .classical-passage__explanation {
   padding: 1rem;
   background: var(--paper-muted);
-  font-size: 0.87rem;
+  font-size: var(--ts-body);
   line-height: 1.8;
 }
 
@@ -1607,14 +1619,14 @@ input {
   display: inline-block;
   padding-block: 0.75rem;
   color: var(--cinnabar-deep);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   text-underline-offset: 0.25em;
 }
 
 .inline-disclosure {
   margin-top: 1rem;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   line-height: 1.8;
 }
 
@@ -1643,7 +1655,7 @@ input {
 .learning-page__hero h2 {
   margin: 0.6rem 0 0.8rem;
   font-family: "Songti SC", "STSong", "Noto Serif CJK SC", Georgia, serif;
-  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-size: var(--ts-title);
   font-weight: 500;
   line-height: 1.3;
 }
@@ -1670,7 +1682,7 @@ input {
 }
 
 .learning-form legend {
-  font-size: 1.15rem;
+  font-size: var(--ts-title);
   font-weight: 600;
   margin-bottom: 1rem;
 }
@@ -1687,7 +1699,7 @@ input {
   gap: 0.5rem;
   min-width: 0;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
 }
 
 .birth-form__fields input[type="date"],
@@ -1699,7 +1711,7 @@ input {
   color: var(--ink);
   background: var(--paper-raised);
   font: inherit;
-  font-size: 1rem;
+  font-size: var(--ts-body);
 }
 
 .birth-form__fields > .checkbox-field {
@@ -1827,7 +1839,7 @@ input {
   margin: 0.75rem 0;
   color: var(--cinnabar-deep);
   font-family: "Songti SC", "STSong", serif;
-  font-size: 1.6rem;
+  font-size: var(--ts-title);
 }
 
 .snapshot-facts {
@@ -1846,7 +1858,7 @@ input {
 
 .snapshot-facts dt {
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
 }
 
 .snapshot-facts dd {
@@ -1859,14 +1871,14 @@ input {
   gap: 0.5rem;
   margin-top: 1rem;
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
 }
 
 .birth-candidate__interval {
   margin: 0;
   padding: 0.75rem 1rem;
   color: var(--ink-muted);
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   line-height: 1.75;
   overflow-wrap: anywhere;
 }
@@ -1893,7 +1905,7 @@ input {
 .birth-assessment-header h3 {
   margin: 0.4rem 0 0;
   font-family: "Songti SC", "STSong", serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
 }
 
@@ -1914,7 +1926,7 @@ input {
 .birth-assessment-heading {
   margin: 0 0 1rem;
   color: var(--ink-muted);
-  font-size: 1rem;
+  font-size: var(--ts-body);
   scroll-margin-top: 1.5rem;
 }
 
@@ -1938,7 +1950,7 @@ input {
 .birth-assessment-context h4,
 .birth-assessment-context h5 {
   margin: 0 0 0.75rem;
-  font-size: 0.95rem;
+  font-size: var(--ts-body);
 }
 
 .birth-assessment-context > header {
@@ -1963,7 +1975,7 @@ input {
   display: grid;
   gap: 0.5rem;
   margin: 0;
-  font-size: 0.8rem;
+  font-size: var(--ts-small);
   line-height: 1.65;
 }
 
@@ -1990,7 +2002,7 @@ input {
 .birth-assessment-interval {
   margin: 0.75rem 0 0;
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
   line-height: 1.7;
   overflow-wrap: anywhere;
 }
@@ -2028,12 +2040,12 @@ input {
 .questionnaire-intro h3 {
   margin: 0 0 0.75rem;
   font-family: "Songti SC", "STSong", serif;
-  font-size: 1.5rem;
+  font-size: var(--ts-title);
   font-weight: 550;
 }
 
 .questionnaire-intro p {
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   line-height: 1.8;
   color: var(--ink-muted);
 }
@@ -2070,7 +2082,7 @@ input {
 .questionnaire-progress {
   display: grid;
   gap: 0.5rem;
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   color: var(--ink-muted);
 }
 
@@ -2084,7 +2096,7 @@ input {
 .question-group-heading {
   margin: 1.25rem 0 0;
   color: var(--ink-muted);
-  font-size: 0.9rem;
+  font-size: var(--ts-body);
   font-weight: 500;
   scroll-margin-top: 1.5rem;
 }
@@ -2107,7 +2119,7 @@ input {
   width: 100%;
   padding: 0 0 0.75rem;
   line-height: 1.8;
-  font-size: 0.95rem;
+  font-size: var(--ts-title);
 }
 
 .question-number {
@@ -2130,7 +2142,7 @@ input {
   min-height: 2.75rem;
   padding: 0.5rem 0.6rem;
   border: 1px solid var(--rule);
-  font-size: 0.82rem;
+  font-size: var(--ts-small);
   cursor: pointer;
   line-height: 1.5;
 }
@@ -2159,13 +2171,13 @@ input {
 
 .constitution-results header h3 {
   margin: 0.5rem 0;
-  font-size: 1.4rem;
+  font-size: var(--ts-title);
   line-height: 1.7;
 }
 
 .constitution-results header > p:last-child {
   color: var(--ink-muted);
-  font-size: 0.85rem;
+  font-size: var(--ts-small);
   line-height: 1.8;
 }
 
@@ -2183,7 +2195,7 @@ input {
   flex-wrap: wrap;
   gap: 0.5rem 0.75rem;
   margin-bottom: 0.35rem;
-  font-size: 0.9rem;
+  font-size: var(--ts-body);
 }
 
 .constitution-score__label > :last-child {
@@ -2199,7 +2211,7 @@ input {
 
 .constitution-score__raw {
   color: var(--ink-muted);
-  font-size: 0.75rem;
+  font-size: var(--ts-small);
 }
 
 @container workbench (max-width: 75rem) {

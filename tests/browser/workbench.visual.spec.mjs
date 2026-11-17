@@ -116,14 +116,14 @@ for (const state of cases) {
       expect(birthLayout.columns[0]).toBe(52);
       expect(birthLayout.columns[1]).toBeCloseTo(birthLayout.columns[2], 1);
       expect(birthLayout.headings).toEqual([24, 24]);
-      expect(birthLayout.years).toEqual([13, 13]);
+      expect(birthLayout.years).toEqual([14, 14]);
       expect(birthLayout.values).toHaveLength(10);
       for (const value of birthLayout.values) expect(value).toEqual({ size: 14, weight: '600', line: 21 });
       expect(birthLayout.chips).toEqual([20, 20, 20, 20, 20]);
       expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7]);
       if (!state.birthAssessment) {
         expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
-        expect([...birthLayout.textSizes].sort()).toEqual(['11px', '12px', '13px', '14px', '24px']);
+        expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
       }
       await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
     }
@@ -156,7 +156,6 @@ for (const state of cases) {
         stageTimes: measure('.drilldown-stage-selector__range time'),
         currentTitle: measure('.current-year-heading h3'),
         currentCards: measure('.current-overview__annual, .current-overview__now'),
-        currentFonts: [...new Set([...document.querySelectorAll('.panel-shell *')].filter(visible).filter(element => [...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent.trim())).filter(element => !element.closest('details:not([open])') && !element.closest('.visually-hidden')).map(element => getComputedStyle(element).fontSize))],
         mainBounds: document.querySelector('main').getBoundingClientRect().toJSON(),
         cardBounds: [...document.querySelectorAll('.current-overview__annual, .current-overview__now')].map(element => element.getBoundingClientRect().toJSON()),
         viewportHeight: innerHeight,
@@ -173,7 +172,6 @@ for (const state of cases) {
     if (state.name === 'current') {
       expect.soft(layout.currentTitle, 'Annual ganzhi is the primary heading').toHaveLength(1);
       expect.soft(layout.currentCards, 'The default view retains both fact cards').toHaveLength(2);
-      expect.soft(layout.currentFonts.length, 'Default screen uses at most five visible font sizes').toBeLessThanOrEqual(5);
       if (layout.viewportHeight >= 900) for (const card of layout.cardBounds) {
         expect.soft(card.top, 'Fact card starts inside the content viewport without scrolling').toBeGreaterThanOrEqual(layout.mainBounds.top);
         expect.soft(card.bottom, 'Annual and current cards fit without scrolling').toBeLessThanOrEqual(layout.mainBounds.bottom);

@@ -62,6 +62,64 @@ export async function screenshot(page, testInfo, name) {
   const path = testInfo.outputPath(`${name}.png`);
   await page.screenshot({ path, fullPage: true, animations: 'disabled' });
   await testInfo.attach(name, { path, contentType: 'image/png' });
+  // Every visual state, design fixture and flow screenshot shares this gate.
+  // Keep the screenshot even if its typography fails so reviewers can inspect it.
+  await expectTypeScale(page, testInfo, name);
+}
+
+export async function expectTypeScale(page, testInfo, name = 'type-scale') {
+  await page.evaluate(() => document.fonts.ready);
+  const typography = await page.evaluate(() => {
+    const samples = [];
+    const sample = (element, text, rects) => {
+      if (element.closest('script, style, template, option, .visually-hidden')) return;
+      if (!element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return;
+      const bounds = { left: 0, top: 0, right: innerWidth, bottom: innerHeight };
+      // Range rectangles also exist for text clipped by scrolling containers
+      // and the unfocused skip link. Count only text actually on this screen.
+      for (let ancestor = element; ancestor; ancestor = ancestor.parentElement) {
+        const style = getComputedStyle(ancestor);
+        const rect = ancestor.getBoundingClientRect();
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowX)) {
+          bounds.left = Math.max(bounds.left, rect.left + ancestor.clientLeft);
+          bounds.right = Math.min(bounds.right, rect.left + ancestor.clientLeft + ancestor.clientWidth);
+        }
+        if (/(auto|scroll|hidden|clip)/.test(style.overflowY)) {
+          bounds.top = Math.max(bounds.top, rect.top + ancestor.clientTop);
+          bounds.bottom = Math.min(bounds.bottom, rect.top + ancestor.clientTop + ancestor.clientHeight);
+        }
+      }
+      if (!rects.some(rect => rect.width > 0 && rect.height > 0 &&
+        Math.min(rect.right, bounds.right) > Math.max(rect.left, bounds.left) &&
+        Math.min(rect.bottom, bounds.bottom) > Math.max(rect.top, bounds.top))) return;
+      samples.push({
+        element: `${element.tagName.toLowerCase()}.${element.getAttribute('class') || ''}`,
+        text: text.trim().slice(0, 100), size: Number.parseFloat(getComputedStyle(element).fontSize),
+      });
+    };
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node.textContent.trim()) continue;
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      sample(node.parentElement, node.textContent, [...range.getClientRects()]);
+    }
+    // Native control values/placeholder text are not DOM text nodes.
+    for (const element of document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"]):not([type="hidden"]), select, textarea')) {
+      const text = element.tagName === 'SELECT'
+        ? element.selectedOptions[0]?.textContent : element.value || element.placeholder;
+      if (text) sample(element, text, [...element.getClientRects()]);
+    }
+    return { samples, sizes: [...new Set(samples.map(sample => sample.size))].sort((a, b) => a - b) };
+  });
+  if (testInfo) await testInfo.attach(`typography-${name}`, { body: JSON.stringify(typography, null, 2), contentType: 'application/json' });
+  const allowed = [40, 30, 24, 20, 15, 14, 12];
+  expect(typography.samples.length, 'Typography gate must inspect visible text').toBeGreaterThan(0);
+  expect(typography.samples.filter(sample => !allowed.includes(sample.size)), 'Visible text uses only the approved type sizes').toEqual([]);
+  expect(typography.sizes.length, 'Each screen uses at most five sizes').toBeLessThanOrEqual(5);
+  expect(typography.sizes.filter(size => [40, 30, 24].includes(size)).length, 'Each screen uses only one display size').toBeLessThanOrEqual(1);
+  return typography;
 }
 
 export async function loadCurrent(page) {

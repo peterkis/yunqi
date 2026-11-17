@@ -7,7 +7,7 @@
   --current-progress-gap: 3px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: var(--type-quote-sm-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-sm-line);
 }
 
@@ -20,7 +20,7 @@
 }
 
 .current-overview .ds-info-card,
-.current-classics .ds-info-card { font-size: var(--type-quote-sm-size); }
+.current-classics .ds-info-card { font-size: var(--ts-body); }
 
 .current-overview .current-copy,
 .current-classics .current-copy { margin: var(--space-1) 0 0; }
@@ -30,7 +30,7 @@
 .current-time-range {
   color: var(--ink-tertiary);
   font-family: var(--font-sans);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
   font-weight: var(--type-meta-weight);
 }
@@ -44,7 +44,7 @@
 .current-year-heading h3 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--type-display-xl-size);
+  font-size: var(--ts-display-hero);
   line-height: var(--type-display-xl-line);
   font-weight: var(--type-display-xl-weight);
   letter-spacing: var(--type-display-xl-tracking);
@@ -67,33 +67,27 @@
 .current-pair dt,
 .current-relation-facts dt {
   color: var(--ink-tertiary);
-  font-size: var(--type-label-size);
+  font-size: var(--ts-small);
   line-height: var(--type-label-line);
 }
 .current-annual-grid dd { margin: var(--space-1) 0 0; font-weight: var(--type-body-strong-weight); }
 .current-annual-grid dd.current-meta { font-weight: var(--type-meta-weight); }
-.current-overview .ds-element { gap: var(--space-1_5); font-size: var(--type-quote-sm-size); }
+.current-overview .ds-element { gap: var(--space-1_5); font-size: var(--ts-body); }
 .current-overview .ds-relation { align-items: flex-start; }
 .current-overview .ds-relation__explanation {
-  font-size: var(--type-quote-sm-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-sm-line);
 }
 
-/* Default screen (including the keyboard skip link), design token sizes:
-   display-xl 40: year ganzhi; title 20: period names;
-   quote-sm 13.5: values, explanations, excerpt, shell/navigation/skip link;
-   chip 12: relation labels; label/meta 11: eyebrows, times, sources, ticks.
-   Keep shell text in this scale instead of inheriting body 14 as a sixth size. */
-.panel-shell:has(.current-overview) > .panel-shell__skip-link { font-size: var(--type-quote-sm-size); }
-.panel-shell:has(.current-overview) > .ds-panel-header { --ds-panel-header-size: var(--type-quote-sm-size); }
-.panel-shell:has(.current-overview) > .panel-shell__navigation .ds-segmented-nav { --ds-segment-size: var(--type-quote-sm-size); }
+/* Shared scale: 40 ganzhi, 20 stage names, 15 excerpts, 14 body, 12 metadata.
+   Shell and navigation use the same body tier on every route. */
 .current-sixqi-progress {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: var(--current-progress-gap);
   margin-top: var(--space-2);
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
 }
 .current-sixqi-progress__step { display: flex; flex-direction: column; gap: var(--space-1); }
@@ -112,7 +106,7 @@
 .current-stage-row h3 {
   margin: 0;
   font-family: var(--font-serif);
-  font-size: var(--type-title-size);
+  font-size: var(--ts-title);
   line-height: var(--type-title-line);
   font-weight: var(--type-title-weight);
 }
@@ -123,7 +117,7 @@
   border-top: var(--current-hairline) solid var(--border-subtle);
 }
 .current-time-range { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1); }
-.current-overview .yunqi-time { display: inline; font-size: inherit; line-height: inherit; }
+.current-overview .yunqi-time { display: inline; font-size: var(--ts-small); line-height: inherit; }
 .current-overview .yunqi-time time { white-space: nowrap; font-family: var(--font-sans); }
 .current-pair {
   display: grid;
@@ -142,7 +136,7 @@
   padding-block: var(--space-1_5);
   color: var(--accent);
   cursor: pointer;
-  font-size: var(--type-quote-sm-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-sm-line);
 }
 .current-relations { margin-top: var(--space-2); }
@@ -153,16 +147,16 @@
 .current-classics a { color: var(--accent); }
 .current-overview a:hover,
 .current-classics a:hover { color: var(--accent-hover); text-decoration: underline; }
-.current-overview__quote .ds-info-card__hint { font-size: var(--type-meta-size); line-height: var(--type-meta-line); }
+.current-overview__quote .ds-info-card__hint { font-size: var(--ts-small); line-height: var(--type-meta-line); }
 .current-context-links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
 .current-context-links a { display: inline-flex; align-items: center; min-height: var(--segment-height); text-decoration: none; }
 .current-all-stages > .ds-info-card,
 .current-technical > .ds-info-card { margin-top: var(--space-3); }
 .current-stage-navigation { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-0_5); margin-block: var(--space-2); }
-.current-stage-navigation .ds-button { padding-inline: 0; font-size: var(--type-meta-size); }
+.current-stage-navigation .ds-button { padding-inline: 0; font-size: var(--ts-small); }
 .current-stage-navigation [aria-current="step"] { color: var(--accent); font-weight: var(--type-body-strong-weight); }
 .current-stage-row__heading { display: flex; align-items: center; gap: var(--space-2); }
-.current-stage-row__heading .ds-button { margin-left: auto; padding-inline: var(--space-2); font-size: var(--type-quote-sm-size); }
+.current-stage-row__heading .ds-button { margin-left: auto; padding-inline: var(--space-2); font-size: var(--ts-body); }
 .current-relation-facts { margin: var(--space-2) 0 0; }
 .current-relation-facts > div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-2); margin-top: var(--space-1); }
 .current-relation-facts dd { margin: 0; }
@@ -182,7 +176,7 @@
   height: var(--ds-segment-compact-height);
   padding: 0 var(--space-2);
   border-radius: var(--radius-sm);
-  font-size: var(--type-body-sm-size);
+  font-size: var(--ts-body);
 }
 .current-classics__segments [aria-pressed="true"] {
   background: var(--surface-card);
@@ -193,6 +187,6 @@
 /* Keep one literature notice visible while the reading region scrolls. */
 .current-classics__readings { position: relative; flex: 1; min-height: 0; overflow: auto; padding: var(--space-1); }
 .current-classics__readings > .ds-info-card + .ds-info-card { margin-top: var(--space-3); }
-.current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--type-meta-size); line-height: var(--type-meta-line); }
+.current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--ts-small); line-height: var(--type-meta-line); }
 .current-classics__notice { flex: none; margin: 0; padding-top: var(--space-1); }
 .current-classics .ds-quote-block__details > summary { min-height: var(--segment-height); }

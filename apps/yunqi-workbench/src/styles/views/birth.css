@@ -1,18 +1,14 @@
 /* Board ③ and design-system/1-layout.md. Extra dimensions are scoped tokens,
    following the same component-token convention as design-components.css. */
 .birth-page {
-  /* Board ③: label column 52px, year 13px; 1-layout.md: fine border 1px.
-     The year size is the explicit number-with-ganzhi exception in the design
-     typography rules; it must not size values, inputs or buttons.
-     Default comparison screen: 24 (display-md), 14 (body/body-strong and
-     serif excerpts), 13 (year and C1 text buttons), 12 (caption/chip),
-     11 (label/meta). Button typography and padding belong to C1. */
+  /* Board ③: label column 52px; 1-layout.md: fine border 1px.
+     Typography follows docs/design/type-scale.md: 24 column headings,
+     15 original excerpts, 14 years/values/controls, 12 labels and metadata. */
   --birth-label-width: 52px;
-  --birth-year-size: 13px;
   --birth-hairline: 1px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: var(--type-caption-size);
+  font-size: var(--ts-small);
   line-height: var(--type-body-line);
 }
 
@@ -32,7 +28,7 @@
 .birth-label {
   color: var(--ink-tertiary);
   font-family: var(--font-sans);
-  font-size: var(--type-label-size);
+  font-size: var(--ts-small);
   line-height: var(--type-label-line);
   font-weight: var(--type-label-weight);
   letter-spacing: var(--type-label-tracking);
@@ -42,7 +38,7 @@
 .birth-api-message,
 .birth-notice {
   color: var(--ink-secondary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-body-line);
   overflow-wrap: anywhere;
 }
@@ -51,7 +47,7 @@
 .birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) time { font-family: var(--font-sans); }
 .birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) .yunqi-time__standard {
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   font-weight: var(--type-meta-weight);
   letter-spacing: normal;
 }
@@ -83,7 +79,7 @@
   min-width: 0;
   gap: var(--space-1);
   color: var(--ink-tertiary);
-  font-size: var(--type-label-size);
+  font-size: var(--ts-small);
 }
 
 .birth-input__fields > .birth-input__known-time {
@@ -108,7 +104,7 @@
   background: var(--surface-card);
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
   font-weight: var(--type-body-weight);
 }
@@ -186,7 +182,7 @@
 
 .birth-table__year strong {
   font-family: var(--font-serif);
-  font-size: var(--type-display-md-size);
+  font-size: var(--ts-display-column);
   line-height: var(--type-display-md-line);
   font-weight: var(--type-display-md-weight);
 }
@@ -194,13 +190,13 @@
 .birth-table__year > span {
   color: var(--ink-tertiary);
   font-family: var(--font-sans);
-  font-size: var(--birth-year-size);
+  font-size: var(--ts-body);
   font-weight: var(--type-quote-weight);
 }
 
 .birth-table__value,
 .birth-table .ds-element {
-  font-size: var(--type-body-strong-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-strong-line);
   font-weight: var(--type-body-strong-weight);
 }
@@ -208,7 +204,7 @@
 .birth-page .birth-table__detail {
   margin-top: var(--space-0_5);
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-body-line);
 }
 
@@ -216,14 +212,14 @@
 .birth-table__relation td[colspan] { grid-column: 2 / span 2; }
 .birth-table .ds-relation { flex-wrap: wrap; gap: var(--space-1_5); }
 .birth-table .ds-relation__explanation {
-  font-size: var(--type-caption-size);
+  font-size: var(--ts-small);
   line-height: var(--type-caption-line);
 }
 
 .birth-relation-details {
   margin-top: var(--space-1);
   color: var(--ink-secondary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
 }
 
 .birth-relation-details > summary,
@@ -244,9 +240,8 @@
 
 .birth-excerpts,
 .birth-excerpts__candidate { display: grid; gap: var(--space-2); }
-/* Keep the original-text serif face/weight/leading, sharing the 14px body token
-   with table values so the default screen stays within five size levels. */
-.birth-excerpts .ds-quote-block__original { font-size: var(--type-body-size); }
+/* Excerpts share the original-text tier with the full reading view. */
+.birth-excerpts .ds-quote-block__original { font-size: var(--ts-quote); }
 .birth-excerpts__header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
 .birth-excerpts__header a { display: inline-flex; align-items: center; min-height: var(--segment-height); }
 .birth-link-arrow {
@@ -281,7 +276,7 @@
   background: none;
   color: var(--ink-secondary);
   font-family: var(--font-sans);
-  font-size: var(--type-body-sm-size);
+  font-size: var(--ts-body);
   cursor: pointer;
 }
 
@@ -294,7 +289,7 @@
 
 .birth-reading,
 .birth-current-readings { display: grid; gap: var(--space-2); }
-.birth-source-link { display: inline-flex; align-items: center; min-height: var(--segment-height); font-size: var(--type-meta-size); }
+.birth-source-link { display: inline-flex; align-items: center; min-height: var(--segment-height); font-size: var(--ts-small); }
 
 /* Session composition only; questionnaire and scoring internals belong to C5. */
 .birth-session {
@@ -317,20 +312,20 @@
   border: 0;
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
-  font-size: var(--type-caption-size);
+  font-size: var(--ts-small);
 }
 .birth-session .birth-assessment-context h4,
 .birth-session .birth-assessment-context h5,
 .birth-session .birth-assessment-heading {
   margin: 0 0 var(--space-2);
   font-family: var(--font-sans);
-  font-size: var(--type-body-strong-size);
+  font-size: var(--ts-body);
   font-weight: var(--type-body-strong-weight);
 }
 .birth-session .birth-assessment-context .form-note,
 .birth-session .birth-assessment-interval {
   margin: var(--space-2) 0 0;
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-body-line);
 }
 .birth-session .birth-assessment-context > header,
@@ -339,7 +334,7 @@
   border-bottom: var(--birth-hairline) solid var(--border-default);
 }
 .birth-session .birth-assessment-birth-context { gap: var(--space-2); }
-.birth-session .birth-assessment-facts { gap: var(--space-1); font-size: var(--type-caption-size); line-height: var(--type-caption-line); }
+.birth-session .birth-assessment-facts { gap: var(--space-1); font-size: var(--ts-small); line-height: var(--type-caption-line); }
 .birth-session .birth-assessment-facts > div { grid-template-columns: var(--birth-label-width) minmax(0, 1fr); gap: var(--space-2); }
 .birth-session .birth-assessment-heading { scroll-margin-top: var(--space-3); }
 .birth-session .birth-assessment-heading:focus-visible,

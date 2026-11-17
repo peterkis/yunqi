@@ -13,6 +13,7 @@ import { SegmentedNav } from '../components/design/SegmentedNav';
 import { ThemeProvider, useTheme } from '../providers/ThemeProvider';
 import '../styles/fonts.css';
 import '../styles/tokens.css';
+import '../styles/type-scale.css';
 import '../styles/global.css';
 import '../styles/design-components.css';
 

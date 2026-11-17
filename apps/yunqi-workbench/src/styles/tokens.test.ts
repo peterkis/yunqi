@@ -106,12 +106,8 @@ describe('versioned design token parity', () => {
       ['--ds-dot-compact-size', 'components/ElementDot/README.md', /对照表内 (\d+)px/, 'px'],
       ['--ds-chip-compact-height', 'components/RelationChip/README.md', /对照表内 (\d+)px/, 'px'],
       ['--ds-button-primary-padding-inline', 'components/Button/preview.html', /height:40px;padding:0 (\d+px);border:0/, ''],
-      ['--ds-button-secondary-size', 'components/Button/README.md', /次：[^\n]*，([\d.]+)\/400/, 'px'],
-      ['--ds-text-button-size', 'components/Button/README.md', /文字：[^\n]*，([\d.]+)px /, 'px'],
-      ['--ds-segment-size', 'components/SegmentedNav/README.md', /当前段：[^\n]*、([\d.]+)px\/600/, 'px'],
       ['--ds-segment-inset', 'components/SegmentedNav/README.md', /轨道[^\n]*内距 (\d+)，/, 'px'],
       ['--ds-segment-compact-height', 'components/SegmentedNav/README.md', /用同一组件的 (\d+)px 高变体/, 'px'],
-      ['--ds-panel-header-size', 'components/PanelHeader/README.md', /中：[^\n]*（([\d.]+)\/600/, 'px'],
       ['--ds-panel-header-title-line', 'components/PanelHeader/preview.html', /flex-direction:column;line-height:([\d.]+);/, ''],
     ] as const;
     const expectedConstants: Record<string, string> = {};
@@ -134,7 +130,9 @@ describe('versioned design token parity', () => {
     expect(Object.fromEntries(constants)).toEqual(expectedConstants);
     expect(stylesheet).not.toContain('--ds-');
 
-    const declaredNames = [...Object.keys(expectedDeclarations('light')), ...Object.keys(expectedConstants)];
+    const scaleNames = [...readFileSync('src/styles/type-scale.css', 'utf8').matchAll(/(--ts-[\w-]+)\s*:/g)]
+      .map((match) => match[1]);
+    const declaredNames = [...Object.keys(expectedDeclarations('light')), ...Object.keys(expectedConstants), ...scaleNames];
     for (const reference of css.matchAll(/var\((--[\w-]+)\)/g)) {
       expect(declaredNames).toContain(reference[1]);
     }

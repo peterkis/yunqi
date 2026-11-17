@@ -10,7 +10,7 @@
   margin: 0;
   color: var(--ink-primary);
   font-family: var(--font-serif);
-  font-size: var(--type-title-size);
+  font-size: var(--ts-title);
   line-height: var(--type-title-line);
   font-weight: var(--type-title-weight);
 }
@@ -18,7 +18,7 @@
 .drilldown-copy {
   margin: var(--space-1) 0 0;
   color: var(--ink-secondary);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
 }
 
@@ -26,7 +26,7 @@
 .drilldown-boundaries {
   margin: var(--space-2) 0 0;
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
   font-weight: var(--type-meta-weight);
 }
@@ -46,7 +46,7 @@
 
 .drilldown-page .yunqi-time__standard {
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
   font-weight: var(--type-meta-weight);
   letter-spacing: normal;
@@ -90,7 +90,7 @@
   background: var(--surface-card);
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
 }
 
@@ -101,7 +101,7 @@
 
 .drilldown-year-navigation__steps .ds-button {
   padding-inline: var(--space-2);
-  font-size: var(--ds-text-button-size);
+  font-size: var(--ts-body);
 }
 
 .drilldown-year-navigation > .drilldown-meta { grid-column: 1 / -1; margin: 0; }
@@ -120,7 +120,7 @@
   align-items: center;
   min-height: var(--input-height);
   color: var(--accent);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   text-decoration: none;
 }
 
@@ -130,7 +130,7 @@
 .drilldown-ganzhi {
   margin: var(--space-2) 0;
   font-family: var(--font-serif);
-  font-size: var(--type-display-xl-size);
+  font-size: var(--ts-display-hero);
   line-height: var(--type-display-xl-line);
   font-weight: var(--type-display-xl-weight);
   letter-spacing: var(--type-display-xl-tracking);
@@ -139,7 +139,7 @@
 /* The selected-time stage leads; its supporting annual card shares the title
    tier, keeping the visible panel within five type sizes. */
 .drilldown-annual-summary--compact .drilldown-ganzhi {
-  font-size: var(--type-title-size);
+  font-size: var(--ts-title);
   line-height: var(--type-title-line);
   font-weight: var(--type-title-weight);
 }
@@ -162,7 +162,7 @@
 .drilldown-relation-facts dt,
 .drilldown-trace dt {
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
 }
 
@@ -184,7 +184,7 @@
 
 .drilldown-qi-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .drilldown-stage-detail .ds-relation { align-items: flex-start; flex-wrap: wrap; }
-.drilldown-stage-detail .ds-relation__explanation { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+.drilldown-stage-detail .ds-relation__explanation { font-size: var(--ts-body); line-height: var(--type-body-line); }
 
 .drilldown-relation-facts,
 .drilldown-trace {
@@ -193,7 +193,7 @@
   gap: var(--space-3);
   margin: 0;
   color: var(--ink-secondary);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
 }
 
@@ -211,7 +211,7 @@
 .drilldown-stage-selector legend {
   padding: 0;
   font-family: var(--font-serif);
-  font-size: var(--type-title-size);
+  font-size: var(--ts-title);
   line-height: var(--type-title-line);
   font-weight: var(--type-title-weight);
 }
@@ -257,7 +257,7 @@
 
 .drilldown-stage-selector__option strong {
   font-family: var(--font-serif);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
   font-weight: var(--type-body-strong-weight);
   white-space: nowrap;
@@ -268,7 +268,7 @@
   min-width: 0;
   gap: var(--space-1);
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
 }
 
@@ -278,7 +278,7 @@
   margin: 0;
   padding-left: var(--space-4_5);
   color: var(--ink-secondary);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
 }
 
@@ -295,7 +295,7 @@
 .drilldown-time-form [role="alert"] { margin: 0; color: var(--ink-secondary); }
 .drilldown-time-form input:disabled { color: var(--ink-tertiary); }
 .drilldown-time-form .ds-button:disabled { background: var(--surface-sunken); color: var(--ink-tertiary); }
-.drilldown-time-result__time { font-size: var(--type-body-size); line-height: var(--type-body-line); }
+.drilldown-time-result__time { font-size: var(--ts-body); line-height: var(--type-body-line); }
 
 .drilldown-stage-overview {
   display: grid;
@@ -310,9 +310,9 @@
   padding-top: var(--space-3_5);
   border-top: var(--ds-hairline) solid var(--border-subtle);
 }
-.drilldown-stage-overview__stage > strong { display: block; font-family: var(--font-serif); font-size: var(--type-body-size); }
+.drilldown-stage-overview__stage > strong { display: block; font-family: var(--font-serif); font-size: var(--ts-body); }
 .drilldown-stage-overview__stage > .drilldown-copy { display: block; }
-.drilldown-selection-label { color: var(--ink-secondary); font-size: var(--type-meta-size); font-weight: var(--type-body-strong-weight); }
+.drilldown-selection-label { color: var(--ink-secondary); font-size: var(--ts-small); font-weight: var(--type-body-strong-weight); }
 
 .drilldown-feedback { min-width: 0; color: var(--ink-secondary); }
 .drilldown-feedback p { margin: 0; }
@@ -323,4 +323,4 @@
 .drilldown-inquiry__capabilities { display: grid; gap: var(--space-3_5); margin-top: var(--space-3_5); }
 .drilldown-inquiry__capability { min-width: 0; }
 .drilldown-inquiry__capability + article { padding-top: var(--space-3_5); border-top: var(--ds-hairline) solid var(--border-subtle); }
-.drilldown-inquiry__capability h3 { margin: 0; font-size: var(--type-body-size); line-height: var(--type-body-line); font-weight: var(--type-body-strong-weight); }
+.drilldown-inquiry__capability h3 { margin: 0; font-size: var(--ts-body); line-height: var(--type-body-line); font-weight: var(--type-body-strong-weight); }

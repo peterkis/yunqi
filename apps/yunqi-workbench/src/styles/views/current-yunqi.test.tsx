@@ -12,7 +12,7 @@ import { createLearningDto } from '../../test/learning-fixtures';
 it('keeps the current skip link within the five-size scale in both themes and keyboard reachable', async () => {
   const user = userEvent.setup();
   const style = document.createElement('style');
-  style.textContent = ['tokens.css', 'global.css', 'design-components.css', 'panel-shell.css', 'views/current-yunqi.css']
+  style.textContent = ['tokens.css', 'type-scale.css', 'global.css', 'design-components.css', 'panel-shell.css', 'views/current-yunqi.css']
     .map((file) => readFileSync(`src/styles/${file}`, 'utf8')).join('\n');
   document.head.append(style);
   try {
@@ -22,12 +22,15 @@ it('keeps the current skip link within the five-size scale in both themes and ke
     </PanelShell></ThemeProvider></MemoryRouter>);
     const skipLink = screen.getByRole('link', { name: '跳至主要内容' });
     const assertFontSize = () => {
-      // jsdom retains var() in computed font-size. Resolve this root token
-      // only; the unchanged Chromium visual test checks the whole screen.
-      const computed = getComputedStyle(skipLink).fontSize;
-      const token = computed.match(/^var\((--[^)]+)\)$/)?.[1];
-      const pixels = token ? getComputedStyle(document.documentElement).getPropertyValue(token).trim() : computed;
-      expect(['40px', '20px', '13.5px', '12px', '11px']).toContain(pixels);
+      // jsdom retains var() in computed font-size. Resolve the shared tier and
+      // its source token; Chromium checks all visible text in every snapshot.
+      let pixels = getComputedStyle(skipLink).fontSize;
+      for (let depth = 0; depth < 3; depth += 1) {
+        const token = pixels.match(/^var\((--[^)]+)\)$/)?.[1];
+        if (!token) break;
+        pixels = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+      }
+      expect(pixels).toBe('14px');
     };
     assertFontSize();
     await user.tab();

@@ -1,4 +1,4 @@
-import type { SixQiStepDto, SuiYunDto } from '@yunqi/contracts';
+import type { HostGuestRelationDto, SixQiStepDto, SuiYunDto } from '@yunqi/contracts';
 import type { ElementKind, RelationTone } from './view-model';
 
 // Exact API labels (LearningRelationDto.label is a string in Contract 1.2.0).
@@ -21,6 +21,27 @@ export function mapRelationTone(value: string): RelationTone {
     : 'neutral';
 }
 
+// Core responses expose a direction enum rather than a teaching label. Use
+// that field directly; these styles never describe a patient or severity.
+interface DirectionPresentation {
+  readonly tone: RelationTone;
+  readonly verb: string | null;
+}
+
+const RELATION_DIRECTIONS = {
+  NONE: { tone: 'neutral', verb: null },
+  HOST_GENERATES_GUEST: { tone: 'favorable', verb: '主气生客气' },
+  GUEST_GENERATES_HOST: { tone: 'favorable', verb: '客气生主气' },
+  HOST_CONTROLS_GUEST: { tone: 'adverse', verb: '主气克客气' },
+  GUEST_CONTROLS_HOST: { tone: 'adverse', verb: '客气克主气' },
+} as const satisfies Readonly<Record<HostGuestRelationDto['direction'], DirectionPresentation>>;
+
+export function mapRelationDirection(value: string): DirectionPresentation {
+  return Object.hasOwn(RELATION_DIRECTIONS, value)
+    ? RELATION_DIRECTIONS[value as keyof typeof RELATION_DIRECTIONS]
+    : RELATION_DIRECTIONS.NONE;
+}
+
 const QI_ELEMENTS = {
   厥阴风木: 'wood', 少阴君火: 'fire', 太阴湿土: 'earth',
   少阳相火: 'fire', 阳明燥金: 'metal', 太阳寒水: 'water',
@@ -30,10 +51,16 @@ const MOVEMENT_ELEMENTS = {
   木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water',
 } as const satisfies Record<SuiYunDto['element'], ElementKind>;
 
+// Known contract values are exhaustive; unrecognized future strings have no
+// element color. Preserve the precise type for callers with a contract enum.
+export function mapQiElement(value: SixQiStepDto['hostQi']): ElementKind;
+export function mapQiElement(value: string): ElementKind | undefined;
 export function mapQiElement(value: string): ElementKind | undefined {
   return Object.hasOwn(QI_ELEMENTS, value) ? QI_ELEMENTS[value as keyof typeof QI_ELEMENTS] : undefined;
 }
 
+export function mapMovementElement(value: SuiYunDto['element']): ElementKind;
+export function mapMovementElement(value: string): ElementKind | undefined;
 export function mapMovementElement(value: string): ElementKind | undefined {
   return Object.hasOwn(MOVEMENT_ELEMENTS, value)
     ? MOVEMENT_ELEMENTS[value as keyof typeof MOVEMENT_ELEMENTS] : undefined;

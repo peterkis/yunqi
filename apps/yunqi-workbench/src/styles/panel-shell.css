@@ -13,7 +13,7 @@
   background: var(--surface-card);
   color: var(--ink-primary);
   font-family: var(--font-sans);
-  font-size: var(--type-body-size);
+  font-size: var(--ts-body);
   line-height: var(--type-body-line);
 }
 
@@ -69,7 +69,7 @@
   padding-inline: var(--space-4);
   border-top: var(--panel-hairline) solid var(--border-default);
   color: var(--ink-tertiary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
   font-weight: var(--type-meta-weight);
 }
@@ -127,7 +127,7 @@
   flex: none;
   color: var(--ink-primary);
   font-family: var(--font-serif);
-  font-size: var(--type-title-size);
+  font-size: var(--ts-title);
   line-height: var(--type-title-line);
   font-weight: var(--type-title-weight);
 }
@@ -135,7 +135,7 @@
 .panel-pill__text { flex: 1; min-width: 0; }
 .panel-pill__annual {
   display: block;
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
   font-weight: var(--type-body-strong-weight);
 }
@@ -146,7 +146,7 @@
   align-items: center;
   gap: var(--space-1);
   color: var(--ink-secondary);
-  font-size: var(--type-meta-size);
+  font-size: var(--ts-small);
   line-height: var(--type-meta-line);
 }
 
