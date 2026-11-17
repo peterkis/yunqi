@@ -23,7 +23,7 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
         <button type="button" aria-pressed={scope === 'annual'} onClick={() => setScope('annual')}>全年</button>
         <button type="button" aria-pressed={scope === 'period'} onClick={() => setScope('period')}>出生阶段</button>
       </nav>
-      <p className="birth-notice">{BIRTH_NOTICE}</p>
+      <div className="birth-classics__readings" role="region" aria-label="出生原文阅读区" tabIndex={0}>
       {viewModel.candidates.map((candidate, index) => {
         const readings = scope === 'annual' ? candidate.annualReadings : candidate.periodReadings;
         return <section className="birth-reading-candidate" key={`${candidate.from.localTime}-${index}`} aria-label={`${candidate.label}原文`}>
@@ -38,6 +38,9 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
         <p className="birth-note">以下原文属于本次响应的当下快照，与出生原文分开阅读。</p>
         {viewModel.currentReadings.map((passage) => <Reading key={passage.id} value={passage} />)}
       </details>
+      </div>
+      {/* Pinned outside the scrolling readings so the boundary stays on screen with every disease passage. */}
+      <p className="birth-notice birth-classics__notice">{BIRTH_NOTICE}</p>
     </section>
   );
 }

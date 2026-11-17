@@ -339,3 +339,10 @@
 .birth-session .birth-assessment-heading { scroll-margin-top: var(--space-3); }
 .birth-session .birth-assessment-heading:focus-visible,
 .birth-page :focus-visible { outline: var(--space-0_5) solid var(--focus-ring); outline-offset: var(--space-0_5); }
+
+/* Birth classics drill-down: only the readings scroll; the medical-boundary notice stays pinned
+   on screen with every passage (2-constraints.md, same pattern as .current-classics). */
+.birth-page--reading { display: flex; flex-direction: column; gap: var(--space-3); height: 100%; min-height: 0; }
+.birth-page--reading > .birth-classics { display: flex; flex: 1; flex-direction: column; min-height: 0; }
+.birth-classics__readings { position: relative; display: grid; flex: 1; gap: var(--space-3); min-height: 0; overflow: auto; padding: var(--space-1); }
+.birth-classics__notice { flex: none; }

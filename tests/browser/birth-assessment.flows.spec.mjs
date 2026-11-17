@@ -20,6 +20,19 @@ async function answerQuestionnaire(page) {
   return session;
 }
 
+// 2-constraints.md: the medical-boundary notice must stay on screen with every disease passage,
+// including after scrolling the readings and expanding long passages.
+async function expectBirthNoticePinned(page, reading) {
+  const notice = reading.getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。', { exact: true });
+  await expect(notice).toHaveCount(1);
+  const readings = reading.getByRole('region', { name: '出生原文阅读区', exact: true });
+  for (const position of ['bottom', 'top']) {
+    await readings.evaluate((element, to) => { element.scrollTop = to === 'bottom' ? element.scrollHeight : 0; }, position);
+    await expect(notice).toBeInViewport({ ratio: 1 });
+  }
+  expect(await page.locator('.panel-shell__content').evaluate(element => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1);
+}
+
 test('same-page birth assessment reads matching annual and period passages, scores once and clears its session', async ({ page, diagnostics }, testInfo) => {
   await page.goto('/yunqi/birth');
   const data = await compareBirth(page);
@@ -45,6 +58,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await current.locator(':scope > summary').focus();
   await current.locator(':scope > summary').press('Space');
   await expectBirthReadings(current, [...data.current.annualPassages, ...data.current.currentPassages]);
+  await expectBirthNoticePinned(page, reading);
   await current.locator(':scope > summary').press('Enter');
   await expect(current).not.toHaveAttribute('open');
   const originalViewport = page.viewportSize();
@@ -56,6 +70,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   }));
   expect(panelReading.page).toBeLessThanOrEqual(panelReading.viewport + 1);
   for (const quote of panelReading.quotes) expect(quote.scroll).toBeLessThanOrEqual(quote.width + 1);
+  await expectBirthNoticePinned(page, reading);
   await screenshot(page, testInfo, 'birth-classical-reading-min-height');
   await page.setViewportSize(originalViewport);
   await page.getByRole('button', { name: '返回', exact: true }).click();

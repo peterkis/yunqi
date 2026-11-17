@@ -67,7 +67,7 @@ export function BirthComparisonPage() {
   }
 
   return (
-    <div className="birth-page">
+    <div className={reading ? 'birth-page birth-page--reading' : 'birth-page'}>
       {result ? <PanelSummary viewModel={result.summary} /> : null}
       <div className="birth-view" hidden={reading}>
         <h2 className="visually-hidden">出生运气对照</h2>
