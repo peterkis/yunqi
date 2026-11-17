@@ -25,6 +25,7 @@ The Workbench uses declarative React Router routes:
 | `/` | Entry redirect | Replaces the URL with `/yunqi/current` |
 | `/yunqi/current` | 当下运气 segment | Calls the composite learning-current endpoint; refreshes current context every minute |
 | `/yunqi/birth` | 先天对照 segment | Submit-only comparison; optional known birth time |
+| `/yunqi/birth/classics` | 原文与释义 drill-down; return to `/yunqi/birth` | Reads only the mounted birth page response; a direct visit makes no request and has no birth data |
 | `/yunqi/constitution` | 体质量表 segment | GET questionnaire/current context; assessment POST only after complete explicit submission |
 | `/yunqi/year` | 年度分析 drill-down; return to `/yunqi/current` | Makes no annual request |
 | `/yunqi/year/:year` | 年度分析 drill-down; return to `/yunqi/current` | Calls the annual endpoint only after strict URL validation |
