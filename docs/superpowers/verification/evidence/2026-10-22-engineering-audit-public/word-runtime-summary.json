@@ -1,0 +1,23 @@
+{
+  "result": "PASS",
+  "sourceClauseCount": 44,
+  "annualYears": 201,
+  "stepStartPostRequests": 1206,
+  "currentRequests": 201,
+  "outerBoundaryInputForms": 18,
+  "totalHttpRequests": 1628,
+  "orderedQiPairs": 36,
+  "independentExpertCases": 0,
+  "astronomyIndependentlyVerified": false,
+  "notes": [
+    "Expected mappings parsed from original Word R-09/R-10/R-11/R-14/R-16/R-17/R-18/R-21.",
+    "Real loopback HTTP, compiled public Domain/Service and real pinned tyme4ts provider.",
+    "Solar-term astronomy and all-year boundary milliseconds are not independently established by this probe.",
+    "Request budgets raised only on the owned audit server; each HTTP request uses Connection: close; no request retries or product source changes."
+  ],
+  "countsAreNotIndependentExpertCases": true,
+  "withheld_fields": [
+    "sourceSha256",
+    "samples"
+  ]
+}

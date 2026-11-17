@@ -1,0 +1,640 @@
+{
+  "head": "bbd2a696656afba39b914fe7b4fedeefa03c3be1",
+  "sourceBuildEvidence": "logs/full-test.log.txt (build exited 0 before subsequent checks)",
+  "node": "v24.18.0",
+  "pnpm": "10.32.1",
+  "files": [
+    {
+      "path": "packages/yunqi-client/dist/yunqi-api.js.map",
+      "sha256": "01a7f1140094f03029647a078ef833ca96a96069c4d9eb2501bd23ba7e842962"
+    },
+    {
+      "path": "packages/yunqi-client/dist/yunqi-api.js",
+      "sha256": "94f087ddd9e86c8e94ce519d890458febbfb8d669e36dafffbdd4c671e500db9"
+    },
+    {
+      "path": "packages/yunqi-client/dist/yunqi-api.d.ts.map",
+      "sha256": "b1fdb5726417763e9b042ed30f86d47a700a7bfb5289e9d5542b29d37a6ae1b0"
+    },
+    {
+      "path": "packages/yunqi-client/dist/yunqi-api.d.ts",
+      "sha256": "d12a1848893d770cc09d84932994c7bd334aac5e8ec649cc6eec7a7348631297"
+    },
+    {
+      "path": "packages/yunqi-client/dist/index.js.map",
+      "sha256": "956e95bf3ff7e2d79302e77ee88faffbd6ae2a158e6a905ca4d4800a7d9112b4"
+    },
+    {
+      "path": "packages/yunqi-client/dist/index.js",
+      "sha256": "92e152a11ef3d0260f8d9c9f3fc5e63df3232d36c935a7cc805954417bdbf32b"
+    },
+    {
+      "path": "packages/yunqi-client/dist/index.d.ts.map",
+      "sha256": "a5570abaf1a3816d2da422df75cbf8d59dacbda2b748d934db10e8eec23aeab7"
+    },
+    {
+      "path": "packages/yunqi-client/dist/index.d.ts",
+      "sha256": "7d80eb829c04ba6f479cd5365967ff5fde25e2b3badd2791a7e6899192cf4aca"
+    },
+    {
+      "path": "apps/yunqi-workbench/dist/index.html",
+      "sha256": "af38820a487935cfc705da459cd53d9a0af33466c33bc70fb060325887a11a00"
+    },
+    {
+      "path": "apps/yunqi-workbench/dist/favicon.svg",
+      "sha256": "826f9b0aae974deb57cf8321243a7a69ff906bf87b87cd0d39add4bf11658905"
+    },
+    {
+      "path": "apps/yunqi-workbench/dist/assets/index-qRKMs8ji.js",
+      "sha256": "e053fb31c2c90443b815e6b20704b78d46d90f8bdeaf560483b7d95c0e9d7d6c"
+    },
+    {
+      "path": "apps/yunqi-workbench/dist/assets/index-CN1ddOCb.css",
+      "sha256": "b748af18e6c7c21d03102e6af0a715953d98f51a40e1f63d6fba9ca915f99140"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/wuyun/sui-yun.js",
+      "sha256": "8927b12adea671f0213dd1d70be71afbfccf9729b5b479b6f05f1159946c1f79"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/wuyun/sui-yun.d.ts",
+      "sha256": "8197a2b6bb3b4d712b9579e6f95ac370f834d55b6dcb79a08ac3a94d0099b329"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/types.js",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/types.d.ts",
+      "sha256": "69abe260ef6c5015c3873d7e9f917a0b16c90d3d2ec0846392df1767c4af7005"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/index.js.map",
+      "sha256": "1721ba8554902ad76d44e790c13fb61fe2cc1924999f0d867cef0a3ec7f16182"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/index.js",
+      "sha256": "adbcb3603cb8e12ba79ca9ada483c2c4fd7472346a55b1bb6d744de1ad0f5a81"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/index.d.ts.map",
+      "sha256": "084f5badbf897bf30872589ad65dbef3231cff2b98030f4f70170ad12ab13ed1"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/index.d.ts",
+      "sha256": "1dde0a44981fef55eb3bb63f666a4819f38cefdd0ae87dc0a80245697bdb30b6"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/provider.js",
+      "sha256": "51f7b8ebe07e27fd36e43e3617a7d0ef5da4f9bac95d8fab3eb3fb73155e90f4"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/provider.d.ts",
+      "sha256": "557ea561f59f8fa5c2edc4267a7fd8e8885ac9a10d76e66e94a41ce606e901c3"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/index.js",
+      "sha256": "da8aeb5597aacb2dd1c11d68382cc7b30767ed12dfc6c8379671859b69e869f1"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/index.d.ts",
+      "sha256": "9e518837753325b7f20c7b484a3e70b3b9952a3c17ef96fb3a09b0879b5f3041"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/date-time-input.js",
+      "sha256": "50f4c789dbf795ce1c772890af4b56764617fda6357def98b607be3c8b30b4ab"
+    },
+    {
+      "path": "packages/calendar-adapters/tyme4ts/dist/date-time-input.d.ts",
+      "sha256": "a116cbeb1e8874e1dc4fe6ac566ca4fc0bc5ad537e1d7ce2cb9c9581dc085578"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/get-current-step.js",
+      "sha256": "e3a308ce35c5cffb66004eaa85ca27b780939516c7622805a7da09f7329be578"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/get-current-step.d.ts",
+      "sha256": "41f0abab29a334d7830801e1ec5fc09bb422100e74e51ff755ae2fbc852c6b61"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/calculate-yunqi.js",
+      "sha256": "22c72dafd7ab1b0ba06721ce7a4098119be1292175d57b1749d9a88d14e0d8a9"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/calculate-yunqi.d.ts",
+      "sha256": "7e043bf48230fc71ffaddb90556f17f5035baad83f67e9d727588043f4b0f44a"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/calculate-year-yunqi.js",
+      "sha256": "0571b2808681e1383d04cfe88b3e779fc517da04752bf5eb4e5b70dfd3f24520"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/services/calculate-year-yunqi.d.ts",
+      "sha256": "eb9a66a1c97daa80a27b61b90e2799c12c5c23bb9346e674bbaab1db4a47367e"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/yunqi-service.js.map",
+      "sha256": "a604ebeabafc4f4b61f052a8773a412ef33cb432ef335e0e69a885320eedd7be"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/yunqi-service.js",
+      "sha256": "481c9a3757d1c6ee544497e21d610fb0ca9eb8a27db65faf9486536e8536c40a"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/yunqi-service.d.ts.map",
+      "sha256": "f31b9ba4897b0c4d26cd4bbf9682126e2e69050429121c39aef01f9a8b732bf9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/yunqi-service.d.ts",
+      "sha256": "0b111952c671bef1cdf38eaffa00a53e0879ca2bc670ac5e4a6e6abee7286f05"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/provider-boundary.js.map",
+      "sha256": "9b53307429099e8f1e4beae7f81993ed4cb10a4b35c83f21c4b12a6e35ee0e41"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/provider-boundary.js",
+      "sha256": "99e6fefcaa50d43c1dc00d61bf315eac394c10f781abe753b1ca586ea96e8b9a"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/provider-boundary.d.ts.map",
+      "sha256": "8e8b90a4eb399945e1b2ac19a1b03d3b6dfd581e3796d921f759d51078bcebd9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/provider-boundary.d.ts",
+      "sha256": "058eafea14253efe65c075f70ce54359184e8fec372b68ceb049e8c7557b6ae6"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/invalid-argument-error.js.map",
+      "sha256": "b750b672b6c17f4094245b4b062913e69a51761433d18f2f4843d67b0a8736c5"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/invalid-argument-error.js",
+      "sha256": "58a12c014bc32ad9e7316b2f0ac6c09fed7c797227c1c227f735edbfcadc303f"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/invalid-argument-error.d.ts.map",
+      "sha256": "0e293372208f5521029b65b0d96ed36810212b2df447373ec1f88b43dcb8962b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/invalid-argument-error.d.ts",
+      "sha256": "ed726a86dcd430964e96ca6a284bf855b0ad48a19dbddd1a58e652e35be15fa9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/date-time.js.map",
+      "sha256": "53be45b9feb76647fe8fe256a6b507d958c47bc0fd091881073e1770f4947c41"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/date-time.js",
+      "sha256": "8b87f8cd23175153d3c5b6fb2d2f6a992a6b97f0c20b33014b5c1936c0d9dbdc"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/date-time.d.ts.map",
+      "sha256": "ac87d4245e26cd7cab67892bf700d32a8b28079ad13c302f3db5af337dcdab8b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/services/date-time.d.ts",
+      "sha256": "233f08b3ac20a090cee0e0c04d2295934db1c5bbd970adb43dea056b9164f4d0"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server.js.map",
+      "sha256": "6aa1c3f90881165d33e618aa291a25868fda09b6069e037ec01853f6cc01055b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server.js",
+      "sha256": "f85dd592fd8e249ffccabb3d8c550e53ccea4bf63cc004e0870a5b79aa5b95ca"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server.d.ts.map",
+      "sha256": "003491c3d329f70892f1d153e94000571d3b0fbe907f22ef334905f6a8a24929"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server.d.ts",
+      "sha256": "1bdaab87b793f49e745a6a1700bd74197b0a088d4e90ddc6f5bcb1a227fe826b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server-config.js.map",
+      "sha256": "086b576ed608bf099f21b927727a8f0871d04300df8e9d9e5aad76b511f292f1"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server-config.js",
+      "sha256": "9707c152b656e482c03a83dbd017544fa6d7f68631aa661086eb8054505b10d9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server-config.d.ts.map",
+      "sha256": "a90d8cb836ed0b3ad02a90dc696e5b4b2e2432d68a6a8a3996d4246bfeefeb00"
+    },
+    {
+      "path": "packages/yunqi-service/dist/server-config.d.ts",
+      "sha256": "f2f43afb07cd8c25ab11a6a0904780193c4995cc33c0c802270a686f6574a3ed"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/index.d.ts",
+      "sha256": "c45d2b8f0346dce00483e07e7187bfb3efac99d12c3b1cb8d8721b673325aa35"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/rules/phase1-rules.js",
+      "sha256": "15f29464a909fc5b1bb4fb8a7e63eda5350984110241c6753389fa9f507c5a92"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/rules/phase1-rules.d.ts",
+      "sha256": "dd93bb268afeeb3bfe51d09f25edc7ff6173fbc5a22f854cfaca8ed3ef03abae"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/yunqi.js.map",
+      "sha256": "a9221871b5e4fdc02367fe3b89118aa6cfa1d18bc1507ab57490764f5d548733"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/yunqi.js",
+      "sha256": "34b25f6cf06fee6c943bef479a4c812fb756dff782f064f8166c597eed4e1edd"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/yunqi.d.ts.map",
+      "sha256": "1e462ec8d3ec195336ef811e2b2819f7ac5741ebe82948c2b845ac487052c9c2"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/yunqi.d.ts",
+      "sha256": "43af41f959b56d816ac20bebf5ebe5627ba81ad06e9e33c2d3ab4745b8f8e16a"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/index.js.map",
+      "sha256": "35d7567806fe4cf4484f3561ad377974e13ea2252ad905e8497c5d852cc1c8bc"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/index.js",
+      "sha256": "c292662eca5e961877976969cc2604f0c1e685b182ae3717492060031a18e691"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/index.d.ts.map",
+      "sha256": "44671ac0d58f981c09eaaf703e17a2f667e7b9e6ffca62275ec7bb039ff55b69"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/index.d.ts",
+      "sha256": "42ac1a57703fb76771737ecdf402f51dc39c5d64e5dd96e1370d646bbf2f4f3c"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/common.js.map",
+      "sha256": "d05ec8a245a72f13b551bbbdefb0312f31c5c1b5fe5ef146d04aaab9cf330098"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/common.js",
+      "sha256": "045ab785586f265837373a2b7c5de3ff10e3fd58ccc0a858f849b7625ae68e14"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/common.d.ts.map",
+      "sha256": "f49ce00d19fbdbf5021befa98389418c217b7f2e8cdf49f5a40b01a6374352e1"
+    },
+    {
+      "path": "packages/yunqi-service/dist/schemas/common.d.ts",
+      "sha256": "82c922b09af2631f95d16f4f8557a2112601cd1646011fb8e2d6e79b44d48538"
+    },
+    {
+      "path": "packages/yunqi-service/dist/app.d.ts.map",
+      "sha256": "6ebff42e44691480f7133c869cb296dbf5e76b81a7372d3d4e2a3523bdc9737f"
+    },
+    {
+      "path": "packages/yunqi-service/dist/app.d.ts",
+      "sha256": "32f3abccbc2a3a8c4b974ce60726c867aad8836538981cdcb62739bf42e9d8d3"
+    },
+    {
+      "path": "packages/yunqi-service/dist/app.js",
+      "sha256": "cd7b5a91adf0112ae4bc9b6f6192b49b51311a26ec13cbc56b657c096617f361"
+    },
+    {
+      "path": "packages/yunqi-service/dist/app.js.map",
+      "sha256": "409306fafa014756db78fe1b0e1f4274d1f3c45903b6cea03f3e4a828970cdf5"
+    },
+    {
+      "path": "packages/yunqi-service/dist/index.js.map",
+      "sha256": "587e7976fb65fb2abdd0de2c89dbcaba537624d8b467ca189fb8dfac3a2e206d"
+    },
+    {
+      "path": "packages/yunqi-service/dist/index.js",
+      "sha256": "df0debb386983e7dbef1f427e00d3136c4a94b6f743fe9bdf7d8218a61097ea1"
+    },
+    {
+      "path": "packages/yunqi-service/dist/index.d.ts.map",
+      "sha256": "152ce2251f6a00804540712530156074eb8a00d60f0a85d3fddffd3a439dd893"
+    },
+    {
+      "path": "packages/yunqi-service/dist/index.d.ts",
+      "sha256": "a4e607ff30e837a07375116a34086713d365a4e33e32f77b4fd1930aeafb51f6"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/relation/host-guest-relation.js",
+      "sha256": "5cbb463e601e2af51415b16031c19618bd42b76af778af3fc622c728403bd839"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/relation/host-guest-relation.d.ts",
+      "sha256": "05edc42ef140ff0997eb63c45b1aff8fd8449fb0906a7c9b0544a1b246218ef5"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/generated/openapi.js.map",
+      "sha256": "e091e4a324b7dc3c48bf1cb899da7d46ce81007f93047cb092f484167272546c"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/generated/openapi.js",
+      "sha256": "40eb9cfc8db019ac188f797cd7cb31817fe6786d13aa2a24d7b0c75c6c3da546"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/generated/openapi.d.ts.map",
+      "sha256": "9531c0d70fe1386605d9d95eb33598e5047733923b3955a15f75f89e089ecdb5"
+    },
+    {
+      "path": "packages/yunqi-contracts/dist/generated/openapi.d.ts",
+      "sha256": "0308296a220bc94f724ce55300317edc209800f0eabbc9dc4f87bc735248801c"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/index.js",
+      "sha256": "cb016e07cb76bb4827f6603f0386693c7ba77f7b24cf1740517e14be9766fef2"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/six-qi.js",
+      "sha256": "0a32f599823dacb494a74ea1c367077624aa1189e9ae29f10a56e354ce0c2d5a"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/six-qi.d.ts",
+      "sha256": "884a66a04cb78670349e00a4ef67bb2d8fa925fe64d7c87d84f2c5434456eb9f"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/sitian-zaiquan.js",
+      "sha256": "578e01272ed90825235ea51222fdd7b04e6f9ca26aa6b6a627076d03a5b75ea1"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/sitian-zaiquan.d.ts",
+      "sha256": "fe87beae203c02458ba66244c50f3fb132a4a2f8e9cb3aeed44464957fb1d454"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/host-guest.js",
+      "sha256": "cf6e9281b8c54e3842da1dfef33c62a513fc8f848da4d44f7faff36bfed63d63"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/liuqi/host-guest.d.ts",
+      "sha256": "278dde7583b47ffaf72db1b96ba79f48212b7db6787ec660faf846ffed39f2cb"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/ganzhi/stem-branch.js",
+      "sha256": "15a107d062dafbd08cc86b57ae9d2a84f1e5b4d7386ac250be3fb2462b749f94"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/ganzhi/stem-branch.d.ts",
+      "sha256": "115f748e1dfd1373a8013b15f7e085325f18b3a1e1bc0a3f4ac854d6e29d0d84"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/yunqi.js.map",
+      "sha256": "f702b0e040583df67b12968429949a7cacb9417f10b4a2df2f666a0687f1dab9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/mappers/yunqi-mapper.js.map",
+      "sha256": "6c869ca5dcf606b1ef878e8726dd1919dd53c6faa5ac953579c94f0721f49e3b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/mappers/yunqi-mapper.js",
+      "sha256": "2d16b92bf6120a63ac665ac9cbbea52e453a316c28a57ef4bcd5028630d95ea2"
+    },
+    {
+      "path": "packages/yunqi-service/dist/mappers/yunqi-mapper.d.ts.map",
+      "sha256": "3e870a3c9c4bc0a2a87c6b3c72564da8124296dc0d0c199d54d75888938c2a57"
+    },
+    {
+      "path": "packages/yunqi-service/dist/mappers/yunqi-mapper.d.ts",
+      "sha256": "2a73e8e4e2436004c2ae14380b39ab5ce6c02557e0bb1666de11a8c3792f63a2"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/yunqi.js",
+      "sha256": "b1f9a2f79af28ddfa7b9d8a1da7aaf0c62e4a31d13ecff37f8787a5fc441644d"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/yunqi.d.ts.map",
+      "sha256": "be0dfc25b2773025d191e23c19e28857a6597ffb46a6078c6d520772ceb79773"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/yunqi.d.ts",
+      "sha256": "25be2ef7250bf76def99d135a37add1420cbc313c8f42ad1b63e915f9f0726da"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/health.js.map",
+      "sha256": "d22a08d09a86979e2a140218ddeffd182b7dd311e37a592c657b1188c94db0e4"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/health.d.ts.map",
+      "sha256": "cdc77b10471b1e51a0efee7e44bf58bef8c7752f271ae6917e1f44e2f92a9c5b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/health.js",
+      "sha256": "574d95ecaf0bb56715ac5ce7df4a51ab3398a87e338b968181414ef4dbf1a084"
+    },
+    {
+      "path": "packages/yunqi-service/dist/routes/health.d.ts",
+      "sha256": "1aedbe3b28f777cf6f4c35c5f16276b3eac1432ee6eed4a81e13076d8a3cb361"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/openapi.js.map",
+      "sha256": "a29c72e365ace3a627200b1435147e5c063a597b4cd6574603826304ce36a063"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/openapi.js",
+      "sha256": "cac82030a2c1ed16bb06c7ad5c9ec56c95f9a017bb0dc1613102261bab36fe5e"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/openapi.d.ts.map",
+      "sha256": "963e631d1c7da535517e4f84d496a2603f955ce986e44e8adf52ab53945060f2"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/openapi.d.ts",
+      "sha256": "acbe1c6a6e9e88552d36f48c39d3f5caba35d0d6049f2eecdf23e39b376e1e02"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/ingress.js.map",
+      "sha256": "1c07c438de4e6f3a411175b1117b42933d8139d13808eb6ab19adc7c4a5a74d6"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/ingress.js",
+      "sha256": "70f451ceae86cd6600a0fe038757a6ea8cb8d85a97d7d03f1e7dad738b58fe35"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/ingress.d.ts.map",
+      "sha256": "24d5af51daed2660eca10438793731827d0b77f96d7e7e4ffbbd9671cf6e44e6"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/ingress.d.ts",
+      "sha256": "be1d97aa2edc243fcbc1c4ac866486c97c2362a8807e89ed3a6cd162e93b6bfa"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/error-handler.js.map",
+      "sha256": "5a37940f7938a8366860f101b1a0bf799f2c65d2735d8540bd46a60b392d8c7e"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/error-handler.js",
+      "sha256": "5c15868434409d749e4a2d3217d28cd7e2ded23b8f7d8bafc3aea2778c2308c7"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/error-handler.d.ts.map",
+      "sha256": "372c39121c872913de62ef4e9115a2c2dd88aec9299a04db51909328f72b9187"
+    },
+    {
+      "path": "packages/yunqi-service/dist/plugins/error-handler.d.ts",
+      "sha256": "934e2fbe81c08144946a9177a44ed7695fbaa9f0b6c9b3a38a0b452cb295f61a"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/yunqi-year-resolver.js",
+      "sha256": "3f872d454919aa54063d15dcdfe1bccd9b996a71a8ebc8d6189f7a2afde200e9"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/yunqi-year-resolver.d.ts",
+      "sha256": "b19f4115af140baffe0f21b1ddfd5e83f2ee453d024ae062e34de9c03be9f08d"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/time.js",
+      "sha256": "b52409c2b3750df916b240d8d0d8147ded4611a95c9d181bd5797c13295a5c94"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/time.d.ts",
+      "sha256": "a98c77ee072670cf41333e7e9d02f73fbadcdf7b5e5920d885cb379d9342c228"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/provider.js",
+      "sha256": "8e609bb71c20b858c77f0e9f90bb1319db8477b13f9f965f1a1e18524bf50881"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/calendar/provider.d.ts",
+      "sha256": "bf848dd971ce83f080a1968d7b147d1cbb363c0b457470c68a478c5cdf44e58b"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/explanation/explanation-template.js",
+      "sha256": "1a9c01dba167f17c30b979fa7d8c177b14d5cae3acc065c2555ed1944faf0b0f"
+    },
+    {
+      "path": "packages/yunqi-domain/dist/explanation/explanation-template.d.ts",
+      "sha256": "25f055fadaac28d9174135419738ae8f7c5dfad53b9f461791c6857b2513b497"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/parser.js.map",
+      "sha256": "7238d0f6a89eb438468f702f62363ea96ce5ba1bf55638da6920742ae3a0981f"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/parser.js",
+      "sha256": "28437e0544a195241efab3f2546afb43cc61d58fc17e0b65884418b22317f399"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/parser.d.ts.map",
+      "sha256": "d490a66b05ad13d0c888d53137df6b0ed8184c7c54f5208b0dc8c706e6085b6a"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/parser.d.ts",
+      "sha256": "0c1c35e04b8d4c7d4311a5d21ccb4490b6e4ee0f989d6f19134444a5fb6affc5"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/normalizer.js.map",
+      "sha256": "4348f5830ebf68490f0996f08cbb2a38ceac5823b64c88a94d14b59e2bab947c"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/normalizer.js",
+      "sha256": "164a28dde91b01c31ebc652a8f70be8ef9eb211c01d24df19b21ff845a834c4b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/normalizer.d.ts.map",
+      "sha256": "721699e9828980bb60a8990a23c4341f4d2e031b2fc18419b57d66d8445f05bf"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/normalizer.d.ts",
+      "sha256": "b3eede286302b9892ffb0f92d909884bfc3113b5a5eeb3862c2deda379c58f72"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/index.js.map",
+      "sha256": "94a542ef6d0ef5d0e1e36153c3a97294270c5540e4e94e1f60ee383a832c86d2"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/index.js",
+      "sha256": "d0990b9fcaee78335388f90515278650704557e5515491032c7ae09780b20c30"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/index.d.ts.map",
+      "sha256": "c3103aeb7421adfbc1e766dcf64d6f69566c86aebf36e4906d3eb9a8991ee745"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/index.d.ts",
+      "sha256": "7435cc5255b30ecfcbf05b818adadbeb16726420a5f782e2b5ae7bf8427cfd15"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/formatter.js.map",
+      "sha256": "581369322e9f5ef22579870eb6476a39dddee41c3beea19e2b184e98f24166e9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/formatter.js",
+      "sha256": "46637684a7c663249bd5201176676ceed01e940a808fa2a5d7fdf3f5096a3821"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/formatter.d.ts.map",
+      "sha256": "3d7741b310fee596a456b7952eb8bce55de8d6090be57c2710812cf3f89ef440"
+    },
+    {
+      "path": "packages/yunqi-service/dist/modules/time-normalizer/formatter.d.ts",
+      "sha256": "39829827aefed29a97d50b757f3b692c3eb441edcc7b352190b4d15e7593534b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-types.js.map",
+      "sha256": "b4903355f2dffe02f47973c6df065284b3b286c8d241f4666a302582fedba313"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-types.js",
+      "sha256": "f6517ffec7ae2a19b2454a3b2ee6a37af2d9dfc4f8bcc2de0984af414c03df16"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-types.d.ts.map",
+      "sha256": "8821b48f73a0a829de1085ca8b6c31af028520bf2f15ba41d7be6b114d71edef"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-types.d.ts",
+      "sha256": "c3fe04f9d3de6a398be819992d9f36f1b341010efd78a1c41bca06f7252a9d8c"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-api.js.map",
+      "sha256": "cec0b5950cf075ed0586dc2dd68b1a4760f249aa5439763994d1f7c8b32c83b7"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-api.js",
+      "sha256": "94f087ddd9e86c8e94ce519d890458febbfb8d669e36dafffbdd4c671e500db9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-api.d.ts.map",
+      "sha256": "0208d52484d9379d903b22849d8722285ac61db8b9297ef5cbfa1188de00f1f9"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/yunqi-api.d.ts",
+      "sha256": "86e0f6b23c4f189cb979b2723e3bbdb90ba45471fb7aefb1b0a9580afb181155"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/index.js.map",
+      "sha256": "018b7c0142d4ae9ba3118fa295a209fc66530c3f504d387656e178720f1c8239"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/index.js",
+      "sha256": "92e152a11ef3d0260f8d9c9f3fc5e63df3232d36c935a7cc805954417bdbf32b"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/index.d.ts.map",
+      "sha256": "20ea91662f502569d7c6934b9f089f0af85e2663e21caa2ba11af629b6cb5279"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/index.d.ts",
+      "sha256": "a9c6f065a9e727306c511e3c3c293e6e69459f664b4eaf020b3eb11c60fe883c"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/generated-client.js.map",
+      "sha256": "1fa25ab908ee9e23117f082494893daf244f458d0a681c565465506d5eb35e9f"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/generated-client.js",
+      "sha256": "acba1e9857bbb4f5f3cb983acc1e1a1aca9edeee20975d80c3e0ae335df62761"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/generated-client.d.ts.map",
+      "sha256": "53a0f4a2f4da017559e834ad4d23f96cc215e1d928c7ba59cc4086e7226fe970"
+    },
+    {
+      "path": "packages/yunqi-service/dist/contracts/generated-client.d.ts",
+      "sha256": "0511cb0d0ecbd369ecd2455672cd8688c155402fe15537cc379b8d58a629fbc7"
+    }
+  ]
+}

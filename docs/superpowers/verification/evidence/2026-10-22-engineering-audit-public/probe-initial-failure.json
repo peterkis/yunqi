@@ -1,0 +1,9 @@
+{
+  "result": "FAIL",
+  "command": "node word-runtime-audit.mjs",
+  "exitCode": 1,
+  "error": "fetch failed / ECONNRESET",
+  "ruleAssertionFailureObserved": false,
+  "cause": "Not established. The initial probe reused HTTP connections; the product deliberately bounds entire socket lifetime at 10000 ms.",
+  "action": "Use Connection: close for each probe request, retaining all business assertions and no request retries."
+}

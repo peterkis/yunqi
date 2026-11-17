@@ -1,0 +1,28 @@
+
+> yunqi@ schema:validate <WORKSPACE>
+> pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts
+
+
+> yunqi@ build:contract-source <WORKSPACE>
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.2.0 build <WORKSPACE>\packages\yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build <WORKSPACE>\packages\calendar-adapters\tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.1.0 build <WORKSPACE>\packages\yunqi-service
+> tsc -p tsconfig.json
+
+
+ RUN  v4.1.10 <WORKSPACE>/packages/yunqi-service
+
+
+ Test Files  1 passed (1)
+      Tests  6 passed (6)
+   Start at  20:21:57
+   Duration  2.39s (transform 275ms, setup 0ms, import 1.36s, tests 818ms, environment 0ms)
