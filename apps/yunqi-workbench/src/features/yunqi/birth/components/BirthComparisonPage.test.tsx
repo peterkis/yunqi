@@ -165,6 +165,13 @@ describe('BirthComparisonPage', () => {
     for (const title of titles) expect(within(disclosure).getByText(`${title}的API释义`, { exact: true })).toBeVisible();
     expect(within(disclosure).getAllByRole('link')).toHaveLength(5);
     expect(within(disclosure).getAllByRole('link')[0]).toHaveAttribute('href', candidate.comparisons[0].sources[0].url);
+    expect(disclosure.querySelector('ul, li')).toBeNull();
+    for (const source of within(disclosure).getAllByRole('link')) {
+      expect(source).toHaveClass('learning-source');
+      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
+      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      expect(source).not.toHaveTextContent('新窗口');
+    }
   });
 
   it('blocks two submits in the same event turn and permits another comparison after settlement', async () => {

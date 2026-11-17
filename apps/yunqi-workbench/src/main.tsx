@@ -14,6 +14,7 @@ import './styles/views/birth.css';
 import './styles/views/drilldown.css';
 import './styles/views/constitution.css';
 import './styles/views/form-controls.css';
+import './styles/views/learning-reading.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

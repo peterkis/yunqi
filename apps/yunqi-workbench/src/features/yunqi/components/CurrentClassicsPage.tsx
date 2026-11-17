@@ -20,10 +20,11 @@ export function CurrentClassicsPage({ learning }: { readonly learning: LearningV
     <div className="current-classics__readings" id={readingId} role="region" aria-label={scope === 'annual' ? '全年原文' : '当下阶段原文'} tabIndex={0}>
       {passages.map((passage) => <InfoCard key={passage.id} label={`${passage.scopeLabel} · ${passage.section}`} meta={scope === 'current' ? '正在此段' : undefined}>
         <QuoteBlock quote={passage.previewQuote} fullQuote={passage.fullQuote} interpretation={passage.explanation} source={passage.source} />
-        <a className="current-classics__source" href={passage.sourceUrl} target="_blank" rel="noreferrer">查看原文出处<span className="visually-hidden">：{passage.section}（新窗口）</span></a>
+        <a className="current-classics__source learning-text-link" href={passage.sourceUrl} target="_blank" rel="noreferrer">查看原文出处<span className="visually-hidden">：{passage.section}（新窗口打开）</span></a>
       </InfoCard>)}
       {passages.length === 0 ? <p className="current-copy">此范围暂未收录已核对原文。</p> : null}
     </div>
-    <p className="current-classics__notice current-meta">文献线索，非个体发病预测</p>
+    {/* One shared notice stays outside the scrolling readings, including expanded full passages. */}
+    <p className="current-classics__notice">文献线索，非个体发病预测</p>
   </div>;
 }

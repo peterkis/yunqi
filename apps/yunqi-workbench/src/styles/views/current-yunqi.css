@@ -5,6 +5,8 @@
   --current-hairline: 1px;
   /* Source: 1-layout.md, six-stage segment gap and compact track inset: 3px. */
   --current-progress-gap: 3px;
+  /* Source: polish card D4, P1-9: equal 44px rows in the More list. */
+  --current-more-row-height: 44px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
   font-size: var(--ts-body);
@@ -148,9 +150,44 @@
 .current-classics a { color: var(--accent); }
 .current-overview a:hover,
 .current-classics a:hover { color: var(--accent-hover); text-decoration: underline; }
-.current-overview__quote .ds-info-card__hint { font-size: var(--ts-small); line-height: var(--type-meta-line); }
-.current-context-links { display: flex; flex-wrap: wrap; gap: var(--space-4); }
-.current-context-links a { display: inline-flex; align-items: center; min-height: var(--segment-height); text-decoration: none; }
+.current-overview__quote .ds-info-card__hint,
+.current-classics__notice {
+  padding: var(--space-2_5) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--ink-secondary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-overview .current-more__list { margin: 0; padding: 0; list-style: none; }
+.current-more__list > li + li { border-top: var(--current-hairline) solid var(--border-subtle); }
+.current-more .current-more__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  min-height: var(--current-more-row-height);
+  padding: 0;
+  color: var(--accent);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-sm-line);
+  text-decoration: none;
+  list-style: none;
+  cursor: pointer;
+}
+.current-more__row::-webkit-details-marker { display: none; }
+/* Keyboard focus uses the shared `.panel-shell :focus-visible` ring; pointer clicks show none. */
+.current-more__chevron {
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--space-0_5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.current-more details[open] > summary .current-more__chevron { transform: rotate(90deg); }
 .current-all-stages > .ds-info-card,
 .current-technical > .ds-info-card { margin-top: var(--space-3); }
 .current-stage-navigation { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-0_5); margin-block: var(--space-2); }
@@ -185,11 +222,19 @@
   box-shadow: var(--shadow-segment);
   font-weight: var(--type-body-strong-weight);
 }
-/* Keep one literature notice visible while the reading region scrolls. */
-.current-classics__readings { position: relative; flex: 1; min-height: 0; overflow: auto; padding: var(--space-1); }
+/* Offset the focus gutter into the shell's 16px safe inset: cards align with
+   the scope track while 2px outlines + 2px offsets stay inside the scroller. */
+.current-classics__readings {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  margin-inline: calc(-1 * var(--space-1));
+  padding: var(--space-1);
+}
 .current-classics__readings > .ds-info-card + .ds-info-card { margin-top: var(--space-3); }
 .current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--ts-small); line-height: var(--type-meta-line); }
-.current-classics__notice { flex: none; margin: 0; padding-top: var(--space-1); }
+.current-classics__notice { flex: none; margin: 0; }
 .current-classics .ds-quote-block__details > summary { min-height: var(--segment-height); }
 .current-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
 .current-technical .yunqi-time-details dd { margin: 0; }

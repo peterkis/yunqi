@@ -18,7 +18,7 @@ export function createLearningDto(): YunQiLearningDto {
     end: facts.currentStep.end,
     host: { element: '火', state: '太过', tone: '太徵' },
     guest: { element: '木', state: '不及', tone: '少角' },
-    boundaryMethod: '测试交运口径',
+    boundaryMethod: '测试交运口径（教学口径，待专家确认）',
     explanation: '交运按服务端给定的固定北京时间区间展示。',
   } as const;
   const passage = {
@@ -34,8 +34,8 @@ export function createLearningDto(): YunQiLearningDto {
   return {
     facts,
     ruleVersion: 'YQ-LEARNING-1.0.0',
-    annualRelation: { title: '司天与中运', label: '不和', relation: '中运水克司天火', explanation: '用于区分年度关系与当步客主关系。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '传统理论测试来源', url: 'https://example.org/source' }] },
-    currentQi: { title: '当步主客气', label: '相得', relation: '客生主', explanation: '相生关系仅作传统理论解释。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '传统理论测试来源', url: 'https://example.org/source' }] },
+    annualRelation: { title: '司天与中运', label: '不和', relation: '中运水克司天火', explanation: '用于区分年度关系与当步客主关系。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '《传统理论测试来源》', url: 'https://example.org/source' }] },
+    currentQi: { title: '当步主客气', label: '相得', relation: '客生主', explanation: '相生关系仅作传统理论解释。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '《传统理论测试来源》', url: 'https://example.org/source' }] },
     currentMovement: movement,
     movements: [movement],
     annualPassages: [passage],

@@ -17,6 +17,12 @@
   line-height: var(--type-body-line);
 }
 
+.panel-viewport--collapsed {
+  /* Host contract: 416x80 = a 400x64 pill plus 8px on each side. */
+  min-width: calc(var(--panel-width) + var(--space-4));
+  padding: var(--space-2);
+}
+
 .panel-shell {
   position: relative;
   z-index: var(--z-panel);
@@ -104,6 +110,8 @@
 }
 
 .panel-pill {
+  /* Source: prototype board ⑥ and polish card D4, P1-11. */
+  --panel-pill-mark-size: 44px;
   position: relative;
   z-index: var(--z-pill);
   display: flex;
@@ -111,9 +119,8 @@
   align-items: center;
   gap: var(--space-2);
   width: var(--panel-width);
-  max-width: 100%;
   height: var(--pill-height);
-  padding: 0 var(--space-3);
+  padding: 0 var(--space-2_5);
   border: var(--panel-hairline) solid var(--border-default);
   border-radius: var(--radius-full);
   box-shadow: var(--shadow-float);
@@ -124,16 +131,22 @@
 }
 
 .panel-pill__ganzhi {
+  display: flex;
   flex: none;
-  color: var(--ink-primary);
+  align-items: center;
+  justify-content: center;
+  width: var(--panel-pill-mark-size);
+  height: var(--panel-pill-mark-size);
+  border-radius: var(--radius-full);
+  background: var(--accent);
+  color: var(--accent-on);
   font-family: var(--font-serif);
-  font-size: var(--ts-title);
-  line-height: var(--type-title-line);
-  font-weight: var(--type-title-weight);
+  font-size: var(--ts-quote);
+  line-height: var(--type-quote-line);
+  font-weight: var(--type-display-xl-weight);
 }
 
-/* The actual 400x64 viewport clips an outer outline at its edges. Keep the
-   standard outline and also paint the same 2px ring inside the pill. */
+/* Keep the inner keyboard ring in addition to the standard outer ring. */
 .panel-pill:focus-visible {
   box-shadow: inset 0 0 0 var(--space-0_5) var(--focus-ring), var(--shadow-float);
 }

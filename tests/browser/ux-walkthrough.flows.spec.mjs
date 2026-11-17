@@ -1,4 +1,5 @@
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { expectMoreRows } from './consistency-helpers.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
   const currentResponse = page.waitForResponse(response => response.url().endsWith('/learning/current'));
@@ -160,6 +161,19 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await page.keyboard.press('Enter');
   await expect(page.getByRole('main')).toBeFocused();
   await page.getByRole('link', { name: '当下运气', exact: true }).click();
+  await expectMoreRows(page);
+  const moreRows = page.locator('.current-more__row');
+  // Reach the rows by keyboard: after the pointer click above, Chromium does not
+  // treat programmatic focus as :focus-visible, so the ring would be the UA default.
+  await page.keyboard.press('Tab');
+  for (const row of await moreRows.all()) {
+    await row.focus();
+    await expect(row).toBeFocused();
+    await expect(row).toHaveCSS('outline-width', '2px');
+    await expect(row).toHaveCSS('outline-offset', '2px');
+    await expect(row).toHaveCSS('outline-style', 'solid');
+    await expect(row).not.toHaveCSS('outline-color', 'rgba(0, 0, 0, 0)');
+  }
   const disclosure = page.locator('.current-technical');
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');

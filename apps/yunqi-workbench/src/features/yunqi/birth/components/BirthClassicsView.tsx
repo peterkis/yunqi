@@ -8,7 +8,7 @@ export const BIRTH_NOTICE = '出生时令结构不等于体质，原文病候是
 function Reading({ value }: { readonly value: BirthReadingViewModel }) {
   return <article className="birth-card birth-reading">
     <QuoteBlock label={value.scope} quote={value.excerpt} fullQuote={value.fullQuote} interpretation={value.interpretation} source={value.source} />
-    <a className="birth-source-link" href={value.sourceUrl} target="_blank" rel="noreferrer">查看原文出处<span className="visually-hidden">：{value.source}（新窗口）</span></a>
+    <a className="birth-source-link learning-text-link" href={value.sourceUrl} target="_blank" rel="noreferrer">查看原文出处<span className="visually-hidden">：{value.source}（新窗口打开）</span></a>
   </article>;
 }
 

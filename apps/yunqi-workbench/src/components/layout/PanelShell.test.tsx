@@ -43,7 +43,7 @@ describe('PanelShell', () => {
     if (route !== '/') expect(within(nav).getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('main', { name: label })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: '跳至主要内容' })).toHaveAttribute('href', '#workbench-content');
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径 · 待专家确认 · 辅助参考，不作诊断依据');
+    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
     expect(document.title).toBe(`${label} · 运气通`);
   });
 
@@ -106,6 +106,8 @@ describe('PanelShell', () => {
     collapse.focus();
     await user.keyboard('{Enter}');
     const expand = screen.getByRole('button', { name: /^展开运气通/ });
+    expect(expand.parentElement).toHaveClass('panel-viewport--collapsed');
+    expect(expand.querySelector('.panel-pill__ganzhi')).toHaveTextContent(snapshot.ganzhi);
     expect(expand).toHaveFocus();
     expect(expand).toHaveAttribute('aria-expanded', 'false');
     expect(expand).toHaveTextContent(snapshot.annual);
@@ -116,6 +118,7 @@ describe('PanelShell', () => {
     expect(screen.getByLabelText('测试地址')).toHaveTextContent('/yunqi/birth?mode=local');
     expect(storage).not.toHaveBeenCalled();
     await user.keyboard(' ');
+    expect(collapse.closest('.panel-viewport')).not.toHaveClass('panel-viewport--collapsed');
     expect(collapse).toHaveFocus();
     expect(screen.getByLabelText('本地草稿')).toHaveValue('会话内容');
     expect(main.scrollTop).toBe(200);
@@ -153,6 +156,7 @@ describe('PanelShell', () => {
     await user.click(screen.getByRole('button', { name: '收起为胶囊条' }));
     expect(screen.getByRole('button', { name: /^展开运气通/ })).toHaveTextContent('本视图暂无运气摘要');
     expect(screen.getByRole('button', { name: /^展开运气通/ })).not.toHaveTextContent('丁未');
+    expect(screen.getByRole('button', { name: /^展开运气通/ }).querySelector('.panel-pill__ganzhi')).toBeNull();
   });
 
   it('renders session actions outside scrolling content and releases hidden or unmounted result navigation', async () => {

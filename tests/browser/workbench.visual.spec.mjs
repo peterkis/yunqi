@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
+import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
@@ -114,6 +115,25 @@ for (const state of cases) {
     await settle(page);
     await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
+    if (state.current) await expectMoreRows(page);
+    if (state.classics) {
+      await expectClassicsAlignment(page);
+      const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+      const readings = page.locator('.current-classics__readings');
+      await expect(notice).toHaveCount(1);
+      await expect(notice).toBeInViewport({ ratio: 1 });
+      for (const summary of await readings.locator('details > summary').all()) {
+        await summary.press('Enter');
+        await summary.locator('..').locator('blockquote').scrollIntoViewIfNeeded();
+        await expect(notice).toBeInViewport({ ratio: 1 });
+        await summary.press('Space');
+      }
+      for (const position of ['bottom', 'top']) {
+        await readings.evaluate((region, to) => { region.scrollTop = to === 'bottom' ? region.scrollHeight : 0; }, position);
+        await expect(notice).toBeInViewport({ ratio: 1 });
+      }
+      expect(await page.getByRole('main').evaluate(main => main.scrollHeight - main.clientHeight)).toBeLessThanOrEqual(1);
+    }
     if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
       expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);
       const table = page.getByRole('table').first();

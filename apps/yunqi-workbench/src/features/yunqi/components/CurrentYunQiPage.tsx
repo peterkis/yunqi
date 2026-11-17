@@ -17,6 +17,10 @@ export interface CurrentYunQiPageProps {
   readonly learning: LearningViewModel;
 }
 
+function MoreChevron() {
+  return <svg className="current-more__chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m6 4 4 4-4 4" /></svg>;
+}
+
 export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps) {
   const { summary, currentStep, annualElements } = viewModel;
   const movement = learning.currentMovement;
@@ -72,7 +76,6 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <CurrentRelationReading relation={learning.annualRelation} />
           <CurrentRelationReading relation={learning.currentQi} />
           <p>{movement.explanation}</p>
-          <p className="current-meta">交运口径：{movement.boundaryMethod} · 教学口径，待专家确认</p>
         </details>
       </InfoCard>
     </div>
@@ -83,39 +86,41 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
       </InfoCard>
     </div>
 
-    <nav className="current-context-links" aria-label="更多运气分析">
-      <Link to={`/yunqi/year/${summary.year}`}>年度详情<span aria-hidden="true"> ›</span></Link>
-      <Link to="/yunqi/calculate">指定时点<span aria-hidden="true"> ›</span></Link>
+    <nav className="current-more" aria-label="更多运气分析">
+      <ul className="current-more__list">
+        <li><details className="current-disclosure current-all-stages">
+          <summary className="current-more__row">其余阶段<MoreChevron /></summary>
+          <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
+          <InfoCard label="五步运全表" meta="北京时间 UTC+08">
+            {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
+              <h3>{step.name}{step.index === movement.index ? <span className="current-meta"> · 正在此段</span> : null}</h3>
+              <CurrentTimeRange start={step.start} end={step.end} />
+              <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
+              <p className="current-copy">{step.explanation}</p>
+              <p className="current-meta">{step.boundaryMethod}</p>
+            </section>)}
+          </InfoCard>
+        </details></li>
+
+        <li><Link className="current-more__row" to={`/yunqi/year/${summary.year}`}>年度详情<MoreChevron /></Link></li>
+        <li><Link className="current-more__row" to="/yunqi/calculate">指定时点<MoreChevron /></Link></li>
+
+        <li><details className="current-disclosure current-technical">
+          <summary className="current-more__row">计算说明与版本<MoreChevron /></summary>
+          <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
+          <InfoCard label="规则结果说明">
+            <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
+            <ul>{viewModel.explanations.map((explanation) => <li key={explanation}>{explanation}</li>)}</ul>
+            <p className="current-copy">教学扩展版本：<code>{learning.ruleVersion}</code></p>
+            {learning.notes.map((note, index) => <p className="current-copy" key={index}>{note}</p>)}
+          </InfoCard>
+          <InfoCard label="追溯信息">
+            <p className="current-copy">YunQi 当前查询 API · {viewModel.contractId}</p>
+            <p className="current-copy">{viewModel.ruleVersion} · 北京时间 UTC+08</p>
+            <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
+          </InfoCard>
+        </details></li>
+      </ul>
     </nav>
-
-    <details className="current-disclosure current-all-stages">
-      <summary>其余阶段 · 六步气与五步运</summary>
-      <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
-      <InfoCard label="五步运全表" meta="北京时间 UTC+08">
-        {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
-          <h3>{step.name}{step.index === movement.index ? <span className="current-meta"> · 正在此段</span> : null}</h3>
-          <CurrentTimeRange start={step.start} end={step.end} />
-          <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
-          <p className="current-copy">{step.explanation}</p>
-          <p className="current-meta">{step.boundaryMethod}</p>
-        </section>)}
-      </InfoCard>
-    </details>
-
-    <details className="current-disclosure current-technical">
-      <summary>计算说明与版本</summary>
-      <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
-      <InfoCard label="规则结果说明">
-        <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
-        <ul>{viewModel.explanations.map((explanation) => <li key={explanation}>{explanation}</li>)}</ul>
-        <p className="current-copy">教学扩展版本：<code>{learning.ruleVersion}</code></p>
-        {learning.notes.map((note, index) => <p className="current-copy" key={index}>{note}</p>)}
-      </InfoCard>
-      <InfoCard label="追溯信息">
-        <p className="current-copy">YunQi 当前查询 API · {viewModel.contractId}</p>
-        <p className="current-copy">{viewModel.ruleVersion} · 北京时间 UTC+08</p>
-        <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
-      </InfoCard>
-    </details>
   </div>;
 }

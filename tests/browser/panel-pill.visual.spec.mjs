@@ -1,8 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+import { expectPillGeometry } from './consistency-helpers.mjs';
 
 for (const theme of ['light', 'dark']) {
-  test(`@visual collapsed pill ${theme}: 400x64, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
+  test(`@visual collapsed pill ${theme}: 416x80 host, 400x64 pill, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
     const data = await loadCurrent(page);
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
     await settle(page);
@@ -19,14 +20,10 @@ for (const theme of ['light', 'dark']) {
     await expect(pill).toContainText(`${data.facts.suiYun.element}运${data.facts.suiYun.state}`);
     await expect(page.getByRole('main')).toHaveCount(0);
     await expect(page.getByRole('button')).toHaveCount(1);
-    const layout = await pill.evaluate(element => ({
-      x: element.getBoundingClientRect().x, y: element.getBoundingClientRect().y,
-      width: element.getBoundingClientRect().width, height: element.getBoundingClientRect().height,
-      documentWidth: document.documentElement.scrollWidth,
-      documentHeight: document.documentElement.scrollHeight,
-      fits: element.scrollWidth <= element.clientWidth,
-    }));
-    expect(layout).toEqual({ x: 0, y: 0, width: 400, height: 64, documentWidth: 400, documentHeight: 64, fits: true });
+    const layout = await expectPillGeometry(page, pill);
+    expect(layout).toMatchObject({ x: 8, y: 8, width: 400, height: 64, documentWidth: 416, documentHeight: 80, fits: true });
+    await expect(pill.locator('.panel-pill__ganzhi')).toHaveText(data.facts.stemBranch.ganzhi);
+    await testInfo.attach('pill-geometry', { body: JSON.stringify(layout, null, 2), contentType: 'application/json' });
     await screenshot(page, testInfo, `collapsed-pill-${theme}`);
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     await testInfo.attach('axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });

@@ -98,7 +98,8 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 `workbench.visual.spec.mjs` has 24 panel states, each run in all six panel /
 workstation projects. The collapsed-pill spec adds two theme states at its
-actual 400 × 64 viewport. The seven prototype boards are represented as follows:
+416 × 80 host viewport, containing the unchanged 400 × 64 pill with an 8px
+outer margin on every side. The seven prototype boards are represented as follows:
 
 | Prototype / area | Test states |
 | --- | --- |
@@ -124,10 +125,22 @@ are retained as evidence only, not as an approved visual baseline.
 | `panel-light` | 400 × 860 | Light, 24 panel states |
 | `panel-dark` | 400 × 860 | Dark, 24 panel states |
 | `panel-min-height` | 400 × 640 | Light, 24 panel states; current content scrolls while header, navigation and footer stay fixed |
-| `collapsed-pill` | 400 × 64 | Light and dark, two collapsed states |
+| `collapsed-pill` | 416 × 80 host | Light and dark, two states; 400 × 64 pill plus an 8px outer margin on every side |
 | `workstation-light` | 1366 × 900 | Light, 24 states; 400px panel at the right edge |
 | `workstation-768` | 1366 × 768 | Light, 24 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
 | `workstation-1080` | 1920 × 1080 | Light, 24 states; same right-edge panel |
+
+Collapsed host contract for the future Tauri stage: **416×80 = 胶囊 400×64 +
+四周各 8px 外边距**. Browser tests simulate this host size; the pill retains
+`pill-height` and `shadow-float` at every viewport size.
+
+Pill geometry attaches a shadow measurement with each screenshot. It checks the
+computed outer shadow against `shadow-float` and rejects CSS ancestors that clip
+its estimated paint envelope. The envelope uses `1.5 × blur + spread` (three
+Gaussian standard deviations), with signed viewport clearances. Negative
+clearances are retained as viewport clipping evidence: an 8px outer margin does
+not contain the full tail of `0 6px 20px` at 416×80. This check does not claim that
+the entire blur is visible; full-shadow host sizing remains a Tauri-stage decision.
 
 The suite discovers **58 flow/foundation/oracle tests + 146 visual/accessibility
 tests = 204 tests in 10 files**. These are test cases and repeated state checks,
