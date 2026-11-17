@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { RuleExplanationPanel } from '../../components/RuleExplanationPanel';
-import { TraceabilityPanel } from '../../components/TraceabilityPanel';
-import { YunQiYearSummaryPanel } from '../../components/YunQiYearSummaryPanel';
+import { DrilldownResultNotes } from './DrilldownResultNotes';
+import { DrilldownYearSummaryCard } from './DrilldownYearSummaryCard';
 import type { AnnualYunQiViewModel } from '../../presentation/view-model';
 import { AnnualSixQiDetailPanel } from './AnnualSixQiDetailPanel';
 import { AnnualSixQiSelector } from './AnnualSixQiSelector';
@@ -32,9 +31,9 @@ function AnnualYunQiContent({ viewModel }: AnnualYunQiPageProps) {
   }
 
   return (
-    <div className="annual-yunqi-page">
-      <YunQiYearSummaryPanel summary={viewModel.summary} />
-      <div className="annual-stage-workspace">
+    <div className="drilldown-page">
+      <DrilldownYearSummaryCard summary={viewModel.summary} />
+      <div className="drilldown-page">
         <AnnualSixQiSelector
           onSelect={setSelectedStepIndex}
           selectedStepIndex={selectedStepIndex}
@@ -42,8 +41,8 @@ function AnnualYunQiContent({ viewModel }: AnnualYunQiPageProps) {
         />
         <AnnualSixQiDetailPanel stage={selected} />
       </div>
-      <RuleExplanationPanel explanations={viewModel.explanations} />
-      <TraceabilityPanel
+      <DrilldownResultNotes
+        explanations={viewModel.explanations}
         dataSource="YunQi 年度查询 API"
         ruleVersion={viewModel.ruleVersion}
       />

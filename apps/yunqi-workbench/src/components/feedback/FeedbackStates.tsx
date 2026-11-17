@@ -1,3 +1,6 @@
+import { Button } from '../design/Button';
+import { InfoCard } from '../design/InfoCard';
+
 export interface LoadingStateProps {
   readonly message?: string;
 }
@@ -6,11 +9,10 @@ export function LoadingState({
   message = '正在加载五运六气数据',
 }: LoadingStateProps) {
   return (
-    <div className="feedback-state feedback-state--loading" role="status">
-      <span className="feedback-state__mark" aria-hidden="true">
-        候
-      </span>
-      <p>{message}</p>
+    <div className="drilldown-feedback">
+      <InfoCard label="加载中" compact>
+        <div role="status"><p>{message}</p></div>
+      </InfoCard>
     </div>
   );
 }
@@ -27,18 +29,17 @@ export function ErrorState({
   retryLabel = '重新尝试',
 }: ErrorStateProps) {
   return (
-    <div className="feedback-state feedback-state--error" role="alert">
-      <span className="feedback-state__mark" aria-hidden="true">
-        止
-      </span>
-      <div>
-        <p>{message}</p>
-        {onRetry ? (
-          <button type="button" onClick={onRetry}>
-            {retryLabel}
-          </button>
-        ) : null}
-      </div>
+    <div className="drilldown-feedback">
+      <InfoCard label="暂未完成" compact>
+        <div role="alert">
+          <p>{message}</p>
+          {onRetry ? (
+            <Button variant="secondary" onClick={onRetry}>
+              {retryLabel}
+            </Button>
+          ) : null}
+        </div>
+      </InfoCard>
     </div>
   );
 }
@@ -51,11 +52,10 @@ export function EmptyState({
   message = '当前没有可展示的五运六气数据',
 }: EmptyStateProps) {
   return (
-    <div className="feedback-state feedback-state--empty" role="status">
-      <span className="feedback-state__mark" aria-hidden="true">
-        空
-      </span>
-      <p>{message}</p>
+    <div className="drilldown-feedback drilldown-feedback--empty">
+      <InfoCard label="待查看" compact>
+        <div role="status"><p>{message}</p></div>
+      </InfoCard>
     </div>
   );
 }

@@ -1,7 +1,5 @@
+import { EmptyState } from '../../../../components/feedback/FeedbackStates';
+
 export function YearEntryPage() {
-  return (
-    <section className="feedback-state feedback-state--empty">
-      <p>请选择要分析的年份</p>
-    </section>
-  );
+  return <EmptyState message="请选择要分析的年份" />;
 }

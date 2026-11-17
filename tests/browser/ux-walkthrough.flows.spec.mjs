@@ -1,4 +1,4 @@
-import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
   await page.goto('/yunqi/year');
@@ -9,11 +9,11 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
 
   await loadCurrent(page);
   await page.getByRole('link', { name: '查看 2024 年六气' }).click();
-  await expect(page.locator('.summary-grid')).toContainText('2024');
+  await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
   await page.getByRole('radio', { name: '第 3 步 三之气', exact: true }).check();
   await page.getByRole('button', { name: '下一年', exact: true }).click();
   await expect(page).toHaveURL(/\/yunqi\/year\/2025$/);
-  await expect(page.locator('.summary-grid')).toContainText('2025');
+  await expect(page.locator('.drilldown-annual-summary')).toContainText('2025');
   await expect(page.getByRole('radio').first()).toBeChecked();
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeFocused();
   await page.getByRole('button', { name: '上一年', exact: true }).click();
@@ -22,10 +22,10 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2025');
 
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('1900');
-  await expect(page.locator('.summary-grid')).toContainText('1900');
+  await expect(page.locator('.drilldown-annual-summary')).toContainText('1900');
   await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('2100');
-  await expect(page.locator('.summary-grid')).toContainText('2100');
+  await expect(page.locator('.drilldown-annual-summary')).toContainText('2100');
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
   await expect(page).toHaveURL(/\/yunqi\/year$/);
@@ -33,24 +33,37 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   expect(diagnostics.requests.every(request => !/\/year\/(1899|2101)$/.test(request.url))).toBe(true);
 });
 
-test('mobile stage selection keeps all six choices beside nearby detail and preserves exact time descriptions', async ({ page, diagnostics }, testInfo) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+test('panel stage selection keeps six single-column choices above nearby detail and preserves exact times', async ({ page, diagnostics }, testInfo) => {
+  await page.setViewportSize({ width: 400, height: 860 });
   await page.goto('/yunqi/year/2024');
   const third = page.getByRole('radio', { name: '第 3 步 三之气', exact: true });
   await third.check();
   await expect(third).toHaveAccessibleDescription(/开始 2024-.*\+08:00，结束 2024-.*\+08:00，北京时间 UTC\+08/);
   const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
   await expect(detail).toBeVisible();
-  const selector = await page.locator('.annual-six-qi-selector__options').boundingBox();
+  const selector = await page.locator('.drilldown-stage-selector__options').boundingBox();
   const detailBox = await detail.boundingBox();
-  expect(selector.height, 'All six choices fit within a compact area').toBeLessThan(300);
+  const choices = await page.locator('.drilldown-stage-selector__option').all();
+  expect(choices).toHaveLength(6);
+  let previousBottom = selector.y;
+  for (const choice of choices) {
+    const bounds = await choice.boundingBox();
+    expect(bounds.x).toBe(selector.x);
+    expect(bounds.width).toBe(selector.width);
+    expect(bounds.y).toBeGreaterThanOrEqual(previousBottom);
+    previousBottom = bounds.y + bounds.height;
+  }
   expect(detailBox.y - (selector.y + selector.height), 'Feedback follows the choices without a large gap').toBeLessThan(32);
-  const detailDocumentY = await detail.evaluate(element => element.getBoundingClientRect().top + window.scrollY);
-  expect(detailDocumentY, 'Selected details do not require several full-screen scrolls').toBeLessThan(1500);
+  const contentExtent = await detail.evaluate(element => {
+    const main = element.closest('main');
+    return element.getBoundingClientRect().top - main.getBoundingClientRect().top + main.scrollTop;
+  });
+  expect(contentExtent, 'Selected details do not require several full-screen scrolls').toBeLessThan(1500);
   await third.press('ArrowRight');
   await expect(page.getByRole('region', { name: '已选择：四之气', exact: true })).toBeVisible();
   await settle(page);
   expect(diagnostics.requests).toHaveLength(1);
+  await expectPanelLayout(page);
   await screenshot(page, testInfo, 'mobile-stage-comparison');
 });
 

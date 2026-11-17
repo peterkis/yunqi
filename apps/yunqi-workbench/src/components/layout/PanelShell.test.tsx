@@ -47,8 +47,8 @@ describe('PanelShell', () => {
   });
 
   it.each([
-    ['/yunqi/year', '年度分析'], ['/yunqi/year/2026', '年度分析'],
-    ['/yunqi/year/abc', '年度分析'], ['/yunqi/calculate', '指定时点'],
+    ['/yunqi/year', '年度详情'], ['/yunqi/year/2026', '年度详情'],
+    ['/yunqi/year/abc', '年度详情'], ['/yunqi/calculate', '指定时点'],
     ['/yunqi/inquiry', '问诊规划'], ['/unknown', '页面未找到'],
     ['/yunqi/inquiry/patient', '页面未找到'],
   ])('shows deterministic drill-down navigation even on a direct visit to %s', async (route, title) => {
