@@ -19,6 +19,8 @@
 5. **文档**：更新 `tests/browser/README.md`（覆盖表、矩阵、测试数量）、`docs/agents/verification.md` 与 `workbench.md` 中“重构期间”的过渡性描述改为现状、`apps/yunqi-workbench/README.md` 与根 `README.md` 的工作台能力描述。
 6. 全量门禁通过。
 
+7. 字号断言覆盖新矩阵的全部视觉状态；删除 demo 规则时确认无 5 档以外字号残留。
+
 ## 验收标准
 
 - 新矩阵与断言落地，旧矩阵移除；测试数量与覆盖说明更新且可由结果复现。

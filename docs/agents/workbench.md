@@ -43,6 +43,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 - 颜色、字号、间距、圆角、阴影、尺寸只取[设计令牌](../design/design-system/tokens.json)，以CSS变量实现，不写裸值；浅/深两主题。
 - 字体与图标本地加载，禁止Google Fonts、在线字体和在线图标库；思源黑体/宋体完整字库随应用分发并附OFL许可。
   `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
+- 字号只用[全应用 5 档字号阶梯](../design/type-scale.md)（40/30/24 首眼、20、15、14、12），每屏不超过 5 级、首眼只一个。
 - [统一约束](../design/design-system/2-constraints.md)中的视觉、交互、文案、医疗安全和可访问性条目均为硬约束。
 - 设计中的HIS患者信息、“复制结论到病历”和宿主停靠超出当前授权，处理方式见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
 - 公共骨架已由 `PanelShell` 承载；视图内部按重构卡逐步迁移，保留未迁移内容的现有行为。

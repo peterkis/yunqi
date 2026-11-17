@@ -37,6 +37,7 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 | [C4](cards/C4-birth-comparison.md) | 先天 × 当下对照 | C2 | 开发中（并行） |
 | [C5](cards/C5-constitution.md) | 体质量表一题一屏 + 结果互参 + 对照内同页测评 | C4 | 待派发 |
 | [C6](cards/C6-drilldown-pages.md) | 年度、指定时点、问诊规划、未找到与反馈状态改为下钻页 | C2 | 开发中（并行） |
+| [T1](cards/T1-type-scale.md) | 全应用 5 档字号阶梯统一（[决定](../../design/type-scale.md)） | C3、C4、C6 合并 | 待派发 |
 | [C7](cards/C7-acceptance-cleanup.md) | 浏览器验收矩阵迁移、demo 样式清理、文档收口 | C3–C6 | 待派发 |
 
 后续阶段（另行授权）：Tauri 2 外壳、停靠窗口与收起胶囊、宿主适配层、离线安装与 WebView2、Windows 构建与签名。
@@ -57,8 +58,9 @@ Tauri 相关依赖（`@tauri-apps/api` 等）在 Tauri 阶段单独授权并更�
 | --- | --- | --- |
 | 1 | C2 | C1 |
 | 2 | C3、C4、C6 并行 | C2 验收提交 |
-| 3 | C5 | C4 验收合并后 |
-| 4 | C7 | C3–C6 全部合并后 |
+| 3 | T1 字号统一 | C3、C4、C6 合并后（2026-11-17 用户确认保留 5 级字号规则） |
+| 4 | C5 | T1 合并后 |
+| 5 | C7 | C5 合并后 |
 
 - 每张并行卡一个工作树 `.claude/worktrees/ui-cN`、一个分支 `feat/workbench-ui-refactor-cN`，从波次起点提交切出；
   各自 `pnpm install --offline` 与构建。Codex 在该工作树内运行（`-C <工作树>`）。

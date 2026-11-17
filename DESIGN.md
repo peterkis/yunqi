@@ -13,6 +13,7 @@
 | 设计原则、色彩、字体、字号与排版 | [design-system/README.md](docs/design/design-system/README.md) |
 | 面板骨架、网格、间距、层次、阴影、圆角 | [design-system/1-layout.md](docs/design/design-system/1-layout.md) |
 | 视觉、交互、文案、医疗安全、可访问性硬约束 | [design-system/2-constraints.md](docs/design/design-system/2-constraints.md) |
+| **全应用 5 档字号阶梯（本地决定，优先于逐样式字号）** | [docs/design/type-scale.md](docs/design/type-scale.md) |
 | 设计令牌（浅/深主题颜色、字体、间距、圆角、阴影、尺寸、z-index） | [design-system/tokens.json](docs/design/design-system/tokens.json) |
 | 本地字体与许可 | [NotoSansSC-VF.woff2](docs/design/design-system/fonts/NotoSansSC-VF.woff2)、[NotoSerifSC-VF.woff2](docs/design/design-system/fonts/NotoSerifSC-VF.woff2)、[OFL.txt](docs/design/design-system/fonts/OFL.txt) |
 | 上游在线规范 | <https://claude.ai/artifact/Uhzvz2FGqfiCoxk4JH8yGo> |
