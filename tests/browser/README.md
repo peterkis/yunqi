@@ -123,6 +123,31 @@ design reference; visual and walkthrough specs must be rewritten against
 [docs/design](../../docs/design/README.md) (400px side panel, collapsed pill)
 as the refactor lands.
 
+## UI refactor migration
+
+Every test run already rejects requests that leave the owned origin
+(`externalRequests` in `browser-diagnostics`): fonts, icons, styles and scripts
+must ship with the app because hospital networks have no internet access.
+
+Kept unchanged through the refactor: the owned real Service and Vite
+environment, the `America/New_York` browser zone, same-origin business requests,
+no runtime or unexpected console errors, axe WCAG 2.1 A/AA scans, horizontal
+overflow and control-fit checks, and per-run evidence under `.artifacts/browser/`.
+
+Replaced as each refactored view lands, in the same change as its UI code so
+`pnpm test:browser` stays green:
+
+| Area | Demo-era coverage | Refactor target from the design system |
+| --- | --- | --- |
+| Visual projects | 320–1440 px responsive matrix | Panel 400 × 860 light and dark; panel 400 × 640 (minimum height, content scrolls, header and footer fixed); collapsed pill 400 × 64; workstation 1366 × 900 with the docked panel |
+| Visual states | Demo routes and headings | The seven prototype boards: current default, original text drill-down, birth comparison, questionnaire in progress, constitution result, collapsed pill, workstation placement |
+| Layout assertions | Demo class names (`.annual-six-qi-selector`, `.current-yunqi-hero`, six questions per group) | Annual and current cards visible without scrolling at height ≥ 900; icon buttons ≥ 32 × 32; options and primary buttons ≥ 40 high; visible 2 px focus ring; no horizontal scroll at 400 px |
+| Flows | Demo navigation and forms | Three-segment navigation with `aria-current`, drill-down and back, one question per screen with keys 1–5 and previous question, answer destruction on edit/clear/end |
+
+Rows stay demo-era until their view is rewritten. Elements beyond the current
+authorization (HIS patient data, copying to the medical record, host docking)
+are not tested until they are approved.
+
 ## Evidence and CI
 
 Each run prints a unique directory under `.artifacts/browser/`. Subsequent

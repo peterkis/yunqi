@@ -7,3 +7,7 @@ packages/yunqi-contracts/contract/*.json text eol=lf
 docs/retrospectives/evidence/** -text
 docs/superpowers/verification/evidence/** -text
 docs/五运六气规则规格包_V1.0/** -text
+
+# Synced design-system copies and the prototype are verified by recorded sha256.
+docs/design/design-system/** -text
+docs/design/prototypes/** -text

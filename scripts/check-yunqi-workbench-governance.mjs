@@ -2011,6 +2011,81 @@ async function findIndexViolations(root) {
   return violations;
 }
 
+// The design system requires fonts, icons, styles and scripts to ship with the
+// app: hospital networks have no internet access. Remote references in the HTML
+// entry or in stylesheets are rejected; runtime requests are checked by the
+// browser acceptance fixture.
+const REMOTE_REFERENCE = String.raw`["']?\s*(?:[a-z][a-z\d+.-]*:)?\/\/`;
+const REMOTE_HTML_RESOURCE = new RegExp(
+  String.raw`<(?:link|script|img|iframe|source|video|audio|embed|object)\b[^>]*\b(?:src|href|srcset|data)\s*=\s*` +
+    REMOTE_REFERENCE,
+  'i',
+);
+const REMOTE_CSS_RESOURCE = new RegExp(
+  String.raw`(?:@import\s+(?:url\(\s*)?|url\(\s*)` + REMOTE_REFERENCE,
+  'i',
+);
+
+async function collectFilesByExtension(directory, extensions, violations) {
+  let entries;
+  try {
+    if ((await lstat(directory)).isSymbolicLink()) {
+      violations.push(`${normalizePath(directory)}: symbolic link in governed source is forbidden`);
+      return [];
+    }
+    entries = await readdir(directory, { withFileTypes: true });
+  } catch (error) {
+    if (error?.code === 'ENOENT') return [];
+    throw error;
+  }
+  const files = [];
+  for (const entry of entries) {
+    const target = resolve(directory, entry.name);
+    if (entry.isSymbolicLink() || SKIPPED_DIRECTORIES.has(entry.name)) continue;
+    if (entry.isDirectory()) {
+      files.push(...(await collectFilesByExtension(target, extensions, violations)));
+    } else if (entry.isFile() && extensions.has(extensionOf(entry.name))) {
+      files.push(target);
+    }
+  }
+  return files;
+}
+
+async function findOfflineResourceViolations(root) {
+  const violations = [];
+  const relativeIndex = `${WORKBENCH_ROOT}/index.html`;
+  try {
+    const html = (await readFile(resolve(root, relativeIndex), 'utf8')).replace(/<!--[\s\S]*?-->/g, '');
+    if (REMOTE_HTML_RESOURCE.test(html)) {
+      violations.push(`${relativeIndex}: remote resource reference is forbidden; ship fonts, icons, styles and scripts locally`);
+    }
+    for (const style of html.matchAll(/<style\b[^>]*>([\s\S]*?)<\/style\s*>/gi)) {
+      if (REMOTE_CSS_RESOURCE.test(style[1].replace(/\/\*[\s\S]*?\*\//g, ''))) {
+        violations.push(`${relativeIndex}: remote stylesheet resource is forbidden; ship fonts and assets locally`);
+      }
+    }
+  } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+  }
+  const stylesheets = [];
+  for (const directory of ['src', 'public']) {
+    stylesheets.push(...(await collectFilesByExtension(
+      resolve(root, WORKBENCH_ROOT, directory),
+      new Set(['.css']),
+      violations,
+    )));
+  }
+  for (const file of stylesheets) {
+    const css = (await readFile(file, 'utf8')).replace(/\/\*[\s\S]*?\*\//g, '');
+    if (REMOTE_CSS_RESOURCE.test(css)) {
+      violations.push(
+        `${normalizePath(relative(root, file))}: remote stylesheet resource is forbidden; ship fonts and assets locally`,
+      );
+    }
+  }
+  return violations;
+}
+
 async function findManifestViolations(root) {
   const relativeManifest = `${WORKBENCH_ROOT}/package.json`;
   const manifestPath = resolve(root, relativeManifest);
@@ -2322,6 +2397,7 @@ export async function findWorkbenchGovernanceViolations(
   return [
     ...(await findManifestViolations(root)),
     ...(await findIndexViolations(root)),
+    ...(await findOfflineResourceViolations(root)),
     ...(await findSourceViolations(root)),
   ];
 }
