@@ -32,3 +32,11 @@ D2 改先天表单与量表，D4 改当下页、原文页、胶囊与关系说�
 
 - 现有门禁全绿：`pnpm test`、`typecheck`、`test:coverage`、`test:project-guidance`、`test:browser`（axe 零违规、无外网请求、5 档字号断言）。
 - 视觉矩阵补齐后，各卡对受影响页面提供 400×860、1366×768、1920×1080 首屏截图供评审对照。
+
+## 完成状态（2026-11-18）
+
+D1–D5 均已验收并合入 `feat/workbench-ui-polish`（D2、D4 并行开发后按序合并，工作树与卡分支已删除）。
+最终门禁（评审方本机）：`pnpm test`、`typecheck`、`test:coverage`、`schema:validate`、`contracts:check`、`test:project-guidance`、`test:browser`（208 项）全部通过。远端 CI 待推送后运行。
+
+未做（需另行授权的 Domain/契约变更）：阶段节气名与“还有 N 天”、当步运关系（P1-7）、段内进度比例（P2-13，需 API 提供比例）。
+待决（Tauri 阶段）：收起态宿主窗口 416×80 会裁掉 `shadow-float` 模糊尾部，最终窗口尺寸或原生阴影待定。
