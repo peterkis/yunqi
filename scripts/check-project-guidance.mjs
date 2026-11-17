@@ -8,6 +8,7 @@ const requiredDocuments = [
   'codex/AGENTS.md',
   'README.md',
   'CODING_STANDARDS.md',
+  'DESIGN.md',
   'docs/agents/README.md',
   'docs/agents/rules-and-time.md',
   'docs/agents/api-contracts.md',
