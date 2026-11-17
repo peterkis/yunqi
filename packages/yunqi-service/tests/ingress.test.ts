@@ -70,19 +70,27 @@ it('closes drip-fed incomplete headers and drops connections beyond the connecti
 });
 
 it('bounds aggregate calculations across peers and recovers after its window', async () => {
+  // The window is driven by an injected monotonic clock so runner speed cannot move its edges.
+  // Start below windowMs: the first window must open at the first request, not at clock zero.
+  let clock = 960;
   app = await buildApp({
-    provider: fixedCalendarProvider, now: () => 1_716_210_000_000,
+    provider: fixedCalendarProvider, now: () => 1_716_210_000_000, ingressClock: () => clock,
     ingress: { requestsPerWindow: 2, requestsPerPeer: 2, windowMs: 1000 },
   });
   const first = await app.inject({ url: '/api/v1/yunqi/year/2024', remoteAddress: '127.0.0.2' });
   expect(first.statusCode).toBe(200);
   expect((await app.inject({ url: '/api/v1/yunqi/current', remoteAddress: '127.0.0.3' })).statusCode).toBe(200);
-  const denied = await app.inject({ method: 'POST', url: '/api/v1/yunqi/calculate',
+  const calculate = () => app.inject({ method: 'POST', url: '/api/v1/yunqi/calculate',
     payload: { dateTime: '2024-05-20T21:00:00+08:00' }, remoteAddress: '127.0.0.4' });
+  const denied = await calculate();
   expect(denied.statusCode).toBe(503);
   expect(denied.headers['retry-after']).toBe('1');
   expect(denied.json()).toEqual({ code: 'INTERNAL_ERROR', message: '服务繁忙，请稍后重试', details: {} });
-  await new Promise((resolve) => setTimeout(resolve, 1100));
+  clock = 960 + 999;
+  const stillDenied = await calculate();
+  expect(stillDenied.statusCode).toBe(503);
+  expect(stillDenied.json()).toEqual(denied.json());
+  clock = 960 + 1000;
   expect((await app.inject({ url: '/api/v1/yunqi/year/2024' })).json()).toEqual(first.json());
 });
 
