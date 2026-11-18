@@ -47,8 +47,10 @@ describe('birth presentation', () => {
       ['所处运', '客运独有方向', 'adverse'],
     ]);
     expect(rows[0].birth.label).toBe(`${base.learning.facts.suiYun.element}运${base.learning.facts.suiYun.state}`);
-    expect(rows[3].birth.detail).toContain(`客气 ${base.learning.facts.currentStep.guestQi}`);
-    expect(rows[4].current.detail).toContain('客运 木运不及（少角）');
+    expect(rows[3].birth.detail).toEqual([`主${base.learning.facts.currentStep.hostQi} · 客${base.learning.facts.currentStep.guestQi}`]);
+    expect(rows[4].current.detail).toEqual(['主太徵 · 客少角']);
+    expect(rows[3].birth.element).toBe('fire');
+    expect(rows[4].current.element).toBe('wood');
     expect(result.currentTime.localTime).toBe(dto.current.facts.input.localTime);
     expect(rows[0].relation?.sources).toEqual(relation.sources);
     expect(dto.candidates[0].comparisons).toHaveLength(1);
@@ -65,11 +67,14 @@ describe('birth presentation', () => {
     const result = mapBirthView({ ...dto, candidates: [{ ...candidate, learning: { ...learning, facts: {
       ...learning.facts, suiYun: { ...learning.facts.suiYun, element },
       sixQi: { ...learning.facts.sixQi, sitian: qi, zaiquan: qi },
-    } } }] });
+      currentStep: { ...learning.facts.currentStep, hostQi: '太阳寒水', guestQi: qi },
+    }, currentMovement: { ...learning.currentMovement, host: { ...learning.currentMovement.host, element: '水' }, guest: { ...learning.currentMovement.guest, element } } } }] });
     const rows = result.candidates[0].rows;
     expect(rows[0].birth.element).toBe(expected);
     expect(rows[1].birth.element).toBe(expected);
     expect(rows[2].birth.element).toBe(expected);
+    expect(rows[3].birth.element).toBe(expected);
+    expect(rows[4].birth.element).toBe(expected);
   });
 
   it('retains every interval and historical scope without showing a sampled instant as an unknown birth time', () => {

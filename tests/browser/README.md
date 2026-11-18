@@ -86,18 +86,18 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
 | Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; shell primary switches from 查看对照 to 同时测评体质 |
-| Constitution | Button segments for sex, collapsed version eyebrow while answering; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
+| Constitution | Button segments for sex; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared shell actions with standalone assessment, end/reopen/reset and stale response isolation |
-| Result/actions (D3) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, matched chips only for ≥2 matches and tendencies whenever present, all in DTO order and neutral tone; no sex-change eyebrow on results, one readonly version meta in its disclosure; API summary/boundary disclosure, result drill-down header; external form association, pinned actions and content → actions → footer order |
+| Result/actions (D3/F5) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, neutral matched chips only for ≥2 matches; favorable `<简称> 倾向` chips without digits beside the title (vertical centers within 2px, wrapped groups centered as a whole); standard DTO bar order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three equal parallel context blocks; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
-| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
+| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; interactive focus targets keep a 2px ring, with the F4 question-announcement exception below; axe WCAG 2.1 A/AA scans |
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 25 panel states, each run in all six panel /
+`workbench.visual.spec.mjs` has 26 panel states, each run in all six panel /
 workstation projects. The collapsed-pill spec adds two theme states at its
 424 × 88 host viewport, containing the unchanged 400 × 64 pill with 12px
 left/right, 10px top and 14px bottom margins. The seven prototype boards are represented as follows:
@@ -106,11 +106,11 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 | --- | --- |
 | ① Current default | `current`, `current-stage-facts` (real calculated 2026-11-18 snapshot) |
 | ② Original text | `current-classics`, `annual-classics` |
-| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics` |
+| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics`, `birth-annual-classics` |
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
-| ⑦ Workstation placement | All 25 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
+| ⑦ Workstation placement | All 26 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
 | Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
@@ -123,13 +123,13 @@ are retained as evidence only, not as an approved visual baseline.
 
 | Project | Viewport | Theme / states |
 | --- | --- | --- |
-| `panel-light` | 400 × 860 | Light, 25 panel states |
-| `panel-dark` | 400 × 860 | Dark, 25 panel states |
-| `panel-min-height` | 400 × 640 | Light, 25 panel states; current content scrolls while header, navigation and footer stay fixed |
+| `panel-light` | 400 × 860 | Light, 26 panel states |
+| `panel-dark` | 400 × 860 | Dark, 26 panel states |
+| `panel-min-height` | 400 × 640 | Light, 26 panel states; current content scrolls while header, navigation and footer stay fixed |
 | `collapsed-pill` | 424 × 88 host | Light and dark, two states; 400 × 64 pill, 12/10/14px margins, transparent host |
-| `workstation-light` | 1366 × 900 | Light, 25 states; 400px panel at the right edge |
-| `workstation-768` | 1366 × 768 | Light, 25 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
-| `workstation-1080` | 1920 × 1080 | Light, 25 states; same right-edge panel |
+| `workstation-light` | 1366 × 900 | Light, 26 states; 400px panel at the right edge |
+| `workstation-768` | 1366 × 768 | Light, 26 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+| `workstation-1080` | 1920 × 1080 | Light, 26 states; same right-edge panel |
 
 Collapsed host contract for the standalone Tauri window: **424×88 = 胶囊 400×64 +
 左右各 12、上 10、下 14 外边距**, transparent background. Browser tests simulate
@@ -147,8 +147,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **65 flow/foundation/oracle tests + 152 visual/accessibility
-tests = 217 tests in 12 files**. These are test cases and repeated state checks,
+The suite discovers **67 flow/foundation/oracle tests + 158 visual/accessibility
+tests = 225 tests in 12 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -164,6 +164,30 @@ visible partial fill at 400×860, 1366×768 and 1920×1080 (and the other panel
 projects), with the existing type-scale, layout, screenshot and axe gates.
 Three stage-facts flows exercise that snapshot and qi/movement end-date clocks;
 the default current state still uses the runner's original fixed system clock.
+
+F2's `current-classics` and `annual-classics` replay the real 2026-11-18
+calculation in the same way. These and both birth reading scopes run at
+400×860, 1366×768 and 1920×1080 (and the other panel projects). K01 checks
+the current/neutral badges, original → interpretation → source order, serif/sans
+font stacks, and ≥4.5:1 label/badge contrast in both themes. The trailing notice
+stays visible while scrolling and expanding full passages.
+
+F4's `constitution-questions` and embedded `birth-assessment` capture question 5
+with five retained answers in every panel project, including 400×860,
+1366×768 and 1920×1080. They check the merged two-column context, nine progress
+cells, 48px options with five 7px degree dots, the question-only accent header
+and ≥4.5:1 header contrast. Two theme flows exercise the 160ms digit advance:
+the new question receives focus with no outline, while Tab to an option keeps
+its 2px ring. Calculation/version details follow the form beside the source
+disclosure; the keyboard traversal assertions follow this new order.
+
+F5's `constitution-result` and embedded `birth-assessment-result` use a fixed
+answer vector with one matched type and two tendencies, checked against the
+real Service response. Both states cover 400×860, 1366×768 and 1920×1080 (and
+the other panel projects), checking title/chip alignment, favorable chip
+contrast, standard-order horizontal bars, equal context columns, typography,
+screenshots and axe. The standalone state replays the real 2026-11-18 current
+calculation; the embedded state keeps its birth response's current snapshot.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one
@@ -182,7 +206,9 @@ content below the current scroll position.
 Focus checks visit every available button, link, input, select, summary and
 explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
-original regression assertions. D5 uses local 140ms ease-out tokens for selection
+original regression assertions. Only `h3.constitution-question-title[tabindex="-1"]`
+asserts `outline-style: none`, as required by F4 for programmatic announcements.
+D5 uses local 140ms ease-out tokens for selection
 and disclosure motion, without transitioning outlines; reduced motion cancels
 transitions and animations. Native disclosure remains instant when intrinsic-size
 interpolation is unavailable. The previously observed not-found initial stylesheet timing

@@ -30,7 +30,7 @@ describe('birth classics navigation', () => {
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(within(form).getByRole('radio', { name: '男' }));
-    await user.click(within(form).getAllByRole('radio', { name: '有时' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth\/classics$/);
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
@@ -95,14 +95,14 @@ describe('birth classics navigation', () => {
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     const reading = screen.getByRole('region', { name: '先天原文与释义' });
     expect(within(reading).queryByText(/可能出生区间/)).not.toBeInTheDocument();
-    const source = within(screen.getByRole('region', { name: '出生运气原文' })).getByRole('link', { name: /查看原文出处/ });
+    const source = within(screen.getByRole('region', { name: '出生运气原文' })).getByRole('link', { name: /^出处/ });
     expect(source).toHaveClass('learning-text-link');
     expect(source).toHaveAccessibleName(expect.stringContaining('新窗口打开'));
     expect(source).toHaveAttribute('target', '_blank');
     expect(source).toHaveAttribute('rel', 'noreferrer');
     await user.click(within(reading).getByRole('button', { name: '全年' }));
     await user.click(within(reading).getByText('展开全段'));
-    expect(within(reading).getByText(`“${quote}”`, { exact: true })).toBeVisible();
+    expect(within(reading).getByText(quote, { exact: true })).toBeVisible();
     expect(within(reading).queryByText(/““/)).not.toBeInTheDocument();
     await user.click(within(reading).getByRole('button', { name: '出生阶段' }));
     expect(within(reading).getByRole('button', { name: '出生阶段' })).toHaveAttribute('aria-pressed', 'true');

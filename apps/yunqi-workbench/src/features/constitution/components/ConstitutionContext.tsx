@@ -1,19 +1,30 @@
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
+import { ElementDot } from '../../../components/design/ElementDot';
 import { InlineText } from '../../../components/design/InlineText';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import type { ConstitutionContextViewModel } from '../presentation/map-constitution';
 
-export function ConstitutionContext({ context }: { readonly context?: ConstitutionContextViewModel }) {
+export function ConstitutionContext({ context, children }: { readonly context?: ConstitutionContextViewModel; readonly children?: ReactNode }) {
   const birth = context?.birth;
   return (
     <aside className="constitution-context" aria-label="本次测评对照背景">
       <dl className="constitution-context-rows">
-        <div><dt>当下</dt><dd><InlineText>{context?.current.summary ?? '当前快照尚未载入'}</InlineText></dd></div>
-        {birth ? <div><dt>先天</dt><dd>{birth.candidates.map((candidate, index) => (
-          <span className="constitution-context-candidate" key={index}>{birth.ambiguous ? `${candidate.label}：` : ''}<InlineText>{candidate.summary}</InlineText></span>
-        ))}</dd></div> : null}
+        <div><dt>当下</dt><dd>{context?.current.element ? <ElementDot compact element={context.current.element} label={context.current.summary} /> : <InlineText>{context?.current.summary ?? '当前快照尚未载入'}</InlineText>}</dd></div>
+        <div><dt>先天</dt><dd>{birth?.candidates.length ? birth.candidates.length > 1 ?
+          <span className="num" role="group" aria-label={birth.candidates.map((candidate) => `${candidate.label}：${candidate.summary}`).join('；')}>{birth.candidates.length} 个候选</span>
+          : <InlineText>{birth.candidates[0].summary}</InlineText>
+          : <Link to="/yunqi/birth">未填写 · 去对照 ›</Link>}</dd></div>
       </dl>
-      {context ? <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p> : null}
+      {children}
+    </aside>
+  );
+}
+
+export function ConstitutionContextDetails({ context }: { readonly context?: ConstitutionContextViewModel }) {
+  const birth = context?.birth;
+  return <>
       {birth ? <details className="constitution-context-details">
         <summary>本次对照快照与候选区间</summary>
         <p><InlineText>{context.current.detail}</InlineText></p>
@@ -31,12 +42,12 @@ export function ConstitutionContext({ context }: { readonly context?: Constituti
       </details> : null}
       {context ? <details className="constitution-time-details">
         <summary>计算说明与版本</summary>
+        <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p>
         <YunQiTimeDetails entries={[
           { label: '当下快照', start: context.current.time },
           ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision === 'date' ? { end: candidate.until } : {}) })) : []),
         ]} />
         <p className="num"><InlineText>{`${context.current.contractId} · ${context.current.ruleVersion} · ${context.current.learningRuleVersion}`}</InlineText></p>
       </details> : null}
-    </aside>
-  );
+    </>;
 }

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>运气通 · 体质结果（组合 1 定稿）</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:var(--surface-page)}
+a{color:var(--accent);text-decoration:none}a:hover{color:var(--accent-hover)}
+.lbl{font-size:11px;letter-spacing:.08em;color:var(--ink-tertiary)}
+.meta{font-size:11.5px;color:var(--ink-tertiary)}
+.iconbtn{width:32px;height:32px;border:0;background:transparent;border-radius:var(--radius-sm);display:inline-flex;align-items:center;justify-content:center;color:var(--ink-tertiary);padding:0;cursor:pointer}
+.tab{flex:1;height:32px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);font-size:13px;color:var(--ink-secondary)}
+.card{background:var(--surface-card);border:1px solid var(--border-default);border-radius:var(--radius-lg)}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--radius-full);font-size:12px;font-weight:600;white-space:nowrap}
+.fav{background:var(--relation-favorable-bg);color:var(--relation-favorable-fg)}
+.neu{background:var(--relation-neutral-bg);color:var(--relation-neutral-fg)}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;box-sizing:border-box}
+.key{width:22px;height:22px;border-radius:var(--radius-xs);background:var(--surface-sunken);color:var(--ink-secondary);font-size:12px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;flex:none}
+.keyOn{background:var(--accent);color:var(--accent-on)}
+.btn2{height:40px;padding:0 16px;border:1px solid var(--border-strong);border-radius:var(--radius-md);background:var(--surface-card);font:inherit;font-size:13.5px;color:var(--ink-secondary)}
+.ghost{height:36px;padding:0 12px;border:0;border-radius:var(--radius-sm);background:transparent;font:inherit;font-size:13px;color:var(--ink-secondary)}
+.ok{background:var(--relation-favorable-bg);color:var(--relation-favorable-fg)}
+.warn{background:var(--relation-adverse-bg);color:var(--relation-adverse-fg)}
+.metal{background:var(--element-metal-fill);border:1.5px solid var(--element-metal-ring)}
+.serif{font-family:var(--font-serif)}
+.num{font-variant-numeric:tabular-nums}
+.q{margin:0;font-family:var(--font-serif);font-weight:600;color:var(--ink-primary)}
+</style>
+</helmet>
+<div style="width:400px;height:860px;box-sizing:border-box;background:var(--surface-page);font-family:var(--font-sans);color:var(--ink-primary);display:flex;flex-direction:column">
+  <header style="height:52px;flex:none;display:flex;align-items:center;gap:10px;padding:0 10px 0 16px;border-bottom:1px solid var(--border-default)">
+    <div style="width:22px;height:22px;border-radius:var(--radius-xs);background:var(--accent);color:var(--accent-on);font-family:var(--font-serif);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center">运</div>
+    <div style="display:flex;flex-direction:column;line-height:1.25;flex:1">
+      <span style="font-size:13px;font-weight:600">运气通</span>
+      <span style="font-size:11px;color:var(--ink-tertiary)">教学参考 · 本次会话不关联患者</span>
+    </div>
+    <button class="iconbtn" aria-label="切换深色"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"></path></svg></button>
+    <button class="iconbtn" aria-label="收起为胶囊条"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"></path></svg></button>
+  </header>
+  <nav aria-label="视图" style="flex:none;margin:12px 16px 0;padding:3px;background:var(--surface-sunken);border-radius:var(--radius-md);display:flex;gap:2px">
+    <a class="tab" href="Main.dc.html" >当下运气</a>
+    <a class="tab" href="Birth.dc.html" >先天对照</a>
+    <a class="tab" href="Constitution.dc.html" aria-current="page" style="background:var(--surface-card);color:var(--ink-primary);font-weight:600;box-shadow:var(--shadow-segment)">体质量表</a>
+  </nav>
+  <main style="flex:1;overflow:auto;padding:14px 16px 16px;display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:600">体质测评结果</span><span class="meta">男性版 · 26/26 题 · 11-18 15:20</span></div>
+      <span class="chip neu">示例数据</span>
+    </div>
+    <section class="card" style="padding:16px 18px">
+      <span class="lbl">判定</span>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:6px"><span class="serif" style="font-size:30px;font-weight:700;line-height:1.1">气虚质</span><span class="chip fav">阳虚 倾向</span></div>
+      <p class="meta" style="margin:8px 0 0;line-height:1.6">转化分 ≥40 判为“是”，30–39 为“倾向是”；平和质需 ≥60 且其余均 &lt;30</p>
+    </section>
+    <section class="card" style="padding:14px 16px 10px"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><span class="lbl">九质转化分</span><span class="meta">刻度 30 · 40</span></div><div role="list" aria-label="九种体质转化分" style="display:flex;flex-direction:column;gap:4px"><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="font-weight:600">气虚</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:46.9%;height:8px;border-radius:4px;background:var(--data-primary)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:700">46.9</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">平和</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:43.8%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">43.8</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="font-weight:600">阳虚</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:34.4%;height:8px;border-radius:4px;background:var(--data-secondary)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:700">34.4</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">痰湿</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:25.0%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">25.0</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">阴虚</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:21.9%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">21.9</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">气郁</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:18.8%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">18.8</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">湿热</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:16.7%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">16.7</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">血瘀</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:12.5%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">12.5</span></div><div style="display:grid;grid-template-columns:52px minmax(0,1fr) 36px;align-items:center;column-gap:10px;height:24px;font-size:12.5px"><span style="color:var(--ink-secondary)">特禀</span><span style="position:relative;height:8px;border-radius:4px;background:var(--data-track)"><span style="display:block;width:9.4%;height:8px;border-radius:4px;background:var(--data-neutral)"></span><span style="position:absolute;top:-3px;left:30%;width:1px;height:14px;background:var(--data-tick)"></span><span style="position:absolute;top:-3px;left:40%;width:1px;height:14px;background:var(--data-tick)"></span></span><span style="text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-secondary)">9.4</span></div></div></section>
+    <section class="card" style="padding:14px 16px"><span class="lbl">与运气互参</span><div style="margin-top:10px"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+        <div style="padding:10px;background:var(--surface-page);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:3px"><span class="meta">体质</span><span style="font-size:13px;font-weight:600">气虚 · 倾向阳虚</span></div>
+        <div style="padding:10px;background:var(--surface-page);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:3px"><span class="meta">先天</span><span style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px"><span class="dot" style="background:var(--element-metal-fill);border:1.5px solid var(--element-metal-ring)"></span>庚申 · 金运太过</span></div>
+        <div style="padding:10px;background:var(--surface-page);border-radius:var(--radius-sm);display:flex;flex-direction:column;gap:3px"><span class="meta">当下</span><span style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px"><span class="dot" style="background:var(--element-fire)"></span>五之气 · 相火加临</span></div>
+      </div></div><p class="meta" style="margin:10px 0 0;line-height:1.6">体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。</p></section>
+  </main>
+  <div style="flex:none;padding:12px 16px;border-top:1px solid var(--border-default);display:flex;justify-content:space-between;align-items:center">
+    <button class="ghost" type="button">‹ 返回修改</button>
+    <button class="btn2" type="button">结束并销毁答卷</button>
+  </div>
+  <footer style="flex:none;height:36px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--border-default);font-size:11px;color:var(--ink-tertiary)">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":400,"height":860}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

@@ -11,6 +11,8 @@ describe('mapCurrentYunQi', () => {
       currentStepProgress: { elapsedRatio: 0.929, remainingCalendarDays: 4, endsOnInputDate: false },
     });
     expect(result.currentStepProgress.subtitle).toBe('秋分 → 小雪 · 还有 4 天');
+    expect(result.currentStepProgress.rangeLabel).toBe('秋分 → 小雪');
+    expect(result.currentStepProgress.remainingLabel).toBe('还有 4 天');
   });
 
   it('slices the API end clock when the current qi ends today', () => {
@@ -20,6 +22,7 @@ describe('mapCurrentYunQi', () => {
       currentStepProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
     });
     expect(result.currentStepProgress.subtitle).toBe('小满 → 大暑 · 今日 23:59 交气');
+    expect(result.currentStepProgress.remainingLabel).toBe('今日 23:59 交气');
   });
 
   it.each([

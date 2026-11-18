@@ -16,6 +16,29 @@ function renderPage() {
 }
 
 describe('CurrentYunQiPage', () => {
+  it('places the fourteen period cells in one shared grid with seven explicit paired rows', () => {
+    const { learning } = renderPage();
+    const qi = screen.getByRole('region', { name: '当步气' });
+    const movement = screen.getByRole('region', { name: '当步运' });
+    const grid = document.querySelector('.current-period-grid')!;
+    const columns = [
+      { region: qi, column: 1, text: ['三之气', '小满 → 大暑', '还有 34 天', `主气${learning.facts.currentStep.hostQi}`, `客气${learning.facts.currentStep.guestQi}`, '相得', '客生主'] },
+      { region: movement, column: 3, text: ['二之运', '春分后13日 → 芒种后10日', '还有 34 天', '主运火运太过', '客运木运不及', '相得\u202f·\u202f客生主', '客木生主火'] },
+    ];
+    expect(grid.querySelectorAll('.current-period-cell')).toHaveLength(14);
+    for (const { region, column, text } of columns) {
+      expect(region.parentElement).toBe(grid);
+      const cells = [...region.querySelectorAll('.current-period-cell')];
+      expect(cells.map((cell) => cell.textContent)).toEqual(text);
+      for (const [index, cell] of cells.entries()) {
+        expect(cell).toHaveStyle({ gridColumn: `${column}`, gridRow: `${index + 1}` });
+      }
+    }
+    const page = grid.closest('.current-overview')!;
+    expect([...page.children].filter((child) => child.matches('.current-overview__annual, .current-overview__now, .current-overview__quote, .current-more'))
+      .map((child) => child.className)).toEqual(['current-overview__annual', 'current-overview__now', 'current-overview__quote', 'current-more']);
+  });
+
   it('groups four ordered More rows outside the cards, with native disclosures and route links', () => {
     renderPage();
     const more = screen.getByRole('navigation', { name: '更多运气分析' });
@@ -58,8 +81,9 @@ describe('CurrentYunQiPage', () => {
   it('shows the movement DTO relation with the same chip as qi and no placeholder', () => {
     renderPage();
     const movement = screen.getByRole('region', { name: '当步运' });
-    expect(movement).toHaveTextContent('火运太过（太徵）');
-    expect(movement).toHaveTextContent('木运不及（少角）');
+    expect(movement).toHaveTextContent('火运太过');
+    expect(movement).toHaveTextContent('木运不及');
+    expect(movement).not.toHaveTextContent(/太徵|少角/);
     expect(within(movement).getByText('相得 · 客生主')).toHaveClass('ds-relation__chip--favorable');
     expect(within(movement).getByText('客木生主火')).toBeVisible();
     expect(movement).not.toHaveTextContent('关系未提供');
@@ -86,32 +110,39 @@ describe('CurrentYunQiPage', () => {
     expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.facts.interval.start.localTime);
     expect(annual).toHaveTextContent('水运太过之年');
     expect(within(annual).getByText('水运太过')).toBeVisible();
-    expect(within(annual).getByText('太羽')).toBeVisible();
+    expect(within(annual).queryByText('太羽')).toBeNull();
     expect(within(annual).getByText('少阳相火')).toBeVisible();
     expect(within(annual).getByText('厥阴风木')).toBeVisible();
     expect(annual.querySelectorAll('.ds-element__dot')).toHaveLength(3);
     expect(within(annual).getByText('不和')).toHaveClass('ds-relation__chip--adverse');
     expect(annual).toHaveTextContent(dto.annualRelation.relation);
 
-    const now = screen.getByRole('region', { name: '此刻\u202f·\u202f2026-06-19' });
-    expect(now).toHaveTextContent('北京时间 UTC+08');
+    const now = screen.getByRole('region', { name: '当下所处的气与运' });
+    expect(now).not.toHaveTextContent('北京时间 UTC+08');
+    expect(now.querySelector('.ds-info-card__eyebrow')).toBeNull();
     expect(now.querySelector('.current-observed-time')).toBeNull();
+    expect(document.querySelector('.current-sixqi-progress')).toBeNull();
     expect(now.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
-    const progress = within(now).getByRole('img');
-    expect(progress).toHaveAccessibleName('六步气进度：第1步初之气，已结束；第2步二之气，已结束；第3步三之气，当前，已过约 47%；第4步四之气，未开始；第5步五之气，未开始；第6步终之气，未开始');
-    expect(progress.children).toHaveLength(6);
-    expect(progress.querySelectorAll('.is-completed')).toHaveLength(2);
-    expect(progress.querySelectorAll('.is-current')).toHaveLength(1);
+    const progress = within(annual).getByRole('img');
+    expect(progress).toHaveAccessibleName('年轮：外环六步气，当前第3步三之气，已过约 47%；内环五步运，当前第2运二之运，已过约 47%');
+    expect(progress.querySelectorAll('[data-ring="qi"] > g')).toHaveLength(6);
+    expect(progress.querySelectorAll('[data-ring="qi"] .is-completed')).toHaveLength(2);
+    expect(progress.querySelectorAll('[data-ring="qi"] .is-current')).toHaveLength(1);
+    expect(within(annual).getByText('外环 · 六步气')).toBeVisible();
+    expect(within(annual).getByText('内环 · 五步运')).toBeVisible();
     const qi = within(now).getByRole('region', { name: '当步气' });
     expect(within(qi).getByRole('heading', { name: '三之气' })).toBeVisible();
-    expect(qi.querySelector('.current-period__subtitle')).toHaveTextContent('小满 → 大暑 · 还有 34 天');
+    expect(qi.querySelector('.current-period-cell--range')).toHaveTextContent('小满 → 大暑');
+    expect(qi.querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
     expect(qi.querySelectorAll('time')).toHaveLength(0);
     expect(within(qi).getByText('相得')).toHaveClass('ds-relation__chip--favorable');
     expect(qi).toHaveTextContent('客生主');
     const movement = within(now).getByRole('region', { name: '当步运' });
-    expect(movement).toHaveTextContent('火运太过（太徵）');
-    expect(movement).toHaveTextContent('木运不及（少角）');
-    expect(movement.querySelector('.current-period__subtitle')).toHaveTextContent('春分后13日 → 芒种后10日 · 还有 34 天');
+    expect(movement).toHaveTextContent('火运太过');
+    expect(movement).toHaveTextContent('木运不及');
+    expect(movement).not.toHaveTextContent(/太徵|少角/);
+    expect(movement.querySelector('.current-period-cell--range')).toHaveTextContent('春分后13日 → 芒种后10日');
+    expect(movement.querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
     expect(movement.querySelectorAll('time')).toHaveLength(0);
     expect(screen.getByRole('link', { name: '年度详情' })).toHaveAttribute('href', '/yunqi/year/2026');
     expect(screen.getByRole('link', { name: '指定时点' })).toHaveAttribute('href', '/yunqi/calculate');
@@ -129,19 +160,23 @@ describe('CurrentYunQiPage', () => {
       currentMovementProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
     });
     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
-    expect(screen.getByRole('region', { name: '当步气' })).toHaveTextContent('小满 → 大暑 · 今日 12:00 交气');
-    expect(screen.getByRole('region', { name: '当步运' })).toHaveTextContent('春分后13日 → 芒种后10日 · 今日 23:59 交运');
+    const qi = screen.getByRole('region', { name: '当步气' });
+    const movement = screen.getByRole('region', { name: '当步运' });
+    expect(qi.querySelector('.current-period-cell--range')).toHaveTextContent('小满 → 大暑');
+    expect(qi.querySelector('.current-period-cell--remaining')).toHaveTextContent('今日 12:00 交气');
+    expect(movement.querySelector('.current-period-cell--range')).toHaveTextContent('春分后13日 → 芒种后10日');
+    expect(movement.querySelector('.current-period-cell--remaining')).toHaveTextContent('今日 23:59 交运');
   });
 
-  it.each([0, 0.375, 0.929, 0.999])('fills only the current segment from the supplied ratio %s', (elapsedRatio) => {
+  it.each([0, 0.375, 0.929, 0.999])('keeps the current ring segment solid and announces the supplied ratio %s', (elapsedRatio) => {
     const dto = createLearningDto();
     const learning = mapLearning({ ...dto, facts: { ...dto.facts, currentStepProgress: { ...dto.facts.currentStepProgress, elapsedRatio } } });
     const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
-    const fills = container.querySelectorAll('.current-sixqi-progress__elapsed');
-    expect(fills).toHaveLength(1);
-    expect(fills[0]).toHaveStyle({ width: `${elapsedRatio * 100}%` });
-    expect(fills[0].closest('.current-sixqi-progress__step')).toHaveClass('is-current');
-    expect(fills[0].closest('[role="img"]')).toHaveAccessibleName(new RegExp(`当前，已过约 ${Math.round(elapsedRatio * 100)}%`));
+    const progress = screen.getByRole('img');
+    expect(container.querySelectorAll('[data-ring="qi"] .is-current > path')).toHaveLength(1);
+    expect(progress.querySelector('[data-ring="qi"] .is-current > path')).toHaveStyle({ fill: 'var(--accent)' });
+    expect(progress).toHaveAccessibleName(new RegExp(`当前第3步三之气，已过约 ${Math.round(elapsedRatio * 100)}%`));
+    expect(progress.querySelector('linearGradient, clipPath, mask')).toBeNull();
   });
 
   it.each(['主客同运', '同属火运 · 太少不同'])('shows only the traditionalLabel %s for a same-element movement', (label) => {
@@ -180,6 +215,8 @@ describe('CurrentYunQiPage', () => {
     const movements = screen.getByRole('region', { name: '五步运全表' });
     expect(within(movements).getAllByRole('region')).toHaveLength(dto.movements.length);
     expect(movements).toHaveTextContent(dto.currentMovement.boundaryMethod);
+    expect(movements).toHaveTextContent('火运太过（太徵）');
+    expect(movements).toHaveTextContent('木运不及（少角）');
     expect(within(movements).getByText(dto.movements[0].relation.traditionalLabel)).toHaveClass('ds-relation__chip--favorable');
     expect(within(movements).getByText('客木生主火')).toBeVisible();
     await user.click(allStages);

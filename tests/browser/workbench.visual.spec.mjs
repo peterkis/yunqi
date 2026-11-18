@@ -1,16 +1,16 @@
-import { fillBirthDate } from './birth-helpers.mjs';
+import { fillBirthDate, expectBirthMirror } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
-import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout } from './constitution-helpers.mjs';
+import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
   { name: 'current-stage-facts', path: '/yunqi/current', current: true, snapshot: '2026-11-18T08:44:00+08:00' },
-  { name: 'current-classics', path: '/yunqi/current/classics', classics: true },
-  { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true },
+  { name: 'current-classics', path: '/yunqi/current/classics', classics: true, snapshot: '2026-11-18T08:44:00+08:00' },
+  { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'annual-entry', path: '/yunqi/year', ready: '选择运气年' },
   { name: 'annual-result', path: '/yunqi/year/2024', ready: '年度概览' },
   { name: 'annual-invalid', path: '/yunqi/year/1899', ready: '选择运气年', message: '年份范围应为 1900–2100' },
@@ -24,13 +24,14 @@ const cases = [
   { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
   { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
+  { name: 'birth-annual-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true, annualClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
   { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
   { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
-  { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true },
+  { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
 ];
 
@@ -96,6 +97,7 @@ for (const state of cases) {
       if (state.birthClassics) {
         await page.getByRole('link', { name: '全部原文', exact: true }).click();
         await expect(page.getByRole('region', { name: '先天原文与释义', exact: true })).toBeVisible();
+        if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
       }
     }
     if (state.birthAssessment) {
@@ -103,17 +105,28 @@ for (const state of cases) {
     }
     if (state.questionnaire) {
       if (state.constitutionComplete || state.constitutionResult) {
-        await answerConstitution(page);
+        await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : {});
         if (state.constitutionResult) {
           const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
           await page.getByRole('button', { name: '查看结果', exact: true }).click();
           const { data } = await (await scoreResponse).json();
+          expect(data.matchedTypes).toEqual(['phlegm_dampness']);
+          expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
           await expectConstitutionResults(page, data);
         }
       } else {
         await page.getByRole('radio', { name: '男', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
+        // F4 first-screen reference: five answers retained, editing question 5.
+        for (let number = 1; number <= 5; number += 1) {
+          await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
+          await page.keyboard.press('3');
+        }
+        await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 6 题/);
+        await page.getByRole('button', { name: '上一题', exact: true }).click();
+        await expect(page.locator('.constitution-question-title')).toBeFocused();
+        await page.getByRole('main').evaluate(main => { main.scrollTop = 0; });
       }
     }
     if (acceptanceTheme === 'dark') {
@@ -124,16 +137,29 @@ for (const state of cases) {
     await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
     if (state.current) {
-      // Recheck computed progress in the selected theme, alongside the existing
+      // Recheck the solid year-wheel segments and all seven aligned grid rows
+      // in the selected theme, alongside the existing
       // typography, geometry, screenshot and axe gates in every matrix project.
       const { data } = await (await currentResponse).json();
       await expectCurrentStageFacts(page, data);
       await expectMoreRows(page);
+      if (panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
+        expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Current view opens at the first screen').toBe(0);
+        await expect(page.locator('.current-year-heading h3')).toBeInViewport({ ratio: 1 });
+        for (const heading of await page.locator('.current-period-cell--title h3').all()) await expect(heading).toBeInViewport({ ratio: 1 });
+      }
     }
     if (state.classics) {
       await expectClassicsAlignment(page);
-      const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+      await expectClassicsCards(page, testInfo);
+      const cards = page.locator('.classics-card');
+      const currentCards = page.locator('.classics-card--current');
+      await expect(currentCards).toHaveCount(state.annualClassics ? 0 : await cards.count());
+      await expect(cards.locator('.classics-card__badge')).toHaveText(
+        Array.from({ length: await cards.count() }, () => state.annualClassics ? '全年适用' : '正在此段'));
+      const notice = page.getByText('原文为文献线索，非个体发病预测', { exact: true });
       const readings = page.locator('.current-classics__readings');
+      expect(await readings.locator(':scope > :last-child').getAttribute('class')).toBe('classics-reading-notice');
       await expect(notice).toHaveCount(1);
       await expect(notice).toBeInViewport({ ratio: 1 });
       for (const summary of await readings.locator('details > summary').all()) {
@@ -147,6 +173,26 @@ for (const state of cases) {
         await expect(notice).toBeInViewport({ ratio: 1 });
       }
       expect(await page.getByRole('main').evaluate(main => main.scrollHeight - main.clientHeight)).toBeLessThanOrEqual(1);
+    }
+    if (state.birthClassics) {
+      await expectClassicsCards(page, testInfo);
+      await expect(page.locator('.classics-card--current')).toHaveCount(0);
+      const readings = page.locator('.birth-classics__readings');
+      const notice = readings.locator(':scope > .classics-reading-notice');
+      await expect(notice).toHaveCount(1);
+      const badges = readings.locator('.birth-reading-candidate .classics-card__badge');
+      await expect(badges).toHaveText(Array.from({ length: await badges.count() }, () => state.annualClassics ? '全年适用' : '出生阶段'));
+      for (const summary of await readings.locator('.classics-card details > summary').all()) {
+        if (!await summary.isVisible()) continue;
+        await summary.press('Enter');
+        await summary.locator('..').locator('blockquote').scrollIntoViewIfNeeded();
+        await expect(notice).toBeInViewport({ ratio: 1 });
+        await summary.press('Space');
+      }
+      for (const position of ['bottom', 'top']) {
+        await readings.evaluate((region, to) => { region.scrollTop = to === 'bottom' ? region.scrollHeight : 0; }, position);
+        await expect(notice).toBeInViewport({ ratio: 1 });
+      }
     }
     if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
       expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);
@@ -194,10 +240,11 @@ for (const state of cases) {
       }
     }
     if (state.birth && !state.birthClassics) {
+      await expectBirthMirror(page);
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
         columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
         headings: [...table.querySelectorAll('.birth-table__year strong')].map(element => Number.parseFloat(getComputedStyle(element).fontSize)),
-        years: [...table.querySelectorAll('.birth-table__year > span')].map(element => Number.parseFloat(getComputedStyle(element).fontSize)),
+        headerTimesAndYears: table.querySelectorAll('thead time, .birth-table__year > span').length,
         values: [...table.querySelectorAll('.birth-table__value')].map(element => ({
           size: Number.parseFloat(getComputedStyle(element).fontSize),
           weight: getComputedStyle(element).fontWeight,
@@ -209,14 +256,14 @@ for (const state of cases) {
           .filter(element => element.getClientRects().length && element.textContent.trim() && !element.closest('.visually-hidden'))
           .map(element => getComputedStyle(element).fontSize))],
       }));
-      expect(birthLayout.columns[0]).toBe(52);
-      expect(birthLayout.columns[1]).toBeCloseTo(birthLayout.columns[2], 1);
+      expect(birthLayout.columns[1]).toBe(96);
+      expect(birthLayout.columns[0]).toBeCloseTo(birthLayout.columns[2], 1);
       expect(birthLayout.headings).toEqual([24, 24]);
-      expect(birthLayout.years).toEqual([14, 14]);
+      expect(birthLayout.headerTimesAndYears).toBe(0);
       expect(birthLayout.values).toHaveLength(10);
       for (const value of birthLayout.values) expect(value).toEqual({ size: 14, weight: '600', line: 21 });
       expect(birthLayout.chips).toEqual([20, 20, 20, 20, 20]);
-      expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7]);
+      expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7, 7, 7, 7, 7]);
       if (!state.birthAssessment) {
         expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
         expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
@@ -231,25 +278,20 @@ for (const state of cases) {
         const metrics = await question.evaluate(element => ({ size: getComputedStyle(element).fontSize, font: getComputedStyle(element).fontFamily }));
         expect(metrics.size).toBe('20px');
         expect(metrics.font).toContain('Noto Serif SC');
-        const progress = await page.locator('.constitution-progress-grid').evaluate(element => ({
-          columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
-          rows: getComputedStyle(element).gridTemplateRows.split(' ').length,
-          cells: element.children.length,
-        }));
-        expect(progress).toEqual({ columns: 13, rows: 2, cells: 26 });
+        await expectConstitutionAnswerLayout(page, testInfo);
         const options = await page.locator('.ds-scale-option').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height));
         expect(options).toHaveLength(5);
         for (const height of options) expect(height).toBeGreaterThanOrEqual(40);
         await page.getByRole('radiogroup').getByRole('radio').first().focus();
         await page.keyboard.press('ArrowDown');
-        await expect(page.locator('.constitution-position')).toHaveText('1/26');
+        await expect(page.locator('.constitution-position')).toHaveText('5 / 26');
+        await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 5 题/);
         const focusedOption = page.getByRole('radiogroup').getByRole('radio').nth(1);
         await expect(focusedOption).toHaveCSS('outline-width', '2px');
         await expect(focusedOption).toHaveCSS('outline-style', 'solid');
       }
       if (state.constitutionResult) {
-        expect(await page.locator('.constitution-decision h4').evaluate(element => getComputedStyle(element).fontSize)).toBe('30px');
-        await expect(page.locator('.constitution-bar-track[role="img"]')).toHaveCount(9);
+        await expectConstitutionResultLayout(page.getByRole('region', { name: '体质测评结果', exact: true }), testInfo);
       }
     }
     await screenshot(page, testInfo, state.name);

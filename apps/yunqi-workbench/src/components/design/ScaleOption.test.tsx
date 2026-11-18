@@ -27,6 +27,18 @@ function Question({ disabledSecond = false }: { readonly disabledSecond?: boolea
 }
 
 describe('ScaleOption', () => {
+  it('adds five decorative degree dots with the filled count and full accessible name matching the option', () => {
+    render(<div role="radiogroup" aria-label="程度选项">{choices.map((choice) => <ScaleOption {...choice} key={choice.shortcut} showDegree checked={choice.shortcut === 3} onSelect={() => {}} />)}</div>);
+    for (const choice of choices) {
+      const option = screen.getByRole('radio', { name: `${choice.shortcut} ${choice.label}（${choice.description}）` });
+      const degree = option.querySelector('.ds-scale-option__degree');
+      expect(degree).toHaveAttribute('aria-hidden', 'true');
+      expect(degree?.children).toHaveLength(5);
+      expect(degree?.querySelectorAll('[data-filled="true"]')).toHaveLength(choice.shortcut);
+      expect(option).toHaveAttribute('aria-checked', String(choice.shortcut === 3));
+    }
+  });
+
   it('renders each named radio, its description, shortcut, and controlled selection', async () => {
     const user = userEvent.setup();
     render(<Question />);

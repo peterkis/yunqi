@@ -91,7 +91,7 @@ export async function expectClassicsAlignment(page) {
       return {
         panel: bounds(view.closest('.panel-shell')),
         track: bounds(view.querySelector('.current-classics__segments')),
-        cards: [...view.querySelectorAll('.current-classics__readings > .ds-info-card')].map(bounds),
+        cards: [...view.querySelectorAll('.current-classics__readings > .classics-card')].map(bounds),
       };
     });
     expect(layout.cards.length).toBeGreaterThan(0);

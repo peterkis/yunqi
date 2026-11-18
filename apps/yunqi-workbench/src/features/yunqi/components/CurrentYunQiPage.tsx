@@ -12,6 +12,8 @@ import type { LearningViewModel } from '../presentation/map-learning';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
 import { CurrentElementValue, CurrentRelation, CurrentRelationReading, CurrentTimeRange } from './CurrentYunQiParts';
 import { SixQiTimeline } from './SixQiTimeline';
+import { CurrentPeriodGrid } from './CurrentPeriodGrid';
+import { YunQiWheel } from './YunQiWheel';
 
 export interface CurrentYunQiPageProps {
   readonly viewModel: CurrentYunQiViewModel;
@@ -34,53 +36,25 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
       <InfoCard label={`全年 · ${summary.year}`} meta={<>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" showStandard={false} /></>} hint={<>
         <CurrentRelation relation={learning.annualRelation} />
       </>}>
-        <div className="current-year-heading">
-          <h3>{summary.stemBranch.ganzhi}</h3>
-          <p>{summary.suiYun.element}运{summary.suiYun.state}之年</p>
-        </div>
+        <YunQiWheel viewModel={learning.annualWheel} />
         <dl className="current-annual-grid">
-          <div><dt>岁运</dt><dd><CurrentElementValue element={annualElements.suiYun} label={`${summary.suiYun.element}运${summary.suiYun.state}`} /></dd><dd className="current-meta">{summary.suiYun.tone}</dd></div>
-          <div><dt>司天</dt><dd><CurrentElementValue element={annualElements.sitian} label={summary.sitian} /></dd><dd className="current-meta">主上半年</dd></div>
-          <div><dt>在泉</dt><dd><CurrentElementValue element={annualElements.zaiquan} label={summary.zaiquan} /></dd><dd className="current-meta">主下半年</dd></div>
+          <div><dt>岁运</dt><dd><CurrentElementValue element={annualElements.suiYun} label={`${summary.suiYun.element}运${summary.suiYun.state}`} /></dd></div>
+          <div><dt>司天</dt><dd><CurrentElementValue element={annualElements.sitian} label={summary.sitian} /></dd></div>
+          <div><dt>在泉</dt><dd><CurrentElementValue element={annualElements.zaiquan} label={summary.zaiquan} /></dd></div>
         </dl>
       </InfoCard>
     </div>
 
     <div className="current-overview__now">
-      <InfoCard label={`此刻 · ${viewModel.inputDate}`} meta="北京时间 UTC+08">
-        <div className="current-sixqi-progress" role="img" aria-label={viewModel.progressLabel}>
-          {viewModel.timeline.map((step) => <span className={`current-sixqi-progress__step is-${step.status.code}`} key={step.index} aria-hidden="true">
-            <span className="current-sixqi-progress__bar">
-              {step.status.code === 'current' && <span className="current-sixqi-progress__elapsed" style={{ width: viewModel.currentStepProgress.elapsedWidth }} />}
-            </span>
-            <span>{step.tickLabel}</span>
-          </span>)}
-        </div>
-        <section className="current-period" aria-label="当步气">
-          <h3>{currentStep.name}</h3>
-          <p className="current-period__subtitle num"><InlineText>{viewModel.currentStepProgress.subtitle}</InlineText></p>
-          <dl className="current-pair">
-            <div><dt>主气</dt><dd><CurrentElementValue element={currentStep.hostElement} label={currentStep.hostQi} /></dd></div>
-            <div><dt>客气</dt><dd><CurrentElementValue element={currentStep.guestElement} label={currentStep.guestQi} /></dd></div>
-          </dl>
-          <CurrentRelation relation={learning.currentQi} />
-        </section>
-        <section className="current-period" aria-label="当步运">
-          <h3>{movement.name}</h3>
-          <p className="current-period__subtitle num"><InlineText>{learning.currentMovementProgress.subtitle}</InlineText></p>
-          <dl className="current-pair">
-            <div><dt>主运</dt><dd><CurrentElementValue element={movement.hostElement} label={movement.hostLabel} /></dd></div>
-            <div><dt>客运</dt><dd><CurrentElementValue element={movement.guestElement} label={movement.guestLabel} /></dd></div>
-          </dl>
-          <RelationChip tone={movement.relation.tone} label={movement.relation.label} explanation={movement.relation.explanation} />
-        </section>
+      <section className="ds-info-card ds-info-card--compact current-period-card" aria-label="当下所处的气与运">
+        <CurrentPeriodGrid learning={learning} />
         <details className="current-disclosure current-relations">
           <summary>这些关系怎么读？</summary>
           <CurrentRelationReading relation={learning.annualRelation} />
           <CurrentRelationReading relation={learning.currentQi} />
           <p>{movement.explanation}</p>
         </details>
-      </InfoCard>
+      </section>
     </div>
 
     <div className="current-overview__quote">

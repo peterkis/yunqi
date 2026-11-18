@@ -12,7 +12,7 @@ import { createLearningDto } from '../../test/learning-fixtures';
 it('keeps the current skip link within the five-size scale in both themes and keyboard reachable', async () => {
   const user = userEvent.setup();
   const style = document.createElement('style');
-  style.textContent = ['tokens.css', 'type-scale.css', 'global.css', 'design-components.css', 'panel-shell.css', 'views/current-yunqi.css']
+  style.textContent = ['tokens.css', 'type-scale.css', 'global.css', 'design-components.css', 'panel-shell.css', 'views/current-yunqi.css', 'views/current-finals.css']
     .map((file) => readFileSync(`src/styles/${file}`, 'utf8')).join('\n');
   document.head.append(style);
   try {
@@ -33,6 +33,11 @@ it('keeps the current skip link within the five-size scale in both themes and ke
       expect(pixels).toBe('14px');
     };
     assertFontSize();
+    const grid = document.querySelector('.current-period-grid')!;
+    expect(getComputedStyle(grid).display).toBe('grid');
+    expect(getComputedStyle(grid).gridTemplateColumns).toBe('minmax(0, 1fr) var(--current-hairline) minmax(0, 1fr)');
+    for (const column of grid.querySelectorAll('.current-period-column')) expect(getComputedStyle(column).display).toBe('contents');
+    expect(getComputedStyle(document.querySelector('.current-overview__annual .ds-relation')!).alignItems).toBe('center');
     await user.tab();
     expect(skipLink).toHaveFocus();
     await user.keyboard('{Enter}');

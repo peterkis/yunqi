@@ -4,6 +4,7 @@ import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-helpers.mjs';
+import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -19,9 +20,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   const now = page.locator('.current-overview__now');
   await expect(now.getByRole('heading', { name: data.currentMovement.name, exact: true })).toBeVisible();
-  await expect(now.getByText('北京时间 UTC+08', { exact: true })).toBeVisible();
-  await expect(now.getByRole('img')).toHaveAttribute('aria-label', /六步气进度：.*当前/);
-  await expect(page.locator('.current-sixqi-progress__bar')).toHaveCount(6);
+  await expect(now.getByText('北京时间 UTC+08', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.current-year-wheel').getByRole('img')).toHaveAttribute('aria-label', /年轮：外环六步气，当前.*；内环五步运，当前/);
+  await expect(page.locator('.current-sixqi-progress')).toHaveCount(0);
   await expectCurrentStageFacts(page, data);
   const movement = now.getByRole('region', { name: '当步运' });
   await expect(movement.locator('.ds-relation')).toHaveCount(1);
@@ -67,11 +68,14 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveCSS('height', '30px');
   await expect(page.getByText('正在此段', { exact: true })).toBeVisible();
-  await expect(page.getByText('阅读释义', { exact: true })).toBeVisible();
+  await expect(page.getByText('原 文', { exact: true })).toBeVisible();
+  await expect(page.getByText('释 义', { exact: true })).toBeVisible();
+  await expect(page.locator('.classics-card--current')).toHaveCount(data.currentPassages.length);
+  await expectClassicsCards(page, testInfo);
   await expectClassicsAlignment(page);
-  const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+  const notice = page.getByText('原文为文献线索，非个体发病预测', { exact: true });
   await expect(notice).toBeInViewport({ ratio: 1 });
-  const currentSource = page.getByRole('link', { name: /查看原文出处/ }).first();
+  const currentSource = page.getByRole('link', { name: /^出处/ }).first();
   await expect(currentSource).toHaveAttribute('href', data.currentPassages[0].sourceUrl);
   await expectTextLink(page, currentSource);
   const annualScope = page.getByRole('button', { name: '全年', exact: true });
@@ -79,30 +83,33 @@ test('current cards retain real API facts, folded stages and sourced original re
   await page.keyboard.press('Enter');
   await expect(annualScope).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByText('正在此段', { exact: true })).toHaveCount(0);
-  const cards = page.locator('.current-classics__readings > .ds-info-card');
+  const cards = page.locator('.current-classics__readings > .classics-card');
   await expect(cards).toHaveCount(data.annualPassages.length);
+  await expect(cards.locator('.classics-card__badge')).toHaveText(data.annualPassages.map(() => '全年适用'));
+  await expect(page.locator('.classics-card--current')).toHaveCount(0);
+  await expectClassicsCards(page, testInfo);
   await expectClassicsAlignment(page);
   for (let index = 0; index < data.annualPassages.length; index += 1) {
     const passage = data.annualPassages[index];
     const card = cards.nth(index);
-    await expect(card.getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
     await expect(card.getByText(passage.explanation, { exact: true })).toBeVisible();
     const full = card.locator('details');
     if (passage.quote.length > 90) {
       await full.locator('summary').focus();
       await page.keyboard.press('Space');
-      await expect(full.locator('blockquote')).toHaveText(`“${passage.quote}”`);
+      await expect(full.locator('blockquote p')).toHaveText(passage.quote);
       await expect(full.locator('blockquote')).toBeVisible();
       await full.locator('blockquote').scrollIntoViewIfNeeded();
       await expect(notice).toBeInViewport({ ratio: 1 });
       await full.locator('summary').press('Enter');
       await expect(full.locator('blockquote')).toBeHidden();
     } else {
-      await expect(card.locator('blockquote')).toHaveText(`“${passage.quote}”`);
+      await expect(card.locator('blockquote p')).toHaveText(passage.quote);
     }
   }
-  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);
-  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toBeInViewport();
+  await expect(notice).toHaveCount(1);
+  await expect(notice).toBeInViewport();
   const readings = page.getByRole('region', { name: '全年原文', exact: true });
   for (const end of ['bottom', 'top']) {
     await readings.evaluate((region, end) => { region.scrollTop = end === 'bottom' ? region.scrollHeight : 0; }, end);
@@ -168,8 +175,9 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   const form = page.getByRole('form', { name: '中医体质量表' });
   await expect(form).toBeVisible();
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await expect(context.locator('.constitution-context-time time')).toHaveCount(1);
-  await expect(context).toContainText('北京时间 UTC+08');
+  await expect(context).toBeVisible();
+  await expect(page.locator('.constitution-time-details .constitution-context-time time')).toHaveCount(1);
+  await expect(page.locator('.constitution-time-details')).toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
   await page.getByRole('radio', { name: '男', exact: true }).click();
@@ -179,7 +187,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   expect(diagnostics.requests.filter(request => request.method === 'POST')).toHaveLength(0);
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await answerConstitution(page);
@@ -198,14 +206,14 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'constitution-nine-dimensions');
   await page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true }).click();
-  await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+  await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
   await changeConstitutionSex(page, '女', 26);
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await expect(page.getByRole('radio', { name: '女', exact: true })).not.toBeChecked();
@@ -223,12 +231,12 @@ for (const theme of ['light', 'dark']) {
     await checkAccessibility(page, testInfo);
     await gender.getByRole('radio', { name: '男', exact: true }).click();
     await expect(gender).toHaveCount(0);
-    await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
     await changeConstitutionSex(page, '女', 0);
     await expect(page.getByRole('button', { name: '确认', exact: true })).toHaveCount(0);
-    await expect(page.locator('.constitution-sex-summary')).toHaveText('女性版 · 更换');
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 女性版更换');
     await page.keyboard.press('3');
-    await expect(page.locator('.constitution-position')).toHaveText('2/26');
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
     const change = page.getByRole('button', { name: '更换', exact: true });
     const confirmation = page.getByRole('group', { name: '更换将清空已作答的 1 题', exact: true });
     for (const method of ['button', 'Escape']) {
@@ -241,17 +249,17 @@ for (const theme of ['light', 'dark']) {
       else await page.keyboard.press('Escape');
       await expect(confirmation).toHaveCount(0);
       await expect(change).toBeFocused();
-      await expect(page.locator('.constitution-position')).toHaveText('2/26');
+      await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
       await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
     }
     await page.getByRole('button', { name: '上一题', exact: true }).click();
-    await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
+    await expect(page.getByRole('radio', { name: '3 有时（有些）', exact: true })).toBeChecked();
     await change.click();
     await page.getByRole('button', { name: '确认', exact: true }).click();
     await expect(gender.getByRole('radio', { name: '男', exact: true })).toBeFocused();
     await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
     await gender.getByRole('radio', { name: '男', exact: true }).click();
-    await expect(page.locator('.constitution-position')).toHaveText('1/26');
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
     await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   });

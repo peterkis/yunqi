@@ -15,8 +15,9 @@ describe('live learning cards replacing demo panels', () => {
     const learning = mapLearning(createLearningDto());
     render(<CurrentClassicsPage learning={learning} />);
     await user.click(screen.getByRole('button', { name: '全年' }));
-    expect(screen.getByRole('blockquote')).toHaveTextContent('“主胜逆，客胜从。”');
-    expect(screen.getByText('阅读释义')).toBeVisible();
+    expect(screen.getByRole('blockquote').querySelector('p')).toHaveTextContent('主胜逆，客胜从。');
+    expect(screen.getByText('原 文')).toBeVisible();
+    expect(screen.getByText('释 义')).toBeVisible();
     expect(screen.getByText(learning.annualPassages[0].explanation)).toBeVisible();
     expect(screen.getByRole('link')).toHaveAttribute('href', learning.annualPassages[0].sourceUrl);
     expect(screen.getByRole('link')).toHaveAttribute('rel', 'noreferrer');
@@ -35,9 +36,10 @@ describe('live learning cards replacing demo panels', () => {
     const movement = learning.currentMovement;
     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
     const currentMovement = screen.getByRole('region', { name: '当步运' });
-    expect(within(currentMovement).getByText('火运太过（太徵）')).toBeVisible();
-    expect(within(currentMovement).getByText('木运不及（少角）')).toBeVisible();
-    expect(currentMovement).toHaveTextContent('春分后13日 → 芒种后10日 · 还有 34 天');
+    expect(within(currentMovement).getByText('火运太过')).toBeVisible();
+    expect(within(currentMovement).getByText('木运不及')).toBeVisible();
+    expect(currentMovement.querySelector('.current-period-cell--range')).toHaveTextContent('春分后13日 → 芒种后10日');
+    expect(currentMovement.querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
     await user.click(screen.getByText('计算说明与版本'));
     const precision = screen.getByRole('region', { name: '精确时刻' });
     expect(precision.querySelector(`time[datetime="${movement.start.localTime}"]`)).toBeVisible();
@@ -54,7 +56,7 @@ describe('live learning cards replacing demo panels', () => {
     const viewModel = mapBirthView(createBirthComparisonDto());
     const candidate = viewModel.candidates[0];
     const { container } = render(<BirthComparisonTable candidate={candidate} current={viewModel} />);
-    expect(within(screen.getByRole('columnheader', { name: /先天\u202f·\u202f出生/ })).queryByRole('time')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('columnheader', { name: /^先天/ })).queryByRole('time')).not.toBeInTheDocument();
     expect(container.querySelectorAll('time')).toHaveLength(1);
     expect(container.querySelector('.birth-table__time time')).toHaveAttribute('datetime', viewModel.currentTime.localTime);
     expect(screen.getAllByText(candidate.birthGanzhi).length).toBeGreaterThan(0);

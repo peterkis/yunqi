@@ -1,0 +1,123 @@
+/* F1 only. Structure and SVG dimensions: prototype-finals/reference/01-current.html.
+   Typography and spacing map to the existing five tiers and spacing tokens. */
+.current-overview {
+  --current-wheel-size: 220px;
+}
+
+.current-overview__annual > .ds-info-card { padding: var(--space-4); }
+.current-overview__annual .ds-info-card__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2_5);
+  margin-top: var(--space-2_5);
+}
+.current-year-wheel {
+  position: relative;
+  flex: none;
+  width: var(--current-wheel-size);
+  height: var(--current-wheel-size);
+  max-width: 100%;
+}
+.current-year-wheel > svg { display: block; width: 100%; height: 100%; }
+.current-year-wheel .current-year-wheel__tick {
+  fill: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-small);
+  font-weight: var(--type-meta-weight);
+}
+.current-year-wheel .is-current .current-year-wheel__tick {
+  fill: var(--accent-on);
+  font-weight: var(--type-display-xl-weight);
+}
+.current-year-wheel .current-year-heading {
+  position: absolute;
+  inset: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  pointer-events: none;
+}
+.current-year-wheel .current-year-heading p {
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-year-wheel__legend {
+  display: flex;
+  gap: var(--space-3_5);
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-year-wheel__legend > span { display: flex; align-items: center; gap: var(--space-1_5); }
+.current-year-wheel__key {
+  width: var(--space-2_5);
+  height: var(--space-2_5);
+  border-radius: var(--space-0_5);
+}
+.current-year-wheel__key--qi { background: var(--accent); }
+.current-year-wheel__key--movement { background: var(--relation-favorable-fg); }
+.current-overview__annual .current-annual-grid {
+  align-self: stretch;
+  gap: var(--space-1_5);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.current-overview__annual .current-annual-grid > div {
+  padding: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-page);
+}
+.current-overview__annual .current-annual-grid dd { margin-top: var(--space-0_5); }
+.current-overview__annual .current-annual-grid .ds-element { gap: var(--space-1); }
+.current-overview__annual .ds-info-card__hint {
+  margin-top: var(--space-2_5);
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+.current-overview__annual .ds-relation { align-items: center; }
+.current-overview__annual .ds-relation__explanation { font-size: var(--ts-small); }
+
+.current-period-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--current-hairline) minmax(0, 1fr);
+  column-gap: var(--space-3_5);
+  row-gap: var(--space-2);
+  align-items: start;
+}
+/* Both semantic columns participate in the SAME seven grid rows. */
+.current-period-column { display: contents; }
+.current-period-grid__divider {
+  grid-column: 2;
+  grid-row: 1 / 8;
+  align-self: stretch;
+  background: var(--border-subtle);
+}
+.current-period-cell { min-width: 0; }
+.current-period-cell--title h3 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-size: var(--ts-title);
+  line-height: var(--type-title-line);
+  font-weight: var(--type-title-weight);
+}
+.current-period-cell--range,
+.current-period-cell--remaining {
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-period-cell--remaining {
+  margin-top: calc(-1 * var(--space-1_5));
+  color: var(--ink-secondary);
+}
+.current-period-cell--value { display: flex; flex-direction: column; gap: var(--space-0_5); }
+.current-period-cell--host { padding-top: var(--space-1); }
+.current-period-cell--relation { padding-top: var(--space-1); }
+.current-period-cell--explanation { margin-top: calc(-1 * var(--space-0_5)); }
+.current-period-card .ds-relation__explanation { font-size: var(--ts-small); }

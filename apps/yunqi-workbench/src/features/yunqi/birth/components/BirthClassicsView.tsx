@@ -1,18 +1,15 @@
 import { useState } from 'react';
-import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
+import { ClassicsReadingCard, ClassicsReadingNotice } from '../../components/ClassicsReadingCard';
 import type { BirthPageViewModel, BirthReadingViewModel } from '../presentation/map-birth-view';
 
 export const BIRTH_NOTICE = '出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。';
 
 function Reading({ value }: { readonly value: BirthReadingViewModel }) {
-  return <article className="birth-card birth-reading">
-    <QuoteBlock label={value.scope} quote={value.excerpt} fullQuote={value.fullQuote} interpretation={value.interpretation} source={value.source} />
-    <a className="birth-source-link learning-text-link" href={value.sourceUrl} target="_blank" rel="noreferrer">查看原文出处<span className="visually-hidden">：{value.source}（新窗口打开）</span></a>
-  </article>;
+  return <ClassicsReadingCard reading={value.card} />;
 }
 
-/** QuoteBlock and compact range navigation follow prototype board ②.
+/** Shared reading cards and compact range navigation follow prototype board ②.
  * The birth scope is supplied by the mapper, never inferred from today's stage. */
 export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPageViewModel }) {
   const [scope, setScope] = useState<'annual' | 'period'>('period');
@@ -38,9 +35,8 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
         <p className="birth-note">以下原文属于本次响应的当下快照，与出生原文分开阅读。</p>
         {viewModel.currentReadings.map((passage) => <Reading key={passage.id} value={passage} />)}
       </details>
+      <ClassicsReadingNotice>{BIRTH_NOTICE}</ClassicsReadingNotice>
       </div>
-      {/* Pinned outside the scrolling readings so the boundary stays on screen with every disease passage. */}
-      <p className="birth-notice birth-classics__notice">{BIRTH_NOTICE}</p>
     </section>
   );
 }

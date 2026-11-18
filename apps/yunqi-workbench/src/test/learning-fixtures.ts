@@ -74,7 +74,17 @@ export function createQuestionnaireDto(): ConstitutionQuestionnaireDto {
       { id: 'q8m', text: '男性适用测试问题？', sex: 'male' },
       { id: 'q8f', text: '女性适用测试问题？', sex: 'female' },
     ],
-    scales: [{ id: 'balanced', name: '平和质', items: [{ questionId: 'q1', reverse: false }] }],
+    scales: [
+      { id: 'balanced', name: '平和质', questionIds: ['q1', 'q2'] },
+      { id: 'qi_deficiency', name: '气虚质', questionIds: ['q1', 'q3'] },
+      { id: 'yang_deficiency', name: '阳虚质', questionIds: ['q2', 'q4'] },
+      { id: 'yin_deficiency', name: '阴虚质', questionIds: ['q3', 'q5'] },
+      { id: 'phlegm_dampness', name: '痰湿质', questionIds: ['q4', 'q6'] },
+      { id: 'damp_heat', name: '湿热质', questionIds: ['q5', 'q8m', 'q8f'] },
+      { id: 'blood_stasis', name: '血瘀质', questionIds: ['q6'] },
+      { id: 'qi_stagnation', name: '气郁质', questionIds: ['q7'] },
+      { id: 'special_diathesis', name: '特禀质', questionIds: ['q8m', 'q8f'] },
+    ].map(({ id, name, questionIds }) => ({ id, name, items: questionIds.map((questionId) => ({ questionId, reverse: false })) })),
     options: [
       { value: 1, label: '没有' },
       { value: 2, label: '很少' },

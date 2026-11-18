@@ -1,5 +1,84 @@
 import { expect } from './fixtures.mjs';
 
+export async function expectTextContrast(target) {
+  const colors = await target.evaluate(element => {
+    const style = getComputedStyle(element);
+    return { foreground: style.color, background: style.backgroundColor };
+  });
+  const luminance = color => {
+    const channels = color.match(/[\d.]+/g).map(Number);
+    expect(channels.length === 3 || channels[3] === 1, 'Contrast samples must be opaque').toBe(true);
+    const linear = channels.slice(0, 3).map(channel => {
+      const srgb = channel / 255;
+      return srgb <= 0.04045 ? srgb / 12.92 : ((srgb + 0.055) / 1.055) ** 2.4;
+    });
+    return linear[0] * 0.2126 + linear[1] * 0.7152 + linear[2] * 0.0722;
+  };
+  const values = [luminance(colors.foreground), luminance(colors.background)].sort((a, b) => a - b);
+  const ratio = (values[1] + 0.05) / (values[0] + 0.05);
+  expect(ratio, `Text contrast for ${await target.textContent()}`).toBeGreaterThanOrEqual(4.5);
+  return ratio;
+}
+
+/** K01 gates run in both themes and every panel/workstation visual project. */
+export async function expectClassicsCards(page, testInfo) {
+  const cards = page.locator('.classics-card:visible');
+  expect(await cards.count()).toBeGreaterThan(0);
+  const metrics = [];
+  for (const card of await cards.all()) {
+    const original = card.locator('.classics-card__original > .classics-card__quote');
+    const interpretation = card.locator('.classics-card__interpretation > p');
+    const badge = card.locator('.classics-card__badge');
+    const style = await card.evaluate(element => {
+      const css = getComputedStyle(element);
+      const current = element.classList.contains('classics-card--current');
+      const swatch = document.createElement('span');
+      element.append(swatch);
+      const color = token => {
+        swatch.style.color = `var(${token})`;
+        return getComputedStyle(swatch).color;
+      };
+      const font = token => {
+        swatch.style.fontFamily = `var(${token})`;
+        return getComputedStyle(swatch).fontFamily;
+      };
+      const badge = getComputedStyle(element.querySelector('.classics-card__badge'));
+      const result = {
+        current, border: css.borderTopColor,
+        expectedBorder: color(current ? '--accent' : '--border-default'),
+        headerBackground: getComputedStyle(element.querySelector('.classics-card__header')).backgroundColor,
+        expectedHeader: current ? color('--accent-subtle') : 'rgba(0, 0, 0, 0)',
+        badgeBackground: badge.backgroundColor, badgeColor: badge.color,
+        expectedBackground: color(current ? '--accent' : '--surface-sunken'),
+        expectedColor: color(current ? '--accent-on' : '--ink-secondary'),
+        serif: font('--font-serif'), sans: font('--font-sans'),
+      };
+      swatch.remove();
+      return result;
+    });
+    expect(style.border).toBe(style.expectedBorder);
+    expect(style.headerBackground).toBe(style.expectedHeader);
+    expect(style.badgeBackground).toBe(style.expectedBackground);
+    expect(style.badgeColor).toBe(style.expectedColor);
+    await expect(badge).toHaveCSS('height', '22px');
+    await expect(original).toHaveCSS('font-family', style.serif);
+    await expect(interpretation).toHaveCSS('font-family', style.sans);
+    await expect(card.locator('.classics-card__body > *')).toHaveClass([
+      'classics-card__original', 'classics-card__interpretation', 'classics-card__source',
+    ]);
+    await expect(card.locator('.classics-card__original > h4')).toHaveText('原 文');
+    await expect(card.locator('.classics-card__interpretation > h4')).toHaveText('释 义');
+    await expect(card.locator('.classics-card__opening').first()).toHaveAttribute('aria-hidden', 'true');
+    await expect(card.locator('.classics-card__source > p > span')).toHaveCount(2);
+    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('target', '_blank');
+    const contrasts = [];
+    for (const label of await card.locator('.classics-card__label').all()) contrasts.push(await expectTextContrast(label));
+    contrasts.push(await expectTextContrast(badge));
+    metrics.push({ ...style, contrasts });
+  }
+  if (testInfo) await testInfo.attach('classics-card-metrics', { body: JSON.stringify(metrics, null, 2), contentType: 'application/json' });
+}
+
 export async function expectViewControls(page, testInfo) {
   const metrics = await page.evaluate(() => {
     const visible = element => element.checkVisibility({ checkVisibilityCSS: true }) && element.getClientRects().length > 0;
@@ -65,6 +144,13 @@ export async function expectFocusRings(page, testInfo) {
       if (!await target.isVisible() || !await target.isEnabled()) continue;
       await target.focus();
       await expect(target).toBeFocused();
+      if (await target.evaluate(element => element.matches('h3.constitution-question-title[tabindex="-1"]'))) {
+        // F4 explicitly removes the ring only from the programmatic question
+        // announcement. All interactive targets keep the exact ring below.
+        await expect(target).toHaveCSS('outline-style', 'none');
+        checked.push('question announcement: no outline');
+        continue;
+      }
       // Keep C1/C5's retrying assertions and exact values after demo CSS removal.
       await expect(target).toHaveCSS('outline-width', '2px');
       await expect(target).toHaveCSS('outline-offset', '2px');

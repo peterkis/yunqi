@@ -7,7 +7,7 @@ for (const [name, dateTime] of [
   ['qi-ends-today', '2026-11-22T00:00:00+08:00'],
   ['qi-and-movement-end-today', '2027-01-20T00:00:00+08:00'],
 ]) {
-  test(`stage facts: ${name} uses a real calculated snapshot`, async ({ page }, testInfo) => {
+  test(`stage facts: ${name} shows a real snapshot in the year wheel and seven aligned rows`, async ({ page }, testInfo) => {
     await useCalculatedCurrentSnapshot(page, dateTime);
     const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/current'));
     await page.goto('/yunqi/current');

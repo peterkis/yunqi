@@ -8,9 +8,26 @@ export type RelationTone = 'favorable' | 'adverse' | 'neutral';
 export type ElementKind = 'wood' | 'fire' | 'earth' | 'metal' | 'water';
 
 export interface StageProgressViewModel {
+  readonly rangeLabel: string;
+  readonly remainingLabel: string;
   readonly subtitle: string;
   readonly elapsedWidth: string;
   readonly elapsedLabel: string;
+}
+
+export interface YunQiWheelViewModel {
+  readonly label: string;
+  readonly ganzhi: string;
+  readonly annualLabel: string;
+  readonly qi: readonly {
+    readonly index: number;
+    readonly tickLabel: string;
+    readonly status: YunQiStageStatusCode;
+  }[];
+  readonly movements: readonly {
+    readonly index: number;
+    readonly status: YunQiStageStatusCode;
+  }[];
 }
 
 export interface LabeledCodeViewModel<

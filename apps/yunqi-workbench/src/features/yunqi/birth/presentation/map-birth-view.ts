@@ -4,6 +4,7 @@ import { mapPanelSummary, type PanelSummaryViewModel } from '../../presentation/
 import { mapMovementElement, mapQiElement } from '../../presentation/visual-mappings';
 import type { ElementKind, YunQiTimeViewModel } from '../../presentation/view-model';
 import { mapCalculationTimes, type YunQiTimeEntryViewModel } from '../../presentation/map-drilldown';
+import type { ClassicsCardViewModel } from '../../presentation/map-classics';
 
 export interface BirthFactViewModel {
   readonly label: string;
@@ -27,6 +28,7 @@ export interface BirthReadingViewModel {
   readonly source: string;
   readonly sourceUrl: string;
   readonly interpretation: string;
+  readonly card: ClassicsCardViewModel;
 }
 
 export interface BirthCandidateViewModel {
@@ -62,11 +64,8 @@ function facts(value: YunQiLearningDto): readonly BirthFactViewModel[] {
     { label: `${suiYun.element}运${suiYun.state}`, element: mapMovementElement(suiYun.element), detail: [suiYun.tone] },
     { label: sixQi.sitian, element: mapQiElement(sixQi.sitian), detail: [] },
     { label: sixQi.zaiquan, element: mapQiElement(sixQi.zaiquan), detail: [] },
-    { label: currentStep.name, detail: [`主气 ${currentStep.hostQi}`, `客气 ${currentStep.guestQi}`] },
-    { label: movement.name, detail: [
-      `主运 ${movement.host.element}运${movement.host.state}（${movement.host.tone}）`,
-      `客运 ${movement.guest.element}运${movement.guest.state}（${movement.guest.tone}）`,
-    ] },
+    { label: currentStep.name, element: mapQiElement(currentStep.guestQi), detail: [`主${currentStep.hostQi} · 客${currentStep.guestQi}`] },
+    { label: movement.name, element: mapMovementElement(movement.guest.element), detail: [`主${movement.host.tone} · 客${movement.guest.tone}`] },
   ];
 }
 
@@ -80,6 +79,13 @@ function reading(value: YunQiLearningDto['annualPassages'][number], periodScope:
     quote, excerpt, fullQuote: characters.length > 56 ? quote : undefined,
     source: `《${value.work}·${value.chapter}》${value.section}`, sourceUrl: value.sourceUrl,
     interpretation: value.explanation,
+    card: {
+      heading: value.section,
+      badge: value.scope === 'qi-period' ? periodScope : '全年适用', isCurrent: false,
+      quote: excerpt, fullQuote: characters.length > 56 ? quote : undefined,
+      interpretation: value.explanation, sourceTitle: `《${value.work}·${value.chapter}》`,
+      sourceSection: value.section, sourceUrl: value.sourceUrl,
+    },
   };
 }
 

@@ -1,8 +1,9 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
-import { expectBirthComparison, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
+import { expectBirthComparison, expectBirthMirror, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectTextLink } from './consistency-helpers.mjs';
+import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
   if (await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
@@ -39,6 +40,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await page.goto('/yunqi/birth');
   const data = await compareBirth(page);
   await expectBirthComparison(page, data);
+  await expectBirthMirror(page);
   expect(data.candidates).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.includes('/constitution/'))).toHaveLength(0);
 
@@ -51,7 +53,9 @@ test('same-page birth assessment reads matching annual and period passages, scor
   const historical = reading.locator('.birth-reading-candidate').first();
   await expect(reading.getByRole('button', { name: '出生阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expectBirthReadings(historical, data.candidates[0].learning.currentPassages);
-  await expectTextLink(page, historical.getByRole('link', { name: /查看原文出处/ }).first());
+  await expectTextLink(page, historical.getByRole('link', { name: /^出处/ }).first());
+  await expectClassicsCards(page, testInfo);
+  await expect(reading.locator('.classics-card--current')).toHaveCount(0);
   await expect(historical.getByText('出生阶段', { exact: true })).toBeVisible();
   await expect(historical.getByText('当下阶段', { exact: true })).toHaveCount(0);
   await reading.getByRole('button', { name: '全年', exact: true }).click();
@@ -89,7 +93,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(context.locator(`.constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
+  await expect(page.locator(`.constitution-time-details .constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
@@ -111,7 +115,16 @@ test('same-page birth assessment reads matching annual and period passages, scor
   expect(scan.violations.map(violation => ({ id: violation.id, targets: violation.nodes.map(node => node.target) }))).toEqual([]);
   await screenshot(page, testInfo, 'birth-assessment-nine-results');
 
-  await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+  const actions = page.locator('.panel-shell__actions');
+  const end = actions.getByRole('button', { name: '结束并销毁答卷', exact: true });
+  await page.locator('.birth-technical > summary').focus();
+  await page.keyboard.press('Tab');
+  await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(end).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(results).toHaveCount(0);
+  await expect(end).toHaveCount(0);
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
   await expect(start).toBeFocused();
@@ -128,7 +141,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
-  await expect(page.locator('.constitution-sex-summary')).toContainText('女性版 · 更换');
+  await expect(page.locator('.constitution-sex-summary')).toContainText('体质维度 · 女性版更换');
   await compareBirth(page, '1990-05-13');
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
@@ -197,6 +210,7 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   expect(data.ambiguous).toBe(true);
   expect(data.candidates.length).toBeGreaterThan(1);
   await expectBirthComparison(page, data);
+  await expectBirthMirror(page);
   await page.getByRole('link', { name: '全部原文', exact: true }).click();
   const reading = page.getByRole('region', { name: '先天原文与释义', exact: true });
   const candidates = reading.locator('.birth-reading-candidate');
@@ -211,10 +225,14 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(1);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await context.getByText('本次对照快照与候选区间', { exact: true }).click();
-  await expect(context.locator('.constitution-birth-candidate')).toHaveCount(data.candidates.length);
+  await expect(context.getByText(`${data.candidates.length} 个候选`, { exact: true })).toBeVisible();
+  const notes = page.locator('.constitution-notes');
+  await notes.getByText('本次对照快照与候选区间', { exact: true }).click();
+  const candidateDetails = notes.locator('.constitution-birth-candidate');
+  await expect(candidateDetails).toHaveCount(data.candidates.length);
   for (const [index, candidate] of data.candidates.entries()) {
-    const row = context.locator('.constitution-birth-candidate').nth(index);
+    const row = candidateDetails.nth(index);
+    await expect(row).toBeVisible();
     await expect(row.locator('time').first()).toHaveAttribute('datetime', candidate.from.localTime);
     await expect(row.locator('time').last()).toHaveAttribute('datetime', candidate.until.localTime);
   }

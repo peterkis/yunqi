@@ -46,10 +46,13 @@ describe('birth comparison assessment session', () => {
     const historical = within(reading).getByRole('region', { name: '出生运气原文' });
     expect(within(historical).getByText('出生阶段', { exact: true })).toBeVisible();
     expect(within(historical).queryByText('当前阶段', { exact: true })).not.toBeInTheDocument();
-    expect(within(historical).getByText('阅读释义')).toBeVisible();
-    expect(within(historical).getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', 'https://example.org/classics');
+    expect(within(historical).getByText('原 文')).toBeVisible();
+    expect(within(historical).getByText('释 义')).toBeVisible();
+    expect(within(historical).getByText('出生阶段', { exact: true })).not.toHaveClass('classics-card__badge--current');
+    expect(reading.querySelector('.classics-card--current')).not.toBeInTheDocument();
+    expect(within(historical).getByRole('link', { name: /^出处/ })).toHaveAttribute('href', 'https://example.org/classics');
     await user.click(within(reading).getByRole('button', { name: '全年' }));
-    expect(within(historical).getByText('全年 · 司天')).toBeVisible();
+    expect(within(historical).getByText('全年适用')).toBeVisible();
     const current = within(reading).getByText('对照时的当下原文').closest('details')!;
     expect(current).not.toHaveAttribute('open');
     await user.click(within(current).getByText('对照时的当下原文'));
@@ -74,20 +77,49 @@ describe('birth comparison assessment session', () => {
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(client.assessConstitution).not.toHaveBeenCalled();
     const context = screen.getByRole('complementary', { name: '本次测评对照背景' });
-    expect(context).toHaveTextContent('第二个可能归属');
-    await user.click(within(context).getByText('本次对照快照与候选区间'));
-    expect(within(context).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
-    expect(context.querySelector('time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
+    expect(within(context).getByText('2 个候选')).toHaveAttribute('aria-label', expect.stringContaining('第二个可能归属'));
+    await user.click(screen.getByText('本次对照快照与候选区间'));
+    const notes = document.querySelector('.constitution-notes') as HTMLElement;
+    expect(within(notes).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
+    expect(notes.querySelector('.constitution-context-time time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
     expect(form.parentElement?.closest('form')).toBeNull();
     await user.click(within(form).getByRole('radio', { name: '男' }));
-    await user.click(within(form).getAllByRole('radio', { name: '有时' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
     expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveFocus();
     const restarted = await openAssessment(user);
     expect(within(restarted).getByRole('radio', { name: '男' })).not.toBeChecked();
-    expect(within(restarted).queryByRole('radio', { name: '有时' })).not.toBeInTheDocument();
+    expect(within(restarted).queryByRole('radio', { name: '3 有时（有些）' })).not.toBeInTheDocument();
+  });
+
+  it.each(['click', 'keyboard'] as const)('destroys a scored session with %s and restores the start action focus', async (activation) => {
+    const user = userEvent.setup();
+    const client = createClientStub();
+    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    const comparison = await submitBirth(user);
+    await completeAssessment(user, await openAssessment(user));
+    const result = await screen.findByRole('region', { name: '体质测评结果' });
+    const end = screen.getByRole('button', { name: '结束并销毁答卷' });
+    if (activation === 'keyboard') {
+      // Chromium covers summary traversal; jsdom starts at the first action.
+      screen.getByRole('button', { name: '返回修改' }).focus();
+      await user.tab();
+      expect(end).toHaveFocus();
+      await user.keyboard('{Enter}');
+    } else await user.click(end);
+    expect(result).not.toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    const start = screen.getByRole('button', { name: '同时测评体质' });
+    expect(start).toHaveAttribute('aria-expanded', 'false');
+    expect(start).toHaveFocus();
+    expect(comparison).toBeVisible();
+    const restarted = await openAssessment(user);
+    expect(within(restarted).getByRole('radio', { name: '男' })).not.toBeChecked();
+    expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
+    expect(client.assessConstitution).toHaveBeenCalledOnce();
   });
 
   it.each(['date', 'time', 'known-time', 'clear', 'resubmit'] as const)('discards the answer session after %s changes the comparison', async (action) => {
@@ -101,7 +133,7 @@ describe('birth comparison assessment session', () => {
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     const form = await openAssessment(user);
     await user.click(within(form).getByRole('radio', { name: '女' }));
-    await user.click(within(form).getAllByRole('radio', { name: '经常' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '4 经常（相当）' })[0]);
     if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'date') fillBirthDate('1990-05-13');
     if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:31' } });
