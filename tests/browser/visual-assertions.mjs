@@ -144,6 +144,13 @@ export async function expectFocusRings(page, testInfo) {
       if (!await target.isVisible() || !await target.isEnabled()) continue;
       await target.focus();
       await expect(target).toBeFocused();
+      if (await target.evaluate(element => element.matches('h3.constitution-question-title[tabindex="-1"]'))) {
+        // F4 explicitly removes the ring only from the programmatic question
+        // announcement. All interactive targets keep the exact ring below.
+        await expect(target).toHaveCSS('outline-style', 'none');
+        checked.push('question announcement: no outline');
+        continue;
+      }
       // Keep C1/C5's retrying assertions and exact values after demo CSS removal.
       await expect(target).toHaveCSS('outline-width', '2px');
       await expect(target).toHaveCSS('outline-offset', '2px');

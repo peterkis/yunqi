@@ -1,12 +1,14 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type CSSProperties, type FormEvent, type KeyboardEvent } from 'react';
 import { Button } from '../../../components/design/Button';
 import { InlineText } from '../../../components/design/InlineText';
 import { ScaleOption } from '../../../components/design/ScaleOption';
 import { SegmentedControl } from '../../../components/design/SegmentedControl';
 import { PanelView } from '../../../components/layout/PanelView';
 import type { ConstitutionContextViewModel, ConstitutionQuestionnaireViewModel, QuestionnaireSex } from '../presentation/map-constitution';
+import { mapQuestionnaireProgress } from '../presentation/map-constitution';
 import { useConstitutionAssessment } from '../hooks/useConstitution';
 import { ConstitutionResults } from './ConstitutionResults';
+import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 
 export interface ConstitutionFormProps {
   readonly questionnaire: ConstitutionQuestionnaireViewModel;
@@ -44,6 +46,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   const completed = questions.filter((item) => answers[item.id] !== undefined).length;
   const hasSession = sex !== '';
   const complete = hasSession && !question && !mutation.result;
+  const progress = sex !== '' ? mapQuestionnaireProgress(questionnaire, sex, answers, question?.id) : undefined;
 
   function cancelAdvance() {
     clearTimeout(timer.current);
@@ -175,15 +178,30 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
           {complete ? <Button type="submit" form={formId} disabled={mutation.isPending || confirmingSexChange}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button> : null}
         </div> : undefined} />
       <form id={formId} className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
+        <ConstitutionContext context={context}>
+          {progress && !mutation.result ? <section className="constitution-dimensions">
+            <div className="constitution-progress-header">
+              <div className="constitution-sex-summary">
+                <span><InlineText>{`体质维度 · ${sex === 'male' ? '男性版' : '女性版'}`}</InlineText></span>
+                <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
+              </div>
+              <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite"><b>{progress.completed}</b> / {progress.total}</span>
+            </div>
+            <div className="constitution-progress-grid" role="list" aria-label="九种体质作答进度">
+              {progress.dimensions.map((dimension) => <div key={dimension.id} role="listitem" data-current={dimension.current} data-answered={dimension.answered}>
+                <span className="constitution-dimension-name">{dimension.shortName}</span>
+                <span className="constitution-dimension-track" role="img" aria-label={dimension.label} style={{ '--constitution-progress': dimension.fillWidth } as CSSProperties}><span /></span>
+                <span className="constitution-dimension-count num">{dimension.count}</span>
+              </div>)}
+            </div>
+          </section> : null}
+        </ConstitutionContext>
         {sex === '' ? <fieldset className="constitution-sex" disabled={mutation.isPending} ref={sexRef} tabIndex={-1}>
           <legend>量表所用性别</legend>
           <SegmentedControl label="量表所用性别" compact value={sex} onChange={changeSex}
             segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
           <p className="constitution-meta">仅用于显示对应条目；切换后清空本次作答和结果。</p>
-        </fieldset> : !mutation.result ? <div className="constitution-sex-summary">
-          <span><InlineText>{`${sex === 'male' ? '男性版' : '女性版'} · `}</InlineText></span>
-          <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
-        </div> : null}
+        </fieldset> : null}
         {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
           <p id={confirmationId}>更换将清空已作答的 <span className="num">{completed}</span> 题</p>
           <div>
@@ -196,20 +214,15 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
           <ConstitutionResults assessment={mutation.result} context={context} />
         ) : sex !== '' ? (
           <>
-            <div className="constitution-progress-header">
-              <span className="num"><InlineText>{`${questionnaire.standard} · ${questions.length} 题`}</InlineText></span>
-              <span className="constitution-position num" aria-live="polite">{Math.min(questionIndex + 1, questions.length)}/{questions.length}</span>
-            </div>
-            <div className="constitution-progress-grid" role="img" aria-label={`已答 ${completed} / ${questions.length} 题${question ? `，当前第 ${questionIndex + 1} 题` : '，全部作答完成'}`}>
-              {questions.map((item, index) => <span key={item.id} data-state={index === questionIndex ? 'current' : answers[item.id] !== undefined ? 'answered' : 'unanswered'} />)}
-            </div>
             {question ? (
               <div className="constitution-question-screen" key={question.id} onKeyDown={questionKey}>
-                <h3 id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
-                <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 可按数字键 1–5</InlineText></p>
+                <div className="constitution-question-header">
+                  <h3 id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
+                  <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 数字键 1–5</InlineText></p>
+                </div>
                 <div role="radiogroup" aria-labelledby={questionId} aria-describedby={helpId}>
                   {questionnaire.options.map((option, index) => (
-                    <ScaleOption key={option.value} shortcut={option.value} label={option.label} description={option.description}
+                    <ScaleOption key={option.value} shortcut={option.value} label={option.label} description={option.description} showDegree
                       checked={answers[question.id] === option.value}
                       tabIndex={answers[question.id] === option.value || (answers[question.id] === undefined && index === 0) ? 0 : -1}
                       onSelect={() => answer(option.value)} />
@@ -231,6 +244,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
+      <div className="constitution-notes">
+      <ConstitutionContextDetails context={context} />
       <details className="constitution-source">
         <summary>量表来源与适用说明</summary>
         <p className="num"><InlineText>{`${questionnaire.title}${!mutation.result ? ` · ${questionnaire.version}` : ''}`}</InlineText></p>
@@ -238,6 +253,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         <p>{questionnaire.sourceNote}</p>
         <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
       </details>
+      </div>
       <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
     </div>
   );

@@ -30,7 +30,7 @@ describe('birth classics navigation', () => {
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(within(form).getByRole('radio', { name: '男' }));
-    await user.click(within(form).getAllByRole('radio', { name: '有时' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth\/classics$/);
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();

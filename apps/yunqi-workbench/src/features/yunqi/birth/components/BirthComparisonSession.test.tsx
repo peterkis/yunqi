@@ -77,20 +77,21 @@ describe('birth comparison assessment session', () => {
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(client.assessConstitution).not.toHaveBeenCalled();
     const context = screen.getByRole('complementary', { name: '本次测评对照背景' });
-    expect(context).toHaveTextContent('第二个可能归属');
-    await user.click(within(context).getByText('本次对照快照与候选区间'));
-    expect(within(context).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
-    expect(context.querySelector('time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
+    expect(within(context).getByText('2 个候选')).toHaveAttribute('aria-label', expect.stringContaining('第二个可能归属'));
+    await user.click(screen.getByText('本次对照快照与候选区间'));
+    const notes = document.querySelector('.constitution-notes') as HTMLElement;
+    expect(within(notes).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
+    expect(notes.querySelector('.constitution-context-time time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
     expect(form.parentElement?.closest('form')).toBeNull();
     await user.click(within(form).getByRole('radio', { name: '男' }));
-    await user.click(within(form).getAllByRole('radio', { name: '有时' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
     expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveFocus();
     const restarted = await openAssessment(user);
     expect(within(restarted).getByRole('radio', { name: '男' })).not.toBeChecked();
-    expect(within(restarted).queryByRole('radio', { name: '有时' })).not.toBeInTheDocument();
+    expect(within(restarted).queryByRole('radio', { name: '3 有时（有些）' })).not.toBeInTheDocument();
   });
 
   it.each(['date', 'time', 'known-time', 'clear', 'resubmit'] as const)('discards the answer session after %s changes the comparison', async (action) => {
@@ -104,7 +105,7 @@ describe('birth comparison assessment session', () => {
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     const form = await openAssessment(user);
     await user.click(within(form).getByRole('radio', { name: '女' }));
-    await user.click(within(form).getAllByRole('radio', { name: '经常' })[0]);
+    await user.click(within(form).getAllByRole('radio', { name: '4 经常（相当）' })[0]);
     if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'date') fillBirthDate('1990-05-13');
     if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:31' } });

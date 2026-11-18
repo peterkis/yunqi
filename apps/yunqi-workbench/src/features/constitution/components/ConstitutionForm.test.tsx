@@ -14,7 +14,7 @@ function renderForm(client = createClientStub()) {
 async function complete(user: ReturnType<typeof userEvent.setup>, sex = '男') {
   await user.click(screen.getByRole('radio', { name: sex }));
   for (let index = 1; index <= 8; index += 1) {
-    expect(screen.getByText(`${index}/8`)).toBeVisible();
+    expect(screen.getByRole('img', { name: new RegExp(`当前第 ${index} 题`) })).toBeVisible();
     await user.keyboard(String((index - 1) % 5 + 1));
   }
   expect(screen.getByRole('heading', { name: '8 题已全部作答' })).toHaveFocus();
@@ -25,6 +25,31 @@ beforeEach(() => { vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('ConstitutionForm', () => {
+  it('combines the context and nine dimensions, counts shared answers, and keeps only the question and hint in the header', async () => {
+    const user = userEvent.setup();
+    renderForm();
+    await user.click(screen.getByRole('radio', { name: '男' }));
+    const context = screen.getByRole('complementary', { name: '本次测评对照背景' });
+    const progress = within(context).getByRole('list', { name: '九种体质作答进度' });
+    expect(within(progress).getAllByRole('listitem')).toHaveLength(9);
+    const current = () => [...progress.querySelectorAll('[data-current="true"] .constitution-dimension-name')].map((node) => node.textContent);
+    expect(current()).toEqual(['平和', '气虚']);
+    expect(document.querySelector('.constitution-question-header')).toHaveTextContent('测试问题 1？请患者根据近一年的体验和感觉作答 · 数字键 1–5');
+    expect(document.querySelector('.constitution-question-header')).not.toHaveTextContent(/体质量表|男性版|0\s*\/\s*8/);
+    await user.keyboard('1');
+    expect(current()).toEqual(['平和', '阳虚']);
+    expect(within(progress).getByRole('img', { name: '平和质：1/2，当前题所属维度' })).toHaveStyle({ '--constitution-progress': '50%' });
+    expect(within(progress).getByRole('img', { name: '气虚质：1/2' })).toHaveStyle({ '--constitution-progress': '50%' });
+    await user.keyboard('2');
+    expect(within(context).getByRole('img', { name: '已答 2 / 8 题，当前第 3 题' })).toHaveTextContent('2 / 8');
+    expect(within(progress).getByRole('img', { name: '平和质：2/2，全部答完' }).closest('[role="listitem"]')).toHaveTextContent('✓');
+    await user.click(screen.getByRole('button', { name: '上一题' }));
+    expect(current()).toEqual(['平和', '阳虚']);
+    expect(within(context).getByRole('img', { name: '已答 2 / 8 题，当前第 2 题' })).toBeVisible();
+    const notes = document.querySelector('.constitution-notes')!;
+    expect(within(notes as HTMLElement).getByText('量表来源与适用说明')).toBeVisible();
+  });
+
   it('keeps the secondary destroy action in the shell throughout answering and switches the result actions and header', async () => {
     const user = userEvent.setup();
     renderForm();
@@ -34,8 +59,7 @@ describe('ConstitutionForm', () => {
     await user.click(screen.getByRole('radio', { name: '男' }));
     expect(destroy()).toHaveLength(1);
     expect(destroy()[0].closest('.panel-shell__actions')).not.toBeNull();
-    expect(document.querySelector('.constitution-progress-header')).toHaveTextContent(`${createQuestionnaireDto().standard} · 8 题`);
-    expect(document.querySelector('.constitution-progress-header')).not.toHaveTextContent('男性版');
+    expect(document.querySelector('.constitution-progress-header')).toHaveTextContent('体质维度 · 男性版更换0 / 8');
     await user.keyboard('1');
     expect(destroy()).toHaveLength(1);
     expect(destroy()[0]).toHaveClass('ds-button--secondary');
@@ -86,14 +110,14 @@ describe('ConstitutionForm', () => {
     expect(screen.getAllByRole('radiogroup')).toHaveLength(1);
     expect(screen.getAllByRole('radio', { checked: false })).toHaveLength(5);
     expect(screen.queryByRole('radiogroup', { name: '量表所用性别' })).not.toBeInTheDocument();
-    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('男性版 · 更换');
+    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('体质维度 · 男性版更换');
     expect(screen.getByRole('button', { name: '上一题' })).toBeDisabled();
     expect(screen.queryByRole('button', { name: '查看结果' })).not.toBeInTheDocument();
     fireEvent.submit(screen.getByRole('form'));
     expect(screen.getByRole('alert')).toHaveTextContent('还有 8 题未作答');
     expect(client.assessConstitution).not.toHaveBeenCalled();
     for (let index = 1; index <= 8; index += 1) {
-      expect(screen.getByText(`${index}/8`)).toBeVisible();
+      expect(screen.getByRole('img', { name: new RegExp(`当前第 ${index} 题`) })).toBeVisible();
       await user.keyboard(String((index - 1) % 5 + 1));
     }
     expect(screen.getByRole('heading', { name: '8 题已全部作答' })).toHaveFocus();
@@ -123,10 +147,10 @@ describe('ConstitutionForm', () => {
     expect(screen.getByRole('link', { name: '查看标准来源（新窗口）' })).toHaveAttribute('href', questionnaire.sourceUrl);
     await user.click(screen.getByRole('button', { name: '返回修改' }));
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
-    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('男性版 · 更换');
-    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
+    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('体质维度 · 男性版更换');
+    expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '上一题' }));
-    expect(screen.getByRole('radio', { name: '很少' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '2 很少（有一点）' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
     expect(screen.getByRole('radio', { name: '男' })).not.toBeChecked();
     expect(screen.getByRole('radiogroup', { name: '量表所用性别' })).toBeVisible();
@@ -137,23 +161,23 @@ describe('ConstitutionForm', () => {
     renderForm();
     await user.click(screen.getByRole('radio', { name: '男' }));
     await user.tab();
-    expect(screen.getByRole('radio', { name: '没有' })).toHaveFocus();
+    expect(screen.getByRole('radio', { name: '1 没有（根本不）' })).toHaveFocus();
     await user.keyboard('{ArrowDown}{End}{Home}{ArrowUp}');
-    expect(screen.getByRole('radio', { name: '总是' })).toHaveFocus();
-    expect(screen.getByText('1/8')).toBeVisible();
+    expect(screen.getByRole('radio', { name: '5 总是（非常）' })).toHaveFocus();
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toBeVisible();
     expect(screen.getByRole('img', { name: /已答 0/ })).toBeVisible();
     expect(within(screen.getByRole('radiogroup')).getAllByRole('radio', { checked: false })).toHaveLength(5);
     await user.keyboard(' ');
-    expect(screen.getByText('2/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 2 题/ })).toBeVisible();
     await user.tab();
     await user.keyboard('{Enter}');
-    expect(screen.getByText('3/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 3 题/ })).toBeVisible();
     await user.keyboard('{Control>}3{/Control}{Alt>}3{/Alt}{Meta>}3{/Meta}{Shift>}3{/Shift}x');
-    expect(screen.getByText('3/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 3 题/ })).toBeVisible();
     fireEvent.keyDown(screen.getByRole('heading', { name: '测试问题 3？' }), { key: '1', repeat: true });
-    expect(screen.getByText('3/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 3 题/ })).toBeVisible();
     await user.keyboard('4');
-    expect(screen.getByText('4/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 4 题/ })).toBeVisible();
   });
 
   it('holds the selection for 160ms, ignores rapid duplicate choices and cancels advancement on previous, sex change and unmount', () => {
@@ -161,26 +185,26 @@ describe('ConstitutionForm', () => {
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
     const { unmount, client } = renderForm();
     fireEvent.click(screen.getByRole('radio', { name: '男' }));
-    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
-    fireEvent.click(screen.getByRole('radio', { name: '总是' }));
-    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: '3 有时（有些）' }));
+    fireEvent.click(screen.getByRole('radio', { name: '5 总是（非常）' }));
+    expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     act(() => { vi.advanceTimersByTime(159); });
-    expect(screen.getByText('1/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toBeVisible();
     act(() => { vi.advanceTimersByTime(1); });
-    expect(screen.getByText('2/8')).toBeVisible();
-    fireEvent.click(screen.getByRole('radio', { name: '没有' }));
+    expect(screen.getByRole('img', { name: /当前第 2 题/ })).toBeVisible();
+    fireEvent.click(screen.getByRole('radio', { name: '1 没有（根本不）' }));
     fireEvent.click(screen.getByRole('button', { name: '上一题' }));
     act(() => { vi.advanceTimersByTime(160); });
-    expect(screen.getByText('1/8')).toBeVisible();
-    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
-    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toBeVisible();
+    expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: '3 有时（有些）' }));
     fireEvent.click(screen.getByRole('button', { name: '更换' }));
     fireEvent.click(screen.getByRole('button', { name: '确认' }));
     fireEvent.click(screen.getByRole('radio', { name: '女' }));
     act(() => { vi.advanceTimersByTime(160); });
     expect(screen.getByRole('img', { name: /已答 0/ })).toBeVisible();
-    expect(screen.getByText('1/8')).toBeVisible();
-    fireEvent.click(screen.getByRole('radio', { name: '没有' }));
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toBeVisible();
+    fireEvent.click(screen.getByRole('radio', { name: '1 没有（根本不）' }));
     unmount();
     // Query's gcTime:0 also queues a cleanup; only the advance timer must be gone.
     act(() => { vi.advanceTimersByTime(0); });
@@ -195,14 +219,14 @@ describe('ConstitutionForm', () => {
     const outside = document.createElement('button');
     document.body.append(outside);
     fireEvent.click(screen.getByRole('radio', { name: '男' }));
-    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
+    fireEvent.click(screen.getByRole('radio', { name: '3 有时（有些）' }));
     act(() => { outside.focus(); vi.advanceTimersByTime(160); });
-    expect(screen.getByText('2/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 2 题/ })).toBeVisible();
     expect(outside).toHaveFocus();
-    screen.getByRole('radio', { name: '有时' }).focus();
-    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
+    screen.getByRole('radio', { name: '3 有时（有些）' }).focus();
+    fireEvent.click(screen.getByRole('radio', { name: '3 有时（有些）' }));
     act(() => { vi.advanceTimersByTime(160); });
-    expect(screen.getByText('3/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 3 题/ })).toBeVisible();
     expect(document.querySelector('.constitution-question-title')).toHaveFocus();
     outside.remove();
   });
@@ -215,7 +239,7 @@ describe('ConstitutionForm', () => {
     await screen.findByRole('region', { name: '体质测评结果' });
     expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '返回修改' }));
-    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '更换' }));
     expect(screen.getByRole('group', { name: '更换将清空已作答的 8 题' })).toBeVisible();
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
@@ -269,7 +293,7 @@ describe('ConstitutionForm', () => {
     await act(async () => { resolve(createAssessmentDto()); });
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
     expect(screen.getByRole('img', { name: /已答 0/ })).toBeVisible();
-    expect(screen.getByText('1/8')).toBeVisible();
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toBeVisible();
   });
 
   it('confirms before clearing, cancels with a button or Esc, and restores focus and the same answers', async () => {
@@ -288,18 +312,18 @@ describe('ConstitutionForm', () => {
       else await user.keyboard('{Escape}');
       expect(change).toHaveFocus();
       expect(screen.queryByRole('button', { name: '确认' })).not.toBeInTheDocument();
-      expect(screen.getByText('2/8')).toBeVisible();
+      expect(screen.getByRole('img', { name: /当前第 2 题/ })).toBeVisible();
       expect(screen.getByRole('img', { name: /已答 1/ })).toBeVisible();
     }
     await user.click(screen.getByRole('button', { name: '上一题' }));
-    expect(screen.getByRole('radio', { name: '有时' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     await user.click(change);
     await user.click(screen.getByRole('button', { name: '确认' }));
     expect(screen.getByRole('radio', { name: '男' })).toHaveFocus();
     expect(screen.queryByRole('img', { name: /已答/ })).not.toBeInTheDocument();
     await user.click(screen.getByRole('radio', { name: '女' }));
     expect(screen.getByRole('img', { name: /已答 0/ })).toBeVisible();
-    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('女性版 · 更换');
+    expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('体质维度 · 女性版更换');
     expect(document.querySelector('input[type="radio"]')).toBeNull();
   });
 

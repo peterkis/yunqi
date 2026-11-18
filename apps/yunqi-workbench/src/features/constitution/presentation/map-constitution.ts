@@ -1,6 +1,6 @@
 import type { ConstitutionAssessmentDto, ConstitutionQuestionnaireDto } from '@yunqi/contracts';
 import type { BirthComparisonViewModel, LearningViewModel } from '../../yunqi/presentation/map-learning';
-import type { YunQiTimeViewModel } from '../../yunqi/presentation/view-model';
+import type { ElementKind, YunQiTimeViewModel } from '../../yunqi/presentation/view-model';
 
 export type QuestionnaireSex = 'male' | 'female';
 
@@ -13,7 +13,23 @@ export interface ConstitutionQuestionnaireViewModel {
   readonly sourceNote: string;
   readonly instructions: readonly string[];
   readonly questions: readonly { readonly id: string; readonly text: string; readonly sex: 'all' | QuestionnaireSex }[];
+  readonly scales: readonly { readonly id: string; readonly name: string; readonly shortName: string; readonly questionIds: readonly string[] }[];
   readonly options: readonly { readonly value: 1 | 2 | 3 | 4 | 5; readonly label: string; readonly description: string }[];
+}
+
+export interface ConstitutionProgressViewModel {
+  readonly completed: number;
+  readonly total: number;
+  readonly label: string;
+  readonly dimensions: readonly {
+    readonly id: string;
+    readonly shortName: string;
+    readonly answered: boolean;
+    readonly current: boolean;
+    readonly count: string;
+    readonly label: string;
+    readonly fillWidth: string;
+  }[];
 }
 
 export interface ConstitutionContextViewModel {
@@ -32,6 +48,7 @@ export interface ConstitutionContextViewModel {
 
 interface ConstitutionContextFactsViewModel {
   readonly summary: string;
+  readonly element: ElementKind | undefined;
   readonly detail: string;
   readonly qiDetail: string;
   readonly movementDetail: string;
@@ -41,6 +58,7 @@ function contextFacts(learning: LearningViewModel) {
   const { summary, currentStep } = learning.facts;
   return {
     summary: `${summary.stemBranch.ganzhi} · ${currentStep.name} · 客气${currentStep.guestQi}`,
+    element: currentStep.guestElement,
     detail: `${summary.suiYun.element}运${summary.suiYun.state} · 司天${summary.sitian} · 在泉${summary.zaiquan}`,
     qiDetail: `${currentStep.name} · 主气${currentStep.hostQi} · 客气${currentStep.guestQi}`,
     movementDetail: `${learning.currentMovement.name} · 主运${learning.currentMovement.hostLabel} · 客运${learning.currentMovement.guestLabel}`,
@@ -92,11 +110,38 @@ export function mapQuestionnaire(value: ConstitutionQuestionnaireDto): Constitut
   return { id: value.id, version: value.version, title: value.title, standard: value.standard,
     sourceUrl: value.sourceUrl, sourceNote: value.sourceNote, instructions: [...value.instructions],
     questions: value.questions.map((question) => ({ id: question.id, text: question.text, sex: question.sex })),
+    // The API preserves the standard appendix order. Item direction is not
+    // needed here: progress counts answers, independently of scoring.
+    scales: value.scales.map((scale) => ({ id: scale.id, name: scale.name, shortName: scale.name.replace(/质$/, ''),
+      questionIds: scale.items.map((item) => item.questionId) })),
     options: value.options.map((option) => ({
       value: option.value as 1 | 2 | 3 | 4 | 5,
       label: option.label.split('（')[0],
       description: OPTION_DESCRIPTIONS[option.value],
     })) };
+}
+
+/** Counts the DTO's memberships after sex filtering, including shared items. */
+export function mapQuestionnaireProgress(questionnaire: ConstitutionQuestionnaireViewModel, sex: QuestionnaireSex,
+  answers: Readonly<Record<string, number>>, currentQuestionId?: string): ConstitutionProgressViewModel {
+  const questions = questionnaire.questions.filter((question) => question.sex === 'all' || question.sex === sex);
+  const applicable = new Set(questions.map((question) => question.id));
+  const completed = questions.filter((question) => answers[question.id] !== undefined).length;
+  const position = questions.findIndex((question) => question.id === currentQuestionId);
+  return {
+    completed, total: questions.length,
+    label: `已答 ${completed} / ${questions.length} 题${position >= 0 ? `，当前第 ${position + 1} 题` : '，全部作答完成'}`,
+    dimensions: questionnaire.scales.map((scale) => {
+      const ids = scale.questionIds.filter((id) => applicable.has(id));
+      const count = ids.filter((id) => answers[id] !== undefined).length;
+      const current = currentQuestionId !== undefined && ids.includes(currentQuestionId);
+      const complete = ids.length > 0 && count === ids.length;
+      return { id: scale.id, shortName: scale.shortName, answered: count > 0, current,
+        count: complete ? '✓' : `${count}/${ids.length}`,
+        label: `${scale.name}：${count}/${ids.length}${complete ? '，全部答完' : ''}${current ? '，当前题所属维度' : ''}`,
+        fillWidth: `${ids.length > 0 ? count / ids.length * 100 : 0}%` };
+    }),
+  };
 }
 
 export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAssessmentViewModel {

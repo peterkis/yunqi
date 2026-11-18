@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { createAssessmentDto, createBirthComparisonDto } from '../../../test/learning-fixtures';
 import { mapBirthComparison } from '../../yunqi/presentation/map-learning';
 import { mapAssessment, mapConstitutionContext } from '../presentation/map-constitution';
-import { ConstitutionContext } from './ConstitutionContext';
+import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 import { ConstitutionResults } from './ConstitutionResults';
 
 describe('constitution result and snapshot', () => {
@@ -16,7 +16,7 @@ describe('constitution result and snapshot', () => {
     const dto = createAssessmentDto();
     const assessment = mapAssessment({ ...dto, matchedTypes: ['qi_deficiency', 'yang_deficiency'], tendencyTypes: ['yin_deficiency', 'phlegm_dampness'],
       results: dto.results.map((result, index) => ({ ...result, status: index === 1 || index === 2 ? 'yes' : index === 3 || index === 4 ? 'tendency' : 'no' })) });
-    render(<><ConstitutionContext context={context} /><ConstitutionResults assessment={assessment} context={context} /></>);
+    render(<><ConstitutionContext context={context} /><ConstitutionContextDetails context={context} /><ConstitutionResults assessment={assessment} context={context} /></>);
     const result = screen.getByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '偏颇质兼夹' })).toHaveFocus();
     expect([...result.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['气虚质', '阳虚质']);
@@ -82,7 +82,7 @@ describe('constitution result and snapshot', () => {
   it('shows a precise birth instant without inventing an interval or multiple candidate labels', async () => {
     const user = userEvent.setup();
     const comparison = mapBirthComparison({ ...createBirthComparisonDto(), birthPrecision: 'time' });
-    render(<ConstitutionContext context={mapConstitutionContext(comparison.current, comparison)} />);
+    render(<ConstitutionContextDetails context={mapConstitutionContext(comparison.current, comparison)} />);
     await user.click(screen.getByText('本次对照快照与候选区间'));
     const candidate = screen.getByRole('region', { name: '出生运气' });
     expect(candidate).toHaveTextContent('出生时刻：');
@@ -96,7 +96,7 @@ describe('constitution result and snapshot', () => {
     const comparison = mapBirthComparison(createBirthComparisonDto());
     const mapped = mapConstitutionContext(comparison.current, comparison);
     const context = { ...mapped, current: { ...mapped.current, time: { ...mapped.current.time, localTime: '2026-06-19T12:00:23.456+08:00' } } };
-    const { container } = render(<ConstitutionContext context={context} />);
+    const { container } = render(<ConstitutionContextDetails context={context} />);
     const current = container.querySelector('.constitution-context-time time');
     expect(current).toHaveTextContent('06-19 12:00');
     expect(current).toHaveAttribute('datetime', context.current.time.localTime);
@@ -105,7 +105,7 @@ describe('constitution result and snapshot', () => {
     await user.click(screen.getByText('计算说明与版本'));
     expect(within(details).getByText('2026-06-19 12:00:23.456')).toBeVisible();
     expect(details).toHaveTextContent(context.current.ruleVersion);
-    expect([...details.querySelectorAll('time')].map((time) => time.dateTime)).toEqual([
+    expect([...details.querySelectorAll<HTMLTimeElement>('.yunqi-time-details time')].map((time) => time.dateTime)).toEqual([
       context.current.time.localTime,
       comparison.candidates[0].from.localTime, comparison.candidates[0].until.localTime,
     ]);

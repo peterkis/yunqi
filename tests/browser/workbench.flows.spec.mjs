@@ -387,21 +387,21 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await male.focus();
   await page.keyboard.press('Space');
   await expect(page.locator('.constitution-question-title')).toBeFocused();
-  await expect(page.locator('.constitution-position')).toHaveText('1/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
   await page.keyboard.press('Tab');
-  await expect(form.getByRole('radio', { name: '没有', exact: true })).toBeFocused();
+  await expect(form.getByRole('radio', { name: '1 没有（根本不）', exact: true })).toBeFocused();
   await page.keyboard.press('ArrowDown');
-  await expect(form.getByRole('radio', { name: '很少', exact: true })).toBeFocused();
+  await expect(form.getByRole('radio', { name: '2 很少（有一点）', exact: true })).toBeFocused();
   await page.keyboard.press('End');
-  await expect(form.getByRole('radio', { name: '总是', exact: true })).toBeFocused();
+  await expect(form.getByRole('radio', { name: '5 总是（非常）', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
   await page.keyboard.press('ArrowUp');
   await page.waitForTimeout(200); // Longer than auto-advance: focus browsing cannot start it.
   await expect(form.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await expect(form.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
-  await expect(page.locator('.constitution-position')).toHaveText('1/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
   for (let number = 1; number <= 26; number += 1) {
-    await expect(page.locator('.constitution-position')).toHaveText(`${number}/26`);
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
     await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(form.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(end).toHaveCount(1);
@@ -411,6 +411,8 @@ test('constitution keyboard loop answers one question at a time and destroys the
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   await page.keyboard.press('Tab');
   await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -439,6 +441,8 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await page.keyboard.press('Tab');
   await expect(page.getByText('本次量表版本', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
+  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(end).toHaveCount(1);
@@ -461,15 +465,15 @@ test('constitution reduced-motion answers advance immediately and previous resto
   await page.getByRole('radio', { name: '女', exact: true }).click();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Space');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
   await expect(page.locator('.constitution-question-title')).toBeFocused();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Enter');
-  await expect(page.locator('.constitution-position')).toHaveText('3/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 3 题/);
   const previous = page.getByRole('button', { name: '上一题', exact: true });
   await previous.focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
-  await expect(page.getByRole('radiogroup').getByRole('radio', { name: '没有', exact: true })).toBeChecked();
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
+  await expect(page.getByRole('radiogroup').getByRole('radio', { name: '1 没有（根本不）', exact: true })).toBeChecked();
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
 });

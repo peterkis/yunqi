@@ -86,14 +86,14 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
 | Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; shell primary switches from 查看对照 to 同时测评体质 |
-| Constitution | Button segments for sex, collapsed version eyebrow while answering; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
+| Constitution | Button segments for sex; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared shell actions with standalone assessment, end/reopen/reset and stale response isolation |
 | Result/actions (D3) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, matched chips only for ≥2 matches and tendencies whenever present, all in DTO order and neutral tone; no sex-change eyebrow on results, one readonly version meta in its disclosure; API summary/boundary disclosure, result drill-down header; external form association, pinned actions and content → actions → footer order |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
-| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; every available focus target has a 2px ring; axe WCAG 2.1 A/AA scans |
+| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; interactive focus targets keep a 2px ring, with the F4 question-announcement exception below; axe WCAG 2.1 A/AA scans |
 
 ### Visual states
 
@@ -147,8 +147,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **65 flow/foundation/oracle tests + 158 visual/accessibility
-tests = 223 tests in 12 files**. These are test cases and repeated state checks,
+The suite discovers **67 flow/foundation/oracle tests + 158 visual/accessibility
+tests = 225 tests in 12 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -172,6 +172,15 @@ the current/neutral badges, original → interpretation → source order, serif/
 font stacks, and ≥4.5:1 label/badge contrast in both themes. The trailing notice
 stays visible while scrolling and expanding full passages.
 
+F4's `constitution-questions` and embedded `birth-assessment` capture question 5
+with five retained answers in every panel project, including 400×860,
+1366×768 and 1920×1080. They check the merged two-column context, nine progress
+cells, 48px options with five 7px degree dots, the question-only accent header
+and ≥4.5:1 header contrast. Two theme flows exercise the 160ms digit advance:
+the new question receives focus with no outline, while Tab to an option keeps
+its 2px ring. Calculation/version details follow the form beside the source
+disclosure; the keyboard traversal assertions follow this new order.
+
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one
 display alternative. Source tests require every CSS size to use `type-scale.css`
@@ -189,7 +198,9 @@ content below the current scroll position.
 Focus checks visit every available button, link, input, select, summary and
 explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
-original regression assertions. D5 uses local 140ms ease-out tokens for selection
+original regression assertions. Only `h3.constitution-question-title[tabindex="-1"]`
+asserts `outline-style: none`, as required by F4 for programmatic announcements.
+D5 uses local 140ms ease-out tokens for selection
 and disclosure motion, without transitioning outlines; reduced motion cancels
 transitions and animations. Native disclosure remains instant when intrinsic-size
 interpolation is unavailable. The previously observed not-found initial stylesheet timing

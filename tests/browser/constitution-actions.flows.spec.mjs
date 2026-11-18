@@ -1,6 +1,7 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test, expect, screenshot, expectTypeScale } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { answerConstitution, expectConstitutionAnswerLayout, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
@@ -11,6 +12,41 @@ const profiles = [
   { count: 2, title: '偏颇质兼夹', values: [1, 3, 2, 4, 4, 4, 3, 5, 2, 1, 4, 3, 2, 2, 1, 3, 3, 2, 2, 2, 4, 1, 4, 2, 2, 2] },
   { count: 7, title: '偏颇质兼夹', values: [1, 2, 2, 3, 5, 4, 3, 2, 5, 5, 4, 2, 3, 5, 3, 1, 5, 3, 3, 4, 1, 4, 5, 4, 4, 3] },
 ];
+
+for (const theme of ['light', 'dark']) {
+  test(`constitution F4: ${theme} question announcement has no outline and Tab keeps option rings`, async ({ page }, testInfo) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await page.goto('/yunqi/constitution');
+    if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
+    await page.getByRole('radio', { name: '男', exact: true }).click();
+    const heading = page.locator('h3.constitution-question-title');
+    await expect(heading).toBeFocused();
+    await page.keyboard.press('2');
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
+    await expect(heading).toBeFocused();
+    await expect(heading).toHaveCSS('outline-style', 'none');
+    await expect(page.locator('.constitution-progress-grid > [data-current="true"] .constitution-dimension-name')).toHaveText(['平和', '气虚']);
+    await page.getByRole('button', { name: '上一题', exact: true }).click();
+    const selected = page.getByRole('radio', { name: '2 很少（有一点）', exact: true });
+    await expect(selected).toBeChecked();
+    const header = page.locator('.constitution-question-header');
+    await expect(selected).toHaveCSS('background-color', await header.evaluate(element => getComputedStyle(element).backgroundColor));
+    await expect(selected).toHaveCSS('color', await header.evaluate(element => getComputedStyle(element).color));
+    await page.keyboard.press('Tab');
+    await expect(selected).toBeFocused();
+    await expect(selected).toHaveCSS('outline-style', 'solid');
+    await expect(selected).toHaveCSS('outline-width', '2px');
+    await expect(selected).toHaveCSS('outline-offset', '2px');
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('radio', { name: '3 有时（有些）', exact: true })).toBeFocused();
+    await expect(selected).toBeChecked();
+    await expect(page.locator('.constitution-position')).toHaveText('1 / 26');
+    await expectConstitutionAnswerLayout(page, testInfo);
+    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    await testInfo.attach('constitution-F4-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
+    expect(scan.violations).toEqual([]);
+  });
+}
 
 for (const embedded of [false, true]) {
   for (const profile of profiles) {
@@ -57,8 +93,8 @@ for (const embedded of [false, true]) {
       await page.keyboard.press('Enter');
       await expect(result).toHaveCount(0);
       await expect(page.locator('.constitution-question-title')).toBeFocused();
-      await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
-      await expect(page.locator('.constitution-progress-header > span').first()).toHaveText('GB/T 46939-2025 · 26 题');
+      await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
+      await expect(page.locator('.constitution-position')).toHaveText('26 / 26');
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-edit`);
       await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
       if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();

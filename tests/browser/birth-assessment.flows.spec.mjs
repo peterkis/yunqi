@@ -93,7 +93,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(context.locator(`.constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
+  await expect(page.locator(`.constitution-time-details .constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
@@ -132,7 +132,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
-  await expect(page.locator('.constitution-sex-summary')).toContainText('女性版 · 更换');
+  await expect(page.locator('.constitution-sex-summary')).toContainText('体质维度 · 女性版更换');
   await compareBirth(page, '1990-05-13');
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
@@ -216,10 +216,14 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(1);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await context.getByText('本次对照快照与候选区间', { exact: true }).click();
-  await expect(context.locator('.constitution-birth-candidate')).toHaveCount(data.candidates.length);
+  await expect(context.getByText(`${data.candidates.length} 个候选`, { exact: true })).toBeVisible();
+  const notes = page.locator('.constitution-notes');
+  await notes.getByText('本次对照快照与候选区间', { exact: true }).click();
+  const candidateDetails = notes.locator('.constitution-birth-candidate');
+  await expect(candidateDetails).toHaveCount(data.candidates.length);
   for (const [index, candidate] of data.candidates.entries()) {
-    const row = context.locator('.constitution-birth-candidate').nth(index);
+    const row = candidateDetails.nth(index);
+    await expect(row).toBeVisible();
     await expect(row.locator('time').first()).toHaveAttribute('datetime', candidate.from.localTime);
     await expect(row.locator('time').last()).toHaveAttribute('datetime', candidate.until.localTime);
   }

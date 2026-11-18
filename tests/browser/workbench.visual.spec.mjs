@@ -1,7 +1,7 @@
 import { fillBirthDate, expectBirthMirror } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { answerConstitution, expectConstitutionAnswerLayout, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
@@ -116,6 +116,15 @@ for (const state of cases) {
         await page.getByRole('radio', { name: '男', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
+        // F4 first-screen reference: five answers retained, editing question 5.
+        for (let number = 1; number <= 5; number += 1) {
+          await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
+          await page.keyboard.press('3');
+        }
+        await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 6 题/);
+        await page.getByRole('button', { name: '上一题', exact: true }).click();
+        await expect(page.locator('.constitution-question-title')).toBeFocused();
+        await page.getByRole('main').evaluate(main => { main.scrollTop = 0; });
       }
     }
     if (acceptanceTheme === 'dark') {
@@ -267,18 +276,14 @@ for (const state of cases) {
         const metrics = await question.evaluate(element => ({ size: getComputedStyle(element).fontSize, font: getComputedStyle(element).fontFamily }));
         expect(metrics.size).toBe('20px');
         expect(metrics.font).toContain('Noto Serif SC');
-        const progress = await page.locator('.constitution-progress-grid').evaluate(element => ({
-          columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
-          rows: getComputedStyle(element).gridTemplateRows.split(' ').length,
-          cells: element.children.length,
-        }));
-        expect(progress).toEqual({ columns: 13, rows: 2, cells: 26 });
+        await expectConstitutionAnswerLayout(page, testInfo);
         const options = await page.locator('.ds-scale-option').evaluateAll(elements => elements.map(element => element.getBoundingClientRect().height));
         expect(options).toHaveLength(5);
         for (const height of options) expect(height).toBeGreaterThanOrEqual(40);
         await page.getByRole('radiogroup').getByRole('radio').first().focus();
         await page.keyboard.press('ArrowDown');
-        await expect(page.locator('.constitution-position')).toHaveText('1/26');
+        await expect(page.locator('.constitution-position')).toHaveText('5 / 26');
+        await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 5 题/);
         const focusedOption = page.getByRole('radiogroup').getByRole('radio').nth(1);
         await expect(focusedOption).toHaveCSS('outline-width', '2px');
         await expect(focusedOption).toHaveCSS('outline-style', 'solid');

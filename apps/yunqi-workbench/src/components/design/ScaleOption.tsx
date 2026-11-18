@@ -7,6 +7,7 @@ export interface ScaleOptionProps {
   readonly checked: boolean;
   readonly onSelect: () => void;
   readonly disabled?: boolean;
+  readonly showDegree?: boolean;
   /** The caller owns the radiogroup and its roving tab stop. */
   readonly tabIndex?: 0 | -1;
 }
@@ -56,6 +57,7 @@ export function ScaleOption({
   checked,
   onSelect,
   disabled = false,
+  showDegree = false,
   tabIndex = 0,
 }: ScaleOptionProps) {
   const labelId = useId();
@@ -67,8 +69,9 @@ export function ScaleOption({
       role="radio"
       className="ds-scale-option"
       aria-checked={checked}
-      aria-labelledby={labelId}
-      aria-describedby={descriptionId}
+      aria-label={showDegree ? `${shortcut} ${label}（${description}）` : undefined}
+      aria-labelledby={showDegree ? undefined : labelId}
+      aria-describedby={showDegree ? undefined : descriptionId}
       aria-keyshortcuts={String(shortcut)}
       data-shortcut={shortcut}
       disabled={disabled}
@@ -79,6 +82,9 @@ export function ScaleOption({
       <span className="ds-scale-option__key num" aria-hidden="true">{shortcut}</span>
       <span className="ds-scale-option__label" id={labelId}>{label}</span>
       <span className="ds-scale-option__description" id={descriptionId}>{description}</span>
+      {showDegree ? <span className="ds-scale-option__degree" aria-hidden="true">
+        {Array.from({ length: 5 }, (_, index) => <span key={index} data-filled={index < shortcut} />)}
+      </span> : null}
     </button>
   );
 }

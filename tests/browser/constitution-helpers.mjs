@@ -1,4 +1,55 @@
 import { expect } from './fixtures.mjs';
+import { expectTextContrast } from './visual-assertions.mjs';
+
+export async function expectConstitutionAnswerLayout(scope, testInfo) {
+  const context = scope.locator('.constitution-context');
+  await expect(context.locator('.constitution-context-rows > div')).toHaveCount(2);
+  await expect(context.locator('.constitution-dimensions')).toHaveCount(1);
+  await expect(context.locator('.constitution-time-details')).toHaveCount(0);
+  const grid = context.getByRole('list', { name: '九种体质作答进度', exact: true });
+  await expect(grid.getByRole('listitem')).toHaveCount(9);
+  await expect(grid.locator('.constitution-dimension-name')).toHaveText(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
+  const geometry = await grid.evaluate(element => ({
+    columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
+    rows: getComputedStyle(element).gridTemplateRows.split(' ').length,
+    tracks: [...element.querySelectorAll('.constitution-dimension-track')].map(track => track.getBoundingClientRect().height),
+  }));
+  expect(geometry).toEqual({ columns: 9, rows: 1, tracks: Array(9).fill(3) });
+  const header = scope.locator('.constitution-question-header');
+  await expect(header.locator(':scope > *')).toHaveCount(2);
+  await expect(header.locator('h3.constitution-question-title')).toHaveAttribute('tabindex', '-1');
+  await expect(header.locator('p')).toHaveText('请患者根据近一年的体验和感觉作答 · 数字键 1–5');
+  await expect(header).not.toContainText(/体质量表|男性版|女性版|\d+\s*\/\s*26/);
+  const contrast = await expectTextContrast(header);
+  const accentColor = await header.evaluate(element => getComputedStyle(element).backgroundColor);
+  const headerColor = await header.evaluate(element => getComputedStyle(element).color);
+  await expect(header.locator('h3')).toHaveCSS('color', headerColor);
+  await expect(header.locator('p')).toHaveCSS('color', headerColor);
+  await expect(header.locator('p')).toHaveCSS('opacity', '0.85');
+  for (const name of await grid.locator('[data-current="true"] .constitution-dimension-name').all()) {
+    await expect(name).toHaveCSS('color', accentColor);
+    await expect(name).toHaveCSS('font-weight', '700');
+  }
+  for (const name of await grid.locator('[data-answered="true"] .constitution-dimension-name').all()) await expect(name).toHaveCSS('color', accentColor);
+  const options = scope.locator('.constitution-question-screen .ds-scale-option');
+  const labels = ['没有（根本不）', '很少（有一点）', '有时（有些）', '经常（相当）', '总是（非常）'];
+  for (let value = 1; value <= 5; value += 1) {
+    const option = options.nth(value - 1);
+    await expect(option).toHaveAccessibleName(`${value} ${labels[value - 1]}`);
+    await expect(option).toHaveCSS('height', '48px');
+    await expect(option.locator('.ds-scale-option__key')).toHaveCSS('width', '22px');
+    await expect(option.locator('.ds-scale-option__key')).toHaveCSS('height', '22px');
+    const degree = option.locator('.ds-scale-option__degree');
+    await expect(degree).toHaveAttribute('aria-hidden', 'true');
+    await expect(degree.locator(':scope > span')).toHaveCount(5);
+    await expect(degree.locator('[data-filled="true"]')).toHaveCount(value);
+    for (const dot of await degree.locator(':scope > span').all()) {
+      await expect(dot).toHaveCSS('width', '7px');
+      await expect(dot).toHaveCSS('height', '7px');
+    }
+  }
+  if (testInfo) await testInfo.attach('constitution-answer-layout', { body: JSON.stringify({ ...geometry, headerContrast: contrast }), contentType: 'application/json' });
+}
 
 export async function changeConstitutionSex(scope, sex, answered) {
   await scope.getByRole('button', { name: '更换', exact: true }).click();
@@ -17,7 +68,8 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   for (let number = 1; number <= 26; number += 1) {
-    await expect(scope.locator('.constitution-position')).toHaveText(`${number}/26`);
+    await expect(scope.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
+    await expect(scope.locator('.constitution-position')).toHaveText(`${number - 1} / 26`);
     await expect(scope.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(scope.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);

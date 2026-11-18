@@ -175,8 +175,9 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   const form = page.getByRole('form', { name: '中医体质量表' });
   await expect(form).toBeVisible();
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
-  await expect(context.locator('.constitution-context-time time')).toHaveCount(1);
-  await expect(context).toContainText('北京时间 UTC+08');
+  await expect(context).toBeVisible();
+  await expect(page.locator('.constitution-time-details .constitution-context-time time')).toHaveCount(1);
+  await expect(page.locator('.constitution-time-details')).toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
   await page.getByRole('radio', { name: '男', exact: true }).click();
@@ -186,7 +187,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   expect(diagnostics.requests.filter(request => request.method === 'POST')).toHaveLength(0);
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await answerConstitution(page);
@@ -205,14 +206,14 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'constitution-nine-dimensions');
   await page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true }).click();
-  await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+  await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
   await changeConstitutionSex(page, '女', 26);
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await page.keyboard.press('1');
-  await expect(page.locator('.constitution-position')).toHaveText('2/26');
+  await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await expect(page.getByRole('radio', { name: '女', exact: true })).not.toBeChecked();
@@ -230,12 +231,12 @@ for (const theme of ['light', 'dark']) {
     await checkAccessibility(page, testInfo);
     await gender.getByRole('radio', { name: '男', exact: true }).click();
     await expect(gender).toHaveCount(0);
-    await expect(page.locator('.constitution-sex-summary')).toHaveText('男性版 · 更换');
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
     await changeConstitutionSex(page, '女', 0);
     await expect(page.getByRole('button', { name: '确认', exact: true })).toHaveCount(0);
-    await expect(page.locator('.constitution-sex-summary')).toHaveText('女性版 · 更换');
+    await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 女性版更换');
     await page.keyboard.press('3');
-    await expect(page.locator('.constitution-position')).toHaveText('2/26');
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
     const change = page.getByRole('button', { name: '更换', exact: true });
     const confirmation = page.getByRole('group', { name: '更换将清空已作答的 1 题', exact: true });
     for (const method of ['button', 'Escape']) {
@@ -248,17 +249,17 @@ for (const theme of ['light', 'dark']) {
       else await page.keyboard.press('Escape');
       await expect(confirmation).toHaveCount(0);
       await expect(change).toBeFocused();
-      await expect(page.locator('.constitution-position')).toHaveText('2/26');
+      await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
       await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
     }
     await page.getByRole('button', { name: '上一题', exact: true }).click();
-    await expect(page.getByRole('radio', { name: '有时', exact: true })).toBeChecked();
+    await expect(page.getByRole('radio', { name: '3 有时（有些）', exact: true })).toBeChecked();
     await change.click();
     await page.getByRole('button', { name: '确认', exact: true }).click();
     await expect(gender.getByRole('radio', { name: '男', exact: true })).toBeFocused();
     await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
     await gender.getByRole('radio', { name: '男', exact: true }).click();
-    await expect(page.locator('.constitution-position')).toHaveText('1/26');
+    await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
     await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   });
