@@ -1,9 +1,10 @@
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
+import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   const data = await loadCurrent(page);
-  await expect(page.locator('.current-time-range time').first()).toHaveText(data.facts.currentStep.start.localTime.slice(5, 16).replace('T', ' '));
+  await expectCurrentStageFacts(page, data);
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
   await expectMoreRows(page);
   await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');
@@ -112,7 +113,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   const trace = page.getByRole('region', { name: '追溯信息', exact: true });
   await page.locator('.drilldown-technical > summary').click();
   await expect(trace.getByText(nextYear.ruleVersion, { exact: true })).toBeVisible();
-  await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
+  await expect(trace.getByText('YQ-API-CONTRACT-1.3.0', { exact: true })).toBeVisible();
   await screenshot(page, testInfo, 'annual-upgraded-guest-generates-host');
   await page.goBack();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2024');
@@ -247,7 +248,7 @@ test('supported annual boundary years load directly from the real API', async ({
     await expect(calculation).toHaveAttribute('open');
     const trace = calculation.getByRole('region', { name: '追溯信息', exact: true });
     await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
-    await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
+    await expect(trace.getByText('YQ-API-CONTRACT-1.3.0', { exact: true })).toBeVisible();
     await screenshot(page, testInfo, `annual-boundary-${year}`);
   }
   expect(diagnostics.requests).toHaveLength(2);

@@ -29,9 +29,9 @@ describe('rule explanation and traceability panels', () => {
     expect(explanation).toBeVisible();
     expect(trace).toBeVisible();
     expect(explanation).toHaveTextContent('API 原文');
-    expect(explanation).not.toHaveTextContent('YQ-API-CONTRACT-1.2.0');
+    expect(explanation).not.toHaveTextContent('YQ-API-CONTRACT-1.3.0');
     expect(trace).not.toHaveTextContent('API 原文');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });

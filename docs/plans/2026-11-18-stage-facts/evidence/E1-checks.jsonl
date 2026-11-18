@@ -1,0 +1,23 @@
+{"label": "baseline-domain-coverage", "command": ["pnpm", "--filter", "@yunqi/domain", "test:coverage"], "exitCode": 0, "log": "E1-baseline-domain-coverage.txt"}
+{"label": "project-guidance", "command": ["pnpm", "test:project-guidance"], "exitCode": 0, "log": "E1-project-guidance.txt"}
+{"label": "domain-typecheck", "command": ["pnpm", "--filter", "@yunqi/domain", "typecheck"], "exitCode": 0, "log": "E1-domain-typecheck.txt"}
+{"label": "domain-test-typecheck", "command": ["pnpm", "--filter", "@yunqi/domain", "test:typecheck"], "exitCode": 0, "log": "E1-domain-test-typecheck.txt"}
+{"label": "domain-tests", "command": ["pnpm", "--filter", "@yunqi/domain", "test"], "exitCode": 0, "log": "E1-domain-tests.txt"}
+{"label": "time-governance", "command": ["pnpm", "test:time-governance"], "exitCode": 0, "log": "E1-time-governance.txt"}
+{"label": "build-contract-source", "command": ["pnpm", "build:contract-source"], "exitCode": 0, "log": "E1-build-contract-source.txt"}
+{"label": "boundary-regression", "command": ["node", "docs/plans/2026-11-18-stage-facts/evidence/E1-verify-boundaries.mjs"], "exitCode": 0, "log": "E1-boundary-regression.txt"}
+{"label": "rule-consistency", "command": ["pnpm", "test:rule-consistency"], "exitCode": 0, "log": "E1-rule-consistency.txt"}
+{"label": "full-test", "command": ["pnpm", "test"], "exitCode": 0, "log": "E1-full-test.txt"}
+{"label": "domain-time-purity", "command": ["pnpm", "--filter", "@yunqi/domain", "test:time-purity"], "exitCode": 0, "log": "E1-domain-time-purity.txt"}
+{"label": "coverage", "command": ["pnpm", "test:coverage"], "exitCode": 0, "log": "E1-coverage.txt"}
+{"label": "full-typecheck", "command": ["pnpm", "typecheck"], "exitCode": 0, "log": "E1-full-typecheck.txt"}
+{"label": "final-domain-test-typecheck", "command": ["pnpm", "--filter", "@yunqi/domain", "test:typecheck"], "exitCode": 0, "log": "E1-final-domain-test-typecheck.txt"}
+{"label": "final-domain-coverage", "command": ["pnpm", "--filter", "@yunqi/domain", "test:coverage"], "exitCode": 0, "log": "E1-final-domain-coverage.txt"}
+{"label": "final-full-test", "command": ["pnpm", "test"], "exitCode": 0, "log": "E1-final-full-test.txt"}
+{"label": "evidence-syntax", "command": ["node", "--check", "docs/plans/2026-11-18-stage-facts/evidence/E1-verify-boundaries.mjs"], "exitCode": 0, "log": "E1-evidence-syntax.txt"}
+{"label": "scope-script-syntax", "command": ["node", "--check", "docs/plans/2026-11-18-stage-facts/evidence/E1-verify-scope.mjs"], "exitCode": 0, "log": "E1-scope-script-syntax.txt"}
+{"label": "diff-check", "command": ["git", "diff", "--check"], "exitCode": 0, "log": "E1-diff-check.txt"}
+{"label": "final-coverage", "command": ["pnpm", "test:coverage"], "exitCode": 0, "log": "E1-final-coverage.txt"}
+{"label": "final-full-typecheck", "command": ["pnpm", "typecheck"], "exitCode": 0, "log": "E1-final-full-typecheck.txt"}
+{"label": "final-scope", "command": ["node", "docs/plans/2026-11-18-stage-facts/evidence/E1-verify-scope.mjs"], "exitCode": 0, "log": "E1-final-scope.txt"}
+{"label": "browser", "command": ["pnpm", "test:browser"], "status": "NOT_RUN", "exitCode": null, "reason": "Task card specifies Chromium cannot start in this sandbox; E1 changes no UI or browser cases."}

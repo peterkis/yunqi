@@ -3,6 +3,15 @@ import { createBirthComparisonDto } from '../../../../test/learning-fixtures';
 import { mapBirthView } from './map-birth-view';
 
 describe('birth presentation', () => {
+  it('keeps the guest-movement birth comparison separate from the current host/guest movement relation', () => {
+    const dto = createBirthComparisonDto();
+    const base = dto.candidates[0];
+    const comparison = { ...base.comparisons[0], title: '客运对照', label: '当前克出生', relation: '接口出生与当前客运对照', explanation: '来自comparisons的说明' };
+    const result = mapBirthView({ ...dto, candidates: [{ ...base, comparisons: [comparison] }] });
+    expect(result.candidates[0].rows[4].relation).toMatchObject({ label: comparison.label, relation: comparison.relation, explanation: comparison.explanation, tone: 'adverse' });
+    expect(result.comparison.current.currentMovement.relation).toMatchObject({ label: '相得 · 客生主', tone: 'favorable' });
+  });
+
   it.each([
     { birthPrecision: 'date', ambiguous: false, count: 1, meta: '当日无交界 · 归属唯一' },
     { birthPrecision: 'time', ambiguous: false, count: 1, meta: '时刻已知 · 归属唯一' },

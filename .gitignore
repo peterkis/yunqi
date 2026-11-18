@@ -19,6 +19,7 @@ Thumbs.db
 
 # Local execution artifacts and reproducible frontend caches
 .artifacts/
+test-results/
 docs/superpowers/verification/evidence/**/vite-cache/
 
 # Reviewed, repository-owned acceptance logs are durable evidence.

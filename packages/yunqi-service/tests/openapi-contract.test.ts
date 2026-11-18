@@ -23,9 +23,9 @@ describe('OpenAPI contract', () => {
     const document = app.swagger() as Record<string, any>;
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.4.0');
+    expect(document.info.version).toBe('1.5.0');
     expect(document['x-yunqi-contract-id']).toBe(
-      'YQ-API-CONTRACT-1.2.0',
+      'YQ-API-CONTRACT-1.3.0',
     );
     expect(Object.keys(document.paths ?? {})).toEqual(
       expect.arrayContaining([
@@ -189,9 +189,9 @@ describe('OpenAPI contract', () => {
     const document = parse(source);
 
     expect(document.openapi).toBe('3.1.0');
-    expect(document.info.version).toBe('1.4.0');
+    expect(document.info.version).toBe('1.5.0');
     expect(document['x-yunqi-contract-id']).toBe(
-      'YQ-API-CONTRACT-1.2.0',
+      'YQ-API-CONTRACT-1.3.0',
     );
     expect(document.paths).toHaveProperty('/api/v1/yunqi/calculate');
     expect(document.components.schemas).toHaveProperty('YunQiTimeDto');

@@ -1,6 +1,7 @@
 import type {
   HostGuestRelationResult,
   SixQiStep,
+  StageProgress,
   YunQiCalendarResult,
   YunQiCalendarTime,
   YunQiInstant,
@@ -13,6 +14,7 @@ import {
 import type {
   HostGuestRelationDto,
   SixQiStepDto,
+  StageProgressDto,
   YunQiCalculationDto,
   YunQiTimeDto,
   YunQiYearDto,
@@ -43,9 +45,19 @@ function mapStep(value: SixQiStep): SixQiStepDto {
     name: value.name,
     start: mapInstant(value.start),
     end: mapInstant(value.end),
+    startTerm: value.startTerm,
+    endTerm: value.endTerm,
     hostQi: value.hostQi,
     guestQi: value.guestQi,
     relation: mapRelation(value.relation),
+  };
+}
+
+export function mapStageProgress(value: StageProgress): StageProgressDto {
+  return {
+    elapsedRatio: value.elapsedRatio,
+    remainingCalendarDays: value.remainingCalendarDays,
+    endsOnInputDate: value.endsOnInputDate,
   };
 }
 
@@ -79,5 +91,6 @@ export function mapCalculationResult(
     ...mapYearResult(value),
     input: mapCalendarTime(value.input),
     currentStep: mapStep(value.currentStep),
+    currentStepProgress: mapStageProgress(value.currentStepProgress),
   };
 }

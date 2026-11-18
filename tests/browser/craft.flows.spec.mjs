@@ -64,10 +64,14 @@ for (const theme of ['light', 'dark']) {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.getByRole('button', { name: '收起为胶囊条' }).click();
     const pill = page.getByRole('button', { name: /^展开运气通/ });
+    for (const selector of ['html', 'body', '#root', '.theme-root', '.panel-viewport']) {
+      await expect(page.locator(selector)).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    }
     await expect(pill).toHaveCSS('transition-duration', '0.14s');
     await expect(pill).toHaveCSS('transition-timing-function', 'ease-out');
     await expect(pill).toHaveCSS('opacity', '1');
     await pill.click();
+    await expect(page.locator('body')).toHaveCSS('background-color', rgb(surface('surface-sunken').light));
     await expect(page.locator('.panel-shell')).toHaveCSS('transition-duration', '0.14s');
     await expect(page.locator('.panel-shell')).toHaveCSS('opacity', '1');
     await page.emulateMedia({ reducedMotion: 'reduce' });

@@ -188,6 +188,25 @@ describe('ConstitutionForm', () => {
     expect(client.assessConstitution).not.toHaveBeenCalled();
   });
 
+  it('does not pull focus back to the next question when focus left the form during the 160ms hold', () => {
+    vi.useFakeTimers();
+    vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: false })));
+    renderForm();
+    const outside = document.createElement('button');
+    document.body.append(outside);
+    fireEvent.click(screen.getByRole('radio', { name: '男' }));
+    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
+    act(() => { outside.focus(); vi.advanceTimersByTime(160); });
+    expect(screen.getByText('2/8')).toBeVisible();
+    expect(outside).toHaveFocus();
+    screen.getByRole('radio', { name: '有时' }).focus();
+    fireEvent.click(screen.getByRole('radio', { name: '有时' }));
+    act(() => { vi.advanceTimersByTime(160); });
+    expect(screen.getByText('3/8')).toBeVisible();
+    expect(document.querySelector('.constitution-question-title')).toHaveFocus();
+    outside.remove();
+  });
+
   it('clears answers and results on sex change and sends only the applicable item', async () => {
     const user = userEvent.setup();
     const { client } = renderForm();

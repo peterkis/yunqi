@@ -1,0 +1,98 @@
+$ pnpm typecheck
+
+> yunqi@ typecheck /Users/petervans/Projects/YunQi
+> pnpm build && pnpm --filter @yunqi/domain typecheck && pnpm --filter @yunqi/domain test:typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts typecheck && pnpm --filter @yunqi/calendar-adapter-tyme4ts test:typecheck && pnpm --filter @yunqi/contracts typecheck && pnpm --filter @yunqi/contracts test:typecheck && pnpm --filter @yunqi/client typecheck && pnpm --filter @yunqi/client test:typecheck && pnpm --filter @yunqi/service typecheck && pnpm --filter @yunqi/service test:typecheck && pnpm --filter @yunqi/workbench typecheck && pnpm --filter @yunqi/workbench test:typecheck
+
+
+> yunqi@ build /Users/petervans/Projects/YunQi
+> pnpm build:contract-source && pnpm --filter @yunqi/contracts build && pnpm --filter @yunqi/client build && pnpm --filter @yunqi/workbench build
+
+
+> yunqi@ build:contract-source /Users/petervans/Projects/YunQi
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.4.0 build /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build /Users/petervans/Projects/YunQi/packages/calendar-adapters/tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.2.0 build /Users/petervans/Projects/YunQi/packages/yunqi-service
+> tsc -p tsconfig.json
+
+
+> @yunqi/contracts@1.2.0 build /Users/petervans/Projects/YunQi/packages/yunqi-contracts
+> tsc -p tsconfig.json
+
+
+> @yunqi/client@1.2.0 build /Users/petervans/Projects/YunQi/packages/yunqi-client
+> tsc -p tsconfig.json
+
+
+> @yunqi/workbench@0.1.0 build /Users/petervans/Projects/YunQi/apps/yunqi-workbench
+> tsc -p tsconfig.json --noEmit && vite build && node scripts/check-production-css.mjs
+
+vite v8.1.5 building client environment for production...
+[2K
+transforming...✓ 170 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.56 kB │ gzip:   0.35 kB
+dist/assets/index-CEWbJ1fd.css   61.13 kB │ gzip:   9.33 kB
+dist/assets/index-Bv-0rK9p.js   357.32 kB │ gzip: 109.00 kB
+
+✓ built in 82ms
+Production CSS checked: 1 stylesheet(s), no development host rules.
+
+> @yunqi/domain@1.4.0 typecheck /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/domain@1.4.0 test:typecheck /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 typecheck /Users/petervans/Projects/YunQi/packages/calendar-adapters/tyme4ts
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 test:typecheck /Users/petervans/Projects/YunQi/packages/calendar-adapters/tyme4ts
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/contracts@1.2.0 typecheck /Users/petervans/Projects/YunQi/packages/yunqi-contracts
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/contracts@1.2.0 test:typecheck /Users/petervans/Projects/YunQi/packages/yunqi-contracts
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/client@1.2.0 typecheck /Users/petervans/Projects/YunQi/packages/yunqi-client
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/client@1.2.0 test:typecheck /Users/petervans/Projects/YunQi/packages/yunqi-client
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/service@2.2.0 typecheck /Users/petervans/Projects/YunQi/packages/yunqi-service
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/service@2.2.0 test:typecheck /Users/petervans/Projects/YunQi/packages/yunqi-service
+> tsc -p tsconfig.test.json
+
+
+> @yunqi/workbench@0.1.0 typecheck /Users/petervans/Projects/YunQi/apps/yunqi-workbench
+> tsc -p tsconfig.json --noEmit
+
+
+> @yunqi/workbench@0.1.0 test:typecheck /Users/petervans/Projects/YunQi/apps/yunqi-workbench
+> tsc -p tsconfig.test.json --noEmit
+
+
+exit_code=0

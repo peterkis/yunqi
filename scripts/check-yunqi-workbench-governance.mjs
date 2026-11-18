@@ -526,6 +526,34 @@ function staticStringValue(node) {
   return undefined;
 }
 
+function hasStaticSixQiBoundaryArray(sourceFile) {
+  const terms = ['大寒', '春分', '小满', '大暑', '秋分', '小雪'];
+  let found = false;
+  const visit = (node) => {
+    if (found) return;
+    if (ts.isArrayLiteralExpression(node)) {
+      const included = new Set();
+      const collect = (element) => {
+        if (ts.isTypeNode(element)) return;
+        const label = staticStringValue(element);
+        if (label !== undefined) {
+          for (const term of terms) if (label.includes(term)) included.add(term);
+          return;
+        }
+        ts.forEachChild(element, collect);
+      };
+      node.elements.forEach(collect);
+      if (included.size >= 2) {
+        found = true;
+        return;
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  return found;
+}
+
 function isOne(node) {
   const current = unwrapExpression(node);
   return ts.isNumericLiteral(current) && current.text === '1';
@@ -2132,6 +2160,9 @@ async function findSourceViolations(root) {
     const source = await readFile(file, 'utf8');
     const relativePath = normalizePath(relative(root, file));
     const sourceFile = parseWorkbenchSource(source, file);
+    if (isProductionSource(file) && hasStaticSixQiBoundaryArray(sourceFile)) {
+      violations.push(`${relativePath}: static six-qi boundary term arrays are forbidden; use API boundary labels`);
+    }
     if (isProductionSource(file) && /待正式冻结/.test(freezeNote)) {
       const visitCopy = (node) => {
         if ((ts.isStringLiteralLike(node) || ts.isJsxText(node)) && /冻结规则|规则已冻结/.test(node.text)) {

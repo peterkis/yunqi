@@ -72,6 +72,10 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       await page.evaluate(() => document.fonts.ready);
       if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
       const before = await expectPanelLayout(page);
+      await expect(page.locator('.panel-shell')).toHaveCSS('box-shadow', /1px 0px 0px 0px inset/);
+      await expect(page.locator('.panel-shell')).toHaveCSS('border-left-width', '0px');
+      await expect(page.getByRole('main')).toHaveCSS('padding-left', '16px');
+      await expect(page.getByRole('main')).toHaveCSS('padding-right', '16px');
       const nav = page.getByRole('navigation', { name: '工作台导航', exact: true });
       await expect(nav.getByRole('link')).toHaveText(['当下运气', '先天对照', '体质量表']);
       await expect(nav.locator('[aria-current="page"]')).toHaveText('当下运气');
@@ -107,7 +111,7 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       await collapse.focus();
       await page.keyboard.press('Enter');
       // Simulate the future host resizing instead of compressing the pill.
-      const collapsedViewport = { width: Math.max(416, viewport.width), height: viewport.height };
+      const collapsedViewport = { width: Math.max(424, viewport.width), height: viewport.height };
       await page.setViewportSize(collapsedViewport);
       const expand = page.getByRole('button', { name: /^展开运气通/ });
       await expect(expand).toBeFocused();

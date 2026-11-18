@@ -50,13 +50,15 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
       <InfoCard label={`此刻 · ${viewModel.inputDate}`} meta="北京时间 UTC+08">
         <div className="current-sixqi-progress" role="img" aria-label={viewModel.progressLabel}>
           {viewModel.timeline.map((step) => <span className={`current-sixqi-progress__step is-${step.status.code}`} key={step.index} aria-hidden="true">
-            <span className="current-sixqi-progress__bar" />
+            <span className="current-sixqi-progress__bar">
+              {step.status.code === 'current' && <span className="current-sixqi-progress__elapsed" style={{ width: viewModel.currentStepProgress.elapsedWidth }} />}
+            </span>
             <span>{step.tickLabel}</span>
           </span>)}
         </div>
         <section className="current-period" aria-label="当步气">
           <h3>{currentStep.name}</h3>
-          <CurrentTimeRange start={currentStep.start} end={currentStep.end} />
+          <p className="current-period__subtitle num"><InlineText>{viewModel.currentStepProgress.subtitle}</InlineText></p>
           <dl className="current-pair">
             <div><dt>主气</dt><dd><CurrentElementValue element={currentStep.hostElement} label={currentStep.hostQi} /></dd></div>
             <div><dt>客气</dt><dd><CurrentElementValue element={currentStep.guestElement} label={currentStep.guestQi} /></dd></div>
@@ -65,12 +67,12 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
         </section>
         <section className="current-period" aria-label="当步运">
           <h3>{movement.name}</h3>
-          <CurrentTimeRange start={movement.start} end={movement.end} />
+          <p className="current-period__subtitle num"><InlineText>{learning.currentMovementProgress.subtitle}</InlineText></p>
           <dl className="current-pair">
             <div><dt>主运</dt><dd><CurrentElementValue element={movement.hostElement} label={movement.hostLabel} /></dd></div>
             <div><dt>客运</dt><dd><CurrentElementValue element={movement.guestElement} label={movement.guestLabel} /></dd></div>
           </dl>
-          {movement.relation && <RelationChip tone={movement.relation.tone} label={movement.relation.label} explanation={movement.relation.explanation} />}
+          <RelationChip tone={movement.relation.tone} label={movement.relation.label} explanation={movement.relation.explanation} />
         </section>
         <details className="current-disclosure current-relations">
           <summary>这些关系怎么读？</summary>
@@ -97,6 +99,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
               <h3>{step.name}{step.index === movement.index ? <span className="current-meta"><InlineText> · 正在此段</InlineText></span> : null}</h3>
               <CurrentTimeRange start={step.start} end={step.end} />
               <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
+              <RelationChip tone={step.relation.tone} label={step.relation.label} explanation={step.relation.explanation} />
               <p className="current-copy">{step.explanation}</p>
               <p className="current-meta">{step.boundaryMethod}</p>
             </section>)}

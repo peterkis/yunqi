@@ -12,13 +12,16 @@ type GeneratedCalculationSuccessResponse =
   Schemas['CalculationSuccessResponse'];
 
 export const YUNQI_API_CONTRACT_ID =
-  'YQ-API-CONTRACT-1.2.0' as const;
+  'YQ-API-CONTRACT-1.3.0' as const;
 
 export type CalculateRequest = Schemas['CalculateRequest'];
 export type ApiErrorResponse = Schemas['ErrorResponse'];
 export type StemBranchDto = Schemas['StemBranchDto'];
 export type SuiYunDto = Schemas['SuiYunDto'];
 export type HostGuestRelationDto = Schemas['HostGuestRelationDto'];
+export type MovementRelationDto = Schemas['MovementRelationDto'];
+export type StageProgressDto = Schemas['StageProgressDto'];
+export type SixQiBoundaryTerm = Schemas['SixQiBoundaryTerm'];
 export type YunQiTimeDto = Schemas['YunQiTimeDto'];
 
 export type YunQiCalculationInputTimeDto = YunQiTimeDto;

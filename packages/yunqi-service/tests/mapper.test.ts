@@ -1,4 +1,5 @@
 import {
+  calculateLearning,
   calculateYearYunQi,
   calculateYunQiByCalendarTime,
   createYunQiCalendarTime,
@@ -8,6 +9,7 @@ import {
   mapCalculationResult,
   mapYearResult,
 } from '../src/mappers/yunqi-mapper.js';
+import { mapLearning } from '../src/services/learning-service.js';
 import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 
 describe('YunQi API mapper', () => {
@@ -31,6 +33,11 @@ describe('YunQi API mapper', () => {
     expect(dto.sixQi.sitian).toBe('太阳寒水');
     expect(dto.sixQi.steps).toHaveLength(6);
     expect(dto.sixQi.steps).not.toBe(domain.steps);
+    expect(dto.sixQi.steps.map((step) => [step.startTerm, step.endTerm])).toEqual([
+      ['大寒', '春分'], ['春分', '小满'], ['小满', '大暑'],
+      ['大暑', '秋分'], ['秋分', '小雪'], ['小雪', '大寒'],
+    ]);
+    expect(dto).not.toHaveProperty('currentStepProgress');
     expect(dto.explanations).not.toBe(domain.explanations);
     expect(dto).not.toBe(domain);
   });
@@ -59,5 +66,31 @@ describe('YunQi API mapper', () => {
     expect(dto.input).not.toBe(domain.input);
     expect(dto.currentStep).toEqual(dto.sixQi.steps[2]);
     expect(dto.currentStep).not.toBe(domain.currentStep);
+    expect(dto.currentStepProgress).toEqual(domain.currentStepProgress);
+    expect(dto.currentStepProgress).not.toBe(domain.currentStepProgress);
+  });
+
+  it('copies supplied Domain progress, movement relations and labels without recomputing business facts', () => {
+    const domain = calculateLearning(createYunQiCalendarTime({
+      year: 2026, month: 11, day: 18, hour: 8, minute: 44, second: 0, millisecond: 0,
+    }), fixedCalendarProvider);
+    const supplied = {
+      ...domain,
+      facts: { ...domain.facts, currentStepProgress: { elapsedRatio: 0.123, remainingCalendarDays: 7, endsOnInputDate: false } },
+      currentMovement: { ...domain.currentMovement, startLabel: 'Domain起点', endLabel: 'Domain终点' },
+      currentMovementProgress: { elapsedRatio: 0.456, remainingCalendarDays: 8, endsOnInputDate: false },
+    };
+    const dto = mapLearning(supplied);
+    expect(dto.facts.currentStepProgress).toEqual(supplied.facts.currentStepProgress);
+    expect(dto.currentMovementProgress).toEqual(supplied.currentMovementProgress);
+    expect(dto.currentMovementProgress).not.toBe(supplied.currentMovementProgress);
+    expect(dto.currentMovement.startLabel).toBe('Domain起点');
+    expect(dto.currentMovement.endLabel).toBe('Domain终点');
+    expect(dto.currentMovement.relation).toEqual(domain.currentMovement.relation);
+    expect(dto.currentMovement.relation).not.toBe(domain.currentMovement.relation);
+    for (const [index, movement] of dto.movements.entries()) {
+      expect(movement.relation).toEqual(domain.movements[index]?.relation);
+      expect(movement.relation).not.toBe(domain.movements[index]?.relation);
+    }
   });
 });

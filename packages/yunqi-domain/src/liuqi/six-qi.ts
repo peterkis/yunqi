@@ -43,6 +43,8 @@ export function buildSixQiSteps(
       name,
       start: boundaries[offset],
       end: boundaries[offset + 1],
+      startTerm: STEP_BOUNDARY_TERMS[offset],
+      endTerm: STEP_BOUNDARY_TERMS[(offset + 1) % STEP_BOUNDARY_TERMS.length],
       hostQi,
       guestQi: currentGuestQi,
       relation: calculateHostGuestRelation(hostQi, currentGuestQi),

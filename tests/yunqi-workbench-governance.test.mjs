@@ -32,6 +32,46 @@ const allowedRuntimeDependencies = {
   'react-router-dom': '7.18.1',
 };
 
+for (const source of [
+  "export const terms = ['大寒', '春分', '小满', '大暑', '秋分', '小雪'];",
+  "export const terms = ['秋分', '小雪'] as const;",
+  'export const terms = [`大暑`, `秋分`] satisfies readonly string[];',
+  "export const terms = [('大' + '寒'), ('春分' as string)];",
+  "export const terms = [['大寒', '小雪']];",
+  "export const terms = [['大寒'], ['小雪']];",
+  "export const terms = [{ start: '大寒', end: '春分' }];",
+  "export const terms = ['大寒交界', '春分后13日'];",
+  "export const terms = [`${'大寒'}`, '小雪'];",
+]) {
+  test(`rejects a production six-qi boundary array: ${source}`, async () => {
+    const fixture = createFixture({ relativeSourcePath: 'lib/stage-labels.ts', source });
+    const violations = await findWorkbenchGovernanceViolations(fixture);
+    assert.ok(violations.some((violation) => /static six-qi boundary term arrays/.test(violation)), violations.join('\n'));
+  });
+}
+
+for (const source of [
+  "export const labels = ['大寒', '交界'];",
+  "export const labels = ['大寒', '大寒'];",
+  "export const labels = ['芒种', '处暑', '立冬'];",
+  "export const range = '秋分 → 小雪';",
+  "// ['大寒', '春分']\nexport const labels = [];",
+  "export const labels = [step.startTerm, step.endTerm];",
+  "export type Labels = ['大寒', '春分'];",
+]) {
+  test(`allows presentation without a static boundary array: ${source}`, async () => {
+    const fixture = createFixture({ relativeSourcePath: 'lib/stage-labels.ts', source });
+    assert.deepEqual(await findWorkbenchGovernanceViolations(fixture), []);
+  });
+}
+
+for (const relativeSourcePath of ['lib/stage.test.ts', 'lib/stage.spec.tsx', 'test/labels.ts', '__tests__/labels.ts']) {
+  test(`allows boundary arrays in excluded test source: ${relativeSourcePath}`, async () => {
+    const fixture = createFixture({ relativeSourcePath, source: "export const terms = ['大寒', '春分'];" });
+    assert.deepEqual(await findWorkbenchGovernanceViolations(fixture), []);
+  });
+}
+
 for (const target of ['hidden.test.tsx', 'hidden.spec.ts', 'hidden.fixture.tsx',
   'fixtures/hidden.ts', '__fixtures__/hidden.ts', 'test/hidden.ts', '__tests__/hidden.ts']) {
   test(`rejects production import of excluded source ${target}`, async () => {

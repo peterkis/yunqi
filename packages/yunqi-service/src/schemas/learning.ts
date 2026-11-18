@@ -1,5 +1,5 @@
 import { Type, type Static } from '@fastify/type-provider-typebox';
-import { YunQiCalculationDtoSchema } from './yunqi.js';
+import { HostGuestRelationDtoSchema, YunQiCalculationDtoSchema } from './yunqi.js';
 
 const Closed = { additionalProperties: false } as const;
 export const LearningRelationDtoSchema = Type.Object({
@@ -13,10 +13,18 @@ export const ClassicalPassageDtoSchema = Type.Object({
   scope: Type.String(), quote: Type.String(), explanation: Type.String(), sourceUrl: Type.String(),
 }, { ...Closed, $id: 'ClassicalPassageDto' });
 
+export const MovementRelationDtoSchema = Type.Object({
+  elementRelation: HostGuestRelationDtoSchema.properties.elementRelation,
+  direction: HostGuestRelationDtoSchema.properties.direction,
+  traditionalLabel: HostGuestRelationDtoSchema.properties.traditionalLabel,
+}, { ...Closed, $id: 'MovementRelationDto' });
+
 export const MovementStepDtoSchema = Type.Object({
   index: Type.Integer({ minimum: 1, maximum: 5 }), name: Type.String(),
   start: Type.Ref('YunQiTimeDto'), end: Type.Ref('YunQiTimeDto'),
+  startLabel: Type.String(), endLabel: Type.String(),
   host: Type.Ref('SuiYunDto'), guest: Type.Ref('SuiYunDto'),
+  relation: Type.Ref('MovementRelationDto'),
   boundaryMethod: Type.String(), explanation: Type.String(),
 }, { ...Closed, $id: 'MovementStepDto' });
 
@@ -24,6 +32,7 @@ export const YunQiLearningDtoSchema = Type.Object({
   ruleVersion: Type.String(), facts: Type.Ref('YunQiCalculationDto'),
   annualRelation: Type.Ref('LearningRelationDto'), currentQi: Type.Ref('LearningRelationDto'),
   currentMovement: Type.Ref('MovementStepDto'),
+  currentMovementProgress: Type.Ref('StageProgressDto'),
   movements: Type.Array(Type.Ref('MovementStepDto'), { minItems: 5, maxItems: 5 }),
   annualPassages: Type.Array(Type.Ref('ClassicalPassageDto')),
   currentPassages: Type.Array(Type.Ref('ClassicalPassageDto')),
@@ -57,13 +66,15 @@ type Context = import('./yunqi.js').YunQiSchemaContext & {
   YunQiCalculationDto: typeof YunQiCalculationDtoSchema;
   YunQiLearningDto: typeof YunQiLearningDtoSchema;
   MovementStepDto: typeof MovementStepDtoSchema;
+  MovementRelationDto: typeof MovementRelationDtoSchema;
   LearningRelationDto: typeof LearningRelationDtoSchema;
   ClassicalPassageDto: typeof ClassicalPassageDtoSchema;
 };
 export type YunQiLearningDto = Static<typeof YunQiLearningDtoSchema, Context>;
 export type BirthComparisonDto = Static<typeof BirthComparisonDtoSchema, Context>;
 export type LearningRelationDto = Static<typeof LearningRelationDtoSchema>;
+export type MovementStepDto = Static<typeof MovementStepDtoSchema, Context>;
 
-export const learningSchemas = [LearningRelationDtoSchema, ClassicalPassageDtoSchema,
+export const learningSchemas = [LearningRelationDtoSchema, ClassicalPassageDtoSchema, MovementRelationDtoSchema,
   MovementStepDtoSchema, YunQiLearningDtoSchema, BirthRequestSchema,
   BirthComparisonDtoSchema, LearningSuccessSchema, BirthSuccessSchema] as const;

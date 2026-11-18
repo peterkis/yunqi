@@ -29,6 +29,7 @@
 .current-overview .current-meta,
 .current-classics .current-meta,
 .current-observed-time,
+.current-period__subtitle,
 .current-time-range {
   color: var(--ink-tertiary);
   font-family: var(--font-sans);
@@ -101,10 +102,22 @@
   background: var(--surface-sunken);
 }
 .current-sixqi-progress .is-completed .current-sixqi-progress__bar { background: var(--accent-muted); }
-.current-sixqi-progress .is-current .current-sixqi-progress__bar { background: var(--accent); }
+.current-sixqi-progress .is-current .current-sixqi-progress__bar {
+  /* Unpassed part of the current step matches not-started steps; only the elapsed fill is accent. */
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+.current-sixqi-progress__elapsed {
+  display: block;
+  height: 100%;
+  background: var(--accent);
+  /* Only the outer track is rounded; the elapsed split stays a hard edge. */
+  border-radius: 0;
+}
 .current-sixqi-progress .is-current { color: var(--accent); font-weight: var(--type-body-strong-weight); }
 
 .current-period { margin-top: var(--space-2); }
+.current-period__subtitle { margin: 0; }
 .current-period h3,
 .current-stage-row h3 {
   margin: 0;

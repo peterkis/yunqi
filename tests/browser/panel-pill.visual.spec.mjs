@@ -3,7 +3,7 @@ import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 import { expectPillGeometry } from './consistency-helpers.mjs';
 
 for (const theme of ['light', 'dark']) {
-  test(`@visual collapsed pill ${theme}: 416x80 host, 400x64 pill, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
+  test(`@visual collapsed pill ${theme}: 424x88 host, 400x64 pill, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
     const data = await loadCurrent(page);
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
     await settle(page);
@@ -21,7 +21,7 @@ for (const theme of ['light', 'dark']) {
     await expect(page.getByRole('main')).toHaveCount(0);
     await expect(page.getByRole('button')).toHaveCount(1);
     const layout = await expectPillGeometry(page, pill);
-    expect(layout).toMatchObject({ x: 8, y: 8, width: 400, height: 64, documentWidth: 416, documentHeight: 80, fits: true });
+    expect(layout).toMatchObject({ x: 12, y: 10, width: 400, height: 64, right: 12, bottom: 14, documentWidth: 424, documentHeight: 88, fits: true });
     await expect(pill.locator('.panel-pill__ganzhi')).toHaveText(data.facts.stemBranch.ganzhi);
     await testInfo.attach('pill-geometry', { body: JSON.stringify(layout, null, 2), contentType: 'application/json' });
     await screenshot(page, testInfo, `collapsed-pill-${theme}`);

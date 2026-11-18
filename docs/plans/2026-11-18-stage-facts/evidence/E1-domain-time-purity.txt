@@ -1,0 +1,8 @@
+$ pnpm --filter @yunqi/domain test:time-purity
+
+> @yunqi/domain@1.4.0 test:time-purity /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> node scripts/check-time-purity.mjs
+
+Domain time purity passed for 46 files.
+
+exit_code=0

@@ -2,6 +2,7 @@ import type {
   YunQiCalendarTime,
   YunQiInstant,
 } from './calendar/time.js';
+import type { STEP_BOUNDARY_TERMS } from './rules/phase1-rules.js';
 
 export type Element = '木' | '火' | '土' | '金' | '水';
 export type YunState = '太过' | '不及';
@@ -52,6 +53,18 @@ export interface HostGuestRelationResult {
   readonly traditionalLabel: string;
 }
 
+export interface MovementRelationResult {
+  readonly elementRelation: ElementRelation;
+  readonly direction: HostGuestDirection;
+  readonly traditionalLabel: string;
+}
+
+export interface StageProgress {
+  readonly elapsedRatio: number;
+  readonly remainingCalendarDays: number;
+  readonly endsOnInputDate: boolean;
+}
+
 export type Tone =
   | '太角'
   | '少角'
@@ -64,6 +77,7 @@ export type Tone =
   | '太羽'
   | '少羽';
 export type StepName = '初之气' | '二之气' | '三之气' | '四之气' | '五之气' | '终之气';
+export type SixQiBoundaryTerm = (typeof STEP_BOUNDARY_TERMS)[number];
 
 export interface StemBranch {
   year: number;
@@ -88,6 +102,8 @@ export interface SixQiStep {
   name: StepName;
   start: YunQiInstant;
   end: YunQiInstant;
+  startTerm: SixQiBoundaryTerm;
+  endTerm: SixQiBoundaryTerm;
   hostQi: Qi;
   guestQi: Qi;
   relation: HostGuestRelationResult;
@@ -107,9 +123,11 @@ export interface YunQiYearResult extends StemBranch {
 export interface YunQiResult extends YunQiYearResult {
   input: YunQiInstant;
   currentStep: SixQiStep;
+  readonly currentStepProgress: StageProgress;
 }
 
 export interface YunQiCalendarResult extends YunQiYearResult {
   readonly input: YunQiCalendarTime;
   readonly currentStep: SixQiStep;
+  readonly currentStepProgress: StageProgress;
 }

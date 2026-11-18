@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: YunQi Service API
-  version: 1.4.0
+  version: 1.5.0
   description: Versioned YunQi time-fact and rule-mapping contract.
 components:
   schemas:
@@ -43,6 +43,43 @@ components:
           type: string
           enum:
             - BeijingStandardTime+08:00
+      additionalProperties: false
+    SixQiBoundaryTerm:
+      anyOf:
+        - type: string
+          enum:
+            - 大寒
+        - type: string
+          enum:
+            - 春分
+        - type: string
+          enum:
+            - 小满
+        - type: string
+          enum:
+            - 大暑
+        - type: string
+          enum:
+            - 秋分
+        - type: string
+          enum:
+            - 小雪
+    StageProgressDto:
+      type: object
+      required:
+        - elapsedRatio
+        - remainingCalendarDays
+        - endsOnInputDate
+      properties:
+        elapsedRatio:
+          type: number
+          minimum: 0
+          exclusiveMaximum: 1
+        remainingCalendarDays:
+          type: integer
+          minimum: 0
+        endsOnInputDate:
+          type: boolean
       additionalProperties: false
     HostGuestRelationDto:
       type: object
@@ -95,6 +132,8 @@ components:
         - name
         - start
         - end
+        - startTerm
+        - endTerm
         - hostQi
         - guestQi
         - relation
@@ -127,6 +166,10 @@ components:
           $ref: "#/components/schemas/YunQiTimeDto"
         end:
           $ref: "#/components/schemas/YunQiTimeDto"
+        startTerm:
+          $ref: "#/components/schemas/SixQiBoundaryTerm"
+        endTerm:
+          $ref: "#/components/schemas/SixQiBoundaryTerm"
         hostQi:
           anyOf:
             - type: string
@@ -425,6 +468,7 @@ components:
         - explanations
         - input
         - currentStep
+        - currentStepProgress
       properties:
         ruleVersion:
           type: string
@@ -449,6 +493,8 @@ components:
           $ref: "#/components/schemas/YunQiTimeDto"
         currentStep:
           $ref: "#/components/schemas/SixQiStepDto"
+        currentStepProgress:
+          $ref: "#/components/schemas/StageProgressDto"
       additionalProperties: false
     CalculateRequest:
       type: object
@@ -636,6 +682,41 @@ components:
         sourceUrl:
           type: string
       additionalProperties: false
+    MovementRelationDto:
+      type: object
+      required:
+        - elementRelation
+        - direction
+        - traditionalLabel
+      properties:
+        elementRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_ELEMENT
+            - type: string
+              enum:
+                - DIFFERENT_ELEMENT
+        direction:
+          anyOf:
+            - type: string
+              enum:
+                - NONE
+            - type: string
+              enum:
+                - HOST_GENERATES_GUEST
+            - type: string
+              enum:
+                - GUEST_GENERATES_HOST
+            - type: string
+              enum:
+                - HOST_CONTROLS_GUEST
+            - type: string
+              enum:
+                - GUEST_CONTROLS_HOST
+        traditionalLabel:
+          type: string
+      additionalProperties: false
     MovementStepDto:
       type: object
       required:
@@ -643,8 +724,11 @@ components:
         - name
         - start
         - end
+        - startLabel
+        - endLabel
         - host
         - guest
+        - relation
         - boundaryMethod
         - explanation
       properties:
@@ -658,10 +742,16 @@ components:
           $ref: "#/components/schemas/YunQiTimeDto"
         end:
           $ref: "#/components/schemas/YunQiTimeDto"
+        startLabel:
+          type: string
+        endLabel:
+          type: string
         host:
           $ref: "#/components/schemas/SuiYunDto"
         guest:
           $ref: "#/components/schemas/SuiYunDto"
+        relation:
+          $ref: "#/components/schemas/MovementRelationDto"
         boundaryMethod:
           type: string
         explanation:
@@ -675,6 +765,7 @@ components:
         - annualRelation
         - currentQi
         - currentMovement
+        - currentMovementProgress
         - movements
         - annualPassages
         - currentPassages
@@ -690,6 +781,8 @@ components:
           $ref: "#/components/schemas/LearningRelationDto"
         currentMovement:
           $ref: "#/components/schemas/MovementStepDto"
+        currentMovementProgress:
+          $ref: "#/components/schemas/StageProgressDto"
         movements:
           type: array
           items:
@@ -1365,4 +1458,4 @@ tags:
     description: YunQi contract endpoints
   - name: constitution
     description: Versioned questionnaire and non-persistent scoring
-x-yunqi-contract-id: YQ-API-CONTRACT-1.2.0
+x-yunqi-contract-id: YQ-API-CONTRACT-1.3.0

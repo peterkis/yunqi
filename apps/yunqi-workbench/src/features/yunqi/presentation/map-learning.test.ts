@@ -3,12 +3,32 @@ import { createBirthComparisonDto, createLearningDto } from '../../../test/learn
 import { mapBirthComparison, mapLearning } from './map-learning';
 
 describe('learning reading context', () => {
-  it('does not synthesize a movement relation or its placeholder from host and guest values', () => {
-    const result = mapLearning(createLearningDto());
+  it('preserves explicit DTO relations for the current movement and every list entry', () => {
+    const dto = createLearningDto();
+    const result = mapLearning(dto);
     for (const movement of [result.currentMovement, ...result.movements]) {
       expect(movement).not.toHaveProperty('relationStatus');
-      expect(movement).not.toHaveProperty('relation');
+      expect(movement.relation).toEqual({ label: dto.currentMovement.relation.traditionalLabel, tone: 'favorable', explanation: '客木生主火' });
     }
+  });
+
+  it('uses movement boundary labels and progress from the DTO independently of qi progress', () => {
+    const dto = createLearningDto();
+    const result = mapLearning({ ...dto,
+      currentMovement: { ...dto.currentMovement, startLabel: '立冬后4日', endLabel: '大寒' },
+      currentMovementProgress: { elapsedRatio: 0.095, remainingCalendarDays: 63, endsOnInputDate: false },
+    });
+    expect(result.currentMovementProgress).toEqual({ subtitle: '立冬后4日 → 大寒 · 还有 63 天', elapsedWidth: '9.5%', elapsedLabel: '已过约 10%' });
+    expect(result.facts.currentStepProgress.subtitle).toBe('小满 → 大暑 · 还有 34 天');
+  });
+
+  it('slices the movement API end clock on the last calendar day', () => {
+    const dto = createLearningDto();
+    const result = mapLearning({ ...dto,
+      currentMovement: { ...dto.currentMovement, end: { ...dto.currentMovement.end, localTime: '2026-07-23T01:23:45.678+08:00' } },
+      currentMovementProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
+    });
+    expect(result.currentMovementProgress.subtitle).toBe('春分后13日 → 芒种后10日 · 今日 01:23 交运');
   });
 
   it('labels historical birth-period excerpts separately without changing source content', () => {

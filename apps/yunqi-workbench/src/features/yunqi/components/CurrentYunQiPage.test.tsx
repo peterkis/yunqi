@@ -55,12 +55,13 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByRole('contentinfo').textContent?.match(/教学口径，待专家确认/g)).toHaveLength(1);
   });
 
-  it('omits movement relation labels and placeholders when the API supplies no relation', () => {
+  it('shows the movement DTO relation with the same chip as qi and no placeholder', () => {
     renderPage();
     const movement = screen.getByRole('region', { name: '当步运' });
     expect(movement).toHaveTextContent('火运太过（太徵）');
     expect(movement).toHaveTextContent('木运不及（少角）');
-    expect(movement.querySelector('.ds-relation')).toBeNull();
+    expect(within(movement).getByText('相得 · 客生主')).toHaveClass('ds-relation__chip--favorable');
+    expect(within(movement).getByText('客木生主火')).toBeVisible();
     expect(movement).not.toHaveTextContent('关系未提供');
     expect(movement).not.toHaveTextContent('主运与客运并列展示。');
     expect(screen.getByRole('region', { name: '当步气' }).querySelector('.ds-relation__chip')).not.toBeNull();
@@ -77,7 +78,7 @@ describe('CurrentYunQiPage', () => {
     expect(movement).not.toHaveTextContent('关系未提供');
   });
 
-  it('shows annual and current facts with compact times, intact API attributes, dots and relations', async () => {
+  it('shows annual compact times and symmetric stage subtitles, dots and relations', async () => {
     const { dto } = renderPage();
     const annual = screen.getByRole('region', { name: '全年\u202f·\u202f2026' });
     expect(within(annual).getByRole('heading', { name: '丙午' })).toBeVisible();
@@ -97,29 +98,61 @@ describe('CurrentYunQiPage', () => {
     expect(now.querySelector('.current-observed-time')).toBeNull();
     expect(now.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
     const progress = within(now).getByRole('img');
-    expect(progress).toHaveAccessibleName('六步气进度：第1步初之气，已结束；第2步二之气，已结束；第3步三之气，当前；第4步四之气，未开始；第5步五之气，未开始；第6步终之气，未开始');
+    expect(progress).toHaveAccessibleName('六步气进度：第1步初之气，已结束；第2步二之气，已结束；第3步三之气，当前，已过约 47%；第4步四之气，未开始；第5步五之气，未开始；第6步终之气，未开始');
     expect(progress.children).toHaveLength(6);
     expect(progress.querySelectorAll('.is-completed')).toHaveLength(2);
     expect(progress.querySelectorAll('.is-current')).toHaveLength(1);
     const qi = within(now).getByRole('region', { name: '当步气' });
     expect(within(qi).getByRole('heading', { name: '三之气' })).toBeVisible();
-    expect(qi.querySelectorAll('time')[0]).toHaveAttribute('datetime', dto.facts.currentStep.start.localTime);
-    expect(qi.querySelectorAll('time')[1]).toHaveAttribute('datetime', dto.facts.currentStep.end.localTime);
-    expect([...qi.querySelectorAll('time')].map((time) => time.textContent)).toEqual(['05-21 11:00', '07-23 12:00']);
+    expect(qi.querySelector('.current-period__subtitle')).toHaveTextContent('小满 → 大暑 · 还有 34 天');
+    expect(qi.querySelectorAll('time')).toHaveLength(0);
     expect(within(qi).getByText('相得')).toHaveClass('ds-relation__chip--favorable');
     expect(qi).toHaveTextContent('客生主');
     const movement = within(now).getByRole('region', { name: '当步运' });
     expect(movement).toHaveTextContent('火运太过（太徵）');
     expect(movement).toHaveTextContent('木运不及（少角）');
-    expect(movement.querySelectorAll('time')[0]).toHaveAttribute('datetime', dto.currentMovement.start.localTime);
-    expect(movement.querySelectorAll('time')[1]).toHaveAttribute('datetime', dto.currentMovement.end.localTime);
-    expect(now.textContent).not.toMatch(/还有\s*\d+\s*天/);
+    expect(movement.querySelector('.current-period__subtitle')).toHaveTextContent('春分后13日 → 芒种后10日 · 还有 34 天');
+    expect(movement.querySelectorAll('time')).toHaveLength(0);
     expect(screen.getByRole('link', { name: '年度详情' })).toHaveAttribute('href', '/yunqi/year/2026');
     expect(screen.getByRole('link', { name: '指定时点' })).toHaveAttribute('href', '/yunqi/calculate');
     expect(screen.getByRole('link', { name: '原文与释义' })).toHaveAttribute('href', '/yunqi/current/classics');
     expect(screen.getByText('“主胜逆，客胜从。”')).toBeVisible();
     expect(screen.getByText('文献线索，非个体发病预测')).toBeVisible();
     expect(screen.getAllByText('文献线索，非个体发病预测')).toHaveLength(1);
+  });
+
+  it('shows same-day transitions using the two independently supplied API end clocks', () => {
+    const dto = createLearningDto();
+    const learning = mapLearning({ ...dto,
+      facts: { ...dto.facts, currentStepProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true } },
+      currentMovement: { ...dto.currentMovement, end: { ...dto.currentMovement.end, localTime: '2026-07-23T23:59:45.678+08:00' } },
+      currentMovementProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
+    });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    expect(screen.getByRole('region', { name: '当步气' })).toHaveTextContent('小满 → 大暑 · 今日 12:00 交气');
+    expect(screen.getByRole('region', { name: '当步运' })).toHaveTextContent('春分后13日 → 芒种后10日 · 今日 23:59 交运');
+  });
+
+  it.each([0, 0.375, 0.929, 0.999])('fills only the current segment from the supplied ratio %s', (elapsedRatio) => {
+    const dto = createLearningDto();
+    const learning = mapLearning({ ...dto, facts: { ...dto.facts, currentStepProgress: { ...dto.facts.currentStepProgress, elapsedRatio } } });
+    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const fills = container.querySelectorAll('.current-sixqi-progress__elapsed');
+    expect(fills).toHaveLength(1);
+    expect(fills[0]).toHaveStyle({ width: `${elapsedRatio * 100}%` });
+    expect(fills[0].closest('.current-sixqi-progress__step')).toHaveClass('is-current');
+    expect(fills[0].closest('[role="img"]')).toHaveAccessibleName(new RegExp(`当前，已过约 ${Math.round(elapsedRatio * 100)}%`));
+  });
+
+  it.each(['主客同运', '同属火运 · 太少不同'])('shows only the traditionalLabel %s for a same-element movement', (label) => {
+    const dto = createLearningDto();
+    const learning = mapLearning({ ...dto, currentMovement: { ...dto.currentMovement,
+      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
+    } });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const movement = screen.getByRole('region', { name: '当步运' });
+    expect(within(movement).getByText(label)).toHaveClass('ds-relation__chip--neutral');
+    expect(movement.querySelector('.ds-relation__explanation')).toBeNull();
   });
 
   it('keeps API explanations, sources, all stages and version trace reachable on demand', async () => {
@@ -147,6 +180,8 @@ describe('CurrentYunQiPage', () => {
     const movements = screen.getByRole('region', { name: '五步运全表' });
     expect(within(movements).getAllByRole('region')).toHaveLength(dto.movements.length);
     expect(movements).toHaveTextContent(dto.currentMovement.boundaryMethod);
+    expect(within(movements).getByText(dto.movements[0].relation.traditionalLabel)).toHaveClass('ds-relation__chip--favorable');
+    expect(within(movements).getByText('客木生主火')).toBeVisible();
     await user.click(allStages);
     expect(timeline).not.toBeVisible();
 
@@ -160,7 +195,7 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByRole('region', { name: '规则结果说明' })).toHaveTextContent('本结果依据冻结规则计算。');
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });

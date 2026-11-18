@@ -1,16 +1,21 @@
-import type { CalendarProvider, SolarTerm } from '../calendar/provider.js';
+import type { CalendarProvider } from '../calendar/provider.js';
 import { createYunQiCalendarTime, createYunQiCalendarTimeFromInstant,
   compareBeijingLocalDateTime, type YunQiCalendarTime, type YunQiInstant } from '../calendar/time.js';
-import type { SuiYun, YunQiYearResult } from '../types.js';
-import { hostMovements, MOVEMENT_BOUNDARY_METHOD, MOVEMENT_ELEMENTS, MOVEMENT_NAMES } from './rules.js';
+import { calculateMovementRelation } from '../relation/movement-relation.js';
+import { STEP_BOUNDARY_TERMS } from '../rules/phase1-rules.js';
+import type { MovementRelationResult, SuiYun, YunQiYearResult } from '../types.js';
+import { hostMovements, MOVEMENT_BOUNDARY_METHOD, MOVEMENT_BOUNDARY_OFFSETS, MOVEMENT_ELEMENTS, MOVEMENT_NAMES } from './rules.js';
 
 export interface MovementStep {
   readonly index: number;
   readonly name: string;
   readonly start: YunQiInstant;
   readonly end: YunQiInstant;
+  readonly startLabel: string;
+  readonly endLabel: string;
   readonly host: SuiYun;
   readonly guest: SuiYun;
+  readonly relation: MovementRelationResult;
   readonly boundaryMethod: string;
   readonly explanation: string;
 }
@@ -29,9 +34,10 @@ export function addBeijingCalendarDays(input: YunQiCalendarTime, days: number): 
 }
 
 export function buildMovementSteps(annual: YunQiYearResult, provider: CalendarProvider): readonly MovementStep[] {
-  const offsets: readonly (readonly [SolarTerm, number])[] = [['春分', 13], ['芒种', 10], ['处暑', 7], ['立冬', 4]];
-  const boundaries = [annual.start, ...offsets.map(([term, days]) =>
+  const boundaries = [annual.start, ...MOVEMENT_BOUNDARY_OFFSETS.map(([term, days]) =>
     addBeijingCalendarDays(createYunQiCalendarTimeFromInstant(provider.getSolarTermInstant(annual.year, term)), days).instant), annual.end];
+  const labels = [STEP_BOUNDARY_TERMS[0], ...MOVEMENT_BOUNDARY_OFFSETS.map(([term, days]) =>
+    `${term}后${days}日`), STEP_BOUNDARY_TERMS[0]];
   for (let i = 1; i < boundaries.length; i++) {
     if (compareBeijingLocalDateTime(createYunQiCalendarTimeFromInstant(boundaries[i - 1]).localDateTime,
       createYunQiCalendarTimeFromInstant(boundaries[i]).localDateTime) >= 0) throw new RangeError('五步运边界必须递增');
@@ -40,7 +46,9 @@ export function buildMovementSteps(annual: YunQiYearResult, provider: CalendarPr
   const firstGuest = MOVEMENT_ELEMENTS.indexOf(annual.suiYun.element);
   return host.map((movement, i) => ({
     index: i + 1, name: MOVEMENT_NAMES[i], start: boundaries[i], end: boundaries[i + 1],
+    startLabel: labels[i], endLabel: labels[i + 1],
     host: movement, guest: host[(firstGuest + i) % 5], boundaryMethod: MOVEMENT_BOUNDARY_METHOD,
+    relation: calculateMovementRelation(movement, host[(firstGuest + i) % 5]),
     explanation: '主运按木火土金水排列，客运从当年中运起排；太少采用《素问·六元正纪大论》所列五音次序。交运采用节气时刻加整日，不等同于古代每运七十三日五刻定长法。',
   }));
 }

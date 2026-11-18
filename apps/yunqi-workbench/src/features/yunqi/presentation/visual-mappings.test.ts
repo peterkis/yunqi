@@ -5,7 +5,7 @@ import { mapBirthView } from '../birth/presentation/map-birth-view';
 import { mapAnnualYunQi } from './map-annual-yunqi';
 import { mapDrilldownStage, mapDrilldownSummary } from './map-drilldown';
 import { mapLearning } from './map-learning';
-import { mapMovementElement, mapQiElement, mapRelationDirection, mapRelationTone } from './visual-mappings';
+import { mapMovementElement, mapMovementRelation, mapQiElement, mapRelationDirection, mapRelationTone } from './visual-mappings';
 
 function birthForLearning(learning: ReturnType<typeof createLearningDto>) {
   const dto = createBirthComparisonDto();
@@ -13,6 +13,30 @@ function birthForLearning(learning: ReturnType<typeof createLearningDto>) {
 }
 
 describe('API visual classifications', () => {
+  it.each([
+    ['HOST_GENERATES_GUEST', '相得 · 主生客', 'favorable', '主火生客木'],
+    ['GUEST_GENERATES_HOST', '相得 · 客生主', 'favorable', '客木生主火'],
+    ['HOST_CONTROLS_GUEST', '逆 · 主胜客', 'adverse', '主火克客木'],
+    ['GUEST_CONTROLS_HOST', '顺 · 客胜主', 'favorable', '客木克主火'],
+    ['NONE', '接口中性标签', 'neutral', ''],
+  ] as const)('uses movement DTO direction %s rather than inferring rules from the elements', (direction, label, tone, explanation) => {
+    // Keep the same deliberately synthetic element pair for all directions.
+    const dto = createLearningDto();
+    const movement = { ...dto.currentMovement, relation: { elementRelation: 'DIFFERENT_ELEMENT', direction, traditionalLabel: label } } as const;
+    expect(mapMovementRelation(movement)).toEqual({ label, tone, explanation });
+    const mapped = mapLearning({ ...dto, currentMovement: movement, movements: [movement] });
+    expect(mapped.currentMovement.relation).toEqual({ label, tone, explanation });
+    expect(mapped.movements[0].relation).toEqual(mapped.currentMovement.relation);
+  });
+
+  it.each(['主客同运', '同属火运 · 太少不同', '接口同五行标签'])('shows only the supplied same-element movement label %s', (label) => {
+    const dto = createLearningDto();
+    const movement = { ...dto.currentMovement, guest: dto.currentMovement.host,
+      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
+    } as const;
+    expect(mapMovementRelation(movement)).toEqual({ label, tone: 'neutral', explanation: '' });
+  });
+
   it.each([
     ['顺', 'favorable'], ['从', 'favorable'], ['相得', 'favorable'], ['顺化', 'favorable'], ['相生', 'favorable'],
     ['顺 · 君位臣', 'favorable'], ['顺 · 客胜主', 'favorable'], ['从 · 顺', 'favorable'], ['相生 · 相得', 'favorable'],

@@ -4,6 +4,35 @@ import { mapCurrentYunQi } from './map-current-yunqi';
 import type { CurrentSixQiStageTuple } from './view-model';
 
 describe('mapCurrentYunQi', () => {
+  it('uses DTO boundary terms and remaining calendar days for the current subtitle', () => {
+    const dto = createYunQiCalculationDto();
+    const result = mapCurrentYunQi({ ...dto,
+      currentStep: { ...dto.currentStep, startTerm: '秋分', endTerm: '小雪' },
+      currentStepProgress: { elapsedRatio: 0.929, remainingCalendarDays: 4, endsOnInputDate: false },
+    });
+    expect(result.currentStepProgress.subtitle).toBe('秋分 → 小雪 · 还有 4 天');
+  });
+
+  it('slices the API end clock when the current qi ends today', () => {
+    const dto = createYunQiCalculationDto();
+    const result = mapCurrentYunQi({ ...dto,
+      currentStep: { ...dto.currentStep, end: { ...dto.currentStep.end, localTime: '2026-07-23T23:59:45.678+08:00' } },
+      currentStepProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
+    });
+    expect(result.currentStepProgress.subtitle).toBe('小满 → 大暑 · 今日 23:59 交气');
+  });
+
+  it.each([
+    [0, '0%', 0], [0.375, '37.5%', 38], [0.929, '92.9%', 93], [0.999, '99.9%', 100],
+  ])('formats the supplied ratio %s without deriving elapsed time', (elapsedRatio, width, rounded) => {
+    const dto = createYunQiCalculationDto();
+    const result = mapCurrentYunQi({ ...dto, currentStepProgress: { ...dto.currentStepProgress, elapsedRatio } });
+    expect(result.currentStepProgress.elapsedWidth).toBe(width);
+    expect(result.currentStepProgress.elapsedLabel).toBe(`已过约 ${rounded}%`);
+    expect(result.progressLabel).toContain(`第3步三之气，当前，已过约 ${rounded}%`);
+    expect(result.progressLabel.match(/已过约/g)).toHaveLength(1);
+  });
+
   it('maps the frozen DTO into a summary-first presentation model', () => {
     const result = mapCurrentYunQi(createYunQiCalculationDto());
 

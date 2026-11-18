@@ -8,6 +8,9 @@ import {
   GUEST_QI_SEQUENCE,
   HOST_GUEST_RELATION_PRIORITY,
   HOST_QI_SEQUENCE,
+  LEARNING_RULE_VERSION,
+  MOVEMENT_BOUNDARY_OFFSETS,
+  MOVEMENT_RELATION_LABELS,
   QI_ELEMENT_MAP,
   RULE_VERSION,
   SIXTY_CYCLE,
@@ -16,6 +19,8 @@ import {
   STEP_BOUNDARY_TERMS,
   STEP_NAMES,
   calculateHostGuestRelation,
+  calculateMovementRelation,
+  calculateStageProgress,
   calculateYunQiByCalendarTime,
   createYunQiCalendarTimeFromInstant,
   createYunQiInstant,
@@ -26,9 +31,12 @@ import {
   type ElementRelation,
   type HostGuestDirection,
   type HostGuestRelationResult,
+  type MovementRelationResult,
   type Qi,
   type QiRelation,
   type SolarTerm,
+  type SixQiBoundaryTerm,
+  type StageProgress,
   type YunQiInstant,
   type YunQiCalendarResult,
   type YunQiCalendarTime,
@@ -46,7 +54,38 @@ function compileTimeOnlyRelationContract(relation: HostGuestRelationResult): voi
 
 void compileTimeOnlyRelationContract;
 
+function compileTimeOnlyStageContracts(relation: MovementRelationResult, progress: StageProgress): void {
+  // @ts-expect-error A movement relation does not describe qi identity.
+  void relation.qiRelation;
+  // @ts-expect-error Stage progress fields are readonly.
+  progress.remainingCalendarDays = 1;
+  // @ts-expect-error Movement-only solar terms cannot be six-qi boundaries.
+  const term: SixQiBoundaryTerm = '立冬';
+  void term;
+}
+
+void compileTimeOnlyStageContracts;
+
 describe('package source entrypoint', () => {
+  it('exports the movement relation and stage progress functions, types and teaching tables', () => {
+    const relation: MovementRelationResult = calculateMovementRelation(STEM_RULES.丙, STEM_RULES.乙);
+    const progress: StageProgress = calculateStageProgress(
+      createYunQiInstant(0), createYunQiInstant(1_000), createYunQiInstant(500),
+    );
+    const boundaryTerm: SixQiBoundaryTerm = STEP_BOUNDARY_TERMS[0];
+    expect(relation).toEqual({ elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主' });
+    expect(progress).toEqual({ elapsedRatio: 0.5, remainingCalendarDays: 0, endsOnInputDate: true });
+    expect(boundaryTerm).toBe('大寒');
+    expect(LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(MOVEMENT_BOUNDARY_OFFSETS).toEqual([['春分', 13], ['芒种', 10], ['处暑', 7], ['立冬', 4]]);
+    expect(MOVEMENT_RELATION_LABELS).toEqual({
+      SAME_ELEMENT_SAME_STATE: '主客同运', SAME_ELEMENT_DIFFERENT_STATE: '同属{element}运 · 太少不同',
+      HOST_GENERATES_GUEST: '相得 · 主生客', GUEST_GENERATES_HOST: '相得 · 客生主',
+      HOST_CONTROLS_GUEST: '逆 · 主胜客', GUEST_CONTROLS_HOST: '顺 · 客胜主',
+    });
+    expect([relation, progress, MOVEMENT_BOUNDARY_OFFSETS, MOVEMENT_RELATION_LABELS].every(Object.isFrozen)).toBe(true);
+  });
+
   it('re-exports public types and immutable runtime rule constants', () => {
     const element: Element = QI_ELEMENT_MAP['厥阴风木'];
     const qi: Qi = HOST_QI_SEQUENCE[0];

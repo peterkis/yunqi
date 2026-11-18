@@ -15,6 +15,7 @@ import { calculateHostGuestRelation } from '../src/relation/host-guest-relation.
 import { calculateYearYunQi } from '../src/services/calculate-year-yunqi.js';
 import type { HeavenlyStem, Qi } from '../src/types.js';
 import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
+import { MOVEMENT_BOUNDARY_EPOCHS_2026, stageFacts2026Provider } from './fixtures/stage-facts-2026.js';
 
 // Independent year lists transcribed from 医宗金鉴·六十年运气上下相临歌.
 // Do not derive these expected labels with the production five-element maps.
@@ -158,6 +159,56 @@ describe('learning passage selection', () => {
 });
 
 describe('five-movement teaching boundaries', () => {
+  it('preserves every captured 2026 boundary to the millisecond, including provider fractional seconds', () => {
+    const provider = {
+      getSolarTermInstant(year: number, term: Parameters<typeof stageFacts2026Provider.getSolarTermInstant>[1]) {
+        return createYunQiInstant(stageFacts2026Provider.getSolarTermInstant(year, term).epochMilliseconds + 987);
+      },
+    };
+    for (const [calendar, fractionalMs] of [[stageFacts2026Provider, 0], [provider, 987]] as const) {
+      const annual = calculateYearYunQi(2026, calendar);
+      const movements = buildMovementSteps(annual, calendar);
+      expect([...movements.map((step) => step.start.epochMilliseconds), movements[4].end.epochMilliseconds])
+        .toEqual(MOVEMENT_BOUNDARY_EPOCHS_2026.map((epoch) => epoch + fractionalMs));
+    }
+  });
+
+  it('labels all five movement boundaries and six qi boundaries with adjacent endpoints', () => {
+    const annual = calculateYearYunQi(2026, stageFacts2026Provider);
+    const movements = buildMovementSteps(annual, stageFacts2026Provider);
+    expect(annual.steps.map(({ startTerm, endTerm }) => [startTerm, endTerm])).toEqual([
+      ['大寒', '春分'], ['春分', '小满'], ['小满', '大暑'],
+      ['大暑', '秋分'], ['秋分', '小雪'], ['小雪', '大寒'],
+    ]);
+    expect(movements.map(({ startLabel, endLabel }) => [startLabel, endLabel])).toEqual([
+      ['大寒', '春分后13日'], ['春分后13日', '芒种后10日'], ['芒种后10日', '处暑后7日'],
+      ['处暑后7日', '立冬后4日'], ['立冬后4日', '大寒'],
+    ]);
+    annual.steps.slice(0, -1).forEach((step, index) => expect(step.endTerm).toBe(annual.steps[index + 1].startTerm));
+    movements.slice(0, -1).forEach((step, index) => expect(step.endLabel).toBe(movements[index + 1].startLabel));
+  });
+
+  it.each([
+    [2022, '木', 'NONE', '主客同运'],
+    [2023, '火', 'HOST_GENERATES_GUEST', '相得 · 主生客'],
+    [2024, '土', 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
+    [2025, '金', 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
+    [2026, '水', 'GUEST_GENERATES_HOST', '相得 · 客生主'],
+  ])('keeps all five %i movement directions consistent for annual %s', (year, element, direction, label) => {
+    const annual = calculateYearYunQi(year, fixedCalendarProvider);
+    const movements = buildMovementSteps(annual, fixedCalendarProvider);
+    expect(annual.suiYun.element).toBe(element);
+    expect(movements.map((step) => step.relation.direction)).toEqual(Array(5).fill(direction));
+    expect(movements[0].relation.traditionalLabel).toBe(label);
+    for (const step of movements) {
+      // Within one year a shared element always means an identical host/guest movement.
+      expect(step.relation.traditionalLabel).toBe(label);
+      expect(step.relation).not.toHaveProperty('qiRelation');
+      expect(Object.isFrozen(step.relation)).toBe(true);
+      if (step.host.element === step.guest.element) expect(step.host).toEqual(step.guest);
+    }
+  });
+
   it('implements the declared term offsets without silently switching to a 73.05-day step', () => {
     const annual = calculateYearYunQi(2024, fixedCalendarProvider);
     const movements = buildMovementSteps(annual, fixedCalendarProvider);
@@ -211,4 +262,119 @@ describe('five-movement teaching boundaries', () => {
       const input = createYunQiCalendarTime({ year, month, day, hour: 14, minute: 15, second: 16, millisecond: 0 });
       expect(formatYunQiCalendarTime(addBeijingCalendarDays(input, days))).toBe(expected);
     });
+});
+
+describe('current stage facts', () => {
+  const input = createYunQiCalendarTime({
+    year: 2026, month: 11, day: 18, hour: 8, minute: 44, second: 0, millisecond: 0,
+  });
+
+  it('matches the 2026-11-18 08:44 Beijing golden facts and progress', () => {
+    const result = calculateLearning(input, stageFacts2026Provider);
+    expect({
+      ruleVersion: result.ruleVersion,
+      coreRuleVersion: result.facts.ruleVersion,
+      qi: { name: result.facts.currentStep.name, startTerm: result.facts.currentStep.startTerm,
+        endTerm: result.facts.currentStep.endTerm, progress: result.facts.currentStepProgress },
+      movement: { name: result.currentMovement.name, host: result.currentMovement.host, guest: result.currentMovement.guest,
+        startLabel: result.currentMovement.startLabel, endLabel: result.currentMovement.endLabel,
+        relation: result.currentMovement.relation, progress: result.currentMovementProgress },
+    }).toMatchInlineSnapshot(`
+      {
+        "coreRuleVersion": "YQ-MVP-RULES-1.1.0",
+        "movement": {
+          "endLabel": "大寒",
+          "guest": {
+            "element": "金",
+            "state": "不及",
+            "tone": "少商",
+          },
+          "host": {
+            "element": "水",
+            "state": "太过",
+            "tone": "太羽",
+          },
+          "name": "终运",
+          "progress": {
+            "elapsedRatio": 0.095,
+            "endsOnInputDate": false,
+            "remainingCalendarDays": 63,
+          },
+          "relation": {
+            "direction": "GUEST_GENERATES_HOST",
+            "elementRelation": "DIFFERENT_ELEMENT",
+            "traditionalLabel": "相得 · 客生主",
+          },
+          "startLabel": "立冬后4日",
+        },
+        "qi": {
+          "endTerm": "小雪",
+          "name": "五之气",
+          "progress": {
+            "elapsedRatio": 0.929,
+            "endsOnInputDate": false,
+            "remainingCalendarDays": 4,
+          },
+          "startTerm": "秋分",
+        },
+        "ruleVersion": "YQ-LEARNING-RULES-1.2.0",
+      }
+    `);
+    expect(result.movements.every((step) => !('progress' in step) && !('currentMovementProgress' in step))).toBe(true);
+    expect(result.facts.steps.every((step) => !('progress' in step) && !('currentStepProgress' in step))).toBe(true);
+    expect(Object.isFrozen(result.currentMovementProgress)).toBe(true);
+    expect(Object.isFrozen(result.facts.currentStepProgress)).toBe(true);
+  });
+
+  it('starts progress at zero at every qi and movement boundary independently', () => {
+    const annual = calculateYearYunQi(2026, stageFacts2026Provider);
+    for (const step of annual.steps) {
+      const result = calculateLearning(createYunQiCalendarTimeFromInstant(step.start), stageFacts2026Provider);
+      expect(result.facts.currentStep.index).toBe(step.index);
+      expect(result.facts.currentStepProgress.elapsedRatio).toBe(0);
+    }
+    for (const movement of buildMovementSteps(annual, stageFacts2026Provider)) {
+      const result = calculateLearning(createYunQiCalendarTimeFromInstant(movement.start), stageFacts2026Provider);
+      expect(result.currentMovement.index).toBe(movement.index);
+      expect(result.currentMovementProgress.elapsedRatio).toBe(0);
+    }
+  });
+
+  it('ends both final stages at next-year Dahan and handles its local date before the boundary', () => {
+    const result = calculateLearning(createYunQiCalendarTime({
+      year: 2027, month: 1, day: 20, hour: 0, minute: 0, second: 0, millisecond: 0,
+    }), stageFacts2026Provider);
+    expect(result.facts.year).toBe(2026);
+    expect(result.facts.currentStep.index).toBe(6);
+    expect(result.currentMovement.index).toBe(5);
+    expect(result.facts.currentStep.endTerm).toBe('大寒');
+    expect(result.currentMovement.endLabel).toBe('大寒');
+    expect(formatYunQiCalendarTime(createYunQiCalendarTimeFromInstant(result.facts.currentStep.end)))
+      .toBe('2027-01-20T15:29:50+08:00');
+    expect(result.currentMovement.end).toEqual(result.facts.currentStep.end);
+    for (const progress of [result.facts.currentStepProgress, result.currentMovementProgress]) {
+      expect(progress.remainingCalendarDays).toBe(0);
+      expect(progress.endsOnInputDate).toBe(true);
+      expect(progress.elapsedRatio).toBeLessThan(1);
+    }
+    const lastMillisecond = calculateLearning(createYunQiCalendarTimeFromInstant(
+      createYunQiInstant(result.facts.end.epochMilliseconds - 1)), stageFacts2026Provider);
+    expect(lastMillisecond.facts.currentStepProgress.elapsedRatio).toBe(0.999);
+    expect(lastMillisecond.currentMovementProgress.elapsedRatio).toBe(0.999);
+    const atBoundary = calculateLearning(createYunQiCalendarTimeFromInstant(result.facts.end), stageFacts2026Provider);
+    expect(atBoundary.facts.year).toBe(2027);
+    expect(atBoundary.facts.currentStep.index).toBe(1);
+    expect(atBoundary.currentMovement.index).toBe(1);
+    expect(atBoundary.facts.currentStepProgress.elapsedRatio).toBe(0);
+    expect(atBoundary.currentMovementProgress.elapsedRatio).toBe(0);
+  });
+
+  it('uses authoritative local fields for both progress values even when an auxiliary epoch disagrees', () => {
+    const auxiliaryMismatch = Object.freeze({ ...input, instant: createYunQiInstant(0) });
+    const expected = calculateLearning(input, stageFacts2026Provider);
+    const actual = calculateLearning(auxiliaryMismatch, stageFacts2026Provider);
+    expect(actual.facts.input).toBe(auxiliaryMismatch);
+    expect(actual.facts.currentStepProgress).toEqual(expected.facts.currentStepProgress);
+    expect(actual.currentMovementProgress).toEqual(expected.currentMovementProgress);
+  });
 });

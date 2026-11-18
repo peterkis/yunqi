@@ -1,8 +1,9 @@
 import type { BirthComparisonDto, ClassicalPassageDto, LearningRelationDto, MovementStepDto, YunQiLearningDto } from '@yunqi/contracts';
 import { mapCurrentYunQi } from './map-current-yunqi';
 import { mapYunQiTime } from './map-yunqi-shared';
-import { mapMovementElement, mapRelationTone } from './visual-mappings';
-import type { CurrentYunQiViewModel, ElementKind, RelationTone, YunQiTimeViewModel } from './view-model';
+import { mapStageProgress } from './map-stage-progress';
+import { mapMovementElement, mapMovementRelation, mapRelationTone } from './visual-mappings';
+import type { CurrentYunQiViewModel, ElementKind, RelationTone, StageProgressViewModel, YunQiTimeViewModel } from './view-model';
 
 export interface LearningRelationViewModel {
   readonly title: string;
@@ -22,7 +23,7 @@ export interface MovementViewModel {
   readonly guestLabel: string;
   readonly hostElement: ElementKind | undefined;
   readonly guestElement: ElementKind | undefined;
-  readonly relation?: Pick<LearningRelationViewModel, 'label' | 'tone' | 'explanation'>;
+  readonly relation: Pick<LearningRelationViewModel, 'label' | 'tone' | 'explanation'>;
   readonly boundaryMethod: string;
   readonly explanation: string;
 }
@@ -48,6 +49,7 @@ export interface LearningViewModel {
   readonly annualRelation: LearningRelationViewModel;
   readonly currentQi: LearningRelationViewModel;
   readonly currentMovement: MovementViewModel;
+  readonly currentMovementProgress: StageProgressViewModel;
   readonly movements: readonly MovementViewModel[];
   readonly annualPassages: readonly ClassicalPassageViewModel[];
   readonly currentPassages: readonly ClassicalPassageViewModel[];
@@ -80,12 +82,11 @@ function mapRelation(value: LearningRelationDto): LearningRelationViewModel {
 }
 
 function mapMovement(value: MovementStepDto): MovementViewModel {
-  // Contract 1.2.0 supplies no movement relation. Leave it absent; neither
-  // host/guest values nor the method explanation imply a relation label.
   return { index: value.index, name: value.name, start: mapYunQiTime(value.start), end: mapYunQiTime(value.end),
     hostLabel: `${value.host.element}运${value.host.state}（${value.host.tone}）`,
     guestLabel: `${value.guest.element}运${value.guest.state}（${value.guest.tone}）`,
     hostElement: mapMovementElement(value.host.element), guestElement: mapMovementElement(value.guest.element),
+    relation: mapMovementRelation(value),
     boundaryMethod: value.boundaryMethod, explanation: value.explanation };
 }
 
@@ -107,6 +108,10 @@ export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前�
   return { facts: mapCurrentYunQi(value.facts), ruleVersion: value.ruleVersion,
     annualRelation: mapRelation(value.annualRelation), currentQi: mapRelation(value.currentQi),
     currentMovement: mapMovement(value.currentMovement), movements: value.movements.map(mapMovement),
+    currentMovementProgress: mapStageProgress(value.currentMovementProgress, {
+      startLabel: value.currentMovement.startLabel, endLabel: value.currentMovement.endLabel,
+      endLocalTime: value.currentMovement.end.localTime, transition: '交运',
+    }),
     annualPassages: value.annualPassages.map((passage) => mapPassage(passage, periodScopeLabel)),
     currentPassages: value.currentPassages.map((passage) => mapPassage(passage, periodScopeLabel)), notes: [...value.notes] };
 }

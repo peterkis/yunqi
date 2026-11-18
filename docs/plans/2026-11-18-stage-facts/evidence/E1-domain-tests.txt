@@ -1,0 +1,16 @@
+$ pnpm --filter @yunqi/domain test
+
+> @yunqi/domain@1.4.0 test /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> vitest run
+
+
+ RUN  v4.1.10 /Users/petervans/Projects/YunQi/packages/yunqi-domain
+
+
+ Test Files  15 passed (15)
+      Tests  278 passed (278)
+   Start at  09:13:35
+   Duration  249ms (transform 840ms, setup 0ms, import 1.20s, tests 126ms, environment 1ms)
+
+
+exit_code=0
