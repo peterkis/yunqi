@@ -3,7 +3,7 @@ import { mapCurrentYunQi } from './map-current-yunqi';
 import { mapYunQiTime } from './map-yunqi-shared';
 import { mapStageProgress } from './map-stage-progress';
 import { mapMovementElement, mapMovementRelation, mapRelationTone } from './visual-mappings';
-import type { CurrentYunQiViewModel, ElementKind, RelationTone, StageProgressViewModel, YunQiTimeViewModel } from './view-model';
+import type { CurrentYunQiViewModel, ElementKind, RelationTone, StageProgressViewModel, YunQiTimeViewModel, YunQiWheelViewModel } from './view-model';
 
 export interface LearningRelationViewModel {
   readonly title: string;
@@ -21,6 +21,8 @@ export interface MovementViewModel {
   readonly end: YunQiTimeViewModel;
   readonly hostLabel: string;
   readonly guestLabel: string;
+  readonly hostValue: string;
+  readonly guestValue: string;
   readonly hostElement: ElementKind | undefined;
   readonly guestElement: ElementKind | undefined;
   readonly relation: Pick<LearningRelationViewModel, 'label' | 'tone' | 'explanation'>;
@@ -50,6 +52,7 @@ export interface LearningViewModel {
   readonly currentQi: LearningRelationViewModel;
   readonly currentMovement: MovementViewModel;
   readonly currentMovementProgress: StageProgressViewModel;
+  readonly annualWheel: YunQiWheelViewModel;
   readonly movements: readonly MovementViewModel[];
   readonly annualPassages: readonly ClassicalPassageViewModel[];
   readonly currentPassages: readonly ClassicalPassageViewModel[];
@@ -85,6 +88,8 @@ function mapMovement(value: MovementStepDto): MovementViewModel {
   return { index: value.index, name: value.name, start: mapYunQiTime(value.start), end: mapYunQiTime(value.end),
     hostLabel: `${value.host.element}运${value.host.state}（${value.host.tone}）`,
     guestLabel: `${value.guest.element}运${value.guest.state}（${value.guest.tone}）`,
+    hostValue: `${value.host.element}运${value.host.state}`,
+    guestValue: `${value.guest.element}运${value.guest.state}`,
     hostElement: mapMovementElement(value.host.element), guestElement: mapMovementElement(value.guest.element),
     relation: mapMovementRelation(value),
     boundaryMethod: value.boundaryMethod, explanation: value.explanation };
@@ -105,13 +110,24 @@ function mapPassage(value: ClassicalPassageDto, periodScopeLabel: '当前阶段'
 }
 
 export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前阶段' | '出生阶段' = '当前阶段'): LearningViewModel {
-  return { facts: mapCurrentYunQi(value.facts), ruleVersion: value.ruleVersion,
+  const facts = mapCurrentYunQi(value.facts);
+  const currentMovementProgress = mapStageProgress(value.currentMovementProgress, {
+    startLabel: value.currentMovement.startLabel, endLabel: value.currentMovement.endLabel,
+    endLocalTime: value.currentMovement.end.localTime, transition: '交运',
+  });
+  return { facts, ruleVersion: value.ruleVersion,
     annualRelation: mapRelation(value.annualRelation), currentQi: mapRelation(value.currentQi),
     currentMovement: mapMovement(value.currentMovement), movements: value.movements.map(mapMovement),
-    currentMovementProgress: mapStageProgress(value.currentMovementProgress, {
-      startLabel: value.currentMovement.startLabel, endLabel: value.currentMovement.endLabel,
-      endLocalTime: value.currentMovement.end.localTime, transition: '交运',
-    }),
+    currentMovementProgress,
+    annualWheel: {
+      label: `年轮：外环六步气，当前第${facts.currentStep.index}步${facts.currentStep.name}，${facts.currentStepProgress.elapsedLabel}；内环五步运，当前第${value.currentMovement.index}运${value.currentMovement.name}，${currentMovementProgress.elapsedLabel}`,
+      ganzhi: facts.summary.stemBranch.ganzhi,
+      annualLabel: `${facts.summary.suiYun.element}运${facts.summary.suiYun.state}之年`,
+      qi: facts.timeline.map((step) => ({ index: step.index, tickLabel: step.tickLabel, status: step.status.code })),
+      movements: value.movements.map((step) => ({ index: step.index,
+        status: step.index < value.currentMovement.index ? 'completed' : step.index === value.currentMovement.index ? 'current' : 'upcoming',
+      })),
+    },
     annualPassages: value.annualPassages.map((passage) => mapPassage(passage, periodScopeLabel)),
     currentPassages: value.currentPassages.map((passage) => mapPassage(passage, periodScopeLabel)), notes: [...value.notes] };
 }

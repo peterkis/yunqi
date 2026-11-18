@@ -12,8 +12,11 @@ export function mapStageProgress(progress: StageProgressDto, boundary: {
     ? `还有 ${progress.remainingCalendarDays} 天`
     : `今日 ${boundary.endLocalTime.slice(11, 16)} ${boundary.transition}`;
   const elapsedPercent = progress.elapsedRatio * 100;
+  const rangeLabel = `${boundary.startLabel} → ${boundary.endLabel}`;
   return {
-    subtitle: `${boundary.startLabel} → ${boundary.endLabel} · ${remaining}`,
+    rangeLabel,
+    remainingLabel: remaining,
+    subtitle: `${rangeLabel} · ${remaining}`,
     elapsedWidth: `${elapsedPercent}%`,
     elapsedLabel: `已过约 ${Math.round(elapsedPercent)}%`,
   };

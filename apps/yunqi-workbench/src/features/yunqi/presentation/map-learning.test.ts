@@ -9,6 +9,10 @@ describe('learning reading context', () => {
     for (const movement of [result.currentMovement, ...result.movements]) {
       expect(movement).not.toHaveProperty('relationStatus');
       expect(movement.relation).toEqual({ label: dto.currentMovement.relation.traditionalLabel, tone: 'favorable', explanation: '客木生主火' });
+      expect(movement.hostValue).toBe('火运太过');
+      expect(movement.guestValue).toBe('木运不及');
+      expect(movement.hostLabel).toBe('火运太过（太徵）');
+      expect(movement.guestLabel).toBe('木运不及（少角）');
     }
   });
 
@@ -18,7 +22,7 @@ describe('learning reading context', () => {
       currentMovement: { ...dto.currentMovement, startLabel: '立冬后4日', endLabel: '大寒' },
       currentMovementProgress: { elapsedRatio: 0.095, remainingCalendarDays: 63, endsOnInputDate: false },
     });
-    expect(result.currentMovementProgress).toEqual({ subtitle: '立冬后4日 → 大寒 · 还有 63 天', elapsedWidth: '9.5%', elapsedLabel: '已过约 10%' });
+    expect(result.currentMovementProgress).toEqual({ rangeLabel: '立冬后4日 → 大寒', remainingLabel: '还有 63 天', subtitle: '立冬后4日 → 大寒 · 还有 63 天', elapsedWidth: '9.5%', elapsedLabel: '已过约 10%' });
     expect(result.facts.currentStepProgress.subtitle).toBe('小满 → 大暑 · 还有 34 天');
   });
 
@@ -29,6 +33,7 @@ describe('learning reading context', () => {
       currentMovementProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
     });
     expect(result.currentMovementProgress.subtitle).toBe('春分后13日 → 芒种后10日 · 今日 01:23 交运');
+    expect(result.currentMovementProgress.remainingLabel).toBe('今日 01:23 交运');
   });
 
   it('labels historical birth-period excerpts separately without changing source content', () => {

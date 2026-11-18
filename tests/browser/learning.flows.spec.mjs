@@ -19,9 +19,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   const now = page.locator('.current-overview__now');
   await expect(now.getByRole('heading', { name: data.currentMovement.name, exact: true })).toBeVisible();
-  await expect(now.getByText('北京时间 UTC+08', { exact: true })).toBeVisible();
-  await expect(now.getByRole('img')).toHaveAttribute('aria-label', /六步气进度：.*当前/);
-  await expect(page.locator('.current-sixqi-progress__bar')).toHaveCount(6);
+  await expect(now.getByText('北京时间 UTC+08', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.current-year-wheel').getByRole('img')).toHaveAttribute('aria-label', /年轮：外环六步气，当前.*；内环五步运，当前/);
+  await expect(page.locator('.current-sixqi-progress')).toHaveCount(0);
   await expectCurrentStageFacts(page, data);
   const movement = now.getByRole('region', { name: '当步运' });
   await expect(movement.locator('.ds-relation')).toHaveCount(1);

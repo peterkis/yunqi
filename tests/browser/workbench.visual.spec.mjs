@@ -124,11 +124,17 @@ for (const state of cases) {
     await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
     if (state.current) {
-      // Recheck computed progress in the selected theme, alongside the existing
+      // Recheck the solid year-wheel segments and all seven aligned grid rows
+      // in the selected theme, alongside the existing
       // typography, geometry, screenshot and axe gates in every matrix project.
       const { data } = await (await currentResponse).json();
       await expectCurrentStageFacts(page, data);
       await expectMoreRows(page);
+      if (panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
+        expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Current view opens at the first screen').toBe(0);
+        await expect(page.locator('.current-year-heading h3')).toBeInViewport({ ratio: 1 });
+        for (const heading of await page.locator('.current-period-cell--title h3').all()) await expect(heading).toBeInViewport({ ratio: 1 });
+      }
     }
     if (state.classics) {
       await expectClassicsAlignment(page);

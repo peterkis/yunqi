@@ -1,5 +1,10 @@
 import { expect } from './fixtures.mjs';
 
+const QI_TONES = {
+  '顺 · 君位臣': 'favorable', '相生 · 相得': 'favorable', '顺 · 客胜主': 'favorable',
+  '逆 · 臣位君': 'adverse', '逆 · 主胜客': 'adverse', 同气: 'neutral',
+};
+
 // Replay an unmodified, real Service calculation at the current endpoint so the
 // current page can be exercised at nonzero progress and same-day boundaries.
 export async function useCalculatedCurrentSnapshot(page, dateTime) {
@@ -14,11 +19,11 @@ export async function useCalculatedCurrentSnapshot(page, dateTime) {
   });
 }
 
-function expectedSubtitle(step, progress, transition) {
+function expectedPeriodLabels(step, progress, transition) {
   const remaining = progress.remainingCalendarDays === 0
     ? `今日 ${step.end.localTime.slice(11, 16)} ${transition}`
     : `还有 ${progress.remainingCalendarDays} 天`;
-  return `${step.startTerm ?? step.startLabel} → ${step.endTerm ?? step.endLabel} · ${remaining}`;
+  return { range: `${step.startTerm ?? step.startLabel} → ${step.endTerm ?? step.endLabel}`, remaining };
 }
 
 export async function expectMovementRelation(region, movement) {
@@ -52,37 +57,74 @@ export async function expectCurrentStageFacts(page, data) {
   const now = page.locator('.current-overview__now');
   const qi = now.getByRole('region', { name: '当步气', exact: true });
   const movement = now.getByRole('region', { name: '当步运', exact: true });
-  await expect(qi.locator('.current-period__subtitle')).toHaveText(expectedSubtitle(data.facts.currentStep, data.facts.currentStepProgress, '交气'));
-  await expect(movement.locator('.current-period__subtitle')).toHaveText(expectedSubtitle(data.currentMovement, data.currentMovementProgress, '交运'));
+  for (const [region, step, progress, transition] of [
+    [qi, data.facts.currentStep, data.facts.currentStepProgress, '交气'],
+    [movement, data.currentMovement, data.currentMovementProgress, '交运'],
+  ]) {
+    const labels = expectedPeriodLabels(step, progress, transition);
+    await expect(region.locator('.current-period-cell--range')).toHaveText(labels.range);
+    await expect(region.locator('.current-period-cell--remaining')).toHaveText(labels.remaining);
+  }
   await expect(qi.locator('time')).toHaveCount(0);
   await expect(movement.locator('time')).toHaveCount(0);
+  await expect(qi.locator('.current-period-cell--value .ds-element')).toHaveText([data.facts.currentStep.hostQi, data.facts.currentStep.guestQi]);
+  await expect(movement.locator('.current-period-cell--value .ds-element')).toHaveText([
+    `${data.currentMovement.host.element}运${data.currentMovement.host.state}`,
+    `${data.currentMovement.guest.element}运${data.currentMovement.guest.state}`,
+  ]);
+  await expect(qi.locator('.ds-relation__chip')).toHaveText(data.currentQi.label);
+  await expect(qi.locator('.ds-relation__chip')).toHaveClass(`ds-relation__chip ds-relation__chip--${QI_TONES[data.currentQi.label]}`);
+  await expect(qi.locator('.ds-relation__explanation')).toHaveText(data.currentQi.relation);
   await expectMovementRelation(movement, data.currentMovement);
 
   const ratio = data.facts.currentStepProgress.elapsedRatio;
-  const progress = now.getByRole('img');
-  await expect(progress).toHaveAccessibleName(new RegExp(`第${data.facts.currentStep.index}步${data.facts.currentStep.name}，当前，已过约 ${Math.round(ratio * 100)}%`));
-  await expect(page.locator('.current-sixqi-progress__elapsed')).toHaveCount(1);
-  const track = page.locator('.current-sixqi-progress .is-current .current-sixqi-progress__bar');
+  const wheel = page.locator('.current-year-wheel').getByRole('img');
+  await expect(wheel).toHaveAccessibleName(`年轮：外环六步气，当前第${data.facts.currentStep.index}步${data.facts.currentStep.name}，已过约 ${Math.round(ratio * 100)}%；内环五步运，当前第${data.currentMovement.index}运${data.currentMovement.name}，已过约 ${Math.round(data.currentMovementProgress.elapsedRatio * 100)}%`);
+  await expect(wheel.locator('[data-ring="qi"] path')).toHaveCount(6);
+  await expect(wheel.locator('[data-ring="movement"] path')).toHaveCount(5);
+  for (const [ring, index, token] of [
+    ['qi', data.facts.currentStep.index, '--accent'],
+    ['movement', data.currentMovement.index, '--relation-favorable-fg'],
+  ]) {
+    const current = wheel.locator(`[data-ring="${ring}"] .is-current`);
+    await expect(current).toHaveCount(1);
+    await expect(current).toHaveAttribute('data-index', String(index));
+    const path = ring === 'qi' ? current.locator('path') : current;
+    const colors = await path.evaluate((element, token) => {
+      const swatch = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      swatch.style.fill = `var(${token})`;
+      element.parentElement.append(swatch);
+      const values = [getComputedStyle(element).fill, getComputedStyle(swatch).fill];
+      swatch.remove();
+      return values;
+    }, token);
+    expect(colors[0]).toBe(colors[1]);
+  }
+  await expect(wheel.locator('linearGradient, clipPath, mask')).toHaveCount(0);
+  await expect(now.locator('.ds-info-card__eyebrow')).toHaveCount(0);
+  await expect(now.getByText('北京时间 UTC+08', { exact: true })).toHaveCount(0);
+  await expect(page.locator('.current-sixqi-progress, .current-sixqi-progress__elapsed')).toHaveCount(0);
+  await expectCurrentPeriodAlignment(page);
+}
+
+export async function expectCurrentPeriodAlignment(page) {
+  await page.evaluate(() => document.fonts.ready);
+  const grid = page.locator('.current-period-grid');
+  await expect(grid).toHaveCSS('display', 'grid');
+  await expect(grid.locator('.current-period-cell')).toHaveCount(14);
+  const qi = grid.getByRole('region', { name: '当步气', exact: true });
+  const movement = grid.getByRole('region', { name: '当步运', exact: true });
+  await expect(qi).toHaveCSS('display', 'contents');
+  await expect(movement).toHaveCSS('display', 'contents');
   await expect(async () => {
-    const metrics = await track.evaluate(element => {
-      const fill = element.querySelector('.current-sixqi-progress__elapsed');
-      const bounds = element.getBoundingClientRect();
-      const filled = fill.getBoundingClientRect();
-      const style = getComputedStyle(fill);
-      return { width: bounds.width, filledWidth: filled.width, left: bounds.left, filledLeft: filled.left,
-        height: bounds.height, filledHeight: filled.height,
-        trackColor: getComputedStyle(element).backgroundColor, fillColor: style.backgroundColor,
-        corners: [style.borderTopRightRadius, style.borderBottomRightRadius],
-      };
-    });
-    expect(metrics.width).toBeGreaterThan(0);
-    expect(Math.abs(metrics.filledWidth - ratio * metrics.width)).toBeLessThanOrEqual(1);
-    expect(metrics.filledLeft).toBe(metrics.left);
-    expect(metrics.filledHeight).toBe(metrics.height);
-    expect(metrics.fillColor).not.toBe(metrics.trackColor);
-    expect(metrics.corners).toEqual(['0px', '0px']);
+    for (let row = 0; row < 7; row += 1) {
+      const [left, right] = await Promise.all([
+        qi.locator('.current-period-cell').nth(row).boundingBox(),
+        movement.locator('.current-period-cell').nth(row).boundingBox(),
+      ]);
+      expect(left, `Qi row ${row + 1} has a box`).not.toBeNull();
+      expect(right, `Movement row ${row + 1} has a box`).not.toBeNull();
+      expect(Math.abs(left.y - right.y), `Period row ${row + 1} aligns within one pixel`).toBeLessThanOrEqual(1);
+    }
   }).toPass({ timeout: 10_000 });
-  const images = await page.locator('.current-sixqi-progress__bar, .current-sixqi-progress__elapsed')
-    .evaluateAll(elements => elements.map(element => getComputedStyle(element).backgroundImage));
-  expect(images).toEqual(Array(7).fill('none'));
 }

@@ -35,9 +35,10 @@ describe('live learning cards replacing demo panels', () => {
     const movement = learning.currentMovement;
     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
     const currentMovement = screen.getByRole('region', { name: '当步运' });
-    expect(within(currentMovement).getByText('火运太过（太徵）')).toBeVisible();
-    expect(within(currentMovement).getByText('木运不及（少角）')).toBeVisible();
-    expect(currentMovement).toHaveTextContent('春分后13日 → 芒种后10日 · 还有 34 天');
+    expect(within(currentMovement).getByText('火运太过')).toBeVisible();
+    expect(within(currentMovement).getByText('木运不及')).toBeVisible();
+    expect(currentMovement.querySelector('.current-period-cell--range')).toHaveTextContent('春分后13日 → 芒种后10日');
+    expect(currentMovement.querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
     await user.click(screen.getByText('计算说明与版本'));
     const precision = screen.getByRole('region', { name: '精确时刻' });
     expect(precision.querySelector(`time[datetime="${movement.start.localTime}"]`)).toBeVisible();
