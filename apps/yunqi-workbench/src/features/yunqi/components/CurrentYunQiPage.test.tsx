@@ -160,7 +160,7 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByRole('region', { name: '规则结果说明' })).toHaveTextContent('本结果依据冻结规则计算。');
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).toHaveTextContent('北京时间 UTC+08');
   });

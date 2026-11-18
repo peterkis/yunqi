@@ -66,6 +66,24 @@ const StepNameSchema = Type.Union([
   Type.Literal('终之气'),
 ]);
 
+export const SixQiBoundaryTermSchema = Type.Union([
+  Type.Literal('大寒'),
+  Type.Literal('春分'),
+  Type.Literal('小满'),
+  Type.Literal('大暑'),
+  Type.Literal('秋分'),
+  Type.Literal('小雪'),
+], { $id: 'SixQiBoundaryTerm' });
+
+export const StageProgressDtoSchema = Type.Object(
+  {
+    elapsedRatio: Type.Number({ minimum: 0, exclusiveMaximum: 1 }),
+    remainingCalendarDays: Type.Integer({ minimum: 0 }),
+    endsOnInputDate: Type.Boolean(),
+  },
+  { $id: 'StageProgressDto', additionalProperties: false },
+);
+
 export const YunQiTimeDtoSchema = Type.Object(
   {
     localTime: Type.String({
@@ -110,6 +128,8 @@ export const SixQiStepDtoSchema = Type.Object(
     name: StepNameSchema,
     start: Type.Ref('YunQiTimeDto'),
     end: Type.Ref('YunQiTimeDto'),
+    startTerm: Type.Ref('SixQiBoundaryTerm'),
+    endTerm: Type.Ref('SixQiBoundaryTerm'),
     hostQi: QiSchema,
     guestQi: QiSchema,
     relation: Type.Ref('HostGuestRelationDto'),
@@ -173,6 +193,7 @@ export const YunQiCalculationDtoSchema = Type.Object(
     ...YunQiYearDtoSchema.properties,
     input: Type.Ref('YunQiTimeDto'),
     currentStep: Type.Ref('SixQiStepDto'),
+    currentStepProgress: Type.Ref('StageProgressDto'),
   },
   { $id: 'YunQiCalculationDto', additionalProperties: false },
 );
@@ -224,6 +245,8 @@ export const CalculationSuccessSchema = Type.Object(
 );
 
 export type YunQiSchemaContext = {
+  SixQiBoundaryTerm: typeof SixQiBoundaryTermSchema;
+  StageProgressDto: typeof StageProgressDtoSchema;
   YunQiTimeDto: typeof YunQiTimeDtoSchema;
   HostGuestRelationDto: typeof HostGuestRelationDtoSchema;
   SixQiStepDto: typeof SixQiStepDtoSchema;
@@ -234,6 +257,8 @@ export type YunQiSchemaContext = {
   YunQiYearDto: typeof YunQiYearDtoSchema;
   YunQiCalculationDto: typeof YunQiCalculationDtoSchema;
 };
+
+export type StageProgressDto = Static<typeof StageProgressDtoSchema>;
 
 export type YunQiTimeDto = Static<
   typeof YunQiTimeDtoSchema,

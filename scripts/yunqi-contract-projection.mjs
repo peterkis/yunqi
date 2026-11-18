@@ -124,7 +124,8 @@ function schemaNameFromReference(reference) {
 function selectBusinessPaths(document) {
   const selected = {};
 
-  const requiredPaths = document['x-yunqi-contract-id'] === 'YQ-API-CONTRACT-1.2.0'
+  const requiredPaths = ['YQ-API-CONTRACT-1.2.0', 'YQ-API-CONTRACT-1.3.0']
+    .includes(document['x-yunqi-contract-id'])
     ? [...BUSINESS_PATHS, ...LEARNING_PATHS] : BUSINESS_PATHS;
   for (const path of requiredPaths) {
     const pathItem = document.paths?.[path];

@@ -141,7 +141,7 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await trace.scrollIntoViewIfNeeded();
   expect(data.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
   await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
-  await expect(trace.getByText('YQ-API-CONTRACT-1.2.0', { exact: true })).toBeVisible();
+  await expect(trace.getByText('YQ-API-CONTRACT-1.3.0', { exact: true })).toBeVisible();
   const back = page.getByRole('button', { name: '返回', exact: true });
   await back.focus();
   await back.press('Enter');
@@ -177,8 +177,8 @@ test('panel navigation, skip link and result traceability support keyboard recov
   const disclosure = page.locator('.current-technical');
   await disclosure.locator('summary').focus();
   await page.keyboard.press('Enter');
-  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.2.0/)).toBeVisible();
+  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.3.0/)).toBeVisible();
   await page.keyboard.press('Space');
-  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.2.0/)).toBeHidden();
+  await expect(disclosure.getByText(/YunQi 当前查询 API\s·\sYQ-API-CONTRACT-1.3.0/)).toBeHidden();
   await screenshot(page, testInfo, 'keyboard-technical-disclosure');
 });

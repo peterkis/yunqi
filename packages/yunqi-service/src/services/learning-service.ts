@@ -11,7 +11,7 @@ import {
   type YunQiCalendarTime,
   type YunQiLearning,
 } from '@yunqi/domain';
-import { mapCalculationResult } from '../mappers/yunqi-mapper.js';
+import { mapCalculationResult, mapStageProgress } from '../mappers/yunqi-mapper.js';
 import {
   compareCalendarTimes,
   formatYunQiCalendarTime,
@@ -25,6 +25,7 @@ import type {
   BirthComparisonDto,
   BirthRequest,
   LearningRelationDto,
+  MovementStepDto,
   YunQiLearningDto,
 } from '../schemas/learning.js';
 import type { CalculateRequest } from '../schemas/yunqi.js';
@@ -45,13 +46,19 @@ function mapClassicalPassage(passage: ClassicalPassage) {
   };
 }
 
-function mapMovementStep(step: MovementStep) {
+function mapMovementStep(step: MovementStep): MovementStepDto {
   return {
-    ...step,
+    index: step.index,
+    name: step.name,
     host: { ...step.host },
     guest: { ...step.guest },
     start: formatYunQiCalendarTime(normalizeYunQiInstant(step.start)),
     end: formatYunQiCalendarTime(normalizeYunQiInstant(step.end)),
+    startLabel: step.startLabel,
+    endLabel: step.endLabel,
+    relation: { ...step.relation },
+    boundaryMethod: step.boundaryMethod,
+    explanation: step.explanation,
   };
 }
 
@@ -77,6 +84,7 @@ export function mapLearning(result: YunQiLearning): YunQiLearningDto {
     annualRelation: mapRelation(result.annualRelation),
     currentQi: mapRelation(result.currentQi),
     currentMovement: mapMovementStep(result.currentMovement),
+    currentMovementProgress: mapStageProgress(result.currentMovementProgress),
     movements: result.movements.map(mapMovementStep),
     annualPassages: result.annualPassages.map(mapClassicalPassage),
     currentPassages: result.currentPassages.map(mapClassicalPassage),

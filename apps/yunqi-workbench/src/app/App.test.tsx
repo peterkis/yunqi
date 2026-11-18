@@ -46,8 +46,8 @@ describe('App', () => {
     expect(trace).not.toBeVisible();
     await user.click(summary);
     expect(trace).toBeVisible();
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.2.0');
-    expect(within(trace).getByText(/YQ-API-CONTRACT-1\.2\.0/)).toBeVisible();
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
+    expect(within(trace).getByText(/YQ-API-CONTRACT-1\.3\.0/)).toBeVisible();
     expect(within(trace).getByText(/YQ-MVP-RULES-1\.1\.0/)).toBeVisible();
   });
 });

@@ -2,9 +2,13 @@
 
 Browser-safe typed client for the YunQi `/api/v1` endpoints.
 
-Package `1.2.0` consumes `YQ-API-CONTRACT-1.2.0` through `@yunqi/contracts`.
+Package `1.3.0` consumes `YQ-API-CONTRACT-1.3.0` through `@yunqi/contracts`.
+This minor release follows the required response-field additions; transport
+and method signatures are unchanged. Types flow from Contracts without a
+second DTO model. Closed-schema consumers and exact learning-rule version
+checks/caches must follow the 1.3.0 migration notes.
 Annual requests support YunQi years 1900–2100. See the
-[current contract migration notes](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md)
+[current contract migration notes](../../docs/contracts/YQ-API-CONTRACT-1.3.0.md)
 and [clinician-feedback plan](../../docs/plans/2026-11-16-clinician-feedback.md).
 The [1.0.0](../../docs/contracts/YQ-API-CONTRACT-1.0.0.md) and
 [1.1.0](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md) notes remain historical references.
@@ -66,7 +70,7 @@ default scores or retain an answer for the other sex-specific question after
 changing sex. Results preserve nine scores, tendencies and compatible types;
 the [constitution rule note](../../rules/CONSTITUTION-GBT46939-2025.md)
 documents the algorithm. Learning and birth comparisons use the separately
-versioned [teaching rules](../../rules/LEARNING_RULES_V1.md).
+versioned [teaching rules](../../rules/LEARNING_RULES_V1_1.md).
 
 The Axios adapter is structural: applications may pass an Axios-compatible
 object without making Axios a client-package dependency. Query options are

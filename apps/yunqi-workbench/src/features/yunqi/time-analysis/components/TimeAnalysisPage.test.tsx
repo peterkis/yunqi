@@ -83,7 +83,7 @@ describe('TimeAnalysisPage', () => {
     await user.click(summary);
     expect(source).toBeVisible();
     expect(within(calculation).getByText('YQ-MVP-RULES-1.1.0')).toBeVisible();
-    expect(within(calculation).getByText('YQ-API-CONTRACT-1.2.0')).toBeVisible();
+    expect(within(calculation).getByText('YQ-API-CONTRACT-1.3.0')).toBeVisible();
     expect(
       within(result).queryByText('已结束'),
     ).not.toBeInTheDocument();

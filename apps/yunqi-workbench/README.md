@@ -63,7 +63,7 @@ Annual parameters must be exact four-digit years in the inclusive `1900–2100`
 range. Malformed and out-of-range routes render a validation message without
 mounting the annual query owner or calling the API.
 
-The active API Contract is `YQ-API-CONTRACT-1.2.0`; the rule result identifies
+The active API Contract is `YQ-API-CONTRACT-1.3.0`; the rule result identifies
 `YQ-MVP-RULES-1.1.0`. For `GUEST_GENERATES_HOST`, the direction label remains
 `客生主`, while the API-provided traditional description is `客生主，相得`.
 The Workbench renders these separate fields without deriving a rule relation.

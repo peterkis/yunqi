@@ -97,6 +97,8 @@ const localBoundaries = [
 const steps = stepNames.map((name, position) => ({
   index: position + 1,
   name,
+  startTerm: (['大寒', '春分', '小满', '大暑', '秋分', '小雪'] as const)[position],
+  endTerm: (['春分', '小满', '大暑', '秋分', '小雪', '大寒'] as const)[position],
   start: time(
     localBoundaries[position],
     1_768_880_000_000 + position * 5_200_000_000,
@@ -144,6 +146,7 @@ export function createYunQiCalculationDto(): YunQiCalculationDto {
       steps,
     },
     currentStep: steps[2] as SixQiStepDto,
+    currentStepProgress: { elapsedRatio: 0.47, remainingCalendarDays: 34, endsOnInputDate: false },
     explanations: [
       '本结果依据冻结规则计算。',
       '传统理论说明仅供医生学习与复盘。',
@@ -152,11 +155,12 @@ export function createYunQiCalculationDto(): YunQiCalculationDto {
 }
 
 export function createYunQiYearDto(): YunQiYearDto {
-  const { input, currentStep, ...year } =
+  const { input, currentStep, currentStepProgress, ...year } =
     createYunQiCalculationDto();
 
   void input;
   void currentStep;
+  void currentStepProgress;
 
   return year;
 }

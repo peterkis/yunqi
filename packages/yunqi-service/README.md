@@ -4,9 +4,9 @@ Fastify 5 service-contract package for the accepted `@yunqi/domain` facts.
 It exposes time boundaries, versioned rule mappings, sourced learning material,
 birth/current comparisons and constitution questionnaire assessment.
 
-Service package `2.2.0` implements
-[`YQ-API-CONTRACT-1.2.0`](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md).
-The OpenAPI dialect is `3.1.0` and its document release is `1.4.0`; API paths
+Service package `2.3.0` implements
+[`YQ-API-CONTRACT-1.3.0`](../../docs/contracts/YQ-API-CONTRACT-1.3.0.md).
+The OpenAPI dialect is `3.1.0` and its document release is `1.5.0`; API paths
 remain under `/api/v1`. The [implementation plan](../../docs/plans/2026-11-16-clinician-feedback.md)
 records the clinician-feedback scope. The original
 [1.0.0](../../docs/contracts/YQ-API-CONTRACT-1.0.0.md) and
@@ -108,8 +108,12 @@ Public time values use:
     }
 
 Core facts retain `YQ-MVP-RULES-1.1.0`; the approved guest-generates-host label
-is `客生主，相得`. The original three business endpoints retain their schemas.
-The new learning and constitution outputs carry their separate versions.
+is `客生主，相得`. Contract 1.3.0 adds six-qi boundary terms and input-relative
+`currentStepProgress` to calculations, including learning/birth `facts`.
+Annual results carry boundary terms without progress. Learning outputs add
+movement boundary labels, neutral host/guest movement relations and
+`currentMovementProgress`; these fields map Domain facts directly.
+Learning and constitution outputs carry their separate versions.
 
 ## Learning and birth comparison
 
@@ -117,7 +121,7 @@ Learning responses contain core `facts`, separate annual and current-qi
 relations, the current movement, all five movements, and classical excerpts
 with reading explanations and source links. The teaching movement boundaries
 and interpretation status are explicit in
-[YQ-LEARNING-RULES-1.0.0](../../rules/LEARNING_RULES_V1.md).
+[YQ-LEARNING-RULES-1.1.0](../../rules/LEARNING_RULES_V1_1.md).
 
 Birth comparison accepts:
 

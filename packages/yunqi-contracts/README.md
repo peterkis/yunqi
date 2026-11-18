@@ -1,8 +1,8 @@
 # @yunqi/contracts
 
-Browser-safe public DTO facade, package `1.2.0`, for
-[`YQ-API-CONTRACT-1.2.0`](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md).
-Types are generated from Service `2.2.0` and OpenAPI document `1.4.0`
+Browser-safe public DTO facade, package `1.3.0`, for
+[`YQ-API-CONTRACT-1.3.0`](../../docs/contracts/YQ-API-CONTRACT-1.3.0.md).
+Types are generated from Service `2.3.0` and OpenAPI document `1.5.0`
 (OpenAPI dialect `3.1.0`). The
 [clinician-feedback plan](../../docs/plans/2026-11-16-clinician-feedback.md)
 describes the added learning, birth comparison and constitution scope.
@@ -45,12 +45,18 @@ movement intervals, birth-period candidates and all nine constitution scores.
 and complete answers. DTOs describe the wire contract; the package does not
 calculate relations, determine date boundaries or score answers.
 
+Contract 1.3.0 also exports `SixQiBoundaryTerm`, `StageProgressDto` and
+`MovementRelationDto`. Calculation progress is relative to `input`, including
+learning and birth-candidate `facts`; annual responses have no progress.
+Movement labels and relations are provided by Domain, with teaching labels
+still awaiting expert confirmation. Closed-schema consumers must upgrade.
+
 There are eight business operations: annual/current/calculation, current and
 specified-time learning, birth comparison, questionnaire retrieval and
 constitution assessment. Their exact paths and migration requirements are in
-the [current contract](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md).
+the [current contract](../../docs/contracts/YQ-API-CONTRACT-1.3.0.md).
 Rule provenance remains in the
-[learning rules](../../rules/LEARNING_RULES_V1.md) and
+[learning rules](../../rules/LEARNING_RULES_V1_1.md) and
 [constitution rules](../../rules/CONSTITUTION-GBT46939-2025.md).
 
 The one public time wire schema is `YunQiTimeDto`.
@@ -92,9 +98,11 @@ known ID with different content. Actual registration and `contracts:check`
 determine the machine-freeze state; updating a README or generated types is
 not a substitute for either.
 
-The historical `YQ-API-CONTRACT-1.0.0` and `YQ-API-CONTRACT-1.1.0` freeze files
+The historical `YQ-API-CONTRACT-1.0.0`, `YQ-API-CONTRACT-1.1.0` and
+`YQ-API-CONTRACT-1.2.0` freeze files
 remain immutable. Their
 [1.0.0](../../docs/contracts/YQ-API-CONTRACT-1.0.0.md) and
-[1.1.0](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md) notes are retained for
+[1.1.0](../../docs/contracts/YQ-API-CONTRACT-1.1.0.md) and
+[1.2.0](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md) notes are retained for
 previous consumers. Engineering contract freeze does not certify clinical
 validity or expert acceptance of rules.

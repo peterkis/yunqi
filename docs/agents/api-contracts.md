@@ -2,7 +2,7 @@
 
 修改Service、OpenAPI、Contracts或Client前读取
 [ADR-002](../architecture/ADR-002-yunqi-contract-freeze.md)和
-[当前契约](../contracts/YQ-API-CONTRACT-1.2.0.md)。
+[当前契约](../contracts/YQ-API-CONTRACT-1.3.0.md)。
 
 ## 所有权
 
@@ -14,7 +14,7 @@
 
 ## 冻结与升级
 
-当前Contract为 `YQ-API-CONTRACT-1.2.0`，精确覆盖：
+当前Contract为 `YQ-API-CONTRACT-1.3.0`，精确覆盖：
 
 ```text
 GET /api/v1/yunqi/year/{year}
@@ -36,6 +36,8 @@ POST /api/v1/constitution/assess
 API工程冻结不代表规则已获专家冻结。路径/API、OpenAPI文档、Contract、规则和包版本各有含义。
 1.1.0扩大1900–2100运气年范围；ruleVersion及R-21说明文字是显式可观察变化，
 消费方的范围限制、精确文案/版本检查和缓存须按迁移说明处理。
+1.3.0新增必填阶段边界、主客运关系和输入时刻进度；闭合校验消费方须升级。
+learning及出生对照的教学ruleVersion升至1.1.0，精确版本检查与缓存须处理迁移。
 
 ## 服务与验证边界
 

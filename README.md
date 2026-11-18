@@ -20,11 +20,11 @@
 
 | 组件或契约 | 当前版本 |
 | --- | --- |
-| `@yunqi/domain` | `1.3.1` |
-| `@yunqi/service` | `2.2.0` |
-| `@yunqi/contracts` / `@yunqi/client` | `1.2.0` |
-| 业务 API Contract | `YQ-API-CONTRACT-1.2.0` |
-| OpenAPI 文档版本 / 规范版本 | `1.4.0` / `3.1.0` |
+| `@yunqi/domain` | `1.4.0` |
+| `@yunqi/service` | `2.3.0` |
+| `@yunqi/contracts` / `@yunqi/client` | `1.3.0` |
+| 业务 API Contract | `YQ-API-CONTRACT-1.3.0` |
+| OpenAPI 文档版本 / 规范版本 | `1.5.0` / `3.1.0` |
 
 第一阶段规则是已版本化的实现基线，待正式专家冻结与验证，状态以
 `rules/RULE_FREEZE_NOTE.md` 为准。API Contract 冻结不代表专家验证通过。
@@ -33,11 +33,11 @@
 当前规则为 [YQ-MVP-RULES-1.1.0](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)。
 2026-10-18 按用户确认采用 Word R-08/R-21：支持1900–2100运气年，
 客生主传统描述为“客生主，相得”。新增教学规则为
-[YQ-LEARNING-RULES-1.0.0](rules/LEARNING_RULES_V1.md)，量表规则为
+[YQ-LEARNING-RULES-1.1.0](rules/LEARNING_RULES_V1_1.md)，量表规则为
 [YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
 经典内容更新为[YQ-CLASSICAL-READING-1.1.0](rules/CLASSICAL_READING_V1_1.md)，
 补充连续气候与病候选段，不改变运气计算、量表计分或API结构。
-[当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.2.0.md)记录新增接口及消费方影响；
+[当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.3.0.md)记录新增接口及消费方影响；
 [1.0.0](docs/contracts/YQ-API-CONTRACT-1.0.0.md)、
 [1.1.0](docs/contracts/YQ-API-CONTRACT-1.1.0.md)说明、原始确认单与历史冻结文件保留。
 
@@ -72,7 +72,7 @@ Workbench 已按[运气通设计规范与原型](docs/design/README.md)实现400
 - `@yunqi/workbench`: Vite/React current, annual and specified-time analysis,
   birth/current comparison, constitution assessment and an inquiry-planning entry.
 
-The current business API is defined by `YQ-API-CONTRACT-1.2.0`; machine freeze
+The current business API is defined by `YQ-API-CONTRACT-1.3.0`; machine freeze
 registration and drift checks are owned by `@yunqi/contracts`. React consumers
 must import DTOs from `@yunqi/contracts` and client behavior from
 `@yunqi/client`; they must not duplicate API DTOs.

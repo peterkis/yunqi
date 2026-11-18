@@ -23,7 +23,7 @@ Claude 评审、返工直至验收，按卡在分支 `feat/stage-facts` 本地�
 | 卡 | 内容 | 依赖 | 状态 |
 | --- | --- | --- | --- |
 | [E1](cards/E1-domain.md) | Domain：A 当步运关系、B 边界节气标签、C 阶段进度；教学规则 1.1.0 | — | 通过（1 轮，[评审](reviews/E1-review-1.md)） |
-| [E2](cards/E2-contract.md) | Service schema/mapper、OpenAPI、freeze 1.3.0、契约文档、Contracts/Client | E1 | 待派发 |
+| [E2](cards/E2-contract.md) | Service schema/mapper、OpenAPI、freeze 1.3.0、契约文档、Contracts/Client | E1 | 通过（1 轮，[评审](reviews/E2-review-1.md)） |
 | [E3](cards/E3-workbench.md) | 当下页运关系、阶段副标题、进度分割、治理断言 | E2 | 待派发 |
 | E4 | 专家三问（见原始计划） | — | 待用户/专家 |
 

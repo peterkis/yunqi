@@ -4,9 +4,13 @@ import {
   type CalculateRequest,
   type CalculationSuccessResponse,
   type HostGuestRelationDto,
+  type MovementRelationDto,
+  type MovementStepDto,
+  type SixQiBoundaryTerm,
   type SixQiDto,
   type SixQiStepDto,
   type StemBranchDto,
+  type StageProgressDto,
   type SuiYunDto,
   type YunQiBoundaryTimeDto,
   type YunQiCalculationDto,
@@ -14,10 +18,11 @@ import {
   type YunQiIntervalDto,
   type YunQiTimeDto,
   type YunQiYearDto,
+  type YunQiLearningDto,
   type YearSuccessResponse,
 } from '../src/index.js';
 
-const contractId: 'YQ-API-CONTRACT-1.2.0' = YUNQI_API_CONTRACT_ID;
+const contractId: 'YQ-API-CONTRACT-1.3.0' = YUNQI_API_CONTRACT_ID;
 const time: YunQiTimeDto = {
   localTime: '2026-01-01T12:00:00+08:00',
   epochMilliseconds: 1_767_240_000_000,
@@ -54,6 +59,31 @@ const calculationInput: YunQiCalculationInputTimeDto = calculation.input;
 const stepStart: YunQiBoundaryTimeDto = step.start;
 const stepEnd: YunQiBoundaryTimeDto = step.end;
 const calculationYear: YunQiYearDto = calculation;
+const qiProgress: StageProgressDto = calculation.currentStepProgress;
+const boundaryTerm: SixQiBoundaryTerm = step.startTerm;
+declare const learning: YunQiLearningDto;
+const movement: MovementStepDto = learning.currentMovement;
+const movementRelation: MovementRelationDto = movement.relation;
+const movementProgress: StageProgressDto = learning.currentMovementProgress;
+
+// @ts-expect-error Movement relations do not carry qi identity.
+void movementRelation.qiRelation;
+// @ts-expect-error Movement-only solar terms are not six-qi boundaries.
+const invalidBoundaryTerm: SixQiBoundaryTerm = '芒种';
+// @ts-expect-error Stage progress fields are readonly.
+qiProgress.elapsedRatio = 0.5;
+// @ts-expect-error Year responses have no input-relative progress.
+void year.currentStepProgress;
+// @ts-expect-error Calculation progress is required.
+const missingProgress: YunQiCalculationDto = {} as Omit<YunQiCalculationDto, 'currentStepProgress'>;
+// @ts-expect-error Both boundary terms are required.
+const missingTerm: SixQiStepDto = {} as Omit<SixQiStepDto, 'endTerm'>;
+// @ts-expect-error Movement relations are required.
+const missingMovementRelation: MovementStepDto = {} as Omit<MovementStepDto, 'relation'>;
+// @ts-expect-error Movement labels are required.
+const missingMovementLabel: MovementStepDto = {} as Omit<MovementStepDto, 'startLabel'>;
+// @ts-expect-error Learning progress is required.
+const missingMovementProgress: YunQiLearningDto = {} as Omit<YunQiLearningDto, 'currentMovementProgress'>;
 
 void {
   contractId,
@@ -71,6 +101,16 @@ void {
   stepStart,
   stepEnd,
   calculationYear,
+  qiProgress,
+  boundaryTerm,
+  movementRelation,
+  movementProgress,
+  invalidBoundaryTerm,
+  missingProgress,
+  missingTerm,
+  missingMovementRelation,
+  missingMovementLabel,
+  missingMovementProgress,
   yearResponse,
   calculationResponse,
   errorResponse,

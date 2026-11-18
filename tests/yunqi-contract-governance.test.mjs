@@ -63,6 +63,17 @@ function readProductionDocument() {
     'packages/yunqi-service/openapi/yunqi-service.openapi.yaml'), 'utf8'));
 }
 
+function readFrozenDocument(contractId) {
+  const frozen = readFrozenContract(contractId);
+  return {
+    'x-yunqi-contract-id': frozen.contractId,
+    openapi: frozen.openapi,
+    info: { version: frozen.documentVersion },
+    paths: frozen.paths,
+    components: { schemas: frozen.schemas },
+  };
+}
+
 test('Contract 1.1.0 changes only the approved year range and version identity', () => {
   const contractDirectory = join(
     repositoryRoot,
@@ -105,7 +116,7 @@ test('Contract 1.1.0 changes only the approved year range and version identity',
 test('Contract 1.2.0 freezes all five added endpoints and exactly their new reachable schemas', () => {
   const previous = readFrozenContract('YQ-API-CONTRACT-1.1.0');
   const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
-  const production = createContractProjection(readProductionDocument());
+  const production = createContractProjection(readFrozenDocument('YQ-API-CONTRACT-1.2.0'));
 
   assert.equal(frozen.contractId, 'YQ-API-CONTRACT-1.2.0');
   assert.equal(frozen.documentVersion, '1.4.0');
@@ -125,13 +136,14 @@ test('Contract 1.2.0 freezes all five added endpoints and exactly their new reac
     'packages/yunqi-contracts/contract/registry.json'), 'utf8'));
   assert.deepEqual(registry.contractIds, [
     'YQ-API-CONTRACT-1.0.0', 'YQ-API-CONTRACT-1.1.0', 'YQ-API-CONTRACT-1.2.0',
+    'YQ-API-CONTRACT-1.3.0',
   ]);
 });
 
 test('Contract 1.2.0 preserves every legacy path, operation and schema from 1.1.0 exactly', () => {
   const previous = readFrozenContract('YQ-API-CONTRACT-1.1.0');
   const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
-  const production = createContractProjection(readProductionDocument());
+  const production = createContractProjection(readFrozenDocument('YQ-API-CONTRACT-1.2.0'));
 
   assert.equal(Object.keys(previous.paths).length, 3);
   for (const [path, pathItem] of Object.entries(previous.paths)) {
@@ -144,8 +156,57 @@ test('Contract 1.2.0 preserves every legacy path, operation and schema from 1.1.
   }
 });
 
-test('Contract 1.2.0 requires every added path instead of silently projecting only the legacy API', () => {
-  const document = readProductionDocument();
+test('Contract 1.3.0 changes only the approved stage fields and version identity from 1.2.0', () => {
+  const previous = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+  const expected = structuredClone(previous);
+  expected.contractId = 'YQ-API-CONTRACT-1.3.0';
+  expected.documentVersion = '1.5.0';
+  expected.schemas.SixQiBoundaryTerm = {
+    anyOf: ['大寒', '春分', '小满', '大暑', '秋分', '小雪'].map((term) => ({
+      enum: [term], type: 'string',
+    })),
+  };
+  expected.schemas.StageProgressDto = {
+    type: 'object', additionalProperties: false,
+    required: ['elapsedRatio', 'endsOnInputDate', 'remainingCalendarDays'],
+    properties: {
+      elapsedRatio: { type: 'number', minimum: 0, exclusiveMaximum: 1 },
+      remainingCalendarDays: { type: 'integer', minimum: 0 },
+      endsOnInputDate: { type: 'boolean' },
+    },
+  };
+  expected.schemas.MovementRelationDto = structuredClone(previous.schemas.HostGuestRelationDto);
+  delete expected.schemas.MovementRelationDto.properties.qiRelation;
+  expected.schemas.MovementRelationDto.required = ['direction', 'elementRelation', 'traditionalLabel'];
+  const additions = {
+    SixQiStepDto: {
+      startTerm: { $ref: '#/components/schemas/SixQiBoundaryTerm' },
+      endTerm: { $ref: '#/components/schemas/SixQiBoundaryTerm' },
+    },
+    YunQiCalculationDto: { currentStepProgress: { $ref: '#/components/schemas/StageProgressDto' } },
+    MovementStepDto: {
+      relation: { $ref: '#/components/schemas/MovementRelationDto' },
+      startLabel: { type: 'string' }, endLabel: { type: 'string' },
+    },
+    YunQiLearningDto: { currentMovementProgress: { $ref: '#/components/schemas/StageProgressDto' } },
+  };
+  for (const [name, properties] of Object.entries(additions)) {
+    Object.assign(expected.schemas[name].properties, properties);
+    expected.schemas[name].required.push(...Object.keys(properties));
+    expected.schemas[name].required.sort();
+  }
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.3.0');
+  assert.deepEqual(frozen, expected);
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(readProductionDocument()));
+});
+
+for (const version of ['1.2.0', '1.3.0']) {
+  const contractId = `YQ-API-CONTRACT-${version}`;
+  const currentDocument = () => version === '1.3.0'
+    ? readProductionDocument() : readFrozenDocument(contractId);
+
+test(`Contract ${version} requires every added path instead of silently projecting only the legacy API`, () => {
+  const document = currentDocument();
   for (const [path] of learningEndpoints) {
     const changed = structuredClone(document);
     delete changed.paths[path];
@@ -154,9 +215,10 @@ test('Contract 1.2.0 requires every added path instead of silently projecting on
   }
 });
 
-test('Contract 1.2.0 detects missing methods and operation identity drift on every added endpoint', () => {
-  const document = readProductionDocument();
-  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+test(`Contract ${version} detects missing methods and operation identity drift on every added endpoint`, () => {
+  const document = currentDocument();
+  const frozen = readFrozenContract(contractId);
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(document));
   for (const [path, method] of learningEndpoints) {
     const removed = structuredClone(document);
     delete removed.paths[path][method];
@@ -169,10 +231,12 @@ test('Contract 1.2.0 detects missing methods and operation identity drift on eve
   }
 });
 
-test('Contract 1.2.0 detects drift in every new reachable schema', () => {
-  const document = readProductionDocument();
-  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
-  for (const name of learningSchemaNames) {
+test(`Contract ${version} detects drift in every new reachable schema`, () => {
+  const document = currentDocument();
+  const frozen = readFrozenContract(contractId);
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(document));
+  const newObjectSchemas = version === '1.3.0' ? ['MovementRelationDto', 'StageProgressDto'] : [];
+  for (const name of [...learningSchemaNames, ...newObjectSchemas]) {
     const changed = structuredClone(document);
     const schema = changed.components.schemas[name];
     assert.equal(schema.type, 'object', name);
@@ -185,9 +249,10 @@ test('Contract 1.2.0 detects drift in every new reachable schema', () => {
   }
 });
 
-test('Contract 1.2.0 protects birth precision, questionnaire answers, movement bounds and source fields', () => {
-  const document = readProductionDocument();
-  const frozen = readFrozenContract('YQ-API-CONTRACT-1.2.0');
+test(`Contract ${version} protects birth precision, questionnaire answers, movement bounds and source fields`, () => {
+  const document = currentDocument();
+  const frozen = readFrozenContract(contractId);
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(document));
   const mutations = [
     ['birth date required', (doc) => { doc.components.schemas.BirthRequest.required = []; }],
     ['birth time grammar', (doc) => { doc.components.schemas.BirthRequest.properties.birthTime.pattern = '.*'; }],
@@ -206,6 +271,37 @@ test('Contract 1.2.0 protects birth precision, questionnaire answers, movement b
     mutate(changed);
     assert.throws(() => assertContractProjectionMatchesFreeze(frozen, createContractProjection(changed)),
       /frozen projection changed/i, name);
+  }
+});
+}
+
+test('Contract 1.3.0 freezes stage required fields, progress constraints and the six-term boundary enum', () => {
+  const document = readProductionDocument();
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.3.0');
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(document));
+  const mutations = [
+    (schemas) => { schemas.SixQiBoundaryTerm.anyOf.push({ type: 'string', enum: ['芒种'] }); },
+    (schemas) => { schemas.StageProgressDto.properties.elapsedRatio.minimum = -1; },
+    (schemas) => { delete schemas.StageProgressDto.properties.elapsedRatio.exclusiveMaximum; },
+    (schemas) => { schemas.StageProgressDto.properties.remainingCalendarDays.type = 'number'; },
+    (schemas) => { schemas.StageProgressDto.properties.remainingCalendarDays.minimum = -1; },
+    (schemas) => { schemas.MovementRelationDto.properties.qiRelation = { type: 'string' }; },
+  ];
+  for (const name of ['SixQiStepDto', 'MovementStepDto', 'YunQiCalculationDto', 'YunQiLearningDto', 'MovementRelationDto', 'StageProgressDto']) {
+    mutations.push((schemas) => { schemas[name].additionalProperties = true; });
+    for (const field of document.components.schemas[name].required) {
+      mutations.push((schemas) => {
+        schemas[name].required = schemas[name].required.filter((value) => value !== field);
+      });
+    }
+  }
+  for (const mutate of mutations) {
+    const changed = structuredClone(document);
+    mutate(changed.components.schemas);
+    assert.throws(() => assertContractProjectionMatchesFreeze(frozen, createContractProjection(changed)),
+      /frozen projection changed/i);
+    assert.throws(() => assertFreezeMayBeWritten(frozen, createContractProjection(changed)),
+      /Contract ID.*unchanged/i);
   }
 });
 

@@ -350,15 +350,23 @@ export interface components {
             /** @enum {string} */
             readonly message: "";
         };
+        readonly MovementRelationDto: {
+            readonly direction: "NONE" | "HOST_GENERATES_GUEST" | "GUEST_GENERATES_HOST" | "HOST_CONTROLS_GUEST" | "GUEST_CONTROLS_HOST";
+            readonly elementRelation: "SAME_ELEMENT" | "DIFFERENT_ELEMENT";
+            readonly traditionalLabel: string;
+        };
         readonly MovementStepDto: {
             readonly boundaryMethod: string;
             readonly end: components["schemas"]["YunQiTimeDto"];
+            readonly endLabel: string;
             readonly explanation: string;
             readonly guest: components["schemas"]["SuiYunDto"];
             readonly host: components["schemas"]["SuiYunDto"];
             readonly index: number;
             readonly name: string;
+            readonly relation: components["schemas"]["MovementRelationDto"];
             readonly start: components["schemas"]["YunQiTimeDto"];
+            readonly startLabel: string;
         };
         readonly QuestionnaireSuccessResponse: {
             /** @enum {string} */
@@ -367,6 +375,7 @@ export interface components {
             /** @enum {string} */
             readonly message: "";
         };
+        readonly SixQiBoundaryTerm: "大寒" | "春分" | "小满" | "大暑" | "秋分" | "小雪";
         readonly SixQiDto: {
             readonly sitian: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly steps: readonly components["schemas"]["SixQiStepDto"][];
@@ -374,12 +383,19 @@ export interface components {
         };
         readonly SixQiStepDto: {
             readonly end: components["schemas"]["YunQiTimeDto"];
+            readonly endTerm: components["schemas"]["SixQiBoundaryTerm"];
             readonly guestQi: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly hostQi: "厥阴风木" | "少阴君火" | "太阴湿土" | "少阳相火" | "阳明燥金" | "太阳寒水";
             readonly index: number;
             readonly name: "初之气" | "二之气" | "三之气" | "四之气" | "五之气" | "终之气";
             readonly relation: components["schemas"]["HostGuestRelationDto"];
             readonly start: components["schemas"]["YunQiTimeDto"];
+            readonly startTerm: components["schemas"]["SixQiBoundaryTerm"];
+        };
+        readonly StageProgressDto: {
+            readonly elapsedRatio: number;
+            readonly endsOnInputDate: boolean;
+            readonly remainingCalendarDays: number;
         };
         readonly StemBranchDto: {
             readonly branch: "子" | "丑" | "寅" | "卯" | "辰" | "巳" | "午" | "未" | "申" | "酉" | "戌" | "亥";
@@ -403,6 +419,7 @@ export interface components {
         };
         readonly YunQiCalculationDto: {
             readonly currentStep: components["schemas"]["SixQiStepDto"];
+            readonly currentStepProgress: components["schemas"]["StageProgressDto"];
             readonly explanations: readonly string[];
             readonly input: components["schemas"]["YunQiTimeDto"];
             readonly interval: components["schemas"]["YunQiIntervalDto"];
@@ -420,6 +437,7 @@ export interface components {
             readonly annualPassages: readonly components["schemas"]["ClassicalPassageDto"][];
             readonly annualRelation: components["schemas"]["LearningRelationDto"];
             readonly currentMovement: components["schemas"]["MovementStepDto"];
+            readonly currentMovementProgress: components["schemas"]["StageProgressDto"];
             readonly currentPassages: readonly components["schemas"]["ClassicalPassageDto"][];
             readonly currentQi: components["schemas"]["LearningRelationDto"];
             readonly facts: components["schemas"]["YunQiCalculationDto"];
