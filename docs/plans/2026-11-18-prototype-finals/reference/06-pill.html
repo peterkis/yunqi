@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>运气通 收起态 01 · 现行 · 圆标两行</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="tokens.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:transparent}
+a{color:inherit;text-decoration:none}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;box-sizing:border-box}
+.chip{display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:var(--radius-full);font-size:11px;font-weight:600;white-space:nowrap;flex:none}
+.ok{background:var(--relation-favorable-bg);color:var(--relation-favorable-fg)}
+.serif{font-family:var(--font-serif)}
+</style>
+</helmet>
+<div style="width:424px;height:88px;box-sizing:border-box;padding:10px 12px 14px;background:transparent;font-family:var(--font-sans)">
+<a href="Main.dc.html" aria-label="展开运气通：丙午年，水运太过，少阴司天，阳明在泉；当下五之气，少阳相火加临，顺，客胜主；还有4天交终之气" style="width:400px;height:64px;box-sizing:border-box;border-radius:32px;box-shadow:var(--shadow-pill);background:var(--surface-card);border:1px solid var(--border-default);color:var(--ink-primary);display:flex;align-items:center;gap:12px;padding:0 10px">
+  <span class="serif" style="width:44px;height:44px;border-radius:22px;background:var(--accent);color:var(--accent-on);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">丙午</span>
+  <span style="display:flex;flex-direction:column;gap:2px;flex:1;min-width:0"><span style="font-size:13px;font-weight:600;white-space:nowrap">水运太过 · 少阴司天 · 阳明在泉</span><span style="font-size:12px;color:var(--ink-secondary);white-space:nowrap;display:flex;align-items:center;gap:6px">五之气 · 少阳相火加临 <span class="chip ok">顺 · 客胜主</span></span></span>
+  <span style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:var(--ink-tertiary);flex:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg></span>
+</a>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":424,"height":88}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>
