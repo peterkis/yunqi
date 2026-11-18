@@ -2,16 +2,18 @@ import { useId } from 'react';
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { InlineText } from '../../../../components/design/InlineText';
 import { RelationChip } from '../../../../components/design/RelationChip';
+import { SegmentedText } from '../../../../components/design/SegmentedText';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { RelationSourceLinks } from '../../components/RelationSourceLinks';
 import type { BirthCandidateViewModel, BirthFactViewModel, BirthPageViewModel } from '../presentation/map-birth-view';
 
 function Fact({ value }: { readonly value: BirthFactViewModel }) {
+  const detail = value.detail.join(' · ');
   return <>
     <div className="birth-table__value">
       {value.element ? <ElementDot compact element={value.element} label={value.label} /> : value.label}
     </div>
-    <p className="birth-table__detail">{value.detail.join(' · ') || <span aria-hidden="true">&nbsp;</span>}</p>
+    <p className="birth-table__detail">{detail ? <SegmentedText>{detail}</SegmentedText> : <span aria-hidden="true">&nbsp;</span>}</p>
   </>;
 }
 

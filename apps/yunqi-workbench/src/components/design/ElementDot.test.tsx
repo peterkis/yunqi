@@ -27,4 +27,10 @@ describe('ElementDot', () => {
     await user.tab();
     expect(screen.getByRole('button', { name: '继续' })).toHaveFocus();
   });
+
+  it('groups a compound label without splitting qi names and retains the empty-label fallback', () => {
+    const { container } = render(<ElementDot element="fire" label="  五之气 · 客气少阳相火  " />);
+    expect([...container.querySelectorAll('.ds-seg')].map((segment) => segment.textContent)).toEqual(['五之气', '客气少阳相火']);
+    expect(container.textContent).toBe('五之气\u202f·\u202f客气少阳相火');
+  });
 });

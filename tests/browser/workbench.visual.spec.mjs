@@ -1,9 +1,9 @@
-import { fillBirthDate, expectBirthMirror } from './birth-helpers.mjs';
+import { fillBirthDate, expectBirthMirror, expectBirthDetailSegments } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments } from './constitution-helpers.mjs';
 import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
-import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
+import { expectClassicsAlignment, expectMoreRows, expectPillGeometry } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
 
 const cases = [
@@ -21,7 +21,7 @@ const cases = [
   { name: 'calculate-dirty', path: '/yunqi/calculate', ready: '指定时点分析', calculate: true, dirty: true },
   { name: 'inquiry', path: '/yunqi/inquiry', ready: '问诊结构化入口' },
   { name: 'birth-entry', path: '/yunqi/birth', ready: '出生运气对照' },
-  { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
+  { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthDate: '1980-03-12', snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-annual-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true, annualClassics: true },
@@ -29,11 +29,22 @@ const cases = [
   { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
-  { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
+  { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
   { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
+  { name: 'collapsed-pill', path: '/yunqi/current', current: true, collapsed: true, snapshot: '2026-11-18T08:44:00+08:00' },
 ];
+
+async function expectSingleTextLine(locator) {
+  await expect(locator).toBeVisible();
+  await expect.poll(async () => locator.evaluate(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const lines = new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top)));
+    return lines.size === 1 && element.scrollWidth <= element.clientWidth + 1;
+  }), { message: 'Summary text stays on one line without splitting words' }).toBe(true);
+}
 
 for (const state of cases) {
   test(`@visual ${state.name}: screenshot, readable layout and accessibility`, async ({ page, acceptanceTheme, diagnostics }, testInfo) => {
@@ -79,11 +90,12 @@ for (const state of cases) {
     if (state.message) await expect(page.getByRole('alert')).toContainText(state.message);
     if (state.birth) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-      await fillBirthDate(page, '1990-05-12');
+      const birthDate = state.birthDate ?? '1990-05-12';
+      await fillBirthDate(page, birthDate);
       await page.getByRole('button', { name: '查看对照' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
-      await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 时刻不详 · 修改');
+      await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText(`${birthDate} · 时刻不详 · 修改`);
       if (state.birthBoundary) {
         await page.getByRole('button', { name: '修改', exact: true }).click();
         await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
@@ -133,7 +145,22 @@ for (const state of cases) {
       await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
       await expect(page.getByRole('button', { name: '切换至浅色主题', exact: true })).toBeVisible();
     }
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-theme', acceptanceTheme);
     await settle(page);
+    // F6: the six requested dark references all use the same application
+    // toggle, screenshot, typography, local-resource and axe gates.
+    if (state.collapsed) {
+      await page.getByRole('button', { name: '收起为胶囊条', exact: true }).click();
+      await page.setViewportSize({ width: 424, height: 88 });
+      const pill = page.getByRole('button', { name: /^展开运气通/ });
+      await expect(pill).toBeVisible();
+      await expectPillGeometry(page, pill);
+      await screenshot(page, testInfo, state.name);
+      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      await testInfo.attach('axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
+      expect(scan.violations).toEqual([]);
+      return;
+    }
     await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
     if (state.current) {
@@ -141,6 +168,8 @@ for (const state of cases) {
       // in the selected theme, alongside the existing
       // typography, geometry, screenshot and axe gates in every matrix project.
       const { data } = await (await currentResponse).json();
+      const annual = page.getByRole('region', { name: `全年\u202f·\u202f${data.facts.year}` });
+      await expectSingleTextLine(annual.locator('.ds-info-card__label'));
       await expectCurrentStageFacts(page, data);
       await expectMoreRows(page);
       if (panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
@@ -194,6 +223,10 @@ for (const state of cases) {
         await expect(notice).toBeInViewport({ ratio: 1 });
       }
     }
+    if (state.name === 'birth-result') {
+      await expectBirthDetailSegments(page, testInfo);
+      await expectSingleTextLine(page.getByRole('group', { name: '出生资料摘要' }).locator('.num'));
+    }
     if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
       expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);
       const table = page.getByRole('table').first();
@@ -221,6 +254,7 @@ for (const state of cases) {
       await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
       if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
       await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+      await expectConstitutionDisclosures(page, testInfo, Boolean(state.constitutionResult));
     }
     if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
       for (const primary of await page.locator('.ds-button--primary').all()) {
@@ -271,6 +305,7 @@ for (const state of cases) {
       await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
     }
     if (state.questionnaire) {
+      await expectConstitutionSegments(state.constitutionResult ? page.getByRole('region', { name: '体质测评结果', exact: true }) : page);
       const typography = await expectTypeScale(page, testInfo, `${state.name}-constitution`);
       expect(typography.sizes.every(size => [12, 14, 15, 20, 24, 30, 40].includes(size))).toBe(true);
       const question = page.locator('.constitution-question-title');

@@ -166,6 +166,19 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     });
   }
 
+  const notes = <>
+    <details className="constitution-disclosure constitution-source">
+      <summary>量表来源与适用说明</summary>
+      <p className="constitution-meta num"><InlineText>{mutation.result
+        ? `${mutation.result.sexLabel} · ${mutation.result.questionnaireId} · ${mutation.result.version}`
+        : `${questionnaire.title} · ${questionnaire.version}`}</InlineText></p>
+      {questionnaire.instructions.map((instruction, index) => <p key={index}>{instruction}</p>)}
+      <p>{questionnaire.sourceNote}</p>
+      <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
+    </details>
+    <ConstitutionContextDetails context={context} />
+  </>;
+
   return (
     <div className="constitution-session" onKeyDown={(event) => {
       if (confirmingSexChange && event.key === 'Escape') { event.preventDefault(); cancelSexChange(); }
@@ -211,7 +224,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         </section> : null}
         <div inert={confirmingSexChange || undefined}>
         {mutation.result ? (
-          <ConstitutionResults assessment={mutation.result} context={context} />
+          <ConstitutionResults assessment={mutation.result} context={context}>{notes}</ConstitutionResults>
         ) : sex !== '' ? (
           <>
             {question ? (
@@ -244,16 +257,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
-      <div className="constitution-notes">
-      <ConstitutionContextDetails context={context} />
-      <details className="constitution-source">
-        <summary>量表来源与适用说明</summary>
-        <p className="num"><InlineText>{`${questionnaire.title}${!mutation.result ? ` · ${questionnaire.version}` : ''}`}</InlineText></p>
-        {questionnaire.instructions.map((instruction, index) => <p key={index}>{instruction}</p>)}
-        <p>{questionnaire.sourceNote}</p>
-        <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
-      </details>
-      </div>
+      {!mutation.result ? <div className="constitution-notes">{notes}</div> : null}
       <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
     </div>
   );

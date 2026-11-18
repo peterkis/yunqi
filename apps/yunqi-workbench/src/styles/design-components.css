@@ -121,6 +121,7 @@
 
 .ds-element {
   display: inline-flex;
+  max-width: 100%;
   align-items: center;
   gap: var(--space-1_5);
   color: var(--ink-primary);
@@ -129,6 +130,13 @@
   line-height: var(--type-body-strong-line);
   font-weight: var(--type-body-strong-weight);
 }
+
+.ds-element > span:last-child { min-width: 0; }
+
+/* Atomic inline phrases wrap at wbr separators. Only an over-wide phrase
+   constrains its inner text box and permits an emergency word break. */
+.ds-seg { display: inline-block; max-width: 100%; white-space: nowrap; vertical-align: bottom; }
+.ds-seg__text { display: block; white-space: normal; overflow-wrap: break-word; }
 
 .ds-element__dot {
   box-sizing: border-box;

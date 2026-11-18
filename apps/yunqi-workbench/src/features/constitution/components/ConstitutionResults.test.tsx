@@ -40,7 +40,8 @@ describe('constitution result and snapshot', () => {
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);
     const parallel = within(result).getByRole('region', { name: '与运气互参' });
     expect([...parallel.querySelectorAll('dt')].map((node) => node.textContent)).toEqual(['体质', '先天', '当下']);
-    expect(parallel.querySelector('dd')?.textContent?.replaceAll('\u202f', ' ')).toBe('气虚、阳虚 · 倾向阴虚、痰湿');
+    expect(parallel.querySelector('dd')?.textContent?.replaceAll('\u202f', ' ')).toBe('气虚、阳虚\n倾向 · 阴虚、痰湿');
+    expect(parallel.querySelector('dd')).toHaveAttribute('aria-label', '是：气虚质、阳虚质；倾向：阴虚质、痰湿质');
     expect(parallel).toHaveTextContent('候选二');
     expect(parallel.lastElementChild).toHaveClass('constitution-meta');
     expect(parallel.lastElementChild?.textContent).toBe('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
@@ -64,10 +65,12 @@ describe('constitution result and snapshot', () => {
     expect([...decision.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(count >= 2 ? matches.map((result) => result.name) : []);
     if (count === 1) expect(decision.querySelector('.constitution-matched-types')).toBeNull();
     expect(within(decision).queryByText(dto.summary)).not.toBeInTheDocument();
+    const summary = document.querySelector('.constitution-reference-summary');
+    expect(summary).toHaveTextContent(count >= 3 ? `偏颇质兼夹 · ${count} 项` : matches.map((type) => type.name.replace(/质$/, '')).join('、'));
+    expect(summary).toHaveAttribute('aria-label', `是：${matches.map((type) => type.name).join('、')}`);
   });
 
-  it('keeps a single balanced heading, tendencies and one readonly version description without a duplicate matched row', async () => {
-    const user = userEvent.setup();
+  it('keeps a single balanced heading and tendencies without a duplicate matched row or version disclosure', () => {
     const dto = createAssessmentDto();
     const { rerender } = render(<ConstitutionResults assessment={mapAssessment(dto)} />);
     expect(screen.getByRole('heading', { name: '平和质' })).toBeVisible();
@@ -81,11 +84,7 @@ describe('constitution result and snapshot', () => {
     expect(document.querySelector('.constitution-matched-types')).toBeNull();
     expect(document.querySelector('.constitution-tendency-types .ds-relation__chip')).toHaveTextContent('气虚 倾向');
     expect(document.querySelector('.constitution-bar[data-tone="neutral"] .constitution-bar-label')).toHaveTextContent('平和');
-    await user.click(screen.getByText('本次量表版本'));
-    const version = screen.getByText(`女性版 · ${dto.questionnaireId} · ${dto.version}`);
-    expect(version).toBeVisible();
-    expect(version).toHaveClass('constitution-meta');
-    expect(screen.getAllByText(/女性版/)).toHaveLength(1);
+    expect(screen.queryByText('本次量表版本')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
   });
 
@@ -102,7 +101,7 @@ describe('constitution result and snapshot', () => {
     expect(tendencies).not.toHaveTextContent(/\d/);
     expect(decision.querySelector('.constitution-matched-types')).toBeNull();
     const parallel = screen.getByRole('region', { name: '与运气互参' });
-    expect(parallel).toHaveTextContent('倾向阳虚、阴虚');
+    expect(parallel).toHaveTextContent('倾向 · 阳虚、阴虚');
     expect(parallel).toHaveTextContent('未填写');
     expect(parallel).toHaveTextContent('当前运气暂不可用');
   });
@@ -122,6 +121,7 @@ describe('constitution result and snapshot', () => {
     }} />);
     expect(parallel.querySelectorAll('.ds-element__dot')).toHaveLength(0);
     expect(parallel).toHaveTextContent(context.current.guestQiSummary);
+    expect(parallel.querySelectorAll('.ds-seg')).toHaveLength(4);
     rerender(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={{ ...context, birth: { ...context.birth!, candidates: [] } }} />);
     expect(parallel).toHaveTextContent('未填写');
   });

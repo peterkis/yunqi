@@ -412,9 +412,9 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await page.keyboard.press('Tab');
   await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(end).toBeFocused();
   await page.keyboard.press('Tab');
@@ -439,11 +439,10 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await page.keyboard.press('Tab');
   await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByText('本次量表版本', { exact: true })).toBeFocused();
+  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await expect(page.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
   await page.keyboard.press('Tab');
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');

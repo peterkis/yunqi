@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, screenshot, expectTypeScale } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
@@ -42,6 +42,8 @@ for (const theme of ['light', 'dark']) {
     await expect(selected).toBeChecked();
     await expect(page.locator('.constitution-position')).toHaveText('1 / 26');
     await expectConstitutionAnswerLayout(page, testInfo);
+    await expectConstitutionDisclosures(page, testInfo);
+    await expectConstitutionSegments(page);
     const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     await testInfo.attach('constitution-F4-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
@@ -76,6 +78,9 @@ for (const embedded of [false, true]) {
       const result = await expectConstitutionResults(page, data);
       if (profile.count === 1) expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
       await expectConstitutionResultLayout(result, testInfo);
+      await expectConstitutionDisclosures(page, testInfo, true);
+      await expectConstitutionSegments(result);
+      if (profile.count === 7) await expectConstitutionMixedReference(result, testInfo);
       await expect(result.locator('.constitution-decision h4')).toHaveText(profile.title);
       await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
       await expectViewControls(page, testInfo);
@@ -89,7 +94,7 @@ for (const embedded of [false, true]) {
       await expect(actions).toBeInViewport({ ratio: 1 });
       expect(await actions.boundingBox()).toEqual(bounds);
       expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
-      const lastContentTarget = embedded ? page.locator('.birth-technical > summary') : page.getByText('量表来源与适用说明', { exact: true });
+      const lastContentTarget = embedded ? page.locator('.birth-technical > summary') : page.getByText('计算说明与版本', { exact: true });
       await lastContentTarget.focus();
       await page.keyboard.press('Tab');
       await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();

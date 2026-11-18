@@ -1,12 +1,14 @@
-import { useLayoutEffect, useRef, type CSSProperties } from 'react';
+import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { InlineText } from '../../../components/design/InlineText';
 import { ElementDot } from '../../../components/design/ElementDot';
+import { SegmentedText } from '../../../components/design/SegmentedText';
 import type { ConstitutionAssessmentViewModel, ConstitutionContextViewModel } from '../presentation/map-constitution';
 
-export function ConstitutionResults({ assessment, context }: {
+export function ConstitutionResults({ assessment, context, children }: {
   readonly assessment: ConstitutionAssessmentViewModel;
   readonly context?: ConstitutionContextViewModel;
+  readonly children?: ReactNode;
 }) {
   const birth = context?.birth;
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -44,14 +46,16 @@ export function ConstitutionResults({ assessment, context }: {
       <section className="constitution-card constitution-reference-card" aria-label="与运气互参">
         <h4 className="constitution-eyebrow">与运气互参</h4>
         <dl className="constitution-reference-rows">
-          <div><dt>体质</dt><dd><InlineText>{assessment.referenceSummary}</InlineText></dd></div>
-          <div><dt>先天</dt><dd>{birth?.candidates.length ? birth.candidates.map((candidate, index) => <span className="constitution-context-candidate" key={index}>{birth.ambiguous ? `${candidate.label}：` : ''}{candidate.yearElement ? <ElementDot element={candidate.yearElement} label={candidate.yearSummary} /> : <InlineText>{candidate.yearSummary}</InlineText>}</span>) : '未填写'}</dd></div>
-          <div><dt>当下</dt><dd>{context ? context.current.element ? <ElementDot element={context.current.element} label={context.current.guestQiSummary} /> : <InlineText>{context.current.guestQiSummary}</InlineText> : '当前运气暂不可用'}</dd></div>
+          <div><dt>体质</dt><dd className="constitution-reference-summary" aria-label={assessment.referenceLabel}><InlineText>{assessment.referenceSummary}</InlineText></dd></div>
+          <div><dt>先天</dt><dd>{birth?.candidates.length ? birth.candidates.map((candidate, index) => <span className="constitution-context-candidate" key={index}>{birth.ambiguous ? `${candidate.label}：` : ''}{candidate.yearElement ? <ElementDot element={candidate.yearElement} label={candidate.yearSummary} /> : <SegmentedText>{candidate.yearSummary}</SegmentedText>}</span>) : '未填写'}</dd></div>
+          <div><dt>当下</dt><dd>{context ? context.current.element ? <ElementDot element={context.current.element} label={context.current.guestQiSummary} /> : <SegmentedText>{context.current.guestQiSummary}</SegmentedText> : '当前运气暂不可用'}</dd></div>
         </dl>
         <p className="constitution-meta">体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。</p>
       </section>
-      <details className="constitution-source"><summary>判定说明与边界</summary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
-      <details className="constitution-source"><summary>本次量表版本</summary><p className="constitution-meta num"><InlineText>{`${assessment.sexLabel} · ${assessment.questionnaireId} · ${assessment.version}`}</InlineText></p></details>
+      <div className="constitution-notes">
+        <details className="constitution-disclosure"><summary>判定说明与边界</summary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
+        {children}
+      </div>
     </section>
   );
 }
