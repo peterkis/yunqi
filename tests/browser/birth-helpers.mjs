@@ -22,7 +22,7 @@ export async function expandBirthInput(page) {
 }
 
 export async function expectBirthReadings(container, passages) {
-  const cards = container.locator('.birth-reading');
+  const cards = container.locator('.classics-card');
   await expect(cards).toHaveCount(passages.length);
   for (const [index, passage] of passages.entries()) {
     const card = cards.nth(index);
@@ -33,11 +33,12 @@ export async function expectBirthReadings(container, passages) {
       await full.locator('summary').press('Enter');
     }
     const quote = passage.quote.startsWith('“') && passage.quote.endsWith('”') ? passage.quote.slice(1, -1) : passage.quote;
-    await expect(card.locator('blockquote').last()).toHaveText(`“${quote}”`);
-    await expect(card.getByText('阅读释义', { exact: true })).toBeVisible();
-    await expect(card.locator('.ds-quote-block__reading')).toHaveText(passage.explanation);
-    await expect(card.locator('figcaption')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
-    await expect(card.getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.locator('blockquote p').last()).toHaveText(quote);
+    await expect(card.getByText('原 文', { exact: true })).toBeVisible();
+    await expect(card.getByText('释 义', { exact: true })).toBeVisible();
+    await expect(card.locator('.classics-card__interpretation > p')).toHaveText(passage.explanation);
+    await expect(card.locator('.classics-card__source > p')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
+    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
     if (await full.count()) await full.locator('summary').press('Enter');
   }
 }

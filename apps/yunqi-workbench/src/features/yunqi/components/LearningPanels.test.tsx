@@ -15,8 +15,9 @@ describe('live learning cards replacing demo panels', () => {
     const learning = mapLearning(createLearningDto());
     render(<CurrentClassicsPage learning={learning} />);
     await user.click(screen.getByRole('button', { name: '全年' }));
-    expect(screen.getByRole('blockquote')).toHaveTextContent('“主胜逆，客胜从。”');
-    expect(screen.getByText('阅读释义')).toBeVisible();
+    expect(screen.getByRole('blockquote').querySelector('p')).toHaveTextContent('主胜逆，客胜从。');
+    expect(screen.getByText('原 文')).toBeVisible();
+    expect(screen.getByText('释 义')).toBeVisible();
     expect(screen.getByText(learning.annualPassages[0].explanation)).toBeVisible();
     expect(screen.getByRole('link')).toHaveAttribute('href', learning.annualPassages[0].sourceUrl);
     expect(screen.getByRole('link')).toHaveAttribute('rel', 'noreferrer');

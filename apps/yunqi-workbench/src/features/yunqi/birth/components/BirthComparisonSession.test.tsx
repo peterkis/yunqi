@@ -46,10 +46,13 @@ describe('birth comparison assessment session', () => {
     const historical = within(reading).getByRole('region', { name: '出生运气原文' });
     expect(within(historical).getByText('出生阶段', { exact: true })).toBeVisible();
     expect(within(historical).queryByText('当前阶段', { exact: true })).not.toBeInTheDocument();
-    expect(within(historical).getByText('阅读释义')).toBeVisible();
-    expect(within(historical).getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', 'https://example.org/classics');
+    expect(within(historical).getByText('原 文')).toBeVisible();
+    expect(within(historical).getByText('释 义')).toBeVisible();
+    expect(within(historical).getByText('出生阶段', { exact: true })).not.toHaveClass('classics-card__badge--current');
+    expect(reading.querySelector('.classics-card--current')).not.toBeInTheDocument();
+    expect(within(historical).getByRole('link', { name: /^出处/ })).toHaveAttribute('href', 'https://example.org/classics');
     await user.click(within(reading).getByRole('button', { name: '全年' }));
-    expect(within(historical).getByText('全年 · 司天')).toBeVisible();
+    expect(within(historical).getByText('全年适用')).toBeVisible();
     const current = within(reading).getByText('对照时的当下原文').closest('details')!;
     expect(current).not.toHaveAttribute('open');
     await user.click(within(current).getByText('对照时的当下原文'));

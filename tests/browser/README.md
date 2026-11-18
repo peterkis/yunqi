@@ -97,7 +97,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 25 panel states, each run in all six panel /
+`workbench.visual.spec.mjs` has 26 panel states, each run in all six panel /
 workstation projects. The collapsed-pill spec adds two theme states at its
 424 × 88 host viewport, containing the unchanged 400 × 64 pill with 12px
 left/right, 10px top and 14px bottom margins. The seven prototype boards are represented as follows:
@@ -106,11 +106,11 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 | --- | --- |
 | ① Current default | `current`, `current-stage-facts` (real calculated 2026-11-18 snapshot) |
 | ② Original text | `current-classics`, `annual-classics` |
-| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics` |
+| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics`, `birth-annual-classics` |
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
-| ⑦ Workstation placement | All 25 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
+| ⑦ Workstation placement | All 26 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
 | Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
@@ -123,13 +123,13 @@ are retained as evidence only, not as an approved visual baseline.
 
 | Project | Viewport | Theme / states |
 | --- | --- | --- |
-| `panel-light` | 400 × 860 | Light, 25 panel states |
-| `panel-dark` | 400 × 860 | Dark, 25 panel states |
-| `panel-min-height` | 400 × 640 | Light, 25 panel states; current content scrolls while header, navigation and footer stay fixed |
+| `panel-light` | 400 × 860 | Light, 26 panel states |
+| `panel-dark` | 400 × 860 | Dark, 26 panel states |
+| `panel-min-height` | 400 × 640 | Light, 26 panel states; current content scrolls while header, navigation and footer stay fixed |
 | `collapsed-pill` | 424 × 88 host | Light and dark, two states; 400 × 64 pill, 12/10/14px margins, transparent host |
-| `workstation-light` | 1366 × 900 | Light, 25 states; 400px panel at the right edge |
-| `workstation-768` | 1366 × 768 | Light, 25 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
-| `workstation-1080` | 1920 × 1080 | Light, 25 states; same right-edge panel |
+| `workstation-light` | 1366 × 900 | Light, 26 states; 400px panel at the right edge |
+| `workstation-768` | 1366 × 768 | Light, 26 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+| `workstation-1080` | 1920 × 1080 | Light, 26 states; same right-edge panel |
 
 Collapsed host contract for the standalone Tauri window: **424×88 = 胶囊 400×64 +
 左右各 12、上 10、下 14 外边距**, transparent background. Browser tests simulate
@@ -147,8 +147,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **65 flow/foundation/oracle tests + 152 visual/accessibility
-tests = 217 tests in 12 files**. These are test cases and repeated state checks,
+The suite discovers **65 flow/foundation/oracle tests + 158 visual/accessibility
+tests = 223 tests in 12 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -164,6 +164,13 @@ visible partial fill at 400×860, 1366×768 and 1920×1080 (and the other panel
 projects), with the existing type-scale, layout, screenshot and axe gates.
 Three stage-facts flows exercise that snapshot and qi/movement end-date clocks;
 the default current state still uses the runner's original fixed system clock.
+
+F2's `current-classics` and `annual-classics` replay the real 2026-11-18
+calculation in the same way. These and both birth reading scopes run at
+400×860, 1366×768 and 1920×1080 (and the other panel projects). K01 checks
+the current/neutral badges, original → interpretation → source order, serif/sans
+font stacks, and ≥4.5:1 label/badge contrast in both themes. The trailing notice
+stays visible while scrolling and expanding full passages.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one
