@@ -4,6 +4,7 @@ import { mapPanelSummary, type PanelSummaryViewModel } from '../../presentation/
 import { mapMovementElement, mapQiElement } from '../../presentation/visual-mappings';
 import type { ElementKind, YunQiTimeViewModel } from '../../presentation/view-model';
 import { mapCalculationTimes, type YunQiTimeEntryViewModel } from '../../presentation/map-drilldown';
+import type { ClassicsCardViewModel } from '../../presentation/map-classics';
 
 export interface BirthFactViewModel {
   readonly label: string;
@@ -27,6 +28,7 @@ export interface BirthReadingViewModel {
   readonly source: string;
   readonly sourceUrl: string;
   readonly interpretation: string;
+  readonly card: ClassicsCardViewModel;
 }
 
 export interface BirthCandidateViewModel {
@@ -80,6 +82,13 @@ function reading(value: YunQiLearningDto['annualPassages'][number], periodScope:
     quote, excerpt, fullQuote: characters.length > 56 ? quote : undefined,
     source: `《${value.work}·${value.chapter}》${value.section}`, sourceUrl: value.sourceUrl,
     interpretation: value.explanation,
+    card: {
+      heading: value.section,
+      badge: value.scope === 'qi-period' ? periodScope : '全年适用', isCurrent: false,
+      quote: excerpt, fullQuote: characters.length > 56 ? quote : undefined,
+      interpretation: value.explanation, sourceTitle: `《${value.work}·${value.chapter}》`,
+      sourceSection: value.section, sourceUrl: value.sourceUrl,
+    },
   };
 }
 

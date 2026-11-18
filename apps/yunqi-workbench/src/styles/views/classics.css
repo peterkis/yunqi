@@ -1,0 +1,149 @@
+/* F2 / K01: current and birth reading pages only. Reference dimensions are
+   composed from existing tokens; typography follows docs/design/type-scale.md. */
+.classics-card {
+  min-width: 0;
+  border: calc(var(--space-0_5) / 2) solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+}
+
+.classics-card--current { border-color: var(--accent); }
+.classics-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-2_5) var(--space-4);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.classics-card--current > .classics-card__header { background: var(--accent-subtle); }
+.classics-card__header h3 {
+  min-width: 0;
+  margin: 0;
+  font-size: var(--ts-small);
+  line-height: var(--type-body-strong-line);
+  font-weight: var(--type-body-strong-weight);
+}
+.classics-card__badge {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--space-1_5);
+  height: var(--chip-height);
+  padding-inline: var(--space-2);
+  border-radius: var(--radius-full);
+  background: var(--surface-sunken);
+  color: var(--ink-secondary);
+  font-size: var(--ts-small);
+  line-height: var(--type-chip-line);
+  font-weight: var(--type-chip-weight);
+  white-space: nowrap;
+}
+.classics-card__badge--current { background: var(--accent); color: var(--accent-on); }
+.classics-card__dot {
+  flex: none;
+  width: var(--space-1_5);
+  height: var(--space-1_5);
+  border-radius: var(--radius-full);
+  background: var(--accent-on);
+}
+.classics-card__body { display: grid; gap: var(--space-4); padding: var(--space-4); }
+.classics-card__label {
+  display: inline-flex;
+  align-items: center;
+  min-height: calc(var(--space-4) + var(--space-1));
+  margin: 0;
+  padding-inline: var(--space-1_5);
+  border-radius: var(--radius-xs);
+  background: var(--surface-sunken);
+  color: var(--ink-secondary);
+  font-size: var(--ts-small);
+  line-height: var(--type-label-line);
+  font-weight: var(--type-chip-weight);
+  letter-spacing: calc(var(--type-label-tracking) * 0.75);
+}
+.classics-card__label--interpretation { background: var(--accent-subtle); color: var(--accent); }
+.classics-card__quote {
+  position: relative;
+  margin: var(--space-2_5) 0 0;
+  padding: var(--space-3_5) var(--space-4) var(--space-3_5) calc(var(--space-6) + var(--space-2_5));
+  border-radius: var(--radius-md);
+  background: var(--surface-page);
+  font-family: var(--font-serif);
+  font-size: var(--ts-quote);
+  line-height: var(--type-quote-line);
+  font-weight: var(--type-quote-weight);
+}
+.classics-card__quote p { margin: 0; }
+.classics-card__opening {
+  position: absolute;
+  left: var(--space-2_5);
+  top: var(--space-1);
+  color: var(--accent-muted);
+  font-family: var(--font-serif);
+  font-size: var(--ts-display-result);
+  line-height: var(--type-display-xl-line);
+}
+.classics-card__details { margin-top: var(--space-2); }
+.classics-card__details > summary {
+  min-height: var(--segment-height);
+  color: var(--accent);
+  font-size: var(--ts-body);
+  cursor: pointer;
+}
+.classics-card__interpretation > p {
+  margin: var(--space-2) 0 0;
+  color: var(--ink-secondary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-body);
+  line-height: var(--type-quote-sm-line);
+  font-weight: var(--type-body-weight);
+}
+.classics-card__source {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: calc(var(--space-0_5) / 2) solid var(--border-subtle);
+  font-size: var(--ts-small);
+  line-height: var(--type-body-line);
+}
+.classics-card__source > p { min-width: 0; margin: 0; color: var(--ink-tertiary); }
+.classics-card__source > p > span { display: block; }
+.classics-card__source > a { flex: none; }
+.current-classics__readings > .classics-card + .classics-card { margin-top: var(--space-3); }
+
+/* The notice follows the last card in normal flow. For long readings it sticks
+   inside the reader, preserving the same-screen medical boundary. */
+.classics-reading-notice {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1_5);
+  margin: 0;
+  padding: var(--space-3) var(--space-0_5) var(--space-1);
+  background: var(--surface-page);
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-caption-line);
+}
+.classics-reading-notice > svg {
+  flex: none;
+  align-self: flex-start;
+  width: var(--space-3_5);
+  height: var(--space-3_5);
+  margin-top: var(--space-0_5);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--space-0_5);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.birth-classics__readings { display: block; }
+.birth-classics__readings > * + * { margin-top: var(--space-3); }
+.birth-classics__readings > .classics-reading-notice { margin-top: 0; }
+.birth-reading-candidate { align-content: start; }

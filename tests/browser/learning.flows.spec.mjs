@@ -4,6 +4,7 @@ import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-helpers.mjs';
+import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -67,11 +68,14 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveCSS('height', '30px');
   await expect(page.getByText('正在此段', { exact: true })).toBeVisible();
-  await expect(page.getByText('阅读释义', { exact: true })).toBeVisible();
+  await expect(page.getByText('原 文', { exact: true })).toBeVisible();
+  await expect(page.getByText('释 义', { exact: true })).toBeVisible();
+  await expect(page.locator('.classics-card--current')).toHaveCount(data.currentPassages.length);
+  await expectClassicsCards(page, testInfo);
   await expectClassicsAlignment(page);
-  const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+  const notice = page.getByText('原文为文献线索，非个体发病预测', { exact: true });
   await expect(notice).toBeInViewport({ ratio: 1 });
-  const currentSource = page.getByRole('link', { name: /查看原文出处/ }).first();
+  const currentSource = page.getByRole('link', { name: /^出处/ }).first();
   await expect(currentSource).toHaveAttribute('href', data.currentPassages[0].sourceUrl);
   await expectTextLink(page, currentSource);
   const annualScope = page.getByRole('button', { name: '全年', exact: true });
@@ -79,30 +83,33 @@ test('current cards retain real API facts, folded stages and sourced original re
   await page.keyboard.press('Enter');
   await expect(annualScope).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByText('正在此段', { exact: true })).toHaveCount(0);
-  const cards = page.locator('.current-classics__readings > .ds-info-card');
+  const cards = page.locator('.current-classics__readings > .classics-card');
   await expect(cards).toHaveCount(data.annualPassages.length);
+  await expect(cards.locator('.classics-card__badge')).toHaveText(data.annualPassages.map(() => '全年适用'));
+  await expect(page.locator('.classics-card--current')).toHaveCount(0);
+  await expectClassicsCards(page, testInfo);
   await expectClassicsAlignment(page);
   for (let index = 0; index < data.annualPassages.length; index += 1) {
     const passage = data.annualPassages[index];
     const card = cards.nth(index);
-    await expect(card.getByRole('link', { name: /查看原文出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
     await expect(card.getByText(passage.explanation, { exact: true })).toBeVisible();
     const full = card.locator('details');
     if (passage.quote.length > 90) {
       await full.locator('summary').focus();
       await page.keyboard.press('Space');
-      await expect(full.locator('blockquote')).toHaveText(`“${passage.quote}”`);
+      await expect(full.locator('blockquote p')).toHaveText(passage.quote);
       await expect(full.locator('blockquote')).toBeVisible();
       await full.locator('blockquote').scrollIntoViewIfNeeded();
       await expect(notice).toBeInViewport({ ratio: 1 });
       await full.locator('summary').press('Enter');
       await expect(full.locator('blockquote')).toBeHidden();
     } else {
-      await expect(card.locator('blockquote')).toHaveText(`“${passage.quote}”`);
+      await expect(card.locator('blockquote p')).toHaveText(passage.quote);
     }
   }
-  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);
-  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toBeInViewport();
+  await expect(notice).toHaveCount(1);
+  await expect(notice).toBeInViewport();
   const readings = page.getByRole('region', { name: '全年原文', exact: true });
   for (const end of ['bottom', 'top']) {
     await readings.evaluate((region, end) => { region.scrollTop = end === 'bottom' ? region.scrollHeight : 0; }, end);

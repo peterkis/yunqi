@@ -2,15 +2,15 @@ import { fillBirthDate } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
-import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
+import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
   { name: 'current-stage-facts', path: '/yunqi/current', current: true, snapshot: '2026-11-18T08:44:00+08:00' },
-  { name: 'current-classics', path: '/yunqi/current/classics', classics: true },
-  { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true },
+  { name: 'current-classics', path: '/yunqi/current/classics', classics: true, snapshot: '2026-11-18T08:44:00+08:00' },
+  { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'annual-entry', path: '/yunqi/year', ready: '选择运气年' },
   { name: 'annual-result', path: '/yunqi/year/2024', ready: '年度概览' },
   { name: 'annual-invalid', path: '/yunqi/year/1899', ready: '选择运气年', message: '年份范围应为 1900–2100' },
@@ -24,6 +24,7 @@ const cases = [
   { name: 'birth-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true },
   { name: 'birth-boundary', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthBoundary: true },
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
+  { name: 'birth-annual-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true, annualClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
   { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
@@ -96,6 +97,7 @@ for (const state of cases) {
       if (state.birthClassics) {
         await page.getByRole('link', { name: '全部原文', exact: true }).click();
         await expect(page.getByRole('region', { name: '先天原文与释义', exact: true })).toBeVisible();
+        if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
       }
     }
     if (state.birthAssessment) {
@@ -138,8 +140,15 @@ for (const state of cases) {
     }
     if (state.classics) {
       await expectClassicsAlignment(page);
-      const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
+      await expectClassicsCards(page, testInfo);
+      const cards = page.locator('.classics-card');
+      const currentCards = page.locator('.classics-card--current');
+      await expect(currentCards).toHaveCount(state.annualClassics ? 0 : await cards.count());
+      await expect(cards.locator('.classics-card__badge')).toHaveText(
+        Array.from({ length: await cards.count() }, () => state.annualClassics ? '全年适用' : '正在此段'));
+      const notice = page.getByText('原文为文献线索，非个体发病预测', { exact: true });
       const readings = page.locator('.current-classics__readings');
+      expect(await readings.locator(':scope > :last-child').getAttribute('class')).toBe('classics-reading-notice');
       await expect(notice).toHaveCount(1);
       await expect(notice).toBeInViewport({ ratio: 1 });
       for (const summary of await readings.locator('details > summary').all()) {
@@ -153,6 +162,26 @@ for (const state of cases) {
         await expect(notice).toBeInViewport({ ratio: 1 });
       }
       expect(await page.getByRole('main').evaluate(main => main.scrollHeight - main.clientHeight)).toBeLessThanOrEqual(1);
+    }
+    if (state.birthClassics) {
+      await expectClassicsCards(page, testInfo);
+      await expect(page.locator('.classics-card--current')).toHaveCount(0);
+      const readings = page.locator('.birth-classics__readings');
+      const notice = readings.locator(':scope > .classics-reading-notice');
+      await expect(notice).toHaveCount(1);
+      const badges = readings.locator('.birth-reading-candidate .classics-card__badge');
+      await expect(badges).toHaveText(Array.from({ length: await badges.count() }, () => state.annualClassics ? '全年适用' : '出生阶段'));
+      for (const summary of await readings.locator('.classics-card details > summary').all()) {
+        if (!await summary.isVisible()) continue;
+        await summary.press('Enter');
+        await summary.locator('..').locator('blockquote').scrollIntoViewIfNeeded();
+        await expect(notice).toBeInViewport({ ratio: 1 });
+        await summary.press('Space');
+      }
+      for (const position of ['bottom', 'top']) {
+        await readings.evaluate((region, to) => { region.scrollTop = to === 'bottom' ? region.scrollHeight : 0; }, position);
+        await expect(notice).toBeInViewport({ ratio: 1 });
+      }
     }
     if (state.name === 'birth-result' && panelLayout.viewport.width === 1366 && panelLayout.viewport.height === 768) {
       expect(await page.getByRole('main').evaluate(content => content.scrollTop), 'Submission keeps the first screen at the top').toBe(0);

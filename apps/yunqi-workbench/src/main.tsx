@@ -17,6 +17,7 @@ import './styles/views/form-controls.css';
 import './styles/views/learning-reading.css';
 import './styles/views/craft.css';
 import './styles/views/current-finals.css';
+import './styles/views/classics.css';
 
 if (import.meta.env.DEV) {
   document.body.classList.add('workbench-dev-host');
