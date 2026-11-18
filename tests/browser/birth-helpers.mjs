@@ -58,19 +58,26 @@ export async function expectBirthComparison(page, data) {
   for (const [index, candidate] of data.candidates.entries()) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
-    await expect(table.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
-    await expect(table.getByRole('columnheader', { name: /先天 · 出生/ })).toBeVisible();
-    await expect(table.getByRole('columnheader', { name: /当下 · 今日/ })).toBeVisible();
-    await expect(table.getByRole('rowheader')).toHaveText(names);
+    await expect(article.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
+    await expect(article.locator('.birth-table__time')).toContainText('北京时间 UTC+08');
+    await expect(table.getByRole('columnheader')).toHaveCount(3);
+    await expect(table.getByRole('columnheader', { name: /^先天/ })).toBeVisible();
+    await expect(table.getByRole('columnheader', { name: '关系', exact: true })).toBeVisible();
+    await expect(table.getByRole('columnheader', { name: /^当下/ })).toBeVisible();
+    await expect(table.getByRole('rowheader')).toHaveCount(5);
+    await expect(table.locator('thead time, thead .num')).toHaveCount(0);
     await expect(table.locator('.birth-table__year strong')).toHaveText([candidate.learning.facts.stemBranch.ganzhi, data.current.facts.stemBranch.ganzhi]);
-    await expect(table.locator('.birth-table__year > span')).toHaveText([String(candidate.learning.facts.year), String(data.current.facts.year)]);
+    await expect(article.locator('.birth-table__years')).toHaveText(`运气年：先天 ${candidate.learning.facts.year} · 当下 ${data.current.facts.year}`);
     for (const [position, title] of dimensions.entries()) {
-      const row = table.locator('tbody').nth(position);
+      const row = table.locator('tbody tr').nth(position);
+      await expect(row.getByRole('rowheader', { name: names[position], exact: true })).toHaveAttribute('scope', 'row');
       const relation = candidate.comparisons.find(item => item.title === title);
       expect(relation, `Real API supplies ${title}`).toBeDefined();
       await expect(row.locator('.ds-relation__chip')).toHaveText(relation.label);
-      await expect(row.locator('.ds-relation__explanation')).toHaveText(relation.relation);
-      const cells = row.locator('tr').first().locator('td');
+      await expect(row.locator('.birth-table__relation > .visually-hidden')).toHaveText(relation.relation);
+      await expect(row.locator('.birth-table__relation > .visually-hidden')).toHaveCSS('clip-path', 'inset(50%)');
+      await expect(row.locator('.ds-relation__explanation')).toHaveCount(0);
+      const cells = row.locator('td');
       for (const [column, learning] of [candidate.learning, data.current].entries()) {
         const cell = cells.nth(column);
         if (position === 0) {
@@ -81,13 +88,11 @@ export async function expectBirthComparison(page, data) {
         if (position === 2) await expect(cell).toContainText(learning.facts.sixQi.zaiquan);
         if (position === 3) {
           await expect(cell).toContainText(learning.facts.currentStep.name);
-          await expect(cell).toContainText(`主气 ${learning.facts.currentStep.hostQi}`);
-          await expect(cell).toContainText(`客气 ${learning.facts.currentStep.guestQi}`);
+          await expect(cell).toContainText(`主${learning.facts.currentStep.hostQi} · 客${learning.facts.currentStep.guestQi}`);
         }
         if (position === 4) {
           await expect(cell).toContainText(learning.currentMovement.name);
-          await expect(cell).toContainText(`主运 ${learning.currentMovement.host.element}运${learning.currentMovement.host.state}`);
-          await expect(cell).toContainText(`客运 ${learning.currentMovement.guest.element}运${learning.currentMovement.guest.state}`);
+          await expect(cell).toContainText(`主${learning.currentMovement.host.tone} · 客${learning.currentMovement.guest.tone}`);
         }
       }
     }
@@ -111,4 +116,44 @@ export async function expectBirthComparison(page, data) {
   await expect(result.getByText('综合结论', { exact: true })).toHaveCount(0);
   await expect(result.locator('.birth-tables')).not.toContainText('→');
   await expectCompactTimes(page);
+}
+
+// Measure the actual value/dot groups, so equal cell widths alone cannot hide
+// an incorrectly aligned value. Used by flows and every birth visual project.
+export async function expectBirthMirror(page) {
+  const tables = page.locator('.birth-table');
+  expect(await tables.count()).toBeGreaterThan(0);
+  await expect(async () => {
+    const measurements = await tables.evaluateAll(elements => elements.map(table => {
+      const bounds = table.getBoundingClientRect();
+      const centre = (bounds.left + bounds.right) / 2;
+      return {
+        columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
+        rows: [...table.querySelectorAll('tbody tr')].map(row => {
+          const measure = side => {
+            const value = row.querySelector(`.birth-table__${side} .ds-element`);
+            const dot = value.querySelector('.ds-element__dot').getBoundingClientRect();
+            const text = value.querySelector('span:not(.ds-element__dot)').getBoundingClientRect();
+            return { bounds: value.getBoundingClientRect().toJSON(), dot: dot.toJSON(), text: text.toJSON() };
+          };
+          return { centre, birth: measure('birth'), current: measure('current') };
+        }),
+      };
+    }));
+    for (const table of measurements) {
+      expect(table.columns).toHaveLength(3);
+      expect(table.columns[1]).toBe(96);
+      expect(Math.abs(table.columns[0] - table.columns[2])).toBeLessThanOrEqual(2);
+      expect(table.rows).toHaveLength(5);
+      for (const row of table.rows) {
+        const leftGap = row.centre - row.birth.bounds.right;
+        const rightGap = row.current.bounds.left - row.centre;
+        expect(leftGap).toBeGreaterThanOrEqual(0);
+        expect(rightGap).toBeGreaterThanOrEqual(0);
+        expect(Math.abs(leftGap - rightGap), 'Both values sit equally far from the relation axis (±2px)').toBeLessThanOrEqual(2);
+        expect(row.birth.dot.left).toBeGreaterThanOrEqual(row.birth.text.right);
+        expect(row.current.dot.right).toBeLessThanOrEqual(row.current.text.left);
+      }
+    }
+  }).toPass();
 }
