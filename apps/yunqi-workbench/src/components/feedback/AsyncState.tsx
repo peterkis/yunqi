@@ -14,6 +14,7 @@ export interface AsyncStateProps<T> {
   readonly emptyMessage?: string;
   readonly onRetry?: () => void;
   readonly renderData: (data: T) => ReactNode;
+  readonly renderLoading?: (message: string | undefined) => ReactNode;
 }
 
 function isEmptyData<T>(data: T): boolean {
@@ -29,6 +30,7 @@ export function AsyncState<T>({
   emptyMessage = '暂无数据',
   onRetry,
   renderData,
+  renderLoading,
 }: AsyncStateProps<T>) {
   const [loading, setLoading] = useState<'hidden' | 'minimum' | 'ready'>('hidden');
 
@@ -49,10 +51,10 @@ export function AsyncState<T>({
   }, [isPending, loading]);
 
   if (loading === 'minimum' || (isPending && loading === 'ready')) {
-    return <LoadingState message={loadingMessage} />;
+    return renderLoading ? <>{renderLoading(loadingMessage)}</> : <LoadingState message={loadingMessage} />;
   }
 
-  if (isPending) return null;
+  if (isPending) return renderLoading ? <>{renderLoading(undefined)}</> : null;
 
   if (error !== null && error !== undefined) {
     return (

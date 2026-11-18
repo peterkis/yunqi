@@ -24,6 +24,12 @@
 }
 
 .birth-view[hidden] { display: none; }
+.birth-input-region { min-width: 0; }
+[data-motion="full"] .birth-input-region { overflow: clip; overflow-clip-margin: var(--space-1); }
+:is([data-motion="full"], [data-motion="reduced"]) .birth-results { transition: opacity var(--motion-base) var(--ease-linear); }
+@starting-style {
+  :is([data-motion="full"], [data-motion="reduced"]) .birth-results { opacity: 0; }
+}
 .birth-page :is(.birth-note, .birth-api-message, .birth-notice, .birth-label, .birth-table__detail) { margin: 0; }
 
 .birth-label {

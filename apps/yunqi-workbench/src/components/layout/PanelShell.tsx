@@ -4,6 +4,8 @@ import { getPanelRoute, navigationItems } from '../../app/routes';
 import { PanelNavigation } from '../../app/PanelNavigation';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { useTheme } from '../../providers/ThemeProvider';
+import { useMotionLevel } from '../../providers/MotionProvider';
+import { motionMilliseconds } from '../../lib/motion';
 import { Button } from '../design/Button';
 import { InlineText } from '../design/InlineText';
 import { PanelHeader } from '../design/PanelHeader';
@@ -12,21 +14,30 @@ import { SegmentedNav } from '../design/SegmentedNav';
 import { PanelSummaryContext } from './PanelSummary';
 import { PanelViewContext, type PanelViewOptions } from './PanelView';
 
-export interface PanelShellProps {
+export interface PanelHostMotionHooks {
+  /** Synchronous host resize hooks; the Web default is a no-op. */
+  readonly onBeforeCollapse?: () => void;
+  readonly onAfterExpand?: () => void;
+}
+
+export interface PanelShellProps extends PanelHostMotionHooks {
   readonly children: ReactNode;
   readonly actions?: ReactNode;
 }
 
-export function PanelShell({ children, actions }: PanelShellProps) {
-  return <PanelNavigation><PanelFrame actions={actions}>{children}</PanelFrame></PanelNavigation>;
+export function PanelShell(props: PanelShellProps) {
+  return <PanelNavigation><PanelFrame {...props} /></PanelNavigation>;
 }
 
-function PanelFrame({ children, actions }: PanelShellProps) {
+function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: PanelShellProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const route = getPanelRoute(pathname);
   const { theme, toggleTheme } = useTheme();
-  const [collapsed, setCollapsed] = useState(false);
+  const level = useMotionLevel();
+  const [phase, setPhase] = useState<'expanded' | 'collapsing' | 'collapsed' | 'pill-exit' | 'expanding'>('expanded');
+  const collapsed = phase === 'collapsed' || phase === 'pill-exit';
+  const shellRef = useRef<HTMLDivElement>(null);
   const [summary, setSummary] = useState<PanelSummaryViewModel>();
   const [view, setView] = useState<PanelViewOptions>();
   const title = view?.drilldown?.title ?? route.title;
@@ -35,6 +46,29 @@ function PanelFrame({ children, actions }: PanelShellProps) {
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const wasCollapsed = useRef(false);
+
+  // Timers advance state even without CSS/WAAPI/events. A live switch to off
+  // completes an outstanding exit synchronously in the layout commit.
+  useLayoutEffect(() => {
+    if (phase !== 'collapsing' && phase !== 'pill-exit' && phase !== 'expanding') return;
+    function advance() {
+      if (phase === 'collapsing') { onBeforeCollapse?.(); setPhase('collapsed'); }
+      else if (phase === 'pill-exit') { onAfterExpand?.(); setPhase('expanding'); }
+      else setPhase('expanded');
+    }
+    if (level === 'off') { advance(); return; }
+    const timer = setTimeout(advance, motionMilliseconds(shellRef.current!, phase === 'expanding' ? '--motion-slow' : '--motion-fast'));
+    return () => clearTimeout(timer);
+  }, [phase, level, onBeforeCollapse, onAfterExpand]);
+
+  function collapse() {
+    if (level === 'off') { onBeforeCollapse?.(); setPhase('collapsed'); }
+    else setPhase('collapsing');
+  }
+  function expand() {
+    if (level === 'off') { onAfterExpand?.(); setPhase('expanded'); }
+    else setPhase('pill-exit');
+  }
 
   useEffect(() => {
     document.title = `${title} · 运气通`;
@@ -49,10 +83,10 @@ function PanelFrame({ children, actions }: PanelShellProps) {
   return (
     <PanelSummaryContext.Provider value={setSummary}>
     <PanelViewContext.Provider value={setView}>
-      <div className={`panel-viewport${collapsed ? ' panel-viewport--collapsed' : ''}`}>
+      <div className={`panel-viewport${collapsed ? ' panel-viewport--collapsed' : ''}`} data-panel-phase={phase}>
         {collapsed && (
           <button className="panel-pill" type="button" ref={expandRef}
-            aria-expanded={false} aria-controls="yunqi-panel" onClick={() => setCollapsed(false)}>
+            aria-expanded={false} aria-controls="yunqi-panel" onClick={expand}>
             <span className="visually-hidden">展开运气通：</span>
             {summary ? (
               <>
@@ -73,7 +107,7 @@ function PanelFrame({ children, actions }: PanelShellProps) {
           </button>
         )}
         {/* Keep the route mounted so collapsing cannot destroy local form state. */}
-        <div className="panel-shell" id="yunqi-panel" hidden={collapsed}>
+        <div className="panel-shell" id="yunqi-panel" ref={shellRef} hidden={collapsed}>
           <a className="panel-shell__skip-link" href="#workbench-content" onClick={() => mainRef.current?.focus()}>跳至主要内容</a>
           <PanelHeader title="运气通" status="教学参考 · 本次会话不关联患者" actions={<>
             <Button variant="icon" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
@@ -84,7 +118,7 @@ function PanelFrame({ children, actions }: PanelShellProps) {
                 </>}
               </svg>
             </Button>
-            <Button ref={collapseRef} variant="icon" aria-label="收起为胶囊条" aria-expanded={!collapsed} aria-controls="yunqi-panel" onClick={() => setCollapsed(true)}>
+            <Button ref={collapseRef} variant="icon" aria-label="收起为胶囊条" aria-expanded={!collapsed} aria-controls="yunqi-panel" onClick={collapse}>
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" /></svg>
             </Button>
           </>} />

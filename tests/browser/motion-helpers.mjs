@@ -2,6 +2,30 @@ import { expect, waitForAnimations } from './fixtures.mjs';
 
 export const expectedMotionLevel = mode => mode === 'missing-transition' ? 'reduced' : mode;
 
+/** Test-only interaction stopwatch, never a source of application time. Start
+ * on the actual mouse/keyboard click, excluding Playwright's actionability wait. */
+export async function observeOffAction(page, trigger, ready) {
+  await page.evaluate(({ trigger, ready }) => {
+    window.motionActionTime = new Promise(resolve => {
+      const start = event => {
+        if (!event.target.closest(trigger)) return;
+        document.removeEventListener('click', start, true);
+        const began = performance.now();
+        const observer = new MutationObserver(check);
+        const timer = setTimeout(() => finish(Number.POSITIVE_INFINITY), 290);
+        function finish(value) { clearTimeout(timer); observer.disconnect(); resolve(value); }
+        function check() {
+          const target = document.querySelector(ready);
+          if (target && document.activeElement === target) finish(performance.now() - began);
+        }
+        observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        queueMicrotask(check);
+      };
+      document.addEventListener('click', start, true);
+    });
+  }, { trigger, ready });
+}
+
 export async function expectTransitionDuration(page, target, token = 'base', pressFeedback = false) {
   const level = await page.locator('.theme-root').getAttribute('data-motion');
   const milliseconds = level === 'off' ? 0 : level === 'reduced' || token === 'fast' ? 120 : 180;

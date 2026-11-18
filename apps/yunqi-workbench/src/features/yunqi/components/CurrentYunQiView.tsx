@@ -2,6 +2,7 @@ import { AsyncState } from '../../../components/feedback/AsyncState';
 import { useLearningCurrentQuery } from '../hooks/useLearningQueries';
 import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
+import { CurrentLoadingState } from './CurrentLoadingState';
 
 export function CurrentYunQiView() {
   const query = useLearningCurrentQuery();
@@ -11,6 +12,7 @@ export function CurrentYunQiView() {
       data={query.data}
       error={query.error}
       isPending={query.isPending}
+      renderLoading={(message) => <CurrentLoadingState message={message} />}
       onRetry={() => {
         void query.refetch();
       }}

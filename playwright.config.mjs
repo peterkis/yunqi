@@ -58,7 +58,7 @@ export default defineConfig({
     { name: 'flows-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'full' } },
     { name: 'flows-reduced-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'reduced' } },
     { name: 'flows-off-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'off' } },
-    { name: 'motion-capability-chromium', testMatch: ['**/motion.flows.spec.mjs', '**/constitution-motion.flows.spec.mjs'], use: { motionMode: 'missing-transition' } },
+    { name: 'motion-capability-chromium', testMatch: ['**/motion.flows.spec.mjs', '**/constitution-motion.flows.spec.mjs', '**/current-motion.flows.spec.mjs'], use: { motionMode: 'missing-transition' } },
     visualProject('panel-light', 400, 860),
     visualProject('panel-dark', 400, 860, 'dark'),
     visualProject('panel-min-height', 400, 640),

@@ -1,7 +1,7 @@
 import { test, expect, loadCurrent, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate, expectBirthComparison } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, constitutionResultValues, confirmConstitutionDestruction } from './constitution-helpers.mjs';
-import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions } from './motion-helpers.mjs';
+import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions, observeOffAction } from './motion-helpers.mjs';
 
 test('accessibility animation gate observes completion and times out on paused motion', async ({ page }) => {
   await page.setContent('<p>动画收敛辅助回归</p>');
@@ -213,16 +213,24 @@ test('drilldown returns restore scroll within 2px and the original entry for mou
       await entry.focus();
       await waitForAnimations(page);
       const before = await main.evaluate(element => element.scrollTop);
+      const entryHref = await entry.getAttribute('href');
       expect(before).toBeGreaterThan(0);
       if (input === 'mouse') await entry.click();
       else await page.keyboard.press('Enter');
+      await expect(page).toHaveURL(label === '原文与释义' ? /\/yunqi\/current\/classics(?:\?motion=off)?$/ : label === '年度详情' ? /\/yunqi\/year\/\d{4}(?:\?motion=off)?$/ : /\/yunqi\/calculate(?:\?motion=off)?$/);
+      await expect(page.getByRole('region', { name: '页面导航', exact: true }).getByRole('heading', { name: label, exact: true })).toBeVisible();
       await expect(page.locator(content)).toBeVisible();
       await expect(main).toBeFocused();
       await expectMotionDurations(page, testInfo, `${input}-${label}-durations`);
       const back = page.getByRole('button', { name: '返回', exact: true });
+      const entrySelector = label === '原文与释义' ? '.current-overview__quote a' : `.current-more a[href="${entryHref}"]`;
+      if (motionMode === 'off') await observeOffAction(page, '.panel-shell__drilldown button', entrySelector);
       if (input === 'mouse') await back.click();
       else { await back.focus(); await page.keyboard.press('Enter'); }
+      if (motionMode === 'off') expect(await page.evaluate(() => window.motionActionTime)).toBeLessThanOrEqual(290);
+      await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
       await expect(entry).toBeFocused();
+      await waitForAnimations(page);
       await expect.poll(async () => Math.abs(await main.evaluate(element => element.scrollTop) - before)).toBeLessThanOrEqual(2);
       observations.push({ input, label, before, after: await main.evaluate(element => element.scrollTop) });
     }

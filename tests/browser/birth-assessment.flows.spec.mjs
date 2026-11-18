@@ -328,7 +328,10 @@ test('birth inputs enforce required time, block repeated pending activation and 
   await expectBirthDate(page, '');
   await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
   await expect(time).toHaveCount(0);
-  await expect(page.getByRole('status')).toHaveCount(0);
+  const clearedStatus = page.getByRole('status');
+  await expect(clearedStatus).toHaveCount(1);
+  await expect(clearedStatus).toHaveText('已清空本次资料');
+  await expect(clearedStatus).not.toContainText(/1990|05-12|05-13|09:30|09:31/);
 });
 
 test('direct or reloaded birth classics never restore personal data or make an automatic comparison', async ({ page, diagnostics }) => {

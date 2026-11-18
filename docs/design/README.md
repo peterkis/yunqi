@@ -17,13 +17,15 @@
 
 设计规范在线版本是上游；本地副本只做同步，不在本仓库内直接改写。上游更新时重新同步并更新上表版本。
 例外：2026-11-18 用户授权 [E5](../plans/2026-11-18-stage-facts/cards/E5-standalone-host.md) 本地修订 `1-layout.md` 与 `tokens.json` 的宿主契约；本页“独立侧栏窗口”约定优先，原型文件保留原样。
+例外：2026-11-19 用户授权 [M1](../plans/2026-11-18-motion-flows/cards/M1-motion-flows.md) 的 motion tokens 与 `1-layout.md`“动效”、E5 宿主钩子本地修订。
+M1 量表停留为 240ms（取代同步副本中的 160ms）；本地动效约定优先，不改原型或其他上游同步内容。
 
 ## 规范文件
 
 | 文件 | 内容 |
 | --- | --- |
 | [design-system/README.md](design-system/README.md) | 设计原则、色彩、字体（本地加载）、字号阶梯与排版 |
-| [design-system/1-layout.md](design-system/1-layout.md) | 面板骨架、网格、间距、视觉层次、z 轴与阴影、圆角 |
+| [design-system/1-layout.md](design-system/1-layout.md) | 面板骨架、网格、间距、视觉层次、z 轴与阴影、圆角、动效及宿主钩子 |
 | [design-system/2-constraints.md](design-system/2-constraints.md) | 视觉、交互、文案、医疗安全、可访问性硬约束 |
 | [type-scale.md](type-scale.md) | **本地决定**：全应用 5 档字号阶梯（保留“单屏最多 5 级”并统一各视图字号），优先于规范中的逐样式字号 |
 | [design-system/tokens.json](design-system/tokens.json) | 颜色（浅/深两主题）、字体、间距、圆角、阴影、尺寸、z-index 令牌 |

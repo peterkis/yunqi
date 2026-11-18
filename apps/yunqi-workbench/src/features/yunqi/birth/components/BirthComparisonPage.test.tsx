@@ -78,7 +78,7 @@ describe('BirthComparisonPage', () => {
     expect(screen.getByRole('status')).toHaveTextContent('资料已修改');
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveTextContent('已清空本次资料');
   });
 
   it('normalizes a known minute, blocks duplicate submission and retains explicit exact-time semantics', async () => {

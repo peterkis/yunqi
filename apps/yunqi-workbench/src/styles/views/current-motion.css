@@ -1,0 +1,17 @@
+/* M1-d: the center and all text stay still. Only changed titles use color. */
+[data-motion="full"] .current-period-cell--title h3 {
+  transition: color var(--motion-fast) var(--ease-linear);
+}
+[data-motion="full"] .current-period-cell--title[data-emphasized="true"] h3 { color: var(--accent); }
+
+/* Same wheel reservation as the final annual card, from the first commit. */
+.current-loading__block,
+.current-loading__line { background: var(--surface-sunken); border-radius: var(--radius-sm); }
+.current-loading__line { width: 100%; height: calc(var(--ts-small) * var(--type-meta-line)); }
+.current-loading .current-year-wheel { border-radius: var(--radius-full); }
+.current-loading__legend { width: 75%; }
+.current-loading__facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1_5); width: 100%; }
+.current-loading__facts > div { height: calc(var(--space-4) + var(--ts-small) * var(--type-label-line) + var(--space-0_5) + var(--ts-body) * var(--type-body-line)); }
+.current-loading__hint { margin-top: var(--space-2_5); height: calc(var(--ts-small) * var(--type-meta-line) + var(--chip-height)); }
+.current-loading__period .current-loading__facts { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3_5); }
+.current-loading__period .current-loading__block { height: calc(var(--current-wheel-size) + var(--space-4)); }

@@ -22,6 +22,8 @@ describe('CurrentYunQiView', () => {
       wrapper: createTestWrapper(client),
     });
 
+    expect(document.querySelector('.current-loading .current-year-wheel')).toBeInTheDocument();
+    expect(screen.queryByRole('status')).not.toBeInTheDocument();
     expect(await screen.findByRole('status')).toHaveTextContent('正在加载');
   });
 

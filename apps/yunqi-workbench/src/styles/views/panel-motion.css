@@ -1,0 +1,25 @@
+/* The state timer owns host notifications; CSS only paints the process.
+   Default styles remain fully visible if starting-style is unsupported. */
+[data-motion="full"] .panel-shell { transform-origin: top right; }
+[data-motion="full"] [data-panel-phase="collapsing"] .panel-shell {
+  opacity: 0;
+  transform: scale(var(--motion-press-scale));
+  transition: opacity var(--motion-fast) var(--ease-exit), transform var(--motion-fast) var(--ease-exit);
+}
+[data-motion="full"] [data-panel-phase="expanding"] .panel-shell {
+  transform: scale(1);
+  transition: opacity var(--motion-slow) var(--ease-linear), transform var(--motion-slow) var(--ease-standard);
+}
+[data-motion="reduced"] [data-panel-phase="collapsing"] .panel-shell {
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-exit);
+}
+[data-motion="reduced"] [data-panel-phase="expanding"] .panel-shell { transition: opacity var(--motion-fast) var(--ease-linear); }
+:is([data-motion="full"], [data-motion="reduced"]) [data-panel-phase="pill-exit"] button.panel-pill {
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--ease-exit);
+}
+@starting-style {
+  [data-motion="full"] [data-panel-phase="expanding"] .panel-shell { opacity: 0; transform: scale(var(--motion-press-scale)); }
+  [data-motion="reduced"] [data-panel-phase="expanding"] .panel-shell { opacity: 0; }
+}
