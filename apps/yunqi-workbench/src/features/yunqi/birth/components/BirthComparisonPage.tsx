@@ -7,6 +7,7 @@ import { SegmentedControl } from '../../../../components/design/SegmentedControl
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { PanelView } from '../../../../components/layout/PanelView';
+import { useSessionVisible } from '../../../../components/layout/SessionVisibility';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import { useBirthComparison } from '../hooks/useBirthComparison';
@@ -15,6 +16,7 @@ import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
 export function BirthComparisonPage() {
+  const visible = useSessionVisible();
   const mutation = useBirthComparison();
   const { result } = mutation;
   const reading = useMatch('/yunqi/birth/classics') !== null;
@@ -36,11 +38,11 @@ export function BirthComparisonPage() {
   const formId = useId();
 
   useEffect(() => {
-    if (formExpanded) dateInput.current?.focus();
+    if (formExpanded && visible) dateInput.current?.focus();
   }, [formExpanded, dateRevision]);
 
   useEffect(() => {
-    if (wasReading.current && !reading) readingLink.current?.focus({ preventScroll: true });
+    if (wasReading.current && !reading && visible) readingLink.current?.focus({ preventScroll: true });
     wasReading.current = reading;
   }, [reading]);
 
@@ -165,7 +167,7 @@ export function BirthComparisonPage() {
             </details>
           </section>
         ) : (
-          <p className="birth-note">填写出生日期并提交后，即可并列对照。资料仅保存在本页内存，离开页面后清空。</p>
+          <p className="birth-note">填写出生日期并提交后，即可并列对照。资料仅保存在本次会话内存，清空后销毁。</p>
         )}
       </div>
       {reading && (result ? <BirthClassicsView viewModel={result} /> : (

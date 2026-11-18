@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MotionSettings } from '../components/layout/MotionSettings';
 import { MotionProvider, useMotion, useMotionLevel } from './MotionProvider';
 import { ThemeProvider } from './ThemeProvider';
+import { RetainedSession } from '../app/RetainedSession';
 
 const originalTransition = Object.getOwnPropertyDescriptor(document, 'startViewTransition');
 const queries = new Map<string, { matches: boolean; listeners: Set<() => void> }>();
@@ -94,6 +95,26 @@ afterEach(() => {
 });
 
 describe('MotionProvider', () => {
+  it('keeps one application probe and never restarts it as retained tabs hide, return or mount for the first time', () => {
+    function Sessions({ birth }: { birth: boolean }) {
+      return <MotionProvider><ThemeProvider>
+        <RetainedSession active={!birth}><p>量表会话</p></RetainedSession>
+        <RetainedSession active={birth}><p>出生会话</p></RetainedSession>
+      </ThemeProvider></MotionProvider>;
+    }
+    const view = render(<Sessions birth={false} />);
+    expect(frames.size).toBe(1);
+    const requests = vi.mocked(window.requestAnimationFrame).mock.calls.length;
+    fireEvent.pointerDown(document.body);
+    expect(frames.size).toBe(0);
+    view.rerender(<Sessions birth />);
+    view.rerender(<Sessions birth={false} />);
+    view.rerender(<Sessions birth />);
+    expect(frames.size).toBe(0);
+    expect(idleTasks.size).toBe(0);
+    expect(window.requestAnimationFrame).toHaveBeenCalledTimes(requests);
+  });
+
   it('emits the automatic capability result on the first commit', () => {
     expect(mount().firstCommit).toEqual(['full']);
     expectLevel('full');

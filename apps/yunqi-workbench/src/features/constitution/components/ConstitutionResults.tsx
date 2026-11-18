@@ -1,20 +1,32 @@
-import { useLayoutEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { InlineText } from '../../../components/design/InlineText';
 import { ElementDot } from '../../../components/design/ElementDot';
 import { SegmentedText } from '../../../components/design/SegmentedText';
 import type { ConstitutionAssessmentViewModel, ConstitutionContextViewModel } from '../presentation/map-constitution';
 
-export function ConstitutionResults({ assessment, context, children }: {
+export function ConstitutionResults({ assessment, context, children, reveal = false }: {
   readonly assessment: ConstitutionAssessmentViewModel;
   readonly context?: ConstitutionContextViewModel;
   readonly children?: ReactNode;
+  readonly reveal?: boolean;
 }) {
+  const visible = useSessionVisible();
+  const [revealing, setRevealing] = useState(reveal && visible);
   const birth = context?.birth;
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useLayoutEffect(() => { headingRef.current?.focus(); }, []);
+  useLayoutEffect(() => { if (visible) headingRef.current?.focus(); }, []);
+  useEffect(() => {
+    if (!visible) { setRevealing(false); return; }
+    if (!revealing) return;
+    // The marker is consumed by state, never by an animation event. Returning
+    // to a retained result must not replay the submit-only reveal.
+    const timer = setTimeout(() => setRevealing(false), 400);
+    return () => clearTimeout(timer);
+  }, [visible, revealing]);
   return (
-    <section className="constitution-result-view" aria-label="体质测评结果">
+    <section className="constitution-result-view" aria-label="体质测评结果" data-reveal={revealing}>
       <section className="constitution-card constitution-decision" aria-label="量表判定">
         <p className="constitution-eyebrow">判定</p>
         <div className="constitution-decision-title">
@@ -33,7 +45,7 @@ export function ConstitutionResults({ assessment, context, children }: {
       <section className="constitution-card constitution-score-card" aria-label="九种体质转化分">
         <header className="constitution-chart-header"><h4 className="constitution-eyebrow">九质转化分</h4><span className="num"><InlineText>刻度 30 · 40</InlineText></span></header>
         <ul className="constitution-bars" aria-label="九种体质转化分">
-          {assessment.results.map((result) => <li key={result.id} className="constitution-bar" data-tone={result.tone}>
+          {assessment.results.map((result, index) => <li key={result.id} className="constitution-bar" data-tone={result.tone} style={{ '--constitution-bar-index': index } as CSSProperties}>
             <span className="constitution-bar-label">{result.shortName}</span>
             <div className="constitution-bar-track" role="img" aria-label={result.chartLabel}>
               <span className="constitution-bar-fill" style={{ '--constitution-fill': result.fillWidth } as CSSProperties} />

@@ -1,4 +1,4 @@
-import { expect } from './fixtures.mjs';
+import { expect, waitForAnimations } from './fixtures.mjs';
 
 const QI_TONES = {
   '顺 · 君位臣': 'favorable', '相生 · 相得': 'favorable', '顺 · 客胜主': 'favorable',
@@ -108,7 +108,6 @@ export async function expectCurrentStageFacts(page, data) {
 }
 
 export async function expectCurrentPeriodAlignment(page) {
-  await page.evaluate(() => document.fonts.ready);
   const grid = page.locator('.current-period-grid');
   await expect(grid).toHaveCSS('display', 'grid');
   await expect(grid.locator('.current-period-cell')).toHaveCount(14);
@@ -116,6 +115,7 @@ export async function expectCurrentPeriodAlignment(page) {
   const movement = grid.getByRole('region', { name: '当步运', exact: true });
   await expect(qi).toHaveCSS('display', 'contents');
   await expect(movement).toHaveCSS('display', 'contents');
+  await waitForAnimations(page);
   await expect(async () => {
     for (let row = 0; row < 7; row += 1) {
       const [left, right] = await Promise.all([

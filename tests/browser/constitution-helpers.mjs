@@ -1,4 +1,4 @@
-import { expect } from './fixtures.mjs';
+import { expect, waitForAnimations } from './fixtures.mjs';
 import { expectTextContrast } from './visual-assertions.mjs';
 
 // Fixed male answer vector verified against the real Service: one match and
@@ -13,6 +13,7 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
   const grid = context.getByRole('list', { name: '九种体质作答进度', exact: true });
   await expect(grid.getByRole('listitem')).toHaveCount(9);
   await expect(grid.locator('.constitution-dimension-name')).toHaveText(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
+  await waitForAnimations(scope.page?.() ?? scope);
   const geometry = await grid.evaluate(element => ({
     columns: getComputedStyle(element).gridTemplateColumns.split(' ').length,
     rows: getComputedStyle(element).gridTemplateRows.split(' ').length,
@@ -22,7 +23,7 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
   const header = scope.locator('.constitution-question-header');
   await expect(header.locator(':scope > *')).toHaveCount(2);
   await expect(header.locator('h3.constitution-question-title')).toHaveAttribute('tabindex', '-1');
-  await expect(header.locator('p')).toHaveText('请患者根据近一年的体验和感觉作答 · 数字键 1–5');
+  await expect(header.locator('p')).toHaveText('请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题');
   await expect(header).not.toContainText(/体质量表|男性版|女性版|\d+\s*\/\s*26/);
   const contrast = await expectTextContrast(header);
   const accentColor = await header.evaluate(element => getComputedStyle(element).backgroundColor);
@@ -34,7 +35,7 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
     await expect(name).toHaveCSS('color', accentColor);
     await expect(name).toHaveCSS('font-weight', '700');
   }
-  for (const name of await grid.locator('[data-answered="true"] .constitution-dimension-name').all()) await expect(name).toHaveCSS('color', accentColor);
+  for (const name of await grid.locator('[data-emphasized="true"] .constitution-dimension-name').all()) await expect(name).toHaveCSS('color', accentColor);
   const options = scope.locator('.constitution-question-screen .ds-scale-option');
   const labels = ['没有（根本不）', '很少（有一点）', '有时（有些）', '经常（相当）', '总是（非常）'];
   for (let value = 1; value <= 5; value += 1) {
@@ -67,23 +68,27 @@ export async function changeConstitutionSex(scope, sex, answered) {
 
 export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values } = {}) {
   const actions = page.locator('.panel-shell__actions');
+  // Role lookup excludes retained/aria-hidden visual copies, even if the
+  // previous answer's 120ms destruction snapshot has not expired yet.
+  const form = scope.getByRole('form', { name: '中医体质量表', exact: true });
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
   await scope.getByRole('radio', { name: sex, exact: true }).click();
   await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   for (let number = 1; number <= 26; number += 1) {
-    await expect(scope.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
-    await expect(scope.locator('.constitution-position')).toHaveText(`${number - 1} / 26`);
-    await expect(scope.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
-    await expect(scope.locator('.constitution-question-screen')).toHaveCount(1);
+    await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
+    await expect(form.locator('.constitution-position')).toHaveText(`${number - 1} / 26`);
+    await expect(form.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
+    await expect(form.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(scope.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
     await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
     await page.keyboard.press(String(values ? values[number - 1] : value));
   }
-  await expect(scope.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
+  await expect(scope.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeVisible();
   const submit = actions.getByRole('button', { name: '查看结果', exact: true });
+  await expect(submit).toBeFocused();
   await expect(submit).toBeVisible();
   await expect(submit).toHaveAttribute('form', await scope.getByRole('form', { name: '中医体质量表', exact: true }).getAttribute('id'));
   await expect(submit).toHaveClass(/ds-button--primary/);
@@ -92,9 +97,22 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
 }
 
+export async function confirmConstitutionDestruction(page, keyboard = false) {
+  const confirm = page.getByRole('button', { name: '确认销毁', exact: true });
+  await expect(page.getByRole('group', { name: '结束并销毁本次答卷', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
+  if (keyboard) {
+    await page.keyboard.press('Shift+Tab');
+    await expect(confirm).toBeFocused();
+    await page.keyboard.press('Enter');
+  } else await confirm.click();
+  await expect(page.getByRole('status').filter({ hasText: '答卷已销毁' })).toBeVisible();
+}
+
 export async function expectConstitutionResults(page, assessment, scope = page) {
   const result = scope.getByRole('region', { name: '体质测评结果', exact: true });
   await expect(result).toBeVisible();
+  await waitForAnimations(page);
   const actions = page.locator('.panel-shell__actions');
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
@@ -156,6 +174,7 @@ export async function expectConstitutionDisclosures(scope, testInfo, result = fa
     ...(hasBirthDetails ? ['本次对照快照与候选区间'] : []),
   ]);
   await expect(scope.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
+  await waitForAnimations(scope.page?.() ?? scope);
   await expect.poll(async () => {
     const boxes = await summaries.evaluateAll(elements => elements.map(element => element.getBoundingClientRect().toJSON()));
     return boxes.every((box, index) => box.height >= 32 && Math.abs(box.x - boxes[0].x) <= 1 &&
@@ -171,6 +190,7 @@ export async function expectConstitutionDisclosures(scope, testInfo, result = fa
 export async function expectConstitutionSegments(scope) {
   const segments = scope.locator('.constitution-context-rows > div:first-child .ds-seg, .constitution-reference-rows > div:last-child .ds-seg');
   await expect(segments.first()).toBeVisible();
+  await waitForAnimations(scope.page?.() ?? scope);
   await expect.poll(async () => segments.evaluateAll(elements => elements.every(element => {
     const range = document.createRange();
     range.selectNodeContents(element.querySelector('.ds-seg__text'));
@@ -182,6 +202,7 @@ export async function expectConstitutionSegments(scope) {
 export async function expectConstitutionMixedReference(result, testInfo) {
   const reference = result.locator('.constitution-reference-rows');
   await expect(reference.locator('dd').first()).toContainText('偏颇质兼夹 · 7 项');
+  await waitForAnimations(result.page());
   await expect.poll(async () => reference.evaluate(element => {
     const heights = [...element.children].map(cell => cell.getBoundingClientRect().height);
     const range = document.createRange();
@@ -205,7 +226,8 @@ export async function expectConstitutionTitle(result, assessment) {
     : assessment.matchedTypes.length > 1 ? '偏颇质兼夹' : '未达明确类型';
   const heading = result.locator('.constitution-decision h4');
   await expect(heading).toHaveText(title);
-  await heading.evaluate(() => document.fonts.ready);
+  // Visibility and ready fonts do not settle the decision card's transform.
+  await waitForAnimations(result.page());
   const metrics = await heading.evaluate(element => {
     const range = document.createRange();
     range.selectNodeContents(element);
@@ -263,6 +285,7 @@ export async function expectConstitutionResultLayout(result, testInfo) {
   await expect(heading).toHaveCSS('font-size', '30px');
   await expect(heading).toHaveCSS('line-height', '33px');
   await expect(heading).toHaveCSS('font-weight', '700');
+  await waitForAnimations(result.page());
   const metrics = await result.evaluate(element => {
     const color = (target, token) => {
       const swatch = document.createElement('span');

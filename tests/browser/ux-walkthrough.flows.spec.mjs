@@ -1,4 +1,4 @@
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, waitForAnimations } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
@@ -83,6 +83,7 @@ test('panel stage selection keeps six single-column choices above nearby detail 
   await expect(third).toHaveAccessibleDescription(`开始 ${thirdStage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 ${thirdStage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本`);
   const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
   await expect(detail).toBeVisible();
+  await waitForAnimations(page);
   const selector = await page.locator('.drilldown-stage-selector__options').boundingBox();
   const detailBox = await detail.boundingBox();
   const choices = await page.locator('.drilldown-stage-selector__option').all();

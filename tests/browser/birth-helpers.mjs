@@ -1,4 +1,4 @@
-import { expect, expectCompactTimes } from './fixtures.mjs';
+import { expect, expectCompactTimes, waitForAnimations } from './fixtures.mjs';
 
 export async function fillBirthDate(page, value) {
   const parts = value ? value.split('-') : ['', '', ''];
@@ -126,6 +126,7 @@ export async function expectBirthDetailSegments(page, testInfo) {
     const row = table.getByRole('rowheader', { name, exact: true }).locator('..');
     await expect(row.locator('.birth-table__detail .ds-seg')).toHaveCount(4);
   }
+  await waitForAnimations(page);
   let measurements;
   await expect(async () => {
     measurements = await table.locator('.birth-table__detail:has(.ds-seg)').evaluateAll(details => details.map(detail => ({
@@ -173,6 +174,7 @@ export async function expectBirthDetailSegments(page, testInfo) {
 export async function expectBirthMirror(page) {
   const tables = page.locator('.birth-table');
   expect(await tables.count()).toBeGreaterThan(0);
+  await waitForAnimations(page);
   await expect(async () => {
     const measurements = await tables.evaluateAll(elements => elements.map(table => {
       const bounds = table.getBoundingClientRect();

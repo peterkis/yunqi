@@ -1,4 +1,4 @@
-import { useId, type KeyboardEvent } from 'react';
+import { useId, type CSSProperties, type KeyboardEvent } from 'react';
 
 export interface ScaleOptionProps {
   readonly shortcut: 1 | 2 | 3 | 4 | 5;
@@ -13,7 +13,7 @@ export interface ScaleOptionProps {
 }
 
 function handleOptionKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
-  if (event.repeat) return;
+  if (event.defaultPrevented || event.repeat) return;
   const group = event.currentTarget.closest('[role="radiogroup"]');
   if (!group) return;
 
@@ -83,7 +83,7 @@ export function ScaleOption({
       <span className="ds-scale-option__label" id={labelId}>{label}</span>
       <span className="ds-scale-option__description" id={descriptionId}>{description}</span>
       {showDegree ? <span className="ds-scale-option__degree" aria-hidden="true">
-        {Array.from({ length: 5 }, (_, index) => <span key={index} data-filled={index < shortcut} />)}
+        {Array.from({ length: 5 }, (_, index) => <span key={index} data-filled={index < shortcut} style={{ '--constitution-dot-index': index } as CSSProperties} />)}
       </span> : null}
     </button>
   );

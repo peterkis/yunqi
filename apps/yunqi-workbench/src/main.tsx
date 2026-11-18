@@ -19,6 +19,7 @@ import './styles/views/craft.css';
 import './styles/views/current-finals.css';
 import './styles/views/classics.css';
 import './styles/views/motion-flows.css';
+import './styles/views/constitution-motion.css';
 
 if (import.meta.env.DEV) {
   document.body.classList.add('workbench-dev-host');

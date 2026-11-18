@@ -36,7 +36,7 @@ function rememberFocus(main: HTMLElement): FocusEntry | undefined {
 
 function findFocus(main: HTMLElement, entry: FocusEntry): HTMLElement | undefined {
   return [...main.querySelectorAll<HTMLElement>(focusable)].find(element =>
-    element.tagName === entry.tag && element.getAttribute('href') === entry.href
+    !element.closest('[hidden], [inert]') && element.tagName === entry.tag && element.getAttribute('href') === entry.href
     && element.getAttribute('aria-label') === entry.label && element.textContent === entry.text);
 }
 

@@ -73,11 +73,11 @@
 /* Newly rendered content is visible by default. Unsupported starting-style is
    safely ignored; birth's retained parent is never keyed/remounted. */
 :root[data-view-transition="navigation-fallback"] :is([data-motion="full"], [data-motion="reduced"]) :is(
-  .panel-shell__content > *, .birth-page > .birth-view, .birth-page > .birth-classics
+  .panel-shell__content > *, .panel-shell__content > .retained-session > *, .birth-page > .birth-view, .birth-page > .birth-classics
 ) { transition: opacity var(--motion-fast) var(--ease-linear); }
 @starting-style {
   :root[data-view-transition="navigation-fallback"] :is([data-motion="full"], [data-motion="reduced"]) :is(
-    .panel-shell__content > *, .birth-page > .birth-view, .birth-page > .birth-classics
+  .panel-shell__content > *, .panel-shell__content > .retained-session > *, .birth-page > .birth-view, .birth-page > .birth-classics
   ) { opacity: 0; }
 }
 

@@ -1,5 +1,21 @@
 /* Motion values are sourced from tokens.json and checked by tokens.test.ts.
    Outlines never participate, so keyboard rings appear immediately. */
+[data-motion="reduced"],
+[data-motion="reduced"] * {
+  /* Explicitly remove full-only transition properties. Falling back to the
+     initial all/0s can leave an existing 180ms SVG transform running. The
+     reduced rules below opt only opacity and colors back in. */
+  transition: none;
+  animation: none;
+}
+
+[data-motion="reduced"] *::before,
+[data-motion="reduced"] *::after,
+[data-motion="reduced"] *::details-content {
+  transition: none;
+  animation: none;
+}
+
 :is([data-motion="full"], [data-motion="reduced"]) :is(
   .ds-segmented-nav__link, .ds-segmented-control > button,
   .current-classics__segments .ds-button, .birth-reading-nav button,

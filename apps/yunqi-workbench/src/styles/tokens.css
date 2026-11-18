@@ -127,6 +127,8 @@
   --motion-slow: 240ms;
   --motion-emphasis: 320ms;
   --motion-stagger: 24ms;
+  --motion-result-start: 80ms;
+  --motion-result-stagger: 10ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-linear: linear;
@@ -261,6 +263,8 @@
   --motion-slow: 240ms;
   --motion-emphasis: 320ms;
   --motion-stagger: 24ms;
+  --motion-result-start: 80ms;
+  --motion-result-stagger: 10ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-linear: linear;
@@ -269,6 +273,8 @@
 }
 
 [data-motion="reduced"] {
+  --motion-result-start: 0ms;
+  --motion-result-stagger: 0ms;
   --motion-base: 120ms;
   --motion-slow: 120ms;
   --motion-emphasis: 120ms;
@@ -277,6 +283,8 @@
 }
 
 [data-motion="off"] {
+  --motion-result-start: 0ms;
+  --motion-result-stagger: 0ms;
   --motion-instant: 0ms;
   --motion-fast: 0ms;
   --motion-base: 0ms;

@@ -1,6 +1,6 @@
 import { test, expect, screenshot, expectTypeScale, scanAccessibility } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
@@ -109,6 +109,7 @@ for (const embedded of [false, true]) {
       await expect(page.locator('.constitution-position')).toHaveText('26 / 26');
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-edit`);
       await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+      await confirmConstitutionDestruction(page);
       if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();
       else await expect(page.getByRole('radio', { name: '男', exact: true })).toBeFocused();
     });

@@ -2,12 +2,15 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import type { ConstitutionRequest } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../providers/YunQiClientProvider';
 import { mapAssessment } from '../presentation/map-constitution';
+import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 
 export function useConstitutionQuestionnaire() {
   const client = useYunQiClient();
+  const visible = useSessionVisible();
   return useQuery({
     queryKey: ['constitution', 'questionnaire'],
     queryFn: () => client.getConstitutionQuestionnaire(),
+    enabled: visible,
   });
 }
 

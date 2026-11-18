@@ -1,3 +1,4 @@
+import { confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
@@ -404,7 +405,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(form.getByRole('radio', { name: '5 总是（非常）', exact: true })).toBeFocused();
   await page.keyboard.press('Home');
   await page.keyboard.press('ArrowUp');
-  await page.waitForTimeout(200); // Longer than auto-advance: focus browsing cannot start it.
+  await page.waitForTimeout(290); // Longer than auto-advance: focus browsing cannot start it.
   await expect(form.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await expect(form.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
@@ -415,8 +416,10 @@ test('constitution keyboard loop answers one question at a time and destroys the
     await expect(end).toHaveCount(1);
     await page.keyboard.press(String((number - 1) % 5 + 1));
   }
-  await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
+  await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+  await form.getByRole('heading', { name: '26 题已全部作答', exact: true }).focus();
   await page.keyboard.press('Tab');
   await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
@@ -458,6 +461,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(end).toHaveClass(/ds-button--secondary/);
   await expect(end).toBeFocused();
   await page.keyboard.press('Enter');
+  await confirmConstitutionDestruction(page, true);
   await expect(result).toHaveCount(0);
   await expect(end).toHaveCount(0);
   await expect(male).not.toBeChecked();
@@ -468,7 +472,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   expect(new URL(page.url()).hash).toBe('');
 });
 
-test('constitution reduced-motion answers advance immediately and previous restores an explicit choice', async ({ page, diagnostics }) => {
+test('constitution reduced-motion answers retain the hold and previous restores an explicit choice', async ({ page, diagnostics }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/yunqi/constitution');
   await page.getByRole('radio', { name: '女', exact: true }).click();

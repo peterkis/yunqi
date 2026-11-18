@@ -67,9 +67,12 @@ function panelPage(context, { footerHeight = 36, headerHeight = 52 } = {}) {
     [document.querySelector('main'), { clientWidth: 368, scrollWidth: 368 }],
     [document.documentElement, { scrollWidth: 400, scrollHeight: 860 }],
   ]) for (const [property, value] of Object.entries(values)) Object.defineProperty(element, property, { value });
-  const page = { evaluate: async (callback) => runInNewContext(`(${callback.toString()})()`, {
+  Object.defineProperty(document, 'fonts', { value: { ready: Promise.resolve() } });
+  document.getAnimations = () => [];
+  const evaluate = async callback => runInNewContext(`(${callback.toString()})()`, {
     document, innerWidth: 400, innerHeight: 860, getComputedStyle: dom.window.getComputedStyle.bind(dom.window),
-  }) };
+  });
+  const page = { evaluate, waitForFunction: async callback => assert.equal(await evaluate(callback), true) };
   return { page, document };
 }
 
@@ -94,8 +97,9 @@ test('layout fixture still rejects a shell header whose height is 50', async (co
 test('layout fixture retries the complete measurement until all original expectations hold', async (context) => {
   const { page } = panelPage(context);
   let reads = 0;
-  const loadingPage = { evaluate: async (callback) => {
+  const loadingPage = { ...page, evaluate: async (callback) => {
     const layout = await page.evaluate(callback);
+    if (!layout) return layout;
     reads += 1;
     if (reads === 1) return { ...layout, panel: { ...layout.panel, width: 384 }, documentHeight: 876 };
     if (reads === 2) return { ...layout, documentHeight: 876 };

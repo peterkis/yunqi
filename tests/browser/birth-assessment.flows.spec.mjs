@@ -1,6 +1,6 @@
-import { test, expect, settle, screenshot, expectCompactTimes, scanAccessibility, expectNoPersonalDataInUrl } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectCompactTimes, scanAccessibility, expectNoPersonalDataInUrl, waitForAnimations } from './fixtures.mjs';
 import { expectBirthComparison, expectBirthMirror, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
+import { answerConstitution, expectConstitutionResults, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectTextLink } from './consistency-helpers.mjs';
 import { expectClassicsCards } from './visual-assertions.mjs';
 
@@ -69,6 +69,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await expect(current).not.toHaveAttribute('open');
   const originalViewport = page.viewportSize();
   await page.setViewportSize({ width: 400, height: 640 });
+  await waitForAnimations(page);
   const panelReading = await reading.evaluate(element => ({
     viewport: document.documentElement.clientWidth,
     page: document.documentElement.scrollWidth,
@@ -122,6 +123,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await page.keyboard.press('Tab');
   await expect(end).toBeFocused();
   await page.keyboard.press('Enter');
+  await confirmConstitutionDestruction(page, true);
   await expect(results).toHaveCount(0);
   await expect(end).toHaveCount(0);
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);

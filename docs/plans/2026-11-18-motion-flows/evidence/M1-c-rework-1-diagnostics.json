@@ -1,0 +1,485 @@
+{
+  "baseline": {
+    "branch": "feat/motion-m1",
+    "head": "f4dccb0c25fc7cbeb35d328e88de50a97dd0eea3",
+    "existingDirtyFileCount": 33,
+    "sourceHashesBefore": {
+      "apps/yunqi-workbench/src/app/RetainedSession.test.tsx": "97efd7c71fe3442223382be5e5a7afd789dff533e6a496090ad41fa7d93badcc",
+      "apps/yunqi-workbench/src/app/RetainedSession.tsx": "d4d91cb9db739c6b26057703d776ab5659cc73e52984c98ef36261f03d099a56",
+      "apps/yunqi-workbench/src/components/layout/SessionVisibility.tsx": "19e6ee3fdbad76e4dcc2c5c7ef73869bddf2b2fd9ed93898c582b96760b253ff",
+      "apps/yunqi-workbench/src/features/constitution/components/AnswerDestroyedNotice.tsx": "3f62cee623b40a1d1a4b16b72189d8352be07ec2d65659468762ec6c2f3702dc",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionDimension.tsx": "252e858a4ada45f48704d6ed40c57721806130540378c16c890bf018c2fd5f17",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionMotion.test.tsx": "9cb8ee8ec694087bd06274dff918c8fb1a634196ed796415d1418b325a06a43f",
+      "apps/yunqi-workbench/src/features/constitution/components/destroy-answer-visual.ts": "3c655a357b3ba13570885ce238ba7edee879946e4d15aac48a9bbef78d0d0684",
+      "apps/yunqi-workbench/src/styles/views/constitution-motion.css": "144890c4c2251a1dde1226491de2c84bd68e258a89bf3f98794d6aa7128ab82e",
+      "apps/yunqi-workbench/src/test/constitution-input.ts": "1fa934991cdef0192ab6896bb7709b6e45167c5c74a5ba142c55c0fbf5da7970",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-implementation.md": "7cf90ab69afbf8686d2293028b5f72b55423cacb9d8b718ce7fe4a32843dee33",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-sources.sha256": "8ad51c6b3457abc6dfab98f5ed38468d1f0f7e5c5b57082853c99053ec1c3b20",
+      "tests/browser/constitution-motion.flows.spec.mjs": "e7b20e939f46dbd362289967cfc1780cd240bc4ddc4c722a46ce31e81bfcd320",
+      "apps/yunqi-workbench/src/app/AppRoutes.tsx": "6a6b19a6c2100e83a6a1bcc7ff3eba81faee3cc847ac68e7ee88b69c9ac1b78f",
+      "apps/yunqi-workbench/src/app/PanelNavigation.tsx": "6794fee95e05b5abc21d586d05c5fda57292d77ad99d3fd86bce7c7ea11cbd62",
+      "apps/yunqi-workbench/src/components/design/ScaleOption.tsx": "d4eec0be7aee9bc8d16bb3b5a0c75a04f6c4f3ad4776f38ae1df020908cec7ef",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.test.tsx": "976c1b1fba20386de24fec7d3cc3b8bda8cfde9da6786cfab14718254ca754f0",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx": "0a5911f658bdc75d81a6b4813fcdc947bf8adcd13f07c03d805dd451c8fc5b3d",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionResults.tsx": "60e3fcdc4c61a1de3c595c6b4559f66de776aec75450b281b055be16f5b88959",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx": "197b682980821a862f588526123e3c5c3e637546839bd06cea077ffcbc292723",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx": "1915f6cc109d7dd115c49381703a1344b48f90f625eb9e2a31b00ad5764dac79",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx": "1c6ee122cb8da7dc418739fc151356404269fc90ebd0f152abbe6678ed7e0e69",
+      "apps/yunqi-workbench/src/main.tsx": "8109a5a7eaff59c91f6fba1042e722dc068346bc1a76d46efa7f22d4df19b7da",
+      "apps/yunqi-workbench/src/styles/tokens.css": "208ea4011349c36694bb34aab75c833af023126e6fe25f8d3973f6e2420a500b",
+      "apps/yunqi-workbench/src/styles/views/motion-flows.css": "b71804542018ee5fc589064faa64956b130f796723ebcca201759ad1a5aef14e",
+      "docs/design/design-system/tokens.json": "9f4d3ab3d3d52ebf0e2166ad0b408ccd7af9b330060c8e5ac7d47602d85661b7",
+      "playwright.config.mjs": "e14fbdb38854c1f364e86defee0313a65178e00eeae4ec309abbee774aed8ff2",
+      "tests/browser/birth-assessment.flows.spec.mjs": "090405a8be744e35d0cb95b8632efffea32b77c03debb3bbc53cd536df9e7ebb",
+      "tests/browser/constitution-actions.flows.spec.mjs": "212a4544c88550dc969e23d4f67e1cefdbe92c9375c826eb0dc53e7cebaace9d",
+      "tests/browser/constitution-helpers.mjs": "6c4256df7e2773054c3246f96b5c9b98ee5d936c0f784bf10e4d1dfbad8951ca",
+      "tests/browser/learning.flows.spec.mjs": "97fb9c5dcc9e8848c770f839dd23bad2d2f2a72932ef2115dfaac3ea98d83b0a",
+      "tests/browser/motion-helpers.mjs": "fc9a4c34c6a218eec1d20947937cd85a6fd8b640af88ccbfde66299e75ed43ec",
+      "tests/browser/motion.flows.spec.mjs": "c1cea8b891cef673f20b93e540630d37eea965262771bbc028f3570143f719e3",
+      "tests/browser/workbench.flows.spec.mjs": "2d9d0738d378afb64c2a17d598e366dc990c4a7eb5f6f6bd2ccdb7b2ab3cea3e"
+    }
+  },
+  "reviewer": {
+    "runDirectory": ".artifacts/browser/2026-11-18T17-00-22-558Z-39f732e9",
+    "log": "/private/tmp/claude-501/-Users-petervans-Projects-YunQi/7af69909-e649-46b6-85a5-35f7ac86dcd6/scratchpad/motion/m1c-browser.log",
+    "stats": {
+      "startTime": "2026-11-18T17:00:22.559Z",
+      "duration": 632388.671,
+      "expected": 413,
+      "skipped": 0,
+      "unexpected": 8,
+      "flaky": 0
+    },
+    "failures": [
+      {
+        "file": "constitution-motion.flows.spec.mjs",
+        "line": 84,
+        "project": "flows-chromium",
+        "title": "M1-c F/G/H/I keyboard standalone preserves answers, focus and memory-only results"
+      },
+      {
+        "file": "constitution-motion.flows.spec.mjs",
+        "line": 84,
+        "project": "flows-chromium",
+        "title": "M1-c F/G/H/I keyboard embedded preserves answers, focus and memory-only results"
+      },
+      {
+        "file": "constitution-motion.flows.spec.mjs",
+        "line": 84,
+        "project": "flows-chromium",
+        "title": "M1-c F/G/H/I mouse standalone preserves answers, focus and memory-only results"
+      },
+      {
+        "file": "constitution-motion.flows.spec.mjs",
+        "line": 84,
+        "project": "flows-chromium",
+        "title": "M1-c F/G/H/I mouse embedded preserves answers, focus and memory-only results"
+      },
+      {
+        "file": "learning.flows.spec.mjs",
+        "line": 176,
+        "project": "flows-chromium",
+        "title": "constitution workflow keeps its snapshot, prevents partial scoring and preserves all nine results"
+      },
+      {
+        "file": "learning.flows.spec.mjs",
+        "line": 176,
+        "project": "flows-reduced-chromium",
+        "title": "constitution workflow keeps its snapshot, prevents partial scoring and preserves all nine results"
+      },
+      {
+        "file": "motion.flows.spec.mjs",
+        "line": 87,
+        "project": "flows-chromium",
+        "title": "motion controls express automatic reset, persist manual choice and apply live system changes"
+      },
+      {
+        "file": "motion.flows.spec.mjs",
+        "line": 117,
+        "project": "flows-chromium",
+        "title": "segmented indicators align after selection and narrow resize across tabs, reading scopes and sex"
+      }
+    ],
+    "barTimings": [
+      {
+        "delay": 80,
+        "duration": 240,
+        "end": 320
+      },
+      {
+        "delay": 90,
+        "duration": 240,
+        "end": 329.99999999999994
+      },
+      {
+        "delay": 100,
+        "duration": 240,
+        "end": 339.99999999999994
+      },
+      {
+        "delay": 110,
+        "duration": 240,
+        "end": 350
+      },
+      {
+        "delay": 120,
+        "duration": 240,
+        "end": 360
+      },
+      {
+        "delay": 130,
+        "duration": 240,
+        "end": 370
+      },
+      {
+        "delay": 140,
+        "duration": 240,
+        "end": 380
+      },
+      {
+        "delay": 150.00000000000003,
+        "duration": 240,
+        "end": 390
+      },
+      {
+        "delay": 160,
+        "duration": 240,
+        "end": 400
+      }
+    ],
+    "duplicateProgressDom": [
+      {
+        "tag": "SPAN",
+        "ancestors": "/HTML/BODY.workbench-dev-host/DIV/DIV.theme-root/DIV.panel-viewport/DIV.panel-shell/MAIN.panel-shell__content/DIV.retained-session/DIV.constitution-page/DIV.constitution-workspace/DIV.constitution-session/FORM.constitution-answer-form/ASIDE.constitution-context/SECTION.constitution-dimensions/DIV.constitution-progress-header",
+        "attributes": {
+          "__playwright_target__": "",
+          "class": "constitution-position num",
+          "role": "img",
+          "aria-label": "已答 0 / 26 题，当前第 1 题",
+          "aria-live": "polite"
+        }
+      },
+      {
+        "tag": "DIV",
+        "ancestors": "/HTML/BODY.workbench-dev-host/DIV/DIV.theme-root/DIV.panel-viewport/DIV.panel-shell",
+        "attributes": {
+          "class": "constitution-answer-form constitution-destroy-ghost",
+          "inert": "",
+          "aria-hidden": "true",
+          "style": "--constitution-hairline: 1px; --constitution-tick-thirty: 30%; --constitution-tick-forty: 40%; --destroy-left: 16px; --destroy-top: 114px; --destroy-width: 368px; --destroy-height: 646px; --destroy-clip-top: 0px;"
+        }
+      },
+      {
+        "tag": "SPAN",
+        "ancestors": "/HTML/BODY.workbench-dev-host/DIV/DIV.theme-root/DIV.panel-viewport/DIV.panel-shell/DIV.constitution-answer-form.constitution-destroy-ghost/ASIDE.constitution-context/SECTION.constitution-dimensions/DIV.constitution-progress-header",
+        "attributes": {
+          "__playwright_target__": "",
+          "class": "constitution-position num",
+          "role": "img",
+          "aria-label": "已答 1 / 26 题，当前第 2 题",
+          "aria-live": "polite",
+          "tabindex": "-1"
+        }
+      }
+    ],
+    "manualReduced": {
+      "level": "reduced",
+      "count": 4595,
+      "maximum": 180,
+      "maximumEnd": 180,
+      "illegalReduced": [
+        {
+          "target": {},
+          "duration": 180,
+          "delay": 0,
+          "end": 180,
+          "properties": [
+            "transform"
+          ]
+        }
+      ],
+      "viewTransitions": [],
+      "timelines": [
+        {
+          "target": {},
+          "duration": 180,
+          "delay": 0,
+          "end": 180,
+          "properties": [
+            "transform"
+          ]
+        },
+        {
+          "target": "",
+          "duration": 120,
+          "delay": 0,
+          "end": 120,
+          "properties": [
+            "color"
+          ]
+        },
+        {
+          "target": "",
+          "duration": 120,
+          "delay": 0,
+          "end": 120,
+          "properties": [
+            "color"
+          ]
+        }
+      ]
+    }
+  },
+  "initialRegression": {
+    "command": "pnpm --filter @yunqi/workbench exec vitest run src/features/constitution/components/ConstitutionMotion.test.tsx src/features/constitution/components/ConstitutionForm.test.tsx src/app/RetainedSession.test.tsx src/styles/views/motion-flows.test.tsx",
+    "exitCode": 1,
+    "failed": 3,
+    "passed": 27,
+    "symptoms": [
+      "ghost retained aria-live/role/tabindex",
+      "hidden current requests increased from 1 to 3 across 120000ms",
+      "SVG transition fell back to implicit all/0s instead of explicit none"
+    ]
+  },
+  "browserAttempt": {
+    "command": "pnpm exec playwright test tests/browser/motion.flows.spec.mjs --project=flows-chromium --grep 'motion controls'",
+    "exitCode": 1,
+    "status": "FAIL_ENVIRONMENT_BEFORE_TEST_BODY",
+    "testBodyExecuted": false,
+    "reason": "Chromium FATAL bootstrap_check_in MachPortRendezvousServer: Permission denied (1100); SIGTRAP",
+    "runDirectory": ".artifacts/browser/2026-11-18T17-12-25-094Z-e1dd076b",
+    "environment": {
+      "fixedNowEpochMilliseconds": 1705759642000,
+      "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+      "service": "real local Fastify + tyme4ts",
+      "frontend": "Vite same-origin proxy",
+      "browserChannel": "bundled-chromium",
+      "browserExecutable": null,
+      "cleanupPassed": true,
+      "baseURL": "http://127.0.0.1:64657",
+      "serviceURL": "http://127.0.0.1:64656",
+      "cleanupErrors": []
+    },
+    "ownedPortsAfterTeardown": [
+      {
+        "port": 64657,
+        "listening": false
+      },
+      {
+        "port": 64656,
+        "listening": false
+      }
+    ]
+  },
+  "finalChecks": [
+    {
+      "command": "pnpm build",
+      "exitCode": 0,
+      "note": "Before local browser launch; initial dirty sources"
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench test",
+      "exitCode": 0,
+      "testFiles": 73,
+      "passed": 553
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench test:typecheck",
+      "exitCode": 0
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench test:coverage",
+      "exitCode": 0,
+      "testFiles": 73,
+      "passed": 553,
+      "coverage": {
+        "statements": 99.14,
+        "branches": 97.69,
+        "functions": 99.76,
+        "lines": 99.73
+      }
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench build",
+      "exitCode": 0,
+      "modules": 190
+    },
+    {
+      "command": "pnpm test:workbench-governance",
+      "exitCode": 0,
+      "passed": 313
+    },
+    {
+      "command": "pnpm test:time-governance",
+      "exitCode": 0,
+      "passed": 12
+    },
+    {
+      "command": "pnpm exec playwright test --list",
+      "exitCode": 0,
+      "instances": 421,
+      "specFiles": 14
+    },
+    {
+      "command": "node --check tests/browser/*.mjs and playwright.config.mjs (each file)",
+      "exitCode": 0,
+      "files": 23
+    },
+    {
+      "command": "pnpm test:project-guidance",
+      "exitCode": 0,
+      "passed": 15
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0
+    },
+    {
+      "command": "source SHA-256, original evidence prefix, 20 untouched files, HEAD, branch and scope verification",
+      "exitCode": 0,
+      "sourceFiles": 36,
+      "untouchedExistingFiles": 20
+    }
+  ],
+  "changedSourceFilesThisRound": [
+    "apps/yunqi-workbench/src/app/RetainedSession.test.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/AnswerDestroyedNotice.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionDimension.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.test.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionMotion.test.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionResults.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/destroy-answer-visual.ts",
+    "apps/yunqi-workbench/src/features/constitution/hooks/useConstitution.ts",
+    "apps/yunqi-workbench/src/features/yunqi/hooks/useLearningQueries.ts",
+    "apps/yunqi-workbench/src/providers/MotionProvider.test.tsx",
+    "apps/yunqi-workbench/src/styles/views/craft.css",
+    "apps/yunqi-workbench/src/styles/views/motion-flows.test.tsx",
+    "tests/browser/constitution-helpers.mjs",
+    "tests/browser/constitution-motion.flows.spec.mjs",
+    "tests/browser/learning.flows.spec.mjs",
+    "tests/browser/motion-helpers.mjs",
+    "tests/browser/motion.flows.spec.mjs"
+  ],
+  "untouchedExistingFiles": [
+    "apps/yunqi-workbench/src/app/RetainedSession.tsx",
+    "apps/yunqi-workbench/src/components/layout/SessionVisibility.tsx",
+    "apps/yunqi-workbench/src/styles/views/constitution-motion.css",
+    "apps/yunqi-workbench/src/test/constitution-input.ts",
+    "docs/plans/2026-11-18-motion-flows/evidence/M1-c-sources.sha256",
+    "apps/yunqi-workbench/src/app/AppRoutes.tsx",
+    "apps/yunqi-workbench/src/app/PanelNavigation.tsx",
+    "apps/yunqi-workbench/src/components/design/ScaleOption.tsx",
+    "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx",
+    "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx",
+    "apps/yunqi-workbench/src/main.tsx",
+    "apps/yunqi-workbench/src/styles/tokens.css",
+    "apps/yunqi-workbench/src/styles/views/motion-flows.css",
+    "docs/design/design-system/tokens.json",
+    "playwright.config.mjs",
+    "tests/browser/birth-assessment.flows.spec.mjs",
+    "tests/browser/constitution-actions.flows.spec.mjs",
+    "tests/browser/workbench.flows.spec.mjs"
+  ],
+  "sourceManifest": "M1-c-rework-1-sources.sha256",
+  "runnerHashes": {
+    "package.json": "c6d97ce3f5ca3b0548818914b3aecbb96aacd3905c1f0826fb59a496e3951477",
+    "apps/yunqi-workbench/package.json": "7b58b5242ecd40de3a70212848434318f9e218d14ec78ff7d31c113ab1c05a56",
+    "pnpm-lock.yaml": "c564786752ff7e1f445c28ee51d8cacd44aef81c8514c780b9b85b0c22052369",
+    "playwright.config.mjs": "e14fbdb38854c1f364e86defee0313a65178e00eeae4ec309abbee774aed8ff2",
+    "tests/browser/global-setup.mjs": "7a63e7bee77c58335476651f3a4a7fdd39beb5c476de6f74fd75e56729e1f9c2",
+    "tests/browser/fixtures.mjs": "3224a2d9e00581e1a5f77b6fff06f2d9d66beb7ff1012286c2453201dd3cf8d3"
+  },
+  "buildHashes": {
+    "apps/yunqi-workbench/dist/assets/index-BkoW1YTx.js": "6cf9702c4c2c16bdf22010b8b65348f072c16740fc75989ed909014286d9da41",
+    "apps/yunqi-workbench/dist/assets/index-CwQMSTFy.css": "e75f2c160c296900e6bc049af5570eab0d511b72481e45b76013a9b565db2b9d"
+  },
+  "limits": [
+    "Browser checks enumerated, not executed after fixes; full suite, native AX, screenshot and live timing remain NOT_RUN",
+    "DOM-role unit assertions do not establish a native screen-reader audit",
+    "No commit, push, branch switch, clinical or expert approval"
+  ],
+  "runtimeVersions": {
+    "node": "v24.18.0",
+    "pnpm": "10.32.1"
+  },
+  "intermediateLocalChecks": [
+    {
+      "log": "unit-green.log",
+      "exitCode": 1,
+      "failed": 1,
+      "passed": 29,
+      "reason": "jsdom selector-list/pseudo handling; split element and pseudo reset rules"
+    },
+    {
+      "log": "css-iteration.log",
+      "exitCode": 1,
+      "failed": 1,
+      "reason": "same CSS selector-list issue"
+    },
+    {
+      "log": "unit-green-2.log",
+      "exitCode": 0,
+      "passed": 30
+    },
+    {
+      "log": "unit-green-3.log",
+      "exitCode": 1,
+      "failed": 3,
+      "passed": 32,
+      "reason": "inert property does not reflect in jsdom; native selectionchange timer mixed into timer count"
+    },
+    {
+      "log": "targeted.log",
+      "exitCode": 1,
+      "failed": 1,
+      "passed": 64,
+      "reason": "native jsdom selectionchange timer"
+    },
+    {
+      "log": "timer-probe.log",
+      "exitCode": 1,
+      "failed": 1,
+      "skippedByFilter": 7,
+      "reason": "probe identified native 0ms selectionchange; application timers were cleared; debug log removed"
+    },
+    {
+      "log": "targeted-final.log",
+      "exitCode": 1,
+      "failed": 1,
+      "passed": 64,
+      "reason": "shared test fixture has both dimension and result-bar listitems; scoped query to dimension list"
+    }
+  ],
+  "networkEvidenceScope": "Unit tests count injected client calls; native HTTP flows after fixes are NOT_RUN.",
+  "syntaxCheckedFiles": [
+    "tests/browser/birth-assessment.flows.spec.mjs",
+    "tests/browser/birth-helpers.mjs",
+    "tests/browser/consistency-helpers.mjs",
+    "tests/browser/constitution-actions.flows.spec.mjs",
+    "tests/browser/constitution-helpers.mjs",
+    "tests/browser/constitution-motion.flows.spec.mjs",
+    "tests/browser/craft.flows.spec.mjs",
+    "tests/browser/design-foundations.flows.spec.mjs",
+    "tests/browser/fixtures.mjs",
+    "tests/browser/global-setup.mjs",
+    "tests/browser/learning.flows.spec.mjs",
+    "tests/browser/motion-helpers.mjs",
+    "tests/browser/motion.flows.spec.mjs",
+    "tests/browser/panel-pill.visual.spec.mjs",
+    "tests/browser/panel-shell.flows.spec.mjs",
+    "tests/browser/stage-facts-helpers.mjs",
+    "tests/browser/stage-facts.flows.spec.mjs",
+    "tests/browser/type-scale.flows.spec.mjs",
+    "tests/browser/ux-walkthrough.flows.spec.mjs",
+    "tests/browser/visual-assertions.mjs",
+    "tests/browser/workbench.flows.spec.mjs",
+    "tests/browser/workbench.visual.spec.mjs",
+    "playwright.config.mjs"
+  ]
+}

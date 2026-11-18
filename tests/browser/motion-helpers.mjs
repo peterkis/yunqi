@@ -24,6 +24,22 @@ export async function expectMotionDurations(page, testInfo, name = 'motion-durat
     const allowed = ['opacity', 'color', 'background-color', 'border-color'];
     const samples = [];
     const illegalReduced = [];
+    const cssOverBudget = [];
+    const budget = { full: 320, reduced: 120, off: 0 }[level];
+    const timelines = document.getAnimations().map(animation => {
+      const timing = animation.effect?.getTiming();
+      const end = animation.effect?.getComputedTiming().endTime;
+      const properties = [...new Set((animation.effect?.getKeyframes() ?? []).flatMap(frame => Object.keys(frame)))].filter(key => !['offset', 'computedOffset', 'easing', 'composite'].includes(key));
+      const target = animation.effect?.target;
+      // SVG.className is an SVGAnimatedString and serializes as {}. Preserve
+      // the actual element and property when a live downgrade leaves motion.
+      return { target: target?.getAttribute?.('class'), tag: target?.tagName, id: target?.id, pseudo: animation.effect?.pseudoElement,
+        duration: Number(timing?.duration ?? 0), delay: timing?.delay ?? 0, end: Number(end ?? 0), properties };
+    });
+    samples.push(...timelines.map(timeline => timeline.duration));
+    if (level === 'reduced') for (const timeline of timelines) {
+      if (timeline.properties.some(property => !['opacity', 'color', 'backgroundColor', 'borderColor', 'borderTopColor', 'borderRightColor', 'borderBottomColor', 'borderLeftColor'].includes(property))) illegalReduced.push(timeline);
+    }
     // Include live browser-generated snapshot groups, not just DOM elements.
     const viewTransitions = document.getAnimations().filter(animation => animation.effect?.pseudoElement?.startsWith('::view-transition'))
       .map(animation => ({ pseudo: animation.effect.pseudoElement, duration: animation.effect.getTiming().duration }));
@@ -33,6 +49,8 @@ export async function expectMotionDurations(page, testInfo, name = 'motion-durat
         const style = getComputedStyle(element, pseudo);
         const durations = [style.transitionDuration, style.animationDuration].flatMap(value => value.split(',').map(part => Number.parseFloat(part) * (part.trim().endsWith('ms') ? 1 : 1000)));
         samples.push(...durations);
+        if (durations.some(value => value > budget)) cssOverBudget.push({ tag: element.tagName, element: element.getAttribute('class'), id: element.id, pseudo,
+          transitionProperty: style.transitionProperty, transitionDuration: style.transitionDuration, animation: style.animationName, animationDuration: style.animationDuration });
         if (level === 'reduced' && durations.some(value => value > 0)) {
           const properties = style.transitionProperty.split(',').map(value => value.trim());
           if (properties.some(property => !allowed.includes(property))) illegalReduced.push({ element: element.className, pseudo, properties });
@@ -40,11 +58,12 @@ export async function expectMotionDurations(page, testInfo, name = 'motion-durat
         }
       }
     }
-    return { level, count: samples.length, maximum: Math.max(...samples), illegalReduced, viewTransitions };
+    return { level, count: samples.length, maximum: Math.max(...samples), maximumEnd: Math.max(0, ...timelines.map(timeline => timeline.end)), illegalReduced, cssOverBudget, viewTransitions, timelines };
   });
   if (testInfo) await testInfo.attach(name, { body: JSON.stringify(snapshot), contentType: 'application/json' });
   expect(snapshot.count).toBeGreaterThan(0);
   expect(snapshot.maximum).toBeLessThanOrEqual({ full: 320, reduced: 120, off: 0 }[snapshot.level]);
+  expect(snapshot.maximumEnd, 'Duration plus stagger/delay stays within the whole-page budget').toBeLessThanOrEqual({ full: 400, reduced: 120, off: 0 }[snapshot.level]);
   expect(snapshot.illegalReduced).toEqual([]);
   return snapshot;
 }
@@ -72,12 +91,20 @@ export async function observeViewTransitions(page) {
       const sample = { scope: document.documentElement.dataset.viewTransition,
         direction: document.documentElement.dataset.navigationDirection };
       const main = document.querySelector('main');
-      sample.before = main?.textContent;
+      const retainedVisibility = () => [...document.querySelectorAll('main .retained-session')].map(session => ({
+        hidden: session.hidden, inert: session.inert,
+        // Geometry is checked after convergence by the flow. Keep this
+        // synchronous snapshot probe limited to visibility state and names.
+        namedDescendants: [...session.querySelectorAll('*')].filter(element => getComputedStyle(element).viewTransitionName !== 'none').length,
+      }));
+      sample.before = main?.innerText;
+      sample.beforeSessions = retainedVisibility();
       window.motionTransitions.push(sample);
       return start.call(document, () => {
         update();
         const root = document.querySelector('.theme-root');
-        sample.after = document.querySelector('main')?.textContent;
+        sample.after = document.querySelector('main')?.innerText;
+        sample.afterSessions = retainedVisibility();
         sample.names = {
           root: getComputedStyle(document.documentElement).viewTransitionName,
           main: getComputedStyle(document.querySelector('main')).viewTransitionName,

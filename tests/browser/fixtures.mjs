@@ -130,7 +130,7 @@ export async function screenshot(page, testInfo, name) {
 }
 
 export async function expectTypeScale(page, testInfo, name = 'type-scale') {
-  await page.evaluate(() => document.fonts.ready);
+  await waitForAnimations(page);
   const typography = await page.evaluate(() => {
     const samples = [];
     const sample = (element, text, rects) => {
@@ -228,6 +228,7 @@ export async function expectCompactTimes(page) {
 
 export async function expectPanelLayout(page) {
   let layout;
+  await waitForAnimations(page);
   // Retry one complete measurement with the existing 10s assertion budget.
   await expect(async () => {
     layout = await page.evaluate(() => {

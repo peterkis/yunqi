@@ -1,6 +1,6 @@
 import { test, expect, loadCurrent, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate, expectBirthComparison } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionResults, constitutionResultValues } from './constitution-helpers.mjs';
+import { answerConstitution, expectConstitutionResults, constitutionResultValues, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions } from './motion-helpers.mjs';
 
 test('accessibility animation gate observes completion and times out on paused motion', async ({ page }) => {
@@ -64,10 +64,11 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   await actions.getByRole('button', { name: '返回修改', exact: true }).press('Enter');
   await expect(session.locator('.constitution-question-title')).toBeFocused();
   await page.keyboard.press(String(constitutionResultValues[25]));
-  await expect(session.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeFocused();
+  await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
   await actions.getByRole('button', { name: '查看结果', exact: true }).press('Enter');
   await expect(session.locator('.constitution-decision h4')).toBeFocused();
   await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).press('Enter');
+  await confirmConstitutionDestruction(page, true);
   await expect(start).toBeFocused();
   await expect(session.getByRole('form')).toHaveCount(0);
   await page.getByRole('button', { name: '收起为胶囊条' }).press('Enter');
@@ -133,6 +134,22 @@ test('segmented indicators align after selection and narrow resize across tabs, 
     await expect.poll(() => page.getByRole('main').evaluate(element => element.scrollTop)).toBe(0);
     await expect(tabs.locator('.motion-segment-indicator')).toHaveCSS('transition-duration', motionMode === 'full' ? '0.18s, 0.18s' : '0s');
     await checkResize(tabs);
+    // Inspect retained-session rectangles after navigation and resize settle.
+    await waitForAnimations(page);
+    const hiddenSessions = page.locator('.retained-session[hidden]');
+    for (const hidden of await hiddenSessions.all()) {
+      await expect(hidden).toHaveAttribute('inert', '');
+      await expect(hidden).toHaveCSS('display', 'none');
+      expect(await hidden.ariaSnapshot()).toBe('');
+      expect(await hidden.evaluate(session => [...session.querySelectorAll('*')].every(element => element.getClientRects().length === 0))).toBe(true);
+    }
+    // Walk real keyboard focus while previously visited sessions stay mounted.
+    // Then restore the navigation's main focus without moving its scroll.
+    for (let step = 0; step < 8; step += 1) {
+      await page.keyboard.press('Tab');
+      expect(await page.evaluate(() => Boolean(document.activeElement?.closest('.retained-session[hidden]')))).toBe(false);
+    }
+    await page.getByRole('main').focus();
   }
   const transitions = await page.evaluate(() => window.motionTransitions);
   if (motionMode === 'full') {
@@ -140,6 +157,9 @@ test('segmented indicators align after selection and narrow resize across tabs, 
     for (const sample of transitions) {
       expect(sample.names).toMatchObject({ root: 'none', main: 'workbench-main', header: 'none', footer: 'none' });
       expect(sample.after).not.toBe(sample.before);
+      for (const session of [...sample.beforeSessions, ...sample.afterSessions].filter(session => session.hidden)) {
+        expect(session).toMatchObject({ inert: true, namedDescendants: 0 });
+      }
     }
   } else expect(transitions).toEqual([]);
   await testInfo.attach('tab-transition-snapshots', { body: JSON.stringify(transitions), contentType: 'application/json' });

@@ -1,6 +1,6 @@
 import { expectTransitionDuration } from './motion-helpers.mjs';
 import { readFileSync } from 'node:fs';
-import { test, expect, settle, screenshot, scanAccessibility } from './fixtures.mjs';
+import { test, expect, settle, screenshot, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 
 const tokens = JSON.parse(readFileSync('docs/design/design-system/tokens.json', 'utf8'));
 const surface = tokens.color.tokens.find(token => token.name === 'surface-page');
@@ -19,7 +19,7 @@ for (const theme of ['light', 'dark']) {
     await expect(page.getByRole('heading', { name: '运气通' })).toBeVisible();
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
     await settle(page);
-    await page.evaluate(() => document.fonts.ready);
+    await waitForAnimations(page);
 
     const readMetrics = () => page.evaluate(() => {
       const style = selector => getComputedStyle(document.querySelector(selector));
@@ -156,6 +156,7 @@ for (const theme of ['light', 'dark']) {
     // Click the body outside the visible anchor text. This exercises real CSS
     // hit testing of the stretched ::after surface, which jsdom cannot perform.
     await linkedCard.scrollIntoViewIfNeeded();
+    await waitForAnimations(page);
     const cardBody = await linkedCard.locator('.ds-info-card__content').boundingBox();
     expect(cardBody).not.toBeNull();
     await page.mouse.click(cardBody.x + cardBody.width / 2, cardBody.y + cardBody.height / 2);
