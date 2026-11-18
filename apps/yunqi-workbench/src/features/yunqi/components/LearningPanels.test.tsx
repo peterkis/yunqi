@@ -56,7 +56,7 @@ describe('live learning cards replacing demo panels', () => {
     const viewModel = mapBirthView(createBirthComparisonDto());
     const candidate = viewModel.candidates[0];
     const { container } = render(<BirthComparisonTable candidate={candidate} current={viewModel} />);
-    expect(within(screen.getByRole('columnheader', { name: /先天\u202f·\u202f出生/ })).queryByRole('time')).not.toBeInTheDocument();
+    expect(within(screen.getByRole('columnheader', { name: /^先天/ })).queryByRole('time')).not.toBeInTheDocument();
     expect(container.querySelectorAll('time')).toHaveLength(1);
     expect(container.querySelector('.birth-table__time time')).toHaveAttribute('datetime', viewModel.currentTime.localTime);
     expect(screen.getAllByText(candidate.birthGanzhi).length).toBeGreaterThan(0);

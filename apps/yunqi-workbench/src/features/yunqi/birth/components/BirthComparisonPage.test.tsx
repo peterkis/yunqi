@@ -53,13 +53,16 @@ describe('BirthComparisonPage', () => {
     expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12' });
     const table = within(result).getByRole('table', { name: '出生运气 · 先天与当下并列对照' });
-    expect(within(table).getByRole('columnheader', { name: /先天\u202f·\u202f出生/ })).toBeVisible();
-    expect(within(table).getByRole('columnheader', { name: /当下\u202f·\u202f今日/ })).toBeVisible();
-    expect(within(table).getAllByRole('rowheader').map((cell) => cell.textContent)).toEqual(['岁运', '司天', '在泉', '所处气', '所处运']);
+    expect(within(table).getByRole('columnheader', { name: /^先天/ })).toBeVisible();
+    expect(within(table).getByRole('columnheader', { name: '关系' })).toBeVisible();
+    expect(within(table).getByRole('columnheader', { name: /^当下/ })).toBeVisible();
+    for (const name of ['岁运', '司天', '在泉', '所处气', '所处运']) expect(within(table).getByRole('rowheader', { name })).toHaveAttribute('scope', 'row');
     expect(result.querySelector('.birth-candidate-interval')).toBeNull();
     expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();
     expect(result.querySelector('.birth-table__time time')).toHaveAttribute('datetime', createBirthComparisonDto().current.facts.input.localTime);
     expect(result.querySelector('.birth-table__time time')).toHaveTextContent('06-19 12:00');
+    expect(table.querySelector('time, .num')).toBeNull();
+    expect(result.querySelector('.birth-table__years')).toHaveTextContent(`运气年：先天 ${createBirthComparisonDto().candidates[0].learning.facts.year}`);
     expect(result.querySelector('.birth-current-time')).toBeNull();
     expect(within(result).getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。')).toBeVisible();
     await user.click(within(summary).getByRole('button', { name: '修改' }));
@@ -155,9 +158,13 @@ describe('BirthComparisonPage', () => {
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     const table = await screen.findByRole('table');
-    for (const [index, row] of [...table.querySelectorAll('tbody')].entries()) {
-      expect(within(row).getByText(labels[index], { exact: true })).toBeVisible();
-      expect(within(row).getByText(`${titles[index]}的API方向`, { exact: true })).toBeVisible();
+    const tones = ['favorable', 'favorable', 'adverse', 'adverse', 'neutral'];
+    for (const [index, row] of [...table.querySelectorAll<HTMLElement>('tbody tr')].entries()) {
+      const chip = within(row).getByText(labels[index], { exact: true });
+      expect(chip).toBeVisible();
+      expect(chip).toHaveClass(`ds-relation__chip--${tones[index]}`);
+      expect(within(row).getByText(`${titles[index]}的API方向`, { exact: true })).toHaveClass('visually-hidden');
+      expect(row.querySelector('.ds-relation__explanation')).toBeNull();
     }
     const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
     expect(disclosure).not.toHaveAttribute('open');

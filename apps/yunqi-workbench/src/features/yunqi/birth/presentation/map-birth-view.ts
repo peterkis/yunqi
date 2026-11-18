@@ -64,11 +64,8 @@ function facts(value: YunQiLearningDto): readonly BirthFactViewModel[] {
     { label: `${suiYun.element}运${suiYun.state}`, element: mapMovementElement(suiYun.element), detail: [suiYun.tone] },
     { label: sixQi.sitian, element: mapQiElement(sixQi.sitian), detail: [] },
     { label: sixQi.zaiquan, element: mapQiElement(sixQi.zaiquan), detail: [] },
-    { label: currentStep.name, detail: [`主气 ${currentStep.hostQi}`, `客气 ${currentStep.guestQi}`] },
-    { label: movement.name, detail: [
-      `主运 ${movement.host.element}运${movement.host.state}（${movement.host.tone}）`,
-      `客运 ${movement.guest.element}运${movement.guest.state}（${movement.guest.tone}）`,
-    ] },
+    { label: currentStep.name, element: mapQiElement(currentStep.guestQi), detail: [`主${currentStep.hostQi} · 客${currentStep.guestQi}`] },
+    { label: movement.name, element: mapMovementElement(movement.guest.element), detail: [`主${movement.host.tone} · 客${movement.guest.tone}`] },
   ];
 }
 

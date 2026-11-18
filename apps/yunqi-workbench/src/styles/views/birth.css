@@ -1,10 +1,11 @@
-/* Board ③ and design-system/1-layout.md. Extra dimensions are scoped tokens,
+/* Board ③ B02 mirror layout. Extra dimensions are scoped tokens,
    following the same component-token convention as design-components.css. */
 .birth-page {
-  /* Board ③: label column 52px; 1-layout.md: fine border 1px.
+  /* B02: relation axis 96px; retained assessment context label column 52px.
      Typography follows docs/design/type-scale.md: 24 column headings,
-     15 original excerpts, 14 years/values/controls, 12 labels and metadata. */
+     15 original excerpts, 14 values/controls, 12 years/labels/metadata. */
   --birth-label-width: 52px;
+  --birth-relation-width: 96px;
   --birth-hairline: 1px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
@@ -131,6 +132,10 @@
 .birth-page .birth-candidate-interval,
 .birth-page .birth-candidate-time { margin-bottom: var(--space-2); }
 
+.birth-candidate-card {
+  padding: var(--space-3_5) var(--space-3_5) var(--space-1_5);
+}
+
 .birth-table {
   display: block;
   width: 100%;
@@ -143,9 +148,8 @@
 
 .birth-table__columns {
   display: grid;
-  grid-template-columns: var(--birth-label-width) minmax(0, 1fr) minmax(0, 1fr);
-  column-gap: var(--space-2_5);
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr) var(--birth-relation-width) minmax(0, 1fr);
+  align-items: center;
 }
 
 .birth-table th,
@@ -157,16 +161,14 @@
 }
 
 .birth-table thead { padding-bottom: var(--space-2_5); }
+.birth-table thead .birth-table__columns { align-items: end; }
 .birth-table__dimension {
   padding-block: var(--space-2_5);
   border-top: var(--birth-hairline) solid var(--border-subtle);
 }
 
 .birth-table__year {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: var(--space-1_5);
+  display: block;
   margin-top: var(--space-0_5);
 }
 
@@ -177,12 +179,23 @@
   font-weight: var(--type-display-md-weight);
 }
 
-.birth-table__year > span {
+.birth-table .birth-table__birth { text-align: right; }
+.birth-table .birth-table__axis-label,
+.birth-table .birth-table__axis { text-align: center; }
+
+.birth-table__axis-label,
+.birth-table__dimension-label {
   color: var(--ink-tertiary);
   font-family: var(--font-sans);
-  font-size: var(--ts-body);
-  font-weight: var(--type-quote-weight);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-meta-weight);
 }
+
+.birth-table__axis { display: flex; flex-direction: column; align-items: center; gap: var(--space-1); }
+.birth-table__value { display: flex; }
+.birth-table__birth .birth-table__value { justify-content: flex-end; }
+.birth-table__birth .ds-element { flex-direction: row-reverse; }
 
 .birth-table__value,
 .birth-table .ds-element {
@@ -195,16 +208,11 @@
   margin-top: var(--space-0_5);
   color: var(--ink-tertiary);
   font-size: var(--ts-small);
-  line-height: var(--type-body-line);
+  line-height: var(--type-meta-line);
 }
 
-.birth-table__relation { margin-top: var(--space-1_5); }
-.birth-table__relation td[colspan] { grid-column: 2 / span 2; }
-.birth-table .ds-relation { flex-wrap: wrap; gap: var(--space-1_5); }
-.birth-table .ds-relation__explanation {
-  font-size: var(--ts-small);
-  line-height: var(--type-caption-line);
-}
+.birth-table__relation { display: flex; justify-content: center; }
+.birth-page .birth-table__years { margin-top: var(--space-2); }
 
 .birth-relation-details {
   margin-top: var(--space-1);

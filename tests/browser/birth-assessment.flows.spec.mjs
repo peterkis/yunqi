@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
-import { expectBirthComparison, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
+import { expectBirthComparison, expectBirthMirror, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectTextLink } from './consistency-helpers.mjs';
 import { expectClassicsCards } from './visual-assertions.mjs';
@@ -40,6 +40,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await page.goto('/yunqi/birth');
   const data = await compareBirth(page);
   await expectBirthComparison(page, data);
+  await expectBirthMirror(page);
   expect(data.candidates).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.includes('/constitution/'))).toHaveLength(0);
 
@@ -200,6 +201,7 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   expect(data.ambiguous).toBe(true);
   expect(data.candidates.length).toBeGreaterThan(1);
   await expectBirthComparison(page, data);
+  await expectBirthMirror(page);
   await page.getByRole('link', { name: '全部原文', exact: true }).click();
   const reading = page.getByRole('region', { name: '先天原文与释义', exact: true });
   const candidates = reading.locator('.birth-reading-candidate');
