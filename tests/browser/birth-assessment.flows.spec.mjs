@@ -115,7 +115,16 @@ test('same-page birth assessment reads matching annual and period passages, scor
   expect(scan.violations.map(violation => ({ id: violation.id, targets: violation.nodes.map(node => node.target) }))).toEqual([]);
   await screenshot(page, testInfo, 'birth-assessment-nine-results');
 
-  await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+  const actions = page.locator('.panel-shell__actions');
+  const end = actions.getByRole('button', { name: '结束并销毁答卷', exact: true });
+  await page.locator('.birth-technical > summary').focus();
+  await page.keyboard.press('Tab');
+  await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(end).toBeFocused();
+  await page.keyboard.press('Enter');
+  await expect(results).toHaveCount(0);
+  await expect(end).toHaveCount(0);
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).toHaveAttribute('aria-expanded', 'false');
   await expect(start).toBeFocused();

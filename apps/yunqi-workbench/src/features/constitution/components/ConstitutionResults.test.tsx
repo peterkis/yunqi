@@ -8,7 +8,7 @@ import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionC
 import { ConstitutionResults } from './ConstitutionResults';
 
 describe('constitution result and snapshot', () => {
-  it('retains every coexisting type and candidate as parallel facts, with neutral ordered chips and the original API explanations', async () => {
+  it('retains coexisting types and candidates, with neutral matches, favorable tendencies and original API explanations', async () => {
     const user = userEvent.setup();
     const birth = mapBirthComparison(createBirthComparisonDto());
     const comparison = { ...birth, ambiguous: true, candidates: [...birth.candidates, { ...birth.candidates[0], label: '候选二' }] };
@@ -20,21 +20,30 @@ describe('constitution result and snapshot', () => {
     const result = screen.getByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '偏颇质兼夹' })).toHaveFocus();
     expect([...result.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['气虚质', '阳虚质']);
-    expect([...result.querySelectorAll('.constitution-tendency-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阴虚质', '痰湿质']);
-    expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(4);
+    expect([...result.querySelectorAll('.constitution-tendency-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阴虚 倾向', '痰湿 倾向']);
+    expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(2);
+    expect(result.querySelectorAll('.constitution-decision-title .ds-relation__chip--favorable')).toHaveLength(2);
+    expect(within(result).getByRole('group', { name: '倾向体质' })).not.toHaveTextContent(/\d/);
+    expect(result.querySelector('.constitution-decision')?.lastElementChild).toHaveClass('constitution-meta');
     expect(result.querySelector('.constitution-result-navigation')).toBeNull();
     expect(within(result).queryByRole('button', { name: '返回修改' })).not.toBeInTheDocument();
+    expect([...result.querySelectorAll('.constitution-bar-label')].map((node) => node.textContent)).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
     for (const item of assessment.results) {
       const chart = within(result).getByRole('img', { name: item.chartLabel });
       expect(chart).toBeVisible();
-      expect(within(chart.closest('li')!).getByText(`${item.displayScore} 分`)).toHaveClass('num');
+      expect(within(chart.closest('li')!).getByText(item.displayScore)).toHaveClass('num');
+      expect(chart.closest('li')?.children).toHaveLength(3);
+      expect(chart.querySelectorAll('.constitution-bar-tick')).toHaveLength(2);
     }
     expect(result.querySelectorAll('[data-tone="primary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="secondary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);
     const parallel = within(result).getByRole('region', { name: '与运气互参' });
     expect([...parallel.querySelectorAll('dt')].map((node) => node.textContent)).toEqual(['体质', '先天', '当下']);
+    expect(parallel.querySelector('dd')?.textContent?.replaceAll('\u202f', ' ')).toBe('气虚、阳虚 · 倾向阴虚、痰湿');
     expect(parallel).toHaveTextContent('候选二');
+    expect(parallel.lastElementChild).toHaveClass('constitution-meta');
+    expect(parallel.lastElementChild?.textContent).toBe('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
     expect(result).not.toHaveTextContent(/风险|易患|预测|高危/);
     await user.click(screen.getByText('本次对照快照与候选区间'));
     expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（起点含、终点不含）');
@@ -70,13 +79,51 @@ describe('constitution result and snapshot', () => {
     rerender(<ConstitutionResults assessment={assessment} />);
     expect(screen.getByRole('heading', { name: '基本是平和质' })).toBeVisible();
     expect(document.querySelector('.constitution-matched-types')).toBeNull();
-    expect(document.querySelector('.constitution-tendency-types .ds-relation__chip')).toHaveTextContent(tendency.name);
+    expect(document.querySelector('.constitution-tendency-types .ds-relation__chip')).toHaveTextContent('气虚 倾向');
+    expect(document.querySelector('.constitution-bar[data-tone="neutral"] .constitution-bar-label')).toHaveTextContent('平和');
     await user.click(screen.getByText('本次量表版本'));
     const version = screen.getByText(`女性版 · ${dto.questionnaireId} · ${dto.version}`);
     expect(version).toBeVisible();
     expect(version).toHaveClass('constitution-meta');
     expect(screen.getAllByText(/女性版/)).toHaveLength(1);
     expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
+  });
+
+  it('shows tendencies beside the no-match title without inventing a matched type or showing chip scores', () => {
+    const dto = createAssessmentDto();
+    render(<ConstitutionResults assessment={mapAssessment({ ...dto, matchedTypes: [], tendencyTypes: ['yang_deficiency', 'yin_deficiency'],
+      results: dto.results.map((result, index) => ({ ...result, score: index === 2 ? 37.5 : 0, status: index === 2 || index === 3 ? 'tendency' : 'no' })) })} />);
+    const decision = screen.getByRole('region', { name: '量表判定' });
+    expect(within(decision).getByRole('heading', { name: '未达明确类型' })).toHaveFocus();
+    const tendencies = within(decision).getByRole('group', { name: '倾向体质' });
+    expect(tendencies.parentElement).toBe(within(decision).getByRole('heading').parentElement);
+    expect([...tendencies.querySelectorAll('.ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阳虚 倾向', '阴虚 倾向']);
+    expect(tendencies.querySelectorAll('.ds-relation__chip--favorable')).toHaveLength(2);
+    expect(tendencies).not.toHaveTextContent(/\d/);
+    expect(decision.querySelector('.constitution-matched-types')).toBeNull();
+    const parallel = screen.getByRole('region', { name: '与运气互参' });
+    expect(parallel).toHaveTextContent('倾向阳虚、阴虚');
+    expect(parallel).toHaveTextContent('未填写');
+    expect(parallel).toHaveTextContent('当前运气暂不可用');
+  });
+
+  it('shows only the year summary and current guest qi, retaining text when element dots are unavailable', () => {
+    const comparison = mapBirthComparison(createBirthComparisonDto());
+    const context = mapConstitutionContext(comparison.current, comparison);
+    const { rerender } = render(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={context} />);
+    const parallel = screen.getByRole('region', { name: '与运气互参' });
+    expect([...parallel.querySelectorAll('dd')].map((node) => node.textContent?.replaceAll('\u202f', ' '))).toEqual([
+      '平和', context.birth!.candidates[0].yearSummary, context.current.guestQiSummary,
+    ]);
+    expect(parallel.querySelectorAll('.ds-element__dot')).toHaveLength(2);
+    rerender(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={{ ...context,
+      current: { ...context.current, element: undefined },
+      birth: { ...context.birth!, candidates: context.birth!.candidates.map((candidate) => ({ ...candidate, yearElement: undefined })) },
+    }} />);
+    expect(parallel.querySelectorAll('.ds-element__dot')).toHaveLength(0);
+    expect(parallel).toHaveTextContent(context.current.guestQiSummary);
+    rerender(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={{ ...context, birth: { ...context.birth!, candidates: [] } }} />);
+    expect(parallel).toHaveTextContent('未填写');
   });
 
   it('shows a precise birth instant without inventing an interval or multiple candidate labels', async () => {

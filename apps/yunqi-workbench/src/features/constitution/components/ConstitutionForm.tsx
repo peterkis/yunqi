@@ -173,8 +173,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
       <PanelView enabled={actionsEnabled}
         drilldown={mutation.result ? { title: '体质测评结果', onBack: () => { if (!confirmingSexChange) previous(); } } : undefined}
         actions={hasSession ? <div className="constitution-actions">
+          {mutation.result ? <Button variant="text" disabled={confirmingSexChange} onClick={previous}><span aria-hidden="true">‹</span> 返回修改</Button> : null}
           <Button variant="secondary" onClick={end}>结束并销毁答卷</Button>
-          {mutation.result ? <Button variant="text" disabled={confirmingSexChange} onClick={previous}>返回修改</Button> : null}
           {complete ? <Button type="submit" form={formId} disabled={mutation.isPending || confirmingSexChange}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button> : null}
         </div> : undefined} />
       <form id={formId} className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>

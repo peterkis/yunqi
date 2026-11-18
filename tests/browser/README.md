@@ -88,7 +88,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; shell primary switches from 查看对照 to 同时测评体质 |
 | Constitution | Button segments for sex; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared shell actions with standalone assessment, end/reopen/reset and stale response isolation |
-| Result/actions (D3) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, matched chips only for ≥2 matches and tendencies whenever present, all in DTO order and neutral tone; no sex-change eyebrow on results, one readonly version meta in its disclosure; API summary/boundary disclosure, result drill-down header; external form association, pinned actions and content → actions → footer order |
+| Result/actions (D3/F5) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, neutral matched chips only for ≥2 matches; favorable `<简称> 倾向` chips without digits beside the title (vertical centers within 2px, wrapped groups centered as a whole); standard DTO bar order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three equal parallel context blocks; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
@@ -180,6 +180,14 @@ and ≥4.5:1 header contrast. Two theme flows exercise the 160ms digit advance:
 the new question receives focus with no outline, while Tab to an option keeps
 its 2px ring. Calculation/version details follow the form beside the source
 disclosure; the keyboard traversal assertions follow this new order.
+
+F5's `constitution-result` and embedded `birth-assessment-result` use a fixed
+answer vector with one matched type and two tendencies, checked against the
+real Service response. Both states cover 400×860, 1366×768 and 1920×1080 (and
+the other panel projects), checking title/chip alignment, favorable chip
+contrast, standard-order horizontal bars, equal context columns, typography,
+screenshots and axe. The standalone state replays the real 2026-11-18 current
+calculation; the embedded state keeps its birth response's current snapshot.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one

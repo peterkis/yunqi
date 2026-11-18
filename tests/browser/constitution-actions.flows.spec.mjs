@@ -1,14 +1,14 @@
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, screenshot, expectTypeScale } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, expectConstitutionAnswerLayout, expectConstitutionResults } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
 // real Service. Each run verifies its returned count; these are UI regressions,
 // not expert scoring cases or independent clinical samples.
 const profiles = [
-  { count: 1, title: '痰湿质', values: [3, 3, 1, 1, 2, 1, 1, 1, 2, 3, 1, 3, 2, 4, 1, 1, 4, 3, 2, 1, 5, 1, 5, 2, 1, 2] },
+  { count: 1, title: '痰湿质', values: constitutionResultValues },
   { count: 2, title: '偏颇质兼夹', values: [1, 3, 2, 4, 4, 4, 3, 5, 2, 1, 4, 3, 2, 2, 1, 3, 3, 2, 2, 2, 4, 1, 4, 2, 2, 2] },
   { count: 7, title: '偏颇质兼夹', values: [1, 2, 2, 3, 5, 4, 3, 2, 5, 5, 4, 2, 3, 5, 3, 1, 5, 3, 3, 4, 1, 4, 5, 4, 4, 3] },
 ];
@@ -74,10 +74,15 @@ for (const embedded of [false, true]) {
       expect(data.matchedTypes).toHaveLength(profile.count);
       expect(data.matchedTypes).not.toContain('balanced');
       const result = await expectConstitutionResults(page, data);
+      if (profile.count === 1) expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
+      await expectConstitutionResultLayout(result, testInfo);
       await expect(result.locator('.constitution-decision h4')).toHaveText(profile.title);
-      await expect(actions.getByRole('button')).toHaveText(['结束并销毁答卷', '返回修改']);
+      await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
       await expectViewControls(page, testInfo);
       await expectTypeScale(page, testInfo);
+      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      await testInfo.attach('constitution-F5-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
+      expect(scan.violations).toEqual([]);
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-result`);
       const bounds = await actions.boundingBox();
       await page.getByRole('main').evaluate(content => { content.scrollTop = content.scrollHeight; });
@@ -87,11 +92,14 @@ for (const embedded of [false, true]) {
       const lastContentTarget = embedded ? page.locator('.birth-technical > summary') : page.getByText('量表来源与适用说明', { exact: true });
       await lastContentTarget.focus();
       await page.keyboard.press('Tab');
-      await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toBeFocused();
+      await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
       await page.keyboard.press('Tab');
+      await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
       await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
       await page.keyboard.press('Enter');
       await expect(result).toHaveCount(0);
+      await expect(page.locator('.constitution-answer-form > .constitution-context')).toBeVisible();
       await expect(page.locator('.constitution-question-title')).toBeFocused();
       await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
       await expect(page.locator('.constitution-position')).toHaveText('26 / 26');

@@ -94,6 +94,34 @@ describe('birth comparison assessment session', () => {
     expect(within(restarted).queryByRole('radio', { name: '3 有时（有些）' })).not.toBeInTheDocument();
   });
 
+  it.each(['click', 'keyboard'] as const)('destroys a scored session with %s and restores the start action focus', async (activation) => {
+    const user = userEvent.setup();
+    const client = createClientStub();
+    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    const comparison = await submitBirth(user);
+    await completeAssessment(user, await openAssessment(user));
+    const result = await screen.findByRole('region', { name: '体质测评结果' });
+    const end = screen.getByRole('button', { name: '结束并销毁答卷' });
+    if (activation === 'keyboard') {
+      // Chromium covers summary traversal; jsdom starts at the first action.
+      screen.getByRole('button', { name: '返回修改' }).focus();
+      await user.tab();
+      expect(end).toHaveFocus();
+      await user.keyboard('{Enter}');
+    } else await user.click(end);
+    expect(result).not.toBeInTheDocument();
+    expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    const start = screen.getByRole('button', { name: '同时测评体质' });
+    expect(start).toHaveAttribute('aria-expanded', 'false');
+    expect(start).toHaveFocus();
+    expect(comparison).toBeVisible();
+    const restarted = await openAssessment(user);
+    expect(within(restarted).getByRole('radio', { name: '男' })).not.toBeChecked();
+    expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
+    expect(client.assessConstitution).toHaveBeenCalledOnce();
+  });
+
   it.each(['date', 'time', 'known-time', 'clear', 'resubmit'] as const)('discards the answer session after %s changes the comparison', async (action) => {
     const user = userEvent.setup();
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue({ ...createBirthComparisonDto(), birthPrecision: 'time' }) });

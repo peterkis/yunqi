@@ -50,7 +50,10 @@ describe('constitution presentation', () => {
     expect(view.decision).toBe('偏颇质兼夹');
     expect(view.matchedTypes.map((type) => type.name)).toEqual(['气虚质', '痰湿质']);
     expect(view.tendencyTypes.map((type) => type.name)).toEqual(['阳虚质']);
+    expect(view.referenceSummary).toBe('气虚、痰湿 · 倾向阳虚');
     expect(view.results).toHaveLength(9);
+    expect(view.results.map((result) => result.id)).toEqual(dto.results.map((result) => result.id));
+    expect(view.results.map((result) => result.shortName)).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
     expect(view.results.map((result) => result.score)).toEqual(results.map((result) => result.score));
     expect(view.results.map((result) => result.tone)).toEqual(['neutral', 'primary', 'secondary', 'neutral', 'primary', ...Array(4).fill('neutral')]);
     expect(view.results[1].fillWidth).toBe('1%');
@@ -65,18 +68,23 @@ describe('constitution presentation', () => {
     const results = dto.results.map((result, index) => ({ ...result, score: index * 10, status: matches.some((match) => match.id === result.id) ? 'yes' as const : 'no' as const }));
     const view = mapAssessment({ ...dto, results: [...results].reverse(), matchedTypes: matches.map((result) => result.id) });
     expect(view.decision).toBe(count === 1 ? '气虚质' : '偏颇质兼夹');
-    expect(view.matchedTypes).toEqual(matches.map(({ id, name }) => ({ id, name })));
+    expect(view.matchedTypes).toEqual(matches.map(({ id, name }) => ({ id, name, shortName: name.replace(/质$/, '') })));
+    expect(view.results.map((result) => result.id)).toEqual([...results].reverse().map((result) => result.id));
   });
 
   it('keeps basically balanced with tendencies and never invents balanced when no type matches', () => {
     const dto = createAssessmentDto();
     const results = dto.results.map((result, index) => ({ ...result, status: index === 0 ? 'basically' as const : index === 1 ? 'tendency' as const : 'no' as const }));
     expect(mapAssessment(dto).decision).toBe('平和质');
-    expect(mapAssessment({ ...dto, results, matchedTypes: [], tendencyTypes: ['qi_deficiency'] })).toMatchObject({ decision: '基本是平和质', matchedTypes: [], tendencyTypes: [{ id: 'qi_deficiency', name: '气虚质' }] });
+    const basically = mapAssessment({ ...dto, results, matchedTypes: [], tendencyTypes: ['qi_deficiency'] });
+    expect(basically).toMatchObject({ decision: '基本是平和质', referenceSummary: '倾向气虚', matchedTypes: [], tendencyTypes: [{ id: 'qi_deficiency', name: '气虚质', shortName: '气虚' }] });
+    expect(basically.results[0].tone).toBe('neutral');
+    expect(mapAssessment({ ...dto, results: results.filter((result) => result.id !== 'balanced'), matchedTypes: [], tendencyTypes: ['qi_deficiency'] }).decision).toBe('未达明确类型');
     const empty = mapAssessment({ ...dto, matchedTypes: [], results: dto.results.map((result) => ({ ...result, status: 'no' })) });
     expect(empty.decision).toBe('未达明确类型');
     expect(empty.matchedTypes).toEqual([]);
     expect(empty.tendencyTypes).toEqual([]);
+    expect(empty.referenceSummary).toBe('未达明确类型');
   });
 
   it('uses only the existing current snapshot and retains each birth candidate with canonical local time', () => {
@@ -84,6 +92,9 @@ describe('constitution presentation', () => {
     expect(mapConstitutionContext(current)).toEqual({ current: {
       summary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.currentStep.name} · 客气${current.facts.currentStep.guestQi}`,
       element: current.facts.currentStep.guestElement,
+      yearSummary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state}`,
+      yearElement: current.facts.annualElements.suiYun,
+      guestQiSummary: `${current.facts.currentStep.name} · 客气${current.facts.currentStep.guestQi}`,
       detail: `${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state} · 司天${current.facts.summary.sitian} · 在泉${current.facts.summary.zaiquan}`,
       qiDetail: `${current.facts.currentStep.name} · 主气${current.facts.currentStep.hostQi} · 客气${current.facts.currentStep.guestQi}`,
       movementDetail: `${current.currentMovement.name} · 主运${current.currentMovement.hostLabel} · 客运${current.currentMovement.guestLabel}`,

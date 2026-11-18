@@ -1,7 +1,7 @@
 import { fillBirthDate, expectBirthMirror } from './birth-helpers.mjs';
 import AxeBuilder from '@axe-core/playwright';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
-import { answerConstitution, expectConstitutionAnswerLayout, expectConstitutionResults } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout } from './constitution-helpers.mjs';
 import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
@@ -31,7 +31,7 @@ const cases = [
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true },
   { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
-  { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true },
+  { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
 ];
 
@@ -105,11 +105,13 @@ for (const state of cases) {
     }
     if (state.questionnaire) {
       if (state.constitutionComplete || state.constitutionResult) {
-        await answerConstitution(page);
+        await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : {});
         if (state.constitutionResult) {
           const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
           await page.getByRole('button', { name: '查看结果', exact: true }).click();
           const { data } = await (await scoreResponse).json();
+          expect(data.matchedTypes).toEqual(['phlegm_dampness']);
+          expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
           await expectConstitutionResults(page, data);
         }
       } else {
@@ -289,8 +291,7 @@ for (const state of cases) {
         await expect(focusedOption).toHaveCSS('outline-style', 'solid');
       }
       if (state.constitutionResult) {
-        expect(await page.locator('.constitution-decision h4').evaluate(element => getComputedStyle(element).fontSize)).toBe('30px');
-        await expect(page.locator('.constitution-bar-track[role="img"]')).toHaveCount(9);
+        await expectConstitutionResultLayout(page.getByRole('region', { name: '体质测评结果', exact: true }), testInfo);
       }
     }
     await screenshot(page, testInfo, state.name);

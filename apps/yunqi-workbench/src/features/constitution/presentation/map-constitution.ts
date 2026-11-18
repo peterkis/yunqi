@@ -49,6 +49,9 @@ export interface ConstitutionContextViewModel {
 interface ConstitutionContextFactsViewModel {
   readonly summary: string;
   readonly element: ElementKind | undefined;
+  readonly yearSummary: string;
+  readonly yearElement: ElementKind | undefined;
+  readonly guestQiSummary: string;
   readonly detail: string;
   readonly qiDetail: string;
   readonly movementDetail: string;
@@ -59,6 +62,9 @@ function contextFacts(learning: LearningViewModel) {
   return {
     summary: `${summary.stemBranch.ganzhi} · ${currentStep.name} · 客气${currentStep.guestQi}`,
     element: currentStep.guestElement,
+    yearSummary: `${summary.stemBranch.ganzhi} · ${summary.suiYun.element}运${summary.suiYun.state}`,
+    yearElement: learning.facts.annualElements.suiYun,
+    guestQiSummary: `${currentStep.name} · 客气${currentStep.guestQi}`,
     detail: `${summary.suiYun.element}运${summary.suiYun.state} · 司天${summary.sitian} · 在泉${summary.zaiquan}`,
     qiDetail: `${currentStep.name} · 主气${currentStep.hostQi} · 客气${currentStep.guestQi}`,
     movementDetail: `${learning.currentMovement.name} · 主运${learning.currentMovement.hostLabel} · 客运${learning.currentMovement.guestLabel}`,
@@ -86,12 +92,14 @@ export interface ConstitutionAssessmentViewModel {
   readonly sexLabel: string;
   readonly summary: string;
   readonly decision: string;
-  readonly matchedTypes: readonly { readonly id: string; readonly name: string }[];
-  readonly tendencyTypes: readonly { readonly id: string; readonly name: string }[];
+  readonly referenceSummary: string;
+  readonly matchedTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
+  readonly tendencyTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
   readonly boundaryNote: string;
   readonly results: readonly {
     readonly id: string;
     readonly name: string;
+    readonly shortName: string;
     readonly label: string;
     readonly status: 'yes' | 'tendency' | 'basically' | 'no';
     readonly score: number;
@@ -146,7 +154,10 @@ export function mapQuestionnaireProgress(questionnaire: ConstitutionQuestionnair
 
 export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAssessmentViewModel {
   // Presentation follows the API's statuses, never score thresholds or ranking.
-  const namedType = (id: string) => ({ id, name: value.results.find((result) => result.id === id)!.name });
+  const namedType = (id: string) => {
+    const name = value.results.find((result) => result.id === id)!.name;
+    return { id, name, shortName: name.replace(/质$/, '') };
+  };
   const matchedTypes = value.matchedTypes.map(namedType);
   const tendencyTypes = value.tendencyTypes.map(namedType);
   const balanced = value.results.find((result) => result.id === 'balanced');
@@ -154,14 +165,18 @@ export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAss
     : balanced?.status === 'basically' ? `基本是${balanced.name}`
     : matchedTypes.length === 1 ? matchedTypes[0].name
     : matchedTypes.length > 1 ? '偏颇质兼夹' : '未达明确类型';
+  const referenceSummary = [
+    matchedTypes.map((type) => type.shortName).join('、'),
+    tendencyTypes.length ? `倾向${tendencyTypes.map((type) => type.shortName).join('、')}` : '',
+  ].filter(Boolean).join(' · ') || decision;
   return { questionnaireId: value.questionnaireId, version: value.version, summary: value.summary,
     sexLabel: value.sex === 'male' ? '男性版' : '女性版',
-    decision, matchedTypes, tendencyTypes,
+    decision, referenceSummary, matchedTypes, tendencyTypes,
     boundaryNote: value.boundaryNote,
     results: value.results.map((result) => ({
-      id: result.id, name: result.name, label: result.label, status: result.status, score: result.score,
+      id: result.id, name: result.name, shortName: result.name.replace(/质$/, ''), label: result.label, status: result.status, score: result.score,
       displayScore: result.score.toFixed(1), rawScore: result.rawScore, itemCount: result.itemCount,
-      tone: result.status === 'yes' ? 'primary' : result.status === 'no' ? 'neutral' : 'secondary',
+      tone: result.status === 'yes' ? 'primary' : result.status === 'tendency' ? 'secondary' : 'neutral',
       fillWidth: `${result.score}%`,
       chartLabel: `${result.name}，转化分 ${result.score.toFixed(1)} 分（满分100），判定${result.label}；参考刻度30与40；原始分${result.rawScore}，${result.itemCount}个条目。`,
     })) };

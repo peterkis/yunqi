@@ -78,8 +78,12 @@ describe('ConstitutionForm', () => {
     expect(document.querySelector('.constitution-sex-summary')).toBeNull();
     expect(destroy()).toHaveLength(1);
     const actions = document.querySelector('.panel-shell__actions')!;
-    expect(within(actions as HTMLElement).getAllByRole('button').map((button) => button.textContent)).toEqual(['结束并销毁答卷', '返回修改']);
-    expect(screen.getByRole('button', { name: '返回修改' })).toHaveClass('ds-button--text');
+    const edit = within(actions as HTMLElement).getByRole('button', { name: '返回修改' });
+    expect(within(actions as HTMLElement).getAllByRole('button')).toEqual([edit, destroy()[0]]);
+    expect(edit).toHaveTextContent('‹ 返回修改');
+    expect(edit).toHaveAccessibleName('返回修改');
+    expect(edit.querySelector('[aria-hidden="true"]')).toHaveTextContent('‹');
+    expect(edit).toHaveClass('ds-button--text');
     expect(document.querySelector('.panel-shell__content + .panel-shell__actions + .panel-shell__footer')).not.toBeNull();
     expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
     expect(within(screen.getByRole('region', { name: '页面导航' })).getByRole('heading', { name: '体质测评结果' })).toBeVisible();
@@ -137,7 +141,7 @@ describe('ConstitutionForm', () => {
     const result = await screen.findByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '平和质' })).toHaveFocus();
     expect(within(result).getAllByRole('img')).toHaveLength(9);
-    expect(within(result).getByRole('region', { name: '与运气互参' })).toHaveTextContent('未提供出生资料');
+    expect(within(result).getByRole('region', { name: '与运气互参' })).toHaveTextContent('未填写');
     expect(client.assessConstitution).toHaveBeenCalledExactlyOnceWith({ questionnaireId: questionnaire.id, sex: 'male', answers: { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 1, q7: 2, q8m: 3 } });
     expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
     await user.click(screen.getByText('本次量表版本'));
