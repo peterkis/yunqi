@@ -1,8 +1,7 @@
 import { flushSync } from 'react-dom';
 import type { MotionLevel } from '../providers/MotionProvider';
 
-/** Commit once, including when the browser rejects/skips a transition. This
- * infrastructure does not opt any route into a visual transition yet. */
+/** Commit once, including when the browser rejects/skips a transition. */
 export function updateWithViewTransition(update: () => void, level: MotionLevel): void {
   let committed = false;
   const commit = () => {

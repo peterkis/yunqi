@@ -73,8 +73,9 @@ for (const theme of ['light', 'dark']) {
     for (const selector of ['html', 'body', '#root', '.theme-root', '.panel-viewport']) {
       await expect(page.locator(selector)).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     }
-    await expectTransitionDuration(page, pill);
-    await expect(pill).toHaveCSS('transition-timing-function', (await page.locator('.theme-root').getAttribute('data-motion')) === 'off' ? 'ease' : 'linear');
+    await expectTransitionDuration(page, pill, 'base', true);
+    await expect.poll(() => pill.evaluate(element => getComputedStyle(element).transitionTimingFunction.split(',')[0].trim()))
+      .toBe((await page.locator('.theme-root').getAttribute('data-motion')) === 'off' ? 'ease' : 'linear');
     await expect(pill).toHaveCSS('opacity', '1');
     await pill.click();
     await expect(page.locator('body')).toHaveCSS('background-color', rgb(surface('surface-sunken').light));

@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getPanelRoute, navigationItems } from '../../app/routes';
+import { PanelNavigation } from '../../app/PanelNavigation';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { useTheme } from '../../providers/ThemeProvider';
 import { Button } from '../design/Button';
@@ -17,6 +18,10 @@ export interface PanelShellProps {
 }
 
 export function PanelShell({ children, actions }: PanelShellProps) {
+  return <PanelNavigation><PanelFrame actions={actions}>{children}</PanelFrame></PanelNavigation>;
+}
+
+function PanelFrame({ children, actions }: PanelShellProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const route = getPanelRoute(pathname);
@@ -29,20 +34,11 @@ export function PanelShell({ children, actions }: PanelShellProps) {
   const mainRef = useRef<HTMLElement>(null);
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
-  const previousArea = useRef(route.id);
   const wasCollapsed = useRef(false);
 
   useEffect(() => {
     document.title = `${title} · 运气通`;
   }, [title]);
-
-  useLayoutEffect(() => {
-    if (previousArea.current !== route.id) {
-      mainRef.current?.focus({ preventScroll: true });
-      if (mainRef.current) mainRef.current.scrollTop = 0;
-    }
-    previousArea.current = route.id;
-  }, [route.id]);
 
   useLayoutEffect(() => {
     if (collapsed) expandRef.current?.focus({ preventScroll: true });

@@ -40,7 +40,7 @@ export function BirthComparisonPage() {
   }, [formExpanded, dateRevision]);
 
   useEffect(() => {
-    if (wasReading.current && !reading) readingLink.current?.focus();
+    if (wasReading.current && !reading) readingLink.current?.focus({ preventScroll: true });
     wasReading.current = reading;
   }, [reading]);
 

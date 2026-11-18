@@ -1,7 +1,7 @@
 import { test, expect, loadCurrent, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate, expectBirthComparison } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, constitutionResultValues } from './constitution-helpers.mjs';
-import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing } from './motion-helpers.mjs';
+import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions } from './motion-helpers.mjs';
 
 test('accessibility animation gate observes completion and times out on paused motion', async ({ page }) => {
   await page.setContent('<p>动画收敛辅助回归</p>');
@@ -111,4 +111,174 @@ test('motion controls express automatic reset, persist manual choice and apply l
   await expectMotionDurations(page, testInfo, 'forced-colors-off');
   await page.emulateMedia({ forcedColors: 'none', reducedMotion: 'no-preference' });
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : motionMode === 'missing-transition' ? 'reduced' : 'full');
+});
+
+test('segmented indicators align after selection and narrow resize across tabs, reading scopes and sex', async ({ page, motionMode }, testInfo) => {
+  async function checkResize(track) {
+    await expectIndicatorAligned(page, track);
+    await page.setViewportSize({ width: 360, height: 640 });
+    await expect(track).toHaveAttribute('data-indicator-animated', 'false');
+    await expectIndicatorAligned(page, track);
+    await page.setViewportSize({ width: 400, height: 860 });
+    await expectIndicatorAligned(page, track);
+  }
+  await loadCurrent(page);
+  await waitForAnimations(page);
+  await observeViewTransitions(page);
+  const tabs = page.getByRole('navigation', { name: '工作台导航', exact: true });
+  await checkResize(tabs);
+  for (const label of ['先天对照', '体质量表', '先天对照', '当下运气']) {
+    await tabs.getByRole('link', { name: label, exact: true }).click();
+    await expect(page.getByRole('main')).toBeFocused();
+    await expect.poll(() => page.getByRole('main').evaluate(element => element.scrollTop)).toBe(0);
+    await expect(tabs.locator('.motion-segment-indicator')).toHaveCSS('transition-duration', motionMode === 'full' ? '0.18s, 0.18s' : '0s');
+    await checkResize(tabs);
+  }
+  const transitions = await page.evaluate(() => window.motionTransitions);
+  if (motionMode === 'full') {
+    expect(transitions.map(sample => sample.direction)).toEqual(['forward', 'forward', 'backward', 'backward']);
+    for (const sample of transitions) {
+      expect(sample.names).toMatchObject({ root: 'none', main: 'workbench-main', header: 'none', footer: 'none' });
+      expect(sample.after).not.toBe(sample.before);
+    }
+  } else expect(transitions).toEqual([]);
+  await testInfo.attach('tab-transition-snapshots', { body: JSON.stringify(transitions), contentType: 'application/json' });
+
+  await page.getByRole('link', { name: '原文与释义', exact: true }).click();
+  const currentScopes = page.getByRole('group', { name: '原文范围', exact: true });
+  await checkResize(currentScopes);
+  await currentScopes.getByRole('button', { name: '全年', exact: true }).press('Enter');
+  await checkResize(currentScopes);
+  await currentScopes.getByRole('button', { name: '当下阶段', exact: true }).click();
+  await expectIndicatorAligned(page, currentScopes);
+  await expectMotionDurations(page, testInfo, 'reading-indicator-durations');
+  await page.getByRole('button', { name: '返回', exact: true }).click();
+  await page.getByRole('link', { name: '先天对照', exact: true }).click();
+  await fillBirthDate(page, '1990-05-12');
+  await page.getByRole('button', { name: '查看对照', exact: true }).click();
+  await page.getByRole('link', { name: '全部原文', exact: true }).click();
+  const birthScopes = page.getByRole('navigation', { name: '出生原文范围', exact: true });
+  await checkResize(birthScopes);
+  await birthScopes.getByRole('button', { name: '全年', exact: true }).click();
+  await checkResize(birthScopes);
+  await birthScopes.getByRole('button', { name: '出生阶段', exact: true }).press('Enter');
+  await expectIndicatorAligned(page, birthScopes);
+  const scan = await scanAccessibility(page);
+  expect(scan.violations).toEqual([]);
+
+  // The real questionnaire immediately folds its sex selector after choosing.
+  // Its shared component fixture keeps the choice mounted for geometry checks.
+  await page.goto('/src/test/design-foundations.html');
+  const sex = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
+  await sex.getByRole('radio', { name: '男', exact: true }).click();
+  await checkResize(sex);
+  await sex.getByRole('radio', { name: '男', exact: true }).press('ArrowRight');
+  await expect(sex.getByRole('radio', { name: '女', exact: true })).toBeChecked();
+  await checkResize(sex);
+});
+
+test('drilldown returns restore scroll within 2px and the original entry for mouse and keyboard in every mode', async ({ page, motionMode }, testInfo) => {
+  await page.setViewportSize({ width: 400, height: 640 });
+  await loadCurrent(page);
+  await waitForAnimations(page);
+  await observeViewTransitions(page);
+  const main = page.getByRole('main');
+  const observations = [];
+  for (const input of ['mouse', 'keyboard']) {
+    for (const [label, content] of [
+      ['原文与释义', '.current-classics'], ['年度详情', '.drilldown-annual-summary'], ['指定时点', '.drilldown-time-form'],
+    ]) {
+      const entry = page.getByRole('link', { name: label, exact: true });
+      await entry.scrollIntoViewIfNeeded();
+      await entry.focus();
+      await waitForAnimations(page);
+      const before = await main.evaluate(element => element.scrollTop);
+      expect(before).toBeGreaterThan(0);
+      if (input === 'mouse') await entry.click();
+      else await page.keyboard.press('Enter');
+      await expect(page.locator(content)).toBeVisible();
+      await expect(main).toBeFocused();
+      await expectMotionDurations(page, testInfo, `${input}-${label}-durations`);
+      const back = page.getByRole('button', { name: '返回', exact: true });
+      if (input === 'mouse') await back.click();
+      else { await back.focus(); await page.keyboard.press('Enter'); }
+      await expect(entry).toBeFocused();
+      await expect.poll(async () => Math.abs(await main.evaluate(element => element.scrollTop) - before)).toBeLessThanOrEqual(2);
+      observations.push({ input, label, before, after: await main.evaluate(element => element.scrollTop) });
+    }
+  }
+  const transitions = await page.evaluate(() => window.motionTransitions);
+  if (motionMode === 'full') {
+    expect(transitions.map(sample => sample.direction)).toEqual(Array.from({ length: 6 }, () => ['forward', 'backward']).flat());
+    for (const sample of transitions.filter(sample => sample.direction === 'forward')) {
+      expect(sample.names).toEqual({ root: 'none', main: 'workbench-main', title: 'panel-title', header: 'none', footer: 'none' });
+    }
+  } else expect(transitions).toEqual([]);
+  await testInfo.attach('drilldown-restoration', { body: JSON.stringify({ mode: motionMode, observations, transitions }), contentType: 'application/json' });
+  const scan = await scanAccessibility(page);
+  expect(scan.violations).toEqual([]);
+});
+
+test('theme colors commit together, suppress element transitions and use only the full root crossfade', async ({ page, motionMode }, testInfo) => {
+  await loadCurrent(page);
+  await waitForAnimations(page);
+  await observeViewTransitions(page);
+  const direct = [];
+  for (const theme of ['dark', 'light']) {
+    // Read the direct fallback in the click's own task, before its two-frame
+    // marker cleanup. Full mode records the same facts in the real callback.
+    direct.push(await page.evaluate(() => {
+      document.querySelector('.panel-shell > .ds-panel-header button').click();
+      const root = document.querySelector('.theme-root');
+      return { theme: root.dataset.theme, switching: root.hasAttribute('data-theme-switching'),
+        suppressed: [...root.querySelectorAll('*')].every(element => getComputedStyle(element).transitionDuration.split(',').every(duration => Number.parseFloat(duration) === 0)) };
+    }));
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-theme', theme);
+    await expectMotionDurations(page, testInfo, `theme-${theme}`);
+    await waitForAnimations(page);
+    await expect(page.locator('.theme-root')).not.toHaveAttribute('data-theme-switching');
+  }
+  const transitions = await page.evaluate(() => window.motionTransitions);
+  if (motionMode === 'full') {
+    expect(transitions.map(sample => sample.theme)).toEqual(['dark', 'light']);
+    for (const sample of transitions) {
+      expect(sample.scope).toBe('theme');
+      expect(sample.names).toMatchObject({ root: 'root', main: 'none', header: 'none', footer: 'none' });
+      expect(sample.switching).toBe(true);
+      expect(sample.transitionsSuppressed).toBe(true);
+    }
+  } else {
+    expect(transitions).toEqual([]);
+    expect(direct).toEqual(['dark', 'light'].map(theme => ({ theme, switching: true, suppressed: true })));
+  }
+  await testInfo.attach('theme-transition-snapshots', { body: JSON.stringify({ direct, transitions }), contentType: 'application/json' });
+  const scan = await scanAccessibility(page);
+  expect(scan.violations).toEqual([]);
+});
+
+test('press feedback scales full controls only and leaves text buttons and focus rings unscaled', async ({ page, motionMode }, testInfo) => {
+  await page.goto('/src/test/design-foundations.html');
+  const primary = page.getByRole('button', { name: '查看原文', exact: true });
+  const text = page.getByRole('button', { name: '返回修改', exact: true });
+  const segment = page.getByRole('navigation', { name: '视图', exact: true }).getByRole('link', { name: '当下运气', exact: true });
+  for (const [target, isText] of [[primary, false], [segment, false], [text, true]]) {
+    await target.hover();
+    await waitForAnimations(page);
+    await expect.poll(() => target.evaluate(element => getComputedStyle(element).transitionProperty.split(',').map(value => value.trim()).includes('transform')))
+      .toBe(motionMode === 'full' && !isText);
+    const before = await target.evaluate(element => ({ background: getComputedStyle(element).backgroundColor, color: getComputedStyle(element).color }));
+    await page.mouse.down();
+    try {
+      await expect.poll(() => target.evaluate(element => {
+        const transform = getComputedStyle(element).transform;
+        return transform === 'none' ? 1 : Number(transform.match(/matrix\(([^,]+)/)[1]);
+      })).toBe(motionMode === 'full' && !isText ? 0.98 : 1);
+      if (isText) {
+        await expect(target).toHaveCSS('background-color', before.background);
+        await expect.poll(() => target.evaluate(element => getComputedStyle(element).color)).not.toBe(before.color);
+      } else await expect.poll(() => target.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(before.background);
+      await expectMotionDurations(page, testInfo, `press-${isText ? 'text' : 'control'}`);
+    } finally { await page.mouse.up(); }
+    await expectImmediateFocusRing(page, target);
+  }
 });

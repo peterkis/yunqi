@@ -18,6 +18,7 @@ import './styles/views/learning-reading.css';
 import './styles/views/craft.css';
 import './styles/views/current-finals.css';
 import './styles/views/classics.css';
+import './styles/views/motion-flows.css';
 
 if (import.meta.env.DEV) {
   document.body.classList.add('workbench-dev-host');
@@ -26,7 +27,7 @@ if (import.meta.env.DEV) {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter useTransitions={false}>
       <AppProviders>
         <App />
       </AppProviders>

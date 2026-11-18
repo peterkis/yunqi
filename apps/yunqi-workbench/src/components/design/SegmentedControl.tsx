@@ -1,4 +1,5 @@
 import { useRef, type KeyboardEvent } from 'react';
+import { useSegmentIndicator } from './useSegmentIndicator';
 
 export interface ControlSegmentViewModel<Value extends string> {
   readonly value: Value;
@@ -18,6 +19,7 @@ export interface SegmentedControlProps<Value extends string> {
 /** Local selection only; navigation remains SegmentedNav's responsibility. */
 export function SegmentedControl<Value extends string>({ label, segments, value, onChange, compact = false, disabled = false }: SegmentedControlProps<Value>) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
+  const trackRef = useSegmentIndicator(value);
   const enabled = segments.map((segment, index) => ({ ...segment, index })).filter((segment) => !segment.disabled);
   const tabStop = enabled.find((segment) => segment.value === value) ?? enabled[0];
 
@@ -41,8 +43,9 @@ export function SegmentedControl<Value extends string>({ label, segments, value,
   }
 
   return (
-    <div role="radiogroup" aria-label={label} aria-disabled={disabled || undefined}
-      className={`ds-segmented-control${compact ? ' ds-segmented-control--compact' : ''}`}>
+    <div ref={trackRef} role="radiogroup" aria-label={label} aria-disabled={disabled || undefined}
+      className={`ds-segmented-control motion-segments${compact ? ' ds-segmented-control--compact' : ''}`}>
+      <span className="motion-segment-indicator" aria-hidden="true" />
       {segments.map((segment, index) => (
         <button key={segment.value} ref={(button) => { buttons.current[index] = button; }}
           type="button" role="radio" aria-checked={value === segment.value}

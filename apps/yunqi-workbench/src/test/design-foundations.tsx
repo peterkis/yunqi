@@ -21,6 +21,7 @@ import '../styles/global.css';
 import '../styles/design-components.css';
 import '../styles/views/form-controls.css';
 import '../styles/views/craft.css';
+import '../styles/views/motion-flows.css';
 
 const choices = [
   { shortcut: 1, label: '没有', description: '根本不' },
@@ -37,7 +38,7 @@ function DesignFoundations() {
   const [sex, setSex] = useState<'male' | 'female' | ''>('');
   return (
     <main style={{
-      boxSizing: 'border-box', width: 'var(--panel-width)', padding: 'var(--space-4)',
+      boxSizing: 'border-box', width: 'var(--panel-width)', maxWidth: '100%', padding: 'var(--space-4)',
       display: 'grid', gap: 'var(--space-3)', background: 'var(--surface-page)',
     }}>
       <PanelHeader title="运气通" status="理论学习 · 只读展示" actions={

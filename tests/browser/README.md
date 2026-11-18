@@ -155,8 +155,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **71 flow/foundation/oracle tests in each of three motion
-projects + 4 capability tests + 164 visual/accessibility tests = 381 tests in
+The suite discovers **75 flow/foundation/oracle tests in each of three motion
+projects + 8 capability tests + 164 visual/accessibility tests = 397 tests in
 13 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
@@ -232,7 +232,7 @@ issue remains unconfirmed until a real browser run; the layout retry is kept.
 `?motion=off` before application code on each document load (including reload).
 Every existing flow runs with the same text, API-data and focus oracles in all
 three projects. `motion-capability-chromium` additionally deletes both own and
-prototype `startViewTransition` before startup and runs the two shared motion
+prototype `startViewTransition` before startup and runs the six shared motion
 flows with automatic `reduced` mode, plus the animation-gate and focus-ring helper
 regressions. All projects keep two total workers and no
 retries. A cached successful frame sample stabilizes this functional matrix;
@@ -255,6 +255,17 @@ Every axe call uses `scanAccessibility`, which waits for fonts and observes
 remain), with a 5-second timeout. It does not finish, cancel or disable effects;
 non-converging motion fails the wait. The same WCAG tags and scan assertions run
 after convergence in all motion modes and visual projects.
+
+M1-b adds four shared motion flows (also run with the transition API removed):
+indicator/button alignment within 1px after selection and a 360px resize; mouse
+and keyboard drilldown return with scroll within 2px and entry focus; atomic
+theme changes with a full-only root crossfade; and press feedback without text
+button scaling or delayed focus rings. The real API is observed, not replaced,
+to record old/new content commits, tab directions and named snapshot regions.
+The sex selector folds immediately in the questionnaire, so its shared design
+fixture retains the choice for settled geometry checks. Duration scans include
+live view-transition pseudo-element effects. Pill checks retain the existing
+arrival opacity timing alongside the newly added fast press properties.
 Personal-data URL assertions use `expectNoPersonalDataInUrl`: no query parameters
 are allowed except one exact `motion=off` in the off fixture. Its absence after
 SPA navigation is valid because the product reads the setting once at startup.

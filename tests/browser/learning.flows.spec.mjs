@@ -119,7 +119,11 @@ test('current cards retain real API facts, folded stages and sourced original re
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'current-classics-annual');
   // A direct reload has no prior browser history requirement for returning.
+  await expect(page).toHaveURL(/\/yunqi\/current\/classics(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '原文与释义', exact: true })).toBeVisible();
   await page.reload();
+  await expect(page).toHaveURL(/\/yunqi\/current\/classics(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '原文与释义', exact: true })).toBeVisible();
   await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();

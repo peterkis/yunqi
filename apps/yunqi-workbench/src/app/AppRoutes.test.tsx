@@ -95,7 +95,7 @@ describe('AppRoutes', () => {
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
     expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
-    expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.getByRole('link', { name: '原文与释义' })).toHaveFocus();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.calculate).not.toHaveBeenCalled();
   });

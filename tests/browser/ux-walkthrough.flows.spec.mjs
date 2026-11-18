@@ -34,8 +34,12 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   await expect(page.getByRole('radio').first()).toBeChecked();
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeFocused();
   await page.getByRole('button', { name: '上一年', exact: true }).click();
+  await expect(page).toHaveURL(/\/yunqi\/year\/2024(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2024');
   await page.goBack();
+  await expect(page).toHaveURL(/\/yunqi\/year\/2025(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2025');
 
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('1900');
@@ -148,6 +152,8 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
+  await expect(page).toHaveURL(/\/yunqi\/birth(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '出生运气对照', exact: true })).toBeVisible();
   const birthContent = page.getByRole('main', { name: '先天对照', exact: true });
   await expect(birthContent).toBeFocused();
   const birthDate = birthContent.getByRole('textbox', { name: '年', exact: true });

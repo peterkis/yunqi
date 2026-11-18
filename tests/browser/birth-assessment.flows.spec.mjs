@@ -339,8 +339,14 @@ test('direct or reloaded birth classics never restore personal data or make an a
   await expectBirthDate(page, '');
   await compareBirth(page);
   await page.getByRole('link', { name: '全部原文', exact: true }).click();
+  // Full motion commits navigation in the browser's snapshot callback.
+  // Click completion alone does not mean reload will use the target URL.
+  await expect(page).toHaveURL(/\/yunqi\/birth\/classics(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '原文与释义', exact: true })).toBeVisible();
   const requestCount = diagnostics.requests.length;
   await page.reload();
+  await expect(page).toHaveURL(/\/yunqi\/birth\/classics(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '原文与释义', exact: true })).toBeVisible();
   await expect(page.getByText('本页尚无出生对照，请先填写出生资料。', { exact: true })).toBeVisible();
   await settle(page);
   expect(diagnostics.requests).toHaveLength(requestCount);
