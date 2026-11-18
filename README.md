@@ -33,7 +33,7 @@
 当前规则为 [YQ-MVP-RULES-1.1.0](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)。
 2026-10-18 按用户确认采用 Word R-08/R-21：支持1900–2100运气年，
 客生主传统描述为“客生主，相得”。新增教学规则为
-[YQ-LEARNING-RULES-1.1.0](rules/LEARNING_RULES_V1_1.md)，量表规则为
+[YQ-LEARNING-RULES-1.2.0](rules/LEARNING_RULES_V1_2.md)，量表规则为
 [YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
 经典内容更新为[YQ-CLASSICAL-READING-1.1.0](rules/CLASSICAL_READING_V1_1.md)，
 补充连续气候与病候选段，不改变运气计算、量表计分或API结构。

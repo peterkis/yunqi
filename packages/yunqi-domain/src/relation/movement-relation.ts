@@ -2,7 +2,11 @@ import { MOVEMENT_RELATION_LABELS } from '../learning/rules.js';
 import { ELEMENT_CONTROL_MAP, ELEMENT_GENERATION_MAP } from '../rules/phase1-rules.js';
 import type { HostGuestDirection, MovementRelationResult, SuiYun } from '../types.js';
 
-/** Five-movement teaching relations describe only the element direction. */
+/**
+ * Five-movement host/guest relation (teaching rules 1.2.0, expert-confirmed):
+ * generation is 相得 with its direction kept; control follows 主胜逆、客胜从;
+ * a shared element only states whether 太/少 differ.
+ */
 export function calculateMovementRelation(host: SuiYun, guest: SuiYun): MovementRelationResult {
   const sameElement = host.element === guest.element;
   const direction: HostGuestDirection = sameElement ? 'NONE'
@@ -10,10 +14,14 @@ export function calculateMovementRelation(host: SuiYun, guest: SuiYun): Movement
     : ELEMENT_GENERATION_MAP[guest.element] === host.element ? 'GUEST_GENERATES_HOST'
     : ELEMENT_CONTROL_MAP[host.element] === guest.element ? 'HOST_CONTROLS_GUEST'
     : 'GUEST_CONTROLS_HOST';
+  const traditionalLabel = direction === 'NONE'
+    ? host.state === guest.state ? MOVEMENT_RELATION_LABELS.SAME_ELEMENT_SAME_STATE
+      : MOVEMENT_RELATION_LABELS.SAME_ELEMENT_DIFFERENT_STATE.replace('{element}', host.element)
+    : MOVEMENT_RELATION_LABELS[direction];
 
   return Object.freeze({
     elementRelation: sameElement ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT',
     direction,
-    traditionalLabel: MOVEMENT_RELATION_LABELS[direction].replace('{element}', host.element),
+    traditionalLabel,
   });
 }

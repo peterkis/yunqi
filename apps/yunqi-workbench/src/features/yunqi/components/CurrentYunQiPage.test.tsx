@@ -60,7 +60,7 @@ describe('CurrentYunQiPage', () => {
     const movement = screen.getByRole('region', { name: '当步运' });
     expect(movement).toHaveTextContent('火运太过（太徵）');
     expect(movement).toHaveTextContent('木运不及（少角）');
-    expect(within(movement).getByText('客运生主运')).toHaveClass('ds-relation__chip--favorable');
+    expect(within(movement).getByText('相得 · 客生主')).toHaveClass('ds-relation__chip--favorable');
     expect(within(movement).getByText('客木生主火')).toBeVisible();
     expect(movement).not.toHaveTextContent('关系未提供');
     expect(movement).not.toHaveTextContent('主运与客运并列展示。');
@@ -144,14 +144,14 @@ describe('CurrentYunQiPage', () => {
     expect(fills[0].closest('[role="img"]')).toHaveAccessibleName(new RegExp(`当前，已过约 ${Math.round(elapsedRatio * 100)}%`));
   });
 
-  it('shows only the traditionalLabel for a same-element movement', () => {
+  it.each(['主客同运', '同属火运 · 太少不同'])('shows only the traditionalLabel %s for a same-element movement', (label) => {
     const dto = createLearningDto();
     const learning = mapLearning({ ...dto, currentMovement: { ...dto.currentMovement,
-      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属火' },
+      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
     } });
     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
     const movement = screen.getByRole('region', { name: '当步运' });
-    expect(within(movement).getByText('同属火')).toHaveClass('ds-relation__chip--neutral');
+    expect(within(movement).getByText(label)).toHaveClass('ds-relation__chip--neutral');
     expect(movement.querySelector('.ds-relation__explanation')).toBeNull();
   });
 

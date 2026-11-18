@@ -14,10 +14,10 @@ function birthForLearning(learning: ReturnType<typeof createLearningDto>) {
 
 describe('API visual classifications', () => {
   it.each([
-    ['HOST_GENERATES_GUEST', '主运生客运', 'favorable', '主火生客木'],
-    ['GUEST_GENERATES_HOST', '客运生主运', 'favorable', '客木生主火'],
-    ['HOST_CONTROLS_GUEST', '主运克客运', 'neutral', '主火克客木'],
-    ['GUEST_CONTROLS_HOST', '客运克主运', 'neutral', '客木克主火'],
+    ['HOST_GENERATES_GUEST', '相得 · 主生客', 'favorable', '主火生客木'],
+    ['GUEST_GENERATES_HOST', '相得 · 客生主', 'favorable', '客木生主火'],
+    ['HOST_CONTROLS_GUEST', '逆 · 主胜客', 'adverse', '主火克客木'],
+    ['GUEST_CONTROLS_HOST', '顺 · 客胜主', 'favorable', '客木克主火'],
     ['NONE', '接口中性标签', 'neutral', ''],
   ] as const)('uses movement DTO direction %s rather than inferring rules from the elements', (direction, label, tone, explanation) => {
     // Keep the same deliberately synthetic element pair for all directions.
@@ -29,12 +29,12 @@ describe('API visual classifications', () => {
     expect(mapped.movements[0].relation).toEqual(mapped.currentMovement.relation);
   });
 
-  it('shows only the supplied same-element movement label', () => {
+  it.each(['主客同运', '同属火运 · 太少不同', '接口同五行标签'])('shows only the supplied same-element movement label %s', (label) => {
     const dto = createLearningDto();
     const movement = { ...dto.currentMovement, guest: dto.currentMovement.host,
-      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属火' },
+      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
     } as const;
-    expect(mapMovementRelation(movement)).toEqual({ label: '同属火', tone: 'neutral', explanation: '' });
+    expect(mapMovementRelation(movement)).toEqual({ label, tone: 'neutral', explanation: '' });
   });
 
   it.each([

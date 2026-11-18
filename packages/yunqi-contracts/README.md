@@ -48,15 +48,16 @@ calculate relations, determine date boundaries or score answers.
 Contract 1.3.0 also exports `SixQiBoundaryTerm`, `StageProgressDto` and
 `MovementRelationDto`. Calculation progress is relative to `input`, including
 learning and birth-candidate `facts`; annual responses have no progress.
-Movement labels and relations are provided by Domain, with teaching labels
-still awaiting expert confirmation. Closed-schema consumers must upgrade.
+Movement labels and relations are provided by Domain; the host/guest labels
+follow expert-confirmed teaching rules 1.2.0 (the movement boundary method is
+still awaiting expert confirmation). Closed-schema consumers must upgrade.
 
 There are eight business operations: annual/current/calculation, current and
 specified-time learning, birth comparison, questionnaire retrieval and
 constitution assessment. Their exact paths and migration requirements are in
 the [current contract](../../docs/contracts/YQ-API-CONTRACT-1.3.0.md).
 Rule provenance remains in the
-[learning rules](../../rules/LEARNING_RULES_V1_1.md) and
+[learning rules](../../rules/LEARNING_RULES_V1_2.md) and
 [constitution rules](../../rules/CONSTITUTION-GBT46939-2025.md).
 
 The one public time wire schema is `YunQiTimeDto`.

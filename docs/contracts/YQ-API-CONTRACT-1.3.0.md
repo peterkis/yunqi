@@ -2,7 +2,7 @@
 
 - 日期：2026-11-18；状态：工程契约冻结，规则仍待正式专家冻结。
 - API路径 `/api/v1`；OpenAPI规范 `3.1.0`；文档版本 `1.5.0`。
-- 核心规则 `YQ-MVP-RULES-1.1.0`；教学规则 `YQ-LEARNING-RULES-1.1.0`；量表 `YQ-CONSTITUTION-1.0.0`。
+- 核心规则 `YQ-MVP-RULES-1.1.0`；当前教学规则 `YQ-LEARNING-RULES-1.2.0`；量表 `YQ-CONSTITUTION-1.0.0`。
 - 机器基线：`packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.3.0.freeze.json`；registry只追加。
 - [1.0.0](YQ-API-CONTRACT-1.0.0.md)、[1.1.0](YQ-API-CONTRACT-1.1.0.md)、[1.2.0](YQ-API-CONTRACT-1.2.0.md)文档和freeze文件原样保留。
 
@@ -44,8 +44,11 @@ Service直接映射Domain结果，时间继续只经time-normalizer；不新增�
 
 `elementRelation`为`SAME_ELEMENT`或`DIFFERENT_ELEMENT`；`direction`为`NONE`、
 `HOST_GENERATES_GUEST`、`GUEST_GENERATES_HOST`、`HOST_CONTROLS_GUEST`、`GUEST_CONTROLS_HOST`。
-五运标签只陈述“同属{五行} / 主运生客运 / 客运生主运 / 主运克客运 / 客运克主运”，
-不为主客运加入相得、顺、逆等教学外推。`traditionalLabel`保持string类型，标签及五步运教学口径待专家确认。
+五运标签按方向分别为“相得 · 主生客 / 相得 · 客生主 / 逆 · 主胜客 / 顺 · 客胜主”；
+同五行太少不同为“同属{element}运 · 太少不同”，太少相同为“主客同运”。
+契约结构不变，标签来自教学规则 1.2.0 专家确认；`traditionalLabel`与`ruleVersion`仍为string，不重新生成或冻结契约。
+其中“主客同运”是中性工程陈述，专家未单独作答，仍待下次确认；五步运交运口径也仍待专家确认。
+标签只描述运气结构，“相违”只是界面颜色语气，不是风险等级，不推导吉凶、疾病或治疗结论。
 运边界标签依次为“大寒、春分后13日、芒种后10日、处暑后7日、立冬后4日、大寒”；时间事实以start/end为准。
 
 ## 输入时刻与出生候选
@@ -61,7 +64,7 @@ UI直接显示API `localTime`。余日大于0时可显示“还有N天”；余�
 
 金标输入`2026-11-18T08:44:00+08:00`：五之气秋分→小雪，
 `currentStepProgress = {elapsedRatio: 0.929, remainingCalendarDays: 4, endsOnInputDate: false}`；
-终运立冬后4日→大寒，主水太羽、客金少商，关系为“客运生主运”，当前运余63日、比例0.095。
+终运立冬后4日→大寒，主水太羽、客金少商，关系为“相得 · 客生主”，当前运余63日、比例0.095。
 
 ## 包版本与迁移
 
@@ -75,7 +78,8 @@ UI直接显示API `localTime`。余日大于0时可显示“还有N天”；余�
 新增字段采用SemVer minor；对响应进行闭合校验的消费方须升级schema与类型后再消费1.3.0，
 模拟响应的fixture也须补齐required字段。Contract ID精确检查应切换到`YQ-API-CONTRACT-1.3.0`。
 
-learning系列（含出生对照顶层、current及候选learning）的`ruleVersion`由
-`YQ-LEARNING-RULES-1.0.0`变为`YQ-LEARNING-RULES-1.1.0`；facts的核心ruleVersion保持不变。
+learning系列（含出生对照顶层、current及候选learning）的当前`ruleVersion`为
+`YQ-LEARNING-RULES-1.2.0`；1.3.0最初引入阶段事实时由教学规则1.0.0升级到1.1.0，E4再升级到1.2.0。
+facts的核心ruleVersion保持不变，契约1.3.0结构及冻结基线不变。
 做精确版本检查或按版本缓存的消费方须显式处理新教学版本，保留历史来源，不把旧结果重标为新规则。
-规则依据见[教学规则1.1](../../rules/LEARNING_RULES_V1_1.md)。工程冻结和测试通过均不能替代专家或临床验收。
+当前标签依据见[教学规则1.2](../../rules/LEARNING_RULES_V1_2.md)，阶段事实定义仍见[历史教学规则1.1](../../rules/LEARNING_RULES_V1_1.md)。工程冻结和测试通过均不能替代专家或临床验收。

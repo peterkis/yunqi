@@ -23,10 +23,17 @@ function expectedSubtitle(step, progress, transition) {
 
 export async function expectMovementRelation(region, movement) {
   const { relation, host, guest } = movement;
-  const sameElement = relation.elementRelation === 'SAME_ELEMENT';
-  const generating = ['HOST_GENERATES_GUEST', 'GUEST_GENERATES_HOST'].includes(relation.direction);
+  // YQ-LEARNING-RULES-1.2.0 (expert-confirmed): 相得 and 客胜主=顺 are favorable,
+  // 主胜客=逆 is adverse, a shared element is neutral.
+  const tones = {
+    NONE: 'neutral',
+    HOST_GENERATES_GUEST: 'favorable',
+    GUEST_GENERATES_HOST: 'favorable',
+    GUEST_CONTROLS_HOST: 'favorable',
+    HOST_CONTROLS_GUEST: 'adverse',
+  };
   await expect(region.locator('.ds-relation__chip')).toHaveText(relation.traditionalLabel);
-  await expect(region.locator('.ds-relation__chip')).toHaveClass(`ds-relation__chip ds-relation__chip--${!sameElement && generating ? 'favorable' : 'neutral'}`);
+  await expect(region.locator('.ds-relation__chip')).toHaveClass(`ds-relation__chip ds-relation__chip--${tones[relation.direction]}`);
   const explanations = {
     NONE: '',
     HOST_GENERATES_GUEST: `主${host.element}生客${guest.element}`,
@@ -34,7 +41,7 @@ export async function expectMovementRelation(region, movement) {
     HOST_CONTROLS_GUEST: `主${host.element}克客${guest.element}`,
     GUEST_CONTROLS_HOST: `客${guest.element}克主${host.element}`,
   };
-  if (sameElement || relation.direction === 'NONE') {
+  if (relation.elementRelation === 'SAME_ELEMENT' || relation.direction === 'NONE') {
     await expect(region.locator('.ds-relation__explanation')).toHaveCount(0);
   } else {
     await expect(region.locator('.ds-relation__explanation')).toHaveText(explanations[relation.direction]);

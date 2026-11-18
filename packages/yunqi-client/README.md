@@ -70,7 +70,7 @@ default scores or retain an answer for the other sex-specific question after
 changing sex. Results preserve nine scores, tendencies and compatible types;
 the [constitution rule note](../../rules/CONSTITUTION-GBT46939-2025.md)
 documents the algorithm. Learning and birth comparisons use the separately
-versioned [teaching rules](../../rules/LEARNING_RULES_V1_1.md).
+versioned [teaching rules](../../rules/LEARNING_RULES_V1_2.md).
 
 The Axios adapter is structural: applications may pass an Axios-compatible
 object without making Axios a client-package dependency. Query options are

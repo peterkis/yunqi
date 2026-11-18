@@ -11,7 +11,7 @@ const INPUT_EPOCH = 1_794_962_640_000;
 const QI_PROGRESS = { elapsedRatio: 0.929, remainingCalendarDays: 4, endsOnInputDate: false };
 const MOVEMENT_PROGRESS = { elapsedRatio: 0.095, remainingCalendarDays: 63, endsOnInputDate: false };
 const MOVEMENT_RELATION = {
-  elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运',
+  elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主',
 };
 
 describe('Contract 1.3.0 stage facts over HTTP', () => {
@@ -59,7 +59,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
 
   function expectLearning(data: YunQiLearningDto) {
     expectCalculation(data.facts);
-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.1.0');
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
     expect(data.currentMovement).toMatchObject({
       name: '终运', startLabel: '立冬后4日', endLabel: '大寒',
       host: { element: '水', state: '太过', tone: '太羽' },
@@ -100,7 +100,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
     },
   );
 
-  it('returns the golden current learning facts and neutral movement relation', async () => {
+  it('returns the golden current learning facts and expert-confirmed movement relation', async () => {
     expectLearning(await success<YunQiLearningDto>('/api/v1/yunqi/learning/current'));
     expect(now).toHaveBeenCalledTimes(1);
   });
@@ -110,11 +110,32 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
     expect(now).not.toHaveBeenCalled();
   });
 
+  it.each([
+    [2022, 'NONE', '主客同运'],
+    [2023, 'HOST_GENERATES_GUEST', '相得 · 主生客'],
+    [2024, 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
+    [2025, 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
+    [2026, 'GUEST_GENERATES_HOST', '相得 · 客生主'],
+  ] as const)('carries teaching-rule 1.2.0 labels through the unchanged schema for %i', async (year, direction, traditionalLabel) => {
+    const data = await success<YunQiLearningDto>('/api/v1/yunqi/learning/calculate', {
+      dateTime: `${year}-11-18T08:44:00+08:00`,
+    });
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(data.facts.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
+    expect(data.currentMovement.relation).toEqual({
+      elementRelation: direction === 'NONE' ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT',
+      direction, traditionalLabel,
+    });
+    expect(data.movements).toHaveLength(5);
+    for (const movement of data.movements) expect(movement.relation).toEqual(data.currentMovement.relation);
+    expect(now).not.toHaveBeenCalled();
+  });
+
   it.each([{ birthTime: '08:44:00' }, {}])('carries candidate-relative progress through birth comparison (%j)', async (precision) => {
     const data = await success<BirthComparisonDto>('/api/v1/yunqi/learning/birth-comparison', {
       birthDate: '2026-11-18', ...precision,
     });
-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.1.0');
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
     expectLearning(data.current);
     expect(now).toHaveBeenCalledTimes(1);
     expect(data.candidates).toHaveLength(1);

@@ -1,0 +1,570 @@
+From 57716a7685bfe1b01b93a7bc1664282d5b20450f Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 03:23:14 +0000
+Subject: [PATCH 1/2] =?UTF-8?q?feat(domain):=20=E4=B8=BB=E5=AE=A2=E8=BF=90?=
+ =?UTF-8?q?=E5=85=B3=E7=B3=BB=E9=87=87=E7=94=A8=E4=B8=93=E5=AE=B6=E7=A1=AE?=
+ =?UTF-8?q?=E8=AE=A4=E6=A0=87=E7=AD=BE=EF=BC=88=E6=95=99=E5=AD=A6=E8=A7=84?=
+ =?UTF-8?q?=E5=88=99=201.2.0=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+E4 专家结论落地，契约 YQ-API-CONTRACT-1.3.0 不变（traditionalLabel、ruleVersion 均为字符串）：
+- 相生归“相得”并保留方向：相得 · 主生客 / 相得 · 客生主
+- 相克依“主胜逆，客胜从”：顺 · 客胜主 / 逆 · 主胜客
+- 同五行只陈述太少：同属{element}运 · 太少不同；太少亦同为“主客同运”
+- 工作台语气：相得、顺为相合，逆为相违，同五行为中性
+- 新增 rules/LEARNING_RULES_V1_2.md，README 版本引用更新；测试与浏览器辅助断言同步
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_015hQr4PfZLtYd2atKb722DF
+---
+ README.md                                     |  2 +-
+ .../birth/presentation/map-birth-view.test.ts |  2 +-
+ .../components/CurrentYunQiPage.test.tsx      |  6 +-
+ .../presentation/visual-mappings.test.ts      | 12 ++--
+ .../yunqi/presentation/visual-mappings.ts     |  9 +--
+ .../src/test/learning-fixtures.ts             |  2 +-
+ packages/yunqi-domain/README.md               |  2 +-
+ packages/yunqi-domain/src/learning/rules.ts   | 19 +++---
+ .../src/relation/movement-relation.ts         | 11 +++-
+ packages/yunqi-domain/tests/learning.test.ts  | 18 ++---
+ .../tests/movement-relation.test.ts           | 19 +++++-
+ .../yunqi-domain/tests/public-api.test.ts     |  2 +-
+ .../yunqi-domain/tests/public-entry.test.ts   |  9 +--
+ packages/yunqi-service/README.md              |  2 +-
+ .../tests/stage-facts-contract.test.ts        |  8 +--
+ rules/LEARNING_RULES_V1_2.md                  | 65 +++++++++++++++++++
+ test-results/.last-run.json                   | 27 ++++++++
+ tests/browser/stage-facts-helpers.mjs         | 15 +++--
+ 18 files changed, 177 insertions(+), 53 deletions(-)
+ create mode 100644 rules/LEARNING_RULES_V1_2.md
+ create mode 100644 test-results/.last-run.json
+
+diff --git a/README.md b/README.md
+index bf7faad..39542ab 100644
+--- a/README.md
++++ b/README.md
+@@ -33,7 +33,7 @@
+ 当前规则为 [YQ-MVP-RULES-1.1.0](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md)。
+ 2026-10-18 按用户确认采用 Word R-08/R-21：支持1900–2100运气年，
+ 客生主传统描述为“客生主，相得”。新增教学规则为
+-[YQ-LEARNING-RULES-1.1.0](rules/LEARNING_RULES_V1_1.md)，量表规则为
++[YQ-LEARNING-RULES-1.2.0](rules/LEARNING_RULES_V1_2.md)，量表规则为
+ [YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
+ 经典内容更新为[YQ-CLASSICAL-READING-1.1.0](rules/CLASSICAL_READING_V1_1.md)，
+ 补充连续气候与病候选段，不改变运气计算、量表计分或API结构。
+diff --git a/apps/yunqi-workbench/src/features/yunqi/birth/presentation/map-birth-view.test.ts b/apps/yunqi-workbench/src/features/yunqi/birth/presentation/map-birth-view.test.ts
+index ab96e1e..458718f 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/birth/presentation/map-birth-view.test.ts
++++ b/apps/yunqi-workbench/src/features/yunqi/birth/presentation/map-birth-view.test.ts
+@@ -9,7 +9,7 @@ describe('birth presentation', () => {
+     const comparison = { ...base.comparisons[0], title: '客运对照', label: '当前克出生', relation: '接口出生与当前客运对照', explanation: '来自comparisons的说明' };
+     const result = mapBirthView({ ...dto, candidates: [{ ...base, comparisons: [comparison] }] });
+     expect(result.candidates[0].rows[4].relation).toMatchObject({ label: comparison.label, relation: comparison.relation, explanation: comparison.explanation, tone: 'adverse' });
+-    expect(result.comparison.current.currentMovement.relation).toMatchObject({ label: '客运生主运', tone: 'favorable' });
++    expect(result.comparison.current.currentMovement.relation).toMatchObject({ label: '相得 · 客生主', tone: 'favorable' });
+   });
+ 
+   it.each([
+diff --git a/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx b/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+index 40e6cd7..c6a20ff 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
++++ b/apps/yunqi-workbench/src/features/yunqi/components/CurrentYunQiPage.test.tsx
+@@ -60,7 +60,7 @@ describe('CurrentYunQiPage', () => {
+     const movement = screen.getByRole('region', { name: '当步运' });
+     expect(movement).toHaveTextContent('火运太过（太徵）');
+     expect(movement).toHaveTextContent('木运不及（少角）');
+-    expect(within(movement).getByText('客运生主运')).toHaveClass('ds-relation__chip--favorable');
++    expect(within(movement).getByText('相得 · 客生主')).toHaveClass('ds-relation__chip--favorable');
+     expect(within(movement).getByText('客木生主火')).toBeVisible();
+     expect(movement).not.toHaveTextContent('关系未提供');
+     expect(movement).not.toHaveTextContent('主运与客运并列展示。');
+@@ -147,11 +147,11 @@ describe('CurrentYunQiPage', () => {
+   it('shows only the traditionalLabel for a same-element movement', () => {
+     const dto = createLearningDto();
+     const learning = mapLearning({ ...dto, currentMovement: { ...dto.currentMovement,
+-      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属火' },
++      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '主客同运' },
+     } });
+     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+     const movement = screen.getByRole('region', { name: '当步运' });
+-    expect(within(movement).getByText('同属火')).toHaveClass('ds-relation__chip--neutral');
++    expect(within(movement).getByText('主客同运')).toHaveClass('ds-relation__chip--neutral');
+     expect(movement.querySelector('.ds-relation__explanation')).toBeNull();
+   });
+ 
+diff --git a/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.test.ts b/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.test.ts
+index 4e3e7f0..4de5928 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.test.ts
++++ b/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.test.ts
+@@ -14,10 +14,10 @@ function birthForLearning(learning: ReturnType<typeof createLearningDto>) {
+ 
+ describe('API visual classifications', () => {
+   it.each([
+-    ['HOST_GENERATES_GUEST', '主运生客运', 'favorable', '主火生客木'],
+-    ['GUEST_GENERATES_HOST', '客运生主运', 'favorable', '客木生主火'],
+-    ['HOST_CONTROLS_GUEST', '主运克客运', 'neutral', '主火克客木'],
+-    ['GUEST_CONTROLS_HOST', '客运克主运', 'neutral', '客木克主火'],
++    ['HOST_GENERATES_GUEST', '相得 · 主生客', 'favorable', '主火生客木'],
++    ['GUEST_GENERATES_HOST', '相得 · 客生主', 'favorable', '客木生主火'],
++    ['HOST_CONTROLS_GUEST', '逆 · 主胜客', 'adverse', '主火克客木'],
++    ['GUEST_CONTROLS_HOST', '顺 · 客胜主', 'favorable', '客木克主火'],
+     ['NONE', '接口中性标签', 'neutral', ''],
+   ] as const)('uses movement DTO direction %s rather than inferring rules from the elements', (direction, label, tone, explanation) => {
+     // Keep the same deliberately synthetic element pair for all directions.
+@@ -32,9 +32,9 @@ describe('API visual classifications', () => {
+   it('shows only the supplied same-element movement label', () => {
+     const dto = createLearningDto();
+     const movement = { ...dto.currentMovement, guest: dto.currentMovement.host,
+-      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属火' },
++      relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '主客同运' },
+     } as const;
+-    expect(mapMovementRelation(movement)).toEqual({ label: '同属火', tone: 'neutral', explanation: '' });
++    expect(mapMovementRelation(movement)).toEqual({ label: '主客同运', tone: 'neutral', explanation: '' });
+   });
+ 
+   it.each([
+diff --git a/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.ts b/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.ts
+index 0c4e44b..01b5532 100644
+--- a/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.ts
++++ b/apps/yunqi-workbench/src/features/yunqi/presentation/visual-mappings.ts
+@@ -42,14 +42,15 @@ export function mapRelationDirection(value: string): DirectionPresentation {
+     : RELATION_DIRECTIONS.NONE;
+ }
+ 
+-// Five-movement relations have their own teaching scope. The DTO direction
+-// supplies the verb/order; no element-generation or control rules live here.
++// Five-movement relations (teaching rules 1.2.0, expert-confirmed): 相得 for
++// generation, 客胜主=顺 / 主胜客=逆 for control. The DTO direction supplies the
++// tone and verb order; no element-generation or control rules live here.
+ const MOVEMENT_RELATION_DIRECTIONS = {
+   NONE: { tone: 'neutral', verb: null, guestFirst: false },
+   HOST_GENERATES_GUEST: { tone: 'favorable', verb: '生', guestFirst: false },
+   GUEST_GENERATES_HOST: { tone: 'favorable', verb: '生', guestFirst: true },
+-  HOST_CONTROLS_GUEST: { tone: 'neutral', verb: '克', guestFirst: false },
+-  GUEST_CONTROLS_HOST: { tone: 'neutral', verb: '克', guestFirst: true },
++  HOST_CONTROLS_GUEST: { tone: 'adverse', verb: '克', guestFirst: false },
++  GUEST_CONTROLS_HOST: { tone: 'favorable', verb: '克', guestFirst: true },
+ } as const satisfies Readonly<Record<MovementRelationDto['direction'], {
+   readonly tone: RelationTone;
+   readonly verb: '生' | '克' | null;
+diff --git a/apps/yunqi-workbench/src/test/learning-fixtures.ts b/apps/yunqi-workbench/src/test/learning-fixtures.ts
+index e688468..564fef4 100644
+--- a/apps/yunqi-workbench/src/test/learning-fixtures.ts
++++ b/apps/yunqi-workbench/src/test/learning-fixtures.ts
+@@ -20,7 +20,7 @@ export function createLearningDto(): YunQiLearningDto {
+     endLabel: '芒种后10日',
+     host: { element: '火', state: '太过', tone: '太徵' },
+     guest: { element: '木', state: '不及', tone: '少角' },
+-    relation: { elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运' },
++    relation: { elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主' },
+     boundaryMethod: '测试交运口径（教学口径，待专家确认）',
+     explanation: '交运按服务端给定的固定北京时间区间展示。',
+   } as const;
+diff --git a/packages/yunqi-domain/README.md b/packages/yunqi-domain/README.md
+index 2f88c08..28a248f 100644
+--- a/packages/yunqi-domain/README.md
++++ b/packages/yunqi-domain/README.md
+@@ -134,7 +134,7 @@ interface CalendarProvider {
+ 
+ `calculateStageProgress(start, end, input)` 要求 `start <= input < end`、`end > start`，否则抛 `RangeError`。冻结的 `StageProgress` 包含时长比例 `elapsedRatio`（epochMilliseconds 之比，四舍五入到 3 位小数，最大 0.999）、剩余日历日数 `remainingCalendarDays`（固定北京时间年月日的公历日序号差，不看钟点）及 `endsOnInputDate`（日差为 0）。不读取时钟。权威日历入口从输入本地字段构造比例所需的规范 instant，保留原有归属语义；`YunQiCalendarResult` 及兼容 `YunQiResult` 均带 `currentStepProgress`。其余步和年度结果不带进度。
+ 
+-教学规则版本为 `YQ-LEARNING-RULES-1.1.0`，经典数据版本仍为 `YQ-CLASSICAL-READING-1.1.0`。来源及本轮增量见[教学规则 1.1](../../rules/LEARNING_RULES_V1_1.md)，此前逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。52 则摘录及其 ID、匹配键、条目数、原文与阅读说明本轮保持不变；消费者不应把旧文案作为匹配条件。`calculateLearning().notes` 继续包含经典数据版本。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
++教学规则版本为 `YQ-LEARNING-RULES-1.2.0`，经典数据版本仍为 `YQ-CLASSICAL-READING-1.1.0`。来源及本轮增量见[教学规则 1.1](../../rules/LEARNING_RULES_V1_1.md)，此前逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。52 则摘录及其 ID、匹配键、条目数、原文与阅读说明本轮保持不变；消费者不应把旧文案作为匹配条件。`calculateLearning().notes` 继续包含经典数据版本。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
+ 
+ ## 体质量表
+ 
+diff --git a/packages/yunqi-domain/src/learning/rules.ts b/packages/yunqi-domain/src/learning/rules.ts
+index 810b92d..8c8eb60 100644
+--- a/packages/yunqi-domain/src/learning/rules.ts
++++ b/packages/yunqi-domain/src/learning/rules.ts
+@@ -1,7 +1,7 @@
+ import type { SolarTerm } from '../calendar/provider.js';
+-import type { Element, HeavenlyStem, HostGuestDirection, SuiYun, Tone } from '../types.js';
++import type { Element, HeavenlyStem, SuiYun, Tone } from '../types.js';
+ 
+-export const LEARNING_RULE_VERSION = 'YQ-LEARNING-RULES-1.1.0';
++export const LEARNING_RULE_VERSION = 'YQ-LEARNING-RULES-1.2.0';
+ export const MOVEMENT_BOUNDARY_METHOD = '节气交节时刻加整日（教学口径，待专家确认）';
+ export const MOVEMENT_BOUNDARY_OFFSETS = Object.freeze([
+   Object.freeze(['春分', 13] as const),
+@@ -9,13 +9,16 @@ export const MOVEMENT_BOUNDARY_OFFSETS = Object.freeze([
+   Object.freeze(['处暑', 7] as const),
+   Object.freeze(['立冬', 4] as const),
+ ] as const satisfies readonly (readonly [SolarTerm, number])[]);
++// 专家确认（2026-11-18）：相生归“相得”并保留生化方向；相克依《至真要大论》
++// “主胜逆，客胜从”分顺逆（《类经》“客主之运有逆顺”）；同五行只陈述太少异同。
+ export const MOVEMENT_RELATION_LABELS = Object.freeze({
+-  NONE: '同属{element}',
+-  HOST_GENERATES_GUEST: '主运生客运',
+-  GUEST_GENERATES_HOST: '客运生主运',
+-  HOST_CONTROLS_GUEST: '主运克客运',
+-  GUEST_CONTROLS_HOST: '客运克主运',
+-} as const satisfies Readonly<Record<HostGuestDirection, string>>);
++  SAME_ELEMENT_SAME_STATE: '主客同运',
++  SAME_ELEMENT_DIFFERENT_STATE: '同属{element}运 · 太少不同',
++  HOST_GENERATES_GUEST: '相得 · 主生客',
++  GUEST_GENERATES_HOST: '相得 · 客生主',
++  HOST_CONTROLS_GUEST: '逆 · 主胜客',
++  GUEST_CONTROLS_HOST: '顺 · 客胜主',
++} as const);
+ export const MOVEMENT_ELEMENTS: readonly Element[] = Object.freeze(['木', '火', '土', '金', '水']);
+ export const MOVEMENT_NAMES = Object.freeze(['初运', '二运', '三运', '四运', '终运']);
+ // 《素问·六元正纪大论》明列的五音次序；水→木处不能机械翻转太少。
+diff --git a/packages/yunqi-domain/src/relation/movement-relation.ts b/packages/yunqi-domain/src/relation/movement-relation.ts
+index 62c3a3a..4a57455 100644
+--- a/packages/yunqi-domain/src/relation/movement-relation.ts
++++ b/packages/yunqi-domain/src/relation/movement-relation.ts
+@@ -2,7 +2,11 @@ import { MOVEMENT_RELATION_LABELS } from '../learning/rules.js';
+ import { ELEMENT_CONTROL_MAP, ELEMENT_GENERATION_MAP } from '../rules/phase1-rules.js';
+ import type { HostGuestDirection, MovementRelationResult, SuiYun } from '../types.js';
+ 
+-/** Five-movement teaching relations describe only the element direction. */
++/**
++ * Five-movement host/guest relation (teaching rules 1.2.0, expert-confirmed):
++ * generation is 相得 with its direction kept; control follows 主胜逆、客胜从;
++ * a shared element only states whether 太/少 differ.
++ */
+ export function calculateMovementRelation(host: SuiYun, guest: SuiYun): MovementRelationResult {
+   const sameElement = host.element === guest.element;
+   const direction: HostGuestDirection = sameElement ? 'NONE'
+@@ -10,10 +14,13 @@ export function calculateMovementRelation(host: SuiYun, guest: SuiYun): Movement
+     : ELEMENT_GENERATION_MAP[guest.element] === host.element ? 'GUEST_GENERATES_HOST'
+     : ELEMENT_CONTROL_MAP[host.element] === guest.element ? 'HOST_CONTROLS_GUEST'
+     : 'GUEST_CONTROLS_HOST';
++  const traditionalLabel = !sameElement ? MOVEMENT_RELATION_LABELS[direction as Exclude<HostGuestDirection, 'NONE'>]
++    : host.state === guest.state ? MOVEMENT_RELATION_LABELS.SAME_ELEMENT_SAME_STATE
++    : MOVEMENT_RELATION_LABELS.SAME_ELEMENT_DIFFERENT_STATE.replace('{element}', host.element);
+ 
+   return Object.freeze({
+     elementRelation: sameElement ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT',
+     direction,
+-    traditionalLabel: MOVEMENT_RELATION_LABELS[direction].replace('{element}', host.element),
++    traditionalLabel,
+   });
+ }
+diff --git a/packages/yunqi-domain/tests/learning.test.ts b/packages/yunqi-domain/tests/learning.test.ts
+index b62d6d2..e9ab0c9 100644
+--- a/packages/yunqi-domain/tests/learning.test.ts
++++ b/packages/yunqi-domain/tests/learning.test.ts
+@@ -189,11 +189,11 @@ describe('five-movement teaching boundaries', () => {
+   });
+ 
+   it.each([
+-    [2022, '木', 'NONE', '同属木'],
+-    [2023, '火', 'HOST_GENERATES_GUEST', '主运生客运'],
+-    [2024, '土', 'HOST_CONTROLS_GUEST', '主运克客运'],
+-    [2025, '金', 'GUEST_CONTROLS_HOST', '客运克主运'],
+-    [2026, '水', 'GUEST_GENERATES_HOST', '客运生主运'],
++    [2022, '木', 'NONE', '主客同运'],
++    [2023, '火', 'HOST_GENERATES_GUEST', '相得 · 主生客'],
++    [2024, '土', 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
++    [2025, '金', 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
++    [2026, '水', 'GUEST_GENERATES_HOST', '相得 · 客生主'],
+   ])('keeps all five %i movement directions consistent for annual %s', (year, element, direction, label) => {
+     const annual = calculateYearYunQi(year, fixedCalendarProvider);
+     const movements = buildMovementSteps(annual, fixedCalendarProvider);
+@@ -201,8 +201,8 @@ describe('five-movement teaching boundaries', () => {
+     expect(movements.map((step) => step.relation.direction)).toEqual(Array(5).fill(direction));
+     expect(movements[0].relation.traditionalLabel).toBe(label);
+     for (const step of movements) {
+-      expect(step.relation.traditionalLabel).toBe(direction === 'NONE' ? `同属${step.host.element}` : label);
+-      expect(step.relation.traditionalLabel).not.toMatch(/相得|顺|逆/);
++      // Within one year a shared element always means an identical host/guest movement.
++      expect(step.relation.traditionalLabel).toBe(label);
+       expect(step.relation).not.toHaveProperty('qiRelation');
+       expect(Object.isFrozen(step.relation)).toBe(true);
+       if (step.host.element === step.guest.element) expect(step.host).toEqual(step.guest);
+@@ -303,7 +303,7 @@ describe('current stage facts', () => {
+           "relation": {
+             "direction": "GUEST_GENERATES_HOST",
+             "elementRelation": "DIFFERENT_ELEMENT",
+-            "traditionalLabel": "客运生主运",
++            "traditionalLabel": "相得 · 客生主",
+           },
+           "startLabel": "立冬后4日",
+         },
+@@ -317,7 +317,7 @@ describe('current stage facts', () => {
+           },
+           "startTerm": "秋分",
+         },
+-        "ruleVersion": "YQ-LEARNING-RULES-1.1.0",
++        "ruleVersion": "YQ-LEARNING-RULES-1.2.0",
+       }
+     `);
+     expect(result.movements.every((step) => !('progress' in step) && !('currentMovementProgress' in step))).toBe(true);
+diff --git a/packages/yunqi-domain/tests/movement-relation.test.ts b/packages/yunqi-domain/tests/movement-relation.test.ts
+index 934b27b..a5660a9 100644
+--- a/packages/yunqi-domain/tests/movement-relation.test.ts
++++ b/packages/yunqi-domain/tests/movement-relation.test.ts
+@@ -19,6 +19,15 @@ const DIRECTIONS = [
+   ['HOST_GENERATES_GUEST', 'HOST_CONTROLS_GUEST', 'GUEST_CONTROLS_HOST', 'GUEST_GENERATES_HOST', 'NONE'],
+ ] as const;
+ 
++// Expert-confirmed teaching labels (YQ-LEARNING-RULES-1.2.0), written out by hand.
++const LABELS = {
++  NONE: '主客同运',
++  HOST_GENERATES_GUEST: '相得 · 主生客',
++  GUEST_GENERATES_HOST: '相得 · 客生主',
++  HOST_CONTROLS_GUEST: '逆 · 主胜客',
++  GUEST_CONTROLS_HOST: '顺 · 客胜主',
++} as const;
++
+ describe('five-movement relation directions', () => {
+   it.each(MOVEMENTS)('matches all guest elements for host $element', (host) => {
+     for (const [guestIndex, guest] of MOVEMENTS.entries()) {
+@@ -28,14 +37,18 @@ describe('five-movement relation directions', () => {
+       expect(result.elementRelation).toBe(direction === 'NONE' ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT');
+       expect(Object.keys(result).sort()).toEqual(['direction', 'elementRelation', 'traditionalLabel']);
+       expect(Object.isFrozen(result)).toBe(true);
+-      expect(result.traditionalLabel).not.toMatch(/相得|顺|逆/);
++      expect(result.traditionalLabel).toBe(LABELS[direction]);
+     }
+   });
+ 
+-  it('uses the host element in a neutral same-element label regardless of tone or state', () => {
++  it('states only whether 太/少 differ when host and guest share an element', () => {
+     expect(calculateMovementRelation(
+       { element: '水', state: '太过', tone: '太羽' },
+       { element: '水', state: '不及', tone: '少羽' },
+-    )).toEqual({ elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属水' });
++    )).toEqual({ elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '同属水运 · 太少不同' });
++    expect(calculateMovementRelation(
++      { element: '水', state: '太过', tone: '太羽' },
++      { element: '水', state: '太过', tone: '太羽' },
++    )).toEqual({ elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: '主客同运' });
+   });
+ });
+diff --git a/packages/yunqi-domain/tests/public-api.test.ts b/packages/yunqi-domain/tests/public-api.test.ts
+index 28bbf2e..87035ed 100644
+--- a/packages/yunqi-domain/tests/public-api.test.ts
++++ b/packages/yunqi-domain/tests/public-api.test.ts
+@@ -138,7 +138,7 @@ describe('stable package API', () => {
+     expect(typeof getCurrentStep).toBe('function');
+     expect(typeof publicApi.calculateMovementRelation).toBe('function');
+     expect(typeof publicApi.calculateStageProgress).toBe('function');
+-    expect(publicApi.LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.1.0');
++    expect(publicApi.LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.2.0');
+     expect(typeof publicApi.createYunQiInstant).toBe('function');
+     expect(typeof publicApi.assertYunQiInstant).toBe('function');
+     expect(typeof publicApi.createYunQiCalendarTime).toBe('function');
+diff --git a/packages/yunqi-domain/tests/public-entry.test.ts b/packages/yunqi-domain/tests/public-entry.test.ts
+index ddfe1d0..d39e073 100644
+--- a/packages/yunqi-domain/tests/public-entry.test.ts
++++ b/packages/yunqi-domain/tests/public-entry.test.ts
+@@ -73,14 +73,15 @@ describe('package source entrypoint', () => {
+       createYunQiInstant(0), createYunQiInstant(1_000), createYunQiInstant(500),
+     );
+     const boundaryTerm: SixQiBoundaryTerm = STEP_BOUNDARY_TERMS[0];
+-    expect(relation).toEqual({ elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运' });
++    expect(relation).toEqual({ elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主' });
+     expect(progress).toEqual({ elapsedRatio: 0.5, remainingCalendarDays: 0, endsOnInputDate: true });
+     expect(boundaryTerm).toBe('大寒');
+-    expect(LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.1.0');
++    expect(LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.2.0');
+     expect(MOVEMENT_BOUNDARY_OFFSETS).toEqual([['春分', 13], ['芒种', 10], ['处暑', 7], ['立冬', 4]]);
+     expect(MOVEMENT_RELATION_LABELS).toEqual({
+-      NONE: '同属{element}', HOST_GENERATES_GUEST: '主运生客运', GUEST_GENERATES_HOST: '客运生主运',
+-      HOST_CONTROLS_GUEST: '主运克客运', GUEST_CONTROLS_HOST: '客运克主运',
++      SAME_ELEMENT_SAME_STATE: '主客同运', SAME_ELEMENT_DIFFERENT_STATE: '同属{element}运 · 太少不同',
++      HOST_GENERATES_GUEST: '相得 · 主生客', GUEST_GENERATES_HOST: '相得 · 客生主',
++      HOST_CONTROLS_GUEST: '逆 · 主胜客', GUEST_CONTROLS_HOST: '顺 · 客胜主',
+     });
+     expect([relation, progress, MOVEMENT_BOUNDARY_OFFSETS, MOVEMENT_RELATION_LABELS].every(Object.isFrozen)).toBe(true);
+   });
+diff --git a/packages/yunqi-service/README.md b/packages/yunqi-service/README.md
+index ebc8c4d..44ff951 100644
+--- a/packages/yunqi-service/README.md
++++ b/packages/yunqi-service/README.md
+@@ -121,7 +121,7 @@ Learning responses contain core `facts`, separate annual and current-qi
+ relations, the current movement, all five movements, and classical excerpts
+ with reading explanations and source links. The teaching movement boundaries
+ and interpretation status are explicit in
+-[YQ-LEARNING-RULES-1.1.0](../../rules/LEARNING_RULES_V1_1.md).
++[YQ-LEARNING-RULES-1.2.0](../../rules/LEARNING_RULES_V1_2.md).
+ 
+ Birth comparison accepts:
+ 
+diff --git a/packages/yunqi-service/tests/stage-facts-contract.test.ts b/packages/yunqi-service/tests/stage-facts-contract.test.ts
+index be416b4..5be8b7a 100644
+--- a/packages/yunqi-service/tests/stage-facts-contract.test.ts
++++ b/packages/yunqi-service/tests/stage-facts-contract.test.ts
+@@ -11,7 +11,7 @@ const INPUT_EPOCH = 1_794_962_640_000;
+ const QI_PROGRESS = { elapsedRatio: 0.929, remainingCalendarDays: 4, endsOnInputDate: false };
+ const MOVEMENT_PROGRESS = { elapsedRatio: 0.095, remainingCalendarDays: 63, endsOnInputDate: false };
+ const MOVEMENT_RELATION = {
+-  elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运',
++  elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主',
+ };
+ 
+ describe('Contract 1.3.0 stage facts over HTTP', () => {
+@@ -59,7 +59,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
+ 
+   function expectLearning(data: YunQiLearningDto) {
+     expectCalculation(data.facts);
+-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.1.0');
++    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+     expect(data.currentMovement).toMatchObject({
+       name: '终运', startLabel: '立冬后4日', endLabel: '大寒',
+       host: { element: '水', state: '太过', tone: '太羽' },
+@@ -100,7 +100,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
+     },
+   );
+ 
+-  it('returns the golden current learning facts and neutral movement relation', async () => {
++  it('returns the golden current learning facts and expert-confirmed movement relation', async () => {
+     expectLearning(await success<YunQiLearningDto>('/api/v1/yunqi/learning/current'));
+     expect(now).toHaveBeenCalledTimes(1);
+   });
+@@ -114,7 +114,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
+     const data = await success<BirthComparisonDto>('/api/v1/yunqi/learning/birth-comparison', {
+       birthDate: '2026-11-18', ...precision,
+     });
+-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.1.0');
++    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+     expectLearning(data.current);
+     expect(now).toHaveBeenCalledTimes(1);
+     expect(data.candidates).toHaveLength(1);
+diff --git a/rules/LEARNING_RULES_V1_2.md b/rules/LEARNING_RULES_V1_2.md
+new file mode 100644
+index 0000000..957e84f
+--- /dev/null
++++ b/rules/LEARNING_RULES_V1_2.md
+@@ -0,0 +1,65 @@
++# 运气教学解释规则 1.2
++
++- 版本：`YQ-LEARNING-RULES-1.2.0`；日期：2026-11-18。
++- 本版是 [1.1 教学规则](LEARNING_RULES_V1_1.md)的增量，只修改第 2 节“当步主客运关系”的标签。阶段边界标签、当前阶段进度和其余定义继续引用 1.1 与 [1.0](LEARNING_RULES_V1.md)，旧文件原样保留。
++- 专家状态：**主客运关系标签已经中医专家确认**（回答 1.1 第 5 节 E4 三问，2026-11-18）。五步运交运口径仍为“教学口径，待专家确认”，不在本次确认范围内。
++- 契约：`YQ-API-CONTRACT-1.3.0` 不变。`traditionalLabel` 与 `ruleVersion` 在契约中都是字符串，结构没有变化。
++  - 对文案或规则版本做精确比对的消费方，需要把 `YQ-LEARNING-RULES-1.1.0` 更新为 `1.2.0`，并更新下表中的标签。
++
++## 1. 专家结论
++
++### 1.1 相生：归“相得”，保留生化方向
++
++主运与客运相生，可以称“相得”。但要写明是谁生谁，不只显示笼统的“相得”，否则无法判断生化方向。
++
++依据：
++- 《素问·六元正纪大论》：“夫五运之化，或从天气，或逆天气，或从天气而逆地气，或从地气而逆天气，或相得，或不相得。”
++- 《素问·五运行大论》：“上下相遘，寒暑相临，气相得则和，不相得则病。”
++
++从运气关系的总体原则看，相生归入“相得”，相克归入“不相得”。
++
++### 1.2 相克：分顺逆
++
++依据《素问·至真要大论》：“客主之气，胜而无负也。”帝问“其逆从何如？”岐伯答：“主胜逆，客胜从，天之道也。”据此：
++
++- 客运克主运，即客胜主，归为“顺”。
++- 主运克客运，即主胜客，归为“逆”。
++
++《类经》已将五运分为主运、客运，提出“五运亦有主客”“客主之运有逆顺”，这是把顺逆延伸到主客运的后世依据。
++
++### 1.3 同五行：只陈述太少异同
++
++同五行而太少不同时，只说“同五行，太少异”，不另立复杂称谓。以主太羽、客少羽为例：两者都属羽音、水运，“太”“少”反映阴阳属性与太过、不及之别，所以称“同属水运，太少不同”。
++
++## 2. 标签表（替换 1.1 第 2 节）
++
++| 情形 | direction | traditionalLabel | 界面语气 |
++| --- | --- | --- | --- |
++| 主运生客运 | HOST_GENERATES_GUEST | 相得 · 主生客 | 相合 |
++| 客运生主运 | GUEST_GENERATES_HOST | 相得 · 客生主 | 相合 |
++| 客运克主运 | GUEST_CONTROLS_HOST | 顺 · 客胜主 | 相合 |
++| 主运克客运 | HOST_CONTROLS_GUEST | 逆 · 主胜客 | 相违 |
++| 同五行，太少不同 | NONE | 同属{element}运 · 太少不同 | 中性 |
++| 同五行，太少相同 | NONE | 主客同运 | 中性 |
++
++说明：
++
++- 标签写法与六气客主加临的“顺 · 客胜主”“逆 · 主胜客”保持一致，用“ · ”连接结论与方向。
++- 界面的说明句仍由 DTO 方向生成，例如“客金生主水”“主火克客木”。
++- “主客同运”：专家没有单独回答“同五行、太少也相同”的情形。工程上沿用第 3 问“只陈述异同、不复杂化”的原则，取中性陈述，并作为后续向专家确认的事项。
++- 在现行客运旋转口径下，同年同步的主运和客运只要同五行，太少必然相同。也就是说，壬年和丁年五步都显示“主客同运”，“太少不同”这一分支目前只在通用函数和单元测试中出现。
++- 关系标签只描述运气结构，不推导吉凶、疾病因果或治疗结论。界面“相违”只是颜色语气，不表示风险等级。
++
++## 3. 金标（替换 1.1 第 4 节中的关系字样）
++
++2026-11-18 08:44 北京时间：终运主太羽、客少商，关系为“相得 · 客生主”，说明句为“客金生主水”。进度与剩余天数不变。
++
++各岁运的五步关系：
++
++| 岁运 | 五步关系 |
++| --- | --- |
++| 木 | 主客同运 |
++| 火 | 相得 · 主生客 |
++| 土 | 逆 · 主胜客 |
++| 金 | 顺 · 客胜主 |
++| 水 | 相得 · 客生主 |
+diff --git a/test-results/.last-run.json b/test-results/.last-run.json
+new file mode 100644
+index 0000000..65222b9
+--- /dev/null
++++ b/test-results/.last-run.json
+@@ -0,0 +1,27 @@
++{
++  "status": "failed",
++  "failedTests": [
++    "5a469c6213b6c1b523c1-255d5bd1d0d2eeda1757",
++    "5a469c6213b6c1b523c1-4a1b8ac3cabbb79b4f2c",
++    "5a469c6213b6c1b523c1-958de4fdc16d0759b0e0",
++    "5a469c6213b6c1b523c1-d627e6a370724f6d460b",
++    "5a469c6213b6c1b523c1-5ff8e4f52acb01d2685e",
++    "950a2ae1a3b908f9332f-e09bbbc0c32391fdd4e0",
++    "950a2ae1a3b908f9332f-21f00a1885037337d52e",
++    "950a2ae1a3b908f9332f-22fef62317c81cb12312",
++    "950a2ae1a3b908f9332f-4e14a4cbbb15529eecbb",
++    "950a2ae1a3b908f9332f-e95a7383df7cd6956bea",
++    "950a2ae1a3b908f9332f-f66a4116bad787d76a05",
++    "950a2ae1a3b908f9332f-a66a65e840852f75af9c",
++    "950a2ae1a3b908f9332f-3df120654ffa4a28afb4",
++    "950a2ae1a3b908f9332f-1980eeee2200ebc7762e",
++    "950a2ae1a3b908f9332f-95bcda85dd02414a1a4e",
++    "950a2ae1a3b908f9332f-9963947930ae171846ee",
++    "950a2ae1a3b908f9332f-87a28587298cd7cca1f2",
++    "950a2ae1a3b908f9332f-37f6c350c53ec0aea98d",
++    "950a2ae1a3b908f9332f-896a2d5d81b1c1efed5c",
++    "950a2ae1a3b908f9332f-967f9f574d78df273290",
++    "950a2ae1a3b908f9332f-71b90cfc0d3fac4363c2",
++    "950a2ae1a3b908f9332f-6562412b8547268dfe55"
++  ]
++}
+\ No newline at end of file
+diff --git a/tests/browser/stage-facts-helpers.mjs b/tests/browser/stage-facts-helpers.mjs
+index 1ca2afb..db801df 100644
+--- a/tests/browser/stage-facts-helpers.mjs
++++ b/tests/browser/stage-facts-helpers.mjs
+@@ -23,10 +23,17 @@ function expectedSubtitle(step, progress, transition) {
+ 
+ export async function expectMovementRelation(region, movement) {
+   const { relation, host, guest } = movement;
+-  const sameElement = relation.elementRelation === 'SAME_ELEMENT';
+-  const generating = ['HOST_GENERATES_GUEST', 'GUEST_GENERATES_HOST'].includes(relation.direction);
++  // YQ-LEARNING-RULES-1.2.0 (expert-confirmed): 相得 and 客胜主=顺 are favorable,
++  // 主胜客=逆 is adverse, a shared element is neutral.
++  const tones = {
++    NONE: 'neutral',
++    HOST_GENERATES_GUEST: 'favorable',
++    GUEST_GENERATES_HOST: 'favorable',
++    GUEST_CONTROLS_HOST: 'favorable',
++    HOST_CONTROLS_GUEST: 'adverse',
++  };
+   await expect(region.locator('.ds-relation__chip')).toHaveText(relation.traditionalLabel);
+-  await expect(region.locator('.ds-relation__chip')).toHaveClass(`ds-relation__chip ds-relation__chip--${!sameElement && generating ? 'favorable' : 'neutral'}`);
++  await expect(region.locator('.ds-relation__chip')).toHaveClass(`ds-relation__chip ds-relation__chip--${tones[relation.direction]}`);
+   const explanations = {
+     NONE: '',
+     HOST_GENERATES_GUEST: `主${host.element}生客${guest.element}`,
+@@ -34,7 +41,7 @@ export async function expectMovementRelation(region, movement) {
+     HOST_CONTROLS_GUEST: `主${host.element}克客${guest.element}`,
+     GUEST_CONTROLS_HOST: `客${guest.element}克主${host.element}`,
+   };
+-  if (sameElement || relation.direction === 'NONE') {
++  if (relation.elementRelation === 'SAME_ELEMENT' || relation.direction === 'NONE') {
+     await expect(region.locator('.ds-relation__explanation')).toHaveCount(0);
+   } else {
+     await expect(region.locator('.ds-relation__explanation')).toHaveText(explanations[relation.direction]);
+-- 
+2.43.0
+

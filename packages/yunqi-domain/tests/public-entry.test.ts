@@ -73,14 +73,15 @@ describe('package source entrypoint', () => {
       createYunQiInstant(0), createYunQiInstant(1_000), createYunQiInstant(500),
     );
     const boundaryTerm: SixQiBoundaryTerm = STEP_BOUNDARY_TERMS[0];
-    expect(relation).toEqual({ elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运' });
+    expect(relation).toEqual({ elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主' });
     expect(progress).toEqual({ elapsedRatio: 0.5, remainingCalendarDays: 0, endsOnInputDate: true });
     expect(boundaryTerm).toBe('大寒');
-    expect(LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.1.0');
+    expect(LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.2.0');
     expect(MOVEMENT_BOUNDARY_OFFSETS).toEqual([['春分', 13], ['芒种', 10], ['处暑', 7], ['立冬', 4]]);
     expect(MOVEMENT_RELATION_LABELS).toEqual({
-      NONE: '同属{element}', HOST_GENERATES_GUEST: '主运生客运', GUEST_GENERATES_HOST: '客运生主运',
-      HOST_CONTROLS_GUEST: '主运克客运', GUEST_CONTROLS_HOST: '客运克主运',
+      SAME_ELEMENT_SAME_STATE: '主客同运', SAME_ELEMENT_DIFFERENT_STATE: '同属{element}运 · 太少不同',
+      HOST_GENERATES_GUEST: '相得 · 主生客', GUEST_GENERATES_HOST: '相得 · 客生主',
+      HOST_CONTROLS_GUEST: '逆 · 主胜客', GUEST_CONTROLS_HOST: '顺 · 客胜主',
     });
     expect([relation, progress, MOVEMENT_BOUNDARY_OFFSETS, MOVEMENT_RELATION_LABELS].every(Object.isFrozen)).toBe(true);
   });

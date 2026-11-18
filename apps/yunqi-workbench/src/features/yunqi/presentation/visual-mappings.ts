@@ -42,14 +42,15 @@ export function mapRelationDirection(value: string): DirectionPresentation {
     : RELATION_DIRECTIONS.NONE;
 }
 
-// Five-movement relations have their own teaching scope. The DTO direction
-// supplies the verb/order; no element-generation or control rules live here.
+// Five-movement relations (teaching rules 1.2.0, expert-confirmed): 相得 for
+// generation, 客胜主=顺 / 主胜客=逆 for control. The DTO direction supplies the
+// tone and verb order; no element-generation or control rules live here.
 const MOVEMENT_RELATION_DIRECTIONS = {
   NONE: { tone: 'neutral', verb: null, guestFirst: false },
   HOST_GENERATES_GUEST: { tone: 'favorable', verb: '生', guestFirst: false },
   GUEST_GENERATES_HOST: { tone: 'favorable', verb: '生', guestFirst: true },
-  HOST_CONTROLS_GUEST: { tone: 'neutral', verb: '克', guestFirst: false },
-  GUEST_CONTROLS_HOST: { tone: 'neutral', verb: '克', guestFirst: true },
+  HOST_CONTROLS_GUEST: { tone: 'adverse', verb: '克', guestFirst: false },
+  GUEST_CONTROLS_HOST: { tone: 'favorable', verb: '克', guestFirst: true },
 } as const satisfies Readonly<Record<MovementRelationDto['direction'], {
   readonly tone: RelationTone;
   readonly verb: '生' | '克' | null;

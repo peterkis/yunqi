@@ -20,7 +20,7 @@ export function createLearningDto(): YunQiLearningDto {
     endLabel: '芒种后10日',
     host: { element: '火', state: '太过', tone: '太徵' },
     guest: { element: '木', state: '不及', tone: '少角' },
-    relation: { elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '客运生主运' },
+    relation: { elementRelation: 'DIFFERENT_ELEMENT', direction: 'GUEST_GENERATES_HOST', traditionalLabel: '相得 · 客生主' },
     boundaryMethod: '测试交运口径（教学口径，待专家确认）',
     explanation: '交运按服务端给定的固定北京时间区间展示。',
   } as const;

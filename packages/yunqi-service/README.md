@@ -121,7 +121,7 @@ Learning responses contain core `facts`, separate annual and current-qi
 relations, the current movement, all five movements, and classical excerpts
 with reading explanations and source links. The teaching movement boundaries
 and interpretation status are explicit in
-[YQ-LEARNING-RULES-1.1.0](../../rules/LEARNING_RULES_V1_1.md).
+[YQ-LEARNING-RULES-1.2.0](../../rules/LEARNING_RULES_V1_2.md).
 
 Birth comparison accepts:
 

@@ -9,7 +9,7 @@ describe('birth presentation', () => {
     const comparison = { ...base.comparisons[0], title: '客运对照', label: '当前克出生', relation: '接口出生与当前客运对照', explanation: '来自comparisons的说明' };
     const result = mapBirthView({ ...dto, candidates: [{ ...base, comparisons: [comparison] }] });
     expect(result.candidates[0].rows[4].relation).toMatchObject({ label: comparison.label, relation: comparison.relation, explanation: comparison.explanation, tone: 'adverse' });
-    expect(result.comparison.current.currentMovement.relation).toMatchObject({ label: '客运生主运', tone: 'favorable' });
+    expect(result.comparison.current.currentMovement.relation).toMatchObject({ label: '相得 · 客生主', tone: 'favorable' });
   });
 
   it.each([

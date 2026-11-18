@@ -189,11 +189,11 @@ describe('five-movement teaching boundaries', () => {
   });
 
   it.each([
-    [2022, '木', 'NONE', '同属木'],
-    [2023, '火', 'HOST_GENERATES_GUEST', '主运生客运'],
-    [2024, '土', 'HOST_CONTROLS_GUEST', '主运克客运'],
-    [2025, '金', 'GUEST_CONTROLS_HOST', '客运克主运'],
-    [2026, '水', 'GUEST_GENERATES_HOST', '客运生主运'],
+    [2022, '木', 'NONE', '主客同运'],
+    [2023, '火', 'HOST_GENERATES_GUEST', '相得 · 主生客'],
+    [2024, '土', 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
+    [2025, '金', 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
+    [2026, '水', 'GUEST_GENERATES_HOST', '相得 · 客生主'],
   ])('keeps all five %i movement directions consistent for annual %s', (year, element, direction, label) => {
     const annual = calculateYearYunQi(year, fixedCalendarProvider);
     const movements = buildMovementSteps(annual, fixedCalendarProvider);
@@ -201,8 +201,8 @@ describe('five-movement teaching boundaries', () => {
     expect(movements.map((step) => step.relation.direction)).toEqual(Array(5).fill(direction));
     expect(movements[0].relation.traditionalLabel).toBe(label);
     for (const step of movements) {
-      expect(step.relation.traditionalLabel).toBe(direction === 'NONE' ? `同属${step.host.element}` : label);
-      expect(step.relation.traditionalLabel).not.toMatch(/相得|顺|逆/);
+      // Within one year a shared element always means an identical host/guest movement.
+      expect(step.relation.traditionalLabel).toBe(label);
       expect(step.relation).not.toHaveProperty('qiRelation');
       expect(Object.isFrozen(step.relation)).toBe(true);
       if (step.host.element === step.guest.element) expect(step.host).toEqual(step.guest);
@@ -303,7 +303,7 @@ describe('current stage facts', () => {
           "relation": {
             "direction": "GUEST_GENERATES_HOST",
             "elementRelation": "DIFFERENT_ELEMENT",
-            "traditionalLabel": "客运生主运",
+            "traditionalLabel": "相得 · 客生主",
           },
           "startLabel": "立冬后4日",
         },
@@ -317,7 +317,7 @@ describe('current stage facts', () => {
           },
           "startTerm": "秋分",
         },
-        "ruleVersion": "YQ-LEARNING-RULES-1.1.0",
+        "ruleVersion": "YQ-LEARNING-RULES-1.2.0",
       }
     `);
     expect(result.movements.every((step) => !('progress' in step) && !('currentMovementProgress' in step))).toBe(true);
