@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
+import { useMotionLevel } from './MotionProvider';
 
 type Theme = 'light' | 'dark';
 
@@ -20,6 +21,7 @@ interface ThemeProviderProps {
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
+  const motion = useMotionLevel();
   const [theme, setTheme] = useState<Theme>('light');
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -35,7 +37,7 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 
   return (
     <ThemeContext.Provider value={value}>
-      <div className="theme-root" data-theme={theme}>
+      <div className="theme-root" data-theme={theme} data-motion={motion}>
         {children}
       </div>
     </ThemeContext.Provider>

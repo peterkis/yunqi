@@ -1,6 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
+import { expectTransitionDuration } from './motion-helpers.mjs';
 import { readFileSync } from 'node:fs';
-import { test, expect, settle, screenshot } from './fixtures.mjs';
+import { test, expect, settle, screenshot, scanAccessibility } from './fixtures.mjs';
 
 const tokens = JSON.parse(readFileSync('docs/design/design-system/tokens.json', 'utf8'));
 const surface = tokens.color.tokens.find(token => token.name === 'surface-page');
@@ -105,7 +105,7 @@ for (const theme of ['light', 'dark']) {
     await expect(quoteCard.locator('.ds-quote-block > :last-child')).toHaveText('文献线索，非个体发病预测。');
     await expect(quoteCard.locator('.ds-quote-block__notice')).toHaveCSS('font-size', '12px');
     for (const selector of ['.ds-segmented-nav__link', '.ds-segmented-control > button', '.ds-scale-option', '.ds-scale-option__key']) {
-      await expect(page.locator(selector).first()).toHaveCSS('transition-duration', '0s');
+      await expectTransitionDuration(page, page.locator(selector).first(), 'fast');
     }
     await expect(page.locator('.ds-scale-option__key.num').first()).toHaveCSS('font-variant-numeric', 'tabular-nums');
     if (await page.evaluate(() => CSS.supports('text-spacing-trim', 'trim-start'))) {
@@ -195,7 +195,7 @@ for (const theme of ['light', 'dark']) {
     await expect(gender.getByRole('radio', { name: '女', exact: true })).toHaveCSS('outline-width', '2px');
     await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
     await screenshot(page, testInfo, `design-foundations-${theme}`);
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     await testInfo.attach('foundation-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
   });

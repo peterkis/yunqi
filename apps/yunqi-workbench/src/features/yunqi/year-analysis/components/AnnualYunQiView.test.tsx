@@ -18,7 +18,7 @@ function createClient(overrides: Partial<YunQiClient> = {}): YunQiClient {
 }
 
 describe('AnnualYunQiView', () => {
-  it('renders a dedicated pending state without annual facts', () => {
+  it('renders a dedicated pending state without annual facts', async () => {
     const client = createClient({
       ...createClientStub(),
       getYear: vi.fn(
@@ -34,7 +34,7 @@ describe('AnnualYunQiView', () => {
     });
 
     expect(
-      screen.getByText('正在加载 2026 年年度五运六气数据'),
+      await screen.findByText('正在加载 2026 年年度五运六气数据'),
     ).toBeInTheDocument();
     expect(
       screen.queryByRole('region', { name: '年度概览' }),

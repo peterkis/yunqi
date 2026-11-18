@@ -1,5 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot, expectCompactTimes } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectCompactTimes, scanAccessibility, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectBirthComparison, expectBirthMirror, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectTextLink } from './consistency-helpers.mjs';
@@ -36,7 +35,7 @@ async function expectBirthNoticePinned(page, reading) {
   expect(await page.locator('.panel-shell__content').evaluate(element => element.scrollHeight - element.clientHeight)).toBeLessThanOrEqual(1);
 }
 
-test('same-page birth assessment reads matching annual and period passages, scores once and clears its session', async ({ page, diagnostics }, testInfo) => {
+test('same-page birth assessment reads matching annual and period passages, scores once and clears its session', async ({ page, diagnostics, motionMode }, testInfo) => {
   await page.goto('/yunqi/birth');
   const data = await compareBirth(page);
   await expectBirthComparison(page, data);
@@ -47,7 +46,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   const allReadings = page.getByRole('link', { name: '全部原文', exact: true });
   await allReadings.focus();
   await allReadings.press('Enter');
-  await expect(page).toHaveURL(/\/yunqi\/birth\/classics$/);
+  await expect(page).toHaveURL(/\/yunqi\/birth\/classics(?:\?motion=off)?$/);
   await expect(page.getByRole('navigation', { name: '工作台导航' })).toHaveCount(0);
   const reading = page.getByRole('region', { name: '先天原文与释义', exact: true });
   const historical = reading.locator('.birth-reading-candidate').first();
@@ -110,7 +109,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   expect(Object.keys(requestBody).sort()).toEqual(['answers', 'questionnaireId', 'sex']);
   expect(Object.keys(requestBody.answers)).toHaveLength(26);
   await results.scrollIntoViewIfNeeded();
-  const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  const scan = await scanAccessibility(page);
   await testInfo.attach('birth-assessment-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
   expect(scan.violations.map(violation => ({ id: violation.id, targets: violation.nodes.map(node => node.target) }))).toEqual([]);
   await screenshot(page, testInfo, 'birth-assessment-nine-results');
@@ -151,7 +150,7 @@ test('same-page birth assessment reads matching annual and period passages, scor
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();
   await expect(session).toHaveCount(0);
   await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toHaveCount(0);
-  expect(new URL(page.url()).search).toBe('');
+  expectNoPersonalDataInUrl(page, motionMode);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
 });
 
@@ -199,7 +198,7 @@ test('same-page assessment ignores an older real scoring response after birth in
   }
 });
 
-test('birth comparison retains every real boundary candidate, its canonical interval and one shared questionnaire', async ({ page, diagnostics }, testInfo) => {
+test('birth comparison retains every real boundary candidate, its canonical interval and one shared questionnaire', async ({ page, diagnostics, motionMode }, testInfo) => {
   await page.goto('/yunqi/birth');
   const storageBefore = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
   const initial = await compareBirth(page);
@@ -242,7 +241,7 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   await expect(page.getByRole('table')).toHaveCount(0);
   await expect(page.getByRole('region', { name: '本次对照体质测评', exact: true })).toHaveCount(0);
   expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
-  expect(new URL(page.url()).search).toBe('');
+  expectNoPersonalDataInUrl(page, motionMode);
   expect(new URL(page.url()).hash).toBe('');
 });
 

@@ -4,6 +4,7 @@ import { InlineText } from '../../../components/design/InlineText';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
+import { MotionSettings } from '../../../components/layout/MotionSettings';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import { mapCalculationTimes } from '../presentation/map-drilldown';
@@ -98,6 +99,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
             <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
           </InfoCard>
         </details></li>
+        <li><MotionSettings /></li>
       </ul>
     </nav>
   </div>;

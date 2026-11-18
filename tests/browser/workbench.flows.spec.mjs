@@ -1,4 +1,4 @@
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
 
@@ -65,7 +65,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
     `${data.suiYun.element}运${data.suiYun.state}（${data.suiYun.tone}）`,
     { exact: true },
   )).toBeVisible();
-  await expect(page).toHaveURL(/\/yunqi\/year\/2024$/);
+  await expect(page).toHaveURL(/\/yunqi\/year\/2024(?:\?motion=off)?$/);
   await expect(page.getByRole('navigation', { name: '工作台导航' })).toHaveCount(0);
   await expect(page.getByRole('region', { name: '页面导航' }).getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
 
@@ -162,7 +162,7 @@ test('a pending URL year hides prior facts and keeps loading inside the panel', 
     });
     const next = page.getByRole('button', { name: '下一年', exact: true });
     await next.click();
-    await expect(page).toHaveURL(/\/yunqi\/year\/2025$/);
+    await expect(page).toHaveURL(/\/yunqi\/year\/2025(?:\?motion=off)?$/);
     await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2025');
     await expect(next).toBeFocused();
     await expect(page.getByRole('status')).toHaveText('正在加载 2025 年年度五运六气数据');
@@ -352,7 +352,7 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   await settle(page);
   const requestsBeforeInquiry = diagnostics.requests.length;
   await page.getByRole('navigation', { name: '更多' }).getByRole('link', { name: '问诊规划 ›', exact: true }).click();
-  await expect(page).toHaveURL(/\/yunqi\/inquiry$/);
+  await expect(page).toHaveURL(/\/yunqi\/inquiry(?:\?motion=off)?$/);
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('heading', { name: '问诊结构化入口', exact: true })).toBeVisible();
   await expect(page.getByRole('article')).toHaveCount(3);
@@ -375,7 +375,7 @@ test('inquiry remains a no-query planning entry and invalid child routes return 
   expect(diagnostics.requests.slice(requestsBeforeInquiry).map(request => new URL(request.url).pathname)).toEqual(['/api/v1/yunqi/learning/current']);
 });
 
-test('constitution keyboard loop answers one question at a time and destroys the session', async ({ page, diagnostics }, testInfo) => {
+test('constitution keyboard loop answers one question at a time and destroys the session', async ({ page, diagnostics, motionMode }, testInfo) => {
   await page.setViewportSize({ width: 400, height: 860 });
   await page.goto('/yunqi/constitution');
   const form = page.getByRole('form', { name: '中医体质量表', exact: true });
@@ -456,7 +456,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(form.getByRole('radiogroup', { name: '量表所用性别' })).toHaveCount(1);
   await expect(male).toBeFocused();
   expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storageBefore);
-  expect(new URL(page.url()).search).toBe('');
+  expectNoPersonalDataInUrl(page, motionMode);
   expect(new URL(page.url()).hash).toBe('');
 });
 

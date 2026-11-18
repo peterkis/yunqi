@@ -20,6 +20,10 @@ interface DesignTokens {
   readonly shadow: { readonly tokens: readonly Token[] };
   readonly size: { readonly tokens: readonly Token[] };
   readonly zIndex: { readonly tokens: readonly Token[] };
+  readonly motion: {
+    readonly tokens: readonly Token[];
+    readonly overrides: Readonly<Record<'reduced' | 'off', Readonly<Record<string, string>>>>;
+  };
   readonly type: {
     readonly families: Record<string, string>;
     readonly groups: readonly { readonly styles: readonly TypeStyle[] }[];
@@ -35,7 +39,7 @@ const variableName = (name: string) => `--${name.replaceAll('.', '_')}`;
 
 function expectedDeclarations(theme: Theme) {
   const declarations: Record<string, string> = {};
-  for (const category of ['color', 'spacing', 'radius', 'shadow', 'size', 'zIndex'] as const) {
+  for (const category of ['color', 'spacing', 'radius', 'shadow', 'size', 'zIndex', 'motion'] as const) {
     for (const token of tokens[category].tokens) {
       const value = typeof token.value === 'string' ? token.value : token.value[theme];
       const alias = value.match(/^\{([^}]+)\}$/);
@@ -64,6 +68,8 @@ function assertTokenParity(css: string) {
   expect(rules.map((rule) => rule[1].replace(/\s+/g, ' ').trim())).toEqual([
     ':root, [data-theme="light"]',
     '[data-theme="dark"]',
+    '[data-motion="reduced"]',
+    '[data-motion="off"]',
   ]);
   for (const [index, theme] of (['light', 'dark'] as const).entries()) {
     const declarations = [...rules[index][2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)]
@@ -75,6 +81,14 @@ function assertTokenParity(css: string) {
         expect(expectedDeclarations(theme)).toHaveProperty(reference[1]);
       }
     }
+  }
+  for (const [index, level] of (['reduced', 'off'] as const).entries()) {
+    const declarations = [...rules[index + 2][2].matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)]
+      .map((match) => [match[1], match[2].trim()]);
+    expect(new Set(declarations.map(([name]) => name)).size).toBe(declarations.length);
+    expect(Object.fromEntries(declarations)).toEqual(Object.fromEntries(
+      Object.entries(tokens.motion.overrides[level]).map(([name, value]) => [variableName(name), value]),
+    ));
   }
 }
 
@@ -90,6 +104,9 @@ describe('versioned design token parity', () => {
     ['a missing variable', '--space-0_5: 2px;', ''],
     ['an undeclared variable', '--font-sans:', '--invented: 1px;\n  --font-sans:'],
     ['a duplicate variable', '--dot-size: 8px;', '--dot-size: 8px;\n  --dot-size: 8px;'],
+    ['a changed motion value', '--motion-fast: 120ms;', '--motion-fast: 140ms;'],
+    ['a changed reduced override', '--motion-distance: 0px;', '--motion-distance: 6px;'],
+    ['a missing off override', '--motion-stagger: 0ms;', ''],
   ])('rejects %s', (_description, before, after) => {
     expect(stylesheet).toContain(before);
     expect(() => assertTokenParity(stylesheet.replace(before, after))).toThrow();

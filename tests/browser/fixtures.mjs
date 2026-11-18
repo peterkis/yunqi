@@ -1,7 +1,28 @@
 import { test as base, expect } from '@playwright/test';
+import AxeBuilder from '@axe-core/playwright';
 
 export const test = base.extend({
   acceptanceTheme: ['light', { option: true }],
+  motionMode: ['full', { option: true }],
+  page: async ({ page, motionMode }, use) => {
+    await page.emulateMedia({ reducedMotion: motionMode === 'reduced' ? 'reduce' : 'no-preference' });
+    await page.addInitScript(({ mode }) => {
+      // Frame-rate behavior is tested with fake timestamps in unit tests.
+      // Reuse a successful session sample so host load cannot change the
+      // selected browser matrix halfway through a functional flow.
+      sessionStorage.setItem('yunqi-motion-frame-rate', 'full');
+      if (mode === 'off') {
+        const url = new URL(location.href);
+        url.searchParams.set('motion', 'off');
+        history.replaceState(history.state, '', url);
+      }
+      if (mode === 'missing-transition') {
+        delete document.startViewTransition;
+        delete Document.prototype.startViewTransition;
+      }
+    }, { mode: motionMode });
+    await use(page);
+  },
   baseURL: async ({}, use) => {
     const baseURL = process.env.YUNQI_BROWSER_BASE_URL;
     if (!baseURL) throw new Error('Run with the repository Playwright configuration');
@@ -65,7 +86,41 @@ export async function settle(page) {
   await page.waitForLoadState('networkidle');
 }
 
+export async function waitForAnimations(page, { timeout = 5_000 } = {}) {
+  await page.evaluate(() => document.fonts.ready);
+  // Observe natural completion, including @starting-style transitions. A
+  // paused or looping effect must time out rather than silently skip the scan.
+  await page.waitForFunction(() => document.getAnimations().every(animation => animation.playState === 'finished'), undefined, { polling: 'raf', timeout });
+}
+
+export async function scanAccessibility(page) {
+  await waitForAnimations(page);
+  return new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+}
+
+export function expectNoPersonalDataInUrl(page, motionMode) {
+  const parameters = [...new URL(page.url()).searchParams];
+  // Motion is read once at startup; SPA navigation may already have removed it.
+  // If present, only the exact singleton injected by the off fixture is allowed.
+  expect(parameters, 'URL contains no personal data; only the injected motion=off query is permitted')
+    .toEqual(motionMode === 'off' && parameters.length > 0 ? [['motion', 'off']] : []);
+}
+
 export async function screenshot(page, testInfo, name) {
+  // Capture each flow once (off project); every matrix member still runs
+  // typography, data, focus, layout and accessibility assertions.
+  if (testInfo.project.use.motionMode !== 'off') {
+    await expectTypeScale(page, testInfo, name);
+    return;
+  }
+  await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', 'off');
+  // Router links may omit the query; preserve this in-memory screen/session
+  // and mark the capture URL without reloading or changing its focus.
+  await page.evaluate(() => {
+    const url = new URL(location.href);
+    url.searchParams.set('motion', 'off');
+    history.replaceState(history.state, '', url);
+  });
   const path = testInfo.outputPath(`${name}.png`);
   await page.screenshot({ path, fullPage: true, animations: 'disabled' });
   await testInfo.attach(name, { path, contentType: 'image/png' });
@@ -132,7 +187,7 @@ export async function expectTypeScale(page, testInfo, name = 'type-scale') {
 export async function loadCurrent(page) {
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/learning/current'));
   await page.goto('/');
-  await expect(page).toHaveURL(/\/yunqi\/current$/);
+  await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
   await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024', exact: true })).toBeVisible();
   const response = await responsePromise;
   expect(response.status()).toBe(200);

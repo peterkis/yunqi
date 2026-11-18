@@ -215,7 +215,7 @@ describe('birth comparison assessment session', () => {
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await submitBirth(user);
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
-    expect(screen.getByRole('status')).toHaveTextContent('正在加载体质量表');
+    expect(await screen.findByRole('status')).toHaveTextContent('正在加载体质量表');
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
     expect(document.querySelector('footer.constitution-session-footer')).toBeVisible();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));

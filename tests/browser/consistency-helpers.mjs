@@ -3,7 +3,7 @@ import { expect } from './fixtures.mjs';
 export async function expectMoreRows(page) {
   const more = page.getByRole('navigation', { name: '更多运气分析', exact: true });
   const rows = more.locator('.current-more__list > li > a, .current-more__list > li > details > summary');
-  await expect(rows).toHaveText(['其余阶段', '年度详情', '指定时点', '计算说明与版本']);
+  await expect(rows).toHaveText(['其余阶段', '年度详情', '指定时点', '计算说明与版本', '动效设置']);
   await expect(async () => {
     const metrics = await rows.evaluateAll(elements => elements.map(element => ({
       height: element.getBoundingClientRect().height,
@@ -11,7 +11,7 @@ export async function expectMoreRows(page) {
       insideCard: Boolean(element.closest('.ds-info-card')),
       chevrons: element.querySelectorAll('svg[aria-hidden="true"]').length,
     })));
-    expect(metrics.map(row => row.tag)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY']);
+    expect(metrics.map(row => row.tag)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY', 'SUMMARY']);
     for (const row of metrics) {
       expect(row.height).toBeGreaterThanOrEqual(44);
       expect(row.height).toBe(metrics[0].height);
@@ -21,7 +21,7 @@ export async function expectMoreRows(page) {
   }).toPass({ timeout: 10_000 });
   // Borders belong to the list items, so disclosure and anchor target heights match.
   const items = more.locator('.current-more__list > li');
-  for (let index = 1; index < 4; index += 1) {
+  for (let index = 1; index < 5; index += 1) {
     await expect(items.nth(index)).toHaveCSS('border-top-width', '1px');
     const colors = await items.nth(index).evaluate(element => {
       const swatch = document.createElement('span');

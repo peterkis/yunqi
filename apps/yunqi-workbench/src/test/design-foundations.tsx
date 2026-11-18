@@ -13,6 +13,7 @@ import { RelationChip } from '../components/design/RelationChip';
 import { ScaleOption } from '../components/design/ScaleOption';
 import { SegmentedNav } from '../components/design/SegmentedNav';
 import { ThemeProvider, useTheme } from '../providers/ThemeProvider';
+import { MotionProvider } from '../providers/MotionProvider';
 import '../styles/fonts.css';
 import '../styles/tokens.css';
 import '../styles/type-scale.css';
@@ -78,5 +79,5 @@ function DesignFoundations() {
 }
 
 createRoot(document.getElementById('root')!).render(
-  <MemoryRouter><ThemeProvider><DesignFoundations /></ThemeProvider></MemoryRouter>,
+  <MemoryRouter><MotionProvider><ThemeProvider><DesignFoundations /></ThemeProvider></MotionProvider></MemoryRouter>,
 );

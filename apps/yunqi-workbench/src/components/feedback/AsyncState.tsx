@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   EmptyState,
   ErrorState,
@@ -30,9 +30,29 @@ export function AsyncState<T>({
   onRetry,
   renderData,
 }: AsyncStateProps<T>) {
-  if (isPending) {
+  const [loading, setLoading] = useState<'hidden' | 'minimum' | 'ready'>('hidden');
+
+  useEffect(() => {
+    if (!isPending || loading !== 'hidden') return;
+    const timer = setTimeout(() => setLoading('minimum'), 200);
+    return () => clearTimeout(timer);
+  }, [isPending, loading]);
+
+  useEffect(() => {
+    if (loading !== 'minimum') return;
+    const timer = setTimeout(() => setLoading('ready'), 400);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!isPending && loading === 'ready') setLoading('hidden');
+  }, [isPending, loading]);
+
+  if (loading === 'minimum' || (isPending && loading === 'ready')) {
     return <LoadingState message={loadingMessage} />;
   }
+
+  if (isPending) return null;
 
   if (error !== null && error !== undefined) {
     return (

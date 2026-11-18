@@ -1,75 +1,91 @@
-/* D5 / P2-14: the polish card specifies 120–160ms ease-out. The synced
-   design tokens have no motion values; keep these local to the Workbench. */
-:root {
-  --craft-motion-duration: 140ms;
-  --craft-motion-easing: ease-out;
+/* Motion values are sourced from tokens.json and checked by tokens.test.ts.
+   Outlines never participate, so keyboard rings appear immediately. */
+:is([data-motion="full"], [data-motion="reduced"]) :is(
+  .ds-segmented-nav__link, .ds-segmented-control > button,
+  .current-classics__segments .ds-button, .birth-reading-nav button,
+  .drilldown-stage-selector__option, .ds-scale-option, .ds-scale-option__key
+) {
+  transition: background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
 }
 
-.ds-segmented-nav__link,
-.ds-segmented-control > button,
-.current-classics__segments .ds-button,
-.birth-reading-nav button,
-.drilldown-stage-selector__option,
-.ds-scale-option,
-.ds-scale-option__key {
-  /* Deliberately exclude outlines so keyboard rings appear immediately. */
-  transition: background-color var(--craft-motion-duration) var(--craft-motion-easing),
-    color var(--craft-motion-duration) var(--craft-motion-easing),
-    border-color var(--craft-motion-duration) var(--craft-motion-easing),
-    box-shadow var(--craft-motion-duration) var(--craft-motion-easing);
+[data-motion="full"] .current-more__chevron {
+  transition: transform var(--motion-base) var(--ease-standard);
 }
 
-.current-more__chevron {
-  transition: transform var(--craft-motion-duration) var(--craft-motion-easing);
+[data-motion="full"] :is(
+  .ds-segmented-nav__link, .ds-segmented-control > button,
+  .current-classics__segments .ds-button, .birth-reading-nav button,
+  .drilldown-stage-selector__option, .ds-scale-option, .ds-scale-option__key
+) {
+  transition: background-color var(--motion-fast) var(--ease-standard),
+    color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    box-shadow var(--motion-fast) var(--ease-standard);
 }
 
-.panel-shell,
-.panel-pill,
-.birth-input,
-.birth-input-summary {
-  /* Fade in the arriving state. Keep hidden/unmounted content out of layout
-     immediately, so collapse preserves the existing focus and host geometry. */
-  transition: opacity var(--craft-motion-duration) var(--craft-motion-easing);
+:is([data-motion="full"], [data-motion="reduced"]) :is(
+  .panel-shell, .panel-pill, .birth-input, .birth-input-summary,
+  .current-stage-row > [role="region"]
+) {
+  /* Arriving content is visible by default. Hidden/unmounted content leaves
+     layout immediately; no focus or state update waits for an animation. */
+  transition: opacity var(--motion-base) var(--ease-linear);
 }
 
-.current-stage-row > [role="region"] {
-  opacity: 1;
-  transition: opacity var(--craft-motion-duration) var(--craft-motion-easing),
-    display var(--craft-motion-duration) var(--craft-motion-easing) allow-discrete;
-}
-.current-stage-row > [role="region"][hidden] { opacity: 0; }
 @starting-style {
-  .panel-shell,
-  .panel-pill,
-  .birth-input,
-  .birth-input-summary,
-  .current-stage-row > [role="region"] { opacity: 0; }
+  :is([data-motion="full"], [data-motion="reduced"]) :is(
+    .panel-shell, .panel-pill, .birth-input, .birth-input-summary,
+    .current-stage-row > [role="region"]
+  ) { opacity: 0; }
 }
 
-/* Keep native details/summary semantics and keyboard behavior. Browsers without
-   intrinsic-size interpolation retain the native instant disclosure. */
+/* Only full motion interpolates intrinsic height. All other modes retain
+   native details semantics, including on older browsers. */
 @supports (interpolate-size: allow-keywords) {
-  details { interpolate-size: allow-keywords; }
-  details::details-content {
+  [data-motion="full"] details { interpolate-size: allow-keywords; }
+  [data-motion="full"] details::details-content {
     block-size: 0;
     opacity: 0;
     overflow: clip;
-    /* Preserve the standard 2px outline + 2px offset around inner controls. */
     overflow-clip-margin: var(--space-1);
-    transition: block-size var(--craft-motion-duration) var(--craft-motion-easing),
-      opacity var(--craft-motion-duration) var(--craft-motion-easing),
-      content-visibility var(--craft-motion-duration) var(--craft-motion-easing) allow-discrete;
+    transition: block-size var(--motion-base) var(--ease-standard),
+      opacity var(--motion-base) var(--ease-linear),
+      content-visibility var(--motion-base) var(--ease-standard) allow-discrete;
   }
-  details[open]::details-content { block-size: auto; opacity: 1; }
+  [data-motion="full"] details[open]::details-content { block-size: auto; opacity: 1; }
 }
 
+/* Global no-JS fallback. Explicit data-motion rules have higher specificity,
+   allowing a manual standard choice to override the system preference. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after,
   *::details-content {
-    transition: none !important;
-    animation: none !important;
-    scroll-behavior: auto !important;
+    transition: none;
+    animation: none;
+    scroll-behavior: auto;
   }
 }
+
+[data-motion="off"],
+[data-motion="off"] *,
+[data-motion="off"] *::before,
+[data-motion="off"] *::after,
+[data-motion="off"] *::details-content {
+  transition: none !important;
+  animation: none !important;
+  scroll-behavior: auto !important;
+}
+
+.motion-settings__content {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  color: var(--ink-secondary);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+}
+.motion-settings__content p { margin: 0; }

@@ -8,7 +8,7 @@ import { createTestWrapper } from '../../../test/test-utils';
 import { CurrentYunQiView } from './CurrentYunQiView';
 
 describe('CurrentYunQiView', () => {
-  it('renders loading while the current request is pending', () => {
+  it('renders loading while the current request is pending', async () => {
     const client: YunQiClient = {
       ...createClientStub(),
       getLearningCurrent: vi.fn(
@@ -22,7 +22,7 @@ describe('CurrentYunQiView', () => {
       wrapper: createTestWrapper(client),
     });
 
-    expect(screen.getByRole('status')).toHaveTextContent('正在加载');
+    expect(await screen.findByRole('status')).toHaveTextContent('正在加载');
   });
 
   it('renders a sanitized failure and retries through the query hook', async () => {

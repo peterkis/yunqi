@@ -1,5 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, screenshot, expectTypeScale } from './fixtures.mjs';
+import { test, expect, screenshot, expectTypeScale, scanAccessibility } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
@@ -44,7 +43,7 @@ for (const theme of ['light', 'dark']) {
     await expectConstitutionAnswerLayout(page, testInfo);
     await expectConstitutionDisclosures(page, testInfo);
     await expectConstitutionSegments(page);
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     await testInfo.attach('constitution-F4-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
   });
@@ -85,7 +84,7 @@ for (const embedded of [false, true]) {
       await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
       await expectViewControls(page, testInfo);
       await expectTypeScale(page, testInfo);
-      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      const scan = await scanAccessibility(page);
       await testInfo.attach('constitution-F5-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
       expect(scan.violations).toEqual([]);
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-result`);

@@ -2,10 +2,42 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
 import { runInNewContext } from 'node:vm';
-import { expectPanelLayout } from './browser/fixtures.mjs';
+import { expectPanelLayout, expectNoPersonalDataInUrl } from './browser/fixtures.mjs';
+import { expectNoOutlineTransition } from './browser/motion-helpers.mjs';
 
 // Reuse the Workbench's existing test dependency; add no runtime dependency.
 const { JSDOM } = createRequire(new URL('../apps/yunqi-workbench/package.json', import.meta.url))('jsdom');
+
+// Computed CSS lists: short duration lists repeat; surplus durations are ignored.
+for (const [properties, durations, immediate] of [
+  ['all', '0s', true],
+  ['outline', '0s', true],
+  ['opacity, outline-color', '0.12s, 0s', true],
+  ['outline-width, outline-offset', '0ms', true],
+  ['outline', '0.12s', false],
+  ['all', '120ms', false],
+  ['opacity, outline-color', '0s, 120ms', false],
+  ['opacity, color, outline-offset', '120ms, 0s', false],
+  ['opacity', '0s, 120ms', true],
+]) {
+  test(`focus-ring transition oracle: ${properties} / ${durations}`, () => {
+    const check = () => expectNoOutlineTransition(properties, durations);
+    if (immediate) check();
+    else assert.throws(check, /Focus outline transitions must have zero duration/);
+  });
+}
+
+test('personal-data URL oracle permits only the injected motion value, including after SPA navigation', () => {
+  for (const motionMode of ['full', 'reduced', 'off', 'missing-transition']) {
+    const check = query => expectNoPersonalDataInUrl({ url: () => `http://localhost/yunqi/birth${query}` }, motionMode);
+    check('');
+    if (motionMode === 'off') check('?motion=off');
+    else assert.throws(() => check('?motion=off'));
+    for (const query of ['?birthDate=1990-05-12', '?motion=off&answer=3', '?motion=full', '?motion=', '?motion=off&motion=off']) {
+      assert.throws(() => check(query));
+    }
+  }
+});
 
 // Real DOM selectors with synthetic geometry: this verifies the fixture's
 // element ownership, not CSS layout or a real browser's rendering.

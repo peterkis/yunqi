@@ -1,5 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, scanAccessibility, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
@@ -7,7 +6,7 @@ import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-h
 import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function checkAccessibility(page, testInfo) {
-  const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  const scan = await scanAccessibility(page);
   await testInfo.attach('learning-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
   expect(scan.violations.map((violation) => ({ id: violation.id, targets: violation.nodes.map((node) => node.target) }))).toEqual([]);
 }
@@ -62,7 +61,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   const cardBody = await page.locator('.current-overview__quote .ds-info-card__content').boundingBox();
   expect(cardBody).not.toBeNull();
   await page.mouse.click(cardBody.x + cardBody.width / 2, cardBody.y + cardBody.height / 2);
-  await expect(page).toHaveURL(/\/yunqi\/current\/classics$/);
+  await expect(page).toHaveURL(/\/yunqi\/current\/classics(?:\?motion=off)?$/);
   expect(await page.evaluate(() => window.c3NavigationSentinel)).toBe('same-document');
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('button', { name: '当下阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
@@ -126,7 +125,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
 });
 
-test('birth comparison submits only requested precision, displays both contexts and clears edited personal data', async ({ page, diagnostics }, testInfo) => {
+test('birth comparison submits only requested precision, displays both contexts and clears edited personal data', async ({ page, diagnostics, motionMode }, testInfo) => {
   await page.goto('/yunqi/birth');
   await expect(page.getByRole('heading', { name: '出生运气对照' })).toBeVisible();
   await settle(page);
@@ -167,7 +166,7 @@ test('birth comparison submits only requested precision, displays both contexts 
   await expect(result).toHaveCount(0);
   await expectBirthDate(page, '');
   await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
-  expect(new URL(page.url()).search).toBe('');
+  expectNoPersonalDataInUrl(page, motionMode);
 });
 
 test('constitution workflow keeps its snapshot, prevents partial scoring and preserves all nine results', async ({ page, diagnostics }, testInfo) => {

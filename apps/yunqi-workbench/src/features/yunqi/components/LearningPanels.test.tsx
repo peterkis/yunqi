@@ -1,3 +1,4 @@
+import { MotionProvider } from '../../../providers/MotionProvider';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -34,7 +35,7 @@ describe('live learning cards replacing demo panels', () => {
     const user = userEvent.setup();
     const learning = mapLearning(createLearningDto());
     const movement = learning.currentMovement;
-    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    render(<MotionProvider><CurrentYunQiPage viewModel={learning.facts} learning={learning} /></MotionProvider>, { wrapper: MemoryRouter });
     const currentMovement = screen.getByRole('region', { name: '当步运' });
     expect(within(currentMovement).getByText('火运太过')).toBeVisible();
     expect(within(currentMovement).getByText('木运不及')).toBeVisible();

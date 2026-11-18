@@ -626,7 +626,7 @@ describe('AppRoutes', () => {
       '/yunqi/year/2027',
     );
     expect(
-      screen.getByText('正在加载 2027 年年度五运六气数据'),
+      await screen.findByText('正在加载 2027 年年度五运六气数据'),
     ).toBeInTheDocument();
     expect(screen.queryByText('丙午')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveFocus();

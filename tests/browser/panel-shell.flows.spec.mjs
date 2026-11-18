@@ -1,6 +1,5 @@
 import { fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, scanAccessibility } from './fixtures.mjs';
 import { expectPillGeometry } from './consistency-helpers.mjs';
 
 test('annual absolute descriptions remain inside the scrolling content without growing the document', async ({ page }, testInfo) => {
@@ -55,7 +54,7 @@ test('control-free inquiry content has a named Tab stop, visible focus and keybo
   await page.keyboard.press('Enter');
   await expect(main).toBeFocused();
   await expectPanelLayout(page);
-  const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+  const scan = await scanAccessibility(page);
   await testInfo.attach('inquiry-scroll-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
   expect(scan.violations).toEqual([]);
   await screenshot(page, testInfo, 'inquiry-keyboard-scroll');
@@ -131,7 +130,7 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       await expect(expand.locator('.ds-relation__chip')).toHaveText(data.currentQi.label);
       await expect(page.getByRole('main')).toHaveCount(0);
       await screenshot(page, testInfo, 'panel-pill');
-      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      const scan = await scanAccessibility(page);
       await testInfo.attach('pill-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
       expect(scan.violations).toEqual([]);
       await page.keyboard.press('Space');
@@ -193,7 +192,7 @@ for (const [path, title] of [
     await expect(page.getByRole('region', { name: '页面导航' }).getByRole('heading', { name: title, exact: true })).toBeVisible();
     await expect(page).toHaveTitle(`${title} · 运气通`);
     await page.getByRole('button', { name: '返回', exact: true }).click();
-    await expect(page).toHaveURL(/\/yunqi\/current$/);
+    await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
     await expect(page.getByRole('main')).toBeFocused();
     await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
   });

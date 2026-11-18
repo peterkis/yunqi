@@ -1,5 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, scanAccessibility } from './fixtures.mjs';
 import { expectPillGeometry } from './consistency-helpers.mjs';
 
 for (const theme of ['light', 'dark']) {
@@ -25,7 +24,7 @@ for (const theme of ['light', 'dark']) {
     await expect(pill.locator('.panel-pill__ganzhi')).toHaveText(data.facts.stemBranch.ganzhi);
     await testInfo.attach('pill-geometry', { body: JSON.stringify(layout, null, 2), contentType: 'application/json' });
     await screenshot(page, testInfo, `collapsed-pill-${theme}`);
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     await testInfo.attach('axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
     await pill.press('Space');

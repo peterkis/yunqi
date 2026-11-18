@@ -1,0 +1,1522 @@
+{
+  "sourceReport": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results.json",
+  "sourceReportSha256": "e7d3124d1b37ccb194dd2529e3797900fa5d9fb3827857e7b389f9042c8b3036",
+  "sourceLog": "/private/tmp/claude-501/-Users-petervans-Projects-YunQi/7af69909-e649-46b6-85a5-35f7ac86dcd6/scratchpad/motion/m1a-browser.log",
+  "sourceLogSha256": "f98cc37d07a904267e9f92703ff4897fc4a64b6cddfd5b854676bc7ac6f72c9f",
+  "stats": {
+    "startTime": "2026-11-18T15:14:27.201Z",
+    "duration": 393087.615,
+    "expected": 360,
+    "skipped": 0,
+    "unexpected": 13,
+    "flaky": 0
+  },
+  "failedTestCounts": {
+    "A": 9,
+    "B": 2,
+    "C": 2
+  },
+  "failures": [
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/learning.flows-constitutio-67e80-on-Escape-and-empty-answers-flows-chromium/error-context.md",
+      "errorContextSha256": "1886cc8a16c2d2cac1244ccf66c1f6653d844ddb38a8c0c08d2d9f2e62f7ab8a"
+    },
+    {
+      "category": "C",
+      "project": "flows-off-chromium",
+      "title": "birth comparison submits only requested precision, displays both contexts and clears edited personal data",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/learning.flows-birth-compa-3794f-clears-edited-personal-data-flows-off-chromium/error-context.md",
+      "errorContextSha256": "6ad2434088d6effc154ce0fcf1667917318658ab33cf164141ff60a594ba74f6"
+    },
+    {
+      "category": "B",
+      "project": "flows-chromium",
+      "title": "motion matrix preserves current, drilldown, birth, scoring, edit, destruction and capsule focus",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/motion.flows-motion-matrix-8bbb0-struction-and-capsule-focus-flows-chromium/error-context.md",
+      "errorContextSha256": "357e7a595f42aac02140911aff4840ea1e425cb23cfe5195cdd397b5dbadb3b2"
+    },
+    {
+      "category": "B",
+      "project": "motion-capability-chromium",
+      "title": "motion matrix preserves current, drilldown, birth, scoring, edit, destruction and capsule focus",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/motion.flows-motion-matrix-8bbb0-struction-and-capsule-focus-motion-capability-chromium/error-context.md",
+      "errorContextSha256": "357e7a595f42aac02140911aff4840ea1e425cb23cfe5195cdd397b5dbadb3b2"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 1366x900 light: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-13-616fe--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "86dacfc0074c7f1745ecfd58c8d6d0bae92d783d0710e874441419881d74ef93"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 1366x900 dark: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-13-e5be6--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "f653a26f8920d0e9e932ce9e4fc06b911c9d33a3d00e528dbcc0f82834dd74be"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-298a4--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "bfd4927e7615bf3c2612d4f1468d725702557e5a04bdef3966f01f91f16a0e8b"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-1bb0a--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "29af897ee3e4cf1a645d9efe42e4dd33de76a5b006096d6f3c49224169215177"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 400x640 light: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-49a55--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "6ce83ef69b3cba31d3d9b97891cdf231d7b6f1a6196c745b6121f681ab489fb4"
+    },
+    {
+      "category": "A",
+      "project": "flows-chromium",
+      "title": "panel 400x640 dark: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-25caa--pill-and-keyboard-recovery-flows-chromium/error-context.md",
+      "errorContextSha256": "ab272c7c6bcc0216d8065c4b098c444a6fb4e457d26c4c21687e2157d71b451e"
+    },
+    {
+      "category": "A",
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-298a4--pill-and-keyboard-recovery-flows-reduced-chromium/error-context.md",
+      "errorContextSha256": "77a4bc6f3b09bf04ab6a2ef4092b35de21b472c80f89025a3f36592a34229d12"
+    },
+    {
+      "category": "A",
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/panel-shell.flows-panel-40-1bb0a--pill-and-keyboard-recovery-flows-reduced-chromium/error-context.md",
+      "errorContextSha256": "9168e462d94011c8c3fd8e6e6cadb71aa75bc730699222dc94ecaa137f6ef1c0"
+    },
+    {
+      "category": "C",
+      "project": "flows-off-chromium",
+      "title": "constitution keyboard loop answers one question at a time and destroys the session",
+      "errorContext": ".artifacts/browser/2026-11-18T15-14-27-198Z-334bb95b/results/workbench.flows-constituti-9d5b9-me-and-destroys-the-session-flows-off-chromium/error-context.md",
+      "errorContextSha256": "c9d2dad26852f633e8af50303256b2212bbb8fc5962577d1389b43368db802c8"
+    }
+  ],
+  "comparisonMethod": "Match error-context and axe violation targets to the first axe scan of the same test title in the same original run, flows-off-chromium. This is a recorded terminal-colour reference, not a post-fix browser run. Motion CSS changes opacity, not terminal colour tokens.",
+  "comparisons": [
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-panel-header__title"
+      ],
+      "html": "<h2 class=\"ds-panel-header__title\">运气通</h2>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2.9,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 15.31,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-panel-header__status"
+      ],
+      "html": "<p class=\"ds-panel-header__status num\">教学参考 · 本次会话不关联患者</p>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 5.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "a[href$=\"current\"]"
+      ],
+      "html": "<a class=\"ds-segmented-nav__link\" href=\"/yunqi/current\" data-discover=\"true\">当下运气</a>",
+      "failure": [
+        {
+          "fgColor": "#a3a5a0",
+          "bgColor": "#efede7",
+          "contrastRatio": 2.12,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#efede7",
+          "contrastRatio": 6.87,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-segmented-nav__link[href$=\"birth\"][data-discover=\"true\"]"
+      ],
+      "html": "<a class=\"ds-segmented-nav__link\" href=\"/yunqi/birth\" data-discover=\"true\">先天对照</a>",
+      "failure": [
+        {
+          "fgColor": "#a3a5a0",
+          "bgColor": "#efede7",
+          "contrastRatio": 2.12,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#efede7",
+          "contrastRatio": 6.87,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".active"
+      ],
+      "html": "<a aria-current=\"page\" class=\"ds-segmented-nav__link active\" href=\"/yunqi/constitution\" data-discover=\"true\">体质量表</a>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.95,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "10.5pt (14px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".constitution-context-rows > div:nth-child(1) > dt"
+      ],
+      "html": "<dt>当下</dt>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.03,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#ffffff",
+          "contrastRatio": 5.89,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-segmented-text"
+      ],
+      "html": "<span class=\"ds-segmented-text\"><span class=\"ds-seg\"><span class=\"ds-seg__text\">甲辰</span></span> · <wbr><span class=\"ds-seg\"><span class=\"ds-seg__text\">初之气</span></span> · <wbr><span class=\"ds-seg\"><span class=\"ds-seg__text\">客气少阳相火</span></span></span>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.95,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-seg:nth-child(1) > .ds-seg__text"
+      ],
+      "html": "<span class=\"ds-seg__text\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.95,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-seg:nth-child(3) > .ds-seg__text"
+      ],
+      "html": "<span class=\"ds-seg__text\">初之气</span>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.95,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".ds-seg:nth-child(5) > .ds-seg__text"
+      ],
+      "html": "<span class=\"ds-seg__text\">客气少阳相火</span>",
+      "failure": [
+        {
+          "fgColor": "#8e908b",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.95,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "div:nth-child(2) > dt"
+      ],
+      "html": "<dt>先天</dt>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.03,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#ffffff",
+          "contrastRatio": 5.89,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "dd > a[href$=\"birth\"][data-discover=\"true\"]"
+      ],
+      "html": "<a href=\"/yunqi/birth\" data-discover=\"true\">未填写 · 去对照 ›</a>",
+      "failure": [
+        {
+          "fgColor": "#96a9a1",
+          "bgColor": "#f6f5f2",
+          "contrastRatio": 2.26,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#2e5b4f",
+          "bgColor": "#ffffff",
+          "contrastRatio": 7.7,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "legend"
+      ],
+      "html": "<legend>量表所用性别</legend>",
+      "failure": [
+        {
+          "fgColor": "#a3a5a0",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2.24,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 7.71,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "fieldset > .constitution-meta"
+      ],
+      "html": "<p class=\"constitution-meta\">仅用于显示对应条目；切换后清空本次作答和结果。</p>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 5.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        "div > .constitution-meta"
+      ],
+      "html": "<p class=\"constitution-meta\">选择量表所用性别后开始作答，一题一屏，无默认答案。</p>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 5.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".constitution-source > summary"
+      ],
+      "html": "<summary>量表来源与适用说明</summary>",
+      "failure": [
+        {
+          "fgColor": "#a3a5a0",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2.24,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 7.71,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".constitution-time-details > summary"
+      ],
+      "html": "<summary>计算说明与版本</summary>",
+      "failure": [
+        {
+          "fgColor": "#a3a5a0",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2.24,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 7.71,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".constitution-session-footer"
+      ],
+      "html": "<footer class=\"constitution-session-footer\">答卷仅存本次会话，不入库 · 结束即销毁</footer>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 5.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "constitution gender change: light inline confirmation, cancellation, Escape and empty answers",
+      "target": [
+        ".panel-shell__footer"
+      ],
+      "html": "<footer class=\"panel-shell__footer\">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</footer>",
+      "failure": [
+        {
+          "fgColor": "#acafa9",
+          "bgColor": "#f5f3ee",
+          "contrastRatio": 2,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#5f6662",
+          "bgColor": "#fbfaf7",
+          "contrastRatio": 5.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#8ba49d",
+          "contrastRatio": 2.65,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#2e5b4f",
+          "contrastRatio": 7.7,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__annual"
+      ],
+      "html": "<span class=\"panel-pill__annual\">土运太过 · 太阳寒水司天 · 太阴湿土在泉</span>",
+      "failure": [
+        {
+          "fgColor": "#818583",
+          "bgColor": "#ffffff",
+          "contrastRatio": 3.73,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1d2320",
+          "bgColor": "#ffffff",
+          "contrastRatio": 15.98,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#9a9f9d",
+          "bgColor": "#ffffff",
+          "contrastRatio": 2.68,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#ffffff",
+          "contrastRatio": 8.05,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#829aab",
+          "bgColor": "#eff5f9",
+          "contrastRatio": 2.66,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1e4a68",
+          "bgColor": "#e3edf4",
+          "contrastRatio": 7.91,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#646e6b",
+          "bgColor": "#accec3",
+          "contrastRatio": 3.1,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#10201b",
+          "bgColor": "#7fb3a2",
+          "contrastRatio": 7.12,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#d0d4d1",
+          "bgColor": "#6c6e6d",
+          "contrastRatio": 3.42,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#b7bdb8",
+          "bgColor": "#1c201e",
+          "contrastRatio": 8.61,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 1366x900 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#c7dded",
+          "bgColor": "#6b757d",
+          "contrastRatio": 3.35,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#a9cbe4",
+          "bgColor": "#1b2a36",
+          "contrastRatio": 8.62,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#78958d",
+          "contrastRatio": 3.23,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#2e5b4f",
+          "contrastRatio": 7.7,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#8a8f8c",
+          "bgColor": "#ffffff",
+          "contrastRatio": 3.28,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#ffffff",
+          "contrastRatio": 8.05,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#6d8a9d",
+          "bgColor": "#edf3f8",
+          "contrastRatio": 3.25,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1e4a68",
+          "bgColor": "#e3edf4",
+          "contrastRatio": 7.91,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#646f6b",
+          "bgColor": "#accec3",
+          "contrastRatio": 3.07,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#10201b",
+          "bgColor": "#7fb3a2",
+          "contrastRatio": 7.12,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#d0d4d1",
+          "bgColor": "#6c6f6d",
+          "contrastRatio": 3.39,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#b7bdb8",
+          "bgColor": "#1c201e",
+          "contrastRatio": 8.61,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#c7ddee",
+          "bgColor": "#6b757d",
+          "contrastRatio": 3.36,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#a9cbe4",
+          "bgColor": "#1b2a36",
+          "contrastRatio": 8.62,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#78958d",
+          "contrastRatio": 3.23,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#2e5b4f",
+          "contrastRatio": 7.7,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#8a8f8c",
+          "bgColor": "#ffffff",
+          "contrastRatio": 3.28,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#ffffff",
+          "contrastRatio": 8.05,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#6d8a9d",
+          "bgColor": "#edf3f8",
+          "contrastRatio": 3.25,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1e4a68",
+          "bgColor": "#e3edf4",
+          "contrastRatio": 7.91,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#646e6b",
+          "bgColor": "#accec3",
+          "contrastRatio": 3.1,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#10201b",
+          "bgColor": "#7fb3a2",
+          "contrastRatio": 7.12,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#d0d4d1",
+          "bgColor": "#6c6e6d",
+          "contrastRatio": 3.42,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#b7bdb8",
+          "bgColor": "#1c201e",
+          "contrastRatio": 8.61,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-chromium",
+      "title": "panel 400x640 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#c7dded",
+          "bgColor": "#6b757d",
+          "contrastRatio": 3.35,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#a9cbe4",
+          "bgColor": "#1b2a36",
+          "contrastRatio": 8.62,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#6e8d85",
+          "contrastRatio": 3.61,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#ffffff",
+          "bgColor": "#2e5b4f",
+          "contrastRatio": 7.7,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#818784",
+          "bgColor": "#ffffff",
+          "contrastRatio": 3.66,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#4a524e",
+          "bgColor": "#ffffff",
+          "contrastRatio": 8.05,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 light: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#638196",
+          "bgColor": "#ecf2f7",
+          "contrastRatio": 3.64,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#1e4a68",
+          "bgColor": "#e3edf4",
+          "contrastRatio": 7.91,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__ganzhi"
+      ],
+      "html": "<span class=\"panel-pill__ganzhi\">甲辰</span>",
+      "failure": [
+        {
+          "fgColor": "#596461",
+          "bgColor": "#a6cabe",
+          "contrastRatio": 3.45,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#10201b",
+          "bgColor": "#7fb3a2",
+          "contrastRatio": 7.12,
+          "fontSize": "11.3pt (15px)",
+          "fontWeight": "bold",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".panel-pill__stage"
+      ],
+      "html": "<span class=\"panel-pill__stage\">初之气 · 客气少阳相火<span class=\"ds-relation\"><span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span></span><span class=\"visually-hidden\">主气生客气，保留方向并说明相得；不将所有相生关系强行分成顺逆。</span></span>",
+      "failure": [
+        {
+          "fgColor": "#cdd1ce",
+          "bgColor": "#616463",
+          "contrastRatio": 3.87,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#b7bdb8",
+          "bgColor": "#1c201e",
+          "contrastRatio": 8.61,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    },
+    {
+      "project": "flows-reduced-chromium",
+      "title": "panel 400x860 dark: fixed shell, pill and keyboard recovery",
+      "target": [
+        ".ds-relation__chip--compact"
+      ],
+      "html": "<span class=\"ds-relation__chip ds-relation__chip--favorable ds-relation__chip--compact\">相生 · 相得</span>",
+      "failure": [
+        {
+          "fgColor": "#c3dbec",
+          "bgColor": "#616b73",
+          "contrastRatio": 3.8,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "messageKey": null,
+          "expectedContrastRatio": "4.5:1"
+        }
+      ],
+      "terminalOffReference": [
+        {
+          "fgColor": "#a9cbe4",
+          "bgColor": "#1b2a36",
+          "contrastRatio": 8.62,
+          "fontSize": "9.0pt (12px)",
+          "fontWeight": "normal",
+          "expectedContrastRatio": "4.5:1"
+        }
+      ]
+    }
+  ],
+  "traceSourceIdentity": [
+    {
+      "path": "src/8caab421d75e5c7aee33f2dd2982f73e8ff4492b.mjs",
+      "matchesPreReworkPanelSpec": false
+    },
+    {
+      "path": "src/b4584121aa4103d7f0a6aa6828cc5c6635555d58.mjs",
+      "matchesPreReworkPanelSpec": true
+    },
+    {
+      "path": "src/31d8f86135056c2bd09a02e2cb6ff418c7fa83b0.mjs",
+      "matchesPreReworkPanelSpec": false
+    },
+    {
+      "path": "src/856a053477e6757da4dcdb1b91529d4bc2f3f74f.mjs",
+      "matchesPreReworkPanelSpec": false
+    }
+  ],
+  "reworkChecks": [
+    {
+      "command": "pnpm --filter @yunqi/workbench test",
+      "exitCode": 0,
+      "result": "68 files; 505 tests passed",
+      "logSha256": "130a7e3c690008c6bb3e5a475424b8657cdb413c6639e4c68dbbbc7bda23567b",
+      "logTail": [
+        "",
+        " RUN  v4.1.10 /Users/petervans/Projects/YunQi/apps/yunqi-workbench",
+        "",
+        "",
+        " Test Files  68 passed (68)",
+        "      Tests  505 passed (505)",
+        "   Start at  23:27:55",
+        "   Duration  5.43s (transform 3.34s, setup 9.56s, import 7.33s, tests 23.22s, environment 31.04s)",
+        ""
+      ]
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench typecheck",
+      "exitCode": 0,
+      "result": "passed",
+      "logSha256": "854f315aee71d7d781ae070b823919e12cdc7cde82cc38c25cec15313a51b31a",
+      "logTail": [
+        "",
+        "> @yunqi/workbench@0.1.0 typecheck /Users/petervans/Projects/YunQi/apps/yunqi-workbench",
+        "> tsc -p tsconfig.json --noEmit",
+        ""
+      ]
+    },
+    {
+      "command": "pnpm --filter @yunqi/workbench test:typecheck",
+      "exitCode": 0,
+      "result": "passed",
+      "logSha256": "aaf352fbe6a941105f216c2d5679f41751dd2b50597786b58969c2a5ed1225ad",
+      "logTail": [
+        "",
+        "> @yunqi/workbench@0.1.0 test:typecheck /Users/petervans/Projects/YunQi/apps/yunqi-workbench",
+        "> tsc -p tsconfig.test.json --noEmit",
+        ""
+      ]
+    },
+    {
+      "command": "pnpm test:workbench-governance",
+      "exitCode": 0,
+      "result": "313 tests passed",
+      "logSha256": "183d624fbf967846db3335fdad2a7cea753dbf068f766f5fcbeabd964634c7f3",
+      "logTail": [
+        "✔ accepts locally shipped fonts, preload, data URIs and commented-out remote references (2.988375ms)",
+        "ℹ tests 313",
+        "ℹ suites 0",
+        "ℹ pass 313",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 2815.201541"
+      ]
+    },
+    {
+      "command": "node --test tests/browser-fixtures.test.mjs",
+      "exitCode": 0,
+      "result": "14 tests passed",
+      "logSha256": "3b7ebac1f4069746fd4575bd98ef9a686151548a63ed32c73fce3dc2b0a5ee62",
+      "logTail": [
+        "✔ layout fixture retries the complete measurement until all original expectations hold (377.240625ms)",
+        "ℹ tests 14",
+        "ℹ suites 0",
+        "ℹ pass 14",
+        "ℹ fail 0",
+        "ℹ cancelled 0",
+        "ℹ skipped 0",
+        "ℹ todo 0",
+        "ℹ duration_ms 20981.867625"
+      ]
+    },
+    {
+      "command": "pnpm exec playwright test --list",
+      "exitCode": 0,
+      "result": "381 tests in 13 files; inventory only",
+      "logSha256": "ba4c44f7c6f9dc0306b0e198d53b6c70617106e0256112e566e4c6ea63536984",
+      "logTail": [
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual birth-assessment-complete: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual birth-assessment-result: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual constitution-entry: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual constitution-questions: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual constitution-complete: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual constitution-result: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual not-found: screenshot, readable layout and accessibility",
+        "  [workstation-1080] › workbench.visual.spec.mjs:49:3 › @visual collapsed-pill: screenshot, readable layout and accessibility",
+        "Total: 381 tests in 13 files"
+      ]
+    }
+  ],
+  "localBrowserAttempt": {
+    "command": "pnpm exec playwright test tests/browser/motion.flows.spec.mjs --project=flows-chromium --grep 'motion matrix'",
+    "exitCode": 1,
+    "status": "launch failed; test assertions NOT_RUN",
+    "reason": "bootstrap_check_in MachPortRendezvousServer Permission denied (1100); SIGTRAP",
+    "artifactDirectory": ".artifacts/browser/2026-11-18T15-22-54-512Z-8cd80ec1",
+    "environment": {
+      "fixedNowEpochMilliseconds": 1705759642000,
+      "expectedLocalTime": "2024-01-20T22:07:22+08:00",
+      "service": "real local Fastify + tyme4ts",
+      "frontend": "Vite same-origin proxy",
+      "browserChannel": "bundled-chromium",
+      "browserExecutable": null,
+      "cleanupPassed": true,
+      "baseURL": "http://127.0.0.1:51350",
+      "serviceURL": "http://127.0.0.1:51349",
+      "cleanupErrors": []
+    }
+  }
+}

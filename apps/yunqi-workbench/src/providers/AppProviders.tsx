@@ -3,6 +3,7 @@ import type { YunQiClient } from '@yunqi/client';
 import type { PropsWithChildren } from 'react';
 import { ErrorBoundaryProvider } from './ErrorBoundaryProvider';
 import { QueryProvider } from './QueryProvider';
+import { MotionProvider } from './MotionProvider';
 import { ThemeProvider } from './ThemeProvider';
 import { YunQiClientProvider } from './YunQiClientProvider';
 
@@ -18,13 +19,15 @@ export function AppProviders({
 }: AppProvidersProps) {
   return (
     <ErrorBoundaryProvider>
-      <ThemeProvider>
-        <QueryProvider client={queryClient}>
-          <YunQiClientProvider client={yunqiClient}>
-            {children}
-          </YunQiClientProvider>
-        </QueryProvider>
-      </ThemeProvider>
+      <MotionProvider>
+        <ThemeProvider>
+          <QueryProvider client={queryClient}>
+            <YunQiClientProvider client={yunqiClient}>
+              {children}
+            </YunQiClientProvider>
+          </QueryProvider>
+        </ThemeProvider>
+      </MotionProvider>
     </ErrorBoundaryProvider>
   );
 }
