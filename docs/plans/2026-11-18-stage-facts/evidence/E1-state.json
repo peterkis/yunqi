@@ -1,0 +1,121 @@
+{
+  "task": "E1",
+  "branch": "feat/stage-facts",
+  "head": "bc86e17d64e4e0af5f9abbfaec93ce1914d21046",
+  "initialWorktree": "clean",
+  "node": "v24.18.0",
+  "pnpm": "10.32.1",
+  "lockSha256": "c564786752ff7e1f445c28ee51d8cacd44aef81c8514c780b9b85b0c22052369",
+  "scope": "PASS; only Domain, new teaching rules 1.1, the allowed guidance link and E1 evidence changed.",
+  "historicalRulesAndDownstreamPackages": "UNCHANGED",
+  "browser": {
+    "command": "pnpm test:browser",
+    "status": "NOT_RUN",
+    "exitCode": null,
+    "reason": "Task card specifies Chromium cannot start in this sandbox; E1 changes no UI or browser cases."
+  },
+  "coverageComparison": {
+    "baseline": {
+      "Statements": 95.15,
+      "Branches": 92.94,
+      "Functions": 100,
+      "Lines": 96.94
+    },
+    "initial": {
+      "Statements": 95.21,
+      "Branches": 93.12,
+      "Functions": 100,
+      "Lines": 96.88
+    },
+    "final": {
+      "Statements": 95.43,
+      "Branches": 93.51,
+      "Functions": 100,
+      "Lines": 97.12
+    },
+    "initialNoRegressionCriterion": "FAIL: Lines 96.88 < baseline 96.94 despite command exit 0; preserved initial log.",
+    "finalNoRegressionCriterion": "PASS"
+  },
+  "sourceManifest": [
+    {
+      "path": "docs/agents/rules-and-time.md",
+      "sha256": "fb28995341dba23caa52856cce74503c9566891cfbaaa3310cfa57ee76fffcdc"
+    },
+    {
+      "path": "packages/yunqi-domain/README.md",
+      "sha256": "61d8582997a1e3cb90c1d8332cd3319d1d0b9dc03bad74eae97566401cbb36d4"
+    },
+    {
+      "path": "packages/yunqi-domain/package.json",
+      "sha256": "20d40a406ea78c1b257c3cf31c44dbf16553615cef27d2d5a3e6ec8057d0e845"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/stage-progress.ts",
+      "sha256": "315b3a22ac5e7d6491251ca697cd2a83b7a1547dba4f9c645cf9ede31620117b"
+    },
+    {
+      "path": "packages/yunqi-domain/src/calendar/time.ts",
+      "sha256": "7450ecbce25da8c6b8a6f1309309c2e7a5cd96a752b37bb9e3c7847bf4105bbc"
+    },
+    {
+      "path": "packages/yunqi-domain/src/index.ts",
+      "sha256": "0ba0ba1dbe7c64106c1106a8b7c39d7f4f0f7053bf6d0d5f9f1f40a55780de02"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/calculate-learning.ts",
+      "sha256": "eaef1bd2e08b7463bda479ac2840b0b538122df2767dcce36304bde2e4b7056d"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/movements.ts",
+      "sha256": "1696b29b20c4fd462307a009f662c9b3641085b7d2c218e17d53879159409258"
+    },
+    {
+      "path": "packages/yunqi-domain/src/learning/rules.ts",
+      "sha256": "3f9641646981a2a1c63866fcaef8a0be64f1fb03a619a8dcf69096b5bd3e700f"
+    },
+    {
+      "path": "packages/yunqi-domain/src/liuqi/six-qi.ts",
+      "sha256": "254789e8d2caa95f7460abd96288c5397bf6ac3b6fea5eaadafd751cc5fe7c9f"
+    },
+    {
+      "path": "packages/yunqi-domain/src/relation/movement-relation.ts",
+      "sha256": "9e2d8054c00c7f6eeb4899c4649c0307a63341483a06648b21c31964b7ad29ca"
+    },
+    {
+      "path": "packages/yunqi-domain/src/services/calculate-yunqi.ts",
+      "sha256": "6e84f9f81d9e827a00f1bc79d2f8ad3a76ea4f800dbe9cc12027e6a874c2f9d7"
+    },
+    {
+      "path": "packages/yunqi-domain/src/types.ts",
+      "sha256": "36b59d3f7495c503d05f901a3e506f2a6989f255662c1ba1f0969931595c9d85"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/fixtures/stage-facts-2026.ts",
+      "sha256": "b5d950fcc4d70fc7b60ced24e05ddf00a775d084b3571a62926736d02927fdeb"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/learning.test.ts",
+      "sha256": "8bd804be7ad72d277fe86cfc7a7f90cd6d649c46dbafcd04cd4d6436614204d7"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/movement-relation.test.ts",
+      "sha256": "a4198d997a99f99bd1e7ffdb598eeb2f302fb80f8afa261a61a069c4b45f849d"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-api.test.ts",
+      "sha256": "ee4a60a964933e3aeb21e2e0dd76588ba77e3c4854a7fd3f39adb545443dd356"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/public-entry.test.ts",
+      "sha256": "327740044ef0a70c56ed0de04832fe1949a06d9be4eb1d30b4fb730c2b7359c8"
+    },
+    {
+      "path": "packages/yunqi-domain/tests/stage-progress.test.ts",
+      "sha256": "34edcf741cda75d9dd0f250e6b6e8f20ee8e32b02b838a2ba1aa17e59012aec8"
+    },
+    {
+      "path": "rules/LEARNING_RULES_V1_1.md",
+      "sha256": "d003958ee8c1fecee01fa7e4bd4ff1f6e0d88a55468208651ad1412f01bfe06c"
+    }
+  ]
+}

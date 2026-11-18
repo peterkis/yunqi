@@ -1,9 +1,9 @@
 # @yunqi/domain
 
-`@yunqi/domain` 是独立的 TypeScript 领域包。当前版本 `1.3.1`，以纯函数计算运气年、年干支、岁运、太过不及、五音、司天在泉、主气、客气、六步时间轴、五步运、教学关系与经典摘录，并独立完成版本化体质量表计分。不依赖 UI、数据库、API 框架、HIS、EMR 或大模型，也没有运行时依赖。
+`@yunqi/domain` 是独立的 TypeScript 领域包。当前版本 `1.4.0`，以纯函数计算运气年、年干支、岁运、太过不及、五音、司天在泉、主气、客气、六步时间轴、五步运、教学关系、当前阶段进度与经典摘录，并独立完成版本化体质量表计分。不依赖 UI、数据库、API 框架、HIS、EMR 或大模型，也没有运行时依赖。
 
-本轮范围见[医生反馈实施计划](../../docs/plans/2026-11-16-clinician-feedback.md)，
-API 消费方变更见[Contract 1.2.0](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md)。
+本轮增量见[阶段事实补全 E1](../../docs/plans/2026-11-18-stage-facts/cards/E1-domain.md)，此前范围见[医生反馈实施计划](../../docs/plans/2026-11-16-clinician-feedback.md)。
+当前 API 契约为 [Contract 1.2.0](../../docs/contracts/YQ-API-CONTRACT-1.2.0.md)；本轮 Domain 新字段的 Service 投影及契约 1.3.0 由后续 E2 处理。
 核心规则、教学规则和量表规则分别版本化，工程实现不代表专家冻结或临床验证。
 
 ## 架构边界
@@ -11,7 +11,7 @@ API 消费方变更见[Contract 1.2.0](../../docs/contracts/YQ-API-CONTRACT-1.2.
 - `YunQiCalendarTime` 是有日期五运六气计算的权威输入。
 - `YunQiInstant` 保留公共命名，但其规范定义是
   `BeijingStandardTime+08:00 Absolute Representation`。它仅承担传输、
-  排序、持久化、审计和兼容职责，结构为
+  排序、持久化、审计、兼容及阶段时长比例职责，结构为
   `{ epochMilliseconds, offset: '+08:00' }`，不是普通 civil-time instant。
 - `calculateYunQiByCalendarTime()` 是唯一的有日期计算实现。
 - `calculateYunQi(YunQiInstant)` 是兼容包装器：先投影为 `YunQiCalendarTime`，再调用权威入口，最后保留原始 instant 对象作为兼容结果的 `input`。
@@ -124,15 +124,17 @@ interface CalendarProvider {
 
 ## 教学计算与出生对照基础
 
-`calculateLearning(input: YunQiCalendarTime, provider: CalendarProvider)` 返回同一次计算的核心 `facts`、`annualRelation`、`currentQi`、`currentMovement`、完整 `movements`、匹配的 `annualPassages` / `currentPassages` 及解释边界。
+`calculateLearning(input: YunQiCalendarTime, provider: CalendarProvider)` 返回同一次计算的核心 `facts`、`annualRelation`、`currentQi`、`currentMovement`、`currentMovementProgress`、完整 `movements`、匹配的 `annualPassages` / `currentPassages` 及解释边界。`facts.currentStepProgress` 是本次输入的六气进度，与五运分别计算。
 
 年度相临比较司天与中运，当步加临比较客气与主气；两者不混用顺逆术语。经典摘录按实际岁运以及“司天＋六气阶段”匹配，原文与工程阅读释义分开。`annualRelation`、`currentQiRelation` 和 `compareElements` 也从包根导出。
 
 `buildMovementSteps` 独立生成五步运。采用 `TERM_OFFSET_TEACHING_V1`：初运起于大寒；其后边界分别为春分后 13 日、芒种后 10 日、处暑后 7 日、立冬后 4 日，保留交节钟点；终运止于次年大寒。该教学工程口径须由专家确认，不能替换为六步气索引或冒称古代定长计刻法。
 
-教学规则版本为 `YQ-LEARNING-RULES-1.0.0`，经典数据版本为 `YQ-CLASSICAL-READING-1.1.0`。本次逐条复核 52 则摘录，扩充其中 32 则的气候、病候上下文；无病候的段落不增加疾病提示，底本疑字保留或在疑字前结束摘录。阅读说明与古典原文分开，不将古典脏腑、病候直接换成现代病名。来源及计算选型见[教学规则说明](../../rules/LEARNING_RULES_V1.md)，本次逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。
+每步运增加 `relation: MovementRelationResult`、`startLabel`、`endLabel`。`calculateMovementRelation(host, guest)` 只比较五行生克，返回冻结的五行关系、方向和中性标签，不含 `qiRelation`，不用“相得/顺/逆”。关系标签和交运偏移单一常量 `MOVEMENT_RELATION_LABELS` / `MOVEMENT_BOUNDARY_OFFSETS` 从包根公开，时刻与标签同源。六气每步增加 `startTerm` / `endTerm`，闭合类型 `SixQiBoundaryTerm` 直接取自 `STEP_BOUNDARY_TERMS` 的六个值；终之气结束于次年大寒。这些派生投影不改变核心规则版本。
 
-`calculateLearning().notes` 包含经典数据版本，沿用现有返回结构，消费者无需迁移接口。摘录 ID、匹配键、条目数及教学规则版本保持不变，原文与阅读说明的字符串已更新；消费者不应把旧文案作为匹配条件。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
+`calculateStageProgress(start, end, input)` 要求 `start <= input < end`、`end > start`，否则抛 `RangeError`。冻结的 `StageProgress` 包含时长比例 `elapsedRatio`（epochMilliseconds 之比，四舍五入到 3 位小数，最大 0.999）、剩余日历日数 `remainingCalendarDays`（固定北京时间年月日的公历日序号差，不看钟点）及 `endsOnInputDate`（日差为 0）。不读取时钟。权威日历入口从输入本地字段构造比例所需的规范 instant，保留原有归属语义；`YunQiCalendarResult` 及兼容 `YunQiResult` 均带 `currentStepProgress`。其余步和年度结果不带进度。
+
+教学规则版本为 `YQ-LEARNING-RULES-1.1.0`，经典数据版本仍为 `YQ-CLASSICAL-READING-1.1.0`。来源及本轮增量见[教学规则 1.1](../../rules/LEARNING_RULES_V1_1.md)，此前逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。52 则摘录及其 ID、匹配键、条目数、原文与阅读说明本轮保持不变；消费者不应把旧文案作为匹配条件。`calculateLearning().notes` 继续包含经典数据版本。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
 
 ## 体质量表
 

@@ -1,0 +1,7 @@
+$ pnpm --filter @yunqi/domain typecheck
+
+> @yunqi/domain@1.4.0 typecheck /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> tsc -p tsconfig.json --noEmit
+
+
+exit_code=0

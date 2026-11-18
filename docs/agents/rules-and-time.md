@@ -5,7 +5,7 @@
 状态为[待正式冻结](../../rules/RULE_FREEZE_NOTE.md)。时间语义以
 [ADR-001](../architecture/adr/ADR-001-fixed-beijing-time-semantics.md)为长期依据。
 
-2026-11-16授权的教学/出生对照按[教学规则1.0](../../rules/LEARNING_RULES_V1.md)，
+2026-11-16授权的教学/出生对照按[教学规则1.1](../../rules/LEARNING_RULES_V1_1.md)，
 体质量表按[GB/T46939-2025计分规则](../../rules/CONSTITUTION-GBT46939-2025.md)。
 它们各自版本化，不改写原核心规则及专家状态。五步运教学交运法必须明确标识待专家确认。
 经典内容的后续1.1版见[病候选段规则](../../rules/CLASSICAL_READING_V1_1.md)；

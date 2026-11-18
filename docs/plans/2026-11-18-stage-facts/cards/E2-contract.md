@@ -41,3 +41,7 @@ Workbench 只允许为通过类型检查而**最小**更新测试夹具/fixture�
 ## 不做
 
 Domain 变更、Workbench 界面、新增端点或状态码。
+
+## 补充（E1 评审遗留）
+
+- 根 `README.md`、`docs/agents/README.md` 中 Domain 版本（1.3.1→1.4.0）与教学规则版本（1.0→1.1，链接 `rules/LEARNING_RULES_V1_1.md`）一并更新；这两个文件加入本卡允许修改范围。

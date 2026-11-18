@@ -1,0 +1,31 @@
+$ pnpm test:project-guidance
+
+> yunqi@ test:project-guidance /Users/petervans/Projects/YunQi
+> node --test tests/project-guidance.test.mjs && node scripts/check-project-guidance.mjs
+
+✔ production guidance and a portable copied fixture both pass (87.406625ms)
+✔ oversized root instructions fail (73.626666ms)
+✔ missing document fails before delivery (76.9525ms)
+✔ missing anchor fails before delivery (73.909791ms)
+✔ parent escape fails before delivery (70.514708ms)
+✔ Windows absolute path fails before delivery (76.964166ms)
+✔ a nonexistent pnpm command fails (73.022667ms)
+✔ historical archive edits fail integrity checks (75.490709ms)
+✔ Git preserves original and evidence bytes with core.autocrlf=true (151.190709ms)
+✔ Git preserves original and evidence bytes with core.autocrlf=false (152.939459ms)
+✔ dropping a migrated section fails coverage (77.620625ms)
+✔ duplicate sessions fail provenance and counts (84.525875ms)
+✔ a cyclic subagent ancestry fails without hanging (76.154875ms)
+✔ a machine-local private log path fails the portable index (75.288833ms)
+✔ removing CI and root-test wiring fails (75.505083ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1332.716709
+Project guidance passed: budgets, links, commands, migration integrity and session provenance.
+
+exit_code=0

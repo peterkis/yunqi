@@ -147,9 +147,10 @@ function floorDivide(dividend: bigint, divisor: bigint): bigint {
   return dividend % divisor < 0n ? quotient - 1n : quotient;
 }
 
-function localDateTimeToEpochMilliseconds(
-  localDateTime: BeijingLocalDateTime,
-): number {
+/** Shared Gregorian day arithmetic for already validated fixed-Beijing fields. */
+export function beijingLocalDateToDayNumber(
+  localDateTime: Pick<BeijingLocalDateTime, 'year' | 'month' | 'day'>,
+): bigint {
   const originalYear = BigInt(localDateTime.year);
   const month = BigInt(localDateTime.month);
   const day = BigInt(localDateTime.day);
@@ -164,9 +165,14 @@ function localDateTimeToEpochMilliseconds(
     yearOfEra / 4n -
     yearOfEra / 100n +
     dayOfYear;
-  const daysSinceEpoch = era * 146_097n + dayOfEra - 719_468n;
+  return era * 146_097n + dayOfEra - 719_468n;
+}
+
+function localDateTimeToEpochMilliseconds(
+  localDateTime: BeijingLocalDateTime,
+): number {
   const epochMilliseconds =
-    daysSinceEpoch * MILLISECONDS_PER_DAY +
+    beijingLocalDateToDayNumber(localDateTime) * MILLISECONDS_PER_DAY +
     BigInt(localDateTime.hour) * 3_600_000n +
     BigInt(localDateTime.minute) * 60_000n +
     BigInt(localDateTime.second) * 1_000n +

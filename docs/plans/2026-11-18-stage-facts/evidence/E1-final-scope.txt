@@ -1,0 +1,31 @@
+$ node docs/plans/2026-11-18-stage-facts/evidence/E1-verify-scope.mjs
+{
+  "branch": "feat/stage-facts",
+  "head": "bc86e17d64e4e0af5f9abbfaec93ce1914d21046",
+  "changedSourceFiles": 20,
+  "scope": "PASS; only Domain, new teaching rules 1.1, the allowed guidance link and E1 evidence changed.",
+  "coverageComparison": {
+    "baseline": {
+      "Statements": 95.15,
+      "Branches": 92.94,
+      "Functions": 100,
+      "Lines": 96.94
+    },
+    "initial": {
+      "Statements": 95.21,
+      "Branches": 93.12,
+      "Functions": 100,
+      "Lines": 96.88
+    },
+    "final": {
+      "Statements": 95.43,
+      "Branches": 93.51,
+      "Functions": 100,
+      "Lines": 97.12
+    },
+    "initialNoRegressionCriterion": "FAIL: Lines 96.88 < baseline 96.94 despite command exit 0; preserved initial log.",
+    "finalNoRegressionCriterion": "PASS"
+  }
+}
+
+exit_code=0

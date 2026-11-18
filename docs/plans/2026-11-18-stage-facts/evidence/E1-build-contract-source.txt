@@ -1,0 +1,19 @@
+$ pnpm build:contract-source
+
+> yunqi@ build:contract-source /Users/petervans/Projects/YunQi
+> pnpm --filter @yunqi/domain build && pnpm --filter @yunqi/calendar-adapter-tyme4ts build && pnpm --filter @yunqi/service build
+
+
+> @yunqi/domain@1.4.0 build /Users/petervans/Projects/YunQi/packages/yunqi-domain
+> tsc -p tsconfig.json
+
+
+> @yunqi/calendar-adapter-tyme4ts@1.1.0 build /Users/petervans/Projects/YunQi/packages/calendar-adapters/tyme4ts
+> tsc -p tsconfig.json
+
+
+> @yunqi/service@2.2.0 build /Users/petervans/Projects/YunQi/packages/yunqi-service
+> tsc -p tsconfig.json
+
+
+exit_code=0

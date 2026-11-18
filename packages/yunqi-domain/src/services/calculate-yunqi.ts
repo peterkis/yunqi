@@ -1,8 +1,10 @@
 import type { CalendarProvider } from '../calendar/provider.js';
+import { calculateStageProgress } from '../calendar/stage-progress.js';
 import {
   assertYunQiCalendarTimeStructure,
   assertYunQiInstant,
   compareBeijingLocalDateTime,
+  createYunQiCalendarTime,
   createYunQiCalendarTimeFromInstant,
   type YunQiCalendarTime,
   type YunQiInstant,
@@ -54,6 +56,11 @@ export function calculateYunQiByCalendarTime(
     ...annual,
     input,
     currentStep,
+    currentStepProgress: calculateStageProgress(
+      currentStep.start,
+      currentStep.end,
+      createYunQiCalendarTime(input.localDateTime).instant,
+    ),
   };
 }
 

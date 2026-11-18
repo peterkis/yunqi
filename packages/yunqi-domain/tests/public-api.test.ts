@@ -18,8 +18,11 @@ import {
   type ElementRelation,
   type HostGuestDirection,
   type HostGuestRelationResult,
+  type MovementRelationResult,
   type QiRelation,
   type SixQiStep,
+  type SixQiBoundaryTerm,
+  type StageProgress,
   type SolarTerm,
   type YunQiInstant,
   type YunQiCalendarResult,
@@ -69,6 +72,25 @@ function compileTimeOnlyPublicContracts(
   const elementRelation: ElementRelation = relation.elementRelation;
   const direction: HostGuestDirection = relation.direction;
   void { qiRelation, elementRelation, direction };
+  const movementRelation: MovementRelationResult = publicApi.calculateMovementRelation(
+    calendarResult.suiYun, calendarResult.suiYun,
+  );
+  const progress: StageProgress = publicApi.calculateStageProgress(
+    calendarResult.currentStep.start, calendarResult.currentStep.end, calendarTime.instant,
+  );
+  const boundaryTerm: SixQiBoundaryTerm = calendarResult.currentStep.startTerm;
+  const compatibilityProgress: StageProgress = calculateYunQi(instant, provider).currentStepProgress;
+  void { boundaryTerm, compatibilityProgress };
+
+  // @ts-expect-error Five-movement relations have no qiRelation field.
+  void movementRelation.qiRelation;
+  // @ts-expect-error Movement relation fields are readonly.
+  movementRelation.direction = 'NONE';
+  // @ts-expect-error Progress fields are readonly.
+  progress.elapsedRatio = 1;
+  // @ts-expect-error Six-qi boundary terms exclude movement-only terms.
+  const movementOnlyTerm: SixQiBoundaryTerm = '芒种';
+  void movementOnlyTerm;
 
   // @ts-expect-error Structured relation fields are readonly.
   relation.traditionalLabel = 'mutable';
@@ -114,6 +136,9 @@ describe('stable package API', () => {
     expect(typeof calculateYunQi).toBe('function');
     expect(typeof calculateYunQiByCalendarTime).toBe('function');
     expect(typeof getCurrentStep).toBe('function');
+    expect(typeof publicApi.calculateMovementRelation).toBe('function');
+    expect(typeof publicApi.calculateStageProgress).toBe('function');
+    expect(publicApi.LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.1.0');
     expect(typeof publicApi.createYunQiInstant).toBe('function');
     expect(typeof publicApi.assertYunQiInstant).toBe('function');
     expect(typeof publicApi.createYunQiCalendarTime).toBe('function');
@@ -132,6 +157,9 @@ describe('stable package API', () => {
     expect(calendarDated.input).toBe(calendarInput);
     expect(calendarDated.currentStep).toBe(calendarDated.steps[2]);
     expect(dated.currentStep).toBe(dated.steps[2]);
+    expect(dated.currentStepProgress).toEqual(calendarDated.currentStepProgress);
+    expect(Object.isFrozen(dated.currentStepProgress)).toBe(true);
+    expect('currentStepProgress' in annual).toBe(false);
     expect(step.index).toBe(3);
     expect(relation).toEqual({
       qiRelation: 'DIFFERENT_QI',
@@ -161,6 +189,8 @@ describe('stable package API', () => {
       'GUEST_QI_SEQUENCE',
       'HOST_GUEST_RELATION_PRIORITY',
       'HOST_QI_SEQUENCE',
+      'MOVEMENT_BOUNDARY_OFFSETS',
+      'MOVEMENT_RELATION_LABELS',
       'QI_ELEMENT_MAP',
       'SIXTY_CYCLE',
       'SIXTY_CYCLE_ANCHOR',

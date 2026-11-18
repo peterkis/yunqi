@@ -1,0 +1,37 @@
+$ node docs/plans/2026-11-18-stage-facts/evidence/E1-verify-boundaries.mjs
+{
+  "baselineHead": "bc86e17d64e4e0af5f9abbfaec93ce1914d21046",
+  "provider": "@yunqi/calendar-adapter-tyme4ts 1.1.0 / tyme4ts 1.5.2",
+  "annualRegressionCases": 201,
+  "movementBoundarySlotsCompared": 1206,
+  "qiBoundarySlotsCompared": 1407,
+  "note": "Repeated boundary slots are regression assertions, not independent astronomical or expert cases.",
+  "golden": {
+    "input": "2026-11-18T08:44:00+08:00",
+    "qi": [
+      "2026-09-23T08:05:14+08:00",
+      "2026-11-22T15:23:21+08:00"
+    ],
+    "qiProgress": {
+      "elapsedRatio": 0.929,
+      "remainingCalendarDays": 4,
+      "endsOnInputDate": false
+    },
+    "movement": [
+      "2026-11-11T17:52:05+08:00",
+      "2027-01-20T15:29:50+08:00"
+    ],
+    "movementProgress": {
+      "elapsedRatio": 0.095,
+      "remainingCalendarDays": 63,
+      "endsOnInputDate": false
+    },
+    "movementRelation": {
+      "elementRelation": "DIFFERENT_ELEMENT",
+      "direction": "GUEST_GENERATES_HOST",
+      "traditionalLabel": "客运生主运"
+    }
+  }
+}
+
+exit_code=0
