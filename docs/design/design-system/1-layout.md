@@ -14,7 +14,7 @@
 
 - 面板宽 `panel-width` 400px，左右安全边距统一 `space-4` 16px。
 - 下钻页（原文、结果）把分段导航换成“返回 + 标题”，标题栏高度不变。
-- 收起态：`pill-height` 64 的胶囊条，宽 400，`radius-full`，`shadow-float`。只显示干支、年运三要素、当步客气与一个关系标签。点击整条展开。
+- 收起态：`pill-height` 64 的胶囊条，宽 400，`radius-full`，`shadow-pill`；宿主为 `pill-window-width` × `pill-window-height`（424×88）透明窗口，外边距左右 `space-3` 12、上 `space-2.5` 10、下 `space-3.5` 14。只显示干支、年运三要素、当步客气与一个关系标签。点击整条展开。
 
 ## 网格
 
@@ -57,9 +57,9 @@
 
 | 层 | 底 | 边界 | 阴影 |
 | --- | --- | --- | --- |
-| 面板底 | `surface-page` | — | 停靠时 `shadow-dock` 向左 |
+| 面板底 | `surface-page` | 左缘 1px `border-default` 内阴影细线（不占布局） | 浏览器开发宿主中 `shadow-dock` 向左；独立窗口中不可见 |
 | 卡片 | `surface-card` | 1px `border-default`，`radius-lg` | **无** |
-| 浮起物 | `surface-card` | — | 选中分段 `shadow-segment`；胶囊条与弹层 `shadow-float` |
+| 浮起物 | `surface-card` | — | 选中分段 `shadow-segment`；胶囊条 `shadow-pill`；弹层 `shadow-float` |
 
 - 卡片之间的层次靠“白卡 + 暖白底 + 细描边”实现，不加阴影。
 - 卡片内的提示块用**下沉**而不是浮起：`surface-page` 底、`radius-sm`/`radius-md`、无边框。

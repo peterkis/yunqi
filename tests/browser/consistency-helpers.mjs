@@ -135,14 +135,14 @@ export async function expectPillGeometry(page, pill) {
         return color;
       });
       const swatch = document.createElement('span');
-      swatch.style.boxShadow = 'var(--shadow-float)';
+      swatch.style.boxShadow = 'var(--shadow-pill)';
       element.append(swatch);
       const expectedShadow = getComputedStyle(swatch).boxShadow;
       swatch.remove();
       const shadow = getComputedStyle(element).boxShadow.split(/,\s*(?![^()]*\))/).at(-1).trim();
       // CSS blur has no exact visible edge. Record a conservative 3-sigma
       // envelope (sigma = blur / 2), separately from ancestor clipping.
-      // A 416x80 host fits the pill + margin, not the entire 20px blur tail.
+      // The 424x88 standalone host holds the whole tail of shadow-pill (0 2px 8px).
       const [dx, dy, blur, spread] = shadow.match(/-?[\d.]+px/g).map(Number.parseFloat);
       const reach = blur * 1.5 + spread;
       const paint = { left: rect.left + dx - reach, top: rect.top + dy - reach,
@@ -161,6 +161,10 @@ export async function expectPillGeometry(page, pill) {
         viewport: { width: innerWidth, height: innerHeight },
         documentWidth: document.documentElement.scrollWidth, documentHeight: document.documentElement.scrollHeight,
         fits: element.scrollWidth <= element.clientWidth,
+        hostBackgrounds: Object.fromEntries(['html', 'body', '#root', '.theme-root', '.panel-viewport'].map(selector => {
+          const style = getComputedStyle(document.querySelector(selector));
+          return [selector, { color: style.backgroundColor, image: style.backgroundImage }];
+        })),
         shadow: { actual: shadow, expected: expectedShadow, blur, spread, reach, clippingAncestors,
           method: '3-sigma envelope: 1.5 * CSS blur + spread; negative clearance means a viewport-clipped blur tail',
           viewportClearance: { left: paint.left, top: paint.top, right: innerWidth - paint.right, bottom: innerHeight - paint.bottom } },
@@ -170,9 +174,18 @@ export async function expectPillGeometry(page, pill) {
     });
     expect(metrics.width).toBe(400);
     expect(metrics.height).toBe(64);
-    for (const margin of [metrics.x, metrics.y, metrics.right, metrics.bottom]) expect(margin).toBeGreaterThanOrEqual(8);
+    expect(metrics.x).toBeGreaterThanOrEqual(12);
+    expect(metrics.y).toBe(10);
+    expect(metrics.right).toBe(12);
+    expect(metrics.bottom).toBeGreaterThanOrEqual(14);
+    if (metrics.viewport.width === 424 && metrics.viewport.height === 88) {
+      for (const clearance of Object.values(metrics.shadow.viewportClearance)) expect(clearance).toBeGreaterThanOrEqual(0);
+    }
     expect(metrics.shadow.actual).toBe(metrics.shadow.expected);
     expect(metrics.shadow.clippingAncestors).toEqual([]);
+    for (const background of Object.values(metrics.hostBackgrounds)) {
+      expect(background).toEqual({ color: 'rgba(0, 0, 0, 0)', image: 'none' });
+    }
     expect(metrics.documentWidth).toBe(metrics.viewport.width);
     expect(metrics.documentHeight).toBe(metrics.viewport.height);
     expect(metrics.fits).toBe(true);

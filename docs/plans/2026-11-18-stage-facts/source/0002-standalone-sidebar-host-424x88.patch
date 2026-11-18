@@ -1,0 +1,412 @@
+From 34b968edcb5f11089f1621fc49f1a7057f317621 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Wed, 18 Nov 2026 03:53:17 +0000
+Subject: [PATCH 2/2] =?UTF-8?q?feat(workbench):=20=E7=8B=AC=E7=AB=8B?=
+ =?UTF-8?q?=E4=BE=A7=E6=A0=8F=E7=AA=97=E5=8F=A3=E5=AE=BF=E4=B8=BB=E5=A5=91?=
+ =?UTF-8?q?=E7=BA=A6=EF=BC=88=E6=94=B6=E8=B5=B7=E6=80=81=20424=C3=9788=20?=
+ =?UTF-8?q?=E9=80=8F=E6=98=8E=E7=AA=97=E5=8F=A3=EF=BC=89?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+运气通是独立侧边栏程序，不嵌入门诊工作站页面。按 2026-11-18 确认的窗口方案：
+- 新增令牌 shadow-pill（0 2px 8px）与 pill-window-width/height（424×88）；
+  胶囊 400×64，外边距左右 12、上 10、下 14，3σ 阴影尾迹完全落在窗口内
+- 收起态宿主背景透明；不使用系统原生窗口阴影
+- 展开面板左缘 1px border-default 细线（内阴影，不改 16px 安全边距），
+  shadow-dock 仅在浏览器开发宿主可见
+- 设计文档新增“独立侧栏窗口”宿主契约：AppBar 预留右侧 400px（可切换悬浮覆盖）、
+  收起窗口置顶可拖动并按显示器记忆位置；Tauri 外壳实现另行排期
+- 浏览器验收改为 424×88，并要求该尺寸下阴影外沿全部不被裁切
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_015hQr4PfZLtYd2atKb722DF
+---
+ .../src/styles/panel-shell.css                | 26 ++++++++++++++-----
+ apps/yunqi-workbench/src/styles/tokens.css    |  6 +++++
+ docs/agents/verification.md                   |  2 +-
+ docs/agents/workbench.md                      |  4 +--
+ docs/design/README.md                         | 22 +++++++++++++---
+ docs/design/design-system/1-layout.md         |  6 ++---
+ docs/design/design-system/tokens.json         | 24 ++++++++++++++---
+ playwright.config.mjs                         |  2 +-
+ tests/browser/README.md                       | 21 +++++++--------
+ tests/browser/consistency-helpers.mjs         |  9 ++++---
+ tests/browser/panel-pill.visual.spec.mjs      |  4 +--
+ tests/browser/panel-shell.flows.spec.mjs      |  2 +-
+ 12 files changed, 91 insertions(+), 37 deletions(-)
+
+diff --git a/apps/yunqi-workbench/src/styles/panel-shell.css b/apps/yunqi-workbench/src/styles/panel-shell.css
+index 587cc2f..3f776e9 100644
+--- a/apps/yunqi-workbench/src/styles/panel-shell.css
++++ b/apps/yunqi-workbench/src/styles/panel-shell.css
+@@ -18,9 +18,15 @@
+ }
+ 
+ .panel-viewport--collapsed {
+-  /* Host contract: 416x80 = a 400x64 pill plus 8px on each side. */
+-  min-width: calc(var(--panel-width) + var(--space-4));
+-  padding: var(--space-2);
++  /* Host contract (standalone transparent window): 424x88 = a 400x64 pill plus
++     12px left/right, 10px top and 14px bottom, which hold the whole 3-sigma
++     tail of shadow-pill (0 2px 8px). Source: docs/design/README.md. */
++  min-width: var(--pill-window-width);
++  min-height: var(--pill-window-height);
++  padding: var(--space-2_5) var(--space-3) var(--space-3_5);
++  /* The standalone host is a transparent window: only the pill and its
++     shadow paint, never a rectangle around them. */
++  background: transparent;
+ }
+ 
+ .panel-shell {
+@@ -35,7 +41,10 @@
+   height: 100dvh;
+   min-height: var(--panel-min-height);
+   background: var(--surface-page);
+-  box-shadow: var(--shadow-dock);
++  /* The left hairline is an inset shadow so it never shifts the 16px safe
++     margin. shadow-dock only shows in the browser dev host; in the standalone
++     window the panel is the window and the hairline marks its edge. */
++  box-shadow: inset var(--panel-hairline) 0 0 var(--border-default), var(--shadow-dock);
+ }
+ 
+ .panel-shell[hidden] { display: none; }
+@@ -123,7 +132,7 @@
+   padding: 0 var(--space-2_5);
+   border: var(--panel-hairline) solid var(--border-default);
+   border-radius: var(--radius-full);
+-  box-shadow: var(--shadow-float);
++  box-shadow: var(--shadow-pill);
+   background: var(--surface-card);
+   color: var(--ink-primary);
+   cursor: pointer;
+@@ -148,7 +157,7 @@
+ 
+ /* Keep the inner keyboard ring in addition to the standard outer ring. */
+ .panel-pill:focus-visible {
+-  box-shadow: inset 0 0 0 var(--space-0_5) var(--focus-ring), var(--shadow-float);
++  box-shadow: inset 0 0 0 var(--space-0_5) var(--focus-ring), var(--shadow-pill);
+ }
+ 
+ .panel-pill__text { flex: 1; min-width: 0; }
+@@ -179,3 +188,8 @@
+   stroke-linecap: round;
+   stroke-linejoin: round;
+ }
++
++/* Collapsed host: the theme surface must not paint behind the transparent window. */
++.theme-root:has(.panel-viewport--collapsed) {
++  background: transparent;
++}
+diff --git a/apps/yunqi-workbench/src/styles/tokens.css b/apps/yunqi-workbench/src/styles/tokens.css
+index 90ed526..a70853f 100644
+--- a/apps/yunqi-workbench/src/styles/tokens.css
++++ b/apps/yunqi-workbench/src/styles/tokens.css
+@@ -52,11 +52,14 @@
+   --shadow-segment: 0 1px 2px rgba(29,35,32,0.08);
+   --shadow-dock: -8px 0 24px rgba(29,35,32,0.06);
+   --shadow-float: 0 6px 20px rgba(29,35,32,0.10);
++  --shadow-pill: 0 2px 8px rgba(29,35,32,0.14);
+   --panel-width: 400px;
+   --panel-min-height: 640px;
+   --header-height: 52px;
+   --footer-height: 36px;
+   --pill-height: 64px;
++  --pill-window-width: 424px;
++  --pill-window-height: 88px;
+   --control-height: 40px;
+   --input-height: 36px;
+   --option-height: 48px;
+@@ -172,11 +175,14 @@
+   --shadow-segment: 0 1px 2px rgba(0,0,0,0.40);
+   --shadow-dock: -8px 0 24px rgba(0,0,0,0.35);
+   --shadow-float: 0 6px 20px rgba(0,0,0,0.45);
++  --shadow-pill: 0 2px 8px rgba(0,0,0,0.50);
+   --panel-width: 400px;
+   --panel-min-height: 640px;
+   --header-height: 52px;
+   --footer-height: 36px;
+   --pill-height: 64px;
++  --pill-window-width: 424px;
++  --pill-window-height: 88px;
+   --control-height: 40px;
+   --input-height: 36px;
+   --option-height: 48px;
+diff --git a/docs/agents/verification.md b/docs/agents/verification.md
+index 5f20049..8b20c1b 100644
+--- a/docs/agents/verification.md
++++ b/docs/agents/verification.md
+@@ -56,7 +56,7 @@
+ - 覆盖率：Workbench阈值保持行/语句/函数90、分支85；组件、mapper和hook同样计入，
+   不得用exclude或降阈值绕开。CSS不计入覆盖率，视觉约束由浏览器验收和治理检查承担。
+ - 本地资源：治理检查拒绝index.html与CSS中的远程资源引用；浏览器验收拒绝任何离开自有origin的请求。
+-- 浏览器验收：400×860浅/深、400×640最小高度、416×80收起态宿主窗口（400×64胶囊＋四周各8px外边距）、1366×900工作站右侧面板。
++- 浏览器验收：400×860浅/深、400×640最小高度、424×88收起态透明宿主窗口（400×64胶囊＋左右12、上10、下14外边距，shadow-pill尾迹不得被裁）、1366×900工作站右侧面板。
+   覆盖七画板状态及年度、指定时点、问诊规划、未找到下钻页，按同一变更同步更新flows/visual。
+   每个视觉状态均检查五档字号，面板状态检查图标/选项/主按钮尺寸、每视图至多一个主按钮及2px焦点环；
+   保留axe WCAG 2.1 A/AA扫描与外部请求拒绝。覆盖表、数量及复现入口以[浏览器验收说明](../../tests/browser/README.md)为准。
+diff --git a/docs/agents/workbench.md b/docs/agents/workbench.md
+index 5217ae3..453707c 100644
+--- a/docs/agents/workbench.md
++++ b/docs/agents/workbench.md
+@@ -38,8 +38,8 @@ optional chaining、方法引用、bracket access、解构也不能取得client
+ 
+ 当前界面视觉与交互唯一依据为[设计规范与原型](../design/README.md)：
+ 固定宽400px的门诊侧栏面板，分段导航“当下运气 / 先天对照 / 体质量表”，原文与结果用下钻页，可收起为胶囊条。
+-收起态宿主窗口 416×80 = 胶囊 400×64 + 四周各 8px 外边距；胶囊使用 `pill-height` 和 `shadow-float`，
+-不随小窗口压缩。该窗口尺寸契约留给 Tauri 阶段使用，当前浏览器验收按此模拟宿主尺寸。
++运气通是独立侧边栏窗口，不嵌入门诊工作站页面。收起态宿主为透明窗口 424×88 = 胶囊 400×64 + 左右各 12、上 10、下 14 外边距；
++胶囊使用 `pill-height` 和 `shadow-pill`，不随小窗口压缩，宿主背景透明。窗口契约见[设计规范](../design/README.md)“独立侧栏窗口”，当前浏览器验收按此模拟宿主尺寸。
+ 重构前页面的布局、样式、组件形态和浏览器截图均为demo，不再作为设计参考或验收基线；新增或修改界面不得沿用demo样式。
+ 
+ - 颜色、字号、间距、圆角、阴影、尺寸只取[设计令牌](../design/design-system/tokens.json)，以CSS变量实现，不写裸值；浅/深两主题。
+diff --git a/docs/design/README.md b/docs/design/README.md
+index 8467ad9..2b130f1 100644
+--- a/docs/design/README.md
++++ b/docs/design/README.md
+@@ -46,11 +46,25 @@
+ | ③ 先天 × 当下 对照 | 出生日期与时刻、先天/当下两列对照（岁运、司天、在泉、所处气、所处运）、先天原文线索、同时测评入口 |
+ | ④ 体质量表 · 作答中 | 当下/先天摘要条、一题一屏、五级选项、数字键作答、上一题 |
+ | ⑤ 体质结果 · 与运气互参 | 判定与兼夹、九质转化分条形（30/40 刻度）、体质/先天/当下并列、结束并销毁答卷 |
+-| ⑥ 收起态 · 胶囊条 | 400×64 胶囊：干支、年运三要素、当步客气、一个关系标签；宿主窗口 416×80 = 胶囊 400×64 + 四周各 8px 外边距 |
+-| ⑦ 在医生工作站中的位置 | 1440×900 工作站示意，面板停靠右缘 |
++| ⑥ 收起态 · 胶囊条 | 400×64 胶囊：干支、年运三要素、当步客气、一个关系标签；宿主窗口 424×88 = 胶囊 400×64 + 左右各 12、上 10、下 14 外边距（透明窗口） |
++| ⑦ 独立侧栏窗口 | 运气通是独立的侧边栏窗口，贴屏幕右缘；门诊工作站是另一个程序，不嵌入其页面 |
+ 
+ 原型中的“演示：一键填完 26 题”只用于演示，不属于产品功能。
+-收起态宿主窗口尺寸为本地验收约定，留给 Tauri 阶段使用；保持 `pill-height` 64 和 `shadow-float`，不压缩胶囊适配窗口。
++收起态宿主窗口尺寸为 Tauri 阶段的宿主契约，浏览器验收按此模拟；胶囊保持 `pill-height` 64、使用 `shadow-pill`，不压缩胶囊适配窗口。
++
++## 独立侧栏窗口（宿主契约，2026-11-18 确认）
++
++运气通作为**独立侧边栏程序**运行，不是嵌入门诊医生站页面的子插件。以下为 Tauri 阶段的窗口约定，Web 层已按此实现并验收：
++
++| 项 | 约定 |
++| --- | --- |
++| 展开窗口 | 宽 `panel-width` 400，高为当前显示器工作区高度（扣除任务栏），贴屏幕右缘；无系统标题栏与边框 |
++| 展开边界 | 面板即窗口，左缘用 1px `border-default` 细线表达边界；`shadow-dock` 只在浏览器开发宿主可见 |
++| 停靠方式 | 默认在 Windows 上注册为 AppBar，预留右侧 400px，最大化的门诊工作站自动让出宽度而不被遮挡；设置中提供“悬浮覆盖”开关（置顶、不占位） |
++| 收起窗口 | 透明、无边框、置顶、不进任务栏；尺寸 `pill-window-width` × `pill-window-height` = 424×88，胶囊 400×64 居中，外边距左右 12、上 10、下 14 |
++| 收起阴影 | 不用系统原生窗口阴影（它沿矩形窗口绘制，会在 32px 圆角胶囊外露出直角）；阴影由 CSS `shadow-pill`（0 2px 8px）在透明窗口内绘制，3σ 尾迹完全落在外边距内 |
++| 收起位置 | 默认工作区右上角；可拖动，记住上次位置（按显示器分别记忆）；位置越界时回到默认 |
++| 透明边距 | 外边距区域会拦截极少量点击；边距已按阴影尾迹取最小值，不再扩大 |
+ 
+ ## 本地扩展
+ 
+@@ -72,6 +86,6 @@
+ - 标题栏“当前患者（来自 HIS）”、姓名脱敏、性别年龄、就诊 ID、HIS 同步状态，以及“出生日期默认取 HIS”。
+   现有授权禁止 HIS/EMR 接入、患者选择与身份关联。
+ - “复制结论到病历”主按钮：属于向 EMR 写入，且“结论”措辞需按输出边界复核。
+-- Tauri 宿主或工作站内停靠的部署形态：当前只有浏览器 Workbench。
++- Tauri 宿主实现：独立侧栏窗口形态与上节宿主契约已获用户确认（2026-11-18），Tauri 外壳实现另行排期；当前只有浏览器 Workbench。
+ - 现有 `/yunqi/year`、`/yunqi/year/:year`、`/yunqi/calculate`、`/yunqi/inquiry` 不在三段导航中；
+   保留、迁移为下钻或下线须在重构计划中确定，并同步更新 [Workbench 约束](../agents/workbench.md)。
+diff --git a/docs/design/design-system/1-layout.md b/docs/design/design-system/1-layout.md
+index eefd9ec..f2c9126 100644
+--- a/docs/design/design-system/1-layout.md
++++ b/docs/design/design-system/1-layout.md
+@@ -14,7 +14,7 @@
+ 
+ - 面板宽 `panel-width` 400px，左右安全边距统一 `space-4` 16px。
+ - 下钻页（原文、结果）把分段导航换成“返回 + 标题”，标题栏高度不变。
+-- 收起态：`pill-height` 64 的胶囊条，宽 400，`radius-full`，`shadow-float`。只显示干支、年运三要素、当步客气与一个关系标签。点击整条展开。
++- 收起态：`pill-height` 64 的胶囊条，宽 400，`radius-full`，`shadow-pill`；宿主为 424×88 透明窗口。只显示干支、年运三要素、当步客气与一个关系标签。点击整条展开。
+ 
+ ## 网格
+ 
+@@ -57,9 +57,9 @@
+ 
+ | 层 | 底 | 边界 | 阴影 |
+ | --- | --- | --- | --- |
+-| 面板底 | `surface-page` | — | 停靠时 `shadow-dock` 向左 |
++| 面板底 | `surface-page` | 左缘 1px `border-default` 内阴影细线（不占布局） | 浏览器开发宿主中 `shadow-dock` 向左；独立窗口中不可见 |
+ | 卡片 | `surface-card` | 1px `border-default`，`radius-lg` | **无** |
+-| 浮起物 | `surface-card` | — | 选中分段 `shadow-segment`；胶囊条与弹层 `shadow-float` |
++| 浮起物 | `surface-card` | — | 选中分段 `shadow-segment`；胶囊条 `shadow-pill`；弹层 `shadow-float` |
+ 
+ - 卡片之间的层次靠“白卡 + 暖白底 + 细描边”实现，不加阴影。
+ - 卡片内的提示块用**下沉**而不是浮起：`surface-page` 底、`radius-sm`/`radius-md`、无边框。
+diff --git a/docs/design/design-system/tokens.json b/docs/design/design-system/tokens.json
+index 8001b86..8021a5b 100644
+--- a/docs/design/design-system/tokens.json
++++ b/docs/design/design-system/tokens.json
+@@ -529,7 +529,7 @@
+           "light": "-8px 0 24px rgba(29,35,32,0.06)",
+           "dark": "-8px 0 24px rgba(0,0,0,0.35)"
+         },
+-        "usage": "面板停靠在工作站右缘时向左投的影。"
++        "usage": "浏览器开发宿主中面板向左投的影；独立窗口里面板即窗口，此影不可见，边界由左侧 1px border-default 细线表达。"
+       },
+       {
+         "name": "shadow-float",
+@@ -537,7 +537,15 @@
+           "light": "0 6px 20px rgba(29,35,32,0.10)",
+           "dark": "0 6px 20px rgba(0,0,0,0.45)"
+         },
+-        "usage": "收起态胶囊条、浮动弹层。"
++        "usage": "插件内浮动弹层。收起态胶囊改用 shadow-pill。"
++      },
++      {
++        "name": "shadow-pill",
++        "value": {
++          "light": "0 2px 8px rgba(29,35,32,0.14)",
++          "dark": "0 2px 8px rgba(0,0,0,0.50)"
++        },
++        "usage": "收起态胶囊条（独立透明窗口）。模糊 8px 的 3σ 尾迹为 12px，正好落在 424×88 宿主窗口的外边距内，不被裁切。"
+       }
+     ]
+   },
+@@ -569,6 +577,16 @@
+         "value": "64px",
+         "usage": "收起态胶囊条。"
+       },
++      {
++        "name": "pill-window-width",
++        "value": "424px",
++        "usage": "收起态宿主窗口宽：胶囊 400 + 左右各 12（space-3）。"
++      },
++      {
++        "name": "pill-window-height",
++        "value": "88px",
++        "usage": "收起态宿主窗口高：胶囊 64 + 上 10（space-2.5）+ 下 14（space-3.5），容纳 shadow-pill 的下偏移尾迹。"
++      },
+       {
+         "name": "control-height",
+         "value": "40px",
+@@ -620,4 +638,4 @@
+       }
+     ]
+   }
+-}
+\ No newline at end of file
++}
+diff --git a/playwright.config.mjs b/playwright.config.mjs
+index 215ab70..3b907ee 100644
+--- a/playwright.config.mjs
++++ b/playwright.config.mjs
+@@ -57,7 +57,7 @@ export default defineConfig({
+     visualProject('panel-light', 400, 860),
+     visualProject('panel-dark', 400, 860, 'dark'),
+     visualProject('panel-min-height', 400, 640),
+-    visualProject('collapsed-pill', 416, 80, 'light', '**/panel-pill.visual.spec.mjs'),
++    visualProject('collapsed-pill', 424, 88, 'light', '**/panel-pill.visual.spec.mjs'),
+     visualProject('workstation-light', 1366, 900),
+     visualProject('workstation-768', 1366, 768),
+     visualProject('workstation-1080', 1920, 1080),
+diff --git a/tests/browser/README.md b/tests/browser/README.md
+index 620097f..55b54b6 100644
+--- a/tests/browser/README.md
++++ b/tests/browser/README.md
+@@ -99,8 +99,8 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
+ 
+ `workbench.visual.spec.mjs` has 25 panel states, each run in all six panel /
+ workstation projects. The collapsed-pill spec adds two theme states at its
+-416 × 80 host viewport, containing the unchanged 400 × 64 pill with an 8px
+-outer margin on every side. The seven prototype boards are represented as follows:
++424 × 88 host viewport, containing the unchanged 400 × 64 pill with 12px
++left/right, 10px top and 14px bottom margins. The seven prototype boards are represented as follows:
+ 
+ | Prototype / area | Test states |
+ | --- | --- |
+@@ -126,22 +126,21 @@ are retained as evidence only, not as an approved visual baseline.
+ | `panel-light` | 400 × 860 | Light, 25 panel states |
+ | `panel-dark` | 400 × 860 | Dark, 25 panel states |
+ | `panel-min-height` | 400 × 640 | Light, 25 panel states; current content scrolls while header, navigation and footer stay fixed |
+-| `collapsed-pill` | 416 × 80 host | Light and dark, two states; 400 × 64 pill plus an 8px outer margin on every side |
++| `collapsed-pill` | 424 × 88 host | Light and dark, two states; 400 × 64 pill, 12/10/14px margins, transparent host |
+ | `workstation-light` | 1366 × 900 | Light, 25 states; 400px panel at the right edge |
+ | `workstation-768` | 1366 × 768 | Light, 25 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+ | `workstation-1080` | 1920 × 1080 | Light, 25 states; same right-edge panel |
+ 
+-Collapsed host contract for the future Tauri stage: **416×80 = 胶囊 400×64 +
+-四周各 8px 外边距**. Browser tests simulate this host size; the pill retains
+-`pill-height` and `shadow-float` at every viewport size.
++Collapsed host contract for the standalone Tauri window: **424×88 = 胶囊 400×64 +
++左右各 12、上 10、下 14 外边距**, transparent background. Browser tests simulate
++this host size; the pill retains `pill-height` and `shadow-pill` at every viewport size.
+ 
+ Pill geometry attaches a shadow measurement with each screenshot. It checks the
+-computed outer shadow against `shadow-float` and rejects CSS ancestors that clip
++computed outer shadow against `shadow-pill` and rejects CSS ancestors that clip
+ its estimated paint envelope. The envelope uses `1.5 × blur + spread` (three
+-Gaussian standard deviations), with signed viewport clearances. Negative
+-clearances are retained as viewport clipping evidence: an 8px outer margin does
+-not contain the full tail of `0 6px 20px` at 416×80. This check does not claim that
+-the entire blur is visible; full-shadow host sizing remains a Tauri-stage decision.
++Gaussian standard deviations), with signed viewport clearances. At the 424×88
++host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
++Larger panel viewports still record clearances as evidence only.
+ 
+ The suite discovers **65 flow/foundation/oracle tests + 152 visual/accessibility
+ tests = 217 tests in 12 files**. These are test cases and repeated state checks,
+diff --git a/tests/browser/consistency-helpers.mjs b/tests/browser/consistency-helpers.mjs
+index 4e72b13..c36db2b 100644
+--- a/tests/browser/consistency-helpers.mjs
++++ b/tests/browser/consistency-helpers.mjs
+@@ -135,14 +135,14 @@ export async function expectPillGeometry(page, pill) {
+         return color;
+       });
+       const swatch = document.createElement('span');
+-      swatch.style.boxShadow = 'var(--shadow-float)';
++      swatch.style.boxShadow = 'var(--shadow-pill)';
+       element.append(swatch);
+       const expectedShadow = getComputedStyle(swatch).boxShadow;
+       swatch.remove();
+       const shadow = getComputedStyle(element).boxShadow.split(/,\s*(?![^()]*\))/).at(-1).trim();
+       // CSS blur has no exact visible edge. Record a conservative 3-sigma
+       // envelope (sigma = blur / 2), separately from ancestor clipping.
+-      // A 416x80 host fits the pill + margin, not the entire 20px blur tail.
++      // The 424x88 standalone host holds the whole tail of shadow-pill (0 2px 8px).
+       const [dx, dy, blur, spread] = shadow.match(/-?[\d.]+px/g).map(Number.parseFloat);
+       const reach = blur * 1.5 + spread;
+       const paint = { left: rect.left + dx - reach, top: rect.top + dy - reach,
+@@ -170,7 +170,10 @@ export async function expectPillGeometry(page, pill) {
+     });
+     expect(metrics.width).toBe(400);
+     expect(metrics.height).toBe(64);
+-    for (const margin of [metrics.x, metrics.y, metrics.right, metrics.bottom]) expect(margin).toBeGreaterThanOrEqual(8);
++    for (const margin of [metrics.x, metrics.y, metrics.right, metrics.bottom]) expect(margin).toBeGreaterThanOrEqual(10);
++    if (metrics.viewport.width === 424 && metrics.viewport.height === 88) {
++      for (const clearance of Object.values(metrics.shadow.viewportClearance)) expect(clearance).toBeGreaterThanOrEqual(0);
++    }
+     expect(metrics.shadow.actual).toBe(metrics.shadow.expected);
+     expect(metrics.shadow.clippingAncestors).toEqual([]);
+     expect(metrics.documentWidth).toBe(metrics.viewport.width);
+diff --git a/tests/browser/panel-pill.visual.spec.mjs b/tests/browser/panel-pill.visual.spec.mjs
+index a424c89..6a99a62 100644
+--- a/tests/browser/panel-pill.visual.spec.mjs
++++ b/tests/browser/panel-pill.visual.spec.mjs
+@@ -3,7 +3,7 @@ import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
+ import { expectPillGeometry } from './consistency-helpers.mjs';
+ 
+ for (const theme of ['light', 'dark']) {
+-  test(`@visual collapsed pill ${theme}: 416x80 host, 400x64 pill, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
++  test(`@visual collapsed pill ${theme}: 424x88 host, 400x64 pill, typography, keyboard and accessibility`, async ({ page, diagnostics }, testInfo) => {
+     const data = await loadCurrent(page);
+     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
+     await settle(page);
+@@ -21,7 +21,7 @@ for (const theme of ['light', 'dark']) {
+     await expect(page.getByRole('main')).toHaveCount(0);
+     await expect(page.getByRole('button')).toHaveCount(1);
+     const layout = await expectPillGeometry(page, pill);
+-    expect(layout).toMatchObject({ x: 8, y: 8, width: 400, height: 64, documentWidth: 416, documentHeight: 80, fits: true });
++    expect(layout).toMatchObject({ x: 12, y: 10, width: 400, height: 64, right: 12, bottom: 14, documentWidth: 424, documentHeight: 88, fits: true });
+     await expect(pill.locator('.panel-pill__ganzhi')).toHaveText(data.facts.stemBranch.ganzhi);
+     await testInfo.attach('pill-geometry', { body: JSON.stringify(layout, null, 2), contentType: 'application/json' });
+     await screenshot(page, testInfo, `collapsed-pill-${theme}`);
+diff --git a/tests/browser/panel-shell.flows.spec.mjs b/tests/browser/panel-shell.flows.spec.mjs
+index 6de108a..977f969 100644
+--- a/tests/browser/panel-shell.flows.spec.mjs
++++ b/tests/browser/panel-shell.flows.spec.mjs
+@@ -107,7 +107,7 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860
+       await collapse.focus();
+       await page.keyboard.press('Enter');
+       // Simulate the future host resizing instead of compressing the pill.
+-      const collapsedViewport = { width: Math.max(416, viewport.width), height: viewport.height };
++      const collapsedViewport = { width: Math.max(424, viewport.width), height: viewport.height };
+       await page.setViewportSize(collapsedViewport);
+       const expand = page.getByRole('button', { name: /^展开运气通/ });
+       await expect(expand).toBeFocused();
+-- 
+2.43.0
+
