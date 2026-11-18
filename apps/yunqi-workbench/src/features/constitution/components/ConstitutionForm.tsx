@@ -30,6 +30,9 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   const focusChangeSex = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const advancing = useRef(false);
+  // A delayed advance must not pull focus back if the user has moved elsewhere
+  // (e.g. drilled into 原文 and returned) during the 160ms hold.
+  const keepFocus = useRef(false);
   const submitting = useRef(false);
   const revision = useRef(0);
   const questionId = useId();
@@ -50,7 +53,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
 
   useEffect(() => cancelAdvance, []);
   useLayoutEffect(() => {
-    if (sex !== '' && !mutation.result) headingRef.current?.focus();
+    if (keepFocus.current) keepFocus.current = false;
+    else if (sex !== '' && !mutation.result) headingRef.current?.focus();
     else if (sex === '' && focusSex.current) {
       sexRef.current?.querySelector('button')?.focus();
       focusSex.current = false;
@@ -116,13 +120,16 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     resetScoring();
     setAnswers((current) => ({ ...current, [question.id]: value }));
     advancing.current = true;
-    const next = () => {
+    const form = headingRef.current?.closest('form');
+    const next = (delayed: boolean) => {
       advancing.current = false;
       timer.current = undefined;
+      const focused = document.activeElement;
+      keepFocus.current = delayed && focused !== null && focused !== document.body && !form?.contains(focused);
       setQuestionIndex((index) => index + 1);
     };
-    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) next();
-    else timer.current = setTimeout(next, 160);
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) next(false);
+    else timer.current = setTimeout(() => next(true), 160);
   }
 
   function questionKey(event: KeyboardEvent<HTMLDivElement>) {
