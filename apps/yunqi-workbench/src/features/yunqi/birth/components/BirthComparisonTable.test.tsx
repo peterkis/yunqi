@@ -5,6 +5,29 @@ import { mapBirthView } from '../presentation/map-birth-view';
 import { BirthComparisonTable } from './BirthComparisonTable';
 
 describe('BirthComparisonTable mirror semantics', () => {
+  it.each([
+    { label: '所处气', birth: ['主厥阴风木', '客少阴君火'], current: ['主厥阴风木', '客少阳相火'] },
+    { label: '所处运', birth: ['主少角', '客太商'], current: ['主太羽', '客少商'] },
+  ])('keeps $label detail phrases in separate segments on both mirror sides', ({ label, birth, current }) => {
+    const view = mapBirthView(createBirthComparisonDto());
+    const candidate = view.candidates[0];
+    const rows = candidate.rows.map((row) => row.label === label ? {
+      ...row,
+      birth: { ...row.birth, detail: [birth.join(' · ')] },
+      current: { ...row.current, detail: [current.join(' · ')] },
+    } : row);
+    render(<BirthComparisonTable candidate={{ ...candidate, rows }} current={view} />);
+    const row = screen.getByRole('rowheader', { name: label }).closest('tr')!;
+    const details = row.querySelectorAll('.birth-table__detail');
+    expect(details).toHaveLength(2);
+    for (const [index, phrases] of [birth, current].entries()) {
+      expect([...details[index].querySelectorAll('.ds-seg')].map(segment => segment.textContent)).toEqual(phrases);
+      expect(details[index].textContent).toBe(phrases.join('\u202f·\u202f'));
+      expect(details[index].querySelectorAll('wbr')).toHaveLength(1);
+      expect(details[index].closest('td')).toHaveClass(index === 0 ? 'birth-table__birth' : 'birth-table__current');
+    }
+  });
+
   it('associates all five dimensions with three column headers and names each row in reading order', () => {
     const view = mapBirthView(createBirthComparisonDto());
     const candidate = view.candidates[0];
@@ -34,7 +57,7 @@ describe('BirthComparisonTable mirror semantics', () => {
       const parts = [value.label, value.birth.label, ...value.birth.detail, `关系${index} 说明${index}`, value.current.label, ...value.current.detail];
       // Accessible row naming must precede the first value with the dimension,
       // then place the relation (including its hidden explanation) before current.
-      expect(row).toHaveAccessibleName(parts.join(' ').replace(/\s+/g, ' ').trim());
+      expect(row).toHaveAccessibleName(parts.join(' ').replace(/\s+/g, ' ').trim().replaceAll(' · ', '\u202f·\u202f'));
       expect(within(row).getByText(`说明${index}`)).toHaveClass('visually-hidden');
     }
     expect(table.querySelectorAll('.ds-element__dot')).toHaveLength(10);

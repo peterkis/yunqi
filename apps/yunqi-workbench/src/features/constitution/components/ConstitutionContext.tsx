@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ElementDot } from '../../../components/design/ElementDot';
 import { InlineText } from '../../../components/design/InlineText';
+import { SegmentedText } from '../../../components/design/SegmentedText';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import type { ConstitutionContextViewModel } from '../presentation/map-constitution';
@@ -11,10 +12,10 @@ export function ConstitutionContext({ context, children }: { readonly context?: 
   return (
     <aside className="constitution-context" aria-label="本次测评对照背景">
       <dl className="constitution-context-rows">
-        <div><dt>当下</dt><dd>{context?.current.element ? <ElementDot compact element={context.current.element} label={context.current.summary} /> : <InlineText>{context?.current.summary ?? '当前快照尚未载入'}</InlineText>}</dd></div>
+        <div><dt>当下</dt><dd>{context?.current.element ? <ElementDot compact element={context.current.element} label={context.current.summary} /> : <SegmentedText>{context?.current.summary ?? '当前快照尚未载入'}</SegmentedText>}</dd></div>
         <div><dt>先天</dt><dd>{birth?.candidates.length ? birth.candidates.length > 1 ?
           <span className="num" role="group" aria-label={birth.candidates.map((candidate) => `${candidate.label}：${candidate.summary}`).join('；')}>{birth.candidates.length} 个候选</span>
-          : <InlineText>{birth.candidates[0].summary}</InlineText>
+          : <SegmentedText>{birth.candidates[0].summary}</SegmentedText>
           : <Link to="/yunqi/birth">未填写 · 去对照 ›</Link>}</dd></div>
       </dl>
       {children}
@@ -25,7 +26,16 @@ export function ConstitutionContext({ context, children }: { readonly context?: 
 export function ConstitutionContextDetails({ context }: { readonly context?: ConstitutionContextViewModel }) {
   const birth = context?.birth;
   return <>
-      {birth ? <details className="constitution-context-details">
+      {context ? <details className="constitution-disclosure constitution-time-details">
+        <summary>计算说明与版本</summary>
+        <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p>
+        <YunQiTimeDetails entries={[
+          { label: '当下快照', start: context.current.time },
+          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision === 'date' ? { end: candidate.until } : {}) })) : []),
+        ]} />
+        <p className="num"><InlineText>{`${context.current.contractId} · ${context.current.ruleVersion} · ${context.current.learningRuleVersion}`}</InlineText></p>
+      </details> : null}
+      {birth ? <details className="constitution-disclosure constitution-context-details">
         <summary>本次对照快照与候选区间</summary>
         <p><InlineText>{context.current.detail}</InlineText></p>
         <p><InlineText>{context.current.qiDetail}</InlineText></p>
@@ -39,15 +49,6 @@ export function ConstitutionContextDetails({ context }: { readonly context?: Con
           <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} />
             {birth.precision === 'date' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" showStandard={false} /></> : null}</p>
         </section>)}
-      </details> : null}
-      {context ? <details className="constitution-time-details">
-        <summary>计算说明与版本</summary>
-        <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p>
-        <YunQiTimeDetails entries={[
-          { label: '当下快照', start: context.current.time },
-          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision === 'date' ? { end: candidate.until } : {}) })) : []),
-        ]} />
-        <p className="num"><InlineText>{`${context.current.contractId} · ${context.current.ruleVersion} · ${context.current.learningRuleVersion}`}</InlineText></p>
       </details> : null}
     </>;
 }

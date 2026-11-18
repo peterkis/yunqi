@@ -1,3 +1,5 @@
+import { SegmentedText } from './SegmentedText';
+
 const elementLabels = {
   wood: '木',
   fire: '火',
@@ -14,13 +16,14 @@ export interface ElementDotProps {
 }
 
 export function ElementDot({ element, label, compact = false }: ElementDotProps) {
+  const text = label?.trim() || elementLabels[element];
   return (
     <span className={`ds-element${compact ? ' ds-element--compact' : ''}`}>
       <span
         className={`ds-element__dot ds-element__dot--${element}`}
         aria-hidden="true"
       />
-      <span>{label?.trim() || elementLabels[element]}</span>
+      <span>{text.includes(' · ') ? <SegmentedText>{text}</SegmentedText> : text}</span>
     </span>
   );
 }

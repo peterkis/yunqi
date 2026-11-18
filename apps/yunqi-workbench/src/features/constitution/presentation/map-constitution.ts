@@ -93,6 +93,7 @@ export interface ConstitutionAssessmentViewModel {
   readonly summary: string;
   readonly decision: string;
   readonly referenceSummary: string;
+  readonly referenceLabel: string;
   readonly matchedTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
   readonly tendencyTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
   readonly boundaryNote: string;
@@ -166,12 +167,16 @@ export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAss
     : matchedTypes.length === 1 ? matchedTypes[0].name
     : matchedTypes.length > 1 ? '偏颇质兼夹' : '未达明确类型';
   const referenceSummary = [
-    matchedTypes.map((type) => type.shortName).join('、'),
-    tendencyTypes.length ? `倾向${tendencyTypes.map((type) => type.shortName).join('、')}` : '',
-  ].filter(Boolean).join(' · ') || decision;
+    matchedTypes.length >= 3 ? `偏颇质兼夹 · ${matchedTypes.length} 项` : matchedTypes.map((type) => type.shortName).join('、'),
+    tendencyTypes.length ? `倾向 · ${tendencyTypes.length > 2 ? `${tendencyTypes.length} 项` : tendencyTypes.map((type) => type.shortName).join('、')}` : '',
+  ].filter(Boolean).join('\n') || decision;
+  const referenceLabel = [
+    matchedTypes.length ? `是：${matchedTypes.map((type) => type.name).join('、')}` : decision,
+    tendencyTypes.length ? `倾向：${tendencyTypes.map((type) => type.name).join('、')}` : '',
+  ].filter(Boolean).join('；');
   return { questionnaireId: value.questionnaireId, version: value.version, summary: value.summary,
     sexLabel: value.sex === 'male' ? '男性版' : '女性版',
-    decision, referenceSummary, matchedTypes, tendencyTypes,
+    decision, referenceSummary, referenceLabel, matchedTypes, tendencyTypes,
     boundaryNote: value.boundaryNote,
     results: value.results.map((result) => ({
       id: result.id, name: result.name, shortName: result.name.replace(/质$/, ''), label: result.label, status: result.status, score: result.score,

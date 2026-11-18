@@ -209,6 +209,7 @@
   color: var(--ink-tertiary);
   font-size: var(--ts-small);
   line-height: var(--type-meta-line);
+  overflow-wrap: break-word;
 }
 
 .birth-table__relation { display: flex; justify-content: center; }

@@ -119,6 +119,55 @@ export async function expectBirthComparison(page, data) {
   await expectCompactTimes(page);
 }
 
+// F6: check the text inside each inline-block as well as its single outer box.
+export async function expectBirthDetailSegments(page, testInfo) {
+  const table = page.getByRole('table').first();
+  for (const name of ['所处气', '所处运']) {
+    const row = table.getByRole('rowheader', { name, exact: true }).locator('..');
+    await expect(row.locator('.birth-table__detail .ds-seg')).toHaveCount(4);
+  }
+  let measurements;
+  await expect(async () => {
+    measurements = await table.locator('.birth-table__detail:has(.ds-seg)').evaluateAll(details => details.map(detail => ({
+      row: detail.closest('tr').querySelector('.birth-table__dimension-label').textContent,
+      side: detail.closest('td').classList.contains('birth-table__birth') ? 'birth' : 'current',
+      align: getComputedStyle(detail).textAlign,
+      overflowWrap: getComputedStyle(detail).overflowWrap,
+      bounds: detail.getBoundingClientRect().toJSON(),
+      segments: [...detail.querySelectorAll('.ds-seg')].map(segment => {
+        const range = document.createRange();
+        range.selectNodeContents(segment.querySelector('.ds-seg__text'));
+        return {
+          text: segment.textContent,
+          boxes: segment.getClientRects().length,
+          lines: new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size,
+          bounds: segment.getBoundingClientRect().toJSON(),
+          fits: segment.scrollWidth <= segment.clientWidth + 1,
+        };
+      }),
+    })));
+    expect(measurements.length).toBeGreaterThan(0);
+    for (const detail of measurements) {
+      expect(detail.align).toBe(detail.side === 'birth' ? 'right' : 'left');
+      expect(detail.overflowWrap).toBe('break-word');
+      for (const segment of detail.segments) {
+        expect(segment.boxes, segment.text).toBe(1);
+        expect(segment.lines, segment.text).toBe(1);
+        expect(segment.fits, segment.text).toBe(true);
+      }
+      const first = detail.segments[0].bounds;
+      const last = detail.segments.at(-1).bounds;
+      if (detail.row === '所处气') expect(last.top).toBeGreaterThan(first.top);
+      if (detail.side === 'birth') expect(Math.abs(last.right - detail.bounds.right)).toBeLessThanOrEqual(1);
+      else {
+        expect(Math.abs(first.left - detail.bounds.left)).toBeLessThanOrEqual(1);
+        if (last.top > first.top + 1) expect(Math.abs(last.left - detail.bounds.left)).toBeLessThanOrEqual(1);
+      }
+    }
+  }).toPass();
+  await testInfo.attach('birth-detail-segments', { body: JSON.stringify(measurements, null, 2), contentType: 'application/json' });
+}
+
 // Measure the actual value/dot groups, so equal cell widths alone cannot hide
 // an incorrectly aligned value. Used by flows and every birth visual project.
 export async function expectBirthMirror(page) {

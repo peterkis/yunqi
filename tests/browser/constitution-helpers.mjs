@@ -130,11 +130,71 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
   const reference = result.getByRole('region', { name: '与运气互参', exact: true });
   await expect(reference.locator('dt')).toHaveText(['体质', '先天', '当下']);
   const shortName = id => assessment.results.find(dimension => dimension.id === id).name.replace(/质$/, '');
-  const summary = [assessment.matchedTypes.map(shortName).join('、'), assessment.tendencyTypes.length ? `倾向${assessment.tendencyTypes.map(shortName).join('、')}` : ''].filter(Boolean).join(' · ');
+  const summary = [
+    assessment.matchedTypes.length >= 3 ? `偏颇质兼夹 · ${assessment.matchedTypes.length} 项` : assessment.matchedTypes.map(shortName).join('、'),
+    assessment.tendencyTypes.length ? `倾向 · ${assessment.tendencyTypes.length > 2 ? `${assessment.tendencyTypes.length} 项` : assessment.tendencyTypes.map(shortName).join('、')}` : '',
+  ].filter(Boolean).join('\n');
   await expect(reference.locator('dd').first()).toHaveText(summary || await result.locator('.constitution-decision h4').textContent());
+  const fullName = id => assessment.results.find(dimension => dimension.id === id).name;
+  await expect(reference.locator('dd').first()).toHaveAttribute('aria-label', [
+    assessment.matchedTypes.length ? `是：${assessment.matchedTypes.map(fullName).join('、')}` : await result.locator('.constitution-decision h4').textContent(),
+    assessment.tendencyTypes.length ? `倾向：${assessment.tendencyTypes.map(fullName).join('、')}` : '',
+  ].filter(Boolean).join('；'));
   await expect(reference.locator(':scope > :last-child')).toHaveClass('constitution-meta');
   await expect(reference.locator(':scope > :last-child')).toHaveText('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
   return result;
+}
+
+/** F6 disclosure order and geometry, in both standalone and birth sessions. */
+export async function expectConstitutionDisclosures(scope, testInfo, result = false) {
+  const notes = scope.locator('.constitution-notes');
+  await expect(notes).toHaveCount(1);
+  const summaries = notes.locator(':scope > details > summary');
+  const hasBirthDetails = await notes.locator('.constitution-context-details').count();
+  await expect(summaries).toHaveText([
+    ...(result ? ['判定说明与边界'] : []), '量表来源与适用说明', '计算说明与版本',
+    ...(hasBirthDetails ? ['本次对照快照与候选区间'] : []),
+  ]);
+  await expect(scope.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
+  await expect.poll(async () => {
+    const boxes = await summaries.evaluateAll(elements => elements.map(element => element.getBoundingClientRect().toJSON()));
+    return boxes.every((box, index) => box.height >= 32 && Math.abs(box.x - boxes[0].x) <= 1 &&
+      (index === 0 || box.y >= boxes[index - 1].y + boxes[index - 1].height - 1));
+  }, { message: 'Disclosure summaries share a left edge and occupy distinct vertical rows' }).toBe(true);
+  if (testInfo) await testInfo.attach('constitution-disclosure-layout', {
+    body: JSON.stringify(await summaries.evaluateAll(elements => elements.map(element => ({ label: element.textContent, ...element.getBoundingClientRect().toJSON() })))),
+    contentType: 'application/json',
+  });
+}
+
+/** Inspect text ranges too: an inline-block alone always reports one box. */
+export async function expectConstitutionSegments(scope) {
+  const segments = scope.locator('.constitution-context-rows > div:first-child .ds-seg, .constitution-reference-rows > div:last-child .ds-seg');
+  await expect(segments.first()).toBeVisible();
+  await expect.poll(async () => segments.evaluateAll(elements => elements.every(element => {
+    const range = document.createRange();
+    range.selectNodeContents(element.querySelector('.ds-seg__text'));
+    const lines = new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top)));
+    return element.getClientRects().length === 1 && lines.size === 1 && element.scrollWidth <= element.clientWidth + 1;
+  })), { message: 'Current qi phrases remain whole at the 400px panel width' }).toBe(true);
+}
+
+export async function expectConstitutionMixedReference(result, testInfo) {
+  const reference = result.locator('.constitution-reference-rows');
+  await expect(reference.locator('dd').first()).toContainText('偏颇质兼夹 · 7 项');
+  await expect.poll(async () => reference.evaluate(element => {
+    const heights = [...element.children].map(cell => cell.getBoundingClientRect().height);
+    const range = document.createRange();
+    range.selectNodeContents(element.querySelector('dd'));
+    const lines = new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
+    return heights.length === 3 && Math.max(...heights) - Math.min(...heights) <= 1 && lines > 0 && lines <= 2;
+  }), { message: 'Seven matches keep three equally high wells and at most two summary lines' }).toBe(true);
+  if (testInfo) await testInfo.attach('constitution-seven-match-reference', {
+    body: JSON.stringify(await reference.evaluate(element => ({
+      cells: [...element.children].map(cell => cell.getBoundingClientRect().toJSON()),
+      text: element.querySelector('dd').textContent, label: element.querySelector('dd').getAttribute('aria-label'),
+    }))), contentType: 'application/json',
+  });
 }
 
 export async function expectConstitutionTitle(result, assessment) {

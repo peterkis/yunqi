@@ -1,9 +1,10 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { createAssessmentDto, createClientStub, createQuestionnaireDto } from '../../../test/learning-fixtures';
+import { createAssessmentDto, createClientStub, createLearningDto, createQuestionnaireDto } from '../../../test/learning-fixtures';
 import { createTestWrapper } from '../../../test/test-utils';
-import { mapQuestionnaire } from '../presentation/map-constitution';
+import { mapConstitutionContext, mapQuestionnaire } from '../presentation/map-constitution';
+import { mapLearning } from '../../yunqi/presentation/map-learning';
 import { ConstitutionForm } from './ConstitutionForm';
 
 function renderForm(client = createClientStub()) {
@@ -25,6 +26,30 @@ beforeEach(() => { vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
 afterEach(() => { vi.useRealTimers(); vi.unstubAllGlobals(); });
 
 describe('ConstitutionForm', () => {
+  it('orders the shared disclosures and moves the readonly assessment version into the source first line', async () => {
+    const user = userEvent.setup();
+    const dto = { ...createAssessmentDto(), sex: 'female' as const };
+    const client = createClientStub({ assessConstitution: vi.fn().mockResolvedValue(dto) });
+    const questionnaire = mapQuestionnaire(createQuestionnaireDto());
+    render(<ConstitutionForm questionnaire={questionnaire} context={mapConstitutionContext(mapLearning(createLearningDto()))} />,
+      { wrapper: createTestWrapper(client, '/yunqi/constitution') });
+    const summaries = () => [...document.querySelectorAll('.constitution-notes > details > summary')].map((summary) => summary.textContent);
+    expect(summaries()).toEqual(['量表来源与适用说明', '计算说明与版本']);
+    await user.click(screen.getByText('量表来源与适用说明'));
+    expect(document.querySelector('.constitution-source > p')).toHaveTextContent(`${questionnaire.title} · ${questionnaire.version}`);
+    await complete(user, '女');
+    await user.click(screen.getByRole('button', { name: '查看结果' }));
+    await screen.findByRole('region', { name: '体质测评结果' });
+    expect(summaries()).toEqual(['判定说明与边界', '量表来源与适用说明', '计算说明与版本']);
+    expect(screen.queryByText('本次量表版本')).not.toBeInTheDocument();
+    await user.click(screen.getByText('量表来源与适用说明'));
+    const version = screen.getByText(`女性版 · ${dto.questionnaireId} · ${dto.version}`);
+    expect(version).toBeVisible();
+    expect(version).toBe(document.querySelector('.constitution-source > p'));
+    expect(screen.getAllByText(/女性版/)).toHaveLength(1);
+    expect(screen.getByRole('link', { name: '查看标准来源（新窗口）' })).toHaveAttribute('href', questionnaire.sourceUrl);
+  });
+
   it('combines the context and nine dimensions, counts shared answers, and keeps only the question and hint in the header', async () => {
     const user = userEvent.setup();
     renderForm();
@@ -144,7 +169,7 @@ describe('ConstitutionForm', () => {
     expect(within(result).getByRole('region', { name: '与运气互参' })).toHaveTextContent('未填写');
     expect(client.assessConstitution).toHaveBeenCalledExactlyOnceWith({ questionnaireId: questionnaire.id, sex: 'male', answers: { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 1, q7: 2, q8m: 3 } });
     expect(screen.queryByRole('button', { name: '更换' })).not.toBeInTheDocument();
-    await user.click(screen.getByText('本次量表版本'));
+    await user.click(screen.getByText('量表来源与适用说明'));
     expect(screen.getByText('男性版 · GBT46939-2025 · test-1')).toBeVisible();
     expect(screen.getAllByText(/test-1/)).toHaveLength(1);
     await user.click(screen.getByText('量表来源与适用说明'));

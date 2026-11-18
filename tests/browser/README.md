@@ -97,8 +97,8 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 26 panel states, each run in all six panel /
-workstation projects. The collapsed-pill spec adds two theme states at its
+`workbench.visual.spec.mjs` has 26 panel states and one collapsed-pill capture,
+each run in all six panel / workstation projects. The collapsed-pill spec adds two theme states at its
 424 × 88 host viewport, containing the unchanged 400 × 64 pill with 12px
 left/right, 10px top and 14px bottom margins. The seven prototype boards are represented as follows:
 
@@ -109,7 +109,7 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 | ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics`, `birth-annual-classics` |
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
-| ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
+| ⑥ Collapsed pill | `collapsed-pill` in the panel matrix, plus `collapsed pill light` / `collapsed pill dark` in the pill project |
 | ⑦ Workstation placement | All 26 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
@@ -117,8 +117,8 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 
 ## UI refactor migration
 
-Migration is complete: projects use the panel matrix below; there are no
-per-view viewport overrides or demo responsive projects. Historical screenshots
+Migration is complete: projects use the panel matrix below; only the
+`collapsed-pill` capture resizes to its 424×88 host. There are no demo responsive projects. Historical screenshots
 are retained as evidence only, not as an approved visual baseline.
 
 | Project | Viewport | Theme / states |
@@ -130,6 +130,14 @@ are retained as evidence only, not as an approved visual baseline.
 | `workstation-light` | 1366 × 900 | Light, 26 states; 400px panel at the right edge |
 | `workstation-768` | 1366 × 768 | Light, 26 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
 | `workstation-1080` | 1920 × 1080 | Light, 26 states; same right-edge panel |
+
+F6 adds a pill capture to each of the six panel/workstation projects. The
+`panel-dark` project collects all six requested references: current, current-stage
+classics, submitted birth (`1980-03-12`), answering, result and pill. It switches
+themes with the application button and asserts `data-theme`, independently of
+system preference. Constitution checks retain the shared disclosure order and
+left edges, whole current-qi phrases, full accessible type lists, and seven-match
+reference cells of equal height with at most two summary lines.
 
 Collapsed host contract for the standalone Tauri window: **424×88 = 胶囊 400×64 +
 左右各 12、上 10、下 14 外边距**, transparent background. Browser tests simulate
@@ -147,8 +155,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **67 flow/foundation/oracle tests + 158 visual/accessibility
-tests = 225 tests in 12 files**. These are test cases and repeated state checks,
+The suite discovers **67 flow/foundation/oracle tests + 164 visual/accessibility
+tests = 231 tests in 12 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
