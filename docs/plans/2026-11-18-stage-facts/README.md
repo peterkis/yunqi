@@ -24,7 +24,14 @@ Claude 评审、返工直至验收，按卡在分支 `feat/stage-facts` 本地�
 | --- | --- | --- | --- |
 | [E1](cards/E1-domain.md) | Domain：A 当步运关系、B 边界节气标签、C 阶段进度；教学规则 1.1.0 | — | 通过（1 轮，[评审](reviews/E1-review-1.md)） |
 | [E2](cards/E2-contract.md) | Service schema/mapper、OpenAPI、freeze 1.3.0、契约文档、Contracts/Client | E1 | 通过（1 轮，[评审](reviews/E2-review-1.md)） |
-| [E3](cards/E3-workbench.md) | 当下页运关系、阶段副标题、进度分割、治理断言 | E2 | 待派发 |
+| [E3](cards/E3-workbench.md) | 当下页运关系、阶段副标题、进度分割、治理断言 | E2 | 通过（1 轮，[评审](reviews/E3-review-1.md)） |
 | E4 | 专家三问（见原始计划） | — | 待用户/专家 |
 
 串行执行；每卡验收后本地提交并复跑门禁。
+
+## 完成状态（2026-11-18）
+
+E1–E3 均已验收并提交在 `feat/stage-facts`。最终门禁（评审方本机）：`pnpm test`、`typecheck`、`test:coverage`、`contracts:check`、
+`test:contract-governance`、`schema:validate`、`test:project-guidance`、`test:time-governance`、`test:workbench-governance`、`test:browser`（217 项）全部通过。远端 CI 待推送后运行。
+
+未做：收起态胶囊第二行“还有 N 天”（可选项，未实测不实现）。待决：E4 专家三问；Tauri 阶段胶囊阴影（沿用上一计划）。

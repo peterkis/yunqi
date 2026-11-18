@@ -80,7 +80,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 | Area | Assertions |
 | --- | --- |
-| Current | Root redirect, canonical Beijing time, annual/current cards, folded stages, six disclosures with Enter/Space, sources and SPA original-text drill-down |
+| Current | Root redirect, canonical Beijing time, annual/current cards, DTO boundary/countdown subtitles (remaining days and same-day clocks), movement relation text/tone, ratio-based hard-edge fill (±1px, no gradient), folded stages, six disclosures with Enter/Space, sources and SPA original-text drill-down |
 | Annual | Direct entry defaults to the current API's YunQi year; current outage keeps the empty selector and manual recovery; real 2024/2025 responses; six radio choices with keys; exact API boundaries; URL, year-change focus, history/reload and 1900/2100 bounds |
 | Rule trace | Real 2025 `GUEST_GENERATES_HOST` retains `客生主` and API `客生主，相得`; rule and Contract versions remain separate |
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
@@ -97,20 +97,20 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 24 panel states, each run in all six panel /
+`workbench.visual.spec.mjs` has 25 panel states, each run in all six panel /
 workstation projects. The collapsed-pill spec adds two theme states at its
 416 × 80 host viewport, containing the unchanged 400 × 64 pill with an 8px
 outer margin on every side. The seven prototype boards are represented as follows:
 
 | Prototype / area | Test states |
 | --- | --- |
-| ① Current default | `current` |
+| ① Current default | `current`, `current-stage-facts` (real calculated 2026-11-18 snapshot) |
 | ② Original text | `current-classics`, `annual-classics` |
 | ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics` |
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed pill light`, `collapsed pill dark` in the pill project |
-| ⑦ Workstation placement | All 24 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
+| ⑦ Workstation placement | All 25 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
 | Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
@@ -123,13 +123,13 @@ are retained as evidence only, not as an approved visual baseline.
 
 | Project | Viewport | Theme / states |
 | --- | --- | --- |
-| `panel-light` | 400 × 860 | Light, 24 panel states |
-| `panel-dark` | 400 × 860 | Dark, 24 panel states |
-| `panel-min-height` | 400 × 640 | Light, 24 panel states; current content scrolls while header, navigation and footer stay fixed |
+| `panel-light` | 400 × 860 | Light, 25 panel states |
+| `panel-dark` | 400 × 860 | Dark, 25 panel states |
+| `panel-min-height` | 400 × 640 | Light, 25 panel states; current content scrolls while header, navigation and footer stay fixed |
 | `collapsed-pill` | 416 × 80 host | Light and dark, two states; 400 × 64 pill plus an 8px outer margin on every side |
-| `workstation-light` | 1366 × 900 | Light, 24 states; 400px panel at the right edge |
-| `workstation-768` | 1366 × 768 | Light, 24 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
-| `workstation-1080` | 1920 × 1080 | Light, 24 states; same right-edge panel |
+| `workstation-light` | 1366 × 900 | Light, 25 states; 400px panel at the right edge |
+| `workstation-768` | 1366 × 768 | Light, 25 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+| `workstation-1080` | 1920 × 1080 | Light, 25 states; same right-edge panel |
 
 Collapsed host contract for the future Tauri stage: **416×80 = 胶囊 400×64 +
 四周各 8px 外边距**. Browser tests simulate this host size; the pill retains
@@ -143,8 +143,8 @@ clearances are retained as viewport clipping evidence: an 8px outer margin does
 not contain the full tail of `0 6px 20px` at 416×80. This check does not claim that
 the entire blur is visible; full-shadow host sizing remains a Tauri-stage decision.
 
-The suite discovers **62 flow/foundation/oracle tests + 146 visual/accessibility
-tests = 208 tests in 11 files**. These are test cases and repeated state checks,
+The suite discovers **65 flow/foundation/oracle tests + 152 visual/accessibility
+tests = 217 tests in 12 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -153,6 +153,13 @@ pnpm exec playwright test --list
 pnpm exec playwright test --list --project=flows-chromium
 pnpm exec playwright test --list --grep @visual
 ```
+
+E3's `current-stage-facts` uses the unmodified response from the real Service's
+`learning/calculate` endpoint as a snapshot at `learning/current`. It retains a
+visible partial fill at 400×860, 1366×768 and 1920×1080 (and the other panel
+projects), with the existing type-scale, layout, screenshot and axe gates.
+Three stage-facts flows exercise that snapshot and qi/movement end-date clocks;
+the default current state still uses the runner's original fixed system clock.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one

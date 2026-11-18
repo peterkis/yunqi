@@ -4,9 +4,11 @@ import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, e
 import { answerConstitution, expectConstitutionResults } from './constitution-helpers.mjs';
 import { expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows } from './consistency-helpers.mjs';
+import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
 
 const cases = [
   { name: 'current', path: '/yunqi/current', current: true },
+  { name: 'current-stage-facts', path: '/yunqi/current', current: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'current-classics', path: '/yunqi/current/classics', classics: true },
   { name: 'annual-classics', path: '/yunqi/current/classics', classics: true, annualClassics: true },
   { name: 'annual-entry', path: '/yunqi/year', ready: '选择运气年' },
@@ -38,8 +40,14 @@ for (const state of cases) {
       diagnostics.allowHttpFailure(state.outage, 503);
       await page.route(`**${state.outage}`, route => route.fulfill({ status: 503, contentType: 'application/json', body: '{}' }));
     }
+    if (state.snapshot) await useCalculatedCurrentSnapshot(page, state.snapshot);
+    const currentResponse = state.current ? page.waitForResponse(response => response.url().endsWith('/learning/current')) : undefined;
     await page.goto(state.path);
-    if (state.current) await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024' })).toBeVisible();
+    if (state.current) {
+      const { data } = await (await currentResponse).json();
+      await expect(page.getByRole('region', { name: `全年\u202f·\u202f${data.facts.year}` })).toBeVisible();
+      await expectCurrentStageFacts(page, data);
+    }
     else if (state.classics) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
@@ -115,7 +123,13 @@ for (const state of cases) {
     await settle(page);
     await expectCompactTimes(page);
     const panelLayout = await expectPanelLayout(page);
-    if (state.current) await expectMoreRows(page);
+    if (state.current) {
+      // Recheck computed progress in the selected theme, alongside the existing
+      // typography, geometry, screenshot and axe gates in every matrix project.
+      const { data } = await (await currentResponse).json();
+      await expectCurrentStageFacts(page, data);
+      await expectMoreRows(page);
+    }
     if (state.classics) {
       await expectClassicsAlignment(page);
       const notice = page.getByText('文献线索，非个体发病预测', { exact: true });
@@ -282,7 +296,7 @@ for (const state of cases) {
       expect.soft(layout.stageNames, 'Annual result retains all six named stages').toHaveLength(6);
       expect.soft(layout.stageTimes, 'Every annual stage retains both boundary times').toHaveLength(12);
     }
-    if (state.name === 'current') {
+    if (state.current) {
       expect.soft(layout.currentTitle, 'Annual ganzhi is the primary heading').toHaveLength(1);
       expect.soft(layout.currentCards, 'The default view retains both fact cards').toHaveLength(2);
       if (layout.viewportHeight >= 900) for (const card of layout.cardBounds) {

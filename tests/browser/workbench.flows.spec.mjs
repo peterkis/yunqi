@@ -1,9 +1,10 @@
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
+import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   const data = await loadCurrent(page);
-  await expect(page.locator('.current-time-range time').first()).toHaveText(data.facts.currentStep.start.localTime.slice(5, 16).replace('T', ' '));
+  await expectCurrentStageFacts(page, data);
   await expect(page.getByRole('link', { name: '当下运气', exact: true })).toHaveAttribute('aria-current', 'page');
   await expectMoreRows(page);
   await expect(page.locator('.current-all-stages')).not.toHaveAttribute('open');

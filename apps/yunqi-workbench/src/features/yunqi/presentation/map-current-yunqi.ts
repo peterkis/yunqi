@@ -1,6 +1,7 @@
 import type { YunQiCalculationDto } from '@yunqi/contracts';
 import { YUNQI_API_CONTRACT_ID } from '@yunqi/contracts';
 import { mapMovementElement, mapQiElement } from './visual-mappings';
+import { mapStageProgress } from './map-stage-progress';
 import {
   labeledCode,
   mapSixQiStageTuple,
@@ -76,10 +77,18 @@ export function mapCurrentYunQi(
     );
   }
 
+  const currentStepProgress = mapStageProgress(dto.currentStepProgress, {
+    startLabel: dto.currentStep.startTerm,
+    endLabel: dto.currentStep.endTerm,
+    endLocalTime: dto.currentStep.end.localTime,
+    transition: '交气',
+  });
+
   return {
     inputTime: mapYunQiTime(dto.input),
     inputDate: dto.input.localTime.slice(0, 10),
-    progressLabel: `六步气进度：${timeline.map((step) => `第${step.index}步${step.name}，${step.status.label}`).join('；')}`,
+    progressLabel: `六步气进度：${timeline.map((step) => `第${step.index}步${step.name}，${step.status.label}${step.status.code === 'current' ? `，${currentStepProgress.elapsedLabel}` : ''}`).join('；')}`,
+    currentStepProgress,
     annualElements: {
       suiYun: mapMovementElement(dto.suiYun.element),
       sitian: mapQiElement(dto.sixQi.sitian),

@@ -3,6 +3,7 @@ import { test, expect, loadCurrent, settle, screenshot } from './fixtures.mjs';
 import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
+import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-helpers.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
@@ -21,12 +22,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(now.getByText('北京时间 UTC+08', { exact: true })).toBeVisible();
   await expect(now.getByRole('img')).toHaveAttribute('aria-label', /六步气进度：.*当前/);
   await expect(page.locator('.current-sixqi-progress__bar')).toHaveCount(6);
-  await expect(now.getByRole('region', { name: '当步气' }).locator('time').first()).toHaveAttribute('datetime', data.facts.currentStep.start.localTime);
-  await expect(now.getByRole('region', { name: '当步气' }).locator('time').last()).toHaveAttribute('datetime', data.facts.currentStep.end.localTime);
-  await expect(now.getByRole('region', { name: '当步运' }).locator('time').first()).toHaveAttribute('datetime', data.currentMovement.start.localTime);
-  await expect(now.getByRole('region', { name: '当步运' }).locator('time').last()).toHaveAttribute('datetime', data.currentMovement.end.localTime);
+  await expectCurrentStageFacts(page, data);
   const movement = now.getByRole('region', { name: '当步运' });
-  await expect(movement.locator('.ds-relation')).toHaveCount(0);
+  await expect(movement.locator('.ds-relation')).toHaveCount(1);
   await expect(movement).not.toContainText('关系未提供');
   await expect(movement).not.toContainText('主运与客运并列展示。');
   const sourceDetails = page.locator('.current-relations');
@@ -44,6 +42,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await page.keyboard.press('Enter');
   await expect(page.locator('.current-stage-row button').first()).toBeVisible();
   await expect(page.getByRole('region', { name: '五步运全表' }).getByRole('heading')).toHaveCount(data.movements.length);
+  for (const step of data.movements) {
+    await expectMovementRelation(page.getByRole('region', { name: '五步运全表' }).getByRole('region', { name: step.name, exact: true }), step);
+  }
   await otherStages.locator(':scope > summary').press('Space');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);

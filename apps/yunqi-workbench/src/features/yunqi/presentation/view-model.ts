@@ -7,6 +7,12 @@ import type {
 export type RelationTone = 'favorable' | 'adverse' | 'neutral';
 export type ElementKind = 'wood' | 'fire' | 'earth' | 'metal' | 'water';
 
+export interface StageProgressViewModel {
+  readonly subtitle: string;
+  readonly elapsedWidth: string;
+  readonly elapsedLabel: string;
+}
+
 export interface LabeledCodeViewModel<
   Code extends string = string,
 > {
@@ -105,6 +111,7 @@ export interface CurrentYunQiViewModel {
   readonly inputTime: YunQiTimeViewModel;
   readonly inputDate: string;
   readonly progressLabel: string;
+  readonly currentStepProgress: StageProgressViewModel;
   readonly annualElements: {
     readonly suiYun: ElementKind | undefined;
     readonly sitian: ElementKind | undefined;

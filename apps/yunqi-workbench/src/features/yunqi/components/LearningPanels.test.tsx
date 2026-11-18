@@ -37,9 +37,11 @@ describe('live learning cards replacing demo panels', () => {
     const currentMovement = screen.getByRole('region', { name: '当步运' });
     expect(within(currentMovement).getByText('火运太过（太徵）')).toBeVisible();
     expect(within(currentMovement).getByText('木运不及（少角）')).toBeVisible();
-    const times = currentMovement.querySelectorAll('time');
-    expect(times[0]).toHaveAttribute('datetime', movement.start.localTime);
-    expect(times[1]).toHaveAttribute('datetime', movement.end.localTime);
+    expect(currentMovement).toHaveTextContent('春分后13日 → 芒种后10日 · 还有 34 天');
+    await user.click(screen.getByText('计算说明与版本'));
+    const precision = screen.getByRole('region', { name: '精确时刻' });
+    expect(precision.querySelector(`time[datetime="${movement.start.localTime}"]`)).toBeVisible();
+    expect(precision.querySelector(`time[datetime="${movement.end.localTime}"]`)).toBeVisible();
     await user.click(screen.getByText('这些关系怎么读？'));
     const reading = screen.getByText('这些关系怎么读？').closest('details')!;
     expect(within(reading).getByText(movement.explanation)).toBeVisible();

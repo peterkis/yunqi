@@ -1,7 +1,7 @@
-import type { HostGuestRelationDto, SixQiStepDto, SuiYunDto } from '@yunqi/contracts';
+import type { HostGuestRelationDto, MovementRelationDto, MovementStepDto, SixQiStepDto, SuiYunDto } from '@yunqi/contracts';
 import type { ElementKind, RelationTone } from './view-model';
 
-// Exact API labels (LearningRelationDto.label is a string in Contract 1.2.0).
+// Exact API labels (LearningRelationDto.label is a string in Contract 1.3.0).
 // Include compound values emitted by the teaching API; never parse an
 // explanation, split a label, or infer a relation from the two elements.
 const RELATION_TONES = {
@@ -40,6 +40,36 @@ export function mapRelationDirection(value: string): DirectionPresentation {
   return Object.hasOwn(RELATION_DIRECTIONS, value)
     ? RELATION_DIRECTIONS[value as keyof typeof RELATION_DIRECTIONS]
     : RELATION_DIRECTIONS.NONE;
+}
+
+// Five-movement relations have their own teaching scope. The DTO direction
+// supplies the verb/order; no element-generation or control rules live here.
+const MOVEMENT_RELATION_DIRECTIONS = {
+  NONE: { tone: 'neutral', verb: null, guestFirst: false },
+  HOST_GENERATES_GUEST: { tone: 'favorable', verb: '生', guestFirst: false },
+  GUEST_GENERATES_HOST: { tone: 'favorable', verb: '生', guestFirst: true },
+  HOST_CONTROLS_GUEST: { tone: 'neutral', verb: '克', guestFirst: false },
+  GUEST_CONTROLS_HOST: { tone: 'neutral', verb: '克', guestFirst: true },
+} as const satisfies Readonly<Record<MovementRelationDto['direction'], {
+  readonly tone: RelationTone;
+  readonly verb: '生' | '克' | null;
+  readonly guestFirst: boolean;
+}>>;
+
+export function mapMovementRelation(value: MovementStepDto): {
+  readonly label: string;
+  readonly tone: RelationTone;
+  readonly explanation: string;
+} {
+  const label = value.relation.traditionalLabel;
+  if (value.relation.elementRelation === 'SAME_ELEMENT') {
+    return { label, tone: 'neutral', explanation: '' };
+  }
+  const { tone, verb, guestFirst } = MOVEMENT_RELATION_DIRECTIONS[value.relation.direction];
+  const explanation = verb === null ? '' : guestFirst
+    ? `客${value.guest.element}${verb}主${value.host.element}`
+    : `主${value.host.element}${verb}客${value.guest.element}`;
+  return { label, tone, explanation };
 }
 
 const QI_ELEMENTS = {
