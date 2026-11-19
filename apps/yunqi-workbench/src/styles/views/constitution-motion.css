@@ -33,17 +33,17 @@
   :is([data-motion="full"], [data-motion="reduced"]) .constitution-dimension-check { opacity: 0; }
 }
 
-/* Nine entries occupy an 80ms stagger window: 80 + 8×10 + 240 = 400ms.
+/* Nine entries span a 160ms stagger window: 60 + 8×20 + 180 = 400ms.
    The shared 24ms stagger still governs the five decorative answer dots. */
 [data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-decision {
   animation: constitution-decision-in var(--motion-base) var(--ease-standard) backwards;
 }
 [data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-bar-fill {
   transform-origin: left;
-  animation: constitution-bar-in var(--motion-slow) var(--ease-standard) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
+  animation: constitution-bar-in var(--motion-base) var(--ease-standard) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
 }
 [data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-bar-score {
-  animation: constitution-fade-in var(--motion-slow) var(--ease-linear) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
+  animation: constitution-fade-in var(--motion-base) var(--ease-linear) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
 }
 [data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-reference-card {
   animation: constitution-fade-in var(--motion-fast) var(--ease-linear) var(--motion-slow) backwards;

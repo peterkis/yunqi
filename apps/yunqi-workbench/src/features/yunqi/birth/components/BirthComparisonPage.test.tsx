@@ -45,6 +45,10 @@ describe('BirthComparisonPage', () => {
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     const result = await screen.findByRole('region', { name: '出生与当前运气对照结果' });
+    expect(result).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
+    const technical = screen.getByText('计算说明与版本').closest('details')!;
+    await user.click(within(technical).getByText('计算说明与版本'));
+    expect(technical).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
     const summary = screen.getByRole('group', { name: '出生资料摘要' });
     expect(summary).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
     expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();

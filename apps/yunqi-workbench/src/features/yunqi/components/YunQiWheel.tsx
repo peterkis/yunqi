@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react';
-import { useMotionLevel } from '../../../providers/MotionProvider';
+import { useMotionInFlightObserver, useMotionLevel } from '../../../providers/MotionProvider';
 import { animateMotion, motionMilliseconds } from '../../../lib/motion';
 import type { YunQiStageStatusCode, YunQiWheelViewModel } from '../presentation/view-model';
 
@@ -56,6 +56,7 @@ function highlightPath(ring: 'qi' | 'movement', index: number) {
 
 export function YunQiWheel({ viewModel }: { readonly viewModel: YunQiWheelViewModel }) {
   const level = useMotionLevel();
+  const observeInFlight = useMotionInFlightObserver();
   const svgRef = useRef<SVGSVGElement>(null);
   const outgoingRef = useRef<SVGGElement>(null);
   const previous = useRef<{ qi: number; movement: number } | undefined>(undefined);
@@ -102,13 +103,18 @@ export function YunQiWheel({ viewModel }: { readonly viewModel: YunQiWheelViewMo
           [{ opacity: 0 }, { opacity: 1 }], '--motion-base'));
       }
     }
-    const timer = setTimeout(() => { firstDraw.current = false; outgoingRef.current?.replaceChildren(); }, motionMilliseconds(svg, firstDraw.current ? '--motion-emphasis' : '--motion-fast'));
+    const duration = motionMilliseconds(svg, firstDraw.current ? '--motion-emphasis' : '--motion-fast');
+    const timer = setTimeout(() => { firstDraw.current = false; outgoingRef.current?.replaceChildren(); }, duration);
+    const probe = firstDraw.current && animations.length > 0
+      ? observeInFlight?.(duration || 320)
+      : undefined;
     return () => {
       clearTimeout(timer);
+      probe?.cancel();
       for (const animation of animations) animation.cancel();
       outgoingRef.current?.replaceChildren();
     };
-  }, [qi, movement, level]);
+  }, [qi, movement, level, observeInFlight]);
 
   return <>
     <div className="current-year-wheel">

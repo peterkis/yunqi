@@ -2,6 +2,27 @@ import { expect, waitForAnimations } from './fixtures.mjs';
 
 export const expectedMotionLevel = mode => mode === 'missing-transition' ? 'reduced' : mode;
 
+/** Literal user-facing copy oracle, independent of the production mapper. */
+export async function expectMotionCopy(page, { level, reason, engine }) {
+  const labels = { full: '标准', reduced: '精简', off: '关闭' };
+  const reasons = { manual: '手动选择', system: '系统减少动态效果', url: 'URL 参数',
+    'forced-colors': '高对比度', 'no-has': '内核过旧', 'no-view-transition': '缺视图过渡',
+    'frame-idle': '空闲帧率偏低', 'frame-in-flight': '动画中帧率偏低', default: '默认' };
+  const more = page.getByRole('navigation', { name: '更多运气分析', exact: true });
+  for (const label of ['动效设置', '计算说明与版本']) {
+    const summary = more.getByText(label, { exact: true });
+    if (!await summary.evaluate(element => element.closest('details').open)) await summary.click();
+  }
+  const prefix = reason === 'manual' ? '已手动选择' : '自动跟随系统与设备能力';
+  await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', level);
+  await expect(more.locator('.motion-settings p')).toHaveText(`${prefix}，当前：${labels[level]}（原因：${reasons[reason]}）`);
+  const trace = more.getByRole('region', { name: '追溯信息', exact: true });
+  const line = trace.locator('p').filter({ hasText: /^动效 / });
+  await expect(line).toHaveCount(1);
+  await expect(line).toBeVisible();
+  await expect(line).toHaveText(`动效 ${labels[level]} · ${reason} · ${engine}`);
+}
+
 /** Test-only interaction stopwatch, never a source of application time. Start
  * on the actual mouse/keyboard click, excluding Playwright's actionability wait. */
 export async function observeOffAction(page, trigger, ready) {

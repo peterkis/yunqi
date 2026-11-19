@@ -112,7 +112,7 @@ off 档同一事件任务内调用钩子并切换；全程保留视图、草稿�
 手选优先于系统与自动探测，但 URL 关闭、高对比度及最低能力缺失强制 off。
 系统媒体设置实时响应；首帧同步判定，不先播放再停止。用户偏好 localStorage 与帧率/首绘 sessionStorage
 读写均须 try/catch。帧率在首屏后空闲时采样 30 帧，平均间隔 >24ms 或超过 1/3 帧 >50ms 则精简；
-用户开始操作即放弃采样，不产生可见变化。rAF 时间戳只用于帧率检测，不用于业务时间。
+用户开始操作即放弃采样，不产生可见变化。满档自动模式下首次真实动效（视图过渡、年轮首绘或分段指示块滑动）期间另做一次动中测（支持 LoAF 时结合 rAF 计算，否则仅用 rAF），命中阈值则在本动效结束后降为精简并记入 sessionStorage（原因 `frame-in-flight`），本会话不再重测。rAF 与 LoAF 时间戳只用于帧率检测，不用于业务时间。
 保留 `prefers-reduced-motion` 的无 JS CSS 兜底；老内核不得报错或白屏。
 
 ### tokens
@@ -128,8 +128,8 @@ off 档同一事件任务内调用钩子并切换；全程保留视图、草稿�
 | motion-slow | 240ms | 120ms | 0ms |
 | motion-emphasis | 320ms（年轮） | 120ms（年轮不用动画） | 0ms |
 | motion-stagger | 24ms | 24ms（不用顺序动画） | 0ms |
-| motion-result-start | 80ms | 0ms | 0ms |
-| motion-result-stagger | 10ms（九条最后一条于 400ms 收敛） | 0ms | 0ms |
+| motion-result-start | 60ms | 0ms | 0ms |
+| motion-result-stagger | 20ms（单条 `--motion-base` 180ms，60 + 8×20 + 180 = 400ms） | 0ms | 0ms |
 | ease-standard / ease-exit / ease-linear | cubic-bezier(0.2, 0, 0, 1) / cubic-bezier(0.3, 0, 1, 1) / linear | 同左，仅透明度与颜色 | 无动画 |
 | motion-distance | 6px | 0px | 0px |
 | motion-press-scale | 0.98 | 1 | 1 |

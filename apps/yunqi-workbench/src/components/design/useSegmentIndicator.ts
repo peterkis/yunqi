@@ -1,5 +1,7 @@
 import { useLayoutEffect, useRef } from 'react';
-import { useMotionLevel } from '../../providers/MotionProvider';
+import type { InFlightProbeHandle } from '../../lib/in-flight-motion-probe';
+import { motionMilliseconds } from '../../lib/motion';
+import { useMotionInFlightObserver, useMotionLevel } from '../../providers/MotionProvider';
 
 function measure(track: HTMLElement, animate?: (selected: HTMLElement | null) => boolean) {
   const selected = track.querySelector<HTMLElement>(
@@ -25,18 +27,33 @@ function measure(track: HTMLElement, animate?: (selected: HTMLElement | null) =>
 export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement>(selection: string) {
   const trackRef = useRef<Element>(null);
   const previous = useRef<HTMLElement | null>(null);
+  const activeProbe = useRef<InFlightProbeHandle | undefined>(undefined);
   const level = useMotionLevel();
+  const observeInFlight = useMotionInFlightObserver();
 
   useLayoutEffect(() => {
     const track = trackRef.current!;
-    const selected = measure(track, next => level === 'full' && next !== null && previous.current !== null && previous.current !== next);
+    let animated = false;
+    const selected = measure(track, next => {
+      animated = level === 'full' && next !== null && previous.current !== null && previous.current !== next;
+      return animated;
+    });
     previous.current = selected;
-  }, [selection, level]);
+    if (!animated || !observeInFlight) return;
+    const probe = observeInFlight(motionMilliseconds(track, '--motion-base') || 180);
+    activeProbe.current = probe;
+    return () => {
+      probe?.cancel();
+      if (activeProbe.current === probe) activeProbe.current = undefined;
+    };
+  }, [selection, level, observeInFlight]);
 
   useLayoutEffect(() => {
     const track = trackRef.current!;
     function resize() {
       // A resize also cancels an in-flight slide: the next paint is aligned.
+      activeProbe.current?.cancel();
+      activeProbe.current = undefined;
       measure(track);
     }
     if (typeof ResizeObserver === 'function') {

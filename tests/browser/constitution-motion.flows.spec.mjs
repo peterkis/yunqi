@@ -39,7 +39,7 @@ async function observeResult(page) {
       };
       // The explicit submit replaces the complete view and its shell header.
       // Keep those commit entries in the artifact; measure reveal stability
-      // after its first paint, before the 80ms bar sequence begins. Do not
+      // after its first paint, before the 60ms bar sequence begins. Do not
       // exclude recent-input entries from the animation's own shift sum.
       // Use the callback's own clock, not the rAF frame timestamp: on a loaded
       // runner that vsync time can predate the commit frame's layout, which
@@ -68,12 +68,13 @@ async function expectReveal(page, motionMode, testInfo, name) {
   if (motionMode === 'full') {
     const bars = animations.filter(animation => animation.target === 'constitution-bar-fill');
     // WAAPI converts CSS seconds to milliseconds (e.g. 150.00000000000003).
-    expect(bars.map(bar => Math.round(bar.delay))).toEqual(Array.from({ length: 9 }, (_, index) => 80 + index * 10));
-    expect(bars.map(bar => bar.duration)).toEqual(Array(9).fill(240));
+    expect(bars.map(bar => Math.round(bar.delay))).toEqual(Array.from({ length: 9 }, (_, index) => 60 + index * 20));
+    expect(bars.map(bar => bar.duration)).toEqual(Array(9).fill(180));
     expect(bars.at(-1).end).toBe(400);
     expect(bars.every(bar => bar.frames.some(frame => frame.transform === 'scaleX(0)'))).toBe(true);
     expect(bars.every(bar => bar.frames.every(frame => !('width' in frame)))).toBe(true);
     expect(animations.filter(animation => animation.target === 'constitution-bar-score num').map(animation => animation.delay)).toEqual(bars.map(bar => bar.delay));
+    expect(animations.filter(animation => animation.target === 'constitution-bar-score num').map(animation => animation.duration)).toEqual(Array(9).fill(180));
     expect(animations.find(animation => animation.target.includes('constitution-decision'))).toMatchObject({ delay: 0, duration: 180 });
     expect(animations.find(animation => animation.target.includes('constitution-reference-card'))).toMatchObject({ delay: 240, duration: 120 });
   } else if (motionMode === 'off') expect(animations).toEqual([]);

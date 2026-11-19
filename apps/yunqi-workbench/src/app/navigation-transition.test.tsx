@@ -13,6 +13,46 @@ function install(start: (callback: () => void) => unknown) {
 }
 
 describe('navigation transition guard', () => {
+  it('starts the in-flight probe before the snapshot and rearms it at commit and ready without reading finished', async () => {
+    const calls: string[] = [];
+    let ready!: () => void;
+    const probe = { markActive: vi.fn(() => calls.push('active')), cancel: vi.fn() };
+    const onStart = vi.fn(() => { calls.push('probe'); return probe; });
+    install(callback => {
+      calls.push('snapshot'); callback();
+      return { ready: new Promise<void>(resolve => { ready = resolve; }), updateCallbackDone: Promise.resolve(),
+        get finished() { throw new Error('must not read finished'); } };
+    });
+    updateWithViewTransition(() => calls.push('commit'), 'full', { onStart });
+    expect(calls).toEqual(['probe', 'snapshot', 'commit', 'active']);
+    ready(); await Promise.resolve();
+    expect(calls).toEqual(['probe', 'snapshot', 'commit', 'active', 'active']);
+    expect(onStart).toHaveBeenCalledOnce(); expect(probe.cancel).not.toHaveBeenCalled();
+  });
+
+  it.each(['ready rejection', 'throw before commit', 'throw after commit'])('cancels the probe on %s and still commits once', async failure => {
+    const probe = { markActive: vi.fn(), cancel: vi.fn() };
+    const update = vi.fn();
+    install(callback => {
+      if (failure === 'throw before commit') throw new Error('snapshot failed');
+      callback();
+      if (failure === 'throw after commit') throw new Error('snapshot failed');
+      return { ready: Promise.reject(new Error('skipped')), updateCallbackDone: Promise.resolve(),
+        get finished() { throw new Error('must not read finished'); } };
+    });
+    updateWithViewTransition(update, 'full', { onStart: () => probe });
+    await Promise.resolve();
+    expect(update).toHaveBeenCalledOnce(); expect(probe.cancel).toHaveBeenCalledOnce();
+  });
+
+  it.each(['reduced', 'off', 'missing API'])('does not start an in-flight probe for %s', scenario => {
+    const onStart = vi.fn(); const update = vi.fn();
+    if (scenario === 'missing API') Reflect.deleteProperty(document, 'startViewTransition');
+    else install(vi.fn());
+    updateWithViewTransition(update, scenario === 'reduced' ? 'reduced' : scenario === 'off' ? 'off' : 'full', { onStart });
+    expect(update).toHaveBeenCalledOnce(); expect(onStart).not.toHaveBeenCalled();
+  });
+
   it('commits synchronously without the API', () => {
     Reflect.deleteProperty(document, 'startViewTransition');
     const update = vi.fn(() => { document.body.dataset.route = 'next'; });

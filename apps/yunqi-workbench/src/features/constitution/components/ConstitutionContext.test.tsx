@@ -32,6 +32,7 @@ describe('ConstitutionContext', () => {
     const details = screen.getByText('计算说明与版本').closest('details')!;
     expect(details).toHaveTextContent('北京时间 UTC+08');
     expect(details).toHaveTextContent(context.current.contractId);
+    expect(details).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
   });
 
   it('summarizes multiple candidates and exposes every label and summary to assistive technology', () => {
