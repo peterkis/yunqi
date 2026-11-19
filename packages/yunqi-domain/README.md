@@ -130,11 +130,11 @@ interface CalendarProvider {
 
 `buildMovementSteps` 独立生成五步运。采用 `TERM_OFFSET_TEACHING_V1`：初运起于大寒；其后边界分别为春分后 13 日、芒种后 10 日、处暑后 7 日、立冬后 4 日，保留交节钟点；终运止于次年大寒。该教学工程口径须由专家确认，不能替换为六步气索引或冒称古代定长计刻法。
 
-每步运增加 `relation: MovementRelationResult`、`startLabel`、`endLabel`。`calculateMovementRelation(host, guest)` 比较五行生克及同五行的太少异同，返回冻结的五行关系、方向和教学标签，不含 `qiRelation`。相生为“相得 · 主生客 / 相得 · 客生主”，客克主为“顺 · 客胜主”，主克客为“逆 · 主胜客”；同五行太少不同为“同属{element}运 · 太少不同”，太少相同为“主客同运”（中性陈述，待下次专家确认）。标签只描述运气结构；界面“相违”只是颜色语气，不是风险等级，不推导吉凶、疾病或治疗结论。关系标签和交运偏移单一常量 `MOVEMENT_RELATION_LABELS` / `MOVEMENT_BOUNDARY_OFFSETS` 从包根公开，时刻与标签同源。六气每步增加 `startTerm` / `endTerm`，闭合类型 `SixQiBoundaryTerm` 直接取自 `STEP_BOUNDARY_TERMS` 的六个值；终之气结束于次年大寒。这些派生投影不改变核心规则版本。
+每步运增加 `relation: MovementRelationResult`、`startLabel`、`endLabel`。`calculateMovementRelation(host, guest)` 比较五行生克及同五行的太少异同，返回冻结的五行关系、方向和教学标签，不含 `qiRelation`。相生为“相得 · 主生客 / 相得 · 客生主”，客克主为“顺 · 客胜主”，主克客为“逆 · 主胜客”；同五行太少不同为“同属{element}运 · 太少不同”，太少相同为“同属{element}运 · 太少相同”（中性，专家确认于 2026-11-19）。标签只描述运气结构；界面“相违”只是颜色语气，不是风险等级，不推导吉凶、疾病或治疗结论。关系标签和交运偏移单一常量 `MOVEMENT_RELATION_LABELS` / `MOVEMENT_BOUNDARY_OFFSETS` 从包根公开，时刻与标签同源。六气每步增加 `startTerm` / `endTerm`，闭合类型 `SixQiBoundaryTerm` 直接取自 `STEP_BOUNDARY_TERMS` 的六个值；终之气结束于次年大寒。这些派生投影不改变核心规则版本。
 
 `calculateStageProgress(start, end, input)` 要求 `start <= input < end`、`end > start`，否则抛 `RangeError`。冻结的 `StageProgress` 包含时长比例 `elapsedRatio`（epochMilliseconds 之比，四舍五入到 3 位小数，最大 0.999）、剩余日历日数 `remainingCalendarDays`（固定北京时间年月日的公历日序号差，不看钟点）及 `endsOnInputDate`（日差为 0）。不读取时钟。权威日历入口从输入本地字段构造比例所需的规范 instant，保留原有归属语义；`YunQiCalendarResult` 及兼容 `YunQiResult` 均带 `currentStepProgress`。其余步和年度结果不带进度。
 
-教学规则版本为 `YQ-LEARNING-RULES-1.2.0`，经典数据版本仍为 `YQ-CLASSICAL-READING-1.1.0`。来源及本轮标签增量见[教学规则 1.2](../../rules/LEARNING_RULES_V1_2.md)，阶段事实定义保留于[教学规则 1.1](../../rules/LEARNING_RULES_V1_1.md)，此前逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。52 则摘录及其 ID、匹配键、条目数、原文与阅读说明本轮保持不变；消费者不应把旧文案作为匹配条件。`calculateLearning().notes` 继续包含经典数据版本。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
+教学规则版本为 `YQ-LEARNING-RULES-1.3.0`，经典数据版本仍为 `YQ-CLASSICAL-READING-1.1.0`。来源及本轮标签增量见[教学规则 1.3](../../rules/LEARNING_RULES_V1_3.md)，阶段事实定义保留于[教学规则 1.1](../../rules/LEARNING_RULES_V1_1.md)，此前逐条审核和摘录边界见[经典阅读 1.1 说明](../../rules/CLASSICAL_READING_V1_1.md)。52 则摘录及其 ID、匹配键、条目数、原文与阅读说明本轮保持不变；消费者不应把旧文案作为匹配条件。`calculateLearning().notes` 继续包含经典数据版本。出生日期解析、当前时钟与未知时刻候选划分由 Service 组织；Domain 不读取系统时间或保存出生信息。
 
 ## 体质量表
 

@@ -42,7 +42,7 @@ export function mapRelationDirection(value: string): DirectionPresentation {
     : RELATION_DIRECTIONS.NONE;
 }
 
-// Five-movement relations (teaching rules 1.2.0, expert-confirmed): 相得 for
+// Five-movement relations (teaching rules 1.3.0, expert-confirmed): 相得 for
 // generation, 客胜主=顺 / 主胜客=逆 for control. The DTO direction supplies the
 // tone and verb order; no element-generation or control rules live here.
 const MOVEMENT_RELATION_DIRECTIONS = {

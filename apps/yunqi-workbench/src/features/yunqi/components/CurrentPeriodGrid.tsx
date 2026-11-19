@@ -37,7 +37,7 @@ function PeriodColumn({ label, column, name, progress, host, guest, relation }: 
       <span className="current-meta">{guest.label}</span><CurrentElementValue element={guest.element} label={guest.value} />
     </div>
     <div className="current-period-cell current-period-cell--relation" style={{ gridColumn: column, gridRow: 6 }}>
-      <RelationChip label={relation.label} tone={relation.tone} />
+      <RelationChip label={relation.label} tone={relation.tone} segmented />
     </div>
     <div className="current-period-cell current-period-cell--explanation" style={{ gridColumn: column, gridRow: 7 }}>
       {relation.explanation && <span className="ds-relation__explanation"><InlineText>{relation.explanation}</InlineText></span>}

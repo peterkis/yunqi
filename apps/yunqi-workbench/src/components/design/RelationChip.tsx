@@ -1,4 +1,5 @@
 import { InlineText } from './InlineText';
+import { SegmentedText } from './SegmentedText';
 
 export interface RelationChipProps {
   readonly tone: 'favorable' | 'adverse' | 'neutral';
@@ -6,6 +7,7 @@ export interface RelationChipProps {
   /** Omit only when an adjacent explanation is supplied by the caller. */
   readonly explanation?: string;
   readonly compact?: boolean;
+  readonly segmented?: boolean;
 }
 
 export function RelationChip({
@@ -13,6 +15,7 @@ export function RelationChip({
   label,
   explanation,
   compact = false,
+  segmented = false,
 }: RelationChipProps) {
   if (!label.trim()) {
     throw new Error('Relation chips require visible label text.');
@@ -23,7 +26,7 @@ export function RelationChip({
       <span
         className={`ds-relation__chip ds-relation__chip--${tone}${compact ? ' ds-relation__chip--compact' : ''}`}
       >
-        <InlineText>{label}</InlineText>
+        {segmented && label.includes(' · ') ? <SegmentedText>{label}</SegmentedText> : <InlineText>{label}</InlineText>}
       </span>
       {explanation && (
         <span className="ds-relation__explanation"><InlineText>{explanation}</InlineText></span>

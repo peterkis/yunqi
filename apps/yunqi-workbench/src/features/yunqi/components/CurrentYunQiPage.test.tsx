@@ -90,7 +90,9 @@ describe('CurrentYunQiPage', () => {
     expect(movement).toHaveTextContent('火运太过');
     expect(movement).toHaveTextContent('木运不及');
     expect(movement).not.toHaveTextContent(/太徵|少角/);
-    expect(within(movement).getByText('相得 · 客生主')).toHaveClass('ds-relation__chip--favorable');
+    const chip = movement.querySelector('.ds-relation__chip');
+    expect(chip?.textContent?.replaceAll('\u202f', ' ')).toBe('相得 · 客生主');
+    expect(chip).toHaveClass('ds-relation__chip--favorable');
     expect(within(movement).getByText('客木生主火')).toBeVisible();
     expect(movement).not.toHaveTextContent('关系未提供');
     expect(movement).not.toHaveTextContent('主运与客运并列展示。');
@@ -185,14 +187,18 @@ describe('CurrentYunQiPage', () => {
     expect(progress.querySelector('linearGradient, clipPath, mask')).toBeNull();
   });
 
-  it.each(['主客同运', '同属火运 · 太少不同'])('shows only the traditionalLabel %s for a same-element movement', (label) => {
+  it.each(['同属木运 · 太少相同', '同属火运 · 太少不同'])('shows only the traditionalLabel %s for a same-element movement', (label) => {
     const dto = createLearningDto();
     const learning = mapLearning({ ...dto, currentMovement: { ...dto.currentMovement,
       relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
     } });
     render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const movement = screen.getByRole('region', { name: '当步运' });
-    expect(within(movement).getByText(label)).toHaveClass('ds-relation__chip--neutral');
+    const chip = movement.querySelector('.ds-relation__chip');
+    expect(chip?.textContent?.replaceAll('\u202f', ' ')).toBe(label);
+    expect(chip).toHaveClass('ds-relation__chip--neutral');
+    expect([...chip!.querySelectorAll('.ds-seg')].map(segment => segment.textContent)).toEqual(label.split(' · '));
+    expect(movement).not.toHaveTextContent('不和');
     expect(movement.querySelector('.ds-relation__explanation')).toBeNull();
   });
 
@@ -235,7 +241,9 @@ describe('CurrentYunQiPage', () => {
       ...dto.movements.flatMap((step) => [step.start, step.end])];
     expect([...precision.querySelectorAll('time')].map((time) => time.dateTime)).toEqual(expectedTimes.map((time) => time.localTime));
     for (const time of precision.querySelectorAll('time')) expect(time.textContent).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
-    expect(screen.getByRole('region', { name: '规则结果说明' })).toHaveTextContent('本结果依据冻结规则计算。');
+    const ruleNotes = screen.getByRole('region', { name: '规则结果说明' });
+    expect(ruleNotes).toHaveTextContent('本结果依据冻结规则计算。');
+    expect(within(ruleNotes).getByText(dto.ruleVersion, { exact: true })).toBeVisible();
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');

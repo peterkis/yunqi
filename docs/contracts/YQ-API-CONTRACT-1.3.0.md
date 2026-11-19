@@ -2,7 +2,7 @@
 
 - 日期：2026-11-18；状态：工程契约冻结，规则仍待正式专家冻结。
 - API路径 `/api/v1`；OpenAPI规范 `3.1.0`；文档版本 `1.5.0`。
-- 核心规则 `YQ-MVP-RULES-1.1.0`；当前教学规则 `YQ-LEARNING-RULES-1.2.0`；量表 `YQ-CONSTITUTION-1.0.0`。
+- 核心规则 `YQ-MVP-RULES-1.1.0`；当前教学规则 `YQ-LEARNING-RULES-1.3.0`；量表 `YQ-CONSTITUTION-1.0.0`。
 - 机器基线：`packages/yunqi-contracts/contract/YQ-API-CONTRACT-1.3.0.freeze.json`；registry只追加。
 - [1.0.0](YQ-API-CONTRACT-1.0.0.md)、[1.1.0](YQ-API-CONTRACT-1.1.0.md)、[1.2.0](YQ-API-CONTRACT-1.2.0.md)文档和freeze文件原样保留。
 
@@ -45,9 +45,9 @@ Service直接映射Domain结果，时间继续只经time-normalizer；不新增�
 `elementRelation`为`SAME_ELEMENT`或`DIFFERENT_ELEMENT`；`direction`为`NONE`、
 `HOST_GENERATES_GUEST`、`GUEST_GENERATES_HOST`、`HOST_CONTROLS_GUEST`、`GUEST_CONTROLS_HOST`。
 五运标签按方向分别为“相得 · 主生客 / 相得 · 客生主 / 逆 · 主胜客 / 顺 · 客胜主”；
-同五行太少不同为“同属{element}运 · 太少不同”，太少相同为“主客同运”。
-契约结构不变，标签来自教学规则 1.2.0 专家确认；`traditionalLabel`与`ruleVersion`仍为string，不重新生成或冻结契约。
-其中“主客同运”是中性工程陈述，专家未单独作答，仍待下次确认；五步运交运口径也仍待专家确认。
+同五行太少不同为“同属{element}运 · 太少不同”，太少相同为“同属{element}运 · 太少相同”，均为中性。
+教学规则 1.3.0 采用 2026-11-19 专家确认的太少相同标签。`traditionalLabel`和`ruleVersion`继续使用string，沿用现有契约结构和冻结基线。
+五步运交运口径仍待专家确认。
 标签只描述运气结构，“相违”只是界面颜色语气，不是风险等级，不推导吉凶、疾病或治疗结论。
 运边界标签依次为“大寒、春分后13日、芒种后10日、处暑后7日、立冬后4日、大寒”；时间事实以start/end为准。
 
@@ -79,7 +79,7 @@ UI直接显示API `localTime`。余日大于0时可显示“还有N天”；余�
 模拟响应的fixture也须补齐required字段。Contract ID精确检查应切换到`YQ-API-CONTRACT-1.3.0`。
 
 learning系列（含出生对照顶层、current及候选learning）的当前`ruleVersion`为
-`YQ-LEARNING-RULES-1.2.0`；1.3.0最初引入阶段事实时由教学规则1.0.0升级到1.1.0，E4再升级到1.2.0。
+`YQ-LEARNING-RULES-1.3.0`。契约1.3.0最初引入阶段事实时由教学规则1.0.0升级到1.1.0，E4升级到1.2.0，E5升级到1.3.0。
 facts的核心ruleVersion保持不变，契约1.3.0结构及冻结基线不变。
 做精确版本检查或按版本缓存的消费方须显式处理新教学版本，保留历史来源，不把旧结果重标为新规则。
-当前标签依据见[教学规则1.2](../../rules/LEARNING_RULES_V1_2.md)，阶段事实定义仍见[历史教学规则1.1](../../rules/LEARNING_RULES_V1_1.md)。工程冻结和测试通过均不能替代专家或临床验收。
+当前标签依据见[教学规则1.3](../../rules/LEARNING_RULES_V1_3.md)，阶段事实定义仍见[历史教学规则1.1](../../rules/LEARNING_RULES_V1_1.md)。工程冻结和测试通过均不能替代专家或临床验收。

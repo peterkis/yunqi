@@ -13,7 +13,7 @@ import { annualRelation, compareElements, currentQiRelation } from '../src/learn
 import { CLASSICAL_SOURCES } from '../src/learning/sources.js';
 import { calculateHostGuestRelation } from '../src/relation/host-guest-relation.js';
 import { calculateYearYunQi } from '../src/services/calculate-year-yunqi.js';
-import type { HeavenlyStem, Qi } from '../src/types.js';
+import type { HeavenlyStem, Qi, SuiYun } from '../src/types.js';
 import { fixedCalendarProvider } from './helpers/fixed-calendar-provider.js';
 import { MOVEMENT_BOUNDARY_EPOCHS_2026, stageFacts2026Provider } from './fixtures/stage-facts-2026.js';
 
@@ -189,7 +189,6 @@ describe('five-movement teaching boundaries', () => {
   });
 
   it.each([
-    [2022, '木', 'NONE', '主客同运'],
     [2023, '火', 'HOST_GENERATES_GUEST', '相得 · 主生客'],
     [2024, '土', 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
     [2025, '金', 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
@@ -201,11 +200,43 @@ describe('five-movement teaching boundaries', () => {
     expect(movements.map((step) => step.relation.direction)).toEqual(Array(5).fill(direction));
     expect(movements[0].relation.traditionalLabel).toBe(label);
     for (const step of movements) {
-      // Within one year a shared element always means an identical host/guest movement.
       expect(step.relation.traditionalLabel).toBe(label);
       expect(step.relation).not.toHaveProperty('qiRelation');
       expect(Object.isFrozen(step.relation)).toBe(true);
       if (step.host.element === step.guest.element) expect(step.host).toEqual(step.guest);
+    }
+  });
+
+  it.each([
+    [2022, [
+      { element: '木', state: '太过', tone: '太角' },
+      { element: '火', state: '不及', tone: '少徵' },
+      { element: '土', state: '太过', tone: '太宫' },
+      { element: '金', state: '不及', tone: '少商' },
+      { element: '水', state: '太过', tone: '太羽' },
+    ]],
+    [2027, [
+      { element: '木', state: '不及', tone: '少角' },
+      { element: '火', state: '太过', tone: '太徵' },
+      { element: '土', state: '不及', tone: '少宫' },
+      { element: '金', state: '太过', tone: '太商' },
+      { element: '水', state: '不及', tone: '少羽' },
+    ]],
+  ] satisfies [number, SuiYun[]][])('matches host and guest in all five %i movements', (year, expectedMovements) => {
+    const annual = calculateYearYunQi(year, fixedCalendarProvider);
+    const movements = buildMovementSteps(annual, fixedCalendarProvider);
+    expect(annual.suiYun.element).toBe('木');
+    expect(movements.map((step) => step.host)).toEqual(expectedMovements);
+    expect(movements.map((step) => step.guest)).toEqual(expectedMovements);
+    expect(movements.map((step) => step.relation.traditionalLabel)).toEqual([
+      '同属木运 · 太少相同', '同属火运 · 太少相同', '同属土运 · 太少相同',
+      '同属金运 · 太少相同', '同属水运 · 太少相同',
+    ]);
+    for (const step of movements) {
+      expect(step.relation.elementRelation).toBe('SAME_ELEMENT');
+      expect(step.relation.direction).toBe('NONE');
+      expect(step.relation).not.toHaveProperty('qiRelation');
+      expect(Object.isFrozen(step.relation)).toBe(true);
     }
   });
 
@@ -317,7 +348,7 @@ describe('current stage facts', () => {
           },
           "startTerm": "秋分",
         },
-        "ruleVersion": "YQ-LEARNING-RULES-1.2.0",
+        "ruleVersion": "YQ-LEARNING-RULES-1.3.0",
       }
     `);
     expect(result.movements.every((step) => !('progress' in step) && !('currentMovementProgress' in step))).toBe(true);

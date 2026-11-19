@@ -138,7 +138,7 @@ describe('stable package API', () => {
     expect(typeof getCurrentStep).toBe('function');
     expect(typeof publicApi.calculateMovementRelation).toBe('function');
     expect(typeof publicApi.calculateStageProgress).toBe('function');
-    expect(publicApi.LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(publicApi.LEARNING_RULE_VERSION).toBe('YQ-LEARNING-RULES-1.3.0');
     expect(typeof publicApi.createYunQiInstant).toBe('function');
     expect(typeof publicApi.assertYunQiInstant).toBe('function');
     expect(typeof publicApi.createYunQiCalendarTime).toBe('function');

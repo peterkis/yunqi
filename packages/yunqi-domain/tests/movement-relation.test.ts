@@ -19,9 +19,9 @@ const DIRECTIONS = [
   ['HOST_GENERATES_GUEST', 'HOST_CONTROLS_GUEST', 'GUEST_CONTROLS_HOST', 'GUEST_GENERATES_HOST', 'NONE'],
 ] as const;
 
-// Teaching-rule 1.2.0 labels, written out by hand; 主客同运 remains provisional.
+// Expert-confirmed teaching-rule 1.3.0 labels, written out by hand.
 const LABELS = {
-  NONE: '主客同运',
+  NONE: '同属{element}运 · 太少相同',
   HOST_GENERATES_GUEST: '相得 · 主生客',
   GUEST_GENERATES_HOST: '相得 · 客生主',
   HOST_CONTROLS_GUEST: '逆 · 主胜客',
@@ -37,22 +37,22 @@ describe('five-movement relation directions', () => {
       expect(result.elementRelation).toBe(direction === 'NONE' ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT');
       expect(Object.keys(result).sort()).toEqual(['direction', 'elementRelation', 'traditionalLabel']);
       expect(Object.isFrozen(result)).toBe(true);
-      expect(result.traditionalLabel).toBe(LABELS[direction]);
+      expect(result.traditionalLabel).toBe(LABELS[direction].replace('{element}', host.element));
     }
   });
 
   it.each([
-    ['木', '太角', '少角', '同属木运 · 太少不同'],
-    ['火', '太徵', '少徵', '同属火运 · 太少不同'],
-    ['土', '太宫', '少宫', '同属土运 · 太少不同'],
-    ['金', '太商', '少商', '同属金运 · 太少不同'],
-    ['水', '太羽', '少羽', '同属水运 · 太少不同'],
-  ] as const)('states 太/少 differences for %s in either host/guest order', (element, excessTone, deficientTone, label) => {
+    ['木', '太角', '少角', '同属木运 · 太少不同', '同属木运 · 太少相同'],
+    ['火', '太徵', '少徵', '同属火运 · 太少不同', '同属火运 · 太少相同'],
+    ['土', '太宫', '少宫', '同属土运 · 太少不同', '同属土运 · 太少相同'],
+    ['金', '太商', '少商', '同属金运 · 太少不同', '同属金运 · 太少相同'],
+    ['水', '太羽', '少羽', '同属水运 · 太少不同', '同属水运 · 太少相同'],
+  ] as const)('states whether 太/少 match for %s in either host/guest order', (element, excessTone, deficientTone, different, same) => {
     const excess = { element, state: '太过', tone: excessTone } as const;
     const deficient = { element, state: '不及', tone: deficientTone } as const;
     for (const [host, guest, traditionalLabel] of [
-      [excess, deficient, label], [deficient, excess, label],
-      [excess, excess, '主客同运'], [deficient, deficient, '主客同运'],
+      [excess, deficient, different], [deficient, excess, different],
+      [excess, excess, same], [deficient, deficient, same],
     ] as const) {
       const result = calculateMovementRelation(host, guest);
       expect(result).toEqual({ elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel });
