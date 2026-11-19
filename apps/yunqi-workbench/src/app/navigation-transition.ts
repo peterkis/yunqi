@@ -18,11 +18,7 @@ export function updateWithViewTransition(
     if (committed) return;
     committed = true;
     // Flush even when update queues a React change and subsequently throws.
-    try {
-      flushSync(update);
-    } finally {
-      probe?.markActive();
-    }
+    flushSync(update);
   };
 
   if (level !== 'full' || typeof document.startViewTransition !== 'function') {
@@ -34,6 +30,8 @@ export function updateWithViewTransition(
     probe = hooks?.onStart?.();
     const transition = document.startViewTransition(commit);
     // Handle rejection without gating navigation or reading animation completion.
+    // Sample through snapshot preparation, but start the animation countdown
+    // only once the transition is ready to play.
     void transition.ready.then(
       () => { probe?.markActive(); },
       () => { probe?.cancel(); },

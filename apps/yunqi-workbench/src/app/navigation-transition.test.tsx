@@ -13,7 +13,7 @@ function install(start: (callback: () => void) => unknown) {
 }
 
 describe('navigation transition guard', () => {
-  it('starts the in-flight probe before the snapshot and rearms it at commit and ready without reading finished', async () => {
+  it('starts the in-flight probe before the snapshot and arms it only at ready without reading finished', async () => {
     const calls: string[] = [];
     let ready!: () => void;
     const probe = { markActive: vi.fn(() => calls.push('active')), cancel: vi.fn() };
@@ -24,9 +24,11 @@ describe('navigation transition guard', () => {
         get finished() { throw new Error('must not read finished'); } };
     });
     updateWithViewTransition(() => calls.push('commit'), 'full', { onStart });
-    expect(calls).toEqual(['probe', 'snapshot', 'commit', 'active']);
+    // The commit alone does not start the countdown: preparation may outlast it.
+    expect(calls).toEqual(['probe', 'snapshot', 'commit']);
     ready(); await Promise.resolve();
-    expect(calls).toEqual(['probe', 'snapshot', 'commit', 'active', 'active']);
+    expect(calls).toEqual(['probe', 'snapshot', 'commit', 'active']);
+    expect(probe.markActive).toHaveBeenCalledOnce();
     expect(onStart).toHaveBeenCalledOnce(); expect(probe.cancel).not.toHaveBeenCalled();
   });
 

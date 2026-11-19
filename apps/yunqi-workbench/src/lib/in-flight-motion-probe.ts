@@ -100,18 +100,21 @@ export function startInFlightFrameProbe(options: InFlightProbeOptions): InFlight
     options.onComplete(outcome);
   }
 
-  function armTimer(delayMs: number) {
+  function armTimer(delayMs: number, onExpire: () => void) {
     clearTimeout(timer);
-    timer = setTimeout(finish, delayMs);
+    timer = setTimeout(onExpire, delayMs);
   }
 
   if (hasRaf) frame = window.requestAnimationFrame(sample);
-  armTimer(options.deferred ? Math.max(duration * 5, 1500) : duration);
+  // A deferred probe waits for markActive(). If the animation never becomes
+  // ready, its watchdog cancels without recording a result for the session.
+  if (options.deferred) armTimer(Math.max(duration * 5, 1500), () => { teardown(false); });
+  else armTimer(duration, finish);
 
   return {
     markActive() {
       if (stopped) return;
-      armTimer(duration);
+      armTimer(duration, finish);
     },
     cancel() {
       teardown(false);

@@ -89,11 +89,24 @@ describe('in-flight sampling and teardown', () => {
     vi.advanceTimersByTime(1); expect(onComplete).toHaveBeenCalledOnce();
   });
 
-  it('eventually releases an unactivated deferred probe', () => {
+  it('releases an unactivated deferred probe without recording a result', () => {
+    const onComplete = vi.fn(); const onStop = vi.fn();
+    startInFlightFrameProbe({ durationMs: 180, deferred: true, onComplete, onStop });
+    vi.advanceTimersByTime(1499); expect(onStop).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
+    expect(onStop).toHaveBeenCalledOnce(); expect(onComplete).not.toHaveBeenCalled();
+    expect(disconnect).toHaveBeenCalledOnce(); expect(frames.size).toBe(0);
+  });
+
+  it('keeps sampling through slow preparation and counts down only from markActive', () => {
     const onComplete = vi.fn();
-    startInFlightFrameProbe({ durationMs: 180, deferred: true, onComplete });
-    vi.advanceTimersByTime(1499); expect(onComplete).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1); expect(onComplete).toHaveBeenCalledExactlyOnceWith('full');
+    const handle = startInFlightFrameProbe({ durationMs: 180, deferred: true, onComplete });
+    // Snapshot preparation outlasts the animation duration.
+    frame(0); frame(120); frame(240); vi.advanceTimersByTime(400);
+    expect(onComplete).not.toHaveBeenCalled();
+    handle?.markActive();
+    frame(300); frame(360); vi.advanceTimersByTime(179); expect(onComplete).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1); expect(onComplete).toHaveBeenCalledExactlyOnceWith('reduced');
   });
 
   it('cancels without recording or collecting a partial animation', () => {
