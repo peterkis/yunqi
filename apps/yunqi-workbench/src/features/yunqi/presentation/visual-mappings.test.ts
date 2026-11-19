@@ -29,7 +29,7 @@ describe('API visual classifications', () => {
     expect(mapped.movements[0].relation).toEqual(mapped.currentMovement.relation);
   });
 
-  it.each(['主客同运', '同属火运 · 太少不同', '接口同五行标签'])('shows only the supplied same-element movement label %s', (label) => {
+  it.each(['同属木运 · 太少相同', '同属火运 · 太少不同', '接口同五行标签'])('shows only the supplied same-element movement label %s', (label) => {
     const dto = createLearningDto();
     const movement = { ...dto.currentMovement, guest: dto.currentMovement.host,
       relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },

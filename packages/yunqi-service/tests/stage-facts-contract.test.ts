@@ -26,6 +26,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
     app = await buildApp({ provider: tyme4tsCalendarProvider, now, logger: false });
     await app.ready();
     document = app.swagger();
+    expect(document['x-yunqi-contract-id']).toBe('YQ-API-CONTRACT-1.3.0');
     ajv = new Ajv2020({ strict: false, allErrors: true });
     ajv.addSchema({ $id: rootId, components: document.components });
   });
@@ -59,7 +60,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
 
   function expectLearning(data: YunQiLearningDto) {
     expectCalculation(data.facts);
-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.3.0');
     expect(data.currentMovement).toMatchObject({
       name: '终运', startLabel: '立冬后4日', endLabel: '大寒',
       host: { element: '水', state: '太过', tone: '太羽' },
@@ -111,23 +112,26 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
   });
 
   it.each([
-    [2022, 'NONE', '主客同运'],
-    [2023, 'HOST_GENERATES_GUEST', '相得 · 主生客'],
-    [2024, 'HOST_CONTROLS_GUEST', '逆 · 主胜客'],
-    [2025, 'GUEST_CONTROLS_HOST', '顺 · 客胜主'],
-    [2026, 'GUEST_GENERATES_HOST', '相得 · 客生主'],
-  ] as const)('carries teaching-rule 1.2.0 labels through the unchanged schema for %i', async (year, direction, traditionalLabel) => {
+    [2022, 'NONE', [
+      '同属木运 · 太少相同', '同属火运 · 太少相同', '同属土运 · 太少相同',
+      '同属金运 · 太少相同', '同属水运 · 太少相同',
+    ]],
+    [2023, 'HOST_GENERATES_GUEST', Array<string>(5).fill('相得 · 主生客')],
+    [2024, 'HOST_CONTROLS_GUEST', Array<string>(5).fill('逆 · 主胜客')],
+    [2025, 'GUEST_CONTROLS_HOST', Array<string>(5).fill('顺 · 客胜主')],
+    [2026, 'GUEST_GENERATES_HOST', Array<string>(5).fill('相得 · 客生主')],
+  ] as const)('carries teaching-rule 1.3.0 labels through the unchanged schema for %i', async (year, direction, labels) => {
     const data = await success<YunQiLearningDto>('/api/v1/yunqi/learning/calculate', {
       dateTime: `${year}-11-18T08:44:00+08:00`,
     });
-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.3.0');
     expect(data.facts.ruleVersion).toBe('YQ-MVP-RULES-1.1.0');
-    expect(data.currentMovement.relation).toEqual({
-      elementRelation: direction === 'NONE' ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT',
-      direction, traditionalLabel,
-    });
+    const elementRelation = direction === 'NONE' ? 'SAME_ELEMENT' : 'DIFFERENT_ELEMENT';
     expect(data.movements).toHaveLength(5);
-    for (const movement of data.movements) expect(movement.relation).toEqual(data.currentMovement.relation);
+    expect(data.movements.map((movement) => movement.relation)).toEqual(
+      labels.map((traditionalLabel) => ({ elementRelation, direction, traditionalLabel })),
+    );
+    expect(data.currentMovement.relation).toEqual({ elementRelation, direction, traditionalLabel: labels[4] });
     expect(now).not.toHaveBeenCalled();
   });
 
@@ -135,7 +139,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
     const data = await success<BirthComparisonDto>('/api/v1/yunqi/learning/birth-comparison', {
       birthDate: '2026-11-18', ...precision,
     });
-    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.2.0');
+    expect(data.ruleVersion).toBe('YQ-LEARNING-RULES-1.3.0');
     expectLearning(data.current);
     expect(now).toHaveBeenCalledTimes(1);
     expect(data.candidates).toHaveLength(1);

@@ -36,7 +36,7 @@ export function createLearningDto(): YunQiLearningDto {
   };
   return {
     facts,
-    ruleVersion: 'YQ-LEARNING-1.0.0',
+    ruleVersion: 'YQ-LEARNING-RULES-1.3.0',
     annualRelation: { title: '司天与中运', label: '不和', relation: '中运水克司天火', explanation: '用于区分年度关系与当步客主关系。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '《传统理论测试来源》', url: 'https://example.org/source' }] },
     currentQi: { title: '当步主客气', label: '相得', relation: '客生主', explanation: '相生关系仅作传统理论解释。', sourceIds: ['test-source'], sources: [{ id: 'test-source', title: '《传统理论测试来源》', url: 'https://example.org/source' }] },
     currentMovement: movement,
@@ -51,7 +51,7 @@ export function createLearningDto(): YunQiLearningDto {
 export function createBirthComparisonDto(): BirthComparisonDto {
   const learning = createLearningDto();
   return {
-    ruleVersion: 'YQ-LEARNING-1.0.0',
+    ruleVersion: learning.ruleVersion,
     birthPrecision: 'date',
     ambiguous: false,
     message: '出生时刻不详，该日运气结构一致。',

@@ -10,6 +10,8 @@ import {
   calculateYearYunQi,
   getHostQi,
   getSitianZaiquan,
+  LEARNING_RULE_VERSION,
+  MOVEMENT_RELATION_LABELS,
 } from '../packages/yunqi-domain/dist/index.js';
 import {
   tyme4tsCalendarProvider,
@@ -21,6 +23,14 @@ const ruleDocument = readFileSync(
   new URL('../rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md', import.meta.url),
   'utf8',
 ).replaceAll('\r\n', '\n');
+
+test('the current teaching rule document matches the public version and same-state template', () => {
+  const learningRules = readFileSync(new URL('../rules/LEARNING_RULES_V1_3.md', import.meta.url), 'utf8');
+  const version = learningRules.match(/^- 版本 `([^`]+)`/m)?.[1];
+  const sameStateLabel = learningRules.match(/^\| 同五行，太少相同 \| `NONE` \| ([^|]+) \| 中性 \|/m)?.[1];
+  assert.equal(version, LEARNING_RULE_VERSION);
+  assert.equal(sameStateLabel, MOVEMENT_RELATION_LABELS.SAME_ELEMENT_SAME_STATE);
+});
 
 function section(heading) {
   const marker = `${heading}\n`;

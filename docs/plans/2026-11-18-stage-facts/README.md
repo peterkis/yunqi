@@ -27,6 +27,7 @@ Claude 评审、返工直至验收，按卡在分支 `feat/stage-facts` 本地�
 | [E3](cards/E3-workbench.md) | 当下页运关系、阶段副标题、进度分割、治理断言 | E2 | 通过（1 轮，[评审](reviews/E3-review-1.md)） |
 | [E4](cards/E4-expert-labels.md) | 专家结论落地：主客运标签，教学规则 1.2.0（契约 1.3.0 不变） | E1–E3、专家答复 | 通过（1 轮，[评审](reviews/E4-review-1.md)） |
 | [E5](cards/E5-standalone-host.md) | 独立侧栏窗口宿主契约：收起态 424×88 透明窗口、`shadow-pill` | — | 通过（1 轮，[评审](reviews/E5-review-1.md)） |
+| [E5-same-state-label.md](cards/E5-same-state-label.md) | 专家确认同五行、太少相同的标签，教学规则 1.3.0 | E4、M1-e、专家答复 | 待评审 |
 
 串行执行；每卡验收后本地提交并复跑门禁。
 
@@ -42,4 +43,5 @@ E1–E3 均已验收并提交在 `feat/stage-facts`。最终门禁（评审方�
 用户转来专家答复与独立侧栏窗口方案（两份补丁原样存于 [source/](source/)，摘要见 [source-plan.md](source-plan.md) 末节）。
 E4、E5 各 1 轮通过并本地提交。评审方门禁：E4 后全部门禁及 `test:browser` 217 项 PASS；E5 后 `test:browser` 217 项 PASS，Codex 报告其余门禁 PASS。
 
-仍待决：“主客同运”（同五行、太少相同）专家未单独作答；五步运交运口径仍待专家确认，页脚声明不变；Tauri 外壳（透明窗口、AppBar、拖动与位置记忆）另行排期。
+同五行、太少相同的标签已于 2026-11-19 由 [E5](cards/E5-same-state-label.md)确认。
+五步运交运口径仍待专家确认，Tauri 外壳（透明窗口、AppBar、拖动与位置记忆）另行排期。

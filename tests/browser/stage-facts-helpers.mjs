@@ -28,7 +28,7 @@ function expectedPeriodLabels(step, progress, transition) {
 
 export async function expectMovementRelation(region, movement) {
   const { relation, host, guest } = movement;
-  // YQ-LEARNING-RULES-1.2.0 (expert-confirmed): 相得 and 客胜主=顺 are favorable,
+  // YQ-LEARNING-RULES-1.3.0 (expert-confirmed): 相得 and 客胜主=顺 are favorable,
   // 主胜客=逆 is adverse, a shared element is neutral.
   const tones = {
     NONE: 'neutral',
