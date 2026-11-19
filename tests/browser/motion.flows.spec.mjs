@@ -134,10 +134,12 @@ test.describe('M1-e environment-related CPU sampling', () => {
     const cdp = await context.newCDPSession(page);
     const observations = [];
     try {
-      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 20 });
+      // Load at normal speed: the card measures the two tab switches, and a
+      // throttled initial load can exceed the API wait on a shared CI runner.
       await loadCurrent(page);
       await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', 'full');
       expect(await page.evaluate(() => sessionStorage.getItem('yunqi-motion-frame-in-flight'))).toBeNull();
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 20 });
       await page.evaluate(() => {
         window.cpuMotionSample = { intervals: [], loaf: [] };
         let previous;
