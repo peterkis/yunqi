@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useSegmentIndicator } from '../../../../components/design/useSegmentIndicator';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { ClassicsReadingCard, ClassicsReadingNotice } from '../../components/ClassicsReadingCard';
 import type { BirthPageViewModel, BirthReadingViewModel } from '../presentation/map-birth-view';
@@ -13,10 +14,12 @@ function Reading({ value }: { readonly value: BirthReadingViewModel }) {
  * The birth scope is supplied by the mapper, never inferred from today's stage. */
 export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPageViewModel }) {
   const [scope, setScope] = useState<'annual' | 'period'>('period');
+  const trackRef = useSegmentIndicator<HTMLElement>(scope);
   return (
     <section className="birth-classics" aria-label="先天原文与释义">
       <h2 className="visually-hidden">先天原文与释义</h2>
-      <nav className="birth-reading-nav" aria-label="出生原文范围">
+      <nav ref={trackRef} className="birth-reading-nav motion-segments" aria-label="出生原文范围">
+        <span className="motion-segment-indicator" aria-hidden="true" />
         <button type="button" aria-pressed={scope === 'annual'} onClick={() => setScope('annual')}>全年</button>
         <button type="button" aria-pressed={scope === 'period'} onClick={() => setScope('period')}>出生阶段</button>
       </nav>

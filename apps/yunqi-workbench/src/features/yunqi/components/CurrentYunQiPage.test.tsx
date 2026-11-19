@@ -1,3 +1,4 @@
+import type { PropsWithChildren } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
@@ -7,11 +8,16 @@ import { mapLearning } from '../presentation/map-learning';
 import { CurrentYunQiPage } from './CurrentYunQiPage';
 import { PanelShell } from '../../../components/layout/PanelShell';
 import { ThemeProvider } from '../../../providers/ThemeProvider';
+import { MotionProvider } from '../../../providers/MotionProvider';
+
+function PageWrapper({ children }: PropsWithChildren) {
+  return <MemoryRouter><MotionProvider>{children}</MotionProvider></MemoryRouter>;
+}
 
 function renderPage() {
   const dto = createLearningDto();
   const learning = mapLearning(dto);
-  render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+  render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
   return { dto, learning };
 }
 
@@ -39,14 +45,14 @@ describe('CurrentYunQiPage', () => {
       .map((child) => child.className)).toEqual(['current-overview__annual', 'current-overview__now', 'current-overview__quote', 'current-more']);
   });
 
-  it('groups four ordered More rows outside the cards, with native disclosures and route links', () => {
+  it('groups More rows outside the cards, with motion settings beside calculation details', () => {
     renderPage();
     const more = screen.getByRole('navigation', { name: '更多运气分析' });
     const rows = within(more).getAllByRole('listitem').filter((item) => item.parentElement === more.firstElementChild);
-    expect(rows).toHaveLength(4);
+    expect(rows).toHaveLength(5);
     const entries = rows.map((row) => row.querySelector('.current-more__row')!);
-    expect(entries.map((entry) => entry.textContent)).toEqual(['其余阶段', '年度详情', '指定时点', '计算说明与版本']);
-    expect(entries.map((entry) => entry.tagName)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY']);
+    expect(entries.map((entry) => entry.textContent)).toEqual(['其余阶段', '年度详情', '指定时点', '计算说明与版本', '动效设置']);
+    expect(entries.map((entry) => entry.tagName)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY', 'SUMMARY']);
     for (const entry of entries) {
       expect(entry.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
       expect(entry.closest('.ds-info-card')).toBeNull();
@@ -60,7 +66,7 @@ describe('CurrentYunQiPage', () => {
     const learning = mapLearning(createLearningDto());
     render(<ThemeProvider><PanelShell>
       <CurrentYunQiPage viewModel={learning.facts} learning={learning} />
-    </PanelShell></ThemeProvider>, { wrapper: MemoryRouter });
+    </PanelShell></ThemeProvider>, { wrapper: PageWrapper });
     const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
     await user.click(within(disclosure).getByText('这些关系怎么读？'));
     const sources = within(disclosure).getAllByRole('link');
@@ -95,7 +101,7 @@ describe('CurrentYunQiPage', () => {
     const mapped = mapLearning(createLearningDto());
     const relation = { label: '测试关系', tone: 'neutral', explanation: '测试接口提供的关系说明。' } as const;
     const learning = { ...mapped, currentMovement: { ...mapped.currentMovement, relation } };
-    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const movement = screen.getByRole('region', { name: '当步运' });
     expect(within(movement).getByText(relation.label)).toHaveClass('ds-relation__chip--neutral');
     expect(within(movement).getByText(relation.explanation)).toBeVisible();
@@ -159,7 +165,7 @@ describe('CurrentYunQiPage', () => {
       currentMovement: { ...dto.currentMovement, end: { ...dto.currentMovement.end, localTime: '2026-07-23T23:59:45.678+08:00' } },
       currentMovementProgress: { elapsedRatio: 0.999, remainingCalendarDays: 0, endsOnInputDate: true },
     });
-    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const qi = screen.getByRole('region', { name: '当步气' });
     const movement = screen.getByRole('region', { name: '当步运' });
     expect(qi.querySelector('.current-period-cell--range')).toHaveTextContent('小满 → 大暑');
@@ -171,7 +177,7 @@ describe('CurrentYunQiPage', () => {
   it.each([0, 0.375, 0.929, 0.999])('keeps the current ring segment solid and announces the supplied ratio %s', (elapsedRatio) => {
     const dto = createLearningDto();
     const learning = mapLearning({ ...dto, facts: { ...dto.facts, currentStepProgress: { ...dto.facts.currentStepProgress, elapsedRatio } } });
-    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const progress = screen.getByRole('img');
     expect(container.querySelectorAll('[data-ring="qi"] .is-current > path')).toHaveLength(1);
     expect(progress.querySelector('[data-ring="qi"] .is-current > path')).toHaveStyle({ fill: 'var(--accent)' });
@@ -184,7 +190,7 @@ describe('CurrentYunQiPage', () => {
     const learning = mapLearning({ ...dto, currentMovement: { ...dto.currentMovement,
       relation: { elementRelation: 'SAME_ELEMENT', direction: 'NONE', traditionalLabel: label },
     } });
-    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const movement = screen.getByRole('region', { name: '当步运' });
     expect(within(movement).getByText(label)).toHaveClass('ds-relation__chip--neutral');
     expect(movement.querySelector('.ds-relation__explanation')).toBeNull();
@@ -242,7 +248,7 @@ describe('CurrentYunQiPage', () => {
     const dto = createLearningDto();
     const localTime = '2026-06-19T12:00:23.456+08:00';
     const learning = mapLearning({ ...dto, facts: { ...dto.facts, input: { ...dto.facts.input, localTime } } });
-    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    const { container } = render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     const visibleTimes = [...container.querySelectorAll('time')].filter((time) => !time.closest('.current-technical'));
     for (const time of visibleTimes) expect(time.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);
     const exact = container.querySelector(`time[datetime="${localTime}"]`);
@@ -254,7 +260,7 @@ describe('CurrentYunQiPage', () => {
 
   it('keeps the original-text route reachable when no current excerpt was returned', () => {
     const learning = mapLearning({ ...createLearningDto(), currentPassages: [] });
-    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: MemoryRouter });
+    render(<CurrentYunQiPage viewModel={learning.facts} learning={learning} />, { wrapper: PageWrapper });
     expect(screen.getByText('此范围暂未收录已核对原文。')).toBeVisible();
     expect(screen.getByRole('link', { name: '原文与释义' })).toHaveAttribute('href', '/yunqi/current/classics');
   });

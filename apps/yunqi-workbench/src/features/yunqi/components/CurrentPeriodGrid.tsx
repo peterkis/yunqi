@@ -15,8 +15,19 @@ interface PeriodColumnProps {
 }
 
 function PeriodColumn({ label, column, name, progress, host, guest, relation }: PeriodColumnProps) {
+  const previous = useRef(name);
+  const level = useMotionLevel();
+  const [emphasized, setEmphasized] = useState(false);
+  useEffect(() => {
+    const changed = previous.current !== name;
+    previous.current = name;
+    setEmphasized(changed && level === 'full');
+    if (!changed || level !== 'full') return;
+    const timer = setTimeout(() => setEmphasized(false), 600);
+    return () => clearTimeout(timer);
+  }, [name, level]);
   return <section className="current-period-column" aria-label={label}>
-    <div className="current-period-cell current-period-cell--title" style={{ gridColumn: column, gridRow: 1 }}><h3>{name}</h3></div>
+    <div className="current-period-cell current-period-cell--title" data-emphasized={emphasized} style={{ gridColumn: column, gridRow: 1 }}><h3>{name}</h3></div>
     <div className="current-period-cell current-period-cell--range num" style={{ gridColumn: column, gridRow: 2 }}>{progress.rangeLabel}</div>
     <div className="current-period-cell current-period-cell--remaining num" style={{ gridColumn: column, gridRow: 3 }}>{progress.remainingLabel}</div>
     <div className="current-period-cell current-period-cell--value current-period-cell--host" style={{ gridColumn: column, gridRow: 4 }}>
@@ -48,3 +59,5 @@ export function CurrentPeriodGrid({ learning }: { readonly learning: LearningVie
       guest={{ label: '客运', value: movement.guestValue, element: movement.guestElement }} relation={movement.relation} />
   </div>;
 }
+import { useEffect, useRef, useState } from 'react';
+import { useMotionLevel } from '../../../providers/MotionProvider';

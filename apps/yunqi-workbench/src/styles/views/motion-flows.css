@@ -1,0 +1,155 @@
+/* M1-b: geometry comes from offsetLeft/offsetWidth, appearance from tokens.
+   The decoration cannot change track layout, hit targets or accessible names. */
+.motion-segments { position: relative; isolation: isolate; }
+.motion-segment-indicator {
+  display: none;
+  position: absolute;
+  pointer-events: none;
+  left: 0;
+  top: var(--segment-top);
+  width: var(--segment-width);
+  height: var(--segment-indicator-height);
+  transform: translateX(var(--segment-left));
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-segment);
+}
+.motion-segments[data-indicator-ready="true"] > .motion-segment-indicator { display: block; }
+.motion-segments > :is(button, a) { position: relative; }
+.motion-segments[data-indicator-ready="true"] > :is([aria-current="page"], [aria-checked="true"], [aria-pressed="true"]) {
+  background: transparent;
+  box-shadow: none;
+}
+[data-motion="full"] .motion-segments[data-indicator-animated="true"] > .motion-segment-indicator {
+  transition: transform var(--motion-base) var(--ease-standard),
+    width var(--motion-base) var(--ease-standard);
+}
+
+/* Only the content and the drilldown title get route snapshots. Disabling the
+   default root snapshot leaves the application bar and disclaimer stationary. */
+:root { view-transition-name: none; }
+:root[data-view-transition="navigation"] .theme-root[data-motion="full"] .panel-shell__content {
+  view-transition-name: workbench-main;
+}
+:root[data-view-transition="navigation"] .theme-root[data-motion="full"] .panel-shell__drilldown .ds-panel-header__text {
+  view-transition-name: panel-title;
+}
+:root[data-view-transition="navigation"]:has(.theme-root[data-motion="full"])::view-transition-old(workbench-main),
+:root[data-view-transition="navigation"]:has(.theme-root[data-motion="full"])::view-transition-old(panel-title) {
+  animation: motion-view-out var(--motion-fast) var(--ease-linear) both;
+}
+:root[data-view-transition="navigation"]:has(.theme-root[data-motion="full"])::view-transition-new(workbench-main) {
+  animation: motion-view-forward var(--motion-base) var(--ease-standard) both;
+}
+:root[data-view-transition="navigation"][data-navigation-direction="backward"]:has(.theme-root[data-motion="full"])::view-transition-new(workbench-main) {
+  animation-name: motion-view-backward;
+}
+:root[data-view-transition="navigation"]:has(.theme-root[data-motion="full"])::view-transition-new(panel-title) {
+  animation: motion-view-in var(--motion-base) var(--ease-linear) both;
+}
+/* Disable the UA's geometry morph (the tab/title rows have different heights).
+   Only the explicitly named old/new images fade or move by motion-distance. */
+:root:has(.theme-root[data-motion="full"])::view-transition-group(*),
+:root:has(.theme-root[data-motion="full"])::view-transition-image-pair(*) {
+  animation: none;
+}
+/* Snapshot overlays must never delay another click or keyboard operation. */
+::view-transition { pointer-events: none; }
+:root:has(.theme-root:is([data-motion="reduced"], [data-motion="off"]))::view-transition-group(*),
+:root:has(.theme-root:is([data-motion="reduced"], [data-motion="off"]))::view-transition-image-pair(*),
+:root:has(.theme-root:is([data-motion="reduced"], [data-motion="off"]))::view-transition-old(*),
+:root:has(.theme-root:is([data-motion="reduced"], [data-motion="off"]))::view-transition-new(*) { animation: none !important; }
+@keyframes motion-view-out { to { opacity: 0; } }
+@keyframes motion-view-in { from { opacity: 0; } }
+@keyframes motion-view-forward {
+  from { opacity: 0; transform: translateX(var(--motion-distance)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes motion-view-backward {
+  from { opacity: 0; transform: translateX(calc(-1 * var(--motion-distance))); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Newly rendered content is visible by default. Unsupported starting-style is
+   safely ignored; birth's retained parent is never keyed/remounted. */
+:root[data-view-transition="navigation-fallback"] :is([data-motion="full"], [data-motion="reduced"]) :is(
+  .panel-shell__content > *, .panel-shell__content > .retained-session > *, .birth-page > .birth-view, .birth-page > .birth-classics
+) { transition: opacity var(--motion-fast) var(--ease-linear); }
+@starting-style {
+  :root[data-view-transition="navigation-fallback"] :is([data-motion="full"], [data-motion="reduced"]) :is(
+  .panel-shell__content > *, .panel-shell__content > .retained-session > *, .birth-page > .birth-view, .birth-page > .birth-classics
+  ) { opacity: 0; }
+}
+
+/* Theme colors commit together. The whole-screen snapshot fades independently
+   of element transitions; its scope remains until the next navigation. */
+.theme-root[data-theme-switching],
+.theme-root[data-theme-switching] *,
+.theme-root[data-theme-switching] *::before,
+.theme-root[data-theme-switching] *::after,
+.theme-root[data-theme-switching] *::details-content { transition: none !important; }
+:root[data-view-transition="theme"]:has(.theme-root[data-motion="full"]) { view-transition-name: root; }
+:root[data-view-transition="theme"]:has(.theme-root[data-motion="full"])::view-transition-old(root) {
+  animation: motion-view-out var(--motion-base) var(--ease-linear) both;
+}
+:root[data-view-transition="theme"]:has(.theme-root[data-motion="full"])::view-transition-new(root) {
+  animation: motion-view-in var(--motion-base) var(--ease-linear) both;
+}
+
+/* No outline/outline-offset/shadow transitions: focus rings paint immediately.
+   Segmented scope buttons look like text buttons but are pressable segments. */
+:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(button, .ds-segmented-nav__link, [role="tab"]) {
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+.theme-root[data-motion="full"] :is(button:not(.ds-button--text), .motion-segments > button, .ds-segmented-nav__link, [role="tab"]) {
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+[data-motion="full"] :is(button:not(.ds-button--text), .motion-segments > button, .ds-segmented-nav__link, [role="tab"]):active:not(:disabled) {
+  transform: scale(var(--motion-press-scale));
+}
+[data-motion] :is(button:not(.ds-button--text), .motion-segments > button, .ds-segmented-nav__link, [role="tab"]):active:not(:disabled) {
+  background-color: var(--surface-sunken);
+}
+[data-motion] .ds-button--primary:active:not(:disabled) { background-color: var(--accent-hover); }
+[data-motion] .motion-segments > :is(button, a):active:not(:disabled) { background-color: var(--border-default); }
+[data-motion] .motion-segments > :is([aria-current="page"], [aria-checked="true"], [aria-pressed="true"]):active:not(:disabled) {
+  background-color: var(--surface-sunken);
+}
+[data-motion] .ds-scale-option[aria-checked="true"]:active:not(:disabled) { background-color: var(--accent-muted); }
+:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .learning-text-link, .birth-source-link, .learning-source, .drilldown-link) {
+  transition: color var(--motion-fast) var(--ease-standard);
+}
+[data-motion] :is(.ds-button--text, .learning-text-link, .birth-source-link, .learning-source, .drilldown-link):active:not(:disabled) {
+  color: var(--accent-hover);
+}
+/* Scope segments are excluded from the text-only transition rule above. */
+.theme-root[data-motion="full"] .motion-segments > button {
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}
+.theme-root[data-motion="reduced"] .motion-segments > button {
+  transition: color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+/* Preserve M1-a's pill arrival fade while adding press feedback. */
+:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) button.panel-pill {
+  transition: opacity var(--motion-base) var(--ease-linear),
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard);
+}
+.theme-root[data-motion="full"] button.panel-pill {
+  transition: opacity var(--motion-base) var(--ease-linear),
+    color var(--motion-fast) var(--ease-standard),
+    background-color var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) var(--ease-standard),
+    transform var(--motion-fast) var(--ease-standard);
+}

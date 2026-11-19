@@ -46,6 +46,9 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 - 字体与图标本地加载，禁止Google Fonts、在线字体和在线图标库；思源黑体/宋体完整字库随应用分发并附OFL许可。
   `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
 - 字号只用[全应用 5 档字号阶梯](../design/type-scale.md)（40/30/24 首眼、20、15、14、12），每屏不超过 5 级、首眼只一个。
+- 动效遵守[本地 M1 约定](../design/design-system/1-layout.md#动效2026-11-19-本地授权-m1)：复用 motion tokens、`useMotionLevel` 三档；默认终态可见，WAAPI 守卫，不等待动画事件。
+  宿主同步钩子只定接口；收起先退出再缩窗，展开先放大再入场。量表停留为三档一致的 240ms。
+  先天/量表由 `RetainedSession` 常驻；隐藏时不自动刷新、不重播装饰动画、不抢焦点。
 - [统一约束](../design/design-system/2-constraints.md)中的视觉、交互、文案、医疗安全和可访问性条目均为硬约束。
 - HIS患者信息与“复制结论到病历”仍未授权；独立窗口契约已确认，Tauri实现另行排期，见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
 - `PanelShell` 承载全部视图；只有内容区滚动，标题栏与页脚固定，面板最小高度640px。

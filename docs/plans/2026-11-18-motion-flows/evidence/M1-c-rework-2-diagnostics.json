@@ -1,0 +1,201 @@
+{
+  "trace": ".artifacts/browser/2026-11-18T17-25-29-023Z-be6b29cc/results/motion.flows-motion-matrix-8bbb0-struction-and-capsule-focus-flows-chromium/trace.zip",
+  "traceSha256": "815fd5f89ffa329475f3801589a9673a185a1acd0b5cfac1bd6dfe3e823fce8e",
+  "traceReplay": "captured failure, no live browser launched",
+  "revealAbsentAtPreviousSnapshot": {
+    "timestamp": 96883.209,
+    "callId": "xdrz@13694",
+    "phase": "after"
+  },
+  "firstRevealSnapshot": {
+    "timestamp": 96894.054,
+    "callId": "xdrz@13704",
+    "phase": "before"
+  },
+  "finalSnapshotTimestamp": 96936.712,
+  "targets": [
+    {
+      "tag": "DIV",
+      "attributes": {
+        "class": "theme-root",
+        "data-theme": "light",
+        "data-motion": "full"
+      }
+    },
+    {
+      "tag": "SECTION",
+      "attributes": {
+        "class": "constitution-result-view",
+        "aria-label": "体质测评结果",
+        "data-reveal": "true"
+      }
+    },
+    {
+      "tag": "SECTION",
+      "attributes": {
+        "class": "constitution-card constitution-decision",
+        "aria-label": "量表判定"
+      }
+    },
+    {
+      "tag": "DIV",
+      "attributes": {
+        "class": "constitution-decision-title"
+      }
+    },
+    {
+      "tag": "H4",
+      "attributes": {
+        "tabindex": "-1"
+      },
+      "text": "痰湿质"
+    }
+  ],
+  "assertionError": {
+    "type": "after",
+    "callId": "xdrz@13752",
+    "endTime": 96937.613,
+    "annotations": [],
+    "error": {
+      "name": "",
+      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m33\u001b[39m\nReceived:    \u001b[31m33.00001525878906\u001b[39m",
+      "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeLessThanOrEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nExpected: <= \u001b[32m33\u001b[39m\nReceived:    \u001b[31m33.00001525878906\u001b[39m\n    at expectConstitutionTitle (/Users/petervans/Projects/YunQi/tests/browser/constitution-helpers.mjs:237:26)\n    at expectConstitutionResults (/Users/petervans/Projects/YunQi/tests/browser/constitution-helpers.mjs:133:3)\n    at /Users/petervans/Projects/YunQi/tests/browser/motion.flows.spec.mjs:58:3"
+    }
+  },
+  "height": 33.00001525878906,
+  "line": 33,
+  "errorElapsedFromFirstRevealMs": 43.55899999999383,
+  "limitation": "Trace records DOM/CSS snapshots and selector action timing, not the evaluated metrics object or exact Animation.currentTime/playState.",
+  "capturedCSS": {
+    "decisionRule": "[data-motion=\"full\"] .constitution-result-view[data-reveal=\"true\"] .constitution-decision {\n  animation: constitution-decision-in var(--motion-base) var(--ease-standard) backwards;\n}",
+    "decisionKeyframes": "@keyframes constitution-decision-in { from { opacity: 0; transform: translateY(var(--motion-distance)); } to { opacity: 1; transform: translateY(0); } }",
+    "baseToken": "--motion-base: 180ms;",
+    "distanceToken": "--motion-distance: 6px;"
+  },
+  "revealAgeAtFailureMs": {
+    "lowerBound": 43.559,
+    "upperBound": 54.404
+  },
+  "headingRects": 1,
+  "headingTextRects": 1,
+  "date": "2026-11-19",
+  "baseline": {
+    "head": "f4dccb0c25fc7cbeb35d328e88de50a97dd0eea3",
+    "branch": "feat/motion-m1",
+    "files": {
+      "apps/yunqi-workbench/src/app/AppRoutes.tsx": "6a6b19a6c2100e83a6a1bcc7ff3eba81faee3cc847ac68e7ee88b69c9ac1b78f",
+      "apps/yunqi-workbench/src/app/PanelNavigation.tsx": "6794fee95e05b5abc21d586d05c5fda57292d77ad99d3fd86bce7c7ea11cbd62",
+      "apps/yunqi-workbench/src/app/RetainedSession.test.tsx": "72e2e7f5ceaad2ef152c54c6ee5dba5280e5d719018e96746b3308b53404586a",
+      "apps/yunqi-workbench/src/app/RetainedSession.tsx": "d4d91cb9db739c6b26057703d776ab5659cc73e52984c98ef36261f03d099a56",
+      "apps/yunqi-workbench/src/components/design/ScaleOption.tsx": "d4eec0be7aee9bc8d16bb3b5a0c75a04f6c4f3ad4776f38ae1df020908cec7ef",
+      "apps/yunqi-workbench/src/components/layout/SessionVisibility.tsx": "19e6ee3fdbad76e4dcc2c5c7ef73869bddf2b2fd9ed93898c582b96760b253ff",
+      "apps/yunqi-workbench/src/features/constitution/components/AnswerDestroyedNotice.tsx": "41b1f912494d69dc134b2b530768f773d5804628fb085232184774d53f4bd1f1",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionDimension.tsx": "ddea3da30d7e4112dee71e252a783e72e036cc9aaf0dfa9ba7ec85a3c9776924",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.test.tsx": "dd60a018dbec0511ff5bb6a075ba2368651bf26e76424d7f0e959ecac9ee1267",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionForm.tsx": "0a5911f658bdc75d81a6b4813fcdc947bf8adcd13f07c03d805dd451c8fc5b3d",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionMotion.test.tsx": "fa90588a4ad7acfeb9b141cff2b41f4cd389f5cceb3fa3c56b4d523cfc76dc04",
+      "apps/yunqi-workbench/src/features/constitution/components/ConstitutionResults.tsx": "255d76747e15a5cfd9f8bb0a0464f914ee9904dacb9f67cbf4671e6230be3a0d",
+      "apps/yunqi-workbench/src/features/constitution/components/destroy-answer-visual.ts": "12bdeaa480b7e5c69edffec464e13cc8d01330adcb07cfe0c9e1cd5f6eea5976",
+      "apps/yunqi-workbench/src/features/constitution/hooks/useConstitution.ts": "5057730d655379ebee463d75e4efddac79fad347dc11a0d5a3598a6c74368721",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthAssessmentSession.tsx": "197b682980821a862f588526123e3c5c3e637546839bd06cea077ffcbc292723",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonPage.tsx": "1915f6cc109d7dd115c49381703a1344b48f90f625eb9e2a31b00ad5764dac79",
+      "apps/yunqi-workbench/src/features/yunqi/birth/components/BirthComparisonSession.test.tsx": "1c6ee122cb8da7dc418739fc151356404269fc90ebd0f152abbe6678ed7e0e69",
+      "apps/yunqi-workbench/src/features/yunqi/hooks/useLearningQueries.ts": "4e2828239d5760a46a21eb7b915323604041e4d5d15ab92f11e31697f0403b35",
+      "apps/yunqi-workbench/src/main.tsx": "8109a5a7eaff59c91f6fba1042e722dc068346bc1a76d46efa7f22d4df19b7da",
+      "apps/yunqi-workbench/src/providers/MotionProvider.test.tsx": "25c92c4a1c0b16f044ead4754b38f994abfeda32006516e1fcfe04ad1934ccdb",
+      "apps/yunqi-workbench/src/styles/tokens.css": "208ea4011349c36694bb34aab75c833af023126e6fe25f8d3973f6e2420a500b",
+      "apps/yunqi-workbench/src/styles/views/constitution-motion.css": "144890c4c2251a1dde1226491de2c84bd68e258a89bf3f98794d6aa7128ab82e",
+      "apps/yunqi-workbench/src/styles/views/craft.css": "5c2c7a240813c1316282956adacd2c56319ae51df38ef732e25a076d8343e442",
+      "apps/yunqi-workbench/src/styles/views/motion-flows.css": "b71804542018ee5fc589064faa64956b130f796723ebcca201759ad1a5aef14e",
+      "apps/yunqi-workbench/src/styles/views/motion-flows.test.tsx": "41ce603f5c5e7b14d09aa2d8127d4d2561ef9388c2a9e0428aa2c12bb4cb946b",
+      "apps/yunqi-workbench/src/test/constitution-input.ts": "1fa934991cdef0192ab6896bb7709b6e45167c5c74a5ba142c55c0fbf5da7970",
+      "docs/design/design-system/tokens.json": "9f4d3ab3d3d52ebf0e2166ad0b408ccd7af9b330060c8e5ac7d47602d85661b7",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-implementation.md": "9a5c35338575c7fe9343b6c0db45da37ac9e7b395cdf2652034d50a18ef06697",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-rework-1-diagnostics.json": "e6164b3df408a46a3d4e2f355ca34a7d41a0aaf963c5fed8adce621144d1a49c",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-rework-1-sources.sha256": "e418c1065eaabc2d68bdf1b9b488a843b94441f6d3e0bcd267422aae8da5da30",
+      "docs/plans/2026-11-18-motion-flows/evidence/M1-c-sources.sha256": "8ad51c6b3457abc6dfab98f5ed38468d1f0f7e5c5b57082853c99053ec1c3b20",
+      "playwright.config.mjs": "e14fbdb38854c1f364e86defee0313a65178e00eeae4ec309abbee774aed8ff2",
+      "tests/browser/birth-assessment.flows.spec.mjs": "090405a8be744e35d0cb95b8632efffea32b77c03debb3bbc53cd536df9e7ebb",
+      "tests/browser/constitution-actions.flows.spec.mjs": "212a4544c88550dc969e23d4f67e1cefdbe92c9375c826eb0dc53e7cebaace9d",
+      "tests/browser/constitution-helpers.mjs": "c58d4860f8f66b83b7f3d079d065c28a0ef3863514218acb89304dbb1a6eb337",
+      "tests/browser/constitution-motion.flows.spec.mjs": "a30fbaaf165c433aa2f9d72edf3fd14b1221490e1973df04622b1602627aa951",
+      "tests/browser/learning.flows.spec.mjs": "80391eff135d8c7d9b72078a7c059dd6cae174011083da01b6ffe235396d6cd2",
+      "tests/browser/motion-helpers.mjs": "5466ba0738b456954b3e69363e8d2531325ce445f5d2d74b0c08d8db157a7929",
+      "tests/browser/motion.flows.spec.mjs": "a450068ba49333863c7a54d2c50c6e6a1c05f2b06d95868bb210792c7136afc6",
+      "tests/browser/workbench.flows.spec.mjs": "2d9d0738d378afb64c2a17d598e366dc990c4a7eb5f6f6bd2ccdb7b2ab3cea3e"
+    },
+    "evidenceBytes": 23039
+  },
+  "reviewStats": {
+    "passed": 420,
+    "failed": 1,
+    "skipped": 0,
+    "flaky": 0,
+    "durationMs": 639005.6259999999
+  },
+  "changedSourceFilesThisRound": [
+    "tests/browser-fixtures.test.mjs",
+    "tests/browser/birth-assessment.flows.spec.mjs",
+    "tests/browser/birth-helpers.mjs",
+    "tests/browser/consistency-helpers.mjs",
+    "tests/browser/constitution-helpers.mjs",
+    "tests/browser/design-foundations.flows.spec.mjs",
+    "tests/browser/fixtures.mjs",
+    "tests/browser/learning.flows.spec.mjs",
+    "tests/browser/motion-helpers.mjs",
+    "tests/browser/motion.flows.spec.mjs",
+    "tests/browser/stage-facts-helpers.mjs",
+    "tests/browser/ux-walkthrough.flows.spec.mjs",
+    "tests/browser/visual-assertions.mjs"
+  ],
+  "sourceManifest": "docs/plans/2026-11-18-motion-flows/evidence/M1-c-rework-2-sources.sha256",
+  "sourceManifestEntries": 44,
+  "checks": [
+    {
+      "command": "captured trace assertion replay: assert height <= line",
+      "exitCode": 1,
+      "status": "FAIL",
+      "note": "Replays the original captured failure only; not a new browser execution."
+    },
+    {
+      "command": "pnpm exec playwright test --list",
+      "exitCode": 0,
+      "status": "PASS",
+      "result": "421 tests in 14 files; discovery only"
+    },
+    {
+      "command": "node --check (tests/browser/*.mjs, tests/browser-fixtures.test.mjs, playwright.config.mjs)",
+      "exitCode": 0,
+      "status": "PASS",
+      "result": "24 modules/configs"
+    },
+    {
+      "command": "node --test tests/browser-fixtures.test.mjs",
+      "exitCode": 0,
+      "status": "PASS",
+      "result": "14 passed, 0 failed, 0 skipped; synthetic DOM geometry only"
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "PASS"
+    },
+    {
+      "command": "pnpm test:project-guidance",
+      "exitCode": 0,
+      "status": "PASS",
+      "result": "15 passed; budgets, links, commands, migration integrity and session provenance"
+    },
+    {
+      "command": "SHA-256 and scope verification",
+      "exitCode": 0,
+      "status": "PASS",
+      "result": "44 source hashes, 34 unchanged initial files, original evidence prefix, original trace, HEAD/branch and 16-file allowlist verified"
+    }
+  ],
+  "browserExecution": {
+    "status": "NOT_RUN",
+    "command": "pnpm test:browser",
+    "note": "This round ran discovery, syntax and Node fixture checks only; full-motion browser acceptance remains for reviewer rerun."
+  }
+}

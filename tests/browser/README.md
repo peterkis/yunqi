@@ -155,14 +155,18 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **67 flow/foundation/oracle tests + 164 visual/accessibility
-tests = 231 tests in 12 files**. These are test cases and repeated state checks,
+The suite discovers **75 flow/foundation/oracle tests in each of three motion
+projects + 8 capability tests + 164 visual/accessibility tests = 397 tests in
+13 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
 ```text
 pnpm exec playwright test --list
 pnpm exec playwright test --list --project=flows-chromium
+pnpm exec playwright test --list --project=flows-reduced-chromium
+pnpm exec playwright test --list --project=flows-off-chromium
+pnpm exec playwright test --list --project=motion-capability-chromium
 pnpm exec playwright test --list --grep @visual
 ```
 
@@ -216,18 +220,62 @@ explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
 original regression assertions. Only `h3.constitution-question-title[tabindex="-1"]`
 asserts `outline-style: none`, as required by F4 for programmatic announcements.
-D5 uses local 140ms ease-out tokens for selection
-and disclosure motion, without transitioning outlines; reduced motion cancels
-transitions and animations. Native disclosure remains instant when intrinsic-size
+M1-a replaces D5's local values with shared motion tokens. Standard mode uses
+120ms interaction and 180ms disclosure transitions; reduced mode only permits
+opacity and color transitions up to 120ms, and off mode has zero durations.
+Native disclosure remains instant outside full mode or when intrinsic-size
 interpolation is unavailable. The previously observed not-found initial stylesheet timing
 issue remains unconfirmed until a real browser run; the layout retry is kept.
+
+`flows-chromium` uses default motion, `flows-reduced-chromium` calls
+`emulateMedia({ reducedMotion: 'reduce' })`, and `flows-off-chromium` sets
+`?motion=off` before application code on each document load (including reload).
+Every existing flow runs with the same text, API-data and focus oracles in all
+three projects. `motion-capability-chromium` additionally deletes both own and
+prototype `startViewTransition` before startup and runs the six shared motion
+flows with automatic `reduced` mode, plus the animation-gate and focus-ring helper
+regressions. All projects keep two total workers and no
+retries. A cached successful frame sample stabilizes this functional matrix;
+fake-rAF unit tests separately verify the 30-interval thresholds and cancellation.
+
+Only the off project and visual projects capture explicit screenshots, always
+with `animations: 'disabled'` and `?motion=off`. The helper restores the query
+after router links without reloading the screen or changing focus. Other
+projects still run the shared typography gates at every capture point, without
+duplicating PNGs; all projects retain failure traces. Automatic failure
+screenshots are disabled so no animated capture becomes a baseline. The motion
+flows scan elements and their pseudo-elements for duration limits and reduced
+property restrictions, and inspect keyboard outlines in the same task as focus.
+Outline checks pair each transition property with its duration (repeating short
+duration lists): `all` or `outline*` must have zero duration. The browser helper
+regression verifies rejection of a temporary `transition: outline 120ms`.
+
+Every axe call uses `scanAccessibility`, which waits for fonts and observes
+`document.getAnimations()` until every remaining effect is finished (or none
+remain), with a 5-second timeout. It does not finish, cancel or disable effects;
+non-converging motion fails the wait. The same WCAG tags and scan assertions run
+after convergence in all motion modes and visual projects.
+
+M1-b adds four shared motion flows (also run with the transition API removed):
+indicator/button alignment within 1px after selection and a 360px resize; mouse
+and keyboard drilldown return with scroll within 2px and entry focus; atomic
+theme changes with a full-only root crossfade; and press feedback without text
+button scaling or delayed focus rings. The real API is observed, not replaced,
+to record old/new content commits, tab directions and named snapshot regions.
+The sex selector folds immediately in the questionnaire, so its shared design
+fixture retains the choice for settled geometry checks. Duration scans include
+live view-transition pseudo-element effects. Pill checks retain the existing
+arrival opacity timing alongside the newly added fast press properties.
+Personal-data URL assertions use `expectNoPersonalDataInUrl`: no query parameters
+are allowed except one exact `motion=off` in the off fixture. Its absence after
+SPA navigation is valid because the product reads the setting once at startup.
 
 The real Service / Vite environment, non-Beijing browser zone, external-request
 rejection, runtime diagnostics, axe WCAG 2.1 A/AA tags (including contrast), and
 per-run `.artifacts/browser/` evidence remain in force. `tests/browser-fixtures.test.mjs`
-is part of root `pnpm test` and therefore CI; its four synthetic DOM/geometry
-cases verify footer/header ownership, rejection of wrong dimensions and complete
-measurement retry, not CSS rendering.
+is part of root `pnpm test` and therefore CI; its 14 cases cover four synthetic
+DOM/geometry checks, nine transition-list oracles and one URL oracle across the
+four fixture modes. They verify helper semantics, not browser CSS rendering.
 
 Viewport emulation does not establish physical-device, touch, screen-reader,
 Firefox or WebKit compatibility. Screenshots need human inspection; no approved

@@ -1,3 +1,4 @@
+import { MotionProvider } from '../../providers/MotionProvider';
 import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -17,9 +18,9 @@ it('keeps the current skip link within the five-size scale in both themes and ke
   document.head.append(style);
   try {
     const learning = mapLearning(createLearningDto());
-    render(<MemoryRouter initialEntries={['/yunqi/current']}><ThemeProvider><PanelShell>
+    render(<MemoryRouter initialEntries={['/yunqi/current']}><MotionProvider><ThemeProvider><PanelShell>
       <CurrentYunQiPage viewModel={learning.facts} learning={learning} />
-    </PanelShell></ThemeProvider></MemoryRouter>);
+    </PanelShell></ThemeProvider></MotionProvider></MemoryRouter>);
     const skipLink = screen.getByRole('link', { name: '跳至主要内容' });
     const assertFontSize = () => {
       // jsdom retains var() in computed font-size. Resolve the shared tier and

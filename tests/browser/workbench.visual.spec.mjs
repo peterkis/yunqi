@@ -1,6 +1,5 @@
 import { fillBirthDate, expectBirthMirror, expectBirthDetailSegments } from './birth-helpers.mjs';
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes } from './fixtures.mjs';
+import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes, scanAccessibility } from './fixtures.mjs';
 import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments } from './constitution-helpers.mjs';
 import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows, expectPillGeometry } from './consistency-helpers.mjs';
@@ -156,7 +155,7 @@ for (const state of cases) {
       await expect(pill).toBeVisible();
       await expectPillGeometry(page, pill);
       await screenshot(page, testInfo, state.name);
-      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      const scan = await scanAccessibility(page);
       await testInfo.attach('axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
       expect(scan.violations).toEqual([]);
       return;
@@ -392,7 +391,7 @@ for (const state of cases) {
     for (const title of layout.currentTitle) expect.soft(title.lines, 'Current heading fits on one line').toBe(1);
     await expectFocusRings(page, testInfo);
 
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     await testInfo.attach('axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
     const violations = scan.violations.map(violation => ({
       id: violation.id,

@@ -23,7 +23,7 @@ describe('ConstitutionPage', () => {
       getLearningCurrent: vi.fn().mockRejectedValueOnce(new Error('private current error')).mockResolvedValueOnce(createLearningDto()),
     });
     render(<ConstitutionPage />, { wrapper: createTestWrapper(client) });
-    expect(screen.getAllByRole('status')).toHaveLength(2);
+    expect(screen.queryAllByRole('status')).toHaveLength(0);
     await waitFor(() => expect(screen.getAllByRole('alert')).toHaveLength(2));
     expect(screen.queryByText(/private/)).not.toBeInTheDocument();
     const retries = screen.getAllByRole('button', { name: '重试' });

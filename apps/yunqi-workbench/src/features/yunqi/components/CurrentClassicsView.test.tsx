@@ -7,10 +7,10 @@ import { createTestWrapper } from '../../../test/test-utils';
 import { CurrentClassicsView } from './CurrentClassicsView';
 
 describe('CurrentClassicsView', () => {
-  it('loads through the existing learning query', () => {
+  it('loads through the existing learning query', async () => {
     const client = createClientStub({ getLearningCurrent: vi.fn(() => new Promise<YunQiLearningDto>(() => undefined)) });
     render(<CurrentClassicsView />, { wrapper: createTestWrapper(client) });
-    expect(screen.getByRole('status')).toHaveTextContent('正在加载');
+    expect(await screen.findByRole('status')).toHaveTextContent('正在加载');
   });
 
   it('sanitizes a failed direct entry and retries into sourced reading', async () => {

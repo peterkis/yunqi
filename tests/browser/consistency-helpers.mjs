@@ -1,9 +1,10 @@
-import { expect } from './fixtures.mjs';
+import { expect, waitForAnimations } from './fixtures.mjs';
 
 export async function expectMoreRows(page) {
   const more = page.getByRole('navigation', { name: '更多运气分析', exact: true });
   const rows = more.locator('.current-more__list > li > a, .current-more__list > li > details > summary');
-  await expect(rows).toHaveText(['其余阶段', '年度详情', '指定时点', '计算说明与版本']);
+  await expect(rows).toHaveText(['其余阶段', '年度详情', '指定时点', '计算说明与版本', '动效设置']);
+  await waitForAnimations(page);
   await expect(async () => {
     const metrics = await rows.evaluateAll(elements => elements.map(element => ({
       height: element.getBoundingClientRect().height,
@@ -11,7 +12,7 @@ export async function expectMoreRows(page) {
       insideCard: Boolean(element.closest('.ds-info-card')),
       chevrons: element.querySelectorAll('svg[aria-hidden="true"]').length,
     })));
-    expect(metrics.map(row => row.tag)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY']);
+    expect(metrics.map(row => row.tag)).toEqual(['SUMMARY', 'A', 'A', 'SUMMARY', 'SUMMARY']);
     for (const row of metrics) {
       expect(row.height).toBeGreaterThanOrEqual(44);
       expect(row.height).toBe(metrics[0].height);
@@ -21,7 +22,7 @@ export async function expectMoreRows(page) {
   }).toPass({ timeout: 10_000 });
   // Borders belong to the list items, so disclosure and anchor target heights match.
   const items = more.locator('.current-more__list > li');
-  for (let index = 1; index < 4; index += 1) {
+  for (let index = 1; index < 5; index += 1) {
     await expect(items.nth(index)).toHaveCSS('border-top-width', '1px');
     const colors = await items.nth(index).evaluate(element => {
       const swatch = document.createElement('span');
@@ -40,6 +41,7 @@ export async function expectRelationSources(disclosure) {
   await expect(disclosure.getByText('教学口径，待专家确认', { exact: false })).toHaveCount(0);
   const sources = disclosure.locator('.learning-source');
   expect(await sources.count()).toBeGreaterThan(0);
+  await waitForAnimations(disclosure.page());
   for (const source of await sources.all()) {
     await expect(source).toHaveText(/^《.+》/);
     await expect(source).not.toContainText('新窗口');
@@ -82,6 +84,8 @@ export async function expectTextLink(page, link) {
 }
 
 export async function expectClassicsAlignment(page) {
+  await expect(page.locator('.current-classics')).toBeVisible();
+  await waitForAnimations(page);
   await expect(async () => {
     const layout = await page.locator('.current-classics').evaluate(view => {
       const bounds = element => {
@@ -120,6 +124,8 @@ export async function expectClassicsAlignment(page) {
 }
 
 export async function expectPillGeometry(page, pill) {
+  await expect(pill).toBeVisible();
+  await waitForAnimations(page);
   let metrics;
   await expect(async () => {
     metrics = await pill.evaluate(element => {

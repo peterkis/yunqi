@@ -121,6 +121,19 @@
   --type-micro-size: 10.5px;
   --type-micro-line: 1.2;
   --type-micro-weight: 400;
+  --motion-instant: 0ms;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 240ms;
+  --motion-emphasis: 320ms;
+  --motion-stagger: 24ms;
+  --motion-result-start: 80ms;
+  --motion-result-stagger: 10ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --ease-linear: linear;
+  --motion-distance: 6px;
+  --motion-press-scale: 0.98;
 }
 
 [data-theme="dark"] {
@@ -244,4 +257,40 @@
   --type-micro-size: 10.5px;
   --type-micro-line: 1.2;
   --type-micro-weight: 400;
+  --motion-instant: 0ms;
+  --motion-fast: 120ms;
+  --motion-base: 180ms;
+  --motion-slow: 240ms;
+  --motion-emphasis: 320ms;
+  --motion-stagger: 24ms;
+  --motion-result-start: 80ms;
+  --motion-result-stagger: 10ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-exit: cubic-bezier(0.3, 0, 1, 1);
+  --ease-linear: linear;
+  --motion-distance: 6px;
+  --motion-press-scale: 0.98;
+}
+
+[data-motion="reduced"] {
+  --motion-result-start: 0ms;
+  --motion-result-stagger: 0ms;
+  --motion-base: 120ms;
+  --motion-slow: 120ms;
+  --motion-emphasis: 120ms;
+  --motion-distance: 0px;
+  --motion-press-scale: 1;
+}
+
+[data-motion="off"] {
+  --motion-result-start: 0ms;
+  --motion-result-stagger: 0ms;
+  --motion-instant: 0ms;
+  --motion-fast: 0ms;
+  --motion-base: 0ms;
+  --motion-slow: 0ms;
+  --motion-emphasis: 0ms;
+  --motion-stagger: 0ms;
+  --motion-distance: 0px;
+  --motion-press-scale: 1;
 }

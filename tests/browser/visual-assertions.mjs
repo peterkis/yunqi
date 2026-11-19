@@ -1,4 +1,4 @@
-import { expect } from './fixtures.mjs';
+import { expect, waitForAnimations } from './fixtures.mjs';
 
 export async function expectTextContrast(target) {
   const colors = await target.evaluate(element => {
@@ -80,6 +80,7 @@ export async function expectClassicsCards(page, testInfo) {
 }
 
 export async function expectViewControls(page, testInfo) {
+  await waitForAnimations(page);
   const metrics = await page.evaluate(() => {
     const visible = element => element.checkVisibility({ checkVisibilityCSS: true }) && element.getClientRects().length > 0;
     const measure = element => ({

@@ -95,7 +95,7 @@ describe('AppRoutes', () => {
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByLabelText('测试路径')).toHaveTextContent('/yunqi/current');
     expect(await screen.findByRole('region', { name: '全年\u202f·\u202f2026' })).toBeVisible();
-    expect(screen.getByRole('main')).toHaveFocus();
+    expect(screen.getByRole('link', { name: '原文与释义' })).toHaveFocus();
     expect(client.getYear).not.toHaveBeenCalled();
     expect(client.calculate).not.toHaveBeenCalled();
   });
@@ -626,7 +626,7 @@ describe('AppRoutes', () => {
       '/yunqi/year/2027',
     );
     expect(
-      screen.getByText('正在加载 2027 年年度五运六气数据'),
+      await screen.findByText('正在加载 2027 年年度五运六气数据'),
     ).toBeInTheDocument();
     expect(screen.queryByText('丙午')).not.toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: '分析年份' })).toHaveFocus();

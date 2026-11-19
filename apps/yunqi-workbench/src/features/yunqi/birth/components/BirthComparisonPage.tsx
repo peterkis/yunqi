@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
 import { InlineText } from '../../../../components/design/InlineText';
@@ -7,6 +7,9 @@ import { SegmentedControl } from '../../../../components/design/SegmentedControl
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { PanelView } from '../../../../components/layout/PanelView';
+import { useSessionVisible } from '../../../../components/layout/SessionVisibility';
+import { useMotionLevel } from '../../../../providers/MotionProvider';
+import { animateMotion, motionMilliseconds } from '../../../../lib/motion';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import { useBirthComparison } from '../hooks/useBirthComparison';
@@ -15,6 +18,8 @@ import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
 export function BirthComparisonPage() {
+  const visible = useSessionVisible();
+  const level = useMotionLevel();
   const mutation = useBirthComparison();
   const { result } = mutation;
   const reading = useMatch('/yunqi/birth/classics') !== null;
@@ -32,19 +37,46 @@ export function BirthComparisonPage() {
   const [wasEdited, setWasEdited] = useState(false);
   const [comparisonRevision, setComparisonRevision] = useState(0);
   const [formExpanded, setFormExpanded] = useState(false);
+  const [clearing, setClearing] = useState(false);
+  const [cleared, setCleared] = useState(false);
+  const clearingRef = useRef(false);
+  const inputRegion = useRef<HTMLDivElement>(null);
+  const birthView = useRef<HTMLDivElement>(null);
+  const previousInputSize = useRef<{ collapsed: boolean; height: number } | undefined>(undefined);
   const collapsed = result !== undefined && !formExpanded;
   const formId = useId();
 
   useEffect(() => {
-    if (formExpanded) dateInput.current?.focus();
+    if (formExpanded && visible && !reading) dateInput.current?.focus();
   }, [formExpanded, dateRevision]);
 
+  useLayoutEffect(() => {
+    const element = inputRegion.current!;
+    if (!visible || reading) { previousInputSize.current = undefined; return; }
+    const height = element.getBoundingClientRect().height;
+    const previous = previousInputSize.current;
+    previousInputSize.current = { collapsed, height };
+    if (!previous || previous.collapsed === collapsed || level !== 'full') return;
+    const animation = animateMotion(element, level, [{ height: `${previous.height}px` }, { height: `${height}px` }], '--motion-base', '--ease-standard');
+    return () => animation?.cancel();
+  }, [collapsed, knowsTime, level, visible, reading]);
+
+  useLayoutEffect(() => {
+    if (!clearing) return;
+    // Hidden retained sessions finish the requested clear without moving focus.
+    if (level === 'off' || !visible || reading) { clearNow(); return; }
+    const animation = animateMotion(birthView.current, level, [{ opacity: 1 }, { opacity: 0 }], '--motion-fast', '--ease-exit', 'forwards');
+    const timer = setTimeout(clearNow, motionMilliseconds(birthView.current!, '--motion-fast'));
+    return () => { clearTimeout(timer); animation?.cancel(); };
+  }, [clearing, level, visible, reading]);
+
   useEffect(() => {
-    if (wasReading.current && !reading) readingLink.current?.focus();
+    if (wasReading.current && !reading && visible) readingLink.current?.focus({ preventScroll: true });
     wasReading.current = reading;
   }, [reading]);
 
   function edited() {
+    cancelClear();
     setWasEdited(result !== undefined || wasEdited);
     setInputError(null);
     mutation.reset();
@@ -58,6 +90,7 @@ export function BirthComparisonPage() {
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (mutation.isPending || submitting.current) return;
+    cancelClear();
     submitting.current = true;
     const request = knowsTime
       ? { birthDate, birthTime: birthTime.length === 5 ? `${birthTime}:00` : birthTime }
@@ -71,7 +104,19 @@ export function BirthComparisonPage() {
     mutation.submit(request, { onSettled: () => { submitting.current = false; } });
   }
 
+  function cancelClear() {
+    clearingRef.current = false;
+    setClearing(false);
+    setCleared(false);
+  }
+
   function clear() {
+    if (clearingRef.current) return;
+    if (level === 'off') clearNow();
+    else { clearingRef.current = true; setClearing(true); }
+  }
+
+  function clearNow() {
     mutation.reset();
     setBirthDate('');
     setDateRevision((value) => value + 1);
@@ -81,6 +126,9 @@ export function BirthComparisonPage() {
     setWasEdited(false);
     setFormExpanded(true);
     submitting.current = false;
+    clearingRef.current = false;
+    setClearing(false);
+    setCleared(true);
   }
 
   return (
@@ -89,8 +137,9 @@ export function BirthComparisonPage() {
       {!reading && !collapsed ? <PanelView actions={<div className="birth-actions">
         <Button type="submit" form={formId} disabled={mutation.isPending}>{mutation.isPending ? '正在对照…' : '查看对照'}</Button>
       </div>} /> : null}
-      <div className="birth-view" hidden={reading}>
+      <div className="birth-view" ref={birthView} hidden={reading}>
         <h2 className="visually-hidden">出生运气对照</h2>
+        <div className="birth-input-region" ref={inputRegion}>
         {collapsed ? <div className="birth-input-summary" role="group" aria-label="出生资料摘要">
           <span className="num"><InlineText>{`${birthDate} · ${knowsTime ? birthTime.slice(0, 5) : '时刻不详'} · `}</InlineText></span>
           <Button variant="text" onClick={() => setFormExpanded(true)}>修改</Button>
@@ -119,6 +168,8 @@ export function BirthComparisonPage() {
             </div>
           </fieldset>
         </form>}
+        </div>
+        {cleared ? <p role="status" className="visually-hidden">已清空本次资料</p> : null}
         {inputError ? <p role="alert" className="birth-notice">{inputError}</p> : null}
         {mutation.isError ? <p role="alert" className="birth-notice">无法完成对照，请核对出生日期、支持范围和网络后重试。</p> : null}
         {wasEdited ? <p role="status" className="birth-note">资料已修改，请重新对照；原结果已隐藏。</p> : null}
@@ -165,7 +216,7 @@ export function BirthComparisonPage() {
             </details>
           </section>
         ) : (
-          <p className="birth-note">填写出生日期并提交后，即可并列对照。资料仅保存在本页内存，离开页面后清空。</p>
+          <p className="birth-note">填写出生日期并提交后，即可并列对照。资料仅保存在本次会话内存，清空后销毁。</p>
         )}
       </div>
       {reading && (result ? <BirthClassicsView viewModel={result} /> : (

@@ -1,0 +1,80 @@
+/* M1-c: all content is visible without motion support. Only entry styles or
+   optional decorative keyframes supply a starting appearance. */
+.retained-session:not([hidden]) { display: contents; }
+[data-motion="full"] .constitution-question-screen { --question-offset: var(--motion-distance); }
+[data-motion="full"] .constitution-question-screen[data-direction="backward"] { --question-offset: calc(-1 * var(--motion-distance)); }
+[data-motion="full"] .constitution-question-screen :is(.constitution-question-title, [role="radiogroup"]) {
+  transition: opacity var(--motion-base) var(--ease-linear), transform var(--motion-base) var(--ease-standard);
+}
+[data-motion="reduced"] .constitution-question-screen :is(.constitution-question-title, [role="radiogroup"]) {
+  transition: opacity var(--motion-fast) var(--ease-linear);
+}
+@starting-style {
+  :is([data-motion="full"], [data-motion="reduced"]) .constitution-question-screen :is(.constitution-question-title, [role="radiogroup"]) { opacity: 0; }
+  [data-motion="full"] .constitution-question-screen :is(.constitution-question-title, [role="radiogroup"]) { transform: translateX(var(--question-offset)); }
+}
+/* Selection colors commit in the input task, including while a pointer is
+   down. Press scaling remains optional and never delays the selected state. */
+.theme-root[data-motion] .constitution-question-screen .ds-scale-option { transition: none; }
+.theme-root[data-motion] .constitution-question-screen .ds-scale-option__key { transition: none; }
+.theme-root[data-motion="full"] .constitution-question-screen .ds-scale-option { transition: transform var(--motion-fast) var(--ease-standard); }
+.theme-root[data-motion] .constitution-question-screen .ds-scale-option[aria-checked="true"]:active { background: var(--accent); }
+[data-motion="full"] .constitution-question-screen .ds-scale-option[aria-checked="true"] .ds-scale-option__degree > [data-filled="true"] {
+  animation: constitution-dot-fill var(--motion-fast) var(--ease-linear) calc(var(--constitution-dot-index) * var(--motion-stagger)) backwards;
+}
+@keyframes constitution-dot-fill { from { background-color: transparent; } to { background-color: var(--accent-on); } }
+
+:is([data-motion="full"], [data-motion="reduced"]) .constitution-dimension-name { transition: color var(--motion-fast) var(--ease-linear); }
+[data-motion="full"] .constitution-dimension-track > span { transition: width var(--motion-base) var(--ease-standard); }
+.constitution-progress-grid > [data-answered="true"] .constitution-dimension-name { color: var(--ink-tertiary); }
+.constitution-progress-grid > :is([data-current="true"], [data-emphasized="true"]) .constitution-dimension-name { color: var(--accent); }
+:is([data-motion="full"], [data-motion="reduced"]) .constitution-dimension-check { transition: opacity var(--motion-fast) var(--ease-linear); }
+@starting-style {
+  :is([data-motion="full"], [data-motion="reduced"]) .constitution-dimension-check { opacity: 0; }
+}
+
+/* Nine entries occupy an 80ms stagger window: 80 + 8×10 + 240 = 400ms.
+   The shared 24ms stagger still governs the five decorative answer dots. */
+[data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-decision {
+  animation: constitution-decision-in var(--motion-base) var(--ease-standard) backwards;
+}
+[data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-bar-fill {
+  transform-origin: left;
+  animation: constitution-bar-in var(--motion-slow) var(--ease-standard) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
+}
+[data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-bar-score {
+  animation: constitution-fade-in var(--motion-slow) var(--ease-linear) calc(var(--motion-result-start) + var(--constitution-bar-index) * var(--motion-result-stagger)) backwards;
+}
+[data-motion="full"] .constitution-result-view[data-reveal="true"] .constitution-reference-card {
+  animation: constitution-fade-in var(--motion-fast) var(--ease-linear) var(--motion-slow) backwards;
+}
+[data-motion="reduced"] .constitution-result-view[data-reveal="true"] { transition: opacity var(--motion-fast) var(--ease-linear); }
+@starting-style { [data-motion="reduced"] .constitution-result-view[data-reveal="true"] { opacity: 0; } }
+@keyframes constitution-decision-in { from { opacity: 0; transform: translateY(var(--motion-distance)); } to { opacity: 1; transform: translateY(0); } }
+@keyframes constitution-bar-in { from { opacity: 0; transform: scaleX(0); } to { opacity: 1; transform: scaleX(1); } }
+@keyframes constitution-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.constitution-destroy-ghost {
+  position: absolute;
+  z-index: var(--z-popover);
+  left: var(--destroy-left);
+  top: var(--destroy-top);
+  width: var(--destroy-width);
+  height: var(--destroy-height);
+  clip-path: inset(var(--destroy-clip-top) 0 0);
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--surface-page);
+  color: var(--ink-primary);
+  font-family: var(--font-sans);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+}
+.constitution-destroy-ghost :is(button, a) { pointer-events: none; }
+.constitution-destroy-ghost * { animation: none !important; transition: none !important; }
+/* Keep the newly focused selector above the outgoing copy in the same panel
+   stacking context, so its focus ring is visible from the first frame. */
+.constitution-sex { position: relative; z-index: calc(var(--z-popover) + 1); }
+.constitution-destroyed-notice { position: sticky; bottom: var(--space-2); }
+:is([data-motion="full"], [data-motion="reduced"]) .constitution-destroyed-notice { transition: opacity var(--motion-fast) var(--ease-exit); }
+.constitution-destroyed-notice[data-dismissed="true"] { opacity: 0; }

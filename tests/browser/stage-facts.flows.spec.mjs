@@ -1,5 +1,4 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, screenshot, expectCompactTimes } from './fixtures.mjs';
+import { test, expect, screenshot, expectCompactTimes, scanAccessibility } from './fixtures.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
 
 for (const [name, dateTime] of [
@@ -24,7 +23,7 @@ for (const [name, dateTime] of [
     await expectCurrentStageFacts(page, data);
     await expectCompactTimes(page);
     await screenshot(page, testInfo, name);
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     expect(scan.violations).toEqual([]);
   });
 }

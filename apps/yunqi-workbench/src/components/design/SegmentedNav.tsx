@@ -1,4 +1,5 @@
-import { NavLink, type To } from 'react-router-dom';
+import { NavLink, useLocation, type To } from 'react-router-dom';
+import { useSegmentIndicator } from './useSegmentIndicator';
 
 export interface NavSegmentViewModel {
   readonly label: string;
@@ -17,15 +18,19 @@ export function SegmentedNav({
   label = '视图',
   compact = false,
 }: SegmentedNavProps) {
+  const { pathname } = useLocation();
+  const trackRef = useSegmentIndicator<HTMLElement>(pathname);
   if (segments.length === 0 || segments.length > 3) {
     throw new Error('SegmentedNav requires one to three segments.');
   }
 
   return (
     <nav
-      className={`ds-segmented-nav${compact ? ' ds-segmented-nav--compact' : ''}`}
+      ref={trackRef}
+      className={`ds-segmented-nav motion-segments${compact ? ' ds-segmented-nav--compact' : ''}`}
       aria-label={label}
     >
+      <span className="motion-segment-indicator" aria-hidden="true" />
       {segments.map((segment) => (
         <NavLink
           className="ds-segmented-nav__link"

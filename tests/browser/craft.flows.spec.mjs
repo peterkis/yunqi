@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { test, expect, loadCurrent, screenshot } from './fixtures.mjs';
+import { expectMotionDurations, expectTransitionDuration, expectImmediateFocusRing } from './motion-helpers.mjs';
 
 const tokens = JSON.parse(readFileSync('docs/design/design-system/tokens.json', 'utf8'));
 const surface = name => {
@@ -9,7 +10,7 @@ const surface = name => {
 const rgb = hex => `rgb(${[1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16)).join(', ')})`;
 
 for (const theme of ['light', 'dark']) {
-  test(`craft: ${theme} API time typography, pointer/keyboard theme focus and development host`, async ({ page }, testInfo) => {
+  test(`craft: ${theme} API time typography, pointer/keyboard theme focus and development host`, async ({ page, motionMode }, testInfo) => {
     await loadCurrent(page);
     const toggle = page.getByRole('button', { name: /^切换至.+主题$/ });
     // End with a real mouse click into each theme, keeping the pointer over the
@@ -43,14 +44,18 @@ for (const theme of ['light', 'dark']) {
       await expect(quote).toHaveCSS('text-spacing-trim', 'trim-start');
     }
     for (const selector of ['.ds-segmented-nav__link', '.current-more__chevron']) {
-      await expect(page.locator(selector).first()).toHaveCSS('transition-duration', '0s');
+      if (selector === '.current-more__chevron') {
+        const level = await page.locator('.theme-root').getAttribute('data-motion');
+        await expect(page.locator(selector).first()).toHaveCSS('transition-duration', level === 'full' ? '0.18s' : '0s');
+      } else await expectTransitionDuration(page, page.locator(selector).first(), 'fast');
     }
     const disclosure = page.locator('.current-all-stages');
     await disclosure.locator('summary').first().click();
     const detail = page.locator('.current-stage-row > [role="region"]:not([hidden])').first();
-    await expect(detail).toHaveCSS('transition-duration', '0s');
+    await expectTransitionDuration(page, detail);
     if (await page.evaluate(() => CSS.supports('interpolate-size', 'allow-keywords'))) {
-      await expect.poll(() => disclosure.evaluate(element => getComputedStyle(element, '::details-content').transitionDuration)).toBe('0s');
+      const level = await page.locator('.theme-root').getAttribute('data-motion');
+      await expect.poll(() => disclosure.evaluate(element => getComputedStyle(element, '::details-content').transitionDuration.split(',').map(value => value.trim()))).toEqual(level === 'full' ? ['0.18s', '0.18s', '0.18s'] : ['0s']);
     }
     await disclosure.locator('summary').first().click();
 
@@ -60,41 +65,40 @@ for (const theme of ['light', 'dark']) {
     await expect(page.locator('body')).toHaveCSS('background-color', rgb(surface('surface-sunken').light));
     await expect(page.locator('.panel-viewport')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(page.locator('.panel-shell')).toHaveCSS('background-color', rgb(surface('surface-page')[theme]));
-    await expect(page.locator('.panel-shell')).toHaveCSS('transition-duration', '0s');
+    await expectTransitionDuration(page, page.locator('.panel-shell'));
     await page.emulateMedia({ reducedMotion: 'no-preference' });
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'full');
     await page.getByRole('button', { name: '收起为胶囊条' }).click();
     const pill = page.getByRole('button', { name: /^展开运气通/ });
     for (const selector of ['html', 'body', '#root', '.theme-root', '.panel-viewport']) {
       await expect(page.locator(selector)).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     }
-    await expect(pill).toHaveCSS('transition-duration', '0.14s');
-    await expect(pill).toHaveCSS('transition-timing-function', 'ease-out');
+    await expectTransitionDuration(page, pill, 'base', true);
+    await expect.poll(() => pill.evaluate(element => getComputedStyle(element).transitionTimingFunction.split(',')[0].trim()))
+      .toBe((await page.locator('.theme-root').getAttribute('data-motion')) === 'off' ? 'ease' : 'linear');
     await expect(pill).toHaveCSS('opacity', '1');
     await pill.click();
     await expect(page.locator('body')).toHaveCSS('background-color', rgb(surface('surface-sunken').light));
-    await expect(page.locator('.panel-shell')).toHaveCSS('transition-duration', '0.14s');
+    await expectTransitionDuration(page, page.locator('.panel-shell'));
     await expect(page.locator('.panel-shell')).toHaveCSS('opacity', '1');
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await expect(page.locator('.panel-shell')).toHaveCSS('transition-duration', '0s');
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'reduced');
+    await expectTransitionDuration(page, page.locator('.panel-shell'));
     await screenshot(page, testInfo, `craft-current-${theme}`);
 
     await page.getByRole('link', { name: '年度详情', exact: true }).click();
     await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('font-variant-numeric', 'tabular-nums');
   });
 
-  test(`craft: ${theme} normal motion uses brief ease-out transitions and reduced motion cancels them`, async ({ page }) => {
+  test(`craft: ${theme} motion uses shared tokens, native disclosure and immediate keyboard rings`, async ({ page, motionMode }) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/src/test/design-foundations.html');
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
     const selectors = ['.ds-segmented-nav__link', '.ds-segmented-control > button', '.ds-scale-option', '.ds-scale-option__key'];
     for (const selector of selectors) {
       const target = page.locator(selector).first();
-      await expect.poll(() => target.evaluate(element => {
-        const style = getComputedStyle(element);
-        return style.transitionDuration.split(',').every(value => Number.parseFloat(value) >= 0.12 && Number.parseFloat(value) <= 0.16)
-          && style.transitionTimingFunction.split(',').every(value => value.trim() === 'ease-out')
-          && !style.transitionProperty.includes('outline');
-      })).toBe(true);
+      await expectTransitionDuration(page, target, 'fast');
+      if (selector !== '.ds-scale-option__key') await expectImmediateFocusRing(page, target);
     }
     const summary = page.locator('.ds-quote-block__summary');
     const details = page.locator('.ds-quote-block__details');
@@ -104,13 +108,15 @@ for (const theme of ['light', 'dark']) {
     await expect(fullQuote).toBeVisible();
     if (await page.evaluate(() => CSS.supports('interpolate-size', 'allow-keywords'))) {
       await expect.poll(() => details.evaluate(element => getComputedStyle(element, '::details-content').opacity)).toBe('1');
-      await expect.poll(() => details.evaluate(element => getComputedStyle(element, '::details-content').transitionDuration.split(',').map(value => value.trim()))).toEqual(['0.14s', '0.14s', '0.14s']);
+      await expect.poll(() => details.evaluate(element => getComputedStyle(element, '::details-content').transitionDuration.split(',').map(value => value.trim()))).toEqual((await page.locator('.theme-root').getAttribute('data-motion')) === 'full' ? ['0.18s', '0.18s', '0.18s'] : ['0s']);
     }
     await summary.click();
     await expect(details).not.toHaveAttribute('open');
     await expect(fullQuote).toBeHidden();
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    for (const selector of selectors) await expect(page.locator(selector).first()).toHaveCSS('transition-duration', '0s');
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'reduced');
+    for (const selector of selectors) await expectTransitionDuration(page, page.locator(selector).first(), 'fast');
+    await expectMotionDurations(page);
     await expect(summary).toHaveCSS('transition-duration', '0s');
     if (await page.evaluate(() => CSS.supports('interpolate-size', 'allow-keywords'))) {
       await expect.poll(() => details.evaluate(element => getComputedStyle(element, '::details-content').transitionDuration)).toBe('0s');

@@ -7,6 +7,7 @@ import {
 } from '../providers/QueryProvider';
 import { YunQiClientProvider } from '../providers/YunQiClientProvider';
 import { ThemeProvider } from '../providers/ThemeProvider';
+import { MotionProvider } from '../providers/MotionProvider';
 import { PanelShell } from '../components/layout/PanelShell';
 
 export function createTestWrapper(client: YunQiClient, panelRoute?: string) {
@@ -15,11 +16,13 @@ export function createTestWrapper(client: YunQiClient, panelRoute?: string) {
   return function TestWrapper({ children }: PropsWithChildren) {
     return (
       <MemoryRouter initialEntries={panelRoute ? [panelRoute] : undefined}>
-        <QueryProvider client={queryClient}>
-          <YunQiClientProvider client={client}>
-            {panelRoute ? <ThemeProvider><PanelShell>{children}</PanelShell></ThemeProvider> : children}
-          </YunQiClientProvider>
-        </QueryProvider>
+        <MotionProvider>
+          <QueryProvider client={queryClient}>
+            <YunQiClientProvider client={client}>
+              {panelRoute ? <ThemeProvider><PanelShell>{children}</PanelShell></ThemeProvider> : children}
+            </YunQiClientProvider>
+          </QueryProvider>
+        </MotionProvider>
       </MemoryRouter>
     );
   };

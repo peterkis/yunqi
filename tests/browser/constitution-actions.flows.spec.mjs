@@ -1,7 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
-import { test, expect, screenshot, expectTypeScale } from './fixtures.mjs';
+import { test, expect, screenshot, expectTypeScale, scanAccessibility } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
@@ -44,7 +43,7 @@ for (const theme of ['light', 'dark']) {
     await expectConstitutionAnswerLayout(page, testInfo);
     await expectConstitutionDisclosures(page, testInfo);
     await expectConstitutionSegments(page);
-    const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+    const scan = await scanAccessibility(page);
     await testInfo.attach('constitution-F4-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
   });
@@ -85,7 +84,7 @@ for (const embedded of [false, true]) {
       await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
       await expectViewControls(page, testInfo);
       await expectTypeScale(page, testInfo);
-      const scan = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
+      const scan = await scanAccessibility(page);
       await testInfo.attach('constitution-F5-axe-results', { body: JSON.stringify(scan), contentType: 'application/json' });
       expect(scan.violations).toEqual([]);
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-result`);
@@ -110,6 +109,7 @@ for (const embedded of [false, true]) {
       await expect(page.locator('.constitution-position')).toHaveText('26 / 26');
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-edit`);
       await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+      await confirmConstitutionDestruction(page);
       if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();
       else await expect(page.getByRole('radio', { name: '男', exact: true })).toBeFocused();
     });

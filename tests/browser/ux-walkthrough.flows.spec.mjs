@@ -1,4 +1,4 @@
-import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout } from './fixtures.mjs';
+import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, waitForAnimations } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
 
 test('current-year shortcut and adjacent-year controls retain URL, bounds and history', async ({ page, diagnostics }) => {
@@ -7,7 +7,7 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   const { data: current } = await (await currentResponse).json();
   const apiYear = String(current.facts.year);
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(apiYear);
-  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}$`));
+  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}(?:\\?motion=off)?$`));
   await expect(page.locator('.drilldown-annual-summary')).toContainText(apiYear);
   await settle(page);
   expect(diagnostics.requests.map(request => new URL(request.url).pathname)).toEqual([
@@ -29,13 +29,17 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2024');
   await page.getByRole('radio', { name: '第 3 步 三之气', exact: true }).check();
   await page.getByRole('button', { name: '下一年', exact: true }).click();
-  await expect(page).toHaveURL(/\/yunqi\/year\/2025$/);
+  await expect(page).toHaveURL(/\/yunqi\/year\/2025(?:\?motion=off)?$/);
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2025');
   await expect(page.getByRole('radio').first()).toBeChecked();
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeFocused();
   await page.getByRole('button', { name: '上一年', exact: true }).click();
+  await expect(page).toHaveURL(/\/yunqi\/year\/2024(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2024');
   await page.goBack();
+  await expect(page).toHaveURL(/\/yunqi\/year\/2025(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('2025');
 
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('1900');
@@ -45,7 +49,7 @@ test('current-year shortcut and adjacent-year controls retain URL, bounds and hi
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2100');
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
   await page.getByRole('combobox', { name: '分析年份' }).selectOption('');
-  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}$`));
+  await expect(page).toHaveURL(new RegExp(`/yunqi/year/${apiYear}(?:\\?motion=off)?$`));
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue(apiYear);
   expect(diagnostics.requests.every(request => !/\/year\/(1899|2101)$/.test(request.url))).toBe(true);
 });
@@ -56,7 +60,7 @@ test('annual entry keeps the empty selector when the current API is unavailable 
   await page.goto('/yunqi/year');
   await expect(page.getByText('请选择要分析的年份', { exact: true })).toBeVisible();
   await settle(page);
-  await expect(page).toHaveURL(/\/yunqi\/year$/);
+  await expect(page).toHaveURL(/\/yunqi\/year(?:\?motion=off)?$/);
   await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveValue('');
   await expect(page.getByRole('button', { name: '上一年', exact: true })).toBeDisabled();
   await expect(page.getByRole('button', { name: '下一年', exact: true })).toBeDisabled();
@@ -79,6 +83,7 @@ test('panel stage selection keeps six single-column choices above nearby detail 
   await expect(third).toHaveAccessibleDescription(`开始 ${thirdStage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 ${thirdStage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本`);
   const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
   await expect(detail).toBeVisible();
+  await waitForAnimations(page);
   const selector = await page.locator('.drilldown-stage-selector__options').boundingBox();
   const detailBox = await detail.boundingBox();
   const choices = await page.locator('.drilldown-stage-selector__option').all();
@@ -148,6 +153,8 @@ test('panel navigation, skip link and result traceability support keyboard recov
   await expect(page.getByRole('main')).toBeFocused();
   await expect(page.getByRole('region', { name: '全年\u202f·\u202f2024', exact: true })).toBeInViewport();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
+  await expect(page).toHaveURL(/\/yunqi\/birth(?:\?motion=off)?$/);
+  await expect(page.getByRole('heading', { name: '出生运气对照', exact: true })).toBeVisible();
   const birthContent = page.getByRole('main', { name: '先天对照', exact: true });
   await expect(birthContent).toBeFocused();
   const birthDate = birthContent.getByRole('textbox', { name: '年', exact: true });

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import {
   EmptyState,
   ErrorState,
@@ -14,6 +14,7 @@ export interface AsyncStateProps<T> {
   readonly emptyMessage?: string;
   readonly onRetry?: () => void;
   readonly renderData: (data: T) => ReactNode;
+  readonly renderLoading?: (message: string | undefined) => ReactNode;
 }
 
 function isEmptyData<T>(data: T): boolean {
@@ -29,10 +30,31 @@ export function AsyncState<T>({
   emptyMessage = '暂无数据',
   onRetry,
   renderData,
+  renderLoading,
 }: AsyncStateProps<T>) {
-  if (isPending) {
-    return <LoadingState message={loadingMessage} />;
+  const [loading, setLoading] = useState<'hidden' | 'minimum' | 'ready'>('hidden');
+
+  useEffect(() => {
+    if (!isPending || loading !== 'hidden') return;
+    const timer = setTimeout(() => setLoading('minimum'), 200);
+    return () => clearTimeout(timer);
+  }, [isPending, loading]);
+
+  useEffect(() => {
+    if (loading !== 'minimum') return;
+    const timer = setTimeout(() => setLoading('ready'), 400);
+    return () => clearTimeout(timer);
+  }, [loading]);
+
+  useEffect(() => {
+    if (!isPending && loading === 'ready') setLoading('hidden');
+  }, [isPending, loading]);
+
+  if (loading === 'minimum' || (isPending && loading === 'ready')) {
+    return renderLoading ? <>{renderLoading(loadingMessage)}</> : <LoadingState message={loadingMessage} />;
   }
+
+  if (isPending) return renderLoading ? <>{renderLoading(undefined)}</> : null;
 
   if (error !== null && error !== undefined) {
     return (

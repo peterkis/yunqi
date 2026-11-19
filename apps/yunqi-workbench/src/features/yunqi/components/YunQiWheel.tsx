@@ -1,3 +1,6 @@
+import { useLayoutEffect, useRef } from 'react';
+import { useMotionLevel } from '../../../providers/MotionProvider';
+import { animateMotion, motionMilliseconds } from '../../../lib/motion';
 import type { YunQiStageStatusCode, YunQiWheelViewModel } from '../presentation/view-model';
 
 // Fixed SVG geometry from prototype-finals/reference/01-current.html.
@@ -26,20 +29,109 @@ const MOVEMENT_FILLS: Record<YunQiStageStatusCode, string> = {
   completed: 'var(--relation-favorable-bg)', current: 'var(--relation-favorable-fg)', upcoming: 'var(--surface-sunken)',
 };
 
+// Pure drawing geometry: clockwise SVG arcs, never calendar calculations.
+function revealArc(index: number, count: number, radius: number) {
+  const point = (angle: number) => `${120 + radius * Math.cos(angle)} ${120 + radius * Math.sin(angle)}`;
+  // The prototype leaves a 3.4-degree gap between adjacent segments.
+  const inset = 1.7 * Math.PI / 180;
+  const start = -Math.PI / 2 + (index - 1) * 2 * Math.PI / count;
+  return `M${point(start + inset)} A${radius} ${radius} 0 0 1 ${point(start + 2 * Math.PI / count - inset)}`;
+}
+
+function highlightPath(ring: 'qi' | 'movement', index: number) {
+  const [count, radius, width, fill] = ring === 'qi'
+    ? [6, 96, 24, QI_FILLS.current] as const
+    : [5, 70, 16, MOVEMENT_FILLS.current] as const;
+  return {
+    d: revealArc(index, count, radius),
+    pathLength: 1,
+    strokeDasharray: 1,
+    strokeDashoffset: 0,
+    strokeWidth: width,
+    // An open arc must not fill its chord. The stroke is the highlight itself,
+    // already complete if WAAPI is absent, rejected, cancelled or finished.
+    style: { fill, fillOpacity: 0, stroke: fill },
+  };
+}
+
 export function YunQiWheel({ viewModel }: { readonly viewModel: YunQiWheelViewModel }) {
+  const level = useMotionLevel();
+  const svgRef = useRef<SVGSVGElement>(null);
+  const outgoingRef = useRef<SVGGElement>(null);
+  const previous = useRef<{ qi: number; movement: number } | undefined>(undefined);
+  const firstDraw = useRef<boolean | undefined>(undefined);
+  const qi = viewModel.qi.find(segment => segment.status === 'current')!.index;
+  const movement = viewModel.movements.find(segment => segment.status === 'current')!.index;
+
+  useLayoutEffect(() => {
+    const svg = svgRef.current!;
+    const old = previous.current;
+    previous.current = { qi, movement };
+    if (firstDraw.current === undefined) {
+      firstDraw.current = level === 'full';
+      try {
+        firstDraw.current = firstDraw.current && sessionStorage.getItem('yunqi-wheel-drawn') !== 'true';
+        sessionStorage.setItem('yunqi-wheel-drawn', 'true');
+      } catch { /* A blocked session cache never blocks rendering. */ }
+    }
+    if (level !== 'full') { firstDraw.current = false; return; }
+    const animations: Animation[] = [];
+    const remember = (animation: Animation | undefined) => { if (animation) animations.push(animation); };
+    const changed = old && (old.qi !== qi || old.movement !== movement);
+    if (changed) firstDraw.current = false;
+    if (!firstDraw.current && !changed) return;
+    if (firstDraw.current) {
+      for (const path of svg.querySelectorAll('.current-wheel-reveal')) {
+        remember(animateMotion(path, level, [{ strokeDashoffset: '1' }, { strokeDashoffset: '0' }], '--motion-emphasis', '--ease-standard'));
+      }
+    } else if (changed) {
+      for (const [ring, before, after] of [
+        ['qi', old.qi, qi],
+        ['movement', old.movement, movement],
+      ] as const) {
+        if (before === after) continue;
+        const shape = highlightPath(ring, before);
+        const ghost = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        ghost.setAttribute('d', shape.d);
+        ghost.setAttribute('stroke-width', String(shape.strokeWidth));
+        Object.assign(ghost.style, shape.style);
+        ghost.setAttribute('data-outgoing', ring);
+        outgoingRef.current!.append(ghost);
+        remember(animateMotion(ghost, level, [{ opacity: 1 }, { opacity: 0 }], '--motion-fast', '--ease-linear', 'forwards'));
+        remember(animateMotion(svg.querySelector(`[data-ring="${ring}"] .is-current${ring === 'qi' ? ' > path' : ''}`), level,
+          [{ opacity: 0 }, { opacity: 1 }], '--motion-base'));
+      }
+    }
+    const timer = setTimeout(() => { firstDraw.current = false; outgoingRef.current?.replaceChildren(); }, motionMilliseconds(svg, firstDraw.current ? '--motion-emphasis' : '--motion-fast'));
+    return () => {
+      clearTimeout(timer);
+      for (const animation of animations) animation.cancel();
+      outgoingRef.current?.replaceChildren();
+    };
+  }, [qi, movement, level]);
+
   return <>
     <div className="current-year-wheel">
-      <svg viewBox="0 0 240 240" role="img" aria-label={viewModel.label}>
+      <svg ref={svgRef} viewBox="0 0 240 240" role="img" aria-label={viewModel.label}>
+        <g aria-hidden="true" style={{ fill: 'var(--surface-sunken)' }}>
+          {QI_SEGMENTS.map((segment, index) => <path key={`qi-${index}`} d={segment.path} />)}
+          {MOVEMENT_SEGMENTS.map((path, index) => <path key={`movement-${index}`} d={path} />)}
+        </g>
         <g aria-hidden="true" data-ring="qi">
           {viewModel.qi.map((segment) => <g key={segment.index} className={`is-${segment.status}`} data-index={segment.index}>
-            <path d={QI_SEGMENTS[segment.index - 1]!.path} style={{ fill: QI_FILLS[segment.status] }} />
+            <path className={segment.status === 'current' ? 'current-wheel-reveal' : undefined}
+              {...(segment.status === 'current' ? highlightPath('qi', segment.index)
+                : { d: QI_SEGMENTS[segment.index - 1]!.path, style: { fill: QI_FILLS[segment.status] } })} />
             <text x={QI_SEGMENTS[segment.index - 1]!.x} y={QI_SEGMENTS[segment.index - 1]!.y} textAnchor="middle" className="current-year-wheel__tick">{segment.tickLabel}</text>
           </g>)}
         </g>
         <g aria-hidden="true" data-ring="movement">
-          {viewModel.movements.map((segment) => <path key={segment.index} className={`is-${segment.status}`} data-index={segment.index}
-            d={MOVEMENT_SEGMENTS[segment.index - 1]} style={{ fill: MOVEMENT_FILLS[segment.status] }} />)}
+          {viewModel.movements.map((segment) => <path key={segment.index}
+            className={`is-${segment.status}${segment.status === 'current' ? ' current-wheel-reveal' : ''}`} data-index={segment.index}
+            {...(segment.status === 'current' ? highlightPath('movement', segment.index)
+              : { d: MOVEMENT_SEGMENTS[segment.index - 1], style: { fill: MOVEMENT_FILLS[segment.status] } })} />)}
         </g>
+        <g ref={outgoingRef} aria-hidden="true" />
       </svg>
       <div className="current-year-heading">
         <h3>{viewModel.ganzhi}</h3>

@@ -20,7 +20,7 @@ if (browserChannel && !['chrome', 'msedge'].includes(browserChannel)) {
 const visualProject = (name, width, height, theme = 'light', testMatch = '**/workbench.visual.spec.mjs') => ({
   name,
   testMatch,
-  use: { viewport: { width, height }, acceptanceTheme: theme },
+  use: { viewport: { width, height }, acceptanceTheme: theme, motionMode: 'off' },
 });
 
 export default defineConfig({
@@ -46,14 +46,19 @@ export default defineConfig({
     locale: 'zh-CN',
     // A non-Beijing browser zone verifies canonical API time is not reinterpreted.
     timezoneId: 'America/New_York',
-    reducedMotion: 'reduce',
+    reducedMotion: 'no-preference',
     serviceWorkers: 'block',
     trace: 'retain-on-failure',
-    screenshot: 'only-on-failure',
+    // Explicit snapshots use motion=off + animations:disabled in fixtures.
+    // Retain failure traces in every mode without capturing animated baselines.
+    screenshot: 'off',
     actionTimeout: 10_000,
   },
   projects: [
-    { name: 'flows-chromium', testMatch: '**/*.flows.spec.mjs' },
+    { name: 'flows-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'full' } },
+    { name: 'flows-reduced-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'reduced' } },
+    { name: 'flows-off-chromium', testMatch: '**/*.flows.spec.mjs', use: { motionMode: 'off' } },
+    { name: 'motion-capability-chromium', testMatch: ['**/motion.flows.spec.mjs', '**/constitution-motion.flows.spec.mjs', '**/current-motion.flows.spec.mjs'], use: { motionMode: 'missing-transition' } },
     visualProject('panel-light', 400, 860),
     visualProject('panel-dark', 400, 860, 'dark'),
     visualProject('panel-min-height', 400, 640),
