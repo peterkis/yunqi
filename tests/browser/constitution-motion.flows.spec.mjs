@@ -41,7 +41,10 @@ async function observeResult(page) {
       // Keep those commit entries in the artifact; measure reveal stability
       // after its first paint, before the 80ms bar sequence begins. Do not
       // exclude recent-input entries from the animation's own shift sum.
-      requestAnimationFrame(() => requestAnimationFrame(timestamp => { window.resultPaintBoundary = timestamp; }));
+      // Use the callback's own clock, not the rAF frame timestamp: on a loaded
+      // runner that vsync time can predate the commit frame's layout, which
+      // would misfile the commit's own shift as post-paint.
+      requestAnimationFrame(() => requestAnimationFrame(() => { window.resultPaintBoundary = performance.now(); }));
     });
     window.resultEntryObserver.observe(document.querySelector('main'), { childList: true, subtree: true, attributes: true });
   });

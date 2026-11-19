@@ -46,6 +46,27 @@ describe('tab session retention', () => {
     expect(vi.mocked(client.getLearningCurrent).mock.calls.length).toBeGreaterThan(currentCalls);
   });
 
+  it('keeps the retained form and answers when a questionnaire refresh fails', async () => {
+    const client = createClientStub();
+    const queryClient = createWorkbenchQueryClient();
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={client} queryClient={queryClient}><App /></AppProviders></MemoryRouter>);
+    const form = await screen.findByRole('form', { name: '中医体质量表' });
+    await user.click(screen.getByRole('radio', { name: '男' }));
+    await answerByKey(user, '4');
+    act(() => { vi.advanceTimersByTime(ANSWER_HOLD_MS); });
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    const calls = vi.mocked(client.getConstitutionQuestionnaire).mock.calls.length;
+    vi.mocked(client.getConstitutionQuestionnaire).mockRejectedValue(new Error('offline'));
+    await act(async () => { await queryClient.invalidateQueries({ queryKey: ['constitution', 'questionnaire'] }); });
+    await user.click(screen.getByRole('link', { name: '体质量表' }));
+    await waitFor(() => expect(client.getConstitutionQuestionnaire).toHaveBeenCalledTimes(calls + 1));
+    await waitFor(() => expect(queryClient.getQueryState(['constitution', 'questionnaire'])?.status).toBe('error'));
+    expect(screen.getByRole('form')).toBe(form);
+    expect(screen.getByRole('img', { name: /已答 1 \/ 8 题/ })).toBeVisible();
+    expect(screen.queryByText('体质量表加载失败')).not.toBeInTheDocument();
+  });
+
   it('does not mount retained sessions for unknown child paths', () => {
     const client = createClientStub();
     render(<MemoryRouter initialEntries={['/yunqi/birth/unknown']}><AppProviders yunqiClient={client}><App /></AppProviders></MemoryRouter>);
