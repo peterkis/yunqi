@@ -1,7 +1,7 @@
 import { test, expect, loadCurrent, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate, expectBirthComparison } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, constitutionResultValues, confirmConstitutionDestruction } from './constitution-helpers.mjs';
-import { expectedMotionLevel, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions, observeOffAction } from './motion-helpers.mjs';
+import { expectedMotionLevel, expectMotionCopy, expectMotionDurations, expectImmediateFocusRing, expectIndicatorAligned, observeViewTransitions, observeOffAction } from './motion-helpers.mjs';
 
 test('accessibility animation gate observes completion and times out on paused motion', async ({ page }) => {
   await page.setContent('<p>动画收敛辅助回归</p>');
@@ -84,9 +84,11 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   }), contentType: 'application/json' });
 });
 
-test('motion controls express automatic reset, persist manual choice and apply live system changes', async ({ page, motionMode }, testInfo) => {
+test('motion controls express automatic reset, persist manual choice and apply live system changes', async ({ page, motionMode, browser }, testInfo) => {
   await loadCurrent(page);
-  await page.getByText('动效设置', { exact: true }).click();
+  const engine = `Chromium ${browser.version().split('.')[0]}`;
+  const automaticReason = { full: 'default', reduced: 'system', off: 'url', 'missing-transition': 'no-view-transition' }[motionMode];
+  await expectMotionCopy(page, { level: expectedMotionLevel(motionMode), reason: automaticReason, engine });
   const controls = page.getByRole('radiogroup', { name: '动效', exact: true });
   await expect(controls.getByRole('radio', { name: '自动', exact: true })).toBeChecked();
   for (const [label, level] of [['精简', 'reduced'], ['关闭', 'off'], ['标准', 'full']]) {
@@ -95,23 +97,88 @@ test('motion controls express automatic reset, persist manual choice and apply l
     await button.press('Space');
     await expect(button).toBeChecked();
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : level);
+    await expectMotionCopy(page, { level: motionMode === 'off' ? 'off' : level, reason: motionMode === 'off' ? 'url' : 'manual', engine });
     await expectMotionDurations(page, testInfo, `manual-${level}`);
     expect(await page.evaluate(() => localStorage.getItem('yunqi-motion'))).toBe(level);
   }
   await page.reload();
   await expect(page.locator('.current-overview')).toBeVisible();
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'full');
-  await page.getByText('动效设置', { exact: true }).click();
+  await expectMotionCopy(page, { level: motionMode === 'off' ? 'off' : 'full', reason: motionMode === 'off' ? 'url' : 'manual', engine });
   await controls.getByRole('radio', { name: '自动', exact: true }).press('Space');
   expect(await page.evaluate(() => localStorage.getItem('yunqi-motion'))).toBeNull();
+  await expectMotionCopy(page, { level: expectedMotionLevel(motionMode), reason: automaticReason, engine });
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'reduced');
+  await expectMotionCopy(page, { level: motionMode === 'off' ? 'off' : 'reduced', reason: motionMode === 'off' ? 'url' : 'system', engine });
   await expectMotionDurations(page, testInfo, 'system-reduced');
   await page.emulateMedia({ forcedColors: 'active' });
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', 'off');
+  await expectMotionCopy(page, { level: 'off', reason: motionMode === 'off' ? 'url' : 'forced-colors', engine });
   await expectMotionDurations(page, testInfo, 'forced-colors-off');
+  await controls.getByRole('radio', { name: '标准', exact: true }).press('Space');
+  await expectMotionCopy(page, { level: 'off', reason: motionMode === 'off' ? 'url' : 'forced-colors', engine });
+  await controls.getByRole('radio', { name: '自动', exact: true }).press('Space');
   await page.emulateMedia({ forcedColors: 'none', reducedMotion: 'no-preference' });
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : motionMode === 'missing-transition' ? 'reduced' : 'full');
+  await expectMotionCopy(page, { level: motionMode === 'off' ? 'off' : motionMode === 'missing-transition' ? 'reduced' : 'full',
+    reason: motionMode === 'off' ? 'url' : motionMode === 'missing-transition' ? 'no-view-transition' : 'default', engine });
+});
+
+test.describe('M1-e environment-related CPU sampling', () => {
+  test.use({ inFlightProbe: true });
+  test('20x CPU tab transitions report the in-flight downgrade (environment-related)', async ({ page, context, motionMode, browser }, testInfo) => {
+    test.skip(motionMode !== 'full', 'The CDP observation runs once, in flows-chromium only.');
+    test.setTimeout(90_000);
+    testInfo.annotations.push({ type: 'environment-related', description: '20x throttling depends on host rendering load; expected downgrade is a soft assertion.' });
+    const cdp = await context.newCDPSession(page);
+    const observations = [];
+    try {
+      // Load at normal speed: the card measures the two tab switches, and a
+      // throttled initial load can exceed the API wait on a shared CI runner.
+      await loadCurrent(page);
+      await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', 'full');
+      expect(await page.evaluate(() => sessionStorage.getItem('yunqi-motion-frame-in-flight'))).toBeNull();
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 20 });
+      await page.evaluate(() => {
+        window.cpuMotionSample = { intervals: [], loaf: [] };
+        let previous;
+        const sample = timestamp => {
+          if (previous !== undefined) window.cpuMotionSample.intervals.push(timestamp - previous);
+          previous = timestamp;
+          window.cpuMotionFrame = requestAnimationFrame(sample);
+        };
+        window.cpuMotionFrame = requestAnimationFrame(sample);
+        if (PerformanceObserver.supportedEntryTypes.includes('long-animation-frame')) {
+          window.cpuMotionObserver = new PerformanceObserver(list => {
+            window.cpuMotionSample.loaf.push(...list.getEntries().map(entry => ({ startTime: entry.startTime, duration: entry.duration })));
+          });
+          window.cpuMotionObserver.observe({ type: 'long-animation-frame', buffered: false });
+        }
+      });
+      for (const label of ['先天对照', '当下运气']) {
+        await page.getByRole('link', { name: label, exact: true }).click();
+        await expect(page.getByRole('main')).toBeFocused();
+        await waitForAnimations(page);
+        observations.push(await page.evaluate(label => ({ label, level: document.querySelector('.theme-root').dataset.motion,
+          stored: sessionStorage.getItem('yunqi-motion-frame-in-flight') }), label));
+      }
+      await expect.poll(() => page.evaluate(() => sessionStorage.getItem('yunqi-motion-frame-in-flight'))).not.toBeNull();
+      const actual = await page.evaluate(() => ({ level: document.querySelector('.theme-root').dataset.motion,
+        stored: sessionStorage.getItem('yunqi-motion-frame-in-flight'), sample: window.cpuMotionSample }));
+      const reason = actual.stored === 'frame-in-flight' ? 'frame-in-flight' : 'default';
+      await expectMotionCopy(page, { level: actual.level, reason, engine: `Chromium ${browser.version().split('.')[0]}` });
+      await testInfo.attach('20x-cpu-motion-observation', { body: JSON.stringify({ rate: 20, environmentRelated: true, observations, ...actual }), contentType: 'application/json' });
+      expect.soft(actual.level, 'Environment-related: 20x CPU should downgrade after two tab switches').toBe('reduced');
+      expect.soft(actual.stored, 'Environment-related: the downgrade should be attributed to in-flight sampling').toBe('frame-in-flight');
+    } finally {
+      // Restore this owned page even when an assertion fails.
+      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
+      await page.evaluate(() => { cancelAnimationFrame(window.cpuMotionFrame); window.cpuMotionObserver?.disconnect(); });
+      await testInfo.attach('20x-cpu-tab-observations', { body: JSON.stringify(observations), contentType: 'application/json' });
+      await cdp.detach();
+    }
+  });
 });
 
 test('segmented indicators align after selection and narrow resize across tabs, reading scopes and sex', async ({ page, motionMode }, testInfo) => {

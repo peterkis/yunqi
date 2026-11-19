@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
 import { runInNewContext } from 'node:vm';
@@ -7,6 +8,10 @@ import { expectNoOutlineTransition } from './browser/motion-helpers.mjs';
 
 // Reuse the Workbench's existing test dependency; add no runtime dependency.
 const { JSDOM } = createRequire(new URL('../apps/yunqi-workbench/package.json', import.meta.url))('jsdom');
+
+test('M1-e keeps the full walkthrough GIF outside the repository working tree', () => {
+  assert.equal(existsSync(new URL('../docs/plans/2026-11-18-motion-flows/evidence/media/M1-full-walkthrough.gif', import.meta.url)), false);
+});
 
 // Computed CSS lists: short duration lists repeat; surplus durations are ignored.
 for (const [properties, durations, immediate] of [

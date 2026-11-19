@@ -127,8 +127,8 @@
   --motion-slow: 240ms;
   --motion-emphasis: 320ms;
   --motion-stagger: 24ms;
-  --motion-result-start: 80ms;
-  --motion-result-stagger: 10ms;
+  --motion-result-start: 60ms;
+  --motion-result-stagger: 20ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-linear: linear;
@@ -263,8 +263,8 @@
   --motion-slow: 240ms;
   --motion-emphasis: 320ms;
   --motion-stagger: 24ms;
-  --motion-result-start: 80ms;
-  --motion-result-stagger: 10ms;
+  --motion-result-start: 60ms;
+  --motion-result-stagger: 20ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-linear: linear;

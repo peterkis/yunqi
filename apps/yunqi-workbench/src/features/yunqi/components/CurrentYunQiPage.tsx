@@ -7,6 +7,8 @@ import { PanelSummary } from '../../../components/layout/PanelSummary';
 import { MotionSettings } from '../../../components/layout/MotionSettings';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
+import { formatMotionDiagnostics } from '../../../lib/motion-diagnostics';
+import { useMotion } from '../../../providers/MotionProvider';
 import { mapCalculationTimes } from '../presentation/map-drilldown';
 import { mapPanelSummary } from '../presentation/panel-summary';
 import type { LearningViewModel } from '../presentation/map-learning';
@@ -27,6 +29,7 @@ function MoreChevron() {
 
 export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps) {
   const { summary, currentStep, annualElements } = viewModel;
+  const { level, reason, engine } = useMotion();
   const movement = learning.currentMovement;
   const passage = learning.currentPassages[0];
 
@@ -96,6 +99,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <InfoCard label="追溯信息">
             <p className="current-copy num"><InlineText>{`YunQi 当前查询 API · ${viewModel.contractId}`}</InlineText></p>
             <p className="current-copy num"><InlineText>{`${viewModel.ruleVersion} · 北京时间 UTC+08`}</InlineText></p>
+            <p className="current-copy num"><InlineText>{formatMotionDiagnostics(level, reason, engine)}</InlineText></p>
             <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
           </InfoCard>
         </details></li>

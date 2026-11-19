@@ -1,45 +1,70 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import {
+  startInFlightFrameProbe,
+  type InFlightProbeHandle,
+} from '../lib/in-flight-motion-probe';
+import {
+  detectBrowserEngine,
+  evaluateFrameIntervals,
+  MOTION_IDLE_FRAME_STORAGE_KEY,
+  MOTION_IN_FLIGHT_FRAME_STORAGE_KEY,
+  MOTION_PREFERENCE_STORAGE_KEY,
+  parseIdleFrameStorage,
+  parseInFlightFrameStorage,
+  resolveMotionState,
+  serializeInFlightFrameStorage,
+  type FrameProbeOutcome,
+  type MotionLevel,
+  type MotionPreference,
+  type MotionReason,
+} from '../lib/motion-diagnostics';
 
-export type MotionLevel = 'full' | 'reduced' | 'off';
-export type MotionPreference = MotionLevel | 'auto';
-const PREFERENCE_KEY = 'yunqi-motion';
-const FRAME_RESULT_KEY = 'yunqi-motion-frame-rate';
+export type { MotionLevel, MotionPreference, MotionReason };
+
+export type ObserveInFlightMotion = (
+  durationMs: number,
+  options?: { readonly deferred?: boolean },
+) => InFlightProbeHandle | undefined;
+
 const REDUCED_QUERY = '(prefers-reduced-motion: reduce)';
 const FORCED_QUERY = '(forced-colors: active)';
 
-interface MotionContextValue {
+export interface MotionContextValue {
   readonly level: MotionLevel;
+  readonly reason: MotionReason;
   readonly preference: MotionPreference;
+  readonly engine: string;
   readonly setPreference: (preference: MotionPreference) => void;
+  readonly observeInFlight: ObserveInFlightMotion;
 }
 
 const MotionContext = createContext<MotionContextValue | undefined>(undefined);
 
 function readPreference(): MotionPreference {
   try {
-    const value = window.localStorage.getItem(PREFERENCE_KEY);
+    const value = window.localStorage.getItem(MOTION_PREFERENCE_STORAGE_KEY);
     if (value === 'full' || value === 'reduced' || value === 'off') return value;
   } catch { /* Storage can be blocked in embedded/private windows. */ }
   return 'auto';
 }
 
-function readFrameResult(): 'full' | 'reduced' | undefined {
+function readIdleFrameResult(): FrameProbeOutcome | undefined {
   try {
-    const value = window.sessionStorage.getItem(FRAME_RESULT_KEY);
-    if (value === 'full' || value === 'reduced') return value;
+    return parseIdleFrameStorage(window.sessionStorage.getItem(MOTION_IDLE_FRAME_STORAGE_KEY));
   } catch { /* Detection still works without persistence. */ }
   return undefined;
 }
 
-function detectCapability(): MotionLevel {
-  if (!window.CSS?.supports?.('selector(:has(*))')) return 'off';
-  return typeof document.startViewTransition === 'function'
-    && window.CSS.supports('transition-behavior: allow-discrete') ? 'full' : 'reduced';
+function readInFlightFrameResult(): FrameProbeOutcome | undefined {
+  try {
+    return parseInFlightFrameStorage(window.sessionStorage.getItem(MOTION_IN_FLIGHT_FRAME_STORAGE_KEY));
+  } catch { /* Detection still works without persistence. */ }
+  return undefined;
 }
 
 /** Invisible, one-shot probe: one primer timestamp and 30 frame intervals.
  * rAF timestamps measure rendering performance only, never business time. */
-function probeFrameRate(onResult: (result: 'full' | 'reduced') => void): () => void {
+function probeFrameRate(onResult: (result: FrameProbeOutcome) => void): () => void {
   let stopped = false;
   let frame: number | undefined;
   let idle: number | undefined;
@@ -65,11 +90,9 @@ function probeFrameRate(onResult: (result: 'full' | 'reduced') => void): () => v
       frame = window.requestAnimationFrame(sample);
       return;
     }
-    const average = intervals.reduce((total, interval) => total + interval, 0) / intervals.length;
-    const slowFrames = intervals.filter((interval) => interval > 50).length;
-    const result = average > 24 || slowFrames > intervals.length / 3 ? 'reduced' : 'full';
+    const result = evaluateFrameIntervals(intervals);
     stop();
-    try { window.sessionStorage.setItem(FRAME_RESULT_KEY, result); } catch { /* Optional cache. */ }
+    try { window.sessionStorage.setItem(MOTION_IDLE_FRAME_STORAGE_KEY, result); } catch { /* Optional cache. */ }
     onResult(result);
   }
 
@@ -94,15 +117,22 @@ export function MotionProvider({ children }: { readonly children: ReactNode }) {
   // All initial inputs are read synchronously, so ThemeProvider emits the
   // correct data-motion on its very first commit.
   const [preference, setStoredPreference] = useState(readPreference);
-  const [environment] = useState(() => ({
-    reduced: window.matchMedia?.(REDUCED_QUERY),
-    forced: window.matchMedia?.(FORCED_QUERY),
-    capability: detectCapability(),
-    urlOff: new URLSearchParams(window.location.search).get('motion') === 'off',
-  }));
+  const [environment] = useState(() => {
+    const supportsHas = Boolean(window.CSS?.supports?.('selector(:has(*))'));
+    return {
+      reduced: window.matchMedia?.(REDUCED_QUERY),
+      forced: window.matchMedia?.(FORCED_QUERY),
+      supportsHas,
+      supportsViewTransition: typeof document.startViewTransition === 'function',
+      supportsStartingStyle: supportsHas && Boolean(window.CSS?.supports?.('transition-behavior: allow-discrete')),
+      urlOff: new URLSearchParams(window.location.search).get('motion') === 'off',
+      engine: detectBrowserEngine(),
+    };
+  });
   const [systemReduced, setSystemReduced] = useState(environment.reduced?.matches ?? false);
   const [forcedColors, setForcedColors] = useState(environment.forced?.matches ?? false);
-  const [frameResult, setFrameResult] = useState(readFrameResult);
+  const [idleFrameResult, setIdleFrameResult] = useState(readIdleFrameResult);
+  const [inFlightFrameResult, setInFlightFrameResult] = useState(readInFlightFrameResult);
 
   useEffect(() => {
     const reducedChange = () => setSystemReduced(environment.reduced?.matches ?? false);
@@ -117,31 +147,86 @@ export function MotionProvider({ children }: { readonly children: ReactNode }) {
     };
   }, [environment]);
 
+  const capableFull = environment.supportsHas
+    && environment.supportsViewTransition
+    && environment.supportsStartingStyle;
+
   useEffect(() => {
-    if (frameResult !== undefined || environment.capability !== 'full' || environment.urlOff
+    if (idleFrameResult !== undefined || inFlightFrameResult === 'reduced'
+      || !capableFull || environment.urlOff
       || environment.reduced?.matches || environment.forced?.matches
       || typeof window.requestAnimationFrame !== 'function') return;
-    return probeFrameRate(setFrameResult);
-  }, [environment, frameResult]);
+    return probeFrameRate(setIdleFrameResult);
+  }, [capableFull, environment, idleFrameResult, inFlightFrameResult]);
 
-  let level: MotionLevel;
-  // These are hard off conditions. Otherwise manual > system > automatic.
-  if (environment.urlOff || forcedColors || environment.capability === 'off') level = 'off';
-  else if (preference !== 'auto') level = preference;
-  else if (systemReduced || frameResult === 'reduced') level = 'reduced';
-  else level = environment.capability;
+  const { level, reason } = resolveMotionState({
+    urlOff: environment.urlOff,
+    forcedColors,
+    supportsHas: environment.supportsHas,
+    supportsViewTransition: environment.supportsViewTransition,
+    supportsStartingStyle: environment.supportsStartingStyle,
+    preference,
+    systemReduced,
+    idleFrameResult,
+    inFlightFrameResult,
+  });
+
+  const probeStateRef = useRef({ level, preference, inFlightFrameResult });
+  probeStateRef.current = { level, preference, inFlightFrameResult };
+  const activeInFlightRef = useRef<InFlightProbeHandle | undefined>(undefined);
+
+  useEffect(() => {
+    if (level !== 'full' || preference !== 'auto' || inFlightFrameResult !== undefined) {
+      activeInFlightRef.current?.cancel();
+    }
+  }, [level, preference, inFlightFrameResult]);
+
+  useEffect(() => () => {
+    activeInFlightRef.current?.cancel();
+  }, []);
+
+  const observeInFlight = useCallback<ObserveInFlightMotion>((durationMs, options) => {
+    const current = probeStateRef.current;
+    if (current.level !== 'full' || current.preference !== 'auto'
+      || current.inFlightFrameResult !== undefined || activeInFlightRef.current) {
+      return undefined;
+    }
+    let handle: InFlightProbeHandle | undefined;
+    handle = startInFlightFrameProbe({
+      durationMs,
+      deferred: options?.deferred,
+      onComplete(outcome) {
+        if (probeStateRef.current.preference !== 'auto' || probeStateRef.current.level !== 'full') return;
+        try {
+          window.sessionStorage.setItem(
+            MOTION_IN_FLIGHT_FRAME_STORAGE_KEY,
+            serializeInFlightFrameStorage(outcome),
+          );
+        } catch { /* Optional cache. */ }
+        setInFlightFrameResult(outcome);
+      },
+      onStop() {
+        if (activeInFlightRef.current === handle) activeInFlightRef.current = undefined;
+      },
+    });
+    if (handle) activeInFlightRef.current = handle;
+    return handle;
+  }, []);
 
   const value = useMemo<MotionContextValue>(() => ({
     level,
+    reason,
     preference,
+    engine: environment.engine,
+    observeInFlight,
     setPreference(next) {
       try {
-        if (next === 'auto') window.localStorage.removeItem(PREFERENCE_KEY);
-        else window.localStorage.setItem(PREFERENCE_KEY, next);
+        if (next === 'auto') window.localStorage.removeItem(MOTION_PREFERENCE_STORAGE_KEY);
+        else window.localStorage.setItem(MOTION_PREFERENCE_STORAGE_KEY, next);
       } catch { /* Keep the explicit choice in memory until this window closes. */ }
       setStoredPreference(next);
     },
-  }), [level, preference]);
+  }), [level, reason, preference, environment.engine, observeInFlight]);
 
   return <MotionContext.Provider value={value}>{children}</MotionContext.Provider>;
 }
@@ -149,6 +234,10 @@ export function MotionProvider({ children }: { readonly children: ReactNode }) {
 /** Standalone theme/visual fixtures without a provider stay motionless. */
 export function useMotionLevel(): MotionLevel {
   return useContext(MotionContext)?.level ?? 'off';
+}
+
+export function useMotionInFlightObserver(): ObserveInFlightMotion | undefined {
+  return useContext(MotionContext)?.observeInFlight;
 }
 
 export function useMotion(): MotionContextValue {

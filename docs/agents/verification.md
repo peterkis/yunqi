@@ -78,6 +78,7 @@ Windows Redocly `UV_HANDLE_CLOSING`可在保留原失败后单独复查lint/chec
 
 提交前核对报告链接实际存在、关键证据未被.gitignore遗漏；旧Temp-only记录不能当作可移植仓库证据。
 证据按新目录追加，原始Word、规格包、旧规则/冻结文件及历史记录保持原样。
+后续卡片的证据默认只提交诊断摘要，大体积诊断文件与录屏放 `.artifacts/`（已在 `.gitignore` 中忽略）；仓库内既有 `*-diagnostics.json` 保留不动。
 只在有新变化、失败或未解决问题时扩大/重复验证。
 
 ## Git与远端

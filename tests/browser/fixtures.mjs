@@ -4,13 +4,21 @@ import AxeBuilder from '@axe-core/playwright';
 export const test = base.extend({
   acceptanceTheme: ['light', { option: true }],
   motionMode: ['full', { option: true }],
-  page: async ({ page, motionMode }, use) => {
+  inFlightProbe: [false, { option: true }],
+  page: async ({ page, motionMode, inFlightProbe }, use) => {
     await page.emulateMedia({ reducedMotion: motionMode === 'reduced' ? 'reduce' : 'no-preference' });
-    await page.addInitScript(({ mode }) => {
+    await page.addInitScript(({ mode, sampleInFlight }) => {
       // Frame-rate behavior is tested with fake timestamps in unit tests.
       // Reuse a successful session sample so host load cannot change the
       // selected browser matrix halfway through a functional flow.
       sessionStorage.setItem('yunqi-motion-frame-rate', 'full');
+      sessionStorage.setItem('yunqi-motion-frame-in-flight', 'full');
+      if (sampleInFlight) {
+        // The CPU case owns this opt-in. Clear before the provider reads its
+        // initial cache; clearing only after load would leave memory cached.
+        sessionStorage.removeItem('yunqi-motion-frame-in-flight');
+        sessionStorage.setItem('yunqi-wheel-drawn', 'true');
+      }
       if (mode === 'off') {
         const url = new URL(location.href);
         url.searchParams.set('motion', 'off');
@@ -20,7 +28,7 @@ export const test = base.extend({
         delete document.startViewTransition;
         delete Document.prototype.startViewTransition;
       }
-    }, { mode: motionMode });
+    }, { mode: motionMode, sampleInFlight: inFlightProbe });
     await use(page);
   },
   baseURL: async ({}, use) => {

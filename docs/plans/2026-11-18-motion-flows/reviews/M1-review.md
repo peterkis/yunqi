@@ -11,5 +11,5 @@
 
 ## 人工核对（评审方，2026-11-19，本机 Apple Silicon + Playwright Chromium）
 
-- **GIF**：full 档录制切 tab、下钻返回、作答（前 5 题慢放）、结果揭示、收起展开、切主题，见 `evidence/media/M1-full-walkthrough.gif`（320 宽，12fps）。
+- **GIF**：full 档录制切 tab、下钻返回、作答（前 5 题慢放）、结果揭示、收起展开、切主题；原仓库文件 `evidence/media/M1-full-walkthrough.gif` 已移出版本库，现存于 PR #26 评论附件：https://github.com/peterkis/yunqi/pull/26#issuecomment-6998127322，SHA-256 `e631304cdddbe7c23b2726c51c482c6f9a9866fcd9fef7386b9896037601112e`，大小 4.2MB（320 宽，12fps）。
 - **6× CPU 降速**：空闲首屏帧率探测结果仍为 `full`（降速后空闲页仍约 60fps，未触发降档阈值）。在 6× 下测量过渡期间 40 帧：切 tab 平均 18.3 / 19.6ms，主题 17.1ms，下钻 17.9ms；每次路由提交有 1 帧 67–133ms 长帧，其余无持续掉帧，未见明显卡顿。结论：本机 6× 不足以触发自动降档；真实 RDP / 老旧 PC 上的降档效果仍需院内环境验证（NOT_RUN）。

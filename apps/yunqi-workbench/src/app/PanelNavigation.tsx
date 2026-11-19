@@ -1,6 +1,7 @@
 import { useContext, useLayoutEffect, useMemo, useRef, type ReactNode } from 'react';
 import { UNSAFE_NavigationContext, parsePath, useLocation, type To } from 'react-router-dom';
-import { useMotionLevel } from '../providers/MotionProvider';
+import { motionMilliseconds } from '../lib/motion';
+import { useMotionInFlightObserver, useMotionLevel } from '../providers/MotionProvider';
 import { updateWithViewTransition } from './navigation-transition';
 import { getPanelRoute, navigationItems } from './routes';
 
@@ -48,6 +49,7 @@ export function PanelNavigation({ children }: { readonly children: ReactNode }) 
   const navigation = useContext(UNSAFE_NavigationContext);
   const location = useLocation();
   const level = useMotionLevel();
+  const observeInFlight = useMotionInFlightObserver();
   const visits = useRef(new Map<string, Visit>());
   const previous = useRef(location);
   const arrival = useRef<Arrival | undefined>(undefined);
@@ -86,13 +88,19 @@ export function PanelNavigation({ children }: { readonly children: ReactNode }) 
       const toIndex = navigationItems.findIndex(item => item.to === target.id);
       document.documentElement.dataset.navigationDirection = returning || (fromIndex >= 0 && toIndex >= 0 && toIndex < fromIndex) ? 'backward' : 'forward';
       document.documentElement.dataset.viewTransition = level === 'full' && typeof document.startViewTransition === 'function' ? 'navigation' : 'navigation-fallback';
-      updateWithViewTransition(() => navigation.navigator[method](to, state, options), level);
+      updateWithViewTransition(
+        () => navigation.navigator[method](to, state, options),
+        level,
+        observeInFlight ? {
+          onStart: () => observeInFlight(motionMilliseconds(document.documentElement, '--motion-base') || 180, { deferred: true }),
+        } : undefined,
+      );
     }
     return { ...navigation.navigator,
       push: (to, state, options) => change('push', to, state, options),
       replace: (to, state, options) => change('replace', to, state, options),
     };
-  }, [navigation, location, level]);
+  }, [navigation, location, level, observeInFlight]);
 
   useLayoutEffect(() => {
     const from = getPanelRoute(previous.current.pathname);
