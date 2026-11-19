@@ -93,4 +93,4 @@
 - 评审调整：`formatMotionStatus` 手动选择时前缀“已手动选择”，避免“自动跟随…（原因：手动选择）”自相矛盾。
 - 浏览器全量 `pnpm test:browser`：438 passed（列举 441，20× CPU 用例仅在 flows-chromium 运行）。20× CPU 软断言通过：切 tab 后降为 reduced，原因 frame-in-flight。
 - 1× 误降档抽查：清除动中测与年轮首绘标记后新会话打开当下运气 5 次，均记 `full`（本机 Apple Silicon，不代表院内设备）。
-- 院内现场验证（第 6 项）仍 NOT_RUN；GIF 外部存放位置待用户确定。
+- 院内现场验证（第 6 项）仍 NOT_RUN。GIF 已由用户上传至 PR #26 评论附件（https://github.com/peterkis/yunqi/pull/26#issuecomment-6998127322），见 `M1-review.md`。
