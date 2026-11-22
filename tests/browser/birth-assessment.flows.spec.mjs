@@ -254,7 +254,7 @@ test('birth inputs enforce required time, block repeated pending activation and 
   const date = page.getByRole('textbox', { name: '年', exact: true });
   await fillBirthDate(page, '1990-05-12');
   await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
-  const time = page.getByLabel('出生时刻（北京时间）');
+  const time = page.getByLabel('出生时刻', { exact: true });
   await page.getByRole('button', { name: '查看对照', exact: true }).click();
   await expect(time).toBeFocused();
   await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');

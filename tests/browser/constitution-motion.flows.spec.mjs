@@ -34,7 +34,7 @@ async function observeResult(page) {
           end: Number(animation.effect.getComputedTiming().endTime),
           frames: animation.effect.getKeyframes(),
         })),
-        ticks: [...result.querySelectorAll('.constitution-bar-tick')].map(tick => ({ transform: getComputedStyle(tick).transform, animations: tick.getAnimations().length })),
+        guides: [...result.querySelectorAll('.constitution-chart-guide')].map(guide => ({ transform: getComputedStyle(guide).transform, animations: guide.getAnimations().length })),
         labels: [...result.querySelectorAll('.constitution-bar-label')].map(label => label.textContent),
       };
       // The explicit submit replaces the complete view and its shell header.
@@ -62,7 +62,7 @@ async function expectReveal(page, motionMode, testInfo, name) {
   expect(Number.isFinite(sample.paintBoundary)).toBe(true);
   expect(sample.shifts.filter(shift => shift.start >= sample.paintBoundary).reduce((total, shift) => total + shift.value, 0), 'No layout shift after result entry paint, including input-associated shifts').toBe(0);
   expect(sample.reveal.labels).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
-  expect(sample.reveal.ticks).toEqual(Array(18).fill({ transform: 'none', animations: 0 }));
+  expect(sample.reveal.guides).toEqual(Array(2).fill({ transform: 'none', animations: 0 }));
   const animations = sample.reveal.animations;
   expect(Math.max(0, ...animations.map(animation => animation.end))).toBeLessThanOrEqual(motionMode === 'full' ? 400 : motionMode === 'off' ? 0 : 120);
   if (motionMode === 'full') {
@@ -123,7 +123,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
         await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
         await activate(page, page.getByRole('link', { name: tab, exact: true }), input);
         await expect(page).toHaveURL(new RegExp(`${path}(?:\\?motion=off)?$`));
-        await expect(form.locator('.constitution-position')).toHaveText('2 / 26');
+        await expect(form.locator('.constitution-position')).toHaveText('已答 2 / 26');
         // Tab navigation intentionally focuses main. Re-enter the retained
         // question before continuing its local numeric shortcuts.
         if (input === 'keyboard') {

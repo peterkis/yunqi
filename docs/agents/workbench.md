@@ -6,7 +6,7 @@
 ## 依赖和导入
 
 运行时白名单仅有 `@tanstack/react-query`、`@yunqi/client`、`@yunqi/contracts`、
-`react`、`react-dom`、`react-router-dom`；router必须精确锁定7.18.1。
+`react`、`react-dom`、`react-router-dom` 和 `lenis`。Router 精确锁定 7.18.1，Lenis 精确锁定 1.3.27，仅用于工作台滚轮动效。
 白名单同时覆盖dependencies、optionalDependencies、peerDependencies；devDependencies只放开发/测试工具，
 不得通过把运行时包列入devDependencies绕过源码检查。
 

@@ -86,20 +86,28 @@
 .current-period-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--current-hairline) minmax(0, 1fr);
-  column-gap: var(--space-3_5);
+  column-gap: var(--space-1_5);
   row-gap: var(--space-2);
   align-items: start;
 }
-/* Both semantic columns participate in the SAME seven grid rows. */
+/* Both semantic columns participate in the same six grid rows. */
 .current-period-column { display: contents; }
 .current-period-grid__divider {
   grid-column: 2;
-  grid-row: 1 / 8;
+  grid-row: 1 / 7;
   align-self: stretch;
   background: var(--border-subtle);
 }
-.current-period-cell { min-width: 0; }
+.current-period-cell { min-width: 0; text-align: center; }
+.current-period-cell--title {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  align-self: stretch;
+  align-items: start;
+  gap: var(--space-0_5);
+}
 .current-period-cell--title h3 {
+  justify-self: start;
   margin: 0;
   font-family: var(--font-serif);
   font-size: var(--ts-title);
@@ -113,10 +121,22 @@
   line-height: var(--type-meta-line);
 }
 .current-period-cell--remaining {
-  margin-top: calc(-1 * var(--space-1_5));
-  color: var(--ink-secondary);
+  display: grid;
+  align-content: center;
+  align-self: stretch;
+  justify-self: end;
+  word-break: keep-all;
+  max-width: 100%;
+  padding: var(--space-0_5) var(--space-1);
+  border-radius: var(--radius-full);
+  background: var(--accent-subtle);
+  color: var(--ink-primary);
 }
-.current-period-cell--value { display: flex; flex-direction: column; gap: var(--space-0_5); }
+@container workbench (width < 400px) {
+  .current-period-card { padding-inline: var(--space-3); }
+  .current-period-cell--title h3 { font-size: var(--ts-quote); }
+}
+.current-period-cell--value { display: flex; flex-direction: column; align-items: center; gap: var(--space-0_5); }
 .current-period-cell--host { padding-top: var(--space-1); }
 .current-period-cell--relation { padding-top: var(--space-1); }
 .current-period-cell--explanation { margin-top: calc(-1 * var(--space-0_5)); }

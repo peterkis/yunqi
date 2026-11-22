@@ -43,7 +43,10 @@ describe('PanelShell', () => {
     if (route !== '/') expect(within(nav).getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('main', { name: label })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: '跳至主要内容' })).toHaveAttribute('href', '#workbench-content');
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
+    const footer = screen.getByRole('contentinfo');
+    expect(footer.querySelector('.panel-shell__credit')).toHaveTextContent('中医科 × 信息管理部');
+    expect(within(footer).getByText('联合研发')).toBeVisible();
+    expect(within(footer).getByText('© 2026')).toBeVisible();
     expect(document.title).toBe(`${label} · 运气通`);
   });
 

@@ -222,7 +222,7 @@ export async function expectCompactTimes(page) {
     return {
       text: text.join(' '),
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
-        dateTime: time.getAttribute('datetime'), text: time.textContent,
+        dateTime: time.getAttribute('datetime'), text: time.textContent, birthCurrent: !!time.closest('.birth-table__time'),
       })),
     };
   });
@@ -230,7 +230,8 @@ export async function expectCompactTimes(page) {
   expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
   for (const time of snapshot.times) {
     expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);
-    expect(time.text).toBe(time.dateTime.slice(5, 16).replace('T', ' '));
+    const [month, day, clock] = time.dateTime.slice(5, 16).split(/[-T]/);
+    expect(time.text).toBe(time.birthCurrent ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
   }
 }
 

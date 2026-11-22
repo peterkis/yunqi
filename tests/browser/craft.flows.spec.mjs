@@ -64,7 +64,25 @@ for (const theme of ['light', 'dark']) {
     await expect(page.locator('body')).toHaveClass('workbench-dev-host');
     await expect(page.locator('body')).toHaveCSS('background-color', rgb(surface('surface-sunken').light));
     await expect(page.locator('.panel-viewport')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
-    await expect(page.locator('.panel-shell')).toHaveCSS('background-color', rgb(surface('surface-page')[theme]));
+    const panel = page.locator('.panel-shell');
+    const card = panel.locator('.current-overview__annual .ds-info-card');
+    await expect(panel).toHaveCSS('background-color', rgb(theme === 'light' ? '#f6f7f3' : '#131815'));
+    await expect(panel).toHaveCSS('background-image', /radial-gradient.*radial-gradient.*radial-gradient/);
+    await expect(card).toHaveCSS('background-image', 'none');
+    await expect(card).toHaveCSS('border-color', 'rgba(0, 0, 0, 0)');
+    await expect(card).not.toHaveCSS('box-shadow', 'none');
+    const main = page.getByRole('main');
+    await expect(main).toHaveCSS('background-image', 'none');
+    const bounds = await panel.boundingBox();
+    const scrollTop = await main.evaluate(node => {
+      const before = node.scrollTop;
+      node.scrollTop = node.scrollHeight;
+      const atBottom = node.scrollTop;
+      node.scrollTop = before;
+      return atBottom;
+    });
+    expect(scrollTop).toBeGreaterThan(0);
+    expect(await panel.boundingBox()).toEqual(bounds);
     await expectTransitionDuration(page, page.locator('.panel-shell'));
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', motionMode === 'off' ? 'off' : 'full');
@@ -129,3 +147,29 @@ for (const theme of ['light', 'dark']) {
     await expect(summary).toHaveCSS('outline-offset', '2px');
   });
 }
+
+test('jade surface falls back to a plain canvas when higher contrast is requested', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 780 });
+  await loadCurrent(page);
+  const panel = page.locator('.panel-shell');
+  const card = panel.locator('.current-overview__annual .ds-info-card');
+  await expect(panel).toHaveCSS('width', '360px');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(360);
+  const scroller = page.getByRole('main');
+  for (const theme of ['light', 'dark']) {
+    if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
+    await expect(scroller).toHaveCSS('scrollbar-width', 'thin');
+    await expect(scroller).not.toHaveCSS('scrollbar-color', 'auto');
+    for (const media of [{ contrast: 'more' }, { contrast: 'no-preference', forcedColors: 'active' }]) {
+      await page.emulateMedia(media);
+      await expect(panel).toHaveCSS('background-image', 'none');
+      await expect(scroller).toHaveCSS('scrollbar-width', 'auto');
+      await expect(scroller).toHaveCSS('scrollbar-color', 'auto');
+      await expect(card).toHaveCSS('box-shadow', 'none');
+      await expect(card).not.toHaveCSS('border-color', 'rgba(0, 0, 0, 0)');
+      await expect(panel.getByRole('button', { name: '收起为胶囊条' })).toBeVisible();
+    }
+    await page.emulateMedia({ contrast: 'no-preference', forcedColors: 'none' });
+    await expect(panel).toHaveCSS('background-image', /radial-gradient/);
+  }
+});

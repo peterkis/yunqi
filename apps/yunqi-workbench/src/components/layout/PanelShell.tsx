@@ -4,7 +4,7 @@ import { getPanelRoute, navigationItems } from '../../app/routes';
 import { PanelNavigation } from '../../app/PanelNavigation';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { useTheme } from '../../providers/ThemeProvider';
-import { useMotionLevel } from '../../providers/MotionProvider';
+import { useMotionLevel, useMotionPreference } from '../../providers/MotionProvider';
 import { motionMilliseconds } from '../../lib/motion';
 import { Button } from '../design/Button';
 import { InlineText } from '../design/InlineText';
@@ -35,6 +35,7 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   const route = getPanelRoute(pathname);
   const { theme, toggleTheme } = useTheme();
   const level = useMotionLevel();
+  const manualStandard = useMotionPreference() === 'full';
   const [phase, setPhase] = useState<'expanded' | 'collapsing' | 'collapsed' | 'pill-exit' | 'expanding'>('expanded');
   const collapsed = phase === 'collapsed' || phase === 'pill-exit';
   const shellRef = useRef<HTMLDivElement>(null);
@@ -46,6 +47,17 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const wasCollapsed = useRef(false);
+
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    if (!main || level !== 'full' || phase !== 'expanded') return;
+    let disposed = false;
+    let detach: (() => void) | undefined;
+    void import('../../lib/panel-wheel-scroll').then(({ attachPanelWheelScroll }) => {
+      if (!disposed) detach = attachPanelWheelScroll(main, { manualStandard });
+    }, () => { /* A missing optional motion chunk leaves native scrolling in place. */ });
+    return () => { disposed = true; detach?.(); };
+  }, [level, manualStandard, phase, pathname]);
 
   // Timers advance state even without CSS/WAAPI/events. A live switch to off
   // completes an outstanding exit synchronously in the layout commit.
@@ -107,7 +119,7 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </button>
         )}
         {/* Keep the route mounted so collapsing cannot destroy local form state. */}
-        <div className="panel-shell" id="yunqi-panel" ref={shellRef} hidden={collapsed}>
+        <div className="panel-shell jade-surface" id="yunqi-panel" ref={shellRef} hidden={collapsed}>
           <a className="panel-shell__skip-link" href="#workbench-content" onClick={() => mainRef.current?.focus()}>跳至主要内容</a>
           <PanelHeader title="运气通" status="教学参考 · 本次会话不关联患者" actions={<>
             <Button variant="icon" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
@@ -135,7 +147,11 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={title}>{children}</main>
           {viewActions && <div className="panel-shell__actions">{viewActions}</div>}
-          <footer className="panel-shell__footer"><InlineText>五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</InlineText></footer>
+          <footer className="panel-shell__footer">
+            <span className="panel-shell__credit">中医科 <span aria-hidden="true">×</span> 信息管理部</span>
+            <span>联合研发</span>
+            <span className="num">© 2026</span>
+          </footer>
         </div>
       </div>
     </PanelViewContext.Provider>

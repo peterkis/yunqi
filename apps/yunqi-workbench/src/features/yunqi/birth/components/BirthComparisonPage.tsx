@@ -149,20 +149,21 @@ export function BirthComparisonPage() {
             <legend className="visually-hidden">出生资料</legend>
             <div className="birth-input__fields">
               <DateField key={dateRevision} ref={dateInput} label="出生日期（公历）" value={birthDate} required onInvalid={invalid}
-                onChange={(value) => { setBirthDate(value); edited(); }} describedBy="birth-input-note" />
+                onChange={(value) => { setBirthDate(value); edited(); }} />
               <div className="birth-input__known-time">
                 <SegmentedControl label="出生时刻是否已知" compact value={knowsTime ? 'known' : 'unknown'}
+                  describedBy={knowsTime ? undefined : 'birth-input-note'}
                   segments={[{ value: 'unknown', label: '时刻不详' }, { value: 'known', label: '已知时刻' }]}
                   onChange={(value) => { setKnowsTime(value === 'known'); edited(); }} />
               </div>
               {knowsTime ? (
                 <label>
-                  出生时刻（北京时间）
+                  出生时刻
                   <input className="num" type="time" step="1" value={birthTime} required onInvalid={invalid} onChange={(event) => { setBirthTime(event.target.value); edited(); }} />
                 </label>
               ) : null}
             </div>
-            <p id="birth-input-note" className="birth-note">手动填写，按北京时间 UTC+08 展示；时刻不详时保留当天所有可能归属。</p>
+            {!knowsTime && <p id="birth-input-note" className="birth-note">保留当天所有可能归属</p>}
             <div className="birth-input__actions">
               <Button variant="text" onClick={clear}>清空本次资料</Button>
             </div>

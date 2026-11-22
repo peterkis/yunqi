@@ -38,7 +38,7 @@ describe('BirthComparisonPage', () => {
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     expect(client.compareBirth).not.toHaveBeenCalled();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
-    expect(screen.queryByLabelText('出生时刻（北京时间）')).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('出生时刻', { exact: true })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: '查看对照' })).toHaveClass('ds-button--primary');
     expect(screen.getByRole('button', { name: '查看对照' })).toHaveAttribute('form', screen.getByRole('form', { name: '出生运气输入' }).id);
     expect(screen.getByRole('button', { name: '查看对照' }).closest('.panel-shell__actions')).not.toBeNull();
@@ -64,7 +64,8 @@ describe('BirthComparisonPage', () => {
     expect(result.querySelector('.birth-candidate-interval')).toBeNull();
     expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();
     expect(result.querySelector('.birth-table__time time')).toHaveAttribute('datetime', createBirthComparisonDto().current.facts.input.localTime);
-    expect(result.querySelector('.birth-table__time time')).toHaveTextContent('06-19 12:00');
+    expect(result.querySelector('.birth-table__time time')).toHaveTextContent('06月19日 12:00');
+    expect(result.querySelector('.birth-table__time')).not.toHaveTextContent('北京时间 UTC+08');
     expect(table.querySelector('time, .num')).toBeNull();
     expect(result.querySelector('.birth-table__years')).toHaveTextContent(`运气年：先天 ${createBirthComparisonDto().candidates[0].learning.facts.year}`);
     expect(result.querySelector('.birth-current-time')).toBeNull();
@@ -93,10 +94,10 @@ describe('BirthComparisonPage', () => {
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
-    fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30' } });
+    fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30' } });
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     expect(screen.getByRole('textbox', { name: '年' })).toBeDisabled();
-    expect(screen.getByLabelText('出生时刻（北京时间）')).toBeDisabled();
+    expect(screen.getByLabelText('出生时刻', { exact: true })).toBeDisabled();
     expect(screen.getByRole('button', { name: '清空本次资料' })).toBeDisabled();
     expect(screen.getByRole('button', { name: '正在对照…' })).toBeDisabled();
     fireEvent.submit(screen.getByRole('form', { name: '出生运气输入' }));
@@ -144,7 +145,7 @@ describe('BirthComparisonPage', () => {
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     expect(screen.getByRole('alert')).toBeVisible();
     expect(client.compareBirth).not.toHaveBeenCalled();
-    fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30:21' } });
+    fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30:21' } });
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-05-12', birthTime: '09:30:21' });

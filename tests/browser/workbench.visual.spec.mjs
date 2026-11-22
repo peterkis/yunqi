@@ -318,7 +318,7 @@ for (const state of cases) {
         for (const height of options) expect(height).toBeGreaterThanOrEqual(40);
         await page.getByRole('radiogroup').getByRole('radio').first().focus();
         await page.keyboard.press('ArrowDown');
-        await expect(page.locator('.constitution-position')).toHaveText('5 / 26');
+        await expect(page.locator('.constitution-position')).toHaveText('已答 5 / 26');
         await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 5 题/);
         const focusedOption = page.getByRole('radiogroup').getByRole('radio').nth(1);
         await expect(focusedOption).toHaveCSS('outline-width', '2px');

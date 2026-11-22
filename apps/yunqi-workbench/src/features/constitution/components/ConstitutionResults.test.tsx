@@ -8,7 +8,7 @@ import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionC
 import { ConstitutionResults } from './ConstitutionResults';
 
 describe('constitution result and snapshot', () => {
-  it('retains coexisting types and candidates, with neutral matches, favorable tendencies and original API explanations', async () => {
+  it('retains coexisting types and candidates, with grouped matches, tendencies and original API explanations', async () => {
     const user = userEvent.setup();
     const birth = mapBirthComparison(createBirthComparisonDto());
     const comparison = { ...birth, ambiguous: true, candidates: [...birth.candidates, { ...birth.candidates[0], label: '候选二' }] };
@@ -19,6 +19,7 @@ describe('constitution result and snapshot', () => {
     render(<><ConstitutionContext context={context} /><ConstitutionContextDetails context={context} /><ConstitutionResults assessment={assessment} context={context} /></>);
     const result = screen.getByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '偏颇质兼夹' })).toHaveFocus();
+    expect(within(result).getByRole('group', { name: '符合判定的体质' })).not.toHaveTextContent('兼夹');
     expect([...result.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['气虚质', '阳虚质']);
     expect([...result.querySelectorAll('.constitution-tendency-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阴虚 倾向', '痰湿 倾向']);
     expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(2);
@@ -33,8 +34,8 @@ describe('constitution result and snapshot', () => {
       expect(chart).toBeVisible();
       expect(within(chart.closest('li')!).getByText(item.displayScore)).toHaveClass('num');
       expect(chart.closest('li')?.children).toHaveLength(3);
-      expect(chart.querySelectorAll('.constitution-bar-tick')).toHaveLength(2);
     }
+    expect(result.querySelectorAll('.constitution-chart-guide')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="primary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="secondary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);

@@ -1,0 +1,83 @@
+/* The shell and nested reading panes keep their native scrolling and input.
+   Higher contrast settings use the platform's scrollbar colors and size. */
+@media (forced-colors: none) and (prefers-contrast: no-preference) {
+  :root, .theme-root {
+    scrollbar-color: var(--ink-tertiary) transparent;
+    scrollbar-color: color-mix(in srgb, var(--accent) 70%, var(--surface-page)) transparent;
+  }
+  :where(:root, .theme-root, .theme-root *) { scrollbar-width: thin; }
+}
+
+/* Local Workbench extension: docs/design/README.md#青玉环境光背景 */
+.jade-surface {
+  --jade-canvas: #f6f7f3;
+  --jade-glow-top: rgba(187, 217, 201, 0.38);
+  --jade-glow-mid: rgba(220, 233, 223, 0.48);
+  --jade-glow-low: rgba(207, 230, 218, 0.31);
+  --jade-card-color: var(--surface-card);
+  --jade-card-shadow: 0 12px 36px rgba(34, 72, 58, 0.055), 0 2px 8px rgba(34, 72, 58, 0.025);
+  --jade-card-edge: transparent;
+  --jade-segment-track: rgba(46, 91, 79, 0.10);
+  --jade-segment-selected: var(--surface-card);
+
+  /* Paint the viewport-sized surface itself. The nested main scrolls while
+     this background stays continuous from the header through the footer. */
+  background-color: var(--jade-canvas);
+  background-image:
+    radial-gradient(ellipse 112% 46% at 99% 5%, var(--jade-glow-top), transparent 78%),
+    radial-gradient(ellipse 124% 56% at -11% 43%, var(--jade-glow-mid), transparent 82%),
+    radial-gradient(ellipse 108% 38% at 95% 80%, var(--jade-glow-low), transparent 85%);
+}
+
+/* Keep theme specificity equal to the base so contrast preferences win. */
+:where([data-theme="dark"]) .jade-surface {
+  --jade-canvas: #131815;
+  --jade-glow-top: rgba(51, 92, 76, 0.22);
+  --jade-glow-mid: rgba(44, 68, 54, 0.20);
+  --jade-glow-low: rgba(45, 88, 71, 0.14);
+  --jade-card-color: #202622;
+  --jade-segment-track: rgba(127, 179, 162, 0.14);
+  --jade-segment-selected: var(--accent-muted);
+  --jade-card-shadow: 0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+.jade-surface > .ds-panel-header,
+.jade-surface .panel-shell__drilldown > .ds-panel-header {
+  background-color: transparent;
+}
+
+.jade-surface :is(.jade-card, .ds-info-card, .birth-card, .constitution-card, .constitution-context, .classics-card) {
+  /* Keep the existing border slot so card geometry and focus rings stay put. */
+  border-color: var(--jade-card-edge);
+  background-color: var(--jade-card-color);
+  box-shadow: var(--jade-card-shadow);
+}
+
+.jade-surface .jade-card {
+  border: calc(var(--space-0_5) / 2) solid var(--jade-card-edge);
+  border-radius: var(--radius-lg);
+}
+
+.jade-surface .motion-segments { background-color: var(--jade-segment-track); }
+.jade-surface .motion-segment-indicator,
+.jade-surface .motion-segments:not([data-indicator-ready="true"]) > :is([aria-current="page"], [aria-checked="true"], [aria-pressed="true"]) {
+  background-color: var(--jade-segment-selected);
+}
+
+@media (prefers-contrast: more), (forced-colors: active) {
+  .jade-surface {
+    --jade-card-edge: var(--border-strong);
+    --jade-card-shadow: none;
+    --jade-segment-track: var(--surface-sunken);
+    background-image: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .jade-surface .motion-segments > :is([aria-current="page"], [aria-checked="true"], [aria-pressed="true"]) { text-decoration: underline; }
+  .jade-surface {
+    --jade-canvas: Canvas;
+    --jade-card-color: Canvas;
+    --jade-card-edge: CanvasText;
+  }
+}

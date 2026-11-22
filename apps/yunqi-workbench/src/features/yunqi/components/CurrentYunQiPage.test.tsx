@@ -22,20 +22,22 @@ function renderPage() {
 }
 
 describe('CurrentYunQiPage', () => {
-  it('places the fourteen period cells in one shared grid with seven explicit paired rows', () => {
+  it('aligns the two periods and nests the remaining-time labels in their titles', () => {
     const { learning } = renderPage();
     const qi = screen.getByRole('region', { name: '当步气' });
     const movement = screen.getByRole('region', { name: '当步运' });
     const grid = document.querySelector('.current-period-grid')!;
     const columns = [
-      { region: qi, column: 1, text: ['三之气', '小满 → 大暑', '还有 34 天', `主气${learning.facts.currentStep.hostQi}`, `客气${learning.facts.currentStep.guestQi}`, '相得', '客生主'] },
-      { region: movement, column: 3, text: ['二之运', '春分后13日 → 芒种后10日', '还有 34 天', '主运火运太过', '客运木运不及', '相得\u202f·\u202f客生主', '客木生主火'] },
+      { region: qi, column: 1, title: '三之气', text: ['小满 → 大暑', `主气${learning.facts.currentStep.hostQi}`, `客气${learning.facts.currentStep.guestQi}`, '相得', '客生主'] },
+      { region: movement, column: 3, title: '二之运', text: ['春分后13日 → 芒种后10日', '主运火运太过', '客运木运不及', '相得\u202f·\u202f客生主', '客木生主火'] },
     ];
-    expect(grid.querySelectorAll('.current-period-cell')).toHaveLength(14);
-    for (const { region, column, text } of columns) {
+    expect(grid.querySelectorAll('.current-period-cell')).toHaveLength(12);
+    for (const { region, column, title, text } of columns) {
       expect(region.parentElement).toBe(grid);
       const cells = [...region.querySelectorAll('.current-period-cell')];
-      expect(cells.map((cell) => cell.textContent)).toEqual(text);
+      expect(cells[0].querySelector('h3')).toHaveTextContent(title);
+      expect(cells[0].querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
+      expect(cells.slice(1).map((cell) => cell.textContent)).toEqual(text);
       for (const [index, cell] of cells.entries()) {
         expect(cell).toHaveStyle({ gridColumn: `${column}`, gridRow: `${index + 1}` });
       }
@@ -61,7 +63,7 @@ describe('CurrentYunQiPage', () => {
     expect(more.querySelector('.current-technical')).not.toHaveAttribute('open');
   });
 
-  it('uses book-title source rows with decorative external icons and leaves the teaching notice to the footer', async () => {
+  it('uses book-title source rows and keeps the teaching notice in calculation details', async () => {
     const user = userEvent.setup();
     const learning = mapLearning(createLearningDto());
     render(<ThemeProvider><PanelShell>
@@ -81,7 +83,7 @@ describe('CurrentYunQiPage', () => {
     }
     expect(disclosure.querySelector('ul, li')).toBeNull();
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
-    expect(screen.getByRole('contentinfo').textContent?.match(/教学口径，待专家确认/g)).toHaveLength(1);
+    expect(screen.getByText('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据')).toBeInTheDocument();
   });
 
   it('shows the movement DTO relation with the same chip as qi and no placeholder', () => {

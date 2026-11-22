@@ -39,3 +39,40 @@
 .learning-text-link { color: var(--accent); text-decoration: none; }
 .learning-text-link:hover,
 .learning-text-link:focus-visible { text-decoration: underline; }
+
+.relation-reading-summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  min-height: var(--control-height);
+  padding: var(--space-1_5) var(--space-3_5);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-strong-weight);
+  list-style: none;
+  cursor: pointer;
+}
+.relation-reading-summary::-webkit-details-marker { display: none; }
+.relation-reading-summary svg {
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.relation-reading-summary__chevron { margin-inline-start: auto; }
+details[open] > .relation-reading-summary .relation-reading-summary__chevron { transform: rotate(180deg); }
+@media (hover: hover) {
+  .relation-reading-summary:hover { background: var(--accent-muted); color: var(--accent-hover); }
+}
+@media (forced-colors: active) {
+  .relation-reading-summary { border: var(--panel-hairline) solid ButtonText; }
+}

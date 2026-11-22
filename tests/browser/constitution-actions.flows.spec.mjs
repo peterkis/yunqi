@@ -12,6 +12,32 @@ const profiles = [
   { count: 7, title: '偏颇质兼夹', values: [1, 2, 2, 3, 5, 4, 3, 2, 5, 5, 4, 2, 3, 5, 3, 1, 5, 3, 3, 4, 1, 4, 5, 4, 4, 3] },
 ];
 
+test('constitution progress shows answered questions and keeps current dimensions in the grid', async ({ page }) => {
+  await page.goto('/yunqi/constitution');
+  await page.getByRole('radio', { name: '女', exact: true }).click();
+  const heading = page.locator('.constitution-question-title');
+  await expect(heading).toHaveText('您精力充沛吗？');
+  await page.keyboard.press('1');
+  await expect(heading).toHaveText('您容易疲乏吗？');
+  await page.keyboard.press('2');
+  await expect(heading).toHaveText('您感到闷闷不乐、情绪低沉吗？');
+  const progress = page.locator('.constitution-dimensions');
+  await expect(progress.getByRole('img', { name: '气虚质：1/3', exact: true })).toBeVisible();
+  await expect(progress.getByRole('img', { name: '气郁质：0/3，当前题所属维度', exact: true })).toBeVisible();
+  await page.keyboard.press('3');
+  await expect(heading).toContainText('您比一般人耐受不了寒冷');
+  await expect(progress.getByRole('img', { name: '平和质：3/4，当前题所属维度', exact: true })).toBeVisible();
+  await expect(progress.getByRole('img', { name: '气郁质：1/3', exact: true })).toBeVisible();
+  await expect(progress.getByRole('img', { name: '阳虚质：0/3，当前题所属维度', exact: true })).toBeVisible();
+  await expect(progress.locator('.constitution-position')).toHaveText('已答 3 / 26');
+  await expect(progress.locator('.constitution-progress-note')).toHaveCount(0);
+  await expect(progress.locator('.constitution-position')).toHaveAccessibleName('已答 3 / 26 题，当前第 4 题');
+  await page.getByRole('button', { name: '上一题', exact: true }).click();
+  await expect(progress.locator('.constitution-position')).toHaveAccessibleName('已答 3 / 26 题，当前第 3 题');
+  await expect(progress.locator('.constitution-position')).toHaveText('已答 3 / 26');
+  await expect(progress.getByRole('img', { name: '阳虚质：0/3', exact: true })).toBeVisible();
+});
+
 for (const theme of ['light', 'dark']) {
   test(`constitution F4: ${theme} question announcement has no outline and Tab keeps option rings`, async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
@@ -39,7 +65,7 @@ for (const theme of ['light', 'dark']) {
     await page.keyboard.press('ArrowDown');
     await expect(page.getByRole('radio', { name: '3 有时（有些）', exact: true })).toBeFocused();
     await expect(selected).toBeChecked();
-    await expect(page.locator('.constitution-position')).toHaveText('1 / 26');
+    await expect(page.locator('.constitution-position')).toHaveText('已答 1 / 26');
     await expectConstitutionAnswerLayout(page, testInfo);
     await expectConstitutionDisclosures(page, testInfo);
     await expectConstitutionSegments(page);
@@ -106,7 +132,7 @@ for (const embedded of [false, true]) {
       await expect(page.locator('.constitution-answer-form > .constitution-context')).toBeVisible();
       await expect(page.locator('.constitution-question-title')).toBeFocused();
       await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
-      await expect(page.locator('.constitution-position')).toHaveText('26 / 26');
+      await expect(page.locator('.constitution-position')).toHaveText('已答 26 / 26');
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-edit`);
       await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
       await confirmConstitutionDestruction(page);

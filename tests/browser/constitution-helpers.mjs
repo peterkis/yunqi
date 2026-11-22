@@ -77,7 +77,7 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   for (let number = 1; number <= 26; number += 1) {
     await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
-    await expect(form.locator('.constitution-position')).toHaveText(`${number - 1} / 26`);
+    await expect(form.locator('.constitution-position')).toHaveText(`已答 ${number - 1} / 26`);
     await expect(form.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(form.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);
@@ -143,8 +143,8 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
     await expect(row.locator('.constitution-bar-score')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(row.getByRole('img')).toHaveAttribute('aria-label', `${dimension.name}，转化分 ${dimension.score.toFixed(1)} 分（满分100），判定${dimension.label}；参考刻度30与40；原始分${dimension.rawScore}，${dimension.itemCount}个条目。`);
     await expect(row.locator('.constitution-bar-fill')).toHaveAttribute('style', `--constitution-fill: ${dimension.score}%;`);
-    await expect(row.locator('.constitution-bar-tick')).toHaveCount(2);
   }
+  await expect(result.locator('.constitution-chart-guide')).toHaveCount(2);
   const reference = result.getByRole('region', { name: '与运气互参', exact: true });
   await expect(reference.locator('dt')).toHaveText(['体质', '先天', '当下']);
   const shortName = id => assessment.results.find(dimension => dimension.id === id).name.replace(/质$/, '');
@@ -247,6 +247,7 @@ export async function expectConstitutionTitle(result, assessment) {
   const matched = result.locator('.constitution-matched-types .ds-relation__chip');
   const mixedTypes = assessment.matchedTypes.length >= 2 ? assessment.matchedTypes : [];
   await expect(result.locator('.constitution-matched-types')).toHaveCount(mixedTypes.length ? 1 : 0);
+  await expect(result.locator('.constitution-matched-types').getByText('兼夹', { exact: true })).toHaveCount(0);
   await expect(matched).toHaveCount(mixedTypes.length);
   await expect(matched).toHaveText(mixedTypes.map(name));
   await expect(result.locator('.constitution-matched-types .ds-relation__chip:not(.ds-relation__chip--neutral)')).toHaveCount(0);
@@ -295,8 +296,15 @@ export async function expectConstitutionResultLayout(result, testInfo) {
       swatch.remove();
       return value;
     };
+    const plot = element.querySelector('.constitution-chart-plot').getBoundingClientRect();
+    const track = element.querySelector('.constitution-bar-track').getBoundingClientRect();
     return {
       columns: getComputedStyle(element.querySelector('.constitution-reference-rows')).gridTemplateColumns.split(' ').map(Number.parseFloat),
+      guides: [...element.querySelectorAll('.constitution-chart-guide')].map(guide => ({
+        ratio: (guide.getBoundingClientRect().left - track.left) / track.width,
+        height: guide.getBoundingClientRect().height, plotHeight: plot.height,
+        line: getComputedStyle(guide).borderInlineStartStyle,
+      })),
       rows: [...element.querySelectorAll('.constitution-bar')].map(row => {
         const track = row.querySelector('.constitution-bar-track');
         const bounds = track.getBoundingClientRect();
@@ -304,11 +312,13 @@ export async function expectConstitutionResultLayout(result, testInfo) {
           columns: getComputedStyle(row).gridTemplateColumns.split(' ').map(Number.parseFloat),
           height: row.getBoundingClientRect().height, trackHeight: bounds.height,
           fill: getComputedStyle(row.querySelector('.constitution-bar-fill')).backgroundColor,
-          expectedFill: color(row, `--data-${row.dataset.tone}`),
-          ticks: [...track.querySelectorAll('.constitution-bar-tick')].map(tick => ({
-            ratio: (tick.getBoundingClientRect().left - bounds.left) / bounds.width,
-            height: tick.getBoundingClientRect().height,
-          })),
+          expectedFill: color(row, row.hasAttribute('data-balanced') ? '--constitution-balanced-fill' : {
+            primary: '--constitution-match-fill', secondary: '--constitution-tendency-fill', neutral: '--constitution-low-fill',
+          }[row.dataset.tone]),
+          matched: row.dataset.tone === 'primary' && !row.hasAttribute('data-balanced'),
+          background: getComputedStyle(row).backgroundColor,
+          matchBackground: color(row, '--constitution-match-bg'),
+          scoreWeight: Number(getComputedStyle(row.querySelector('.constitution-bar-score')).fontWeight),
         };
       }),
     };
@@ -322,12 +332,17 @@ export async function expectConstitutionResultLayout(result, testInfo) {
     expect(row.height).toBe(24);
     expect(row.trackHeight).toBe(8);
     expect(row.fill).toBe(row.expectedFill);
-    expect(row.ticks).toHaveLength(2);
-    row.ticks.forEach((tick, index) => {
-      expect(tick.ratio).toBeCloseTo(index === 0 ? 0.3 : 0.4, 2);
-      expect(tick.height).toBe(14);
-    });
+    if (row.matched) {
+      expect(row.background).toBe(row.matchBackground);
+      expect(row.scoreWeight).toBe(700);
+    }
   }
+  expect(metrics.guides).toHaveLength(2);
+  metrics.guides.forEach((guide, index) => {
+    expect(guide.ratio).toBeCloseTo(index === 0 ? 0.3 : 0.4, 2);
+    expect(guide.height).toBe(guide.plotHeight);
+    expect(guide.line).toBe('dashed');
+  });
   for (const chip of await result.locator('.constitution-tendency-types .ds-relation__chip').all()) await expectTextContrast(chip);
   if (testInfo) await testInfo.attach('constitution-result-layout', { body: JSON.stringify(metrics), contentType: 'application/json' });
 }

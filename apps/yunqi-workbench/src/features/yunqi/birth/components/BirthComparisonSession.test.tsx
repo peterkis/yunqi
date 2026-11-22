@@ -135,7 +135,7 @@ describe('birth comparison assessment session', () => {
     render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
-    fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30' } });
+    fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30' } });
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
     const form = await openAssessment(user);
@@ -143,7 +143,7 @@ describe('birth comparison assessment session', () => {
     await user.click(within(form).getAllByRole('radio', { name: '4 经常（相当）' })[0]);
     if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'date') fillBirthDate('1990-05-13');
-    if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:31' } });
+    if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:31' } });
     if (action === 'known-time') await user.click(screen.getByRole('radio', { name: '时刻不详' }));
     if (action === 'clear') await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     if (action === 'resubmit') await user.click(screen.getByRole('button', { name: '查看对照' }));

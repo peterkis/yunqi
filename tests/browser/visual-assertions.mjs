@@ -44,8 +44,7 @@ export async function expectClassicsCards(page, testInfo) {
       };
       const badge = getComputedStyle(element.querySelector('.classics-card__badge'));
       const result = {
-        current, border: css.borderTopColor,
-        expectedBorder: color(current ? '--accent' : '--border-default'),
+        current, border: css.borderTopColor, shadow: css.boxShadow,
         headerBackground: getComputedStyle(element.querySelector('.classics-card__header')).backgroundColor,
         expectedHeader: current ? color('--accent-subtle') : 'rgba(0, 0, 0, 0)',
         badgeBackground: badge.backgroundColor, badgeColor: badge.color,
@@ -56,7 +55,8 @@ export async function expectClassicsCards(page, testInfo) {
       swatch.remove();
       return result;
     });
-    expect(style.border).toBe(style.expectedBorder);
+    expect(style.border).toBe('rgba(0, 0, 0, 0)');
+    expect(style.shadow).not.toBe('none');
     expect(style.headerBackground).toBe(style.expectedHeader);
     expect(style.badgeBackground).toBe(style.expectedBackground);
     expect(style.badgeColor).toBe(style.expectedColor);

@@ -35,25 +35,29 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
             {assessment.tendencyTypes.map((type) => <RelationChip key={type.id} label={`${type.shortName} 倾向`} tone="favorable" />)}
           </div> : null}
         </div>
-        {assessment.matchedTypes.length >= 2 ? <dl className="constitution-type-groups">
-          <div className="constitution-matched-types">
-            <dt>兼夹</dt><dd>{assessment.matchedTypes.map((type) => <RelationChip key={type.id} label={type.name} tone="neutral" />)}</dd>
-          </div>
-        </dl> : null}
+        {assessment.matchedTypes.length >= 2 ? <div className="constitution-matched-types" role="group" aria-label="符合判定的体质">
+          {assessment.matchedTypes.map((type) => <RelationChip key={type.id} label={type.name} tone="neutral" />)}
+        </div> : null}
         <p className="constitution-meta num">偏颇质转化分 ≥40 为“是”、30–39 为“倾向是”；平和质本类需 ≥60，且其余均 &lt;30 为“是”、均 &lt;40 且未达前项为“基本是”。</p>
       </section>
       <section className="constitution-card constitution-score-card" aria-label="九种体质转化分">
         <header className="constitution-chart-header"><h4 className="constitution-eyebrow">九质转化分</h4><span className="num"><InlineText>刻度 30 · 40</InlineText></span></header>
-        <ul className="constitution-bars" aria-label="九种体质转化分">
-          {assessment.results.map((result, index) => <li key={result.id} className="constitution-bar" data-tone={result.tone} style={{ '--constitution-bar-index': index } as CSSProperties}>
-            <span className="constitution-bar-label">{result.shortName}</span>
-            <div className="constitution-bar-track" role="img" aria-label={result.chartLabel}>
-              <span className="constitution-bar-fill" style={{ '--constitution-fill': result.fillWidth } as CSSProperties} />
-              <span className="constitution-bar-tick constitution-bar-tick--30" /><span className="constitution-bar-tick constitution-bar-tick--40" />
-            </div>
-            <span className="constitution-bar-score num">{result.displayScore}</span>
-          </li>)}
-        </ul>
+        <div className="constitution-chart-plot">
+          <ul className="constitution-bars" aria-label="九种体质转化分">
+            {assessment.results.map((result, index) => <li key={result.id} className="constitution-bar" data-tone={result.tone}
+              data-balanced={result.id === 'balanced' || undefined} style={{ '--constitution-bar-index': index } as CSSProperties}>
+              <span className="constitution-bar-label">{result.shortName}</span>
+              <div className="constitution-bar-track" role="img" aria-label={result.chartLabel}>
+                <span className="constitution-bar-fill" style={{ '--constitution-fill': result.fillWidth } as CSSProperties} />
+              </div>
+              <span className="constitution-bar-score num">{result.displayScore}</span>
+            </li>)}
+          </ul>
+          <div className="constitution-chart-guides" aria-hidden="true">
+            <span className="constitution-chart-guide constitution-chart-guide--30" />
+            <span className="constitution-chart-guide constitution-chart-guide--40" />
+          </div>
+        </div>
       </section>
       <section className="constitution-card constitution-reference-card" aria-label="与运气互参">
         <h4 className="constitution-eyebrow">与运气互参</h4>

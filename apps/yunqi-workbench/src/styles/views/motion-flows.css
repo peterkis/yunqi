@@ -1,6 +1,6 @@
 /* M1-b: geometry comes from offsetLeft/offsetWidth, appearance from tokens.
    The decoration cannot change track layout, hit targets or accessible names. */
-.motion-segments { position: relative; isolation: isolate; }
+.motion-segments { position: relative; isolation: isolate; -webkit-tap-highlight-color: transparent; }
 .motion-segment-indicator {
   display: none;
   position: absolute;
@@ -112,14 +112,11 @@
 [data-motion="full"] :is(button:not(.ds-button--text), .motion-segments > button, .ds-segmented-nav__link, [role="tab"]):active:not(:disabled) {
   transform: scale(var(--motion-press-scale));
 }
-[data-motion] :is(button:not(.ds-button--text), .motion-segments > button, .ds-segmented-nav__link, [role="tab"]):active:not(:disabled) {
+[data-motion] :is(button:not(.ds-button--text), [role="tab"]):active:not(:disabled):where(:not(.motion-segments > *)) {
   background-color: var(--surface-sunken);
 }
 [data-motion] .ds-button--primary:active:not(:disabled) { background-color: var(--accent-hover); }
-[data-motion] .motion-segments > :is(button, a):active:not(:disabled) { background-color: var(--border-default); }
-[data-motion] .motion-segments > :is([aria-current="page"], [aria-checked="true"], [aria-pressed="true"]):active:not(:disabled) {
-  background-color: var(--surface-sunken);
-}
+[data-motion] .motion-segments > :is(button, a):active:not(:disabled) { color: var(--accent); }
 [data-motion] .ds-scale-option[aria-checked="true"]:active:not(:disabled) { background-color: var(--accent-muted); }
 :is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .learning-text-link, .birth-source-link, .learning-source, .drilldown-link) {
   transition: color var(--motion-fast) var(--ease-standard);

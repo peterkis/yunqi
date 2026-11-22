@@ -13,6 +13,7 @@ export function MotionSettings() {
         { value: 'reduced', label: '精简' }, { value: 'off', label: '关闭' },
       ]} />
       <p>{formatMotionStatus(level, reason)}</p>
+      {reason === 'system' && <p>选择“标准”可在本应用启用平滑滚轮和完整动效。</p>}
     </div>
   </details>;
 }

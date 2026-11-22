@@ -351,6 +351,43 @@ test('theme colors commit together, suppress element transitions and use only th
   expect(scan.violations).toEqual([]);
 });
 
+test('workbench segments keep their surface while pressed', async ({ page }) => {
+  await page.goto('/yunqi/birth');
+  const navigation = page.getByRole('navigation', { name: '工作台导航' });
+  const precision = page.getByRole('radiogroup', { name: '出生时刻是否已知' });
+  async function checkPress(target) {
+    await target.hover();
+    await waitForAnimations(page);
+    const resting = await target.evaluate(node => getComputedStyle(node).backgroundColor);
+    if (!await target.evaluate(node => node.matches('[aria-current="page"], [aria-checked="true"], [aria-pressed="true"]'))) {
+      expect(resting).toBe('rgba(0, 0, 0, 0)');
+    }
+    await page.mouse.down();
+    try {
+      await waitForAnimations(page);
+      await expect(target).toHaveCSS('background-color', resting);
+    } finally {
+      await page.mouse.move(1, 1);
+      await page.mouse.up();
+    }
+  }
+  await expect(page.locator('.panel-shell > header')).toHaveCSS('border-bottom-width', '0px');
+  await checkPress(navigation.getByRole('link', { name: '先天对照' }));
+  await checkPress(navigation.getByRole('link', { name: '当下运气' }));
+  await checkPress(precision.getByRole('radio', { name: '时刻不详' }));
+  await expect(precision).toHaveAccessibleDescription('保留当天所有可能归属');
+  await precision.getByRole('radio', { name: '已知时刻' }).click();
+  await expect(page.getByLabel('出生时刻', { exact: true })).toBeVisible();
+  await expect(page.getByText('保留当天所有可能归属', { exact: true })).toHaveCount(0);
+  await expect(precision).not.toHaveAttribute('aria-describedby');
+  await navigation.getByRole('link', { name: '体质量表' }).click();
+  const sex = page.getByRole('radiogroup', { name: '量表所用性别' });
+  for (const name of ['男', '女']) await checkPress(sex.getByRole('radio', { name, exact: true }));
+  await navigation.getByRole('link', { name: '当下运气' }).click();
+  await page.getByRole('link', { name: '原文与释义', exact: true }).click();
+  await checkPress(page.getByRole('button', { name: '全年', exact: true }));
+});
+
 test('press feedback scales full controls only and leaves text buttons and focus rings unscaled', async ({ page, motionMode }, testInfo) => {
   await page.goto('/src/test/design-foundations.html');
   const primary = page.getByRole('button', { name: '查看原文', exact: true });
@@ -371,6 +408,8 @@ test('press feedback scales full controls only and leaves text buttons and focus
       if (isText) {
         await expect(target).toHaveCSS('background-color', before.background);
         await expect.poll(() => target.evaluate(element => getComputedStyle(element).color)).not.toBe(before.color);
+      } else if (target === segment) {
+        await expect(target).toHaveCSS('background-color', before.background);
       } else await expect.poll(() => target.evaluate(element => getComputedStyle(element).backgroundColor)).not.toBe(before.background);
       await expectMotionDurations(page, testInfo, `press-${isText ? 'text' : 'control'}`);
     } finally { await page.mouse.up(); }

@@ -256,7 +256,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
                 <span><InlineText>{`体质维度 · ${sex === 'male' ? '男性版' : '女性版'}`}</InlineText></span>
                 <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirming} onClick={requestSexChange}>更换</Button>
               </div>
-              <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite"><b>{progress.completed}</b> / {progress.total}</span>
+              <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite">已答 <b>{progress.completed}</b> / {progress.total}</span>
             </div>
             <div className="constitution-progress-grid" role="list" aria-label="九种体质作答进度">
               {progress.dimensions.map((dimension) => <ConstitutionDimension key={dimension.id} dimension={dimension} />)}

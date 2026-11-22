@@ -50,7 +50,7 @@ describe('ConstitutionForm', () => {
     fireEvent.click(screen.getByRole('radio', { name: '男' }));
     expect(screen.getAllByRole('heading', { name: /测试问题 \d+？/ })).toHaveLength(1);
     expect(screen.getAllByRole('img', { name: /当前第 .* 题/ })).toHaveLength(1);
-    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toHaveTextContent('0 / 8');
+    expect(screen.getByRole('img', { name: /当前第 1 题/ })).toHaveTextContent('已答 0 / 8');
     expect(screen.getByRole('form').querySelectorAll('.constitution-position')).toHaveLength(1);
     act(() => { vi.advanceTimersByTime(120); });
     expect(document.querySelector('.constitution-destroy-ghost')).toBeNull();
@@ -188,7 +188,7 @@ describe('ConstitutionForm', () => {
     expect(within(progress).getByRole('img', { name: '平和质：1/2，当前题所属维度' })).toHaveStyle({ '--constitution-progress': '50%' });
     expect(within(progress).getByRole('img', { name: '气虚质：1/2' })).toHaveStyle({ '--constitution-progress': '50%' });
     await answerByKey(user, '2');
-    expect(within(context).getByRole('img', { name: '已答 2 / 8 题，当前第 3 题' })).toHaveTextContent('2 / 8');
+    expect(within(context).getByRole('img', { name: '已答 2 / 8 题，当前第 3 题' })).toHaveTextContent('已答 2 / 8');
     expect(within(progress).getByRole('img', { name: '平和质：2/2，全部答完' }).closest('[role="listitem"]')).toHaveTextContent('✓');
     await user.click(screen.getByRole('button', { name: '上一题' }));
     expect(current()).toEqual(['平和', '阳虚']);
@@ -206,7 +206,7 @@ describe('ConstitutionForm', () => {
     await user.click(screen.getByRole('radio', { name: '男' }));
     expect(destroy()).toHaveLength(1);
     expect(destroy()[0].closest('.panel-shell__actions')).not.toBeNull();
-    expect(document.querySelector('.constitution-progress-header')).toHaveTextContent('体质维度 · 男性版更换0 / 8');
+    expect(document.querySelector('.constitution-progress-header')).toHaveTextContent('体质维度 · 男性版更换已答 0 / 8');
     await answerByKey(user, '1');
     expect(destroy()).toHaveLength(1);
     expect(destroy()[0]).toHaveClass('ds-button--secondary');

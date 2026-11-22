@@ -97,7 +97,7 @@
 }
 
 .ds-button--secondary:hover:not(:disabled),
-.ds-button--text:hover:not(:disabled),
+.ds-button--text:hover:not(:disabled):where(:not(.motion-segments > *)),
 .ds-button--icon:focus-visible:not(:disabled) {
   background: var(--surface-sunken);
 }
@@ -400,7 +400,6 @@
   gap: var(--space-2_5);
   height: var(--header-height);
   padding: 0 var(--space-2_5) 0 var(--space-4);
-  border-bottom: var(--ds-hairline) solid var(--border-default);
   background: var(--surface-page);
   color: var(--ink-primary);
   font-family: var(--font-sans);

@@ -16,6 +16,7 @@ import type { CurrentYunQiViewModel } from '../presentation/view-model';
 import { CurrentElementValue, CurrentRelation, CurrentRelationReading, CurrentTimeRange } from './CurrentYunQiParts';
 import { SixQiTimeline } from './SixQiTimeline';
 import { CurrentPeriodGrid } from './CurrentPeriodGrid';
+import { RelationReadingSummary } from './RelationReadingSummary';
 import { YunQiWheel } from './YunQiWheel';
 
 export interface CurrentYunQiPageProps {
@@ -52,8 +53,8 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
     <div className="current-overview__now">
       <section className="ds-info-card ds-info-card--compact current-period-card" aria-label="当下所处的气与运">
         <CurrentPeriodGrid learning={learning} />
-        <details className="current-disclosure current-relations">
-          <summary>这些关系怎么读？</summary>
+        <details className="current-relations">
+          <RelationReadingSummary />
           <CurrentRelationReading relation={learning.annualRelation} />
           <CurrentRelationReading relation={learning.currentQi} />
           <p>{movement.explanation}</p>
@@ -92,6 +93,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
           <InfoCard label="规则结果说明">
             <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
+            <p className="current-meta">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</p>
             <ul>{viewModel.explanations.map((explanation) => <li key={explanation}>{explanation}</li>)}</ul>
             <p className="current-copy">教学扩展版本：<code>{learning.ruleVersion}</code></p>
             {learning.notes.map((note, index) => <p className="current-copy" key={index}>{note}</p>)}

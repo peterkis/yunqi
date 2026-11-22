@@ -47,8 +47,8 @@ describe('birth presentation', () => {
       ['所处运', '客运独有方向', 'adverse'],
     ]);
     expect(rows[0].birth.label).toBe(`${base.learning.facts.suiYun.element}运${base.learning.facts.suiYun.state}`);
-    expect(rows[3].birth.detail).toEqual([`主${base.learning.facts.currentStep.hostQi} · 客${base.learning.facts.currentStep.guestQi}`]);
-    expect(rows[4].current.detail).toEqual(['主太徵 · 客少角']);
+    expect(rows[3].birth.detail).toEqual([`主 ${base.learning.facts.currentStep.hostQi}`, `客 ${base.learning.facts.currentStep.guestQi}`]);
+    expect(rows[4].current.detail).toEqual(['主 太徵', '客 少角']);
     expect(rows[3].birth.element).toBe('fire');
     expect(rows[4].current.element).toBe('wood');
     expect(result.currentTime.localTime).toBe(dto.current.facts.input.localTime);

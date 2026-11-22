@@ -60,7 +60,7 @@ export async function expectBirthComparison(page, data) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
     await expect(article.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
-    await expect(article.locator('.birth-table__time')).toContainText('北京时间 UTC+08');
+    await expect(article.locator('.birth-table__time')).not.toContainText('北京时间 UTC+08');
     await expect(table.getByRole('columnheader')).toHaveCount(3);
     await expect(table.getByRole('columnheader', { name: /^先天/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: '关系', exact: true })).toBeVisible();
@@ -89,12 +89,23 @@ export async function expectBirthComparison(page, data) {
         if (position === 2) await expect(cell).toContainText(learning.facts.sixQi.zaiquan);
         if (position === 3) {
           await expect(cell).toContainText(learning.facts.currentStep.name);
-          await expect(cell).toContainText(`主${learning.facts.currentStep.hostQi} · 客${learning.facts.currentStep.guestQi}`);
+          await expect(cell.locator('.birth-table__detail > div')).toHaveText([`主 ${learning.facts.currentStep.hostQi}`, `客 ${learning.facts.currentStep.guestQi}`]);
         }
         if (position === 4) {
           await expect(cell).toContainText(learning.currentMovement.name);
-          await expect(cell).toContainText(`主${learning.currentMovement.host.tone} · 客${learning.currentMovement.guest.tone}`);
+          await expect(cell.locator('.birth-table__detail > div')).toHaveText([`主 ${learning.currentMovement.host.tone}`, `客 ${learning.currentMovement.guest.tone}`]);
         }
+      }
+      if (position === 1 || position === 2) {
+        await expect(row.locator('.birth-table__detail')).toHaveCount(0);
+        const centerOffsets = await row.evaluate(element => {
+          const axis = element.querySelector('.birth-table__axis').getBoundingClientRect();
+          return [...element.querySelectorAll('.birth-table__value')].map(value => {
+            const bounds = value.getBoundingClientRect();
+            return Math.abs(axis.y + axis.height / 2 - bounds.y - bounds.height / 2);
+          });
+        });
+        for (const offset of centerOffsets) expect(offset).toBeLessThanOrEqual(1);
       }
     }
     if (single) {
@@ -119,54 +130,36 @@ export async function expectBirthComparison(page, data) {
   await expectCompactTimes(page);
 }
 
-// F6: check the text inside each inline-block as well as its single outer box.
+// Measure the text itself to catch wrapping or loss of mirror alignment.
 export async function expectBirthDetailSegments(page, testInfo) {
   const table = page.getByRole('table').first();
+  await waitForAnimations(page);
   for (const name of ['所处气', '所处运']) {
     const row = table.getByRole('rowheader', { name, exact: true }).locator('..');
-    await expect(row.locator('.birth-table__detail .ds-seg')).toHaveCount(4);
-  }
-  await waitForAnimations(page);
-  let measurements;
-  await expect(async () => {
-    measurements = await table.locator('.birth-table__detail:has(.ds-seg)').evaluateAll(details => details.map(detail => ({
-      row: detail.closest('tr').querySelector('.birth-table__dimension-label').textContent,
-      side: detail.closest('td').classList.contains('birth-table__birth') ? 'birth' : 'current',
-      align: getComputedStyle(detail).textAlign,
-      overflowWrap: getComputedStyle(detail).overflowWrap,
+    const sides = await row.locator('.birth-table__detail').evaluateAll(details => details.map(detail => ({
       bounds: detail.getBoundingClientRect().toJSON(),
-      segments: [...detail.querySelectorAll('.ds-seg')].map(segment => {
+      lines: [...detail.children].map(line => {
         const range = document.createRange();
-        range.selectNodeContents(segment.querySelector('.ds-seg__text'));
-        return {
-          text: segment.textContent,
-          boxes: segment.getClientRects().length,
-          lines: new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size,
-          bounds: segment.getBoundingClientRect().toJSON(),
-          fits: segment.scrollWidth <= segment.clientWidth + 1,
-        };
+        range.selectNodeContents(line);
+        return [...range.getClientRects()].filter(rect => rect.width > 0).map(rect => rect.toJSON());
       }),
     })));
-    expect(measurements.length).toBeGreaterThan(0);
-    for (const detail of measurements) {
-      expect(detail.align).toBe(detail.side === 'birth' ? 'right' : 'left');
-      expect(detail.overflowWrap).toBe('break-word');
-      for (const segment of detail.segments) {
-        expect(segment.boxes, segment.text).toBe(1);
-        expect(segment.lines, segment.text).toBe(1);
-        expect(segment.fits, segment.text).toBe(true);
-      }
-      const first = detail.segments[0].bounds;
-      const last = detail.segments.at(-1).bounds;
-      if (detail.row === '所处气') expect(last.top).toBeGreaterThan(first.top);
-      if (detail.side === 'birth') expect(Math.abs(last.right - detail.bounds.right)).toBeLessThanOrEqual(1);
-      else {
-        expect(Math.abs(first.left - detail.bounds.left)).toBeLessThanOrEqual(1);
-        if (last.top > first.top + 1) expect(Math.abs(last.left - detail.bounds.left)).toBeLessThanOrEqual(1);
-      }
+    expect(sides).toHaveLength(2);
+    for (const [i, side] of sides.entries()) {
+      expect(side.lines.map(line => line.length)).toEqual([1, 1]);
+      const [host, guest] = side.lines.map(line => line[0]);
+      expect(guest.top).toBeGreaterThan(host.top);
+      const edge = i === 0 ? 'right' : 'left';
+      for (const phrase of [host, guest]) expect(Math.abs(phrase[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
     }
-  }).toPass();
-  await testInfo.attach('birth-detail-segments', { body: JSON.stringify(measurements, null, 2), contentType: 'application/json' });
+    for (const i of [0, 1]) expect(Math.abs(sides[0].lines[i][0].top - sides[1].lines[i][0].top)).toBeLessThanOrEqual(1);
+    await testInfo.attach(`birth-detail-${name}`, { body: JSON.stringify(sides), contentType: 'application/json' });
+  }
+  const summary = table.locator('..').locator('.birth-relation-details > summary');
+  await expect(summary).toHaveAccessibleName('这些关系怎么读？');
+  const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
+  expect(button.height).toBeGreaterThanOrEqual(40);
+  expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
 }
 
 // Measure the actual value/dot groups, so equal cell widths alone cannot hide

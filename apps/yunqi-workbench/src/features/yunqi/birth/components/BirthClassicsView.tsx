@@ -23,7 +23,7 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
         <button type="button" aria-pressed={scope === 'annual'} onClick={() => setScope('annual')}>全年</button>
         <button type="button" aria-pressed={scope === 'period'} onClick={() => setScope('period')}>出生阶段</button>
       </nav>
-      <div className="birth-classics__readings" role="region" aria-label="出生原文阅读区" tabIndex={0}>
+      <div className="birth-classics__readings" data-panel-scroll="" role="region" aria-label="出生原文阅读区" tabIndex={0}>
       {viewModel.candidates.map((candidate, index) => {
         const readings = scope === 'annual' ? candidate.annualReadings : candidate.periodReadings;
         return <section className="birth-reading-candidate" key={`${candidate.from.localTime}-${index}`} aria-label={`${candidate.label}原文`}>

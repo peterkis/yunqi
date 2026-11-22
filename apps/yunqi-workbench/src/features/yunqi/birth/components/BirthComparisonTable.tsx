@@ -2,18 +2,19 @@ import { useId } from 'react';
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { InlineText } from '../../../../components/design/InlineText';
 import { RelationChip } from '../../../../components/design/RelationChip';
-import { SegmentedText } from '../../../../components/design/SegmentedText';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { RelationSourceLinks } from '../../components/RelationSourceLinks';
+import { RelationReadingSummary } from '../../components/RelationReadingSummary';
 import type { BirthCandidateViewModel, BirthFactViewModel, BirthPageViewModel } from '../presentation/map-birth-view';
 
 function Fact({ value }: { readonly value: BirthFactViewModel }) {
-  const detail = value.detail.join(' · ');
   return <>
     <div className="birth-table__value">
       {value.element ? <ElementDot compact element={value.element} label={value.label} /> : value.label}
     </div>
-    <p className="birth-table__detail">{detail ? <SegmentedText>{detail}</SegmentedText> : <span aria-hidden="true">&nbsp;</span>}</p>
+    {value.detail.length > 0 && <div className="birth-table__detail">
+      {value.detail.map(line => <div key={line}>{line}</div>)}
+    </div>}
   </>;
 }
 
@@ -57,10 +58,12 @@ export function BirthComparisonTable({ candidate, current }: {
         })}
       </tbody>
     </table>
-    <p className="birth-table__years birth-note num"><InlineText>{`运气年：先天 ${candidate.birthYear} · 当下 ${current.currentYear}`}</InlineText></p>
-    <p className="birth-table__time birth-note">当下时刻：<YunQiTimeDisplay value={current.currentTime} variant="compact" /></p>
+    <div className="birth-table__meta">
+      <p className="birth-table__years birth-note num"><InlineText>{`运气年：先天 ${candidate.birthYear} · 当下 ${current.currentYear}`}</InlineText></p>
+      <p className="birth-table__time birth-note">当下时刻：<YunQiTimeDisplay value={current.currentTime} variant="month-day" showStandard={false} /></p>
+    </div>
     <details className="birth-relation-details">
-      <summary>这些关系怎么读？</summary>
+      <RelationReadingSummary />
       {candidate.rows.map((row) => row.relation ? <div key={row.label}>
         <h4 className="birth-label"><InlineText>{`${row.label} · ${row.relation.label}`}</InlineText></h4>
         <p>{row.relation.explanation}</p>

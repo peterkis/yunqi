@@ -89,7 +89,7 @@ describe('birth classics navigation', () => {
     } }] });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
-    fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30:21' } });
+    fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30:21' } });
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('link', { name: '全部原文' }));
