@@ -37,7 +37,7 @@ async function observeResult(page) {
         guides: [...result.querySelectorAll('.constitution-chart-guide')].map(guide => ({ transform: getComputedStyle(guide).transform, animations: guide.getAnimations().length })),
         labels: [...result.querySelectorAll('.constitution-bar-label')].map(label => label.textContent),
       };
-      // The explicit submit replaces the complete view and its shell header.
+      // The scoring response replaces the pending view and its shell header.
       // Keep those commit entries in the artifact; measure reveal stability
       // after its first paint, before the 60ms bar sequence begins. Do not
       // exclude recent-input entries from the animation's own shift sum.
@@ -105,6 +105,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const storage = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
     await activate(page, scope.getByRole('radio', { name: '男', exact: true }), input, 'Space');
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', expectedMotionLevel(motionMode));
+    let score;
     for (let number = 1; number <= 26; number += 1) {
       await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
       if (number === 2) {
@@ -132,16 +133,15 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
           await expect(option).toBeFocused();
         }
       }
+      if (number === 26) {
+        await observeResult(page);
+        score = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
+      }
       const value = (number - 1) % 5 + 1;
       if (input === 'keyboard') await page.keyboard.press(String(value));
       else await scope.getByRole('radio', { name: new RegExp(`^${value} `) }).click();
     }
     const actions = page.locator('.panel-shell__actions');
-    const submit = actions.getByRole('button', { name: '查看结果', exact: true });
-    await expect(submit).toBeFocused();
-    await observeResult(page);
-    const score = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-    await activate(page, submit, input);
     const assessment = (await (await score).json()).data;
     const result = await expectConstitutionResults(page, assessment, scope);
     await expect(scope.locator('.constitution-decision h4')).toBeFocused();
@@ -152,12 +152,10 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     await expect(scope.locator('.constitution-question-title')).toBeFocused();
     await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 26 题/);
     await expect(scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) })).toBeChecked();
-    if (input === 'keyboard') await page.keyboard.press(String(finalAnswer));
-    else await scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) }).click();
-    await expect(submit).toBeFocused();
     await observeResult(page);
     const secondScore = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-    await activate(page, submit, input);
+    if (input === 'keyboard') await page.keyboard.press(String(finalAnswer));
+    else await scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) }).click();
     expect((await (await secondScore).json()).data).toEqual(assessment);
     await expect(result).toBeVisible();
     await expectReveal(page, motionMode, testInfo, 'resubmit-reveal');
@@ -237,19 +235,14 @@ test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms 
     await expect(position).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
     await page.keyboard.press('1');
   }
-  const submit = page.getByRole('button', { name: '查看结果', exact: true });
   const result = page.getByRole('region', { name: '体质测评结果', exact: true });
-  await expect(submit).toBeFocused();
-  await page.keyboard.press('Enter');
   await expect(result).toBeVisible();
   for (let round = 0; round < 3; round += 1) {
     await timed('edit');
     await expect(position).toHaveAttribute('aria-label', /当前第 26 题/);
     if (round < 2) {
-      // Editing returns to the last question; re-answering it restores submit.
+      // Editing returns to the last question; re-answering it scores the edited answers.
       await page.keyboard.press('1');
-      await expect(submit).toBeFocused();
-      await page.keyboard.press('Enter');
       await expect(result).toBeVisible();
     }
   }

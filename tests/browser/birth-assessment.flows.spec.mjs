@@ -16,12 +16,6 @@ async function compareBirth(page, birthDate = '1990-05-12') {
   return data;
 }
 
-async function answerQuestionnaire(page) {
-  const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
-  await answerConstitution(page, session);
-  return session;
-}
-
 // 2-constraints.md: the medical-boundary notice must stay on screen with every disease passage,
 // including after scrolling the readings and expanding long passages.
 async function expectBirthNoticePinned(page, reading) {
@@ -90,7 +84,8 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
   await expect(page.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('heading', { name: '本次体质测评', exact: true })).toBeFocused();
-  const session = await answerQuestionnaire(page);
+  const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
+  await expect(session.getByRole('radio', { name: '男', exact: true })).toBeVisible();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(1);
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
@@ -100,9 +95,8 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
 
-  const scoreResponsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true }).click();
-  const scoreResponse = await scoreResponsePromise;
+  const scoreRequest = await answerConstitution(page, session);
+  const scoreResponse = await scoreRequest.response();
   expect(scoreResponse.status()).toBe(200);
   const { data: assessment } = await scoreResponse.json();
   const results = await expectConstitutionResults(page, assessment, session);
@@ -166,7 +160,7 @@ test('birth-linked assessment ignores an older real scoring response after birth
   await page.goto('/yunqi/birth');
   await compareBirth(page);
   await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
-  const session = await answerQuestionnaire(page);
+  const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
   let releaseResponse;
   let receivedResponse;
   const hold = new Promise(resolve => { releaseResponse = resolve; });
@@ -178,9 +172,9 @@ test('birth-linked assessment ignores an older real scoring response after birth
     await hold;
     await route.fulfill({ response });
   });
-  const oldResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
   try {
-    await page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true }).click();
+    const submitted = await answerConstitution(page, session);
+    const oldResponse = submitted.response();
     expect(await reachedBackend).toBe(200);
     await expect(session.getByRole('status')).toHaveText('正在按量表规则计分');
     await page.getByRole('link', { name: '先天对照', exact: true }).click();

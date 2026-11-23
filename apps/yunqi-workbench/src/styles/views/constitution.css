@@ -113,9 +113,6 @@
 .constitution-question-screen .ds-scale-option[aria-checked="true"] .ds-scale-option__degree > [data-filled="true"] { background: var(--accent-on); opacity: 1; }
 .constitution-notes { display: grid; gap: 0; }
 .constitution-previous { margin-top: var(--space-3_5); }
-.constitution-complete { display: flex; flex-direction: column; align-items: center; gap: var(--space-2_5); margin-top: var(--space-6); text-align: center; }
-.constitution-complete h3 { margin: 0; font-family: var(--font-serif); font-size: var(--ts-title); line-height: var(--ts-title-line); font-weight: var(--ts-title-weight); }
-.constitution-complete p { margin: 0; color: var(--ink-secondary); font-size: var(--ts-small); }
 .constitution-actions { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); }
 .constitution-actions .ds-button--primary { flex: 1.3; }
 .constitution-actions:has(.ds-button--primary) .ds-button--secondary { flex: 1; }

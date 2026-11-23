@@ -26,11 +26,7 @@ async function openAssessment(user: ReturnType<typeof userEvent.setup>) {
 async function completeAssessment(user: ReturnType<typeof userEvent.setup>, form: HTMLElement) {
   await user.click(within(form).getByRole('radio', { name: '男' }));
   for (let index = 0; index < 8; index += 1) await answerByKey(user, '1');
-  expect(screen.getByRole('button', { name: '查看结果' })).toHaveClass('ds-button--primary');
-  expect(screen.getByRole('button', { name: '查看结果' })).toHaveAttribute('form', form.id);
-  expect(screen.getByRole('button', { name: '查看结果' }).closest('.panel-shell__actions')).not.toBeNull();
-  expect(document.querySelectorAll('.ds-button--primary')).toHaveLength(1);
-  await user.click(screen.getByRole('button', { name: '查看结果' }));
+  expect(screen.queryByRole('button', { name: '查看结果' })).not.toBeInTheDocument();
 }
 
 beforeEach(() => { vi.useFakeTimers(); vi.stubGlobal('jest', { advanceTimersByTime: vi.advanceTimersByTime }); vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true }))); });

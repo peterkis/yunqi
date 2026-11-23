@@ -110,11 +110,9 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   const start = page.getByRole('button', { name: '同时测评体质', exact: true });
   await start.click();
   const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
-  await answerConstitution(page, session, { values: constitutionResultValues });
+  const scored = await answerConstitution(page, session, { values: constitutionResultValues });
   const actions = page.locator('.panel-shell__actions');
-  const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await actions.getByRole('button', { name: '查看结果', exact: true }).press('Enter');
-  const score = await scoreResponse;
+  const score = await scored.response();
   expect(score.status()).toBe(200);
   const { data: assessment } = await score.json();
   await expectConstitutionResults(page, assessment, session);
@@ -126,8 +124,6 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   await actions.getByRole('button', { name: '返回修改', exact: true }).press('Enter');
   await expect(session.locator('.constitution-question-title')).toBeFocused();
   await page.keyboard.press(String(constitutionResultValues[25]));
-  await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
-  await actions.getByRole('button', { name: '查看结果', exact: true }).press('Enter');
   await expect(session.locator('.constitution-decision h4')).toBeFocused();
   await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).press('Enter');
   await confirmConstitutionDestruction(page, true);

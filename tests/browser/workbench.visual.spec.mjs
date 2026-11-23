@@ -25,11 +25,11 @@ const cases = [
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-annual-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true, annualClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
-  { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
+  { name: 'birth-assessment-last-question', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionLastQuestion: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, snapshot: '2026-11-18T08:44:00+08:00' },
-  { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
+  { name: 'constitution-last-question', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionLastQuestion: true },
   { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
   { name: 'collapsed-pill', path: '/yunqi/current', current: true, collapsed: true, snapshot: '2026-11-18T08:44:00+08:00' },
@@ -128,12 +128,10 @@ for (const state of cases) {
       await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
     }
     if (state.questionnaire) {
-      if (state.constitutionComplete || state.constitutionResult) {
-        await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : {});
+      if (state.constitutionLastQuestion || state.constitutionResult) {
+        const scored = await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : { stopBeforeLast: true });
         if (state.constitutionResult) {
-          const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-          await page.getByRole('button', { name: '查看结果', exact: true }).click();
-          const { data } = await (await scoreResponse).json();
+          const { data } = await (await scored.response()).json();
           expect(data.matchedTypes).toEqual(['phlegm_dampness']);
           expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
           await expectConstitutionResults(page, data);
@@ -258,7 +256,7 @@ for (const state of cases) {
     }
     const controls = await expectViewControls(page, testInfo);
     if (state.name.startsWith('birth') && !state.birthClassics) {
-      const labels = state.birthAssessment ? state.constitutionComplete ? ['查看结果'] : [] : state.birth ? ['同时测评体质'] : ['查看对照'];
+      const labels = state.birthAssessment ? [] : state.birth ? ['同时测评体质'] : ['查看对照'];
       expect(controls.primary.map(control => control.label)).toEqual(labels);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
@@ -319,7 +317,7 @@ for (const state of cases) {
       const typography = await expectTypeScale(page, testInfo, `${state.name}-constitution`);
       expect(typography.sizes.every(size => [12, 14, 15, 20, 24, 30, 40].includes(size))).toBe(true);
       const question = page.locator('.constitution-question-title');
-      if (!state.constitutionResult && !state.constitutionComplete) {
+      if (!state.constitutionResult && !state.constitutionLastQuestion) {
         const metrics = await question.evaluate(element => ({ size: getComputedStyle(element).fontSize, font: getComputedStyle(element).fontFamily }));
         expect(metrics.size).toBe('20px');
         expect(metrics.font).toContain('Noto Serif SC');

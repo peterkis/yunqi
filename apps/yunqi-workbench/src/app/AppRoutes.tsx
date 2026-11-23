@@ -6,7 +6,7 @@ import { CurrentYunQiView } from '../features/yunqi/components/CurrentYunQiView'
 import { CurrentClassicsView } from '../features/yunqi/components/CurrentClassicsView';
 import { BirthComparisonPage } from '../features/yunqi/birth/components/BirthComparisonPage';
 import { BirthAssessmentSession } from '../features/yunqi/birth/components/BirthAssessmentSession';
-import type { BirthSessionComparison } from '../features/yunqi/presentation/map-learning';
+import { useBirthComparison } from '../features/yunqi/birth/hooks/useBirthComparison';
 import { ConstitutionPage } from '../features/constitution/pages/ConstitutionPage';
 import { TimeAnalysisView } from '../features/yunqi/time-analysis/components/TimeAnalysisView';
 import { YearAnalysisLayout } from '../features/yunqi/year-analysis/components/YearAnalysisLayout';
@@ -20,7 +20,9 @@ export function AppRoutes() {
   const birthActive = birthEntry !== null || birthReading !== null;
   const constitutionActive = useMatch('/yunqi/constitution') !== null;
   const navigate = useNavigate();
-  const [assessment, setAssessment] = useState<BirthSessionComparison>();
+  const birth = useBirthComparison();
+  const assessment = birth.result?.comparison;
+  const [answerSession, setAnswerSession] = useState(0);
   const [ended, setEnded] = useState(0);
   const returningAfterEnd = useRef(false);
   // Release the linked session after navigation so its former tab does not
@@ -28,13 +30,12 @@ export function AppRoutes() {
   useLayoutEffect(() => {
     if (birthEntry && returningAfterEnd.current) {
       returningAfterEnd.current = false;
-      setAssessment(undefined);
+      setAnswerSession(id => id + 1);
       setEnded(count => count + 1);
     }
   }, [birthEntry]);
 
-  function openAssessment(comparison: BirthSessionComparison) {
-    setAssessment(comparison);
+  function openAssessment() {
     navigate('/yunqi/constitution');
   }
   function endAssessment() {
@@ -44,11 +45,11 @@ export function AppRoutes() {
   return (
     <>
     <RetainedSession active={birthActive}>
-      <BirthComparisonPage onAssess={openAssessment} ended={ended}
-        onDiscardAssessment={() => { setAssessment(undefined); setEnded(0); }} />
+      <BirthComparisonPage comparison={birth} onAssess={openAssessment} ended={ended}
+        onDiscardAssessment={() => { setAnswerSession(id => id + 1); setEnded(0); }} />
     </RetainedSession>
     <RetainedSession active={constitutionActive && !assessment}><ConstitutionPage /></RetainedSession>
-    {assessment && <RetainedSession active={constitutionActive}>
+    {assessment && <RetainedSession key={answerSession} active={constitutionActive}>
       <BirthAssessmentSession comparison={assessment} onEnd={endAssessment} />
     </RetainedSession>}
     <Routes>

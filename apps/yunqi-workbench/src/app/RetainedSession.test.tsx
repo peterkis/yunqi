@@ -98,8 +98,7 @@ describe('tab session retention', () => {
     expect(screen.getByRole('img', { name: /已答 2 \/ 8 题，当前第 3/ })).toBeVisible();
     screen.getByRole('heading', { name: '测试问题 3？' }).focus();
     for (let index = 2; index < 8; index += 1) await answerByKey(user, String(index % 5 + 1));
-    expect(screen.getByRole('button', { name: '查看结果' })).toHaveFocus();
-    await user.keyboard('{Enter}');
+    expect(screen.queryByRole('button', { name: '查看结果' })).not.toBeInTheDocument();
     const result = await screen.findByRole('region', { name: '体质测评结果' });
     expect(result).toHaveAttribute('data-reveal', 'true');
     await user.click(screen.getByRole('button', { name: '外部切到当下' }));
@@ -112,7 +111,6 @@ describe('tab session retention', () => {
     expect(screen.getByRole('heading', { name: '男性适用测试问题？' })).toHaveFocus();
     expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     await answerByKey(user, '3');
-    await user.keyboard('{Enter}');
     await screen.findByRole('region', { name: '体质测评结果' });
     act(() => { vi.advanceTimersByTime(400); });
     expect(screen.getByRole('region', { name: '体质测评结果' })).toHaveAttribute('data-reveal', 'false');
@@ -133,7 +131,8 @@ describe('tab session retention', () => {
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     await fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '确认并对照' }));
-    await user.click(await screen.findByRole('button', { name: '同时测评体质' }));
+    await screen.findByRole('button', { name: '同时测评体质' });
+    await user.click(screen.getByRole('link', { name: '体质量表' }));
     const linked = await screen.findByRole('form', { name: '中医体质量表' });
     expect(linked).not.toBe(draft);
     expect(within(linked).getByRole('radio', { name: '女' })).not.toBeChecked();

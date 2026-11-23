@@ -66,7 +66,7 @@ export async function changeConstitutionSex(scope, sex, answered) {
   await scope.getByRole('radio', { name: sex, exact: true }).click();
 }
 
-export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values } = {}) {
+export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values, stopBeforeLast = false } = {}) {
   const actions = page.locator('.panel-shell__actions');
   // Role lookup excludes retained/aria-hidden visual copies, even if the
   // previous answer's 120ms destruction snapshot has not expired yet.
@@ -75,6 +75,7 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   await scope.getByRole('radio', { name: sex, exact: true }).click();
   await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+  let scoreRequest;
   for (let number = 1; number <= 26; number += 1) {
     await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
     await expect(form.locator('.constitution-position')).toHaveText(`已答 ${number - 1} / 26`);
@@ -84,17 +85,18 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
     await expect(scope.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(scope.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
     await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
+    if (number === 26) {
+      if (stopBeforeLast) return;
+      scoreRequest = page.waitForRequest(request => request.url().endsWith('/constitution/assess'));
+    }
     await page.keyboard.press(String(values ? values[number - 1] : value));
   }
-  await expect(scope.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeVisible();
-  const submit = actions.getByRole('button', { name: '查看结果', exact: true });
-  await expect(submit).toBeFocused();
-  await expect(submit).toBeVisible();
-  await expect(submit).toHaveAttribute('form', await scope.getByRole('form', { name: '中医体质量表', exact: true }).getAttribute('id'));
-  await expect(submit).toHaveClass(/ds-button--primary/);
+  const request = await scoreRequest;
+  await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toHaveCount(0);
   await expect(scope.locator('.constitution-question-screen')).toHaveCount(0);
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
   await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
+  return request;
 }
 
 export async function confirmConstitutionDestruction(page, keyboard = false) {

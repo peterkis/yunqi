@@ -35,7 +35,7 @@ describe('BirthComparisonTable mirror semantics', () => {
     const table = screen.getByRole('table');
     const columns = within(table).getAllByRole('columnheader');
     expect(columns).toHaveLength(3);
-    expect(columns[0]).toHaveTextContent(`先天${candidate.birthGanzhi}`);
+    expect(columns[0]).toHaveTextContent(`先天 · ${candidate.birthYear}${candidate.birthGanzhi}`);
     expect(columns[1]).toHaveTextContent('关系');
     expect(columns[2]).toHaveTextContent(`当下${view.currentGanzhi}`);
     for (const column of columns) expect(column).toHaveAttribute('scope', 'col');

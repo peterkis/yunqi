@@ -38,7 +38,6 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const formRef = useRef<HTMLFormElement>(null);
   const focusEnd = useRef(false);
-  const focusSubmit = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sexRef = useRef<HTMLFieldSetElement>(null);
   const changeSexRef = useRef<HTMLButtonElement>(null);
@@ -73,8 +72,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     if (!visible) return;
     if (keepFocus.current) keepFocus.current = false;
     else if (sex !== '' && !mutation.result) {
-      if (complete) focusSubmit.current = true;
-      else headingRef.current?.focus();
+      headingRef.current?.focus();
     }
     else if (sex === '' && focusSex.current) {
       sexRef.current?.querySelector('button')?.focus();
@@ -93,15 +91,6 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   function focusEndAction(button: HTMLButtonElement | null) {
     if (button && !button.disabled && focusEnd.current && visible) {
       focusEnd.current = false;
-      button.focus();
-    }
-  }
-
-  function focusResultAction(button: HTMLButtonElement | null) {
-    // Shell actions mount in a later commit. Keep focus if it has moved
-    // elsewhere during the last delayed advance.
-    if (button && focusSubmit.current && visible) {
-      focusSubmit.current = false;
       button.focus();
     }
   }
@@ -127,7 +116,6 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     resetScoring();
     setConfirmingSexChange(false);
     setConfirmingEnd(false);
-    focusSubmit.current = false;
     focusSex.current = true;
     setSex('');
     setAnswers({});
@@ -174,14 +162,16 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     if (!question || mutation.isPending || confirming) return;
     cancelAdvance();
     resetScoring();
-    setAnswers((current) => ({ ...current, [question.id]: value }));
+    const nextAnswers = { ...answers, [question.id]: value };
+    setAnswers(nextAnswers);
     const form = headingRef.current?.closest('form');
     const next = () => {
       timer.current = undefined;
       const focused = document.activeElement;
       keepFocus.current = focused !== null && focused !== document.body && !form?.contains(focused);
       setDirection('forward');
-      setQuestionIndex((index) => index + 1);
+      setQuestionIndex(questionIndex + 1);
+      if (questionIndex + 1 === questions.length) score(nextAnswers);
     };
     timer.current = setTimeout(next, ANSWER_HOLD_MS);
   }
@@ -199,15 +189,14 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     answer(Number(event.key));
   }
 
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  function score(submittedAnswers: Readonly<Record<string, number>>) {
     if (mutation.isPending || submitting.current || mutation.result || confirming) return;
     if (sex === '') {
       setError('请先选择量表所用性别。');
       sexRef.current?.focus();
       return;
     }
-    const missing = questions.findIndex((item) => answers[item.id] === undefined);
+    const missing = questions.findIndex((item) => submittedAnswers[item.id] === undefined);
     if (missing !== -1) {
       cancelAdvance();
       setQuestionIndex(missing);
@@ -219,9 +208,16 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     setError(null);
     submitting.current = true;
     const submittedRevision = revision.current;
-    mutation.submit({ questionnaireId: questionnaire.id, sex, answers }, {
+    mutation.submit({ questionnaireId: questionnaire.id, sex, answers: submittedAnswers }, {
       onSettled: () => { if (revision.current === submittedRevision) submitting.current = false; },
     });
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    // A native submit may validate an incomplete form or retry a failed request.
+    // The final answer owns the only automatic submission after its hold.
+    if (!hasSession || completed < questions.length || mutation.isError) score(answers);
   }
 
   const notes = <>
@@ -246,7 +242,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
         actions={hasSession ? <div className="constitution-actions">
           {mutation.result ? <Button variant="text" disabled={confirming} onClick={previous}><span aria-hidden="true">‹</span> 返回修改</Button> : null}
           <Button ref={focusEndAction} variant="secondary" disabled={confirming} onClick={requestEnd}>结束并销毁答卷</Button>
-          {complete ? <Button ref={focusResultAction} type="submit" form={formId} disabled={mutation.isPending || confirming}>{mutation.isPending ? '正在计算…' : '查看结果'}</Button> : null}
+          {complete && mutation.isError ? <Button type="submit" form={formId} disabled={confirming}>重新计分</Button> : null}
         </div> : undefined} />
       <form ref={formRef} id={formId} className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
         <ConstitutionContext context={context}>
@@ -302,11 +298,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
                 <div className="constitution-previous"><Button variant="text" disabled={questionIndex === 0} onClick={previous}>上一题</Button></div>
               </div>
             ) : (
-              <div className="constitution-complete" onKeyDown={questionKey}>
-                <h3 className="num" tabIndex={-1} ref={headingRef}>{questions.length} 题已全部作答</h3>
-                <p>提交后计算九种体质的转化分</p>
-                <Button variant="text" disabled={mutation.isPending} onClick={previous}>返回修改</Button>
-              </div>
+              mutation.isError ? <Button variant="text" onClick={previous}>返回修改</Button> : null
             )}
           </>
         ) : <p className="constitution-meta">选择量表所用性别后开始作答，一题一屏，无默认答案。</p>}

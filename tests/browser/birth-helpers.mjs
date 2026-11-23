@@ -68,8 +68,7 @@ export async function expectBirthComparison(page, data) {
   for (const [index, candidate] of data.candidates.entries()) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
-    await expect(article.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
-    await expect(article.locator('.birth-table__time')).not.toContainText('北京时间 UTC+08');
+    await expect(article.locator('.birth-table__meta')).toHaveCount(0);
     await expect(table.getByRole('columnheader')).toHaveCount(3);
     await expect(table.getByRole('columnheader', { name: /^先天/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: '关系', exact: true })).toBeVisible();
@@ -77,7 +76,7 @@ export async function expectBirthComparison(page, data) {
     await expect(table.getByRole('rowheader')).toHaveCount(5);
     await expect(table.locator('thead time, thead .num')).toHaveCount(0);
     await expect(table.locator('.birth-table__year strong')).toHaveText([candidate.learning.facts.stemBranch.ganzhi, data.current.facts.stemBranch.ganzhi]);
-    await expect(article.locator('.birth-table__years')).toHaveText(`运气年：先天 ${candidate.learning.facts.year} · 当下 ${data.current.facts.year}`);
+    await expect(table.getByRole('columnheader').first()).toContainText('先天 · ' + candidate.learning.facts.year);
     for (const [position, title] of dimensions.entries()) {
       const row = table.locator('tbody tr').nth(position);
       await expect(row.getByRole('rowheader', { name: names[position], exact: true })).toHaveAttribute('scope', 'row');
@@ -187,8 +186,7 @@ export async function expectBirthDetailSegments(page, testInfo) {
   await expect(summary).toHaveAccessibleName('这些关系怎么读？');
   const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
   expect(button.height).toBe(36);
-  const metadata = await table.locator('..').locator('.birth-table__meta').boundingBox();
-  expect(button.y - (metadata.y + metadata.height)).toBeCloseTo(14, 0);
+  expect(button.y - (grid.y + grid.height)).toBeCloseTo(14, 0);
   expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
   const icons = await summary.locator('svg').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
   expect(icons).toHaveLength(2);

@@ -10,19 +10,18 @@ import { PanelView } from '../../../../components/layout/PanelView';
 import { useSessionVisible } from '../../../../components/layout/SessionVisibility';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
-import { useBirthComparison } from '../hooks/useBirthComparison';
+import type { useBirthComparison } from '../hooks/useBirthComparison';
 import { AnswerDestroyedNotice } from '../../../constitution/components/AnswerDestroyedNotice';
-import type { BirthSessionComparison } from '../../presentation/map-learning';
 import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
-export function BirthComparisonPage({ onAssess, onDiscardAssessment, ended }: {
-  readonly onAssess: (comparison: BirthSessionComparison) => void;
+export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment, ended }: {
+  readonly comparison: ReturnType<typeof useBirthComparison>;
+  readonly onAssess: () => void;
   readonly onDiscardAssessment: () => void;
   readonly ended: number;
 }) {
   const visible = useSessionVisible();
-  const comparison = useBirthComparison();
   const { result, isPending: pending } = comparison;
   const reading = useMatch('/yunqi/birth/classics') !== null;
   const navigate = useNavigate();
@@ -100,7 +99,7 @@ export function BirthComparisonPage({ onAssess, onDiscardAssessment, ended }: {
     <div className={reading ? 'birth-page birth-page--reading' : result ? 'birth-page' : 'birth-page birth-page--entry'}>
       {result && <PanelSummary viewModel={result.summary} />}
       {!reading && result && <PanelView actions={<div className="birth-actions" inert={editing || undefined} aria-hidden={editing || undefined}>
-        <Button ref={assessmentButton} disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={() => onAssess(result.comparison)}>同时测评体质</Button>
+        <Button ref={assessmentButton} disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={onAssess}>同时测评体质</Button>
       </div>} />}
       {showForm && visible && !reading && <BirthEntryForm variant={editing ? 'sheet' : 'inline'} initialFocus={editor?.focus} draft={draft} onEdit={edit}
         onClear={clearDraft} cleared={cleared} onConfirm={submit} pending={pending} error={error}

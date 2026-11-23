@@ -64,11 +64,9 @@ describe('BirthComparisonPage', () => {
     for (const name of ['岁运', '司天', '在泉', '所处气', '所处运']) expect(within(table).getByRole('rowheader', { name })).toHaveAttribute('scope', 'row');
     expect(result.querySelector('.birth-candidate-interval')).toBeNull();
     expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();
-    expect(result.querySelector('.birth-table__time time')).toHaveAttribute('datetime', createBirthComparisonDto().current.facts.input.localTime);
-    expect(result.querySelector('.birth-table__time time')).toHaveTextContent('06月19日 12:00');
-    expect(result.querySelector('.birth-table__time')).not.toHaveTextContent('北京时间 UTC+08');
+    expect(result.querySelector('.birth-table__meta')).toBeNull();
     expect(table.querySelector('time, .num')).toBeNull();
-    expect(result.querySelector('.birth-table__years')).toHaveTextContent(`运气年：先天 ${createBirthComparisonDto().candidates[0].learning.facts.year}`);
+    expect(table.querySelector('.birth-table__birth')).toHaveTextContent(`先天 · ${createBirthComparisonDto().candidates[0].learning.facts.year}`);
     expect(result.querySelector('.birth-current-time')).toBeNull();
     expect(within(result).getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。')).toBeVisible();
     await user.click(within(summary).getByRole('button', { name: '修改' }));

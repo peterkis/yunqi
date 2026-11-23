@@ -79,7 +79,8 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     await expect(page.getByRole('button', { name: '全年', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: '出生阶段', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: '返回', exact: true }).click();
-    await page.getByRole('button', { name: '同时测评体质' }).click();
+    await page.getByRole('link', { name: '体质量表', exact: true }).click();
+    await expect(page.getByRole('complementary', { name: '本次测评对照背景' })).toContainText('2 个候选');
     await expect(page.getByRole('form', { name: '中医体质量表' })).toBeVisible();
     await page.getByRole('link', { name: '先天对照' }).click();
     await page.getByRole('button', { name: /补全生日后查看/ }).click();

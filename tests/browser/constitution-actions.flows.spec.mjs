@@ -88,13 +88,10 @@ for (const embedded of [false, true]) {
         await submit.click();
         await actions.getByRole('button', { name: '同时测评体质', exact: true }).click();
       }
-      await answerConstitution(page, page, { values: profile.values });
+      const request = await answerConstitution(page, page, { values: profile.values });
       if (profile.count === 7) await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
       await expectViewControls(page, testInfo);
-      await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toBeInViewport({ ratio: 1 });
-      const responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-      await actions.getByRole('button', { name: '查看结果', exact: true }).click();
-      const response = await responsePromise;
+      const response = await request.response();
       expect(response.status()).toBe(200);
       const { data } = await response.json();
       expect(data.matchedTypes).toHaveLength(profile.count);

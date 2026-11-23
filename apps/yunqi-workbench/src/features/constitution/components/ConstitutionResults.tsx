@@ -16,7 +16,13 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
   const [revealing, setRevealing] = useState(reveal && visible);
   const birth = context?.birth;
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useLayoutEffect(() => { if (visible) headingRef.current?.focus(); }, []);
+  useLayoutEffect(() => {
+    const heading = headingRef.current;
+    const active = document.activeElement;
+    if (visible && !heading?.closest('[inert]') && (active === document.body || heading?.closest('form')?.contains(active))) {
+      heading?.focus();
+    }
+  }, []);
   useEffect(() => {
     if (!visible) { setRevealing(false); return; }
     if (!revealing) return;

@@ -219,11 +219,8 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
   await confirmConstitutionDestruction(page);
   await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-  await answerConstitution(page);
-  expect(diagnostics.requests.filter(request => request.method === 'POST')).toHaveLength(0);
-  const scoreResponsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await page.getByRole('button', { name: '查看结果', exact: true }).click();
-  const scoreResponse = await scoreResponsePromise;
+  const submitted = await answerConstitution(page);
+  const scoreResponse = await submitted.response();
   expect(scoreResponse.status()).toBe(200);
   const { data } = await scoreResponse.json();
   const result = await expectConstitutionResults(page, data);

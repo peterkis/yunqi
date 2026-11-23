@@ -58,8 +58,8 @@ describe('live learning cards replacing demo panels', () => {
     const candidate = viewModel.candidates[0];
     const { container } = render(<BirthComparisonTable candidate={candidate} current={viewModel} />);
     expect(within(screen.getByRole('columnheader', { name: /^先天/ })).queryByRole('time')).not.toBeInTheDocument();
-    expect(container.querySelectorAll('time')).toHaveLength(1);
-    expect(container.querySelector('.birth-table__time time')).toHaveAttribute('datetime', viewModel.currentTime.localTime);
+    expect(container.querySelectorAll('time')).toHaveLength(0);
+    expect(container.querySelector('.birth-table__meta')).toBeNull();
     expect(screen.getAllByText(candidate.birthGanzhi).length).toBeGreaterThan(0);
     expect(screen.getAllByText(candidate.rows[3].birth.label).length).toBeGreaterThan(0);
   });

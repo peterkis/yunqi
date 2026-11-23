@@ -414,29 +414,19 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(form.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
   await expect(form.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
   await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 1 题/);
+  let responsePromise;
   for (let number = 1; number <= 26; number += 1) {
     await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
     await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(form.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(end).toHaveCount(1);
+    if (number === 26) {
+      expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
+      responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
+    }
     await page.keyboard.press(String((number - 1) % 5 + 1));
   }
-  await expect(form.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeVisible();
-  await expect(page.getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
-  expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
-  await form.getByRole('heading', { name: '26 题已全部作答', exact: true }).focus();
-  await page.keyboard.press('Tab');
-  await expect(form.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(end).toBeFocused();
-  await page.keyboard.press('Tab');
-  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '查看结果', exact: true })).toBeFocused();
-  const responsePromise = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-  await page.keyboard.press('Enter');
+  await expect(page.getByRole('button', { name: '查看结果', exact: true })).toHaveCount(0);
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();

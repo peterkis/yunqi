@@ -33,7 +33,7 @@ it('preserves annual precision and the same snapshot in the table, readings and 
   expect(screen.getByRole('button', { name: '全年' })).toHaveAttribute('aria-pressed','true');
   expect(screen.getByRole('button', { name: '出生阶段' })).toBeDisabled();
   await user.click(screen.getByRole('button', { name: '返回' }));
-  await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+  await user.click(screen.getByRole('link', { name: '体质量表' }));
   expect(await screen.findByRole('form', { name: '中医体质量表' })).toBeVisible();
   expect(screen.getByRole('group', { name: /大寒交节前.*己未.*大寒交节起.*庚申/ })).toBeVisible();
   expect(client.getLearningCurrent).not.toHaveBeenCalled();
