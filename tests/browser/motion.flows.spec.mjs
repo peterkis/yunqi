@@ -24,6 +24,67 @@ test('focus-ring helper accepts idle defaults and rejects transition outline 120
 
 // The same oracle runs in all three flow projects and with the real API removed.
 // Text, focus and posted/scored data expectations never branch on motion mode.
+test('back to top follows the panel and the active classics reader', async ({ page, motionMode }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await loadCurrent(page);
+  const main = page.getByRole('main');
+  const back = page.getByRole('button', { name: '返回顶部' });
+  const offset = node => node.scrollTop;
+  await expect(back).toHaveCount(0);
+  await main.evaluate(node => { node.scrollTop = 180; });
+  await expect(back).toHaveCount(0);
+  await main.evaluate(node => { node.scrollTop = 320; });
+  await expect(back).toBeInViewport({ ratio: 1 });
+  await expect(back).toHaveText('返回顶部');
+  await expect(back.locator('svg')).toHaveCount(0);
+  await expect(back).toHaveCSS('box-shadow', 'none');
+  const copyright = await page.getByText('© 2026-2027', { exact: true }).boundingBox();
+  expect(copyright.x + copyright.width).toBeLessThan((await back.boundingBox()).x);
+  const mainTrace = await main.evaluateHandle(node => {
+    const start = node.scrollTop;
+    const sample = { intermediate: false };
+    function record() {
+      if (node.scrollTop > 0 && node.scrollTop < start) sample.intermediate = true;
+      if (node.scrollTop === 0) node.removeEventListener('scroll', record);
+    }
+    node.addEventListener('scroll', record);
+    return sample;
+  });
+  await back.press('Enter');
+  await expect.poll(() => main.evaluate(offset)).toBe(0);
+  expect(await mainTrace.evaluate(sample => sample.intermediate)).toBe(motionMode !== 'off');
+  await mainTrace.dispose();
+  await expect(main).toBeFocused();
+  await expect(back).toHaveCount(0);
+
+  await page.getByRole('link', { name: '原文与释义' }).click();
+  await page.getByRole('button', { name: '全年', exact: true }).click();
+  const reader = page.getByRole('region', { name: '全年原文', exact: true });
+  await reader.evaluate(node => { node.scrollTop = node.scrollHeight; });
+  await expect(back).toBeVisible();
+  expect(await main.evaluate(offset)).toBe(0);
+  const offsets = await back.evaluate(async button => {
+    const pane = document.querySelector('[data-panel-scroll]');
+    const values = [pane.scrollTop];
+    button.click();
+    values.push(pane.scrollTop);
+    while (pane.scrollTop > 0 && values.length < 90) {
+      await new Promise(requestAnimationFrame);
+      values.push(pane.scrollTop);
+    }
+    return values;
+  });
+  if (motionMode === 'off') expect(offsets[1]).toBe(0);
+  else {
+    expect(offsets.some(y => y > 0 && y < offsets[0]), 'Return scroll paints intermediate positions').toBe(true);
+    expect(offsets).toEqual([...offsets].sort((a, b) => b - a));
+  }
+  expect(offsets.at(-1)).toBe(0);
+  await expect.poll(() => reader.evaluate(offset)).toBe(0);
+  await expect(reader).toBeFocused();
+  await expect(back).toHaveCount(0);
+});
+
 test('motion matrix preserves current, drilldown, birth, scoring, edit, destruction and capsule focus', async ({ page, motionMode, diagnostics }, testInfo) => {
   const current = await loadCurrent(page);
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', expectedMotionLevel(motionMode));
@@ -36,15 +97,16 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   await page.getByRole('button', { name: '返回', exact: true }).press('Enter');
   await expect(page.locator('.current-annual-grid')).toContainText(`${current.facts.suiYun.element}运${current.facts.suiYun.state}`);
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
-  await expect(page.getByRole('main')).toBeFocused();
+  await expect(page.getByRole('textbox', { name: '年龄', exact: true })).toBeFocused();
   await fillBirthDate(page, '1990-05-12');
   const birthResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看对照', exact: true }).click();
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
   const birth = await (await birthResponse).json();
   await expectBirthComparison(page, birth.data);
   await page.getByRole('button', { name: '修改', exact: true }).click();
   await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
-  await page.getByRole('button', { name: '查看对照', exact: true }).click();
+  await fillBirthDate(page, '1990-05-12');
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
   const start = page.getByRole('button', { name: '同时测评体质', exact: true });
   await start.click();
   const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
@@ -157,8 +219,13 @@ test.describe('M1-e environment-related CPU sampling', () => {
         }
       });
       for (const label of ['先天对照', '当下运气']) {
-        await page.getByRole('link', { name: label, exact: true }).click();
-        await expect(page.getByRole('main')).toBeFocused();
+        // The SPA commits this transition in a view-transition callback.
+        // Await the route and its focus target explicitly after dispatch.
+        await page.getByRole('link', { name: label, exact: true }).click({ noWaitAfter: true });
+        await expect(page).toHaveURL(label === '先天对照' ? /\/yunqi\/birth(?:\?|$)/ : /\/yunqi\/current(?:\?|$)/);
+        if (label === '先天对照') {
+          await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
+        } else await expect(page.getByRole('main')).toBeFocused();
         await waitForAnimations(page);
         observations.push(await page.evaluate(label => ({ label, level: document.querySelector('.theme-root').dataset.motion,
           stored: sessionStorage.getItem('yunqi-motion-frame-in-flight') }), label));
@@ -197,7 +264,9 @@ test('segmented indicators align after selection and narrow resize across tabs, 
   await checkResize(tabs);
   for (const label of ['先天对照', '体质量表', '先天对照', '当下运气']) {
     await tabs.getByRole('link', { name: label, exact: true }).click();
-    await expect(page.getByRole('main')).toBeFocused();
+    if (label === '先天对照') {
+      await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
+    } else await expect(page.getByRole('main')).toBeFocused();
     await expect.poll(() => page.getByRole('main').evaluate(element => element.scrollTop)).toBe(0);
     await expect(tabs.locator('.motion-segment-indicator')).toHaveCSS('transition-duration', motionMode === 'full' ? '0.18s, 0.18s' : '0s');
     await checkResize(tabs);
@@ -242,7 +311,7 @@ test('segmented indicators align after selection and narrow resize across tabs, 
   await page.getByRole('button', { name: '返回', exact: true }).click();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
   await fillBirthDate(page, '1990-05-12');
-  await page.getByRole('button', { name: '查看对照', exact: true }).click();
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
   await page.getByRole('link', { name: '全部原文', exact: true }).click();
   const birthScopes = page.getByRole('navigation', { name: '出生原文范围', exact: true });
   await checkResize(birthScopes);
@@ -354,7 +423,7 @@ test('theme colors commit together, suppress element transitions and use only th
 test('workbench segments keep their surface while pressed', async ({ page }) => {
   await page.goto('/yunqi/birth');
   const navigation = page.getByRole('navigation', { name: '工作台导航' });
-  const precision = page.getByRole('radiogroup', { name: '出生时刻是否已知' });
+  const precision = page.getByRole('radiogroup', { name: '出生年份录入方式' });
   async function checkPress(target) {
     await target.hover();
     await waitForAnimations(page);
@@ -374,9 +443,10 @@ test('workbench segments keep their surface while pressed', async ({ page }) => 
   await expect(page.locator('.panel-shell > header')).toHaveCSS('border-bottom-width', '0px');
   await checkPress(navigation.getByRole('link', { name: '先天对照' }));
   await checkPress(navigation.getByRole('link', { name: '当下运气' }));
-  await checkPress(precision.getByRole('radio', { name: '时刻不详' }));
-  await expect(precision).toHaveAccessibleDescription('保留当天所有可能归属');
-  await precision.getByRole('radio', { name: '已知时刻' }).click();
+  await checkPress(precision.getByRole('radio', { name: '按年龄推算' }));
+  await checkPress(precision.getByRole('radio', { name: '按出生年份' }));
+  await fillBirthDate(page, '1990-03-21');
+  await page.getByRole('button', { name: /补录时刻/ }).click();
   await expect(page.getByLabel('出生时刻', { exact: true })).toBeVisible();
   await expect(page.getByText('保留当天所有可能归属', { exact: true })).toHaveCount(0);
   await expect(precision).not.toHaveAttribute('aria-describedby');

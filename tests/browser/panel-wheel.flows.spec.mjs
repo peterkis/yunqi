@@ -124,7 +124,7 @@ test('panel wheel: both reading panes own their wheel without scrolling the oute
     if (birth) {
       await page.getByRole('link', { name: '先天对照', exact: true }).click();
       await fillBirthDate(page, '1990-05-12');
-      await page.getByRole('button', { name: '查看对照', exact: true }).click();
+      await page.getByRole('button', { name: '确认并对照', exact: true }).click();
     }
     await page.getByRole('link', { name: birth ? '全部原文' : '原文与释义', exact: true }).click();
     await page.getByRole('button', { name: '全年', exact: true }).click();

@@ -113,7 +113,10 @@ export function createAssessmentDto(): ConstitutionAssessmentDto {
 export function createClientStub(overrides: Partial<YunQiClient> = {}): YunQiClient {
   return {
     getYear: vi.fn(),
-    getCurrent: vi.fn(),
+    getCurrent: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
+    compareBirthYear: vi.fn(),
+    previewBirthDate: vi.fn(async ({ year, month, day }) => ({ matches: [{ birthDate: [year, String(month).padStart(2,'0'), String(day).padStart(2,'0')].join('-'), leap: false, lunarLabel: '', annualLabels: ['年度岁运'], boundaries: month === 3 && day === 21
+      ? [{ label: '交气', at: createYunQiCalculationDto().input }] : [] }] })),
     calculate: vi.fn(),
     getLearningCurrent: vi.fn().mockResolvedValue(createLearningDto()),
     calculateLearning: vi.fn(),

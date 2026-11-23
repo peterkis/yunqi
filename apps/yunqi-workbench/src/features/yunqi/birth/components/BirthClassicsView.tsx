@@ -13,7 +13,7 @@ function Reading({ value }: { readonly value: BirthReadingViewModel }) {
 /** Shared reading cards and compact range navigation follow prototype board ②.
  * The birth scope is supplied by the mapper, never inferred from today's stage. */
 export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPageViewModel }) {
-  const [scope, setScope] = useState<'annual' | 'period'>('period');
+  const [scope, setScope] = useState<'annual' | 'period'>(viewModel.comparison.birthPrecision === 'year' ? 'annual' : 'period');
   const trackRef = useSegmentIndicator<HTMLElement>(scope);
   return (
     <section className="birth-classics" aria-label="先天原文与释义">
@@ -21,14 +21,14 @@ export function BirthClassicsView({ viewModel }: { readonly viewModel: BirthPage
       <nav ref={trackRef} className="birth-reading-nav motion-segments" aria-label="出生原文范围">
         <span className="motion-segment-indicator" aria-hidden="true" />
         <button type="button" aria-pressed={scope === 'annual'} onClick={() => setScope('annual')}>全年</button>
-        <button type="button" aria-pressed={scope === 'period'} onClick={() => setScope('period')}>出生阶段</button>
+        <button type="button" disabled={viewModel.comparison.birthPrecision === 'year'} aria-pressed={scope === 'period'} onClick={() => setScope('period')}>出生阶段</button>
       </nav>
       <div className="birth-classics__readings" data-panel-scroll="" role="region" aria-label="出生原文阅读区" tabIndex={0}>
       {viewModel.candidates.map((candidate, index) => {
         const readings = scope === 'annual' ? candidate.annualReadings : candidate.periodReadings;
         return <section className="birth-reading-candidate" key={`${candidate.from.localTime}-${index}`} aria-label={`${candidate.label}原文`}>
           <h3 className="birth-label">{candidate.label}</h3>
-          {viewModel.comparison.birthPrecision === 'date' ? <p className="birth-note">可能出生区间（起点包含，终点不包含）：<YunQiTimeDisplay value={candidate.from} variant="compact" /> 至 <YunQiTimeDisplay value={candidate.until} variant="compact" /></p> : null}
+          {viewModel.comparison.birthPrecision !== 'time' ? <p className="birth-note">可能出生区间（起点包含，终点不包含）：<YunQiTimeDisplay value={candidate.from} variant="compact" /> 至 <YunQiTimeDisplay value={candidate.until} variant="compact" /></p> : null}
           {readings.map((passage) => <Reading key={passage.id} value={passage} />)}
           {readings.length === 0 ? <p className="birth-note">此范围暂未收录已核对原文。</p> : null}
         </section>;

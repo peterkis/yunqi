@@ -257,7 +257,6 @@ export async function expectPanelLayout(page) {
         panel: rect(panel), header: rect(panel.querySelector(':scope > header')),
         navigation: rect(panel.querySelector(':scope > .panel-shell__navigation')),
         main: rect(main), footer: rect(panel.querySelector(':scope > footer')),
-        colophon: panel.querySelector(':scope > .panel-shell__colophon') ? rect(panel.querySelector(':scope > .panel-shell__colophon')) : null,
         actions: panel.querySelector(':scope > .panel-shell__actions') ? rect(panel.querySelector(':scope > .panel-shell__actions')) : null,
         mainClientWidth: main.clientWidth, mainScrollWidth: main.scrollWidth,
         overflowY: getComputedStyle(main).overflowY,
@@ -273,18 +272,13 @@ export async function expectPanelLayout(page) {
     expect(layout.footer.height).toBe(36);
     expect(layout.footer.bottom).toBe(layout.panel.bottom);
     expect(layout.main.y).toBe(layout.navigation.bottom);
-    const contentBottom = layout.colophon?.y ?? layout.footer.y;
-    if (layout.colophon) {
-      expect(layout.colophon.bottom).toBe(layout.footer.y);
-      expect(layout.colophon.height).toBeGreaterThanOrEqual(24);
-    }
     if (layout.actions) {
       // 1-layout.md: optional action area = 40 button + 12 above and below, fixed between content and footer.
       expect(layout.main.bottom).toBe(layout.actions.y);
       expect(layout.actions.height, 'Action area is 40 + 2 × 12').toBe(64);
-      expect(layout.actions.bottom).toBe(contentBottom);
+      expect(layout.actions.bottom).toBe(layout.footer.y);
     } else {
-      expect(layout.main.bottom).toBe(contentBottom);
+      expect(layout.main.bottom).toBe(layout.footer.y);
     }
     expect(layout.overflowY).toBe('auto');
     expect(layout.mainScrollWidth, 'Content does not scroll horizontally').toBeLessThanOrEqual(layout.mainClientWidth + 1);

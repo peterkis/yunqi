@@ -1,0 +1,2483 @@
+{
+  "contractId": "YQ-API-CONTRACT-1.4.0",
+  "documentVersion": "1.6.0",
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/v1/constitution/assess": {
+      "post": {
+        "operationId": "assessConstitution",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConstitutionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssessmentSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/constitution/questionnaire": {
+      "get": {
+        "operationId": "getConstitutionQuestionnaire",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/QuestionnaireSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/calculate": {
+      "post": {
+        "operationId": "calculateYunQi",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/current": {
+      "get": {
+        "operationId": "getCurrentYunQi",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CalculationSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/learning/birth-comparison": {
+      "post": {
+        "operationId": "compareBirth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BirthSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/learning/birth-date-preview": {
+      "post": {
+        "operationId": "previewBirthDate",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthDatePreviewRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BirthDatePreviewSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/learning/birth-year-comparison": {
+      "post": {
+        "operationId": "compareBirthYear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BirthYearRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BirthYearSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/learning/calculate": {
+      "post": {
+        "operationId": "calculateLearning",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalculateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/learning/current": {
+      "get": {
+        "operationId": "getLearningCurrent",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/yunqi/year/{year}": {
+      "get": {
+        "operationId": "getYunQiYear",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "year",
+            "required": true,
+            "schema": {
+              "maximum": 2100,
+              "minimum": 1900,
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/YearSuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "schemas": {
+    "AssessmentSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/ConstitutionAssessmentDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "BirthComparisonDto": {
+      "additionalProperties": false,
+      "properties": {
+        "ambiguous": {
+          "type": "boolean"
+        },
+        "birthPrecision": {
+          "anyOf": [
+            {
+              "enum": [
+                "date"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "time"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "candidates": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "comparisons": {
+                "items": {
+                  "$ref": "#/components/schemas/LearningRelationDto"
+                },
+                "type": "array"
+              },
+              "from": {
+                "$ref": "#/components/schemas/YunQiTimeDto"
+              },
+              "label": {
+                "type": "string"
+              },
+              "learning": {
+                "$ref": "#/components/schemas/YunQiLearningDto"
+              },
+              "until": {
+                "$ref": "#/components/schemas/YunQiTimeDto"
+              }
+            },
+            "required": [
+              "comparisons",
+              "from",
+              "label",
+              "learning",
+              "until"
+            ],
+            "type": "object"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "type": "array"
+        },
+        "current": {
+          "$ref": "#/components/schemas/YunQiLearningDto"
+        },
+        "message": {
+          "type": "string"
+        },
+        "ruleVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ambiguous",
+        "birthPrecision",
+        "candidates",
+        "current",
+        "message",
+        "ruleVersion"
+      ],
+      "type": "object"
+    },
+    "BirthDatePreviewDto": {
+      "additionalProperties": false,
+      "properties": {
+        "matches": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "annualLabels": {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              "birthDate": {
+                "type": "string"
+              },
+              "boundaries": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "at": {
+                      "$ref": "#/components/schemas/YunQiTimeDto"
+                    },
+                    "label": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "at",
+                    "label"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "leap": {
+                "type": "boolean"
+              },
+              "lunarLabel": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "annualLabels",
+              "birthDate",
+              "boundaries",
+              "leap",
+              "lunarLabel"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "matches"
+      ],
+      "type": "object"
+    },
+    "BirthDatePreviewRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "calendar": {
+          "anyOf": [
+            {
+              "enum": [
+                "solar"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "lunar"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "day": {
+          "maximum": 31,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "leap": {
+          "type": "boolean"
+        },
+        "month": {
+          "maximum": 12,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "calendar",
+        "day",
+        "month",
+        "year"
+      ],
+      "type": "object"
+    },
+    "BirthDatePreviewSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/BirthDatePreviewDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "BirthRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "birthDate": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "type": "string"
+        },
+        "birthTime": {
+          "pattern": "^\\d{2}:\\d{2}:\\d{2}$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "birthDate"
+      ],
+      "type": "object"
+    },
+    "BirthSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/BirthComparisonDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "BirthYearComparisonDto": {
+      "additionalProperties": false,
+      "properties": {
+        "birthPrecision": {
+          "enum": [
+            "year"
+          ],
+          "type": "string"
+        },
+        "candidates": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "annualPassages": {
+                "items": {
+                  "$ref": "#/components/schemas/ClassicalPassageDto"
+                },
+                "type": "array"
+              },
+              "comparisons": {
+                "items": {
+                  "$ref": "#/components/schemas/LearningRelationDto"
+                },
+                "type": "array"
+              },
+              "from": {
+                "$ref": "#/components/schemas/YunQiTimeDto"
+              },
+              "ganzhi": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              },
+              "sitian": {
+                "type": "string"
+              },
+              "suiYun": {
+                "$ref": "#/components/schemas/SuiYunDto"
+              },
+              "until": {
+                "$ref": "#/components/schemas/YunQiTimeDto"
+              },
+              "year": {
+                "type": "integer"
+              },
+              "zaiquan": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "annualPassages",
+              "comparisons",
+              "from",
+              "ganzhi",
+              "label",
+              "sitian",
+              "suiYun",
+              "until",
+              "year",
+              "zaiquan"
+            ],
+            "type": "object"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "type": "array"
+        },
+        "current": {
+          "$ref": "#/components/schemas/YunQiLearningDto"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "birthPrecision",
+        "candidates",
+        "current",
+        "message"
+      ],
+      "type": "object"
+    },
+    "BirthYearRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "year"
+      ],
+      "type": "object"
+    },
+    "BirthYearSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/BirthYearComparisonDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "CalculateRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "dateTime": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|\\+08:00)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "dateTime"
+      ],
+      "type": "object"
+    },
+    "CalculationSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/YunQiCalculationDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "ClassicalPassageDto": {
+      "additionalProperties": false,
+      "properties": {
+        "chapter": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "quote": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "string"
+        },
+        "section": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "work": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "chapter",
+        "explanation",
+        "id",
+        "quote",
+        "scope",
+        "section",
+        "sourceUrl",
+        "work"
+      ],
+      "type": "object"
+    },
+    "ConstitutionAssessmentDto": {
+      "additionalProperties": false,
+      "properties": {
+        "boundaryNote": {
+          "type": "string"
+        },
+        "matchedTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "questionnaireId": {
+          "type": "string"
+        },
+        "results": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "itemCount": {
+                "type": "integer"
+              },
+              "label": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "rawScore": {
+                "type": "integer"
+              },
+              "score": {
+                "maximum": 100,
+                "minimum": 0,
+                "type": "number"
+              },
+              "status": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "yes"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "enum": [
+                      "tendency"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "enum": [
+                      "basically"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "enum": [
+                      "no"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "id",
+              "itemCount",
+              "label",
+              "name",
+              "rawScore",
+              "score",
+              "status"
+            ],
+            "type": "object"
+          },
+          "maxItems": 9,
+          "minItems": 9,
+          "type": "array"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "enum": [
+                "male"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "female"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "summary": {
+          "type": "string"
+        },
+        "tendencyTypes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "boundaryNote",
+        "matchedTypes",
+        "questionnaireId",
+        "results",
+        "sex",
+        "summary",
+        "tendencyTypes",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ConstitutionQuestionnaireDto": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "enum": [
+            "GBT46939-2025"
+          ],
+          "type": "string"
+        },
+        "instructions": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "options": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "label": {
+                "type": "string"
+              },
+              "value": {
+                "maximum": 5,
+                "minimum": 1,
+                "type": "integer"
+              }
+            },
+            "required": [
+              "label",
+              "value"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "questions": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "sex": {
+                "anyOf": [
+                  {
+                    "enum": [
+                      "all"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "enum": [
+                      "male"
+                    ],
+                    "type": "string"
+                  },
+                  {
+                    "enum": [
+                      "female"
+                    ],
+                    "type": "string"
+                  }
+                ]
+              },
+              "text": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "sex",
+              "text"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "scales": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "items": {
+                "items": {
+                  "additionalProperties": false,
+                  "properties": {
+                    "questionId": {
+                      "type": "string"
+                    },
+                    "reverse": {
+                      "type": "boolean"
+                    }
+                  },
+                  "required": [
+                    "questionId",
+                    "reverse"
+                  ],
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              "name": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "items",
+              "name"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "sourceNote": {
+          "type": "string"
+        },
+        "sourceUrl": {
+          "type": "string"
+        },
+        "standard": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "instructions",
+        "options",
+        "questions",
+        "scales",
+        "sourceNote",
+        "sourceUrl",
+        "standard",
+        "title",
+        "version"
+      ],
+      "type": "object"
+    },
+    "ConstitutionRequest": {
+      "additionalProperties": false,
+      "properties": {
+        "answers": {
+          "additionalProperties": {
+            "maximum": 5,
+            "minimum": 1,
+            "type": "integer"
+          },
+          "maxProperties": 27,
+          "type": "object"
+        },
+        "questionnaireId": {
+          "enum": [
+            "GBT46939-2025"
+          ],
+          "type": "string"
+        },
+        "sex": {
+          "anyOf": [
+            {
+              "enum": [
+                "male"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "female"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "answers",
+        "questionnaireId",
+        "sex"
+      ],
+      "type": "object"
+    },
+    "ErrorResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "anyOf": [
+            {
+              "enum": [
+                "INVALID_ARGUMENT"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "CALENDAR_PROVIDER_UNAVAILABLE"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "INTERNAL_ERROR"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "details": {
+          "additionalProperties": {},
+          "type": "object"
+        },
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "details",
+        "message"
+      ],
+      "type": "object"
+    },
+    "HostGuestRelationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "NONE"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_GENERATES_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_GENERATES_HOST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_CONTROLS_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_CONTROLS_HOST"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "elementRelation": {
+          "anyOf": [
+            {
+              "enum": [
+                "SAME_ELEMENT"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DIFFERENT_ELEMENT"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "qiRelation": {
+          "anyOf": [
+            {
+              "enum": [
+                "SAME_QI"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DIFFERENT_QI"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "traditionalLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "direction",
+        "elementRelation",
+        "qiRelation",
+        "traditionalLabel"
+      ],
+      "type": "object"
+    },
+    "LearningRelationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "explanation": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "relation": {
+          "type": "string"
+        },
+        "sourceIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "sources": {
+          "items": {
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "title",
+              "url"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "explanation",
+        "label",
+        "relation",
+        "sourceIds",
+        "sources",
+        "title"
+      ],
+      "type": "object"
+    },
+    "LearningSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/YunQiLearningDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "MovementRelationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "NONE"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_GENERATES_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_GENERATES_HOST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "HOST_CONTROLS_GUEST"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "GUEST_CONTROLS_HOST"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "elementRelation": {
+          "anyOf": [
+            {
+              "enum": [
+                "SAME_ELEMENT"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "DIFFERENT_ELEMENT"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "traditionalLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "direction",
+        "elementRelation",
+        "traditionalLabel"
+      ],
+      "type": "object"
+    },
+    "MovementStepDto": {
+      "additionalProperties": false,
+      "properties": {
+        "boundaryMethod": {
+          "type": "string"
+        },
+        "end": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "endLabel": {
+          "type": "string"
+        },
+        "explanation": {
+          "type": "string"
+        },
+        "guest": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "host": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "index": {
+          "maximum": 5,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "relation": {
+          "$ref": "#/components/schemas/MovementRelationDto"
+        },
+        "start": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "startLabel": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "boundaryMethod",
+        "end",
+        "endLabel",
+        "explanation",
+        "guest",
+        "host",
+        "index",
+        "name",
+        "relation",
+        "start",
+        "startLabel"
+      ],
+      "type": "object"
+    },
+    "QuestionnaireSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/ConstitutionQuestionnaireDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "SixQiBoundaryTerm": {
+      "anyOf": [
+        {
+          "enum": [
+            "大寒"
+          ],
+          "type": "string"
+        },
+        {
+          "enum": [
+            "春分"
+          ],
+          "type": "string"
+        },
+        {
+          "enum": [
+            "小满"
+          ],
+          "type": "string"
+        },
+        {
+          "enum": [
+            "大暑"
+          ],
+          "type": "string"
+        },
+        {
+          "enum": [
+            "秋分"
+          ],
+          "type": "string"
+        },
+        {
+          "enum": [
+            "小雪"
+          ],
+          "type": "string"
+        }
+      ]
+    },
+    "SixQiDto": {
+      "additionalProperties": false,
+      "properties": {
+        "sitian": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/components/schemas/SixQiStepDto"
+          },
+          "maxItems": 6,
+          "minItems": 6,
+          "type": "array"
+        },
+        "zaiquan": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "sitian",
+        "steps",
+        "zaiquan"
+      ],
+      "type": "object"
+    },
+    "SixQiStepDto": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "endTerm": {
+          "$ref": "#/components/schemas/SixQiBoundaryTerm"
+        },
+        "guestQi": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "hostQi": {
+          "anyOf": [
+            {
+              "enum": [
+                "厥阴风木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阴君火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阴湿土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少阳相火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "阳明燥金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太阳寒水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "index": {
+          "maximum": 6,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "enum": [
+                "初之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "二之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "三之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "四之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "五之气"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "终之气"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "relation": {
+          "$ref": "#/components/schemas/HostGuestRelationDto"
+        },
+        "start": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "startTerm": {
+          "$ref": "#/components/schemas/SixQiBoundaryTerm"
+        }
+      },
+      "required": [
+        "end",
+        "endTerm",
+        "guestQi",
+        "hostQi",
+        "index",
+        "name",
+        "relation",
+        "start",
+        "startTerm"
+      ],
+      "type": "object"
+    },
+    "StageProgressDto": {
+      "additionalProperties": false,
+      "properties": {
+        "elapsedRatio": {
+          "exclusiveMaximum": 1,
+          "minimum": 0,
+          "type": "number"
+        },
+        "endsOnInputDate": {
+          "type": "boolean"
+        },
+        "remainingCalendarDays": {
+          "minimum": 0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "elapsedRatio",
+        "endsOnInputDate",
+        "remainingCalendarDays"
+      ],
+      "type": "object"
+    },
+    "StemBranchDto": {
+      "additionalProperties": false,
+      "properties": {
+        "branch": {
+          "anyOf": [
+            {
+              "enum": [
+                "子"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丑"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "寅"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "卯"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "辰"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "巳"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "午"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "未"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "申"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "酉"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "戌"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "亥"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "ganzhi": {
+          "maxLength": 2,
+          "minLength": 2,
+          "type": "string"
+        },
+        "stem": {
+          "anyOf": [
+            {
+              "enum": [
+                "甲"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "乙"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丙"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "丁"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "戊"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "己"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "庚"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "辛"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "壬"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "癸"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "branch",
+        "ganzhi",
+        "stem"
+      ],
+      "type": "object"
+    },
+    "SuiYunDto": {
+      "additionalProperties": false,
+      "properties": {
+        "element": {
+          "anyOf": [
+            {
+              "enum": [
+                "木"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "火"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "土"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "金"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "水"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "state": {
+          "anyOf": [
+            {
+              "enum": [
+                "太过"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "不及"
+              ],
+              "type": "string"
+            }
+          ]
+        },
+        "tone": {
+          "anyOf": [
+            {
+              "enum": [
+                "太角"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少角"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太徵"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少徵"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太宫"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少宫"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太商"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少商"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "太羽"
+              ],
+              "type": "string"
+            },
+            {
+              "enum": [
+                "少羽"
+              ],
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "required": [
+        "element",
+        "state",
+        "tone"
+      ],
+      "type": "object"
+    },
+    "YearSuccessResponse": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "enum": [
+            "SUCCESS"
+          ],
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/components/schemas/YunQiYearDto"
+        },
+        "message": {
+          "enum": [
+            ""
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "data",
+        "message"
+      ],
+      "type": "object"
+    },
+    "YunQiCalculationDto": {
+      "additionalProperties": false,
+      "properties": {
+        "currentStep": {
+          "$ref": "#/components/schemas/SixQiStepDto"
+        },
+        "currentStepProgress": {
+          "$ref": "#/components/schemas/StageProgressDto"
+        },
+        "explanations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "input": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "interval": {
+          "$ref": "#/components/schemas/YunQiIntervalDto"
+        },
+        "ruleVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sixQi": {
+          "$ref": "#/components/schemas/SixQiDto"
+        },
+        "stemBranch": {
+          "$ref": "#/components/schemas/StemBranchDto"
+        },
+        "suiYun": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "currentStep",
+        "currentStepProgress",
+        "explanations",
+        "input",
+        "interval",
+        "ruleVersion",
+        "sixQi",
+        "stemBranch",
+        "suiYun",
+        "year"
+      ],
+      "type": "object"
+    },
+    "YunQiIntervalDto": {
+      "additionalProperties": false,
+      "properties": {
+        "end": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        },
+        "start": {
+          "$ref": "#/components/schemas/YunQiTimeDto"
+        }
+      },
+      "required": [
+        "end",
+        "start"
+      ],
+      "type": "object"
+    },
+    "YunQiLearningDto": {
+      "additionalProperties": false,
+      "properties": {
+        "annualPassages": {
+          "items": {
+            "$ref": "#/components/schemas/ClassicalPassageDto"
+          },
+          "type": "array"
+        },
+        "annualRelation": {
+          "$ref": "#/components/schemas/LearningRelationDto"
+        },
+        "currentMovement": {
+          "$ref": "#/components/schemas/MovementStepDto"
+        },
+        "currentMovementProgress": {
+          "$ref": "#/components/schemas/StageProgressDto"
+        },
+        "currentPassages": {
+          "items": {
+            "$ref": "#/components/schemas/ClassicalPassageDto"
+          },
+          "type": "array"
+        },
+        "currentQi": {
+          "$ref": "#/components/schemas/LearningRelationDto"
+        },
+        "facts": {
+          "$ref": "#/components/schemas/YunQiCalculationDto"
+        },
+        "movements": {
+          "items": {
+            "$ref": "#/components/schemas/MovementStepDto"
+          },
+          "maxItems": 5,
+          "minItems": 5,
+          "type": "array"
+        },
+        "notes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "ruleVersion": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "annualPassages",
+        "annualRelation",
+        "currentMovement",
+        "currentMovementProgress",
+        "currentPassages",
+        "currentQi",
+        "facts",
+        "movements",
+        "notes",
+        "ruleVersion"
+      ],
+      "type": "object"
+    },
+    "YunQiTimeDto": {
+      "additionalProperties": false,
+      "properties": {
+        "calendarTimeStandard": {
+          "enum": [
+            "BeijingStandardTime+08:00"
+          ],
+          "type": "string"
+        },
+        "epochMilliseconds": {
+          "maximum": 9007199254740991,
+          "minimum": -9007199254740991,
+          "type": "integer"
+        },
+        "localTime": {
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?\\+08:00$",
+          "type": "string"
+        },
+        "offset": {
+          "enum": [
+            "+08:00"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "calendarTimeStandard",
+        "epochMilliseconds",
+        "localTime",
+        "offset"
+      ],
+      "type": "object"
+    },
+    "YunQiYearDto": {
+      "additionalProperties": false,
+      "properties": {
+        "explanations": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "interval": {
+          "$ref": "#/components/schemas/YunQiIntervalDto"
+        },
+        "ruleVersion": {
+          "minLength": 1,
+          "type": "string"
+        },
+        "sixQi": {
+          "$ref": "#/components/schemas/SixQiDto"
+        },
+        "stemBranch": {
+          "$ref": "#/components/schemas/StemBranchDto"
+        },
+        "suiYun": {
+          "$ref": "#/components/schemas/SuiYunDto"
+        },
+        "year": {
+          "maximum": 2100,
+          "minimum": 1900,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "explanations",
+        "interval",
+        "ruleVersion",
+        "sixQi",
+        "stemBranch",
+        "suiYun",
+        "year"
+      ],
+      "type": "object"
+    }
+  }
+}

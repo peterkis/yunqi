@@ -62,12 +62,25 @@ for (const state of cases) {
     else if (state.classics) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
-    } else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    } else if (state.path === '/yunqi/birth') await expect(page.getByRole('form', { name: '出生运气输入' })).toBeVisible();
+    else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
     if (state.name === 'annual-entry') {
       await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
       const inputHeight = await page.locator(':root').evaluate(root => getComputedStyle(root).getPropertyValue('--input-height').trim());
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('height', inputHeight);
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('appearance', 'none');
+    }
+    if (state.name === 'birth-entry') {
+      await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
+      if (acceptanceTheme === 'dark') {
+        await page.getByRole('button', { name: '切换至深色主题' }).click();
+      }
+      await expect(page.getByRole('button', { name: '仅按年份对照' })).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expectPanelLayout(page);
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+      await screenshot(page, testInfo, state.name);
+      return;
     }
     if (state.path === '/yunqi/birth' || state.path === '/yunqi/constitution') {
       await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
@@ -91,7 +104,7 @@ for (const state of cases) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
       const birthDate = state.birthDate ?? '1990-05-12';
       await fillBirthDate(page, birthDate);
-      await page.getByRole('button', { name: '查看对照' }).click();
+      await page.getByRole('button', { name: '确认并对照' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
       await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText(`${birthDate} · 时刻不详 · 修改`);
@@ -100,7 +113,7 @@ for (const state of cases) {
         await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
         await fillBirthDate(page, data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-        await page.getByRole('button', { name: '查看对照' }).click();
+        await page.getByRole('button', { name: '确认并对照' }).click();
         const { data: boundary } = await (await boundaryResponse).json();
         expect(boundary.ambiguous).toBe(true);
         await expect(page.locator('.birth-table')).toHaveCount(boundary.candidates.length);

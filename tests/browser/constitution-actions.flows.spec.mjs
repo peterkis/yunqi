@@ -82,10 +82,9 @@ for (const embedded of [false, true]) {
       await page.goto(embedded ? '/yunqi/birth' : '/yunqi/constitution');
       const actions = page.locator('.panel-shell__actions');
       if (embedded) {
-        const submit = actions.getByRole('button', { name: '查看对照', exact: true });
-        await expect(submit).toHaveAttribute('form', await page.getByRole('form', { name: '出生运气输入' }).getAttribute('id'));
-        await expect(actions).toBeInViewport({ ratio: 1 });
         await fillBirthDate(page, '1990-05-12');
+        const submit = page.getByRole('form', { name: '出生运气输入' }).getByRole('button', { name: '确认并对照', exact: true });
+        await expect(submit).toBeInViewport({ ratio: 1 });
         await submit.click();
         await actions.getByRole('button', { name: '同时测评体质', exact: true }).click();
       }

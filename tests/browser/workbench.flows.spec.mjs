@@ -119,7 +119,7 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   const trace = page.getByRole('region', { name: '追溯信息', exact: true });
   await page.locator('.drilldown-technical > summary').click();
   await expect(trace.getByText(nextYear.ruleVersion, { exact: true })).toBeVisible();
-  await expect(trace.getByText('YQ-API-CONTRACT-1.3.0', { exact: true })).toBeVisible();
+  await expect(trace.getByText('YQ-API-CONTRACT-1.4.0', { exact: true })).toBeVisible();
   await screenshot(page, testInfo, 'annual-upgraded-guest-generates-host');
   await expect(page).toHaveURL(/\/yunqi\/year\/2025(?:\?motion=off)?$/);
   await expect(page.getByRole('heading', { name: '年度详情', exact: true })).toBeVisible();
@@ -262,7 +262,7 @@ test('supported annual boundary years load directly from the real API', async ({
     await expect(calculation).toHaveAttribute('open');
     const trace = calculation.getByRole('region', { name: '追溯信息', exact: true });
     await expect(trace.getByText(data.ruleVersion, { exact: true })).toBeVisible();
-    await expect(trace.getByText('YQ-API-CONTRACT-1.3.0', { exact: true })).toBeVisible();
+    await expect(trace.getByText('YQ-API-CONTRACT-1.4.0', { exact: true })).toBeVisible();
     await screenshot(page, testInfo, `annual-boundary-${year}`);
   }
   expect(diagnostics.requests).toHaveLength(2);

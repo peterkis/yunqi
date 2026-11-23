@@ -4,7 +4,6 @@ import { InlineText } from '../../../components/design/InlineText';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
-import { PanelView } from '../../../components/layout/PanelView';
 import { MotionSettings } from '../../../components/layout/MotionSettings';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
@@ -37,7 +36,6 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
 
   return <div className="current-yunqi-page current-overview">
     <PanelSummary viewModel={mapPanelSummary(summary, { step: currentStep, relation: learning.currentQi })} />
-    <PanelView footerNote={passage ? '文献线索，非个体发病预测' : undefined} />
     <h2 className="visually-hidden">当前五运六气</h2>
     <div className="current-overview__annual">
       <InfoCard label={`全年 · ${summary.year}`} meta={<>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" /></>} hint={<>

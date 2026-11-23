@@ -1,5 +1,7 @@
 # Browser acceptance
 
+`birth-entry.flows.spec.mjs` exercises age-only and year-only entry, lunar date resolution, two matching civil dates, annual readings and the linked assessment against the real Service. It verifies that 修改 selects the submitted year in a prefilled draft, 补全生日 focuses the first missing date part, and an actual click on the scrim discards edits while preserving the comparison table. The layouts are checked in a 400×640 light panel, a 400×860 dark panel and a 1366×900 workstation. Set `YUNQI_BROWSER_CHANNEL=chrome` for installed Chrome.
+
 This suite checks the approved read-only Workbench with a real local Service,
 the real calendar adapter, and Vite's same-origin proxy. It covers workflow
 completion and visible UI behavior. It does not establish expert rule approval,

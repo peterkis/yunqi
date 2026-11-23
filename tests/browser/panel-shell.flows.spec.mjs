@@ -86,9 +86,17 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
       await expect(page.getByRole('banner')).toContainText('教学参考 · 本次会话不关联患者');
       await expect(page.getByRole('banner')).not.toContainText(/HIS|就诊|年龄/);
       await page.getByRole('contentinfo').evaluate(footer => {
+        const walker = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT);
         const range = document.createRange();
-        range.selectNodeContents(footer);
-        if (new Set([...range.getClientRects()].map(rect => Math.round(rect.top))).size !== 1) {
+        const fragments = [];
+        while (walker.nextNode()) {
+          if (!walker.currentNode.textContent.trim()) continue;
+          range.selectNodeContents(walker.currentNode);
+          fragments.push(...[...range.getClientRects()].filter(rect => rect.width > 0));
+        }
+        // Only glyphs determine line count. Nested flex boxes and pill padding
+        // contribute additional rectangles even when all text shares one line.
+        if (!fragments.length || Math.max(...fragments.map(r => r.top)) >= Math.min(...fragments.map(r => r.bottom))) {
           throw new Error('Footer must remain one meta line at 400px');
         }
       });
@@ -162,19 +170,19 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
 test('segments move focus to content and collapse preserves a birth draft without fetching a summary', async ({ page, diagnostics }) => {
   await loadCurrent(page);
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
-  await expect(page.getByRole('main')).toBeFocused();
+  await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
   await expect(page).toHaveTitle('先天对照 · 运气通');
   const nav = page.getByRole('navigation', { name: '工作台导航', exact: true });
-  await expect(nav.locator('[aria-current="page"]')).toHaveText('先天对照');
   await fillBirthDate(page, '1990-05-12');
+  await expect(nav.locator('[aria-current="page"]')).toHaveText('先天对照');
   const count = diagnostics.requests.length;
   await page.getByRole('button', { name: '收起为胶囊条' }).click();
   const expand = page.getByRole('button', { name: /^展开运气通/ });
   await expect(expand).toContainText('本视图暂无运气摘要');
   await expand.press('Enter');
-  await expectBirthDate(page, '1990-05-12');
   await settle(page);
   expect(diagnostics.requests).toHaveLength(count);
+  await expectBirthDate(page, '1990-05-12');
   await nav.getByRole('link', { name: '体质量表', exact: true }).click();
   await expect(page.getByRole('main')).toBeFocused();
   await expect(nav.locator('[aria-current="page"]')).toHaveText('体质量表');

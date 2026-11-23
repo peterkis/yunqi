@@ -40,7 +40,11 @@
 .reading-excerpt[data-element="fire"] { --excerpt-tint: var(--excerpt-fire-wash); --excerpt-pigment: var(--excerpt-fire-pigment); }
 .reading-excerpt[data-element="earth"] { --excerpt-tint: var(--excerpt-earth-wash); --excerpt-pigment: var(--excerpt-earth-pigment); }
 @media (prefers-contrast: no-preference) and (forced-colors: none) {
-  .reading-excerpt { background-image: linear-gradient(90deg, var(--excerpt-tint), transparent 20%); }
+  .reading-excerpt {
+    background-image: linear-gradient(90deg, var(--excerpt-tint), transparent 20%);
+    background-origin: border-box;
+    background-repeat: no-repeat;
+  }
 }
 .reading-excerpt .ds-quote-block__label,
 .reading-excerpt .ds-info-card__label {

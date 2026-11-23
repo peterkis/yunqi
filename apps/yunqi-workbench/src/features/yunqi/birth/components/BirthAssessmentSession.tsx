@@ -3,10 +3,10 @@ import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { ConstitutionAssessmentPanel } from '../../../constitution/components/ConstitutionAssessmentPanel';
 import { mapConstitutionContext } from '../../../constitution/presentation/map-constitution';
 import { mapPanelSummary } from '../../presentation/panel-summary';
-import type { BirthComparisonViewModel } from '../../presentation/map-learning';
+import type { BirthSessionComparison } from '../../presentation/map-learning';
 
 export function BirthAssessmentSession({ comparison, onEnd }: {
-  readonly comparison: BirthComparisonViewModel;
+  readonly comparison: BirthSessionComparison;
   readonly onEnd: () => void;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);

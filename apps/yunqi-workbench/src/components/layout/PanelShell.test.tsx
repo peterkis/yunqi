@@ -46,7 +46,7 @@ describe('PanelShell', () => {
     const footer = screen.getByRole('contentinfo');
     expect(footer.querySelector('.panel-shell__credit')).toHaveTextContent('中医科 × 信息管理部');
     expect(within(footer).getByText('联合研发')).toBeVisible();
-    expect(within(footer).getByText('© 2026')).toBeVisible();
+    expect(within(footer).getByText('© 2026-2027')).toBeVisible();
     expect(document.title).toBe(`${label} · 运气通`);
   });
 
@@ -90,9 +90,13 @@ describe('PanelShell', () => {
   it('keeps the existing accessible theme labels and toggles both directions', async () => {
     const user = userEvent.setup();
     const { container } = renderShell();
-    await user.click(screen.getByRole('button', { name: '切换至深色主题' }));
+    const dark = screen.getByRole('button', { name: '切换至深色主题' });
+    expect(dark.querySelector('svg.lucide-moon')).not.toBeNull();
+    await user.click(dark);
     expect(container.querySelector('.theme-root')).toHaveAttribute('data-theme', 'dark');
-    await user.click(screen.getByRole('button', { name: '切换至浅色主题' }));
+    const light = screen.getByRole('button', { name: '切换至浅色主题' });
+    expect(light.querySelector('svg.lucide-sun')).not.toBeNull();
+    await user.click(light);
     expect(container.querySelector('.theme-root')).toHaveAttribute('data-theme', 'light');
   });
 

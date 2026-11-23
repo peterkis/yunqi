@@ -124,9 +124,12 @@ function schemaNameFromReference(reference) {
 function selectBusinessPaths(document) {
   const selected = {};
 
-  const requiredPaths = ['YQ-API-CONTRACT-1.2.0', 'YQ-API-CONTRACT-1.3.0']
+  const requiredPaths = ['YQ-API-CONTRACT-1.2.0', 'YQ-API-CONTRACT-1.3.0', 'YQ-API-CONTRACT-1.4.0']
     .includes(document['x-yunqi-contract-id'])
     ? [...BUSINESS_PATHS, ...LEARNING_PATHS] : BUSINESS_PATHS;
+  if (document['x-yunqi-contract-id'] === 'YQ-API-CONTRACT-1.4.0') {
+    requiredPaths.push('/api/v1/yunqi/learning/birth-date-preview', '/api/v1/yunqi/learning/birth-year-comparison');
+  }
   for (const path of requiredPaths) {
     const pathItem = document.paths?.[path];
     if (typeof pathItem !== 'object' || pathItem === null) {

@@ -5,13 +5,14 @@ import {
 import type { CalendarProvider } from '@yunqi/domain';
 import { routeResponses } from '../schemas/common.js';
 import {
-  BirthSuccessSchema,
+  BirthSuccessSchema, BirthDatePreviewSuccessSchema, BirthYearSuccessSchema,
+  type BirthDatePreviewRequest, type BirthYearRequest,
   LearningSuccessSchema,
   type BirthRequest,
 } from '../schemas/learning.js';
 import type { CalculateRequest } from '../schemas/yunqi.js';
 import {
-  calculateBirthComparison,
+  calculateBirthComparison, calculateBirthYear, previewBirthDate,
   calculateLearningDto,
   calculateLearningRequestDto,
 } from '../services/learning-service.js';
@@ -63,6 +64,16 @@ export const learningRoutes: FastifyPluginAsyncTypebox<{
     }),
   );
 
+  app.post<{ Body: BirthDatePreviewRequest }>(
+    '/birth-date-preview', { schema: { operationId: 'previewBirthDate', tags: ['yunqi'], summary: 'Resolve a birthday within a civil year',
+      body: Type.Ref('BirthDatePreviewRequest'), response: routeResponses(BirthDatePreviewSuccessSchema) } },
+    async ({ body }) => ({ code: 'SUCCESS', message: '', data: previewBirthDate(body, currentCalendarTime(options.now), options.provider) }),
+  );
+  app.post<{ Body: BirthYearRequest }>(
+    '/birth-year-comparison', { schema: { operationId: 'compareBirthYear', tags: ['yunqi'], summary: 'Compare possible annual structures for a civil birth year',
+      body: Type.Ref('BirthYearRequest'), response: routeResponses(BirthYearSuccessSchema) } },
+    async ({ body }) => ({ code: 'SUCCESS', message: '', data: calculateBirthYear(body.year, currentCalendarTime(options.now), options.provider) }),
+  );
   app.post<{ Body: BirthRequest }>(
     '/birth-comparison',
     {

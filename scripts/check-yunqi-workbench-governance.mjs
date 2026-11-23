@@ -37,6 +37,7 @@ const ALLOWED_RUNTIME_DEPENDENCIES = new Set([
   '@yunqi/client',
   '@yunqi/contracts',
   'lenis',
+  'lucide-react',
   'react',
   'react-dom',
   'react-router-dom',

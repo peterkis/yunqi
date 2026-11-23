@@ -9,7 +9,8 @@ import type {
   LearningSuccessResponse,
   BirthComparisonRequest,
   BirthComparisonDto,
-  BirthSuccessResponse,
+  BirthSuccessResponse, BirthYearRequest, BirthDatePreviewRequest, BirthYearComparisonDto,
+  BirthDatePreviewDto, BirthYearSuccessResponse, BirthDatePreviewSuccessResponse,
   ConstitutionQuestionnaireDto,
   ConstitutionRequest,
   ConstitutionAssessmentDto,
@@ -51,6 +52,8 @@ export interface YunQiClient {
   calculate(request: CalculateRequest): Promise<YunQiCalculationDto>;
   getLearningCurrent(): Promise<YunQiLearningDto>;
   calculateLearning(request: CalculateRequest): Promise<YunQiLearningDto>;
+  previewBirthDate(request: BirthDatePreviewRequest): Promise<BirthDatePreviewDto>;
+  compareBirthYear(request: BirthYearRequest): Promise<BirthYearComparisonDto>;
   compareBirth(request: BirthComparisonRequest): Promise<BirthComparisonDto>;
   getConstitutionQuestionnaire(): Promise<ConstitutionQuestionnaireDto>;
   assessConstitution(request: ConstitutionRequest): Promise<ConstitutionAssessmentDto>;
@@ -146,6 +149,12 @@ export function createYunQiClient(
     async calculateLearning(request) {
       const response = await transport.request<LearningSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/calculate', body: request });
       return response.data;
+    },
+    async previewBirthDate(request) {
+      return (await transport.request<BirthDatePreviewSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/birth-date-preview', body: request })).data;
+    },
+    async compareBirthYear(request) {
+      return (await transport.request<BirthYearSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/birth-year-comparison', body: request })).data;
     },
     async compareBirth(request) {
       const response = await transport.request<BirthSuccessResponse>({ method: 'POST', path: '/api/v1/yunqi/learning/birth-comparison', body: request });

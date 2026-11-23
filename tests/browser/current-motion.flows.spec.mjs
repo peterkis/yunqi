@@ -77,10 +77,11 @@ for (const input of ['keyboard', 'mouse']) {
     await loadCurrent(page);
     await activate(page, page.getByRole('link', { name: '先天对照', exact: true }), input);
     await expect(page).toHaveURL(/\/yunqi\/birth(?:\?motion=off)?$/);
-    await expect(page.getByRole('main', { name: '先天对照', exact: true })).toBeFocused();
+    await expect(page.getByRole('textbox', { name: '年龄', exact: true })).toBeFocused();
     let birth;
     for (const year of ['1990', '1991']) {
       if (input === 'keyboard') {
+        await page.getByRole('radio', { name: '按出生年份' }).click();
         const yearInput = page.getByRole('textbox', { name: '年', exact: true });
         await tabTo(page, yearInput);
         await page.keyboard.press('ControlOrMeta+A');
@@ -93,8 +94,9 @@ for (const input of ['keyboard', 'mouse']) {
         await page.keyboard.type('12');
       } else await fillBirthDate(page, `${year}-05-12`);
       const response = page.waitForResponse(item => item.url().endsWith('/learning/birth-comparison'));
+      await expect(page.getByRole('button', { name: '确认并对照' })).toBeEnabled();
       if (input === 'keyboard') await page.keyboard.press('Enter');
-      else await activate(page, page.getByRole('button', { name: '查看对照', exact: true }), input);
+      else await activate(page, page.getByRole('button', { name: '确认并对照', exact: true }), input);
       birth = (await (await response).json()).data;
       await expectBirthComparison(page, birth);
       await expectMotionDurations(page, testInfo, `M1-d-${input}-${year}`);

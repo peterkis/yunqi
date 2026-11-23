@@ -87,9 +87,7 @@ describe('CurrentYunQiPage', () => {
       expect(insight.querySelector('.ds-relation__chip')).toHaveClass(`ds-relation__chip--${relation.tone}`);
     }
     expect(within(disclosure).getByText('推演口径').parentElement).toHaveTextContent(learning.currentMovement.explanation);
-    const note = screen.getByRole('note');
-    expect(note).toHaveTextContent('文献线索，非个体发病预测');
-    expect(note.nextElementSibling).toBe(screen.getByRole('contentinfo'));
+    expect(screen.queryByText('文献线索，非个体发病预测', { exact: true })).not.toBeInTheDocument();
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
     expect(screen.getByText('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据')).toBeInTheDocument();
   });
@@ -255,7 +253,7 @@ describe('CurrentYunQiPage', () => {
     expect(within(ruleNotes).getByText(dto.ruleVersion, { exact: true })).toBeVisible();
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.4.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
     expect(trace).not.toHaveTextContent('北京时间 UTC+08');
   });

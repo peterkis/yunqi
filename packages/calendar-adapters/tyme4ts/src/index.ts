@@ -1,3 +1,4 @@
+export { resolveLunarBirthday } from './lunar-birthday.js';
 export type { DateTimeInput } from './date-time-input.js';
 export { toYunQiInstant } from './date-time-input.js';
 export {

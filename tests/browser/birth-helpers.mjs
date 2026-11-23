@@ -2,15 +2,20 @@ import { expect, expectCompactTimes, waitForAnimations } from './fixtures.mjs';
 import { expectElementTitle } from './visual-assertions.mjs';
 
 export async function fillBirthDate(page, value) {
+  const mode = page.getByRole('radio', { name: '按出生年份' });
+  if (await mode.getAttribute('aria-checked') !== 'true') await mode.click();
   const parts = value ? value.split('-') : ['', '', ''];
   const field = page.getByRole('group', { name: '出生日期（公历）', exact: true });
   for (const [index, name] of ['年', '月', '日'].entries()) {
     await field.getByRole('textbox', { name, exact: true }).fill(parts[index]);
   }
+  if (value) await expect(field.locator('..').locator('[data-preview-date]')).toHaveAttribute('data-preview-date', value);
   await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
 }
 
 export async function expectBirthDate(page, value) {
+  const mode = page.getByRole('radio', { name: '按出生年份' });
+  if (await mode.getAttribute('aria-checked') !== 'true') await mode.click();
   const parts = value ? value.split('-') : ['', '', ''];
   for (const [index, name] of ['年', '月', '日'].entries()) {
     await expect(page.getByRole('textbox', { name, exact: true })).toHaveValue(parts[index]);
@@ -19,7 +24,10 @@ export async function expectBirthDate(page, value) {
 
 export async function expandBirthInput(page) {
   await page.getByRole('button', { name: '修改', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
+  const year = page.getByRole('textbox', { name: '年', exact: true });
+  await expect(year).toBeFocused();
+  await expect(year).toHaveValue(/^\d{4}$/);
+  expect(await year.evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual([0, 4]);
 }
 
 export async function expectBirthReadings(container, passages) {
@@ -178,7 +186,9 @@ export async function expectBirthDetailSegments(page, testInfo) {
   const summary = table.locator('..').locator('.birth-relation-details > summary');
   await expect(summary).toHaveAccessibleName('这些关系怎么读？');
   const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
-  expect(button.height).toBeGreaterThanOrEqual(40);
+  expect(button.height).toBe(36);
+  const metadata = await table.locator('..').locator('.birth-table__meta').boundingBox();
+  expect(button.y - (metadata.y + metadata.height)).toBeCloseTo(14, 0);
   expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
   const icons = await summary.locator('svg').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
   expect(icons).toHaveLength(2);
@@ -188,6 +198,8 @@ export async function expectBirthDetailSegments(page, testInfo) {
   await expect(excerpts.locator('.birth-excerpt')).toHaveCount(2);
   for (const card of await excerpts.locator('.birth-excerpt').all()) {
     await expect(card).toHaveCSS('background-image', /linear-gradient.*20%/);
+    await expect(card).toHaveCSS('background-origin', 'border-box');
+    await expect(card).toHaveCSS('background-repeat', 'no-repeat');
     await expect(card.locator('blockquote')).not.toHaveCSS('user-select', 'none');
     await expect(card.locator('figcaption')).toBeVisible();
   }

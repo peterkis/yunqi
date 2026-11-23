@@ -79,13 +79,29 @@ export interface BirthComparisonViewModel {
   }[];
 }
 
+export interface AnnualBirthComparisonViewModel {
+  readonly birthPrecision: 'year';
+  readonly ambiguous: boolean;
+  readonly message: string;
+  readonly current: LearningViewModel;
+  readonly candidates: readonly {
+    readonly label: string;
+    readonly from: YunQiTimeViewModel;
+    readonly until: YunQiTimeViewModel;
+    readonly yearSummary: string;
+    readonly detail: string;
+    readonly element: ElementKind;
+  }[];
+}
+export type BirthSessionComparison = BirthComparisonViewModel | AnnualBirthComparisonViewModel;
+
 const PASSAGE_SCOPE_LABELS: Record<string, string> = {
   'annual-movement': '年度岁运',
   'annual-qi': '年度司天',
   'qi-period': '当前阶段',
 };
 
-function mapRelation(value: LearningRelationDto): LearningRelationViewModel {
+export function mapRelation(value: LearningRelationDto): LearningRelationViewModel {
   return { title: value.title, label: value.label, tone: mapRelationTone(value.label), relation: value.relation, explanation: value.explanation,
     sources: value.sources.map((source) => ({ id: source.id, title: source.title, url: source.url })) };
 }

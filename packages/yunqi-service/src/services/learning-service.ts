@@ -11,6 +11,7 @@ import {
   type YunQiCalendarTime,
   type YunQiLearning,
 } from '@yunqi/domain';
+import { resolveLunarBirthday } from '@yunqi/calendar-adapter-tyme4ts';
 import { mapCalculationResult, mapStageProgress } from '../mappers/yunqi-mapper.js';
 import {
   compareCalendarTimes,
@@ -22,7 +23,7 @@ import {
   previousCalendarMillisecond,
 } from '../modules/time-normalizer/index.js';
 import type {
-  BirthComparisonDto,
+  BirthComparisonDto, BirthDatePreviewRequest, BirthDatePreviewDto, BirthYearComparisonDto,
   BirthRequest,
   LearningRelationDto,
   MovementStepDto,
@@ -125,7 +126,7 @@ export function calculateLearningRequestDto(
   return calculateLearningDto(normalizeCalculateRequest(request), provider);
 }
 
-function compareLearningDimensions(
+function compareAnnualDimensions(
   birth: YunQiLearning,
   current: YunQiLearning,
 ): LearningRelationDto[] {
@@ -145,6 +146,11 @@ function compareLearningDimensions(
       QI_ELEMENT_MAP[birth.facts.zaiquan],
       QI_ELEMENT_MAP[current.facts.zaiquan],
     ),
+  ].map(mapRelation);
+}
+
+function compareLearningDimensions(birth: YunQiLearning, current: YunQiLearning): LearningRelationDto[] {
+  return [...compareAnnualDimensions(birth, current), ...[
     compareElements(
       '客运对照',
       birth.currentMovement.guest.element,
@@ -155,7 +161,76 @@ function compareLearningDimensions(
       QI_ELEMENT_MAP[birth.facts.currentStep.guestQi],
       QI_ELEMENT_MAP[current.facts.currentStep.guestQi],
     ),
-  ].map(mapRelation);
+  ].map(mapRelation)];
+}
+
+// A date straddling the supported lower bound can still have an eligible interval.
+function supportedDayStart(start: YunQiCalendarTime, provider: CalendarProvider) {
+  if (start.localDateTime.year !== 1900) return start;
+  const minimum = normalizeYunQiInstant(protectCalendarProvider(provider).getSolarTermInstant(1900, '大寒'));
+  if (compareCalendarTimes(addBeijingCalendarDays(start, 1), minimum) <= 0) throw new InvalidArgumentError('出生日期早于支持范围');
+  return compareCalendarTimes(start, minimum) < 0 ? minimum : start;
+}
+
+export function calculateBirthYear(year: number, now: YunQiCalendarTime, provider: CalendarProvider): BirthYearComparisonDto {
+  assertSupportedYear(year);
+  if (year > now.localDateTime.year) throw new InvalidArgumentError('出生年份不能晚于当前年份');
+  const start = normalizeBirthRequest({ birthDate: `${year}-01-01` }).from;
+  const boundary = normalizeYunQiInstant(protectCalendarProvider(provider).getSolarTermInstant(year, '大寒'));
+  const until = year === now.localDateTime.year ? nextCalendarMillisecond(now)
+    : normalizeBirthRequest({ birthDate: `${year + 1}-01-01` }).from;
+  const current = learningAt(now, provider);
+  const candidates: BirthYearComparisonDto['candidates'] = [];
+  function append(label: string, from: YunQiCalendarTime, end: YunQiCalendarTime) {
+    if (compareCalendarTimes(from, end) >= 0) return;
+    const birth = learningAt(from, provider);
+    candidates.push({ label, from: formatYunQiCalendarTime(from), until: formatYunQiCalendarTime(end),
+      year: birth.facts.year, ganzhi: birth.facts.ganzhi, suiYun: { ...birth.facts.suiYun },
+      sitian: birth.facts.sitian, zaiquan: birth.facts.zaiquan,
+      annualPassages: birth.annualPassages.map(mapClassicalPassage), comparisons: compareAnnualDimensions(birth, current) });
+  }
+  if (year > 1900) append('大寒交节前', start, compareCalendarTimes(boundary, until) < 0 ? boundary : until);
+  append('大寒交节起', boundary, until);
+  return { birthPrecision: 'year', current: mapLearning(current), candidates,
+    message: year === 1900 ? '仅年份对照 · 可计算范围从 1900 年大寒交节起' : '仅年份对照 · 按大寒交节划分可能归属' };
+}
+
+export function previewBirthDate(request: BirthDatePreviewRequest, now: YunQiCalendarTime, provider: CalendarProvider): BirthDatePreviewDto {
+  const { year, month, day } = request;
+  if (year > now.localDateTime.year || (request.calendar === 'solar' && request.leap !== undefined)) {
+    throw new InvalidArgumentError('出生日期或历法选项无效');
+  }
+  const dates = request.calendar === 'lunar' ? resolveLunarBirthday(year, month, day, request.leap)
+    : [{ birthDate: `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`, lunarLabel: '', leap: false }];
+  const matches: BirthDatePreviewDto['matches'] = [];
+  for (const date of dates) {
+    const start = normalizeBirthRequest({ birthDate: date.birthDate }).from;
+    if (compareCalendarTimes(start, now) > 0) continue;
+    const end = addBeijingCalendarDays(start, 1);
+    const minimum = year === 1900 && normalizeYunQiInstant(protectCalendarProvider(provider).getSolarTermInstant(1900, '大寒'));
+    if (minimum && compareCalendarTimes(end, minimum) <= 0) continue;
+    const first = learningAt(supportedDayStart(start, provider), provider);
+    const last = learningAt(previousCalendarMillisecond(end), provider);
+    // Show a boundary later today as a calendar fact, without assigning it to a birth before now.
+    const lastPossible = compareCalendarTimes(end, now) <= 0 ? last : learningAt(now, provider);
+    const boundaries = new Map<string, { label: string; at: ReturnType<typeof formatYunQiCalendarTime> }>();
+    for (const learning of [first, last]) {
+      const events = [
+        { label: '大寒交运气年', instant: learning.facts.start },
+        ...learning.facts.steps.map(step => ({ label: `交气 · ${step.name}`, instant: step.start })),
+        ...learning.movements.map(step => ({ label: `交运 · ${step.name}`, instant: step.start })),
+      ];
+      for (const { label, instant } of events) {
+        const at = formatYunQiCalendarTime(normalizeYunQiInstant(instant));
+        if (at.localTime.startsWith(date.birthDate)) {
+          boundaries.set(label, { label, at });
+        }
+      }
+    }
+    const annualLabels = [...new Set([first, lastPossible].map(({ facts }) => `${facts.ganzhi}年 · ${facts.suiYun.element}运${facts.suiYun.state}`))];
+    matches.push({ ...date, annualLabels, boundaries: [...boundaries.values()] });
+  }
+  return { matches };
 }
 
 export function calculateBirthComparison(
@@ -163,7 +238,10 @@ export function calculateBirthComparison(
   now: YunQiCalendarTime,
   provider: CalendarProvider,
 ): BirthComparisonDto {
-  const { from, precision } = normalizeBirthRequest(request);
+  const normalized = normalizeBirthRequest(request);
+  const precision = normalized.precision;
+  const start = normalized.from;
+  const from = precision === 'date' ? supportedDayStart(start, provider) : start;
   if (compareCalendarTimes(from, now) > 0) {
     throw new InvalidArgumentError('出生时间不能晚于当前时点');
   }
@@ -186,7 +264,7 @@ export function calculateBirthComparison(
     };
   }
 
-  const nextDay = addBeijingCalendarDays(from, 1);
+  const nextDay = addBeijingCalendarDays(start, 1);
   // Include the current valid millisecond while retaining a right-open range.
   const afterNow = nextCalendarMillisecond(now);
   const until = compareCalendarTimes(nextDay, afterNow) > 0 ? afterNow : nextDay;

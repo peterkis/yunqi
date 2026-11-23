@@ -96,6 +96,7 @@
   grid-column: 2;
   grid-row: 1 / 7;
   align-self: stretch;
+  margin-block: calc(5 * var(--space-3));
   background: var(--border-subtle);
 }
 .current-period-cell { min-width: 0; text-align: center; }

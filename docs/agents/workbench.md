@@ -6,7 +6,7 @@
 ## 依赖和导入
 
 运行时白名单仅有 `@tanstack/react-query`、`@yunqi/client`、`@yunqi/contracts`、
-`react`、`react-dom`、`react-router-dom` 和 `lenis`。Router 精确锁定 7.18.1，Lenis 精确锁定 1.3.27，仅用于工作台滚轮动效。
+`react`、`react-dom`、`react-router-dom`、`lenis` 和 `lucide-react`。Lucide 图标按需导入并随应用本地打包。Router 精确锁定 7.18.1，Lenis 精确锁定 1.3.27，仅用于工作台滚轮动效。
 白名单同时覆盖dependencies、optionalDependencies、peerDependencies；devDependencies只放开发/测试工具，
 不得通过把运行时包列入devDependencies绕过源码检查。
 
@@ -53,7 +53,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 - HIS患者信息与“复制结论到病历”仍未授权；独立窗口契约已确认，Tauri实现另行排期，见[设计目录说明](../design/README.md#超出当前授权的原型元素)。
 - `PanelShell` 承载全部视图；只有内容区滚动，标题栏与页脚固定，面板最小高度640px。
 - 年度三栏的岁运用“水运太过”式单值，400px下面板各栏值保持单行。
-- 出生输入的“查看对照”、提交后的“同时测评体质”均在 `PanelShell` 操作区，展开出生输入时由提交操作接管。
+- 出生页在无对照结果时直接呈现页内录入表单，提交后显示对照结果，侧栏抽屉复用同一表单并保留底层快照。「修改」回填已提交资料，切到出生年份模式并全选公历年；「补全生日」保留原录入方式，聚焦首个未填的月或日。结果页的“同时测评体质”在 PanelShell 操作区。
   独立与出生对照发起的量表在体质量表标签页共享操作区：作答时左侧次按钮“结束并销毁答卷”，答完后右侧主按钮“查看结果”；
   结果用 `PanelHeader` 下钻标题，操作区左侧结束、右侧文字按钮“返回修改”。每个视图最多一个主按钮。
   指定时点的“开始分析”继续为所在视图唯一主操作。
@@ -61,11 +61,11 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 
 ## 组件
 
-- `DateField` 是年/月/日数字输入；调用方必须提供 `label`，同时用于可见legend与整体可访问名称；出生页传“出生日期（公历）”，各段有可访问名称。
+- `DateField` 是年/月/日数字输入；调用方必须提供 `label`，同时用于可见legend与整体可访问名称；各段有可访问名称。出生录入使用独立的 BirthEntryForm 以保留部分精度。
   满位跳格、空段退格返回、支持粘贴 `YYYY-MM-DD`；对外只输出规范字符串或空值。
   仅校验整数位数和年1900–2100、月1–12、日1–31，不判断月份天数，日期有效性由API校验。
   输入高度使用 `--input-height`；外部清空不完整草稿时由会话重建控件。出生时刻保留统一令牌样式的 `type="time"`。
-- `SegmentedControl` 用于性别与“时刻不详 / 已知时刻”的局部选择，不依赖路由；
+- `SegmentedControl` 用于性别、出生年份录入方式与月日历法的局部选择，不依赖路由；
   使用按钮、radiogroup/radio、aria-checked和单Tab入口，方向键切换，Home/End选择首尾。
   默认高度为 `--segment-height`，compact为与现有分段一致的30px。路由导航继续使用 `SegmentedNav`。
 - 量表选性别进入第一题后收为“男性版/女性版 · 更换”；有答案时页内确认清空题数，取消与Esc恢复“更换”焦点，
@@ -78,7 +78,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | / | replace到/yunqi/current | 默认入口 |
 | /yunqi/current | 分段：当下运气 | 当前规则状态 |
 | /yunqi/current/classics | 下钻：原文与释义；返回/yunqi/current | 同一教学复合查询，按全年/当下阶段阅读原文、释义与出处 |
-| /yunqi/birth | 分段：先天对照 | 用户提交公历生日与可选时刻后对照；不持久化 |
+| /yunqi/birth | 分段：先天对照 | 年龄／年份可查看年度对照，月日可选公历／农历，仅交界日可补录时刻；仅会话内存 |
 | /yunqi/birth/classics | 下钻：原文与释义；返回/yunqi/birth | 仅使用本页内存中的出生响应，全年/出生阶段原文；直接打开无资料时不查询 |
 | /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
 | /yunqi/year | 下钻：年度详情；返回/yunqi/current | 当下API成功后replace到其运气年；不可用时保留空态，允许手动选年 |
@@ -104,7 +104,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果，切换性别清空不再适用的答案。
 第二轮允许在出生对照内按需组合现有量表，详见[同页测评计划](../plans/2026-11-16-clinician-feedback-continuation.md)。
 2026-11-23 起，入口跳转到体质量表标签页，保留本次 birth response 的 current 快照；多个出生候选共用一份答卷。
-出生输入变更、清空、重新对照或结束测评时销毁答卷，旧异步评分不能恢复到新会话。
+清空已提交资料、成功替换对照或结束测评时销毁答卷；修改抽屉取消时保留原答卷，旧异步评分不能恢复到新会话。
 
 ## 展示和交互
 
@@ -120,7 +120,7 @@ mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果
 “相违”只是颜色语气，不是风险等级；标签只描述运气结构，不推导吉凶、疾病或治疗结论。
 出生对照“所处运”继续使用comparisons中的客运对照，不替换为当步主客运关系。
 
-结果编辑后立即隐藏旧结果，提交中限制重复激活，错误使用固定脱敏提示。
+指定时点编辑后立即隐藏旧结果；出生修改抽屉保留原结果并暂时禁止与其交互。提交中限制重复激活，错误使用固定脱敏提示。
 原生required会先于submit触发，空值错误/焦点及真实datetime-local值需经过实际控件验证。
 不能为jsdom自动补出的.000修改业务输入语法。
 

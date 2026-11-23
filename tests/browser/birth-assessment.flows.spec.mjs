@@ -5,10 +5,10 @@ import { expectTextLink } from './consistency-helpers.mjs';
 import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
-  if (await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
+  if (!(await page.getByRole('form', { name: '出生运气输入' }).count()) && await page.getByRole('button', { name: '修改', exact: true }).count()) await expandBirthInput(page);
   await fillBirthDate(page, birthDate);
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看对照', exact: true }).click();
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
@@ -258,15 +258,13 @@ test('birth comparison retains every real boundary candidate, its canonical inte
 test('birth inputs enforce required time, block repeated pending activation and hide results on every edit', async ({ page, diagnostics }) => {
   await page.goto('/yunqi/birth');
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
+  expect(diagnostics.requests.filter(item => item.method === 'POST')).toHaveLength(0);
   const date = page.getByRole('textbox', { name: '年', exact: true });
-  await fillBirthDate(page, '1990-05-12');
-  await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
+  await fillBirthDate(page, '1990-03-21');
+  await page.getByRole('button', { name: /补录时刻/, exact: true }).click();
   const time = page.getByLabel('出生时刻', { exact: true });
-  await page.getByRole('button', { name: '查看对照', exact: true }).click();
-  await expect(time).toBeFocused();
-  await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
-  expect(diagnostics.requests).toHaveLength(0);
+  await expect(page.getByRole('button', { name: '确认并对照', exact: true })).toBeDisabled();
+  expect(diagnostics.requests.filter(item => item.url.endsWith('/learning/birth-comparison'))).toHaveLength(0);
   await time.fill('09:30');
 
   let release;
@@ -285,11 +283,11 @@ test('birth inputs enforce required time, block repeated pending activation and 
       responseDelivered = true;
       return response;
     });
-    await page.getByRole('button', { name: '查看对照', exact: true }).click();
+    await page.getByRole('button', { name: '确认并对照', exact: true }).click();
     expect(await reached).toBe(200);
     await expect(date).toBeDisabled();
     await expect(time).toBeDisabled();
-    await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).toBeDisabled();
+    await expect(page.getByRole('button', { name: '时刻不详', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: '清空本次资料', exact: true })).toBeDisabled();
     await expect(page.getByRole('button', { name: '正在对照…', exact: true })).toBeDisabled();
     await expect(page.getByRole('form', { name: '出生运气输入' })).toHaveAttribute('aria-busy', 'true');
@@ -301,7 +299,7 @@ test('birth inputs enforce required time, block repeated pending activation and 
     await page.keyboard.press('Enter');
     const requests = diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison'));
     expect(requests).toHaveLength(1);
-    expect(JSON.parse(requests[0].body)).toEqual({ birthDate: '1990-05-12', birthTime: '09:30:00' });
+    expect(JSON.parse(requests[0].body)).toEqual({ birthDate: '1990-03-21', birthTime: '09:30:00' });
     expect(responseDelivered, 'The real response remains held during pending assertions').toBe(false);
     release();
     const response = await responsePromise;
@@ -315,28 +313,30 @@ test('birth inputs enforce required time, block repeated pending activation and 
   }
 
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
-  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-05-12 · 09:30 · 修改');
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-03-21 · 09:30 · 修改');
   await expandBirthInput(page);
+  await expect(time).toHaveValue('09:30');
+  await expect(date).toBeFocused();
   await time.fill('09:31:21');
   await expect(result).toHaveCount(0);
-  await expect(page.getByRole('status')).toContainText('原结果已隐藏');
-  await compareBirth(page, '1990-05-12');
+  await expect(page.getByRole('dialog', { name: '修改出生信息' })).toBeVisible();
+  await compareBirth(page, '1990-03-21');
   await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31');
   await expectCompactTimes(page);
   await expandBirthInput(page);
-  await fillBirthDate(page, '1990-05-13');
+  await fillBirthDate(page, '1990-05-21');
   await expect(result).toHaveCount(0);
-  await page.getByRole('link', { name: '先天对照', exact: true }).click();
-  await compareBirth(page, '1990-05-13');
+  await compareBirth(page, '1990-05-21');
   await expandBirthInput(page);
-  await page.getByRole('radio', { name: '时刻不详', exact: true }).click();
+  await fillBirthDate(page, '1990-05-21');
+  await page.getByRole('button', { name: /补录时刻/ }).click();
+  await page.getByRole('button', { name: '时刻不详', exact: true }).click();
   await expect(result).toHaveCount(0);
-  await page.getByRole('link', { name: '先天对照', exact: true }).click();
-  await compareBirth(page, '1990-05-13');
+  await compareBirth(page, '1990-05-21');
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();
   await expect(result).toHaveCount(0);
   await expectBirthDate(page, '');
-  await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('button', { name: /补录时刻/ })).toHaveCount(0);
   await expect(time).toHaveCount(0);
   const clearedStatus = page.getByRole('status');
   await expect(clearedStatus).toHaveCount(1);

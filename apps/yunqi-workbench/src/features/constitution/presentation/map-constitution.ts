@@ -1,5 +1,5 @@
 import type { ConstitutionAssessmentDto, ConstitutionQuestionnaireDto } from '@yunqi/contracts';
-import type { BirthComparisonViewModel, LearningViewModel } from '../../yunqi/presentation/map-learning';
+import type { BirthSessionComparison, LearningViewModel } from '../../yunqi/presentation/map-learning';
 import type { ElementKind, YunQiTimeViewModel } from '../../yunqi/presentation/view-model';
 
 export type QuestionnaireSex = 'male' | 'female';
@@ -41,7 +41,7 @@ export interface ConstitutionContextViewModel {
   };
   readonly birth?: {
     readonly ambiguous: boolean;
-    readonly precision: 'date' | 'time';
+    readonly precision: 'date' | 'time' | 'year';
     readonly candidates: readonly (ConstitutionContextFactsViewModel & { readonly label: string; readonly from: YunQiTimeViewModel; readonly until: YunQiTimeViewModel })[];
   };
 }
@@ -72,14 +72,16 @@ function contextFacts(learning: LearningViewModel) {
 }
 
 /** Only projects already loaded ViewModels; never fetches or infers a candidate. */
-export function mapConstitutionContext(current: LearningViewModel, comparison?: BirthComparisonViewModel): ConstitutionContextViewModel {
+export function mapConstitutionContext(current: LearningViewModel, comparison?: BirthSessionComparison): ConstitutionContextViewModel {
   return {
     current: { ...contextFacts(current), time: current.facts.inputTime,
       ruleVersion: current.facts.ruleVersion, learningRuleVersion: current.ruleVersion, contractId: current.facts.contractId },
     ...(comparison ? { birth: {
       ambiguous: comparison.ambiguous,
       precision: comparison.birthPrecision,
-      candidates: comparison.candidates.map((candidate) => ({
+      candidates: comparison.birthPrecision === 'year' ? comparison.candidates.map(item => ({
+        ...item, summary: item.yearSummary, yearElement: item.element, guestQiSummary: '', qiDetail: '', movementDetail: '',
+      })) : comparison.candidates.map((candidate) => ({
         label: candidate.label, ...contextFacts(candidate.learning), from: candidate.from, until: candidate.until,
       })),
     } } : {}),

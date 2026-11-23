@@ -136,7 +136,7 @@ test('Contract 1.2.0 freezes all five added endpoints and exactly their new reac
     'packages/yunqi-contracts/contract/registry.json'), 'utf8'));
   assert.deepEqual(registry.contractIds, [
     'YQ-API-CONTRACT-1.0.0', 'YQ-API-CONTRACT-1.1.0', 'YQ-API-CONTRACT-1.2.0',
-    'YQ-API-CONTRACT-1.3.0',
+    'YQ-API-CONTRACT-1.3.0', 'YQ-API-CONTRACT-1.4.0',
   ]);
 });
 
@@ -197,12 +197,22 @@ test('Contract 1.3.0 changes only the approved stage fields and version identity
   }
   const frozen = readFrozenContract('YQ-API-CONTRACT-1.3.0');
   assert.deepEqual(frozen, expected);
+  assertContractProjectionMatchesFreeze(frozen, createContractProjection(readFrozenDocument(frozen.contractId)));
+});
+
+test('Contract 1.4 adds only birth preview and annual comparison to 1.3', () => {
+  const previous = readFrozenContract('YQ-API-CONTRACT-1.3.0');
+  const frozen = readFrozenContract('YQ-API-CONTRACT-1.4.0');
+  for (const [name, schema] of Object.entries(previous.schemas)) assert.deepEqual(frozen.schemas[name], schema);
+  for (const [path, operation] of Object.entries(previous.paths)) assert.deepEqual(frozen.paths[path], operation);
+  assert.deepEqual(Object.keys(frozen.paths).filter(path => !(path in previous.paths)).sort(),
+    ['/api/v1/yunqi/learning/birth-date-preview', '/api/v1/yunqi/learning/birth-year-comparison']);
   assertContractProjectionMatchesFreeze(frozen, createContractProjection(readProductionDocument()));
 });
 
-for (const version of ['1.2.0', '1.3.0']) {
+for (const version of ['1.2.0', '1.3.0', '1.4.0']) {
   const contractId = `YQ-API-CONTRACT-${version}`;
-  const currentDocument = () => version === '1.3.0'
+  const currentDocument = () => version === '1.4.0'
     ? readProductionDocument() : readFrozenDocument(contractId);
 
 test(`Contract ${version} requires every added path instead of silently projecting only the legacy API`, () => {
@@ -276,7 +286,7 @@ test(`Contract ${version} protects birth precision, questionnaire answers, movem
 }
 
 test('Contract 1.3.0 freezes stage required fields, progress constraints and the six-term boundary enum', () => {
-  const document = readProductionDocument();
+  const document = readFrozenDocument('YQ-API-CONTRACT-1.3.0');
   const frozen = readFrozenContract('YQ-API-CONTRACT-1.3.0');
   assertContractProjectionMatchesFreeze(frozen, createContractProjection(document));
   const mutations = [

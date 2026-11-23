@@ -6,7 +6,7 @@
 
 - 先读任务对应文档、理解规则并说明修改计划，再编辑；完成后执行相关检查并报告结果。
 - 核心计算只消费版本化规则，经纯 `packages/yunqi-domain` 输出结构化结果；规则变更须更新版本、说明、测试、原因和专家状态。
-- 核心规则 `YQ-MVP-RULES-1.1.0`，API Contract `YQ-API-CONTRACT-1.3.0`；教学与量表各自版本化。规则仍待正式专家冻结，工程通过不能替代专家或临床验收。
+- 核心规则 `YQ-MVP-RULES-1.1.0`，API Contract `YQ-API-CONTRACT-1.4.0`；教学与量表各自版本化。规则仍待正式专家冻结，工程通过不能替代专家或临床验收。
 - 业务时间固定北京时间 UTC+08，历法权威为 `YunQiCalendarTime`；UI直接展示API `localTime`。不得用Date、Temporal、Intl、IANA或DST重建业务时间。
 - 保留原始资料、历史证据和无关工作。遵守用户授权范围；提交、推送、发布或清理按本次授权执行。
 
@@ -17,7 +17,7 @@
 | 任务 | 必须读取 |
 | --- | --- |
 | 规则、Domain、历法、时间或未来持久化 | [规则与时间](docs/agents/rules-and-time.md)、[当前规则表](rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md) |
-| Service、OpenAPI、DTO、Contracts、Client | [API边界](docs/agents/api-contracts.md)、[当前契约](docs/contracts/YQ-API-CONTRACT-1.3.0.md) |
+| Service、OpenAPI、DTO、Contracts、Client | [API边界](docs/agents/api-contracts.md)、[当前契约](docs/contracts/YQ-API-CONTRACT-1.4.0.md) |
 | React、路由、状态、展示、依赖、UI | [Workbench约束](docs/agents/workbench.md)、[设计规范与原型](docs/design/README.md) |
 | 问诊模型、患者信息、临床验证或后续阶段 | [医疗与阶段范围](docs/agents/clinical-scope.md) |
 | 测试、CI、浏览器、证据、交付 | [验证与交付](docs/agents/verification.md) |

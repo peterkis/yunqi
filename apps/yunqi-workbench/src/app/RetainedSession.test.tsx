@@ -131,8 +131,8 @@ describe('tab session retention', () => {
     await user.click(within(draft).getByRole('radio', { name: '女' }));
     await answerByKey(user, '4');
     await user.click(screen.getByRole('link', { name: '先天对照' }));
-    fillBirthDate('1990-05-12');
-    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '确认并对照' }));
     await user.click(await screen.findByRole('button', { name: '同时测评体质' }));
     const linked = await screen.findByRole('form', { name: '中医体质量表' });
     expect(linked).not.toBe(draft);
@@ -148,11 +148,12 @@ describe('tab session retention', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub();
     render(<MemoryRouter initialEntries={['/yunqi/birth']}><AppProviders yunqiClient={client}><App /></AppProviders></MemoryRouter>);
-    fillBirthDate('1990-05-12');
+    await fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('link', { name: '体质量表' }));
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('1990');
-    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await screen.findByText('公历 1990-05-12');
+    await user.click(screen.getByRole('button', { name: '确认并对照' }));
     await screen.findByRole('button', { name: '同时测评体质' });
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });

@@ -24,7 +24,6 @@
 
 .birth-view[hidden] { display: none; }
 .birth-input-region { min-width: 0; }
-[data-motion="full"] .birth-input-region { overflow: clip; overflow-clip-margin: var(--space-1); }
 :is([data-motion="full"], [data-motion="reduced"]) .birth-results { transition: opacity var(--motion-base) var(--ease-linear); }
 @starting-style {
   :is([data-motion="full"], [data-motion="reduced"]) .birth-results { opacity: 0; }
@@ -50,7 +49,8 @@
 }
 
 .birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) .yunqi-time { gap: var(--space-1) var(--space-1_5); }
-.birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) time { font-family: var(--font-sans); }
+.birth-page .num,
+.birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 
 .birth-notice {
   padding: var(--space-2_5) var(--space-3);
@@ -130,6 +130,13 @@
 .birth-page .birth-candidate-card > .birth-label,
 .birth-page .birth-candidate-interval,
 .birth-page .birth-candidate-time { margin-bottom: var(--space-2); }
+.birth-candidate-interval { display: grid; gap: var(--space-0_5); }
+.birth-interval-range { display: flex; flex-wrap: wrap; column-gap: var(--space-1); }
+.birth-interval-range > span { white-space: nowrap; }
+.birth-results > [data-birth-complete] {
+  border: 0; border-radius: var(--radius-full); background: var(--accent-subtle); color: var(--accent);
+}
+.birth-results > [data-birth-complete]:hover:not(:disabled) { background: var(--accent-muted); }
 
 .birth-candidate-card {
   padding: var(--space-3_5) var(--space-3_5) var(--space-3);
@@ -239,10 +246,11 @@
 .birth-table__meta .birth-note { color: var(--ink-tertiary); }
 
 .birth-relation-details {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3_5);
   color: var(--ink-secondary);
   font-size: var(--ts-small);
 }
+.birth-relation-details > .relation-reading-summary { min-height: calc(var(--control-height) - var(--space-1)); }
 
 .birth-relation-details[open] > div { margin-top: var(--space-2_5); }
 .birth-current-readings > summary {
@@ -326,7 +334,7 @@
 /* D1: keep the submitted input and current snapshot above the comparison. */
 .birth-input-summary {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: var(--space-1);
   min-width: 0;
   color: var(--ink-secondary);
@@ -335,6 +343,9 @@
 }
 .birth-input-summary .ds-button { padding-inline: var(--space-1); font-size: var(--ts-small); }
 .birth-input-summary .ds-button:last-child { margin-left: auto; }
+.birth-input-summary .ds-button--text:is(:hover, :active, :focus-visible):not(:disabled) {
+  color: var(--accent); background: transparent; text-decoration: underline; text-underline-offset: var(--space-0_5);
+}
 .birth-table__time { display: block; color: var(--ink-tertiary); font-size: var(--ts-small); font-weight: var(--type-meta-weight); }
 .birth-table__time .yunqi-time { gap: var(--space-0_5); }
 .birth-table__time time { font-family: var(--font-sans); }

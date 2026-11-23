@@ -44,14 +44,14 @@ test('current cards retain real API facts, folded stages and sourced original re
     await expect(chip).toHaveCSS('background-color', await summaryChips[i].evaluate(node => getComputedStyle(node).backgroundColor));
   }
   await expect(sourceDetails.locator('.current-relations__method')).toContainText(data.currentMovement.explanation);
-  await expect(page.getByRole('note').getByText('文献线索，非个体发病预测')).toBeInViewport({ ratio: 1 });
+  await expect(page.locator('.panel-shell__colophon')).toHaveCount(0);
   await screenshot(page, testInfo, 'current-guide-expanded');
   await expect(sourceDetails.getByRole('link')).toHaveCount(0);
   await expect(sourceDetails.locator('.learning-source').first()).toHaveAttribute('title', data.annualRelation.sources[0].title);
   await expectRelationSources(sourceDetails);
   await expect(page.getByRole('contentinfo').locator('.panel-shell__credit')).toHaveText('中医科 × 信息管理部');
   await expect(page.getByRole('contentinfo').getByText('联合研发', { exact: true })).toBeVisible();
-  await expect(page.getByRole('contentinfo')).toContainText('© 2026');
+  await expect(page.getByRole('contentinfo')).toContainText('© 2026-2027');
   await expect(page.locator('.current-technical')).toContainText('五步运为教学口径，待专家确认');
   await sourceDetails.locator('summary').press('Space');
   await expect(sourceDetails.locator('.relation-reading-summary__chevron')).toHaveCSS('transform', 'none');
@@ -65,7 +65,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   }
   await otherStages.locator(':scope > summary').press('Space');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
-  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(1);
+  await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(0);
   await settle(page);
   expect(diagnostics.requests.filter((request) => request.url.endsWith('/learning/current'))).toHaveLength(1);
   await checkAccessibility(page, testInfo);
@@ -150,21 +150,19 @@ test('current cards retain real API facts, folded stages and sourced original re
 
 test('birth comparison submits only requested precision, displays both contexts and clears edited personal data', async ({ page, diagnostics, motionMode }, testInfo) => {
   await page.goto('/yunqi/birth');
-  await expect(page.getByRole('heading', { name: '出生运气对照' })).toBeVisible();
+  await expect(page.getByRole('form', { name: '出生运气输入' })).toBeVisible();
   await settle(page);
-  expect(diagnostics.requests).toHaveLength(0);
-  const date = page.getByRole('textbox', { name: '年', exact: true });
-  await page.getByRole('button', { name: '查看对照' }).click();
-  await expect(page.getByRole('alert')).toContainText('请填写有效的出生日期');
-  await expect(date).toBeFocused();
+  expect(diagnostics.requests.map(item => new URL(item.url).pathname)).toEqual(['/api/v1/yunqi/current']);
+  await expect(page.getByRole('button', { name: '仅按年份对照' })).toBeDisabled();
+  await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
   await fillBirthDate(page, '1990-05-12');
   const responsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看对照' }).click();
+  await page.getByRole('button', { name: '确认并对照' }).click();
   const response = await responsePromise;
   expect(response.status()).toBe(200);
   const { data } = await response.json();
   expect(data.birthPrecision).toBe('date');
-  expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ birthDate: '1990-05-12' });
+  expect(JSON.parse(diagnostics.requests.find(item => item.url.endsWith('/learning/birth-comparison')).body)).toEqual({ birthDate: '1990-05-12' });
   const result = page.getByRole('region', { name: '出生与当前运气对照结果' });
   const viewport = page.viewportSize();
   await page.setViewportSize({ ...viewport, width: 320 });
@@ -181,21 +179,22 @@ test('birth comparison submits only requested precision, displays both contexts 
   await checkAccessibility(page, testInfo);
   await screenshot(page, testInfo, 'birth-and-current-comparison');
   await expandBirthInput(page);
-  await page.getByRole('radio', { name: '已知时刻', exact: true }).click();
+  await fillBirthDate(page, '1990-03-21');
+  await page.getByRole('button', { name: /补录时刻/, exact: true }).click();
   await expect(result).toHaveCount(0);
   await page.getByLabel('出生时刻', { exact: true }).fill('09:30:21');
   const exactResponsePromise = page.waitForResponse((response) => response.url().endsWith('/learning/birth-comparison'));
-  await page.getByRole('button', { name: '查看对照' }).click();
+  await page.getByRole('button', { name: '确认并对照' }).click();
   const exactResponse = await exactResponsePromise;
   expect(exactResponse.status()).toBe(200);
   const { data: exact } = await exactResponse.json();
   expect(exact.birthPrecision).toBe('time');
   await expectBirthComparison(page, exact);
-  expect(JSON.parse(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison')).at(-1).body)).toEqual({ birthDate: '1990-05-12', birthTime: '09:30:21' });
+  expect(JSON.parse(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison')).at(-1).body)).toEqual({ birthDate: '1990-03-21', birthTime: '09:30:21' });
   await page.getByRole('button', { name: '清空本次资料' }).click();
   await expect(result).toHaveCount(0);
   await expectBirthDate(page, '');
-  await expect(page.getByRole('radio', { name: '已知时刻', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('button', { name: /补录时刻/ })).toHaveCount(0);
   expectNoPersonalDataInUrl(page, motionMode);
 });
 

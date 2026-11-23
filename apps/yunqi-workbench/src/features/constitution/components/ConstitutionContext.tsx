@@ -31,7 +31,7 @@ export function ConstitutionContextDetails({ context }: { readonly context?: Con
         <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p>
         <YunQiTimeDetails entries={[
           { label: '当下快照', start: context.current.time },
-          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision === 'date' ? { end: candidate.until } : {}) })) : []),
+          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision !== 'time' ? { end: candidate.until } : {}) })) : []),
         ]} />
         <p className="num"><InlineText>{`${context.current.contractId} · ${context.current.ruleVersion} · ${context.current.learningRuleVersion}`}</InlineText></p>
       </details> : null}
@@ -40,14 +40,14 @@ export function ConstitutionContextDetails({ context }: { readonly context?: Con
         <p><InlineText>{context.current.detail}</InlineText></p>
         <p><InlineText>{context.current.qiDetail}</InlineText></p>
         <p><InlineText>{context.current.movementDetail}</InlineText></p>
-        {birth.ambiguous ? <p>出生时刻不详，所有候选共用一份答卷，分别保留供医师参照。</p> : null}
+        {birth.ambiguous ? <p>出生归属待核对，所有候选共用一份答卷，分别保留供医师参照。</p> : null}
         {birth.candidates.map((candidate, index) => <section className="constitution-birth-candidate" key={index} aria-label={candidate.label}>
           <h4>{candidate.label}</h4>
           <p><InlineText>{candidate.detail}</InlineText></p>
-          <p><InlineText>{candidate.qiDetail}</InlineText></p>
-          <p><InlineText>{candidate.movementDetail}</InlineText></p>
-          <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" />
-            {birth.precision === 'date' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" /></> : null}</p>
+          {candidate.qiDetail && <p><InlineText>{candidate.qiDetail}</InlineText></p>}
+          {candidate.movementDetail && <p><InlineText>{candidate.movementDetail}</InlineText></p>}
+          <p>{birth.precision !== 'time' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" />
+            {birth.precision !== 'time' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" /></> : null}</p>
         </section>)}
       </details> : null}
     </>;

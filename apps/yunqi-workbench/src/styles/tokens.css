@@ -4,6 +4,9 @@
   --surface-page: #fbfaf7;
   --countdown-bg: #f7f0e5;
   --countdown-fg: #805528;
+  --sheet-scrim: rgba(29,35,32,0.35);
+  --input-error-bg: #fae8e2;
+  --input-error-fg: #8b3828;
   --reading-insight-surface: #f3f6f4;
   --reading-scope-surface: #e6ece8;
   --reading-source-surface: #e3efe7;
@@ -89,6 +92,7 @@
   --z-panel: 1000;
   --z-pill: 1010;
   --z-popover: 1020;
+  --font-mono: "Lucida Console", "Courier New", ui-monospace, Consolas, "Liberation Mono", "Noto Sans SC", monospace;
   --font-sans: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
   --font-serif: "Noto Serif SC", "SimSun", "Songti SC", serif;
   --type-display-xl-size: 40px;
@@ -160,6 +164,9 @@
   --surface-page: #151816;
   --countdown-bg: #352c24;
   --countdown-fg: #e8c29a;
+  --sheet-scrim: rgba(8,14,11,0.60);
+  --input-error-bg: #422b26;
+  --input-error-fg: #ffc2ac;
   --reading-insight-surface: #252d29;
   --reading-scope-surface: #323d36;
   --reading-source-surface: #293d32;
@@ -245,6 +252,7 @@
   --z-panel: 1000;
   --z-pill: 1010;
   --z-popover: 1020;
+  --font-mono: "Lucida Console", "Courier New", ui-monospace, Consolas, "Liberation Mono", "Noto Sans SC", monospace;
   --font-sans: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", sans-serif;
   --font-serif: "Noto Serif SC", "SimSun", "Songti SC", serif;
   --type-display-xl-size: 40px;

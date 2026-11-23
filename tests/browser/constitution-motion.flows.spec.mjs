@@ -95,7 +95,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     if (embedded) {
       await fillBirthDate(page, '1990-05-12');
       const response = page.waitForResponse(item => item.url().endsWith('/learning/birth-comparison'));
-      await activate(page, page.getByRole('button', { name: '查看对照', exact: true }), input);
+      await activate(page, page.getByRole('button', { name: '确认并对照', exact: true }), input);
       await expectBirthComparison(page, (await (await response).json()).data);
       await activate(page, page.getByRole('button', { name: '同时测评体质', exact: true }), input);
     }
