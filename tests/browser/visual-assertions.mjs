@@ -1,10 +1,10 @@
 import { expect, waitForAnimations } from './fixtures.mjs';
 
-export async function expectTextContrast(target) {
-  const colors = await target.evaluate(element => {
-    const style = getComputedStyle(element);
-    return { foreground: style.color, background: style.backgroundColor };
-  });
+export async function expectTextContrast(target, surfaceSelector) {
+  const colors = await target.evaluate((element, selector) => {
+    const surface = selector ? element.closest(selector) : element;
+    return { foreground: getComputedStyle(element).color, background: getComputedStyle(surface).backgroundColor };
+  }, surfaceSelector);
   const luminance = color => {
     const channels = color.match(/[\d.]+/g).map(Number);
     expect(channels.length === 3 || channels[3] === 1, 'Contrast samples must be opaque').toBe(true);
@@ -18,6 +18,17 @@ export async function expectTextContrast(target) {
   const ratio = (values[1] + 0.05) / (values[0] + 0.05);
   expect(ratio, `Text contrast for ${await target.textContent()}`).toBeGreaterThanOrEqual(4.5);
   return ratio;
+}
+
+export async function expectElementTitle(value, element, surface) {
+  const title = value.locator('.ds-element > span:last-child');
+  await expect(value.locator(`.ds-element__dot--${element}`)).toBeVisible();
+  const hex = await title.evaluate((node, key) =>
+    getComputedStyle(node).getPropertyValue(`--element-${key}-title`).trim(), element);
+  expect(hex).toMatch(/^#[0-9a-f]{6}$/i);
+  const rgb = [1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16));
+  await expect(title).toHaveCSS('color', `rgb(${rgb.join(', ')})`);
+  await expectTextContrast(title, surface);
 }
 
 /** K01 gates run in both themes and every panel/workstation visual project. */

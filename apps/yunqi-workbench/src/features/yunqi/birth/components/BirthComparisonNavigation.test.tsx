@@ -31,6 +31,8 @@ describe('birth classics navigation', () => {
     const form = await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(within(form).getByRole('radio', { name: '男' }));
     await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
+    expect(screen.getByLabelText('测试地址')).toHaveTextContent('/yunqi/constitution');
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth\/classics$/);
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
@@ -39,10 +41,11 @@ describe('birth classics navigation', () => {
     expect(document.querySelector('.panel-shell__actions')).toBeNull();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByRole('link', { name: '全部原文' })).toHaveFocus();
-    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
-    expect(screen.getByRole('button', { name: '结束并销毁答卷' }).closest('.panel-shell__actions')).not.toBeNull();
     expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
     expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: '结束并销毁答卷' }).closest('.panel-shell__actions')).not.toBeNull();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(storage).not.toHaveBeenCalled();

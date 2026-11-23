@@ -4,13 +4,13 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { createBirthComparisonDto, createClientStub } from '../../../../test/learning-fixtures';
 import { createTestWrapper } from '../../../../test/test-utils';
-import { BirthComparisonPage } from './BirthComparisonPage';
+import { AppRoutes } from '../../../../app/AppRoutes';
 
 describe('BirthComparisonPage', () => {
   it('leaves month-day validity to the API and presents its sanitized error through the existing path', async () => {
     const user = userEvent.setup();
     const client = createClientStub({ compareBirth: vi.fn().mockRejectedValue(new Error('invalid calendar date: private details')) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1980-02-31');
     expect(document.querySelectorAll('input[type="date"], input[type="radio"]')).toHaveLength(0);
     await user.click(screen.getByRole('button', { name: '查看对照' }));
@@ -21,7 +21,7 @@ describe('BirthComparisonPage', () => {
 
   it('clears incomplete segmented input and restores year focus without retaining a draft', async () => {
     const user = userEvent.setup();
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
     await user.type(screen.getByRole('textbox', { name: '年' }), '198');
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
@@ -35,7 +35,7 @@ describe('BirthComparisonPage', () => {
   it('submits a date without inventing a time, compares beside current and removes edited results', async () => {
     const user = userEvent.setup();
     const client = createClientStub();
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     expect(client.compareBirth).not.toHaveBeenCalled();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(screen.queryByLabelText('出生时刻', { exact: true })).not.toBeInTheDocument();
@@ -91,7 +91,7 @@ describe('BirthComparisonPage', () => {
     let resolve!: (value: ReturnType<typeof createBirthComparisonDto>) => void;
     const response = { ...createBirthComparisonDto(), birthPrecision: 'time' as const };
     const client = createClientStub({ compareBirth: vi.fn(() => new Promise<ReturnType<typeof createBirthComparisonDto>>((done) => { resolve = done; })) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30' } });
@@ -119,7 +119,7 @@ describe('BirthComparisonPage', () => {
     const original = createBirthComparisonDto();
     const response = { ...original, ambiguous: true, message: '该日跨过交节，出生时刻不详，请分别核对。', candidates: [original.candidates[0], { ...original.candidates[0], label: '交节后可能结果' }] };
     const client = createClientStub({ compareBirth: vi.fn().mockRejectedValueOnce(new Error('private backend detail')).mockResolvedValueOnce(response) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     expect(screen.getByRole('alert')).toHaveTextContent('请填写有效的出生日期');
     expect(client.compareBirth).not.toHaveBeenCalled();
@@ -139,7 +139,7 @@ describe('BirthComparisonPage', () => {
   it('requires the selected known time and preserves supplied seconds', async () => {
     const user = userEvent.setup();
     const client = createClientStub();
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     await user.click(screen.getByRole('button', { name: '查看对照' }));
@@ -159,7 +159,7 @@ describe('BirthComparisonPage', () => {
     const labels = ['出生生当前', '当前生出生', '出生克当前', '当前克出生', '同五行'];
     const comparisons = titles.map((title, index) => ({ ...candidate.comparisons[0], title, label: labels[index], relation: `${title}的API方向`, explanation: `${title}的API释义` }));
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue({ ...dto, candidates: [{ ...candidate, comparisons }] }) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('button', { name: '查看对照' }));
     const table = await screen.findByRole('table');
@@ -189,7 +189,7 @@ describe('BirthComparisonPage', () => {
   it('blocks two submits in the same event turn and permits another comparison after settlement', async () => {
     let resolve!: (value: ReturnType<typeof createBirthComparisonDto>) => void;
     const client = createClientStub({ compareBirth: vi.fn(() => new Promise<ReturnType<typeof createBirthComparisonDto>>((done) => { resolve = done; })) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     const form = screen.getByRole('form', { name: '出生运气输入' });
     act(() => {

@@ -30,6 +30,12 @@ export interface MovementViewModel {
   readonly explanation: string;
 }
 
+export interface ScopedLearningRelation extends LearningRelationViewModel {
+  readonly scope: string;
+  readonly heading: string;
+  readonly badgeLabel: string;
+}
+
 export interface ClassicalPassageViewModel {
   readonly id: string;
   readonly work: string;
@@ -48,8 +54,8 @@ export interface ClassicalPassageViewModel {
 export interface LearningViewModel {
   readonly facts: CurrentYunQiViewModel;
   readonly ruleVersion: string;
-  readonly annualRelation: LearningRelationViewModel;
-  readonly currentQi: LearningRelationViewModel;
+  readonly annualRelation: ScopedLearningRelation;
+  readonly currentQi: ScopedLearningRelation;
   readonly currentMovement: MovementViewModel;
   readonly currentMovementProgress: StageProgressViewModel;
   readonly annualWheel: YunQiWheelViewModel;
@@ -84,6 +90,19 @@ function mapRelation(value: LearningRelationDto): LearningRelationViewModel {
     sources: value.sources.map((source) => ({ id: source.id, title: source.title, url: source.url })) };
 }
 
+function scopedRelation(value: LearningRelationDto, scope: string): ScopedLearningRelation {
+  const prefix = `${scope} · `;
+  return { ...mapRelation(value), scope, heading: value.title.startsWith(prefix) ? value.title.slice(prefix.length) : value.title,
+    badgeLabel: value.label === '相生 · 相得' ? '相得' : value.label };
+}
+
+/** Keep the complete bibliography on the link; abbreviate only recognized citation formats. */
+export function compactSourceTitle(title: string): string {
+  return title
+    .replace(/^《黄帝内经·素问》([^·《》]+)篇第[一二三四五六七八九十百]+·(.+)$/, '《素问·$1》$2')
+    .replace(/^(《[^》]+》)卷[一二三四五六七八九十百]+·(.+)$/, '$1$2');
+}
+
 function mapMovement(value: MovementStepDto): MovementViewModel {
   return { index: value.index, name: value.name, start: mapYunQiTime(value.start), end: mapYunQiTime(value.end),
     hostLabel: `${value.host.element}运${value.host.state}（${value.host.tone}）`,
@@ -116,7 +135,7 @@ export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前�
     endLocalTime: value.currentMovement.end.localTime, transition: '交运',
   });
   return { facts, ruleVersion: value.ruleVersion,
-    annualRelation: mapRelation(value.annualRelation), currentQi: mapRelation(value.currentQi),
+    annualRelation: scopedRelation(value.annualRelation, '全年'), currentQi: scopedRelation(value.currentQi, facts.currentStep.name),
     currentMovement: mapMovement(value.currentMovement), movements: value.movements.map(mapMovement),
     currentMovementProgress,
     annualWheel: {
@@ -133,7 +152,7 @@ export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前�
 }
 
 export function mapBirthComparison(value: BirthComparisonDto): BirthComparisonViewModel {
-  return { birthPrecision: value.birthPrecision, ambiguous: value.ambiguous, message: value.message,
+  return { birthPrecision: value.birthPrecision, ambiguous: value.ambiguous, message: value.message.replace('，统一采用固定北京时间 UTC+08', ''),
     current: mapLearning(value.current), candidates: value.candidates.map((candidate) => ({
       label: candidate.label, from: mapYunQiTime(candidate.from), until: mapYunQiTime(candidate.until),
       learning: mapLearning(candidate.learning, '出生阶段'), comparisons: candidate.comparisons.map(mapRelation),

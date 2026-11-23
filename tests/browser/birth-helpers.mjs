@@ -1,4 +1,5 @@
 import { expect, expectCompactTimes, waitForAnimations } from './fixtures.mjs';
+import { expectElementTitle } from './visual-assertions.mjs';
 
 export async function fillBirthDate(page, value) {
   const parts = value ? value.split('-') : ['', '', ''];
@@ -93,6 +94,14 @@ export async function expectBirthComparison(page, data) {
         }
         if (position === 4) {
           await expect(cell).toContainText(learning.currentMovement.name);
+          const detail = cell.locator('.birth-table__detail');
+          await expect(detail).toHaveText(`主 ${learning.currentMovement.host.tone} · 客 ${learning.currentMovement.guest.tone}`);
+          const pairs = await detail.evaluate(node => {
+            const bounds = node.getBoundingClientRect();
+            const [host, guest] = [...node.children].map(part => part.getBoundingClientRect());
+            return { sameLine: host.top === guest.top, fits: host.left >= bounds.left - 1 && guest.right <= bounds.right + 1 };
+          });
+          expect(pairs).toEqual({ sameLine: true, fits: true });
           await expect(cell.locator('.birth-table__detail > div')).toHaveText([`主 ${learning.currentMovement.host.tone}`, `客 ${learning.currentMovement.guest.tone}`]);
         }
       }
@@ -136,6 +145,10 @@ export async function expectBirthDetailSegments(page, testInfo) {
   await waitForAnimations(page);
   for (const name of ['所处气', '所处运']) {
     const row = table.getByRole('rowheader', { name, exact: true }).locator('..');
+    for (const value of await row.locator('.birth-table__value').all()) {
+      const element = await value.getAttribute('data-element');
+      await expectElementTitle(value, element, '.birth-candidate-card');
+    }
     const sides = await row.locator('.birth-table__detail').evaluateAll(details => details.map(detail => ({
       bounds: detail.getBoundingClientRect().toJSON(),
       lines: [...detail.children].map(line => {
@@ -148,9 +161,16 @@ export async function expectBirthDetailSegments(page, testInfo) {
     for (const [i, side] of sides.entries()) {
       expect(side.lines.map(line => line.length)).toEqual([1, 1]);
       const [host, guest] = side.lines.map(line => line[0]);
-      expect(guest.top).toBeGreaterThan(host.top);
       const edge = i === 0 ? 'right' : 'left';
-      for (const phrase of [host, guest]) expect(Math.abs(phrase[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
+      if (name === '所处运') {
+        expect(guest.top).toBe(host.top);
+        expect(guest.left).toBeGreaterThan(host.right);
+        const outer = i === 0 ? guest : host;
+        expect(Math.abs(outer[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
+      } else {
+        expect(guest.top).toBeGreaterThan(host.top);
+        for (const phrase of [host, guest]) expect(Math.abs(phrase[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
+      }
     }
     for (const i of [0, 1]) expect(Math.abs(sides[0].lines[i][0].top - sides[1].lines[i][0].top)).toBeLessThanOrEqual(1);
     await testInfo.attach(`birth-detail-${name}`, { body: JSON.stringify(sides), contentType: 'application/json' });
@@ -160,6 +180,17 @@ export async function expectBirthDetailSegments(page, testInfo) {
   const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
   expect(button.height).toBeGreaterThanOrEqual(40);
   expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
+  const icons = await summary.locator('svg').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
+  expect(icons).toHaveLength(2);
+  expect(Math.abs((icons[0].left + icons[1].right) / 2 - (button.x + button.width / 2))).toBeLessThanOrEqual(1);
+  await expect(summary).toHaveCSS('user-select', 'none');
+  const excerpts = page.getByRole('region', { name: '先天原文线索' });
+  await expect(excerpts.locator('.birth-excerpt')).toHaveCount(2);
+  for (const card of await excerpts.locator('.birth-excerpt').all()) {
+    await expect(card).toHaveCSS('background-image', /linear-gradient.*20%/);
+    await expect(card.locator('blockquote')).not.toHaveCSS('user-select', 'none');
+    await expect(card.locator('figcaption')).toBeVisible();
+  }
 }
 
 // Measure the actual value/dot groups, so equal cell widths alone cannot hide

@@ -49,9 +49,7 @@ describe('TimeAnalysisPage', () => {
     ).toBeInTheDocument();
     expect(result.querySelector('.drilldown-time-result__time time')).toHaveTextContent('06-19 12:00');
     expect(result.querySelector('.drilldown-time-result__time time')).toHaveAttribute('datetime', '2026-06-19T12:00:00+08:00');
-    expect(
-      within(result).getAllByText('北京时间 UTC+08').length,
-    ).toBeGreaterThan(0);
+    expect(within(result).queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
     expect(
       within(result).getByRole('region', { name: '年度概览' }),
     ).toBeInTheDocument();

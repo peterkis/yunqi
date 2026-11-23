@@ -50,6 +50,10 @@ export function labeledCode<Code extends string>(
   };
 }
 
+export function mapRuleExplanations(explanations: readonly string[]): readonly string[] {
+  return explanations.map(text => text.replace('运气年以北京时间 ', '运气年以'));
+}
+
 export function mapYunQiTime(
   value: YunQiTimeDto,
 ): YunQiTimeViewModel {

@@ -1,5 +1,6 @@
 import type { Ref } from 'react';
 import { Button } from '../../../components/design/Button';
+import { ElementDot } from '../../../components/design/ElementDot';
 import type { CurrentSixQiStageViewModel } from '../presentation/view-model';
 import { CurrentElementValue, CurrentTimeRange } from './CurrentYunQiParts';
 import { getSixQiTimelineIds } from './six-qi-timeline-ids';
@@ -18,7 +19,8 @@ export function SixQiTimelineItem({ isExpanded, onToggle, rootRef, step, timelin
   const labelId = `${ids.rootId}-label`;
   return <article id={ids.rootId} ref={rootRef} className="current-stage-row">
     <div className="current-stage-row__heading">
-      <h3>{step.name}</h3><span className="current-meta">{step.status.label}</span>
+      <h3>{step.guestElement ? <ElementDot compact semanticTitle element={step.guestElement} label={step.name} /> : step.name}</h3>
+      <span className="current-meta">{step.status.label}</span>
       <Button variant="text" aria-label={`${isExpanded ? '收起' : '展开'}${step.name}详情`}
         aria-controls={detailId} aria-expanded={isExpanded} onClick={onToggle}>详情</Button>
     </div>

@@ -124,7 +124,27 @@ describe('tab session retention', () => {
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
   });
 
-  it('retains birth drafts, the response and its embedded questionnaire across tabs, then clears explicitly', async () => {
+  it('keeps an existing standalone draft when a birth-linked assessment is opened and discarded', async () => {
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={createClientStub()}><App /></AppProviders></MemoryRouter>);
+    const draft = await screen.findByRole('form', { name: '中医体质量表' });
+    await user.click(within(draft).getByRole('radio', { name: '女' }));
+    await answerByKey(user, '4');
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await user.click(await screen.findByRole('button', { name: '同时测评体质' }));
+    const linked = await screen.findByRole('form', { name: '中医体质量表' });
+    expect(linked).not.toBe(draft);
+    expect(within(linked).getByRole('radio', { name: '女' })).not.toBeChecked();
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    await user.click(screen.getByRole('button', { name: '清空本次资料' }));
+    await user.click(screen.getByRole('link', { name: '体质量表' }));
+    expect(screen.getByRole('form', { name: '中医体质量表' })).toBe(draft);
+    expect(within(draft).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
+  });
+
+  it('retains the comparison and its linked questionnaire across tabs, then clears explicitly', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub();
     render(<MemoryRouter initialEntries={['/yunqi/birth']}><AppProviders yunqiClient={client}><App /></AppProviders></MemoryRouter>);
@@ -138,10 +158,11 @@ describe('tab session retention', () => {
     const form = await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(within(form).getByRole('radio', { name: '女' }));
     await answerByKey(user, '5');
-    await user.click(screen.getByRole('link', { name: '体质量表' }));
-    expect(screen.getByRole('radio', { name: '男' })).not.toBeChecked();
-    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
     await user.click(screen.getByRole('link', { name: '先天对照' }));
+    expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('link', { name: '体质量表' }));
     expect(screen.getByRole('form')).toBe(form);
     expect(screen.getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
     expect(client.compareBirth).toHaveBeenCalledOnce();

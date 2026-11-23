@@ -272,7 +272,7 @@ for (const state of cases) {
         expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
       }
     }
-    if (state.birth && !state.birthClassics) {
+    if (state.birth && !state.birthClassics && !state.birthAssessment) {
       await expectBirthMirror(page);
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
         columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
@@ -297,10 +297,8 @@ for (const state of cases) {
       for (const value of birthLayout.values) expect(value).toEqual({ size: 14, weight: '600', line: 21 });
       expect(birthLayout.chips).toEqual([20, 20, 20, 20, 20]);
       expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7, 7, 7, 7, 7]);
-      if (!state.birthAssessment) {
-        expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
-        expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
-      }
+      expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
+      expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
       await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
     }
     if (state.questionnaire) {

@@ -30,7 +30,7 @@ describe('ConstitutionContext', () => {
     expect(screen.queryByRole('link', { name: '未填写 · 去对照 ›' })).not.toBeInTheDocument();
     await user.click(screen.getByText('计算说明与版本'));
     const details = screen.getByText('计算说明与版本').closest('details')!;
-    expect(details).toHaveTextContent('北京时间 UTC+08');
+    expect(details).not.toHaveTextContent('北京时间 UTC+08');
     expect(details).toHaveTextContent(context.current.contractId);
     expect(details).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
   });

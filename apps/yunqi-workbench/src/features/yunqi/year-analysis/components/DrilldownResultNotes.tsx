@@ -22,7 +22,6 @@ export function DrilldownResultNotes({ explanations, ruleVersion, dataSource, ti
         <div><dt>Contract ID</dt><dd><code>{YUNQI_API_CONTRACT_ID}</code></dd></div>
         <div><dt>数据来源</dt><dd>{dataSource}</dd></div>
         <div><dt>规则版本</dt><dd><code>{ruleVersion}</code></dd></div>
-        <div><dt>时间标准</dt><dd>北京时间 UTC+08</dd></div>
       </dl>
     </InfoCard>
   </details>;

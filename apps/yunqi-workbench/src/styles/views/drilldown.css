@@ -44,14 +44,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-.drilldown-page .yunqi-time__standard {
-  color: var(--ink-tertiary);
-  font-size: var(--ts-small);
-  line-height: var(--type-meta-line);
-  font-weight: var(--type-meta-weight);
-  letter-spacing: normal;
-}
-
 .drilldown-boundaries {
   display: grid;
   min-width: 0;
@@ -261,9 +253,9 @@
   cursor: pointer;
 }
 
-.drilldown-stage-selector__option:has(input:checked) {
-  border-color: var(--border-strong);
-  background: var(--surface-sunken);
+.drilldown-stage-selector__option[data-selected="true"] {
+  border-color: var(--accent-muted);
+  background: var(--accent-subtle);
 }
 
 .drilldown-stage-selector__option:has(input:focus-visible) {

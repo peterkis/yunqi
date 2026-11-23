@@ -71,17 +71,25 @@ describe('CurrentYunQiPage', () => {
     </PanelShell></ThemeProvider>, { wrapper: PageWrapper });
     const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
     await user.click(within(disclosure).getByText('这些关系怎么读？'));
-    const sources = within(disclosure).getAllByRole('link');
+    expect(within(disclosure).queryByRole('link')).toBeNull();
+    const sources = within(disclosure).getAllByTitle('《传统理论测试来源》');
     expect(sources).toHaveLength(2);
     for (const source of sources) {
       expect(source).toHaveTextContent('《传统理论测试来源》');
-      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
-      expect(source).toHaveAttribute('target', '_blank');
-      expect(source).toHaveAttribute('rel', 'noreferrer');
-      expect(source).not.toHaveTextContent('新窗口');
-      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      expect(source).not.toHaveAttribute('href');
+      expect(source.querySelector('svg')).toBeNull();
     }
     expect(disclosure.querySelector('ul, li')).toBeNull();
+    for (const relation of [learning.annualRelation, learning.currentQi]) {
+      const insight = within(disclosure).getByRole('region', { name: relation.title });
+      expect(within(insight).getByRole('heading', { name: relation.heading })).toBeVisible();
+      expect(within(insight).getByText(relation.scope)).toBeVisible();
+      expect(insight.querySelector('.ds-relation__chip')).toHaveClass(`ds-relation__chip--${relation.tone}`);
+    }
+    expect(within(disclosure).getByText('推演口径').parentElement).toHaveTextContent(learning.currentMovement.explanation);
+    const note = screen.getByRole('note');
+    expect(note).toHaveTextContent('文献线索，非个体发病预测');
+    expect(note.nextElementSibling).toBe(screen.getByRole('contentinfo'));
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
     expect(screen.getByText('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据')).toBeInTheDocument();
   });
@@ -158,8 +166,7 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByRole('link', { name: '指定时点' })).toHaveAttribute('href', '/yunqi/calculate');
     expect(screen.getByRole('link', { name: '原文与释义' })).toHaveAttribute('href', '/yunqi/current/classics');
     expect(screen.getByText('“主胜逆，客胜从。”')).toBeVisible();
-    expect(screen.getByText('文献线索，非个体发病预测')).toBeVisible();
-    expect(screen.getAllByText('文献线索，非个体发病预测')).toHaveLength(1);
+    expect(document.querySelector('.current-overview__quote .ds-info-card__hint')).toBeNull();
   });
 
   it('shows same-day transitions using the two independently supplied API end clocks', () => {
@@ -213,7 +220,7 @@ describe('CurrentYunQiPage', () => {
     await user.click(reading);
     expect(screen.getByText(dto.currentQi.explanation)).toBeVisible();
     expect(screen.getByText(dto.annualRelation.explanation)).toBeVisible();
-    expect(screen.getAllByRole('link', { name: /传统理论测试来源/ })[0]).toHaveAttribute('href', dto.annualRelation.sources[0].url);
+    expect(within(reading.parentElement!).getAllByTitle(dto.annualRelation.sources[0].title)[0]).toBeVisible();
     expect(within(reading.parentElement!).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
 
     expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
@@ -250,7 +257,7 @@ describe('CurrentYunQiPage', () => {
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
-    expect(trace).toHaveTextContent('北京时间 UTC+08');
+    expect(trace).not.toHaveTextContent('北京时间 UTC+08');
   });
 
   it('keeps API milliseconds only in calculation details', async () => {

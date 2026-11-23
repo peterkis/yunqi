@@ -2,6 +2,7 @@ import { confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
+import { expectElementTitle } from './visual-assertions.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
   const data = await loadCurrent(page);
@@ -14,7 +15,11 @@ test('current route redirects, renders canonical time and closes every stage dis
   await expectMoreRows(page);
   const toggles = page.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
+  const elementByName = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
   for (let index = 0; index < 6; index += 1) {
+    const step = data.facts.sixQi.steps[index];
+    const heading = page.locator('.current-stage-row').nth(index).getByRole('heading', { name: step.name, exact: true });
+    await expectElementTitle(heading, elementByName[step.guestQi.slice(-1)], '.ds-info-card');
     const toggle = toggles.nth(index);
     const detailsId = await toggle.getAttribute('aria-controls');
     const details = page.locator(`[id="${detailsId}"]`);
@@ -201,7 +206,7 @@ test('specified time is submit-only, rejects empty input and hides stale results
   expect(diagnostics.requests).toHaveLength(1);
   const input = page.getByLabel('分析时间', { exact: true });
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
-  await expect(page.getByRole('alert')).toHaveText('请输入合法的北京时间');
+  await expect(page.getByRole('alert')).toHaveText('请输入有效的日期和时刻');
   await expect(input).toBeFocused();
   await settle(page);
   expect(calculationRequests()).toHaveLength(0);

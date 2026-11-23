@@ -55,7 +55,7 @@ export function SixQiTimeline({
   }
 
   return (
-    <InfoCard label="六步交接时间线" meta="北京时间 UTC+08">
+    <InfoCard label="六步交接时间线">
       <p className="current-copy">当前步默认展开；可同时展开多个节点比较客主关系。</p>
       <nav className="current-stage-navigation" aria-label="六气年度六阶段概览">
         {steps.map((step) => <Button key={step.index} variant="text"

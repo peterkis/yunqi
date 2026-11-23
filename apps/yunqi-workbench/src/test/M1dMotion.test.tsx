@@ -237,7 +237,7 @@ describe('M1-d host sequencing', () => {
 describe('M1-d birth input', () => {
   it.each(['full', 'reduced', 'off'] as const)('clears after fast rendering time with a status and year focus in %s', async level => {
     motion.level = level;
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    render(<BirthComparisonPage onAssess={vi.fn()} onDiscardAssessment={vi.fn()} ended={0} />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     fireEvent.click(screen.getByRole('button', { name: '清空本次资料' }));
     if (level !== 'off') {
@@ -260,7 +260,7 @@ describe('M1-d birth input', () => {
   });
 
   it('cancels an old clear when editing and finishes a hidden retained clear without stealing focus', async () => {
-    function Content({ visible }: { visible: boolean }) { return <SessionVisibility.Provider value={visible}><BirthComparisonPage /></SessionVisibility.Provider>; }
+    function Content({ visible }: { visible: boolean }) { return <SessionVisibility.Provider value={visible}><BirthComparisonPage onAssess={vi.fn()} onDiscardAssessment={vi.fn()} ended={0} /></SessionVisibility.Provider>; }
     const view = render(<Content visible />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     fireEvent.click(screen.getByRole('button', { name: '清空本次资料' }));
@@ -280,7 +280,7 @@ describe('M1-d birth input', () => {
     const bounds = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
       return DOMRect.fromRect({ height: this.querySelector('form') ? 200 : 30 });
     });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    render(<BirthComparisonPage onAssess={vi.fn()} onDiscardAssessment={vi.fn()} ended={0} />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     fireEvent.submit(screen.getByRole('form', { name: '出生运气输入' }));
     await act(async () => { await vi.advanceTimersByTimeAsync(1); });

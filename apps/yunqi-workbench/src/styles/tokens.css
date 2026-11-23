@@ -2,6 +2,21 @@
 :root,
 [data-theme="light"] {
   --surface-page: #fbfaf7;
+  --countdown-bg: #f7f0e5;
+  --countdown-fg: #805528;
+  --reading-insight-surface: #f3f6f4;
+  --reading-scope-surface: #e6ece8;
+  --reading-source-surface: #e3efe7;
+  --excerpt-wood-wash: #f3faf5;
+  --excerpt-wood-pigment: #79ad91;
+  --excerpt-metal-wash: #fcf7ee;
+  --excerpt-metal-pigment: #cfa169;
+  --excerpt-water-wash: #f2f6fb;
+  --excerpt-water-pigment: #7294b6;
+  --excerpt-fire-wash: #fdf3f1;
+  --excerpt-fire-pigment: #bb847c;
+  --excerpt-earth-wash: #faf7f0;
+  --excerpt-earth-pigment: #ac976f;
   --surface-card: #ffffff;
   --surface-sunken: #efede7;
   --border-default: #e6e3dc;
@@ -23,6 +38,11 @@
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #4e7d5b;
+  --element-wood-title: #2c5241;
+  --element-fire-title: #8b452e;
+  --element-earth-title: #7c5c26;
+  --element-metal-title: #1f2522;
+  --element-water-title: #223f5c;
   --element-fire: #b5523b;
   --element-earth: #b08a3e;
   --element-metal-fill: #ffffff;
@@ -138,6 +158,21 @@
 
 [data-theme="dark"] {
   --surface-page: #151816;
+  --countdown-bg: #352c24;
+  --countdown-fg: #e8c29a;
+  --reading-insight-surface: #252d29;
+  --reading-scope-surface: #323d36;
+  --reading-source-surface: #293d32;
+  --excerpt-wood-wash: #2b3630;
+  --excerpt-wood-pigment: #79ad91;
+  --excerpt-metal-wash: #35352b;
+  --excerpt-metal-pigment: #cfa169;
+  --excerpt-water-wash: #2a333a;
+  --excerpt-water-pigment: #7294b6;
+  --excerpt-fire-wash: #332e2d;
+  --excerpt-fire-pigment: #bb847c;
+  --excerpt-earth-wash: #31332c;
+  --excerpt-earth-pigment: #ac976f;
   --surface-card: #1c201e;
   --surface-sunken: #262b28;
   --border-default: #2e3431;
@@ -159,6 +194,11 @@
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #7db08a;
+  --element-wood-title: #8ac4a6;
+  --element-fire-title: #e39579;
+  --element-earth-title: #deb871;
+  --element-metal-title: #e6eae8;
+  --element-water-title: #8cb8e0;
   --element-fire: #e08a72;
   --element-earth: #d6b26a;
   --element-metal-fill: #1c201e;

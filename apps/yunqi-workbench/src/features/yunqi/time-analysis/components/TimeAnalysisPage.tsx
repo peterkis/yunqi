@@ -39,7 +39,7 @@ export function TimeAnalysisPage({
     <div className="drilldown-page">
       <InfoCard label="提交后分析">
         <h2 className="drilldown-title">指定时点分析</h2>
-        <p className="drilldown-copy">填写北京时间，核对该时点的五运六气与所处阶段。</p>
+        <p className="drilldown-copy">填写日期和时刻，核对该时点的五运六气与所处阶段。</p>
         <TimeAnalysisForm
           inputError={inputError}
           inputValue={inputValue}

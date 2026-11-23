@@ -121,8 +121,8 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
         await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
         await expect(page).toHaveTitle('当下运气 · 运气通');
         await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-        await activate(page, page.getByRole('link', { name: tab, exact: true }), input);
-        await expect(page).toHaveURL(new RegExp(`${path}(?:\\?motion=off)?$`));
+        await activate(page, page.getByRole('link', { name: '体质量表', exact: true }), input);
+        await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
         await expect(form.locator('.constitution-position')).toHaveText('已答 2 / 26');
         // Tab navigation intentionally focuses main. Re-enter the retained
         // question before continuing its local numeric shortcuts.
@@ -166,8 +166,8 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     await page.goBack();
     await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-    await activate(page, page.getByRole('link', { name: tab, exact: true }), input);
-    await expect(page).toHaveURL(new RegExp(`${path}(?:\\?motion=off)?$`));
+    await activate(page, page.getByRole('link', { name: '体质量表', exact: true }), input);
+    await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
     await expect(page).toHaveTitle('体质测评结果 · 运气通');
     await expect(result).toBeVisible();
     await expect(result).toHaveAttribute('data-reveal', 'false');

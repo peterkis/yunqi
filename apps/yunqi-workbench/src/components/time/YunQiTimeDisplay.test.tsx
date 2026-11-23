@@ -21,7 +21,7 @@ describe('YunQiTimeDisplay', () => {
       'dateTime',
       '2026-01-01T12:00:00+08:00',
     );
-    expect(screen.getByText('北京时间 UTC+08')).toBeInTheDocument();
+    expect(screen.queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
   });
 
   it.each([
@@ -42,7 +42,6 @@ describe('YunQiTimeDisplay', () => {
         <YunQiTimeDisplay
           value={value}
           variant="compact"
-          showStandard={false}
         />,
       );
 

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { InlineText } from './InlineText';
 
 export type InfoCardProps = {
+  readonly className?: string;
   readonly label: string;
   readonly meta?: ReactNode;
   readonly children: ReactNode;
@@ -15,6 +16,7 @@ export type InfoCardProps = {
 );
 
 export function InfoCard({
+  className,
   href,
   to,
   linkLabel = '原文与释义',
@@ -28,7 +30,7 @@ export function InfoCard({
 
   return (
     <section
-      className={`ds-info-card${compact ? ' ds-info-card--compact' : ''}`}
+      className={`ds-info-card${compact ? ' ds-info-card--compact' : ''}${className ? ` ${className}` : ''}`}
       aria-labelledby={labelId}
     >
       <div className="ds-info-card__eyebrow">

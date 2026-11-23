@@ -36,6 +36,10 @@ time, .num { font-variant-numeric: tabular-nums; }
 .theme-root[data-theme="dark"] { color-scheme: dark; }
 
 ::selection { background: var(--accent-subtle); color: var(--ink-primary); }
+.theme-root :where(button, summary, [role="button"], [role="tab"], [role="radio"], .drilldown-stage-selector__option, .ds-segmented-nav__link, .ds-info-card__link, .current-more__row, .birth-excerpts__header a, input[type="submit"], input[type="reset"], input[type="button"]) {
+  -webkit-user-select: none;
+  user-select: none;
+}
 input { caret-color: var(--accent); }
 
 .yunqi-time {
@@ -46,12 +50,6 @@ input { caret-color: var(--accent); }
 }
 .yunqi-time time {
   font-family: var(--font-sans);
-}
-.yunqi-time__standard {
-  color: var(--ink-tertiary);
-  font-size: var(--ts-small);
-  line-height: var(--type-meta-line);
-  font-weight: var(--type-meta-weight);
 }
 
 .visually-hidden {

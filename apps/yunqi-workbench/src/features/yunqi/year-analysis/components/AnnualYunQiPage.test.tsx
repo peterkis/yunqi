@@ -72,7 +72,7 @@ describe('AnnualYunQiPage', () => {
     expect(screen.getByRole('heading', { name: '已选择：初之气' }))
       .toHaveAttribute('aria-live', 'polite');
     expect(screen.getByRole('radio', { name: '第 1 步 初之气' }))
-      .toHaveAccessibleDescription('开始 01-20 09:00，结束 03-21 10:00，北京时间 UTC+08；精确边界见计算说明与版本');
+      .toHaveAccessibleDescription('开始 01-20 09:00，结束 03-21 10:00；精确边界见计算说明与版本');
   });
 
   it('keeps the new single-column stage list and unwrapped boundary times without document clipping', () => {

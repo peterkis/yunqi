@@ -5,6 +5,7 @@ import { mapStageProgress } from './map-stage-progress';
 import {
   labeledCode,
   mapSixQiStageTuple,
+  mapRuleExplanations,
   mapYunQiTime,
   mapYunQiYearSummary,
 } from './map-yunqi-shared';
@@ -97,7 +98,7 @@ export function mapCurrentYunQi(
     summary: mapYunQiYearSummary(dto),
     currentStep,
     timeline,
-    explanations: dto.explanations,
+    explanations: mapRuleExplanations(dto.explanations),
     ruleVersion: dto.ruleVersion,
     contractId: YUNQI_API_CONTRACT_ID,
   };

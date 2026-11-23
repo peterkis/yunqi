@@ -4,6 +4,7 @@ import { InlineText } from '../../../components/design/InlineText';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
+import { PanelView } from '../../../components/layout/PanelView';
 import { MotionSettings } from '../../../components/layout/MotionSettings';
 import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
@@ -36,9 +37,10 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
 
   return <div className="current-yunqi-page current-overview">
     <PanelSummary viewModel={mapPanelSummary(summary, { step: currentStep, relation: learning.currentQi })} />
+    <PanelView footerNote={passage ? '文献线索，非个体发病预测' : undefined} />
     <h2 className="visually-hidden">当前五运六气</h2>
     <div className="current-overview__annual">
-      <InfoCard label={`全年 · ${summary.year}`} meta={<>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" showStandard={false} /></>} hint={<>
+      <InfoCard label={`全年 · ${summary.year}`} meta={<>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" /></>} hint={<>
         <CurrentRelation relation={learning.annualRelation} />
       </>}>
         <YunQiWheel viewModel={learning.annualWheel} />
@@ -55,15 +57,17 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
         <CurrentPeriodGrid learning={learning} />
         <details className="current-relations">
           <RelationReadingSummary />
-          <CurrentRelationReading relation={learning.annualRelation} />
-          <CurrentRelationReading relation={learning.currentQi} />
-          <p>{movement.explanation}</p>
+          <div className="current-relations__body">
+            <CurrentRelationReading relation={learning.annualRelation} />
+            <CurrentRelationReading relation={learning.currentQi} />
+            <p className="current-relations__method"><strong>推演口径</strong> · <span>{movement.explanation}</span></p>
+          </div>
         </details>
       </section>
     </div>
 
     <div className="current-overview__quote">
-      <InfoCard compact label={`原文 · ${currentStep.name}`} to="/yunqi/current/classics" hint="文献线索，非个体发病预测">
+      <InfoCard className="reading-excerpt" compact label={`原文 · ${currentStep.name}`} to="/yunqi/current/classics">
         {passage ? <QuoteBlock compact quote={passage.previewQuote} source={passage.source} /> : <p className="current-copy">此范围暂未收录已核对原文。</p>}
       </InfoCard>
     </div>
@@ -73,7 +77,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
         <li><details className="current-disclosure current-all-stages">
           <summary className="current-more__row">其余阶段<MoreChevron /></summary>
           <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
-          <InfoCard label="五步运全表" meta="北京时间 UTC+08">
+          <InfoCard label="五步运全表">
             {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
               <h3>{step.name}{step.index === movement.index ? <span className="current-meta"><InlineText> · 正在此段</InlineText></span> : null}</h3>
               <CurrentTimeRange start={step.start} end={step.end} />
@@ -100,7 +104,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           </InfoCard>
           <InfoCard label="追溯信息">
             <p className="current-copy num"><InlineText>{`YunQi 当前查询 API · ${viewModel.contractId}`}</InlineText></p>
-            <p className="current-copy num"><InlineText>{`${viewModel.ruleVersion} · 北京时间 UTC+08`}</InlineText></p>
+            <p className="current-copy num"><InlineText>{viewModel.ruleVersion}</InlineText></p>
             <p className="current-copy num"><InlineText>{formatMotionDiagnostics(level, reason, engine)}</InlineText></p>
             <p className="current-meta">规则实现基线，待正式专家冻结与验证。</p>
           </InfoCard>

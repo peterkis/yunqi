@@ -80,7 +80,7 @@ test('panel stage selection keeps six single-column choices above nearby detail 
   expect(thirdStage.name).toBe('三之气');
   const third = page.getByRole('radio', { name: '第 3 步 三之气', exact: true });
   await third.check();
-  await expect(third).toHaveAccessibleDescription(`开始 ${thirdStage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 ${thirdStage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本`);
+  await expect(third).toHaveAccessibleDescription(`开始 ${thirdStage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 ${thirdStage.end.localTime.slice(5, 16).replace('T', ' ')}；精确边界见计算说明与版本`);
   const detail = page.getByRole('region', { name: '已选择：三之气', exact: true });
   await expect(detail).toBeVisible();
   await waitForAnimations(page);

@@ -13,11 +13,16 @@ import { animateMotion, motionMilliseconds } from '../../../../lib/motion';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import { useBirthComparison } from '../hooks/useBirthComparison';
-import { BirthAssessmentSession } from './BirthAssessmentSession';
+import { AnswerDestroyedNotice } from '../../../constitution/components/AnswerDestroyedNotice';
+import type { BirthComparisonViewModel } from '../../presentation/map-learning';
 import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
-export function BirthComparisonPage() {
+export function BirthComparisonPage({ onAssess, onDiscardAssessment, ended }: {
+  readonly onAssess: (comparison: BirthComparisonViewModel) => void;
+  readonly onDiscardAssessment: () => void;
+  readonly ended: number;
+}) {
   const visible = useSessionVisible();
   const level = useMotionLevel();
   const mutation = useBirthComparison();
@@ -35,7 +40,7 @@ export function BirthComparisonPage() {
   const [knowsTime, setKnowsTime] = useState(false);
   const [inputError, setInputError] = useState<string | null>(null);
   const [wasEdited, setWasEdited] = useState(false);
-  const [comparisonRevision, setComparisonRevision] = useState(0);
+  const assessmentButton = useRef<HTMLButtonElement>(null);
   const [formExpanded, setFormExpanded] = useState(false);
   const [clearing, setClearing] = useState(false);
   const [cleared, setCleared] = useState(false);
@@ -75,14 +80,20 @@ export function BirthComparisonPage() {
     wasReading.current = reading;
   }, [reading]);
 
+  useEffect(() => {
+    if (ended) assessmentButton.current?.focus();
+  }, [ended]);
+
   function edited() {
     cancelClear();
     setWasEdited(result !== undefined || wasEdited);
     setInputError(null);
+    onDiscardAssessment();
     mutation.reset();
   }
 
   function invalid() {
+    onDiscardAssessment();
     mutation.reset();
     setInputError('请填写有效的出生日期；已选择知道时刻时，还需填写出生时刻。');
   }
@@ -100,7 +111,7 @@ export function BirthComparisonPage() {
     setFormExpanded(false);
     // A fast response can batch away the pending render; an explicit new
     // comparison must still discard the previous local questionnaire.
-    setComparisonRevision((revision) => revision + 1);
+    onDiscardAssessment();
     mutation.submit(request, { onSettled: () => { submitting.current = false; } });
   }
 
@@ -117,6 +128,7 @@ export function BirthComparisonPage() {
   }
 
   function clearNow() {
+    onDiscardAssessment();
     mutation.reset();
     setBirthDate('');
     setDateRevision((value) => value + 1);
@@ -137,6 +149,9 @@ export function BirthComparisonPage() {
       {!reading && !collapsed ? <PanelView actions={<div className="birth-actions">
         <Button type="submit" form={formId} disabled={mutation.isPending}>{mutation.isPending ? '正在对照…' : '查看对照'}</Button>
       </div>} /> : null}
+      {!reading && collapsed && <PanelView actions={<div className="birth-actions">
+        <Button ref={assessmentButton} onClick={() => onAssess(result.comparison)}>同时测评体质</Button>
+      </div>} />}
       <div className="birth-view" ref={birthView} hidden={reading}>
         <h2 className="visually-hidden">出生运气对照</h2>
         <div className="birth-input-region" ref={inputRegion}>
@@ -185,7 +200,7 @@ export function BirthComparisonPage() {
                     {!result.candidateMeta && (result.comparison.birthPrecision === 'date' ? (
                       <p className="birth-candidate-interval birth-note">
                         可能出生区间（起点包含，终点不包含）：
-                        <YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} />
+                        <YunQiTimeDisplay value={candidate.from} variant="compact" />
                         <span> 至 </span>
                         <YunQiTimeDisplay value={candidate.until} variant="compact" />
                       </p>
@@ -194,16 +209,18 @@ export function BirthComparisonPage() {
                   </article>
                 ))}
             </div>
-            <section className="birth-card birth-excerpts" aria-label="先天原文线索">
+            <section className="birth-excerpts" aria-label="先天原文线索">
               <header className="birth-excerpts__header"><h3 className="birth-label">先天原文线索</h3><Link ref={readingLink} to="/yunqi/birth/classics">全部原文<svg className="birth-link-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></Link></header>
               {result.candidates.map((candidate, index) => <div className="birth-excerpts__candidate" key={`${candidate.from.localTime}-${index}`}>
                 {result.comparison.ambiguous ? <h4 className="birth-label">{candidate.label}</h4> : null}
-                {candidate.excerpts.map((passage) => <QuoteBlock key={passage.id} compact quote={passage.excerpt} source={passage.source} />)}
+                {candidate.excerpts.map((passage) => <div className="birth-excerpt reading-excerpt jade-card" data-element={passage.element} key={passage.id}>
+                  <QuoteBlock compact label={passage.label} quote={passage.excerpt} source={passage.source} />
+                </div>)}
                 {candidate.excerpts.length === 0 ? <p className="birth-note">此范围暂未收录已核对原文。</p> : null}
               </div>)}
               <p className="birth-notice">{BIRTH_NOTICE}</p>
             </section>
-            <BirthAssessmentSession key={comparisonRevision} comparison={result.comparison} actionsEnabled={collapsed && !reading} />
+            {ended > 0 && <AnswerDestroyedNotice key={ended} />}
             <details className="birth-technical">
               <summary>计算说明与版本</summary>
               <h3 className="birth-label">当下快照</h3>

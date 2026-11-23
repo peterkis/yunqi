@@ -18,7 +18,8 @@ describe('BirthComparisonTable mirror semantics', () => {
           : [learning.currentMovement.host.tone, learning.currentMovement.guest.tone];
         const detail = cells[index].querySelector('.birth-table__detail')!;
         expect([...detail.children].map(line => line.textContent)).toEqual([`主 ${expected[0]}`, `客 ${expected[1]}`]);
-        expect(detail).not.toHaveTextContent(/[·•]/);
+        if (label === '所处运') expect(detail.textContent).toBe(`主 ${expected[0]} · 客 ${expected[1]}`);
+        else expect(detail).not.toHaveTextContent(/[·•]/);
       }
     }
   });
@@ -49,10 +50,11 @@ describe('BirthComparisonTable mirror semantics', () => {
       expect(row.children[1]).toBe(heading);
       expect(cells[0]).toHaveAttribute('headers', `${heading.id} ${columns[0].id}`);
       expect(cells[1]).toHaveAttribute('headers', `${heading.id} ${columns[2].id}`);
-      const parts = [value.label, value.birth.label, ...value.birth.detail, `关系${index} 说明${index}`, value.current.label, ...value.current.detail];
+      const separator = value.label === '所处运' ? ' · ' : ' ';
+      const parts = [value.label, value.birth.label, value.birth.detail.join(separator), `关系${index} 说明${index}`, value.current.label, value.current.detail.join(separator)];
       // Accessible row naming must precede the first value with the dimension,
       // then place the relation (including its hidden explanation) before current.
-      expect(row).toHaveAccessibleName(parts.join(' ').replace(/\s+/g, ' ').trim().replaceAll(' · ', '\u202f·\u202f'));
+      expect(row).toHaveAccessibleName(parts.filter(Boolean).join(' '));
       expect(within(row).getByText(`说明${index}`)).toHaveClass('visually-hidden');
     }
     expect(table.querySelectorAll('.ds-element__dot')).toHaveLength(10);

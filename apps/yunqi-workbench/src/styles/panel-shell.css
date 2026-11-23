@@ -79,6 +79,19 @@
 /* A wheel reaching the edge of a reading pane stays inside that pane. */
 [data-panel-scroll] { overscroll-behavior-y: contain; }
 
+.panel-shell__colophon {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1_5);
+  min-height: var(--space-6);
+  color: var(--ink-tertiary);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.panel-shell__colophon > [aria-hidden] { color: var(--data-secondary); }
+
 .panel-shell__footer {
   display: flex;
   align-items: center;

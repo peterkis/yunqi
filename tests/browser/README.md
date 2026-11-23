@@ -72,7 +72,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 - Success paths use real HTTP responses. Three outage/retry cases inject one
   synthetic `503` response; a pending case delays one real request. These are
   explicit transport fault tests, not service reliability measurements.
-- The same-page birth assessment regression also delays delivery of one real
+- The birth-linked assessment in the constitution tab regression also delays delivery of one real
   scoring response while birth inputs create a new session. It verifies that
   the older response cannot restore discarded answers or results.
 
@@ -184,7 +184,7 @@ the current/neutral badges, original → interpretation → source order, serif/
 font stacks, and ≥4.5:1 label/badge contrast in both themes. The trailing notice
 stays visible while scrolling and expanding full passages.
 
-F4's `constitution-questions` and embedded `birth-assessment` capture question 5
+F4's `constitution-questions` and birth-linked `birth-assessment` capture question 5
 with five retained answers in every panel project, including 400×860,
 1366×768 and 1920×1080. They check the merged two-column context, nine progress
 cells, 48px options with five 7px degree dots, the question-only accent header
@@ -193,13 +193,13 @@ the new question receives focus with no outline, while Tab to an option keeps
 its 2px ring. Calculation/version details follow the form beside the source
 disclosure; the keyboard traversal assertions follow this new order.
 
-F5's `constitution-result` and embedded `birth-assessment-result` use a fixed
+F5's `constitution-result` and birth-linked `birth-assessment-result` use a fixed
 answer vector with one matched type and two tendencies, checked against the
 real Service response. Both states cover 400×860, 1366×768 and 1920×1080 (and
 the other panel projects), checking title/chip alignment, favorable chip
 contrast, standard-order horizontal bars, equal context columns, typography,
 screenshots and axe. The standalone state replays the real 2026-11-18 current
-calculation; the embedded state keeps its birth response's current snapshot.
+calculation; the linked assessment keeps its birth response's current snapshot.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one

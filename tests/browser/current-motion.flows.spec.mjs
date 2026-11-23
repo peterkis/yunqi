@@ -127,6 +127,7 @@ for (const input of ['keyboard', 'mouse']) {
     await expect(collapse).toBeFocused();
     await waitForAnimations(page);
     await expect(birthRow.locator('dd')).toHaveText(`${candidate.stemBranch.ganzhi} · ${candidate.currentStep.name} · 客气${candidate.currentStep.guestQi}`);
+    await activate(page, page.getByRole('link', { name: '先天对照', exact: true }), input);
     await activate(page, page.getByRole('button', { name: '清空本次资料', exact: true }), input);
     await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
     await expect(page.getByRole('textbox', { name: '年', exact: true })).toHaveValue('');

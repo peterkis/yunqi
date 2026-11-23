@@ -156,14 +156,11 @@
   line-height: var(--type-body-sm-line);
 }
 .current-relations { margin-top: var(--space-2); }
-.current-relation-reading h4 { margin: var(--space-2) 0 var(--space-1); font: inherit; font-weight: var(--type-body-strong-weight); }
-.current-relation-reading p { margin: 0; }
 .current-overview ul { margin: var(--space-2) 0; padding-left: var(--space-4_5); }
 .current-overview a,
 .current-classics a { color: var(--accent); }
 .current-overview a:hover,
 .current-classics a:hover { color: var(--accent-hover); text-decoration: underline; }
-.current-overview__quote .ds-info-card__hint,
 .current-classics__notice {
   padding: var(--space-2_5) var(--space-3);
   border-radius: var(--radius-md);
@@ -207,6 +204,7 @@
 .current-stage-navigation .ds-button { padding-inline: 0; font-size: var(--ts-small); }
 .current-stage-navigation [aria-current="step"] { color: var(--accent); font-weight: var(--type-body-strong-weight); }
 .current-stage-row__heading { display: flex; align-items: center; gap: var(--space-2); }
+.current-stage-row__heading h3 .ds-element { font: inherit; }
 .current-stage-row__heading .ds-button { margin-left: auto; padding-inline: var(--space-2); font-size: var(--ts-body); }
 .current-relation-facts { margin: var(--space-2) 0 0; }
 .current-relation-facts > div { display: grid; grid-template-columns: 1fr 2fr; gap: var(--space-2); margin-top: var(--space-1); }

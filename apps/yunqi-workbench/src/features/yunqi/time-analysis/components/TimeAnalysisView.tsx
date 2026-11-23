@@ -48,7 +48,7 @@ export function TimeAnalysisView() {
     mutation.reset();
     setIsDirty(false);
     setViewModel(null);
-    setInputError('请输入合法的北京时间');
+    setInputError('请输入有效的日期和时刻');
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -70,7 +70,7 @@ export function TimeAnalysisView() {
     const normalized = normalizeBeijingDateTimeInput(inputValue);
 
     if (!normalized.ok) {
-      setInputError('请输入合法的北京时间');
+      setInputError('请输入有效的日期和时刻');
       return;
     }
 

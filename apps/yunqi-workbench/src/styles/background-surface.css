@@ -19,6 +19,8 @@
   --jade-card-edge: transparent;
   --jade-segment-track: rgba(46, 91, 79, 0.10);
   --jade-segment-selected: var(--surface-card);
+  --jade-guide-start: #eff8f2;
+  --jade-guide-end: #f5faf6;
 
   /* Paint the viewport-sized surface itself. The nested main scrolls while
      this background stays continuous from the header through the footer. */
@@ -38,6 +40,8 @@
   --jade-card-color: #202622;
   --jade-segment-track: rgba(127, 179, 162, 0.14);
   --jade-segment-selected: var(--accent-muted);
+  --jade-guide-start: #26352e;
+  --jade-guide-end: #242f29;
   --jade-card-shadow: 0 12px 36px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.10);
 }
 

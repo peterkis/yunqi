@@ -31,6 +31,11 @@ export interface BirthReadingViewModel {
   readonly card: ClassicsCardViewModel;
 }
 
+interface BirthExcerptViewModel extends Pick<BirthReadingViewModel, 'id' | 'excerpt' | 'source'> {
+  readonly label: string;
+  readonly element: ElementKind;
+}
+
 export interface BirthCandidateViewModel {
   readonly label: string;
   readonly from: YunQiTimeViewModel;
@@ -41,7 +46,7 @@ export interface BirthCandidateViewModel {
   readonly rows: readonly BirthRowViewModel[];
   readonly annualReadings: readonly BirthReadingViewModel[];
   readonly periodReadings: readonly BirthReadingViewModel[];
-  readonly excerpts: readonly BirthReadingViewModel[];
+  readonly excerpts: readonly BirthExcerptViewModel[];
   readonly calculationTimes: readonly YunQiTimeEntryViewModel[];
 }
 
@@ -113,6 +118,21 @@ export function mapBirthView(value: BirthComparisonDto): BirthPageViewModel {
       const relations = comparison.candidates[index].comparisons;
       const annualReadings = candidate.learning.annualPassages.map((passage) => reading(passage, '出生阶段'));
       const periodReadings = candidate.learning.currentPassages.map((passage) => reading(passage, '出生阶段'));
+      const excerpts: BirthExcerptViewModel[] = [];
+      const annual = annualReadings[0];
+      const period = periodReadings[0];
+      const { suiYun, sixQi, currentStep } = candidate.learning.facts;
+      const sitianElement = mapQiElement(sixQi.sitian);
+      if (annual) {
+        const element = candidate.learning.annualPassages[0].scope === 'annual-movement'
+          ? mapMovementElement(suiYun.element) : sitianElement;
+        excerpts.push({ id: annual.id, excerpt: annual.excerpt, source: annual.source, label: annual.card.heading, element });
+      }
+      if (period) {
+        const [regime] = period.card.heading.split('·');
+        const label = regime.endsWith('之政') ? `${currentStep.name} · ${regime}` : period.card.heading;
+        excerpts.push({ id: period.id, excerpt: period.excerpt, source: period.source, label, element: sitianElement });
+      }
       const learning = comparison.candidates[index].learning;
       return {
         label: candidate.label, from: comparison.candidates[index].from, until: comparison.candidates[index].until,
@@ -123,7 +143,7 @@ export function mapBirthView(value: BirthComparisonDto): BirthPageViewModel {
           return { label, birth: birthFacts[position], current: currentFacts[position], relation };
         }),
         annualReadings, periodReadings,
-        excerpts: [...annualReadings.slice(0, 1), ...periodReadings.slice(0, 1)],
+        excerpts,
         calculationTimes: [
           ...(comparison.birthPrecision === 'date' ? [{ label: '可能出生区间', start: comparison.candidates[index].from, end: comparison.candidates[index].until }] : []),
           ...mapCalculationTimes({ ...learning.facts, stages: learning.facts.timeline, movements: learning.movements }),

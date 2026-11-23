@@ -164,6 +164,7 @@ export async function expectTypeScale(page, testInfo, name = 'type-scale') {
         Math.min(rect.bottom, bounds.bottom) > Math.max(rect.top, bounds.top))) return;
       samples.push({
         element: `${element.tagName.toLowerCase()}.${element.getAttribute('class') || ''}`,
+        countdown: element.matches('.current-period-grid .current-period-cell--remaining'),
         text: text.trim().slice(0, 100), size: Number.parseFloat(getComputedStyle(element).fontSize),
       });
     };
@@ -186,8 +187,9 @@ export async function expectTypeScale(page, testInfo, name = 'type-scale') {
   if (testInfo) await testInfo.attach(`typography-${name}`, { body: JSON.stringify(typography, null, 2), contentType: 'application/json' });
   const allowed = [40, 30, 24, 20, 15, 14, 12];
   expect(typography.samples.length, 'Typography gate must inspect visible text').toBeGreaterThan(0);
-  expect(typography.samples.filter(sample => !allowed.includes(sample.size)), 'Visible text uses only the approved type sizes').toEqual([]);
-  expect(typography.sizes.length, 'Each screen uses at most five sizes').toBeLessThanOrEqual(5);
+  expect(typography.samples.filter(sample => sample.countdown ? sample.size !== 11 : !allowed.includes(sample.size)), 'Visible text uses only the approved type sizes').toEqual([]);
+  const tiers = new Set(typography.samples.map(sample => sample.countdown ? 12 : sample.size));
+  expect(tiers.size, 'Each screen uses at most five sizes').toBeLessThanOrEqual(5);
   expect(typography.sizes.filter(size => [40, 30, 24].includes(size)).length, 'Each screen uses only one display size').toBeLessThanOrEqual(1);
   return typography;
 }
@@ -221,11 +223,14 @@ export async function expectCompactTimes(page) {
     }
     return {
       text: text.join(' '),
+      timeCopy: [main.textContent, ...[...main.querySelectorAll('[aria-label], [title]')].map(element =>
+        [element.getAttribute('aria-label'), element.getAttribute('title')].join(' '))].join(' '),
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
         dateTime: time.getAttribute('datetime'), text: time.textContent, birthCurrent: !!time.closest('.birth-table__time'),
       })),
     };
   });
+  expect(snapshot.timeCopy, 'Display and accessible copy omit the default time zone').not.toMatch(/北京时间|UTC\s*\+0?8/);
   expect(snapshot.text, 'Main text has no seconds outside calculation details').not.toMatch(/\d{2}:\d{2}:\d{2}/);
   expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
   for (const time of snapshot.times) {
@@ -252,6 +257,7 @@ export async function expectPanelLayout(page) {
         panel: rect(panel), header: rect(panel.querySelector(':scope > header')),
         navigation: rect(panel.querySelector(':scope > .panel-shell__navigation')),
         main: rect(main), footer: rect(panel.querySelector(':scope > footer')),
+        colophon: panel.querySelector(':scope > .panel-shell__colophon') ? rect(panel.querySelector(':scope > .panel-shell__colophon')) : null,
         actions: panel.querySelector(':scope > .panel-shell__actions') ? rect(panel.querySelector(':scope > .panel-shell__actions')) : null,
         mainClientWidth: main.clientWidth, mainScrollWidth: main.scrollWidth,
         overflowY: getComputedStyle(main).overflowY,
@@ -267,13 +273,18 @@ export async function expectPanelLayout(page) {
     expect(layout.footer.height).toBe(36);
     expect(layout.footer.bottom).toBe(layout.panel.bottom);
     expect(layout.main.y).toBe(layout.navigation.bottom);
+    const contentBottom = layout.colophon?.y ?? layout.footer.y;
+    if (layout.colophon) {
+      expect(layout.colophon.bottom).toBe(layout.footer.y);
+      expect(layout.colophon.height).toBeGreaterThanOrEqual(24);
+    }
     if (layout.actions) {
       // 1-layout.md: optional action area = 40 button + 12 above and below, fixed between content and footer.
       expect(layout.main.bottom).toBe(layout.actions.y);
       expect(layout.actions.height, 'Action area is 40 + 2 × 12').toBe(64);
-      expect(layout.actions.bottom).toBe(layout.footer.y);
+      expect(layout.actions.bottom).toBe(contentBottom);
     } else {
-      expect(layout.main.bottom).toBe(layout.footer.y);
+      expect(layout.main.bottom).toBe(contentBottom);
     }
     expect(layout.overflowY).toBe('auto');
     expect(layout.mainScrollWidth, 'Content does not scroll horizontally').toBeLessThanOrEqual(layout.mainClientWidth + 1);

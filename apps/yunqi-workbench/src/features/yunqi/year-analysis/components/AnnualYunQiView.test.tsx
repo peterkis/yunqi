@@ -101,7 +101,7 @@ describe('AnnualYunQiView', () => {
 
     const annual = await screen.findByRole('region', { name: '年度概览' });
     expect(annual).toBeVisible();
-    expect(screen.getAllByText('北京时间 UTC+08').length).toBeGreaterThan(0);
+    expect(screen.queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
     expect(annual.querySelector('.ds-info-card__meta time')).toHaveTextContent('01-20 09:00');
     expect(annual.querySelector('.ds-info-card__meta time')).toHaveAttribute('datetime', dto.interval.start.localTime);
     expect(annual.textContent).not.toMatch(/\d{2}:\d{2}:\d{2}|\.\d{3}/);

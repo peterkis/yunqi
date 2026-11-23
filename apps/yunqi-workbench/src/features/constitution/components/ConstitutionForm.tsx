@@ -98,8 +98,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }
 
   function focusResultAction(button: HTMLButtonElement | null) {
-    // Like BirthAssessmentSession's entry ref, shell actions mount in a later
-    // commit. Do not let the last delayed advance steal focus from elsewhere.
+    // Shell actions mount in a later commit. Keep focus if it has moved
+    // elsewhere during the last delayed advance.
     if (button && focusSubmit.current && visible) {
       focusSubmit.current = false;
       button.focus();

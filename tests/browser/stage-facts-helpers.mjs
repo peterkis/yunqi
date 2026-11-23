@@ -64,6 +64,7 @@ export async function expectCurrentStageFacts(page, data) {
     const labels = expectedPeriodLabels(step, progress, transition);
     await expect(region.locator('.current-period-cell--range')).toHaveText(labels.range);
     await expect(region.locator('.current-period-cell--remaining')).toHaveText(labels.remaining);
+    await expect(region.locator('.current-period-cell--remaining')).toHaveCSS('font-size', '11px');
   }
   await expect(qi.locator('time')).toHaveCount(0);
   await expect(movement.locator('time')).toHaveCount(0);

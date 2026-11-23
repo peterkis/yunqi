@@ -46,8 +46,8 @@ export function ConstitutionContextDetails({ context }: { readonly context?: Con
           <p><InlineText>{candidate.detail}</InlineText></p>
           <p><InlineText>{candidate.qiDetail}</InlineText></p>
           <p><InlineText>{candidate.movementDetail}</InlineText></p>
-          <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} />
-            {birth.precision === 'date' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" showStandard={false} /></> : null}</p>
+          <p>{birth.precision === 'date' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" />
+            {birth.precision === 'date' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" /></> : null}</p>
         </section>)}
       </details> : null}
     </>;

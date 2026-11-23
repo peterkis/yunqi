@@ -325,9 +325,7 @@ describe('AppRoutes', () => {
       'type',
       'datetime-local',
     );
-    expect(
-      screen.getByText('北京时间 UTC+08'),
-    ).toBeInTheDocument();
+    expect(screen.queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
     expect(client.calculate).not.toHaveBeenCalled();
     expect(client.getCurrent).not.toHaveBeenCalled();
     expect(client.getYear).not.toHaveBeenCalled();
@@ -347,7 +345,7 @@ describe('AppRoutes', () => {
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      '请输入合法的北京时间',
+      '请输入有效的日期和时刻',
     );
     expect(screen.getByLabelText('分析时间')).toHaveFocus();
     expect(screen.getByLabelText('分析时间')).toHaveAttribute(
@@ -371,7 +369,7 @@ describe('AppRoutes', () => {
     );
 
     expect(screen.getByRole('alert')).toHaveTextContent(
-      '请输入合法的北京时间',
+      '请输入有效的日期和时刻',
     );
     expect(client.calculate).not.toHaveBeenCalled();
   });
@@ -382,7 +380,7 @@ describe('AppRoutes', () => {
     renderAppAt('/yunqi/calculate', client);
     screen.getByRole('button', { name: '开始分析' }).focus();
     await user.keyboard('{Enter}');
-    expect(screen.getByRole('alert')).toHaveTextContent('请输入合法的北京时间');
+    expect(screen.getByRole('alert')).toHaveTextContent('请输入有效的日期和时刻');
     expect(screen.getByLabelText('分析时间')).toHaveFocus();
     expect(client.calculate).not.toHaveBeenCalled();
   });
@@ -406,7 +404,7 @@ describe('AppRoutes', () => {
     expect(client.calculate).toHaveBeenCalledOnce();
     fireEvent.change(input, { target: { value: '' } });
     await user.click(screen.getByRole('button', { name: '开始分析' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('请输入合法的北京时间');
+    expect(screen.getByRole('alert')).toHaveTextContent('请输入有效的日期和时刻');
     expect(screen.queryByText('输入已修改，请重新分析')).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: '指定时点分析结果' })).not.toBeInTheDocument();
     expect(client.calculate).toHaveBeenCalledOnce();

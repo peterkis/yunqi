@@ -34,7 +34,20 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(sourceDetails.locator('.relation-reading-summary__chevron')).not.toHaveCSS('transform', 'none');
   await expect(sourceDetails.getByText(data.currentQi.explanation, { exact: true })).toBeVisible();
   await expect(sourceDetails.getByText(data.annualRelation.explanation, { exact: true })).toBeVisible();
-  await expect(sourceDetails.locator('a').first()).toHaveAttribute('href', data.annualRelation.sources[0].url);
+  const insights = sourceDetails.locator('.current-relation-reading');
+  await expect(insights).toHaveCount(2);
+  await expect(insights.locator('.current-relation-reading__scope')).toHaveText(['全年', data.facts.currentStep.name]);
+  const summaryChips = [page.locator('.current-overview__annual .ds-relation__chip'), now.getByRole('region', { name: '当步气', exact: true }).locator('.ds-relation__chip')];
+  for (const [i, relation] of [data.annualRelation, data.currentQi].entries()) {
+    const chip = insights.nth(i).locator('.ds-relation__chip');
+    await expect(chip).toHaveText(relation.label === '相生 · 相得' ? '相得' : relation.label);
+    await expect(chip).toHaveCSS('background-color', await summaryChips[i].evaluate(node => getComputedStyle(node).backgroundColor));
+  }
+  await expect(sourceDetails.locator('.current-relations__method')).toContainText(data.currentMovement.explanation);
+  await expect(page.getByRole('note').getByText('文献线索，非个体发病预测')).toBeInViewport({ ratio: 1 });
+  await screenshot(page, testInfo, 'current-guide-expanded');
+  await expect(sourceDetails.getByRole('link')).toHaveCount(0);
+  await expect(sourceDetails.locator('.learning-source').first()).toHaveAttribute('title', data.annualRelation.sources[0].title);
   await expectRelationSources(sourceDetails);
   await expect(page.getByRole('contentinfo').locator('.panel-shell__credit')).toHaveText('中医科 × 信息管理部');
   await expect(page.getByRole('contentinfo').getByText('联合研发', { exact: true })).toBeVisible();
@@ -42,7 +55,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.locator('.current-technical')).toContainText('五步运为教学口径，待专家确认');
   await sourceDetails.locator('summary').press('Space');
   await expect(sourceDetails.locator('.relation-reading-summary__chevron')).toHaveCSS('transform', 'none');
-  await expect(sourceDetails.locator('a').first()).toBeHidden();
+  await expect(sourceDetails.locator('.learning-source').first()).toBeHidden();
   await otherStages.locator(':scope > summary').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.current-stage-row button').first()).toBeVisible();
@@ -153,7 +166,10 @@ test('birth comparison submits only requested precision, displays both contexts 
   expect(data.birthPrecision).toBe('date');
   expect(JSON.parse(diagnostics.requests[0].body)).toEqual({ birthDate: '1990-05-12' });
   const result = page.getByRole('region', { name: '出生与当前运气对照结果' });
+  const viewport = page.viewportSize();
+  await page.setViewportSize({ ...viewport, width: 320 });
   await expectBirthComparison(page, data);
+  await page.setViewportSize(viewport);
   const birthRelations = result.locator('.birth-relation-details').first();
   await birthRelations.locator(':scope > summary').press('Enter');
   await expect(birthRelations).toHaveAttribute('open', '');
@@ -190,7 +206,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
   await expect(page.locator('.constitution-time-details .constitution-context-time time')).toHaveCount(1);
-  await expect(page.locator('.constitution-time-details')).toContainText('北京时间 UTC+08');
+  await expect(page.locator('.constitution-time-details')).not.toContainText('北京时间 UTC+08');
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
   await page.getByRole('radio', { name: '男', exact: true }).click();

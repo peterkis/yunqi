@@ -147,6 +147,9 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={title}>{children}</main>
           {viewActions && <div className="panel-shell__actions">{viewActions}</div>}
+          {view?.footerNote && <div className="panel-shell__colophon" role="note">
+            <span aria-hidden="true">◆</span><span>{view.footerNote}</span>
+          </div>}
           <footer className="panel-shell__footer">
             <span className="panel-shell__credit">中医科 <span aria-hidden="true">×</span> 信息管理部</span>
             <span>联合研发</span>

@@ -123,14 +123,15 @@
 .current-period-cell--remaining {
   display: grid;
   align-content: center;
-  align-self: stretch;
+  align-self: start;
   justify-self: end;
   word-break: keep-all;
   max-width: 100%;
   padding: var(--space-0_5) var(--space-1);
   border-radius: var(--radius-full);
-  background: var(--accent-subtle);
-  color: var(--ink-primary);
+  background: var(--countdown-bg);
+  color: var(--countdown-fg);
+  font-size: var(--ts-countdown);
 }
 @container workbench (width < 400px) {
   .current-period-card { padding-inline: var(--space-3); }

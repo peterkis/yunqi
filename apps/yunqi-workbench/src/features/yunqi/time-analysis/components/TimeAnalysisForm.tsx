@@ -56,8 +56,8 @@ export function TimeAnalysisForm({
         ) : null}
       </div>
       <p id="time-analysis-hint" className="drilldown-meta num">
-        按北京时间填写日期、时、分、秒；整分钟可将秒填为 00。
-        <span><strong>北京时间 UTC+08</strong><InlineText>{` · 支持 ${YUNQI_YEAR_RANGE.min}–${YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。`}</InlineText></span>
+        填写日期、时、分、秒；整分钟可将秒填为 00。
+        <span><InlineText>{`支持 ${YUNQI_YEAR_RANGE.min}–${YUNQI_YEAR_RANGE.max} 运气年，年界以大寒交节为准。`}</InlineText></span>
       </p>
       <Button disabled={isPending} type="submit">
         {isPending ? '正在分析' : '开始分析'}

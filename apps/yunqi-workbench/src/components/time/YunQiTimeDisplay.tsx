@@ -1,7 +1,6 @@
 import type { YunQiTimeViewModel } from '../../features/yunqi/presentation/view-model';
 
 export interface YunQiTimeDisplayProps {
-  readonly showStandard?: boolean;
   readonly value: YunQiTimeViewModel;
   readonly variant?: 'compact' | 'month-day' | 'full';
 }
@@ -21,7 +20,6 @@ function toHumanLocalTime(
 }
 
 export function YunQiTimeDisplay({
-  showStandard = true,
   value,
   variant = 'full',
 }: YunQiTimeDisplayProps) {
@@ -30,11 +28,6 @@ export function YunQiTimeDisplay({
       <time dateTime={value.localTime}>
         {toHumanLocalTime(value.localTime, variant)}
       </time>
-      {showStandard ? (
-        <span className="yunqi-time__standard">
-          {value.standard.label}
-        </span>
-      ) : null}
     </span>
   );
 }

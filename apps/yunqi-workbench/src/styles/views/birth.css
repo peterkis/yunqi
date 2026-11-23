@@ -1,10 +1,9 @@
 /* Board ③ B02 mirror layout. Extra dimensions are scoped tokens,
    following the same component-token convention as design-components.css. */
 .birth-page {
-  /* B02: relation axis 96px; retained assessment context label column 52px.
+  /* B02: relation axis 96px.
      Typography follows docs/design/type-scale.md: 24 column headings,
      15 original excerpts, 14 values/controls, 12 years/labels/metadata. */
-  --birth-label-width: 52px;
   --birth-relation-width: 96px;
   --birth-hairline: 1px;
   color: var(--ink-primary);
@@ -52,12 +51,6 @@
 
 .birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) .yunqi-time { gap: var(--space-1) var(--space-1_5); }
 .birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) time { font-family: var(--font-sans); }
-.birth-page :is(.birth-current-time, .birth-candidate-interval, .birth-candidate-time, .birth-reading-candidate, .birth-assessment-context) .yunqi-time__standard {
-  color: var(--ink-tertiary);
-  font-size: var(--ts-small);
-  font-weight: var(--type-meta-weight);
-  letter-spacing: normal;
-}
 
 .birth-notice {
   padding: var(--space-2_5) var(--space-3);
@@ -142,6 +135,14 @@
   padding: var(--space-3_5) var(--space-3_5) var(--space-3);
 }
 
+@container workbench (width < 360px) {
+  .birth-candidate-card {
+    /* Keep room for a five-character relation chip and both host/guest pairs. */
+    --birth-relation-width: calc(5em + var(--space-4));
+    padding-inline: var(--space-1_5);
+  }
+}
+
 .birth-table {
   display: block;
   width: 100%;
@@ -203,6 +204,8 @@
 .birth-table__birth .birth-table__value { justify-content: flex-end; }
 .birth-table__birth .ds-element { flex-direction: row-reverse; }
 
+.birth-table__value .ds-element__dot--metal { background-color: transparent; }
+
 .birth-table__value,
 .birth-table .ds-element {
   font-size: var(--ts-body);
@@ -218,6 +221,12 @@
   overflow-wrap: break-word;
 }
 
+.birth-table__dimension[data-dimension="所处运"] .birth-table__detail {
+  display: flex;
+  gap: var(--space-0_5);
+  white-space: nowrap;
+}
+.birth-table__birth .birth-table__detail { justify-content: flex-end; }
 .birth-table__relation { display: flex; justify-content: center; }
 .birth-table__meta {
   display: flex;
@@ -252,10 +261,10 @@
 .birth-relation-details ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
 
 .birth-excerpts,
-.birth-excerpts__candidate { display: grid; gap: var(--space-2); }
-/* Excerpts share the original-text tier with the full reading view. */
-.birth-excerpts .ds-quote-block__original { font-size: var(--ts-quote); }
+.birth-excerpts__candidate { display: grid; gap: var(--space-3); }
+.birth-excerpt { padding: var(--space-4) var(--space-4_5); }
 .birth-excerpts__header { display: flex; justify-content: space-between; align-items: center; gap: var(--space-2); }
+.birth-excerpts__header .birth-label { font-size: var(--ts-quote); color: var(--ink-primary); font-weight: var(--type-body-strong-weight); letter-spacing: normal; }
 .birth-excerpts__header a { display: inline-flex; align-items: center; min-height: var(--segment-height); }
 .birth-link-arrow {
   width: var(--space-4);
@@ -304,53 +313,7 @@
 .birth-current-readings { display: grid; gap: var(--space-2); }
 .birth-source-link { display: inline-flex; align-items: center; min-height: var(--segment-height); font-size: var(--ts-small); }
 
-/* Session composition only; questionnaire and scoring internals belong to C5. */
-.birth-session {
-  min-width: 0;
-  padding-top: var(--space-3);
-  border-top: var(--birth-hairline) solid var(--border-default);
-}
 .birth-actions .ds-button { width: 100%; }
-.birth-session > .birth-note { margin-top: var(--space-2); }
-.birth-session .birth-assessment-layout {
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-areas: "context" "questionnaire";
-  gap: var(--space-3);
-  margin-top: var(--space-3);
-}
-.birth-session .birth-assessment-context {
-  position: static;
-  gap: var(--space-3);
-  padding: var(--space-3);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: var(--surface-sunken);
-  font-size: var(--ts-small);
-}
-.birth-session .birth-assessment-context h4,
-.birth-session .birth-assessment-context h5,
-.birth-session .birth-assessment-heading {
-  margin: 0 0 var(--space-2);
-  font-family: var(--font-sans);
-  font-size: var(--ts-body);
-  font-weight: var(--type-body-strong-weight);
-}
-.birth-session .birth-assessment-context .form-note,
-.birth-session .birth-assessment-interval {
-  margin: var(--space-2) 0 0;
-  font-size: var(--ts-small);
-  line-height: var(--type-body-line);
-}
-.birth-session .birth-assessment-context > header,
-.birth-session .birth-assessment-context-card {
-  padding-bottom: var(--space-2);
-  border-bottom: var(--birth-hairline) solid var(--border-default);
-}
-.birth-session .birth-assessment-birth-context { gap: var(--space-2); }
-.birth-session .birth-assessment-facts { gap: var(--space-1); font-size: var(--ts-small); line-height: var(--type-caption-line); }
-.birth-session .birth-assessment-facts > div { grid-template-columns: var(--birth-label-width) minmax(0, 1fr); gap: var(--space-2); }
-.birth-session .birth-assessment-heading { scroll-margin-top: var(--space-3); }
-.birth-session .birth-assessment-heading:focus-visible,
 .birth-page :focus-visible { outline: var(--space-0_5) solid var(--focus-ring); outline-offset: var(--space-0_5); }
 
 /* Birth classics drill-down: only the readings scroll; the medical-boundary notice stays pinned

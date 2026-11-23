@@ -15,7 +15,7 @@ export function TimeAnalysisSixQiRail({
   stages,
 }: TimeAnalysisSixQiRailProps) {
   return (
-    <InfoCard label="六气阶段概览" meta="北京时间 UTC+08">
+    <InfoCard label="六气阶段概览">
       <p className="drilldown-meta">按步序排列，仅标明所选时点所在阶段。</p>
       <ol className="drilldown-stage-overview">
         {stages.map((stage) => {
@@ -42,12 +42,10 @@ export function TimeAnalysisSixQiRail({
               <span className="drilldown-boundaries">
                 <YunQiTimeDisplay
                   variant="compact"
-                  showStandard={false}
                   value={stage.start}
                 />
                 <span>→ <YunQiTimeDisplay
                   variant="compact"
-                  showStandard={false}
                   value={stage.end}
                 /></span>
               </span>

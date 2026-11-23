@@ -9,7 +9,7 @@ import { PanelShell } from '../../../../components/layout/PanelShell';
 import { createWorkbenchQueryClient } from '../../../../providers/QueryProvider';
 import { createAssessmentDto, createBirthComparisonDto, createClientStub, createQuestionnaireDto } from '../../../../test/learning-fixtures';
 import { createTestWrapper } from '../../../../test/test-utils';
-import { BirthComparisonPage } from './BirthComparisonPage';
+import { AppRoutes } from '../../../../app/AppRoutes';
 
 async function submitBirth(user: ReturnType<typeof userEvent.setup>) {
   fillBirthDate('1990-05-12');
@@ -19,6 +19,7 @@ async function submitBirth(user: ReturnType<typeof userEvent.setup>) {
 
 async function openAssessment(user: ReturnType<typeof userEvent.setup>) {
   await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+  expect(screen.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
   return screen.findByRole('form', { name: '中医体质量表' });
 }
 
@@ -39,7 +40,7 @@ describe('birth comparison assessment session', () => {
   it('drills into birth-scoped readings while retaining matching current readings separately', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub();
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await submitBirth(user);
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     const reading = screen.getByRole('region', { name: '先天原文与释义' });
@@ -67,7 +68,7 @@ describe('birth comparison assessment session', () => {
     const original = createBirthComparisonDto();
     const dto = { ...original, ambiguous: true, candidates: [...original.candidates, { ...original.candidates[0], label: '第二个可能归属' }] };
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue(dto) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await submitBirth(user);
     expect(client.getConstitutionQuestionnaire).not.toHaveBeenCalled();
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
@@ -99,7 +100,7 @@ describe('birth comparison assessment session', () => {
   it.each(['click', 'keyboard'] as const)('destroys a scored session with %s and restores the start action focus', async (activation) => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub();
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     const comparison = await submitBirth(user);
     await completeAssessment(user, await openAssessment(user));
     const result = await screen.findByRole('region', { name: '体质测评结果' });
@@ -120,7 +121,7 @@ describe('birth comparison assessment session', () => {
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
     const start = screen.getByRole('button', { name: '同时测评体质' });
-    expect(start).toHaveAttribute('aria-expanded', 'false');
+    expect(start).not.toHaveAttribute('aria-expanded');
     expect(start).toHaveFocus();
     expect(comparison).toBeVisible();
     const restarted = await openAssessment(user);
@@ -132,7 +133,7 @@ describe('birth comparison assessment session', () => {
   it.each(['date', 'time', 'known-time', 'clear', 'resubmit'] as const)('discards the answer session after %s changes the comparison', async (action) => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub({ compareBirth: vi.fn().mockResolvedValue({ ...createBirthComparisonDto(), birthPrecision: 'time' }) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     fillBirthDate('1990-05-12');
     await user.click(screen.getByRole('radio', { name: '已知时刻' }));
     fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30' } });
@@ -141,6 +142,7 @@ describe('birth comparison assessment session', () => {
     const form = await openAssessment(user);
     await user.click(within(form).getByRole('radio', { name: '女' }));
     await user.click(within(form).getAllByRole('radio', { name: '4 经常（相当）' })[0]);
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
     if (action !== 'clear') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'date') fillBirthDate('1990-05-13');
     if (action === 'time') fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:31' } });
@@ -164,11 +166,12 @@ describe('birth comparison assessment session', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     let resolveScore!: (value: ReturnType<typeof createAssessmentDto>) => void;
     const client = createClientStub({ assessConstitution: vi.fn(() => new Promise<ReturnType<typeof createAssessmentDto>>((resolve) => { resolveScore = resolve; })) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await submitBirth(user);
     await completeAssessment(user, await openAssessment(user));
     await waitFor(() => expect(client.assessConstitution).toHaveBeenCalledOnce());
     expect(screen.getByRole('status')).toHaveTextContent('正在按量表规则计分');
+    if (action !== 'end') await user.click(screen.getByRole('link', { name: '先天对照' }));
     if (action === 'edit-birth' || action === 'resubmit') await user.click(screen.getByRole('button', { name: '修改' }));
     if (action === 'edit-birth') fillBirthDate('1992-08-09');
     if (action === 'end') {
@@ -191,27 +194,31 @@ describe('birth comparison assessment session', () => {
   it('keeps the comparison available when the lazy questionnaire fails and retries independently', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub({ getConstitutionQuestionnaire: vi.fn().mockRejectedValueOnce(new Error('private questionnaire error')).mockResolvedValueOnce(createQuestionnaireDto()) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     const comparison = await submitBirth(user);
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
-    expect(comparison).toBeVisible();
+    expect(comparison).not.toBeVisible();
     expect(screen.queryByText(/private questionnaire/)).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '重试' }));
     await screen.findByRole('form', { name: '中医体质量表' });
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    expect(comparison).toBeVisible();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
   });
 
   it('gives expanded birth inputs sole ownership of the action bar while retaining a scored session', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
     await submitBirth(user);
     await completeAssessment(user, await openAssessment(user));
     const result = await screen.findByRole('region', { name: '体质测评结果' });
     expect(screen.getByRole('button', { name: '返回修改' }).closest('.panel-shell__actions')).not.toBeNull();
+    await user.click(screen.getByRole('button', { name: '返回' }));
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('button', { name: '修改' }));
-    expect(result).toBeVisible();
+    expect(result).not.toBeVisible();
     expect(screen.getByRole('button', { name: '查看对照' }).closest('.panel-shell__actions')).not.toBeNull();
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: '返回修改' })).not.toBeInTheDocument();
@@ -222,12 +229,14 @@ describe('birth comparison assessment session', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     let reject!: (reason: Error) => void;
     const client = createClientStub({ getConstitutionQuestionnaire: vi.fn(() => new Promise<ReturnType<typeof createQuestionnaireDto>>((_, fail) => { reject = fail; })) });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
+    render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
     await submitBirth(user);
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     expect(await screen.findByRole('status')).toHaveTextContent('正在加载体质量表');
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
     expect(document.querySelector('footer.constitution-session-footer')).toBeVisible();
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    expect(screen.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     await act(async () => { reject(new Error('private questionnaire failure')); });
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
@@ -236,8 +245,9 @@ describe('birth comparison assessment session', () => {
     await act(async () => { reject(new Error('private questionnaire failure')); });
     expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
-    expect(screen.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
     expect(client.assessConstitution).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    expect(screen.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
@@ -246,7 +256,7 @@ describe('birth comparison assessment session', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const client = createClientStub({ getConstitutionQuestionnaire: vi.fn().mockResolvedValueOnce(createQuestionnaireDto()).mockRejectedValueOnce(new Error('private refresh failure')) });
     const queryClient = createWorkbenchQueryClient();
-    render(<MemoryRouter initialEntries={['/yunqi/birth']}><AppProviders queryClient={queryClient} yunqiClient={client}><PanelShell><BirthComparisonPage /></PanelShell></AppProviders></MemoryRouter>);
+    render(<MemoryRouter initialEntries={['/yunqi/birth']}><AppProviders queryClient={queryClient} yunqiClient={client}><PanelShell><AppRoutes /></PanelShell></AppProviders></MemoryRouter>);
     await submitBirth(user);
     const form = await openAssessment(user);
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
@@ -261,6 +271,8 @@ describe('birth comparison assessment session', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('体质量表加载失败');
     expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
     expect(document.querySelector('footer.constitution-session-footer')).toBeVisible();
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
+    expect(screen.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
