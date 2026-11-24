@@ -50,14 +50,15 @@ export function ConstitutionContext({ context, children }: { readonly context?: 
   );
 }
 
-export function ConstitutionContextDetails({ context, showSnapshot = false }: { readonly context?: ConstitutionContextViewModel; readonly showSnapshot?: boolean }) {
-  const birth = context?.birth;
+export function ConstitutionContextDetails({ context }: { readonly context?: ConstitutionContextViewModel }) {
+  if (!context) return null;
+  const { birth } = context;
   return <>
-      {context ? <details className="constitution-disclosure constitution-time-details">
+      <details className="constitution-disclosure constitution-time-details">
         <MoreRowSummary>精确时刻</MoreRowSummary>
         <p>区间起点包含，终点不包含。</p>
-      </details> : null}
-      {context && (birth || showSnapshot) ? <details className="constitution-disclosure constitution-context-details">
+      </details>
+      <details className="constitution-disclosure constitution-context-details">
         <MoreRowSummary>本次对照快照与候选区间</MoreRowSummary>
         <div className="constitution-snapshots">
           <ConstitutionSnapshotCard kind="current" facts={context.current} />
@@ -66,6 +67,6 @@ export function ConstitutionContextDetails({ context, showSnapshot = false }: { 
           {birth?.candidates.map(candidate => <ConstitutionSnapshotCard key={candidate.label} kind="birth" facts={candidate}
             precision={birth.precision} ambiguous={birth.ambiguous} />)}
         </div>
-      </details> : null}
+      </details>
     </>;
 }

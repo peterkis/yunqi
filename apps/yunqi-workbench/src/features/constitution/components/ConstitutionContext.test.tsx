@@ -38,6 +38,21 @@ describe('ConstitutionContext', () => {
     expect(details).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
   });
 
+  it.each([false, true])('exposes the API snapshot time in the snapshot card (birth-linked: %s)', async linked => {
+    const user = userEvent.setup();
+    const dto = createBirthComparisonDto();
+    const localTime = '2012-02-29T23:58:07.123+08:00';
+    const comparison = mapBirthComparison({ ...dto, current: { ...dto.current, facts: {
+      ...dto.current.facts, input: { ...dto.current.facts.input, localTime },
+    } } });
+    render(<ConstitutionContextDetails context={mapConstitutionContext(comparison.current, linked ? comparison : undefined)} />);
+    await user.click(screen.getByText('本次对照快照与候选区间'));
+    const card = screen.getByRole('region', { name: '当下快照' });
+    const timestamp = within(card).getByText('2012-02-29 23:58:07.123');
+    expect(timestamp).toBeVisible();
+    expect(timestamp).toHaveAttribute('datetime', localTime);
+  });
+
   it('summarizes multiple candidates and exposes every label and summary to assistive technology', () => {
     const comparison = mapBirthComparison(createBirthComparisonDto());
     const context = mapConstitutionContext(comparison.current, { ...comparison, ambiguous: true,

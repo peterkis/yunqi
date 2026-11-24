@@ -217,7 +217,7 @@ export async function expectCompactTimes(page) {
     while (walker.nextNode()) {
       const node = walker.currentNode;
       const element = node.parentElement;
-      if (technical(element) || element.closest('.visually-hidden, script, style, option')) continue;
+      if (technical(element) || element.closest('.visually-hidden, script, style, option, .constitution-snapshot[data-kind="current"] time')) continue;
       if (element.matches('.specified-time-anchors button') && node.textContent === '整点 00:00:00') continue;
       if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) text.push(node.textContent);
     }
@@ -227,6 +227,7 @@ export async function expectCompactTimes(page) {
         [element.getAttribute('aria-label'), element.getAttribute('title')].join(' '))].join(' '),
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
         dateTime: time.getAttribute('datetime'), text: time.textContent, birthAnchor: Boolean(time.closest('.birth-time-anchors')),
+        snapshotTime: Boolean(time.closest('.constitution-snapshot[data-kind="current"]')),
       })),
     };
   });
@@ -235,6 +236,10 @@ export async function expectCompactTimes(page) {
   expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
   for (const time of snapshot.times) {
     expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);
+    if (time.snapshotTime) {
+      expect(time.text).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
+      continue;
+    }
     const [month, day, clock] = time.dateTime.slice(5, 16).split(/[-T]/);
     expect(time.text).toBe(time.birthAnchor ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
   }

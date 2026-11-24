@@ -178,7 +178,7 @@ describe('ConstitutionForm', () => {
     expect(document.querySelector('.constitution-source > p')).toHaveTextContent(`${questionnaire.title} · ${questionnaire.version}`);
     await complete(user, '女');
     await screen.findByRole('region', { name: '体质测评结果' });
-    expect(summaries()).toEqual(['判定说明与边界', '量表来源与适用说明', '精确时刻']);
+    expect(summaries()).toEqual(['判定说明与边界', '量表来源与适用说明', '精确时刻', '本次对照快照与候选区间']);
     expect(screen.queryByText('本次量表版本')).not.toBeInTheDocument();
     await user.click(screen.getByText('量表来源与适用说明'));
     const version = screen.getByText(`女性版 · ${dto.questionnaireId} · ${dto.version}`);

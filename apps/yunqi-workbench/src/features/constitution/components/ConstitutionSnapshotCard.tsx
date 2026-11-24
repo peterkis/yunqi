@@ -38,6 +38,10 @@ export function ConstitutionSnapshotCard(props: SnapshotProps) {
         <dd><span>客</span><CurrentElementValue {...stage.guest} /></dd>
       </div>)}
     </dl>}
+    {props.kind === 'current' && <footer className="constitution-snapshot__interval">
+      <span>快照时刻</span>
+      <span className="constitution-snapshot__times"><YunQiTimeDisplay value={props.facts.time} /></span>
+    </footer>}
     {birth && <footer className="constitution-snapshot__interval">
       <span>{birth.precision === 'time' ? '出生时刻：' : '可能区间（含起不含终）'}</span>
       <span className="constitution-snapshot__times">

@@ -229,7 +229,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
       <p>{questionnaire.sourceNote}</p>
       <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
     </details>
-    <ConstitutionContextDetails context={context} showSnapshot={!hasSession} />
+    <ConstitutionContextDetails context={context} />
   </>;
   const disclosureRows = !mutation.result && <div className="constitution-notes">{notes}</div>;
   const answering = Boolean(question && !mutation.result);
