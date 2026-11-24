@@ -52,7 +52,8 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expect(page.getByRole('contentinfo').locator('.panel-shell__credit')).toHaveText('中医科 × 信息管理部');
   await expect(page.getByRole('contentinfo').getByText('联合研发', { exact: true })).toBeVisible();
   await expect(page.getByRole('contentinfo')).toContainText('© 2026-2027');
-  await expect(page.locator('.current-technical')).toContainText('五步运为教学口径，待专家确认');
+  await expect(page.locator('.rule-explanation__notes')).toContainText('五步运偏移口径');
+  await expect(page.locator('.rule-explanation__notes')).toContainText('交界判断待专家确认');
   await sourceDetails.locator('summary').press('Space');
   await expect(sourceDetails.locator('.relation-reading-summary__chevron')).toHaveCSS('transform', 'none');
   await expect(sourceDetails.locator('.learning-source').first()).toBeHidden();

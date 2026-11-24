@@ -89,7 +89,9 @@ describe('CurrentYunQiPage', () => {
     expect(within(disclosure).getByText('推演口径').parentElement).toHaveTextContent(learning.currentMovement.explanation);
     expect(screen.queryByText('文献线索，非个体发病预测', { exact: true })).not.toBeInTheDocument();
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
-    expect(screen.getByText('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据')).toBeInTheDocument();
+    const ruleCard = screen.getByText('规则推演说明').closest('section')!;
+    expect(ruleCard).toHaveTextContent('辅助参考，不作诊断依据');
+    expect(ruleCard).toHaveTextContent(learning.currentMovement.boundaryMethod);
   });
 
   it('shows the movement DTO relation with the same chip as qi and no placeholder', () => {
@@ -259,9 +261,11 @@ describe('CurrentYunQiPage', () => {
       expect(selected).toHaveLength(1);
       expect(selected[0]).toHaveTextContent(`${current}当前`);
     }
-    const ruleNotes = screen.getByRole('region', { name: '规则结果说明' });
+    const ruleNotes = screen.getByRole('region', { name: '规则推演说明' });
     expect(ruleNotes).toHaveTextContent('本结果依据冻结规则计算。');
-    expect(within(ruleNotes).getByText(dto.ruleVersion, { exact: true })).toBeVisible();
+    expect(within(ruleNotes).getByTitle(dto.ruleVersion)).toHaveTextContent('规则引擎 v1.3.0');
+    expect(within(ruleNotes).queryByText(/典籍数据/)).not.toBeInTheDocument();
+    expect(within(ruleNotes).getAllByRole('listitem')).toHaveLength(4);
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
     expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.4.0');

@@ -490,6 +490,27 @@ for (const state of cases) {
       }
       await screenshot(page, testInfo, 'current-calculation-timeline');
       expect((await scanAccessibility(page)).violations).toEqual([]);
+      const rules = page.getByRole('region', { name: '规则推演说明' });
+      await rules.scrollIntoViewIfNeeded();
+      await expect(rules.locator('time')).toHaveText([current.facts.interval.start, current.facts.interval.end]
+        .map(time => time.localTime.replace('T', ' ').replace(/\+08:00$/, '')));
+      const interval = rules.locator('.rule-explanation__interval');
+      await expect(interval.locator('.rule-explanation__endpoint')).toHaveText(['起', '止']);
+      const label = await rules.getByText('实际区间', { exact: true }).boundingBox();
+      const range = await interval.boundingBox();
+      const [start, end] = await Promise.all([interval.locator('time').first().boundingBox(), interval.locator('time').last().boundingBox()]);
+      const arrow = await interval.getByText('↓', { exact: true }).boundingBox();
+      expect(Math.abs((label.y + label.height / 2) - (range.y + range.height / 2))).toBeLessThanOrEqual(1);
+      expect(Math.abs(start.x - end.x)).toBeLessThanOrEqual(1);
+      expect(arrow.y).toBeGreaterThanOrEqual(start.y + start.height);
+      expect(arrow.y + arrow.height).toBeLessThanOrEqual(end.y);
+      expect(end.x + end.width).toBeLessThanOrEqual(range.x + range.width + 1);
+      await expect(rules.getByRole('listitem')).toHaveCount(4);
+      await expect(rules.locator('.ds-element__dot')).toHaveCount(5);
+      await expect(rules.locator('.rule-explanation__number')).toHaveText(['01', '02', '03', '04']);
+      await expect(rules.locator('.rule-explanation__versions > span')).toHaveText(['规则引擎 v1.3.0', '典籍数据 v1.1.0']);
+      await expect(rules).not.toContainText(/YQ-|T\d\d:|\+08:00/);
+      await screenshot(page, testInfo, 'current-rule-explanation');
     }
     if (state.name === 'birth-result') {
       await page.getByRole('button', { name: '这些关系怎么读？' }).click();

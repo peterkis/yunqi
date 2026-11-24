@@ -61,5 +61,14 @@ test('stage facts: the 2022 wood movement displays the neutral same-state label 
   expect(segments.filter(({ boxes, textLines }) => boxes !== 1 || textLines !== 1)).toEqual([]);
 
   await page.getByText('计算说明与版本', { exact: true }).click();
-  await expect(page.getByRole('region', { name: '规则结果说明' }).getByText(data.ruleVersion, { exact: true })).toBeVisible();
+  const rules = page.getByRole('region', { name: '规则推演说明' });
+  await expect(rules.getByTitle(data.ruleVersion, { exact: true })).toHaveText('规则引擎 v1.3.0');
+  const mappings = rules.getByRole('listitem');
+  await expect(mappings).toHaveCount(4);
+  await expect(mappings.first()).toContainText(`年干 ${data.facts.stemBranch.stem}`);
+  await expect(mappings.first().locator('.ds-element')).toHaveText(`${data.facts.suiYun.element}运${data.facts.suiYun.state}（${data.facts.suiYun.tone}）`);
+  await expect(mappings.first().locator('.ds-element__dot')).toHaveClass(/dot--wood/);
+  await expect(mappings.nth(1).locator('.ds-element')).toHaveText([data.facts.sixQi.sitian, data.facts.sixQi.zaiquan]);
+  await expect(mappings.nth(2).locator('.ds-element')).toHaveText(data.facts.sixQi.steps[2].guestQi);
+  await expect(mappings.nth(3).locator('.ds-element')).toHaveText(data.facts.sixQi.steps[5].guestQi);
 });

@@ -16,6 +16,7 @@ import { CurrentElementValue, CurrentRelation, CurrentRelationReading, CurrentTi
 import { SixQiTimeline } from './SixQiTimeline';
 import { CurrentPeriodGrid } from './CurrentPeriodGrid';
 import { CurrentCalculationTimeline } from './CurrentCalculationTimeline';
+import { CurrentRuleExplanation } from './CurrentRuleExplanation';
 import { RelationReadingSummary } from './RelationReadingSummary';
 import { YunQiWheel } from './YunQiWheel';
 
@@ -89,13 +90,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
         <li><details className="current-disclosure current-technical">
           <MoreRowSummary>计算说明与版本</MoreRowSummary>
           <CurrentCalculationTimeline learning={learning} />
-          <InfoCard label="规则结果说明">
-            <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
-            <p className="current-meta">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</p>
-            <ul>{viewModel.explanations.map((explanation) => <li key={explanation}>{explanation}</li>)}</ul>
-            <p className="current-copy">教学扩展版本：<code>{learning.ruleVersion}</code></p>
-            {learning.notes.map((note, index) => <p className="current-copy" key={index}>{note}</p>)}
-          </InfoCard>
+          <CurrentRuleExplanation learning={learning} />
           <InfoCard label="追溯信息">
             <p className="current-copy num"><InlineText>{`YunQi 当前查询 API · ${viewModel.contractId}`}</InlineText></p>
             <p className="current-copy num"><InlineText>{viewModel.ruleVersion}</InlineText></p>
