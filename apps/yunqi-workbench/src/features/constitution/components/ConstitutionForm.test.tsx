@@ -196,7 +196,8 @@ describe('ConstitutionForm', () => {
     expect(within(progress).getAllByRole('listitem')).toHaveLength(9);
     const current = () => [...progress.querySelectorAll('[data-current="true"] .constitution-dimension-name')].map((node) => node.textContent);
     expect(current()).toEqual(['平和', '气虚']);
-    expect(document.querySelector('.constitution-question-header')).toHaveTextContent('测试问题 1？请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题');
+    const options = screen.getByRole('radiogroup', { name: '测试问题 1？' });
+    expect(options).toHaveAccessibleDescription('请患者根据近一年的体验和感觉作答 数字键 1–5\u202f·\u202f← 上一题');
     expect(document.querySelector('.constitution-question-header')).not.toHaveTextContent(/体质量表|男性版|0\s*\/\s*8/);
     await answerByKey(user, '1');
     expect(current()).toEqual(['平和', '阳虚']);

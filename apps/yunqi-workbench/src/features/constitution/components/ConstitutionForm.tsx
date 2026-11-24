@@ -264,7 +264,8 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
           {progress && !mutation.result ? <section className="constitution-dimensions">
             <div className="constitution-progress-header">
               <div className="constitution-sex-summary">
-                <span><InlineText>{`体质维度 · ${sex === 'male' ? '男性版' : '女性版'}`}</InlineText></span>
+                <span>体质维度 · </span>
+                <span className="constitution-edition-badge" data-edition={sex}>{sex === 'male' ? '男性版' : '女性版'}</span>
                 <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
               </div>
               <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite">已答 <b>{progress.completed}</b> / {progress.total}</span>
@@ -294,7 +295,10 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
             <div className="constitution-question-screen" data-direction={direction} onKeyDownCapture={(event) => { if (event.key === 'ArrowLeft' || event.key === 'Backspace') questionKey(event); }} onKeyDown={questionKey}>
               <div className="constitution-question-header">
                 <h3 key={question.id} id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
-                <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题</InlineText></p>
+                <p id={helpId} className="constitution-meta num">
+                  <span>请患者根据近一年的体验和感觉作答</span>{' '}
+                  <span className="constitution-question-shortcuts"><InlineText>数字键 1–5 · ← 上一题</InlineText></span>
+                </p>
               </div>
               <div key={question.id} role="radiogroup" aria-labelledby={questionId} aria-describedby={helpId}>
                 {questionnaire.options.map((option, index) => (

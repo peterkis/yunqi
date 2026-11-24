@@ -3,7 +3,7 @@ import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-helpers.mjs';
-import { expectClassicsCards } from './visual-assertions.mjs';
+import { expectClassicsCards, expectTextContrast } from './visual-assertions.mjs';
 
 async function checkAccessibility(page, testInfo) {
   const scan = await scanAccessibility(page);
@@ -292,9 +292,25 @@ for (const theme of ['light', 'dark']) {
     await gender.getByRole('radio', { name: '男性量表', exact: true }).click();
     await expect(gender).toHaveCount(0);
     await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
+    const edition = page.locator('.constitution-edition-badge');
+    await expect(edition).toHaveText('男性版');
+    await expectTextContrast(edition);
+    const maleTint = await edition.evaluate(element => getComputedStyle(element).backgroundColor);
+    const context = page.getByRole('complementary', { name: '本次测评对照背景' });
+    const link = context.getByRole('link', { name: '未填写 · 去对照 ›' });
+    const [left, cell, target, empty, action] = await Promise.all([
+      context.locator('dd').first(), context.locator('dd').last(), link, link.locator('span').first(), link.locator('span').last(),
+    ].map(item => item.boundingBox()));
+    expect(Math.abs((empty.y + empty.height / 2) - (left.y + left.height / 2))).toBeLessThanOrEqual(1);
+    expect(empty.y).toBeCloseTo(action.y, 0);
+    expect(action.x + action.width).toBeCloseTo(cell.x + cell.width, 0);
+    expect(target.height).toBeGreaterThanOrEqual(32);
     await changeConstitutionSex(page, '女', 0);
     await expect(page.getByRole('button', { name: '确认', exact: true })).toHaveCount(0);
     await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 女性版更换');
+    await expect(edition).toHaveText('女性版');
+    await expectTextContrast(edition);
+    await expect(edition).not.toHaveCSS('background-color', maleTint);
     await page.keyboard.press('3');
     await expect(page.getByRole('form', { name: '中医体质量表', exact: true }).locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
     const change = page.getByRole('button', { name: '更换', exact: true });

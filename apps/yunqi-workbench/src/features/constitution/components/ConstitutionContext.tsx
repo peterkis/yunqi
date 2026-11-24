@@ -34,7 +34,7 @@ export function ConstitutionContext({ context, children }: { readonly context?: 
             </dt>
             <dd><ContextFact fact={candidate} /></dd>
           </div>;
-        }) : <div><dt>先天</dt><dd>{candidates.length > 1 ? (
+        }) : <div><dt>先天</dt><dd className={candidates.length === 0 ? 'constitution-context-empty-cell' : undefined}>{candidates.length > 1 ? (
           <span className="constitution-context-candidates" role="group" aria-label={candidates.map(c => `${c.label}：${c.periodLabel} · ${c.elementLabel}`).join('；')}>
             <span className="num">{candidates.length} 个候选</span>
             {candidates.map((candidate, index) => <ContextFact key={index} fact={candidate} />)}

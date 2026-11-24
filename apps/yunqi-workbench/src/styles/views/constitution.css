@@ -56,7 +56,7 @@
 .constitution-context-rows dt { color: var(--ink-tertiary); font-size: var(--ts-small); letter-spacing: var(--type-label-tracking); }
 .constitution-context-rows dd { min-width: 0; margin: 0; overflow-wrap: break-word; font-size: var(--ts-small); font-weight: var(--type-body-strong-weight); }
 .constitution-context-rows a { color: var(--accent); }
-.constitution-context-fact, .constitution-context-candidates, .constitution-context-empty {
+.constitution-context-fact, .constitution-context-candidates {
   display: grid;
   gap: var(--space-0_5);
   justify-items: start;
@@ -64,7 +64,11 @@
 .constitution-context-period { white-space: nowrap; }
 .constitution-context-rows .ds-element { align-items: center; font-size: var(--ts-small); font-weight: var(--type-body-weight); }
 .constitution-context-candidates { gap: var(--space-1_5); }
-.constitution-context-rows .constitution-context-empty { text-decoration: none; }
+.constitution-context-empty-cell { flex: 1; display: grid; }
+.constitution-context-rows .constitution-context-empty {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-1);
+  min-height: var(--segment-height); white-space: nowrap; text-decoration: none;
+}
 .constitution-context-empty > span:first-child { display: inline-flex; align-items: center; gap: var(--space-1_5); color: var(--ink-secondary); }
 .constitution-context-empty > span:first-child::before {
   content: ''; width: var(--dot-size); height: var(--dot-size); box-sizing: border-box;
@@ -222,6 +226,15 @@
   line-height: var(--type-label-line);
 }
 .constitution-sex-summary .ds-button { min-height: 0; padding: 0; font-size: var(--ts-small); line-height: inherit; }
+.constitution-edition-badge {
+  padding: var(--space-0_5) var(--space-1_5); border-radius: var(--radius-full);
+  background: var(--accent-subtle); color: var(--accent); white-space: nowrap;
+  font-weight: var(--type-body-strong-weight);
+}
+.constitution-edition-badge[data-edition="female"] { background: var(--countdown-bg); color: var(--countdown-fg); }
+@media (forced-colors: active) {
+  .constitution-edition-badge { outline: var(--constitution-hairline) solid CanvasText; }
+}
 .constitution-sex-confirmation {
   margin-bottom: var(--space-3);
   padding: var(--space-3);
@@ -249,6 +262,7 @@
 .constitution-question-header { padding: var(--space-4_5) var(--space-4_5) var(--space-4); border-radius: var(--radius-lg); background: var(--accent); color: var(--accent-on); }
 .constitution-question-title { margin: 0; color: var(--accent-on); font-family: var(--font-serif); font-size: var(--ts-title); font-weight: var(--ts-title-weight); line-height: var(--type-question-line); }
 .constitution-question-header .constitution-meta { margin-top: var(--space-1_5); color: var(--accent-on); opacity: .85; }
+.constitution-question-shortcuts { display: block; white-space: nowrap; }
 .constitution-question-screen [role="radiogroup"] { margin-top: var(--space-3); }
 .constitution-question-screen .ds-scale-option + .ds-scale-option { margin-top: var(--space-1_5); }
 .constitution-question-screen .ds-scale-option[aria-checked="true"] { padding-inline: var(--space-3_5); border-width: var(--constitution-hairline); background: var(--accent); color: var(--accent-on); }

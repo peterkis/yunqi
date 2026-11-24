@@ -23,7 +23,14 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
   const header = scope.locator('.constitution-question-header');
   await expect(header.locator(':scope > *')).toHaveCount(2);
   await expect(header.locator('h3.constitution-question-title')).toHaveAttribute('tabindex', '-1');
-  await expect(header.locator('p')).toHaveText('请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题');
+  await expect(header.locator('p > span')).toHaveText(['请患者根据近一年的体验和感觉作答', '数字键 1–5 · ← 上一题']);
+  const [instruction, shortcuts] = await header.locator('p > span').evaluateAll(spans => spans.map(span => {
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    return [...range.getClientRects()].map(rect => ({ top: rect.top, bottom: rect.bottom }));
+  }));
+  expect(shortcuts).toHaveLength(1);
+  expect(shortcuts[0].top).toBeGreaterThanOrEqual(instruction.at(-1).bottom);
   await expect(header).not.toContainText(/体质量表|男性版|女性版|\d+\s*\/\s*26/);
   const contrast = await expectTextContrast(header);
   const accentColor = await header.evaluate(element => getComputedStyle(element).backgroundColor);
