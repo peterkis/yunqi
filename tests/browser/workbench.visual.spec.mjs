@@ -1,3 +1,4 @@
+import { expectSelectedTimeLayout, fillAnalysisTime } from './time-analysis-helpers.mjs';
 import { fillBirthDate, expectBirthMirror, expectBirthDetailSegments } from './birth-helpers.mjs';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes, scanAccessibility } from './fixtures.mjs';
 import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments } from './constitution-helpers.mjs';
@@ -135,15 +136,18 @@ for (const state of cases) {
       await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
     }
     if (state.calculate) {
-      await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
+      await fillAnalysisTime(page, '2024-01-20T22:07:22');
+      const response = state.name === 'calculate-result' ? page.waitForResponse(r => r.url().endsWith('/yunqi/calculate')) : undefined;
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
       if (state.outage) {
         await expect(page.getByRole('alert')).toContainText(state.message);
       } else {
-        await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
+        const result = page.getByRole('region', { name: '指定时点分析结果', exact: true });
+        await expect(result).toBeVisible();
+        if (response) await expectSelectedTimeLayout(result, (await (await response).json()).data);
       }
       if (state.dirty) {
-        await page.getByLabel('分析时间', { exact: true }).fill('2024-01-21T22:07:22');
+        await fillAnalysisTime(page, '2024-01-21T22:07:22');
         await expect(page.getByRole('status')).toHaveText('输入已修改，请重新分析');
         await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toHaveCount(0);
       }

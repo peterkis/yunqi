@@ -1,54 +1,35 @@
-import type { FormEvent } from 'react';
 import { InfoCard } from '../../../../components/design/InfoCard';
 import { EmptyState, ErrorState, LoadingState } from '../../../../components/feedback/FeedbackStates';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
-import { DrilldownResultNotes } from '../../year-analysis/components/DrilldownResultNotes';
 import { DrilldownYearSummaryCard } from '../../year-analysis/components/DrilldownYearSummaryCard';
 import type { TimeAnalysisYunQiViewModel } from '../../presentation/view-model';
-import { mapCalculationTimes } from '../../presentation/map-drilldown';
-import { TimeAnalysisForm } from './TimeAnalysisForm';
+import { TimeAnalysisForm, type TimeAnalysisFormProps } from './TimeAnalysisForm';
+import { YUNQI_YEAR_RANGE } from '../../../../lib/yunqi-year-range';
 import { TimeAnalysisSixQiRail } from './TimeAnalysisSixQiRail';
 import { TimeAnalysisStageDetailPanel } from './TimeAnalysisStageDetailPanel';
 
-export interface TimeAnalysisPageProps {
-  readonly inputError: string | null;
-  readonly inputValue: string;
+export interface TimeAnalysisPageProps extends TimeAnalysisFormProps {
   readonly isDirty: boolean;
   readonly isError: boolean;
-  readonly isPending: boolean;
-  readonly onInputChange: (value: string) => void;
-  readonly onInvalid: () => void;
   readonly onRetry: () => void;
-  readonly onSubmit: (event: FormEvent<HTMLFormElement>) => void;
   readonly viewModel: TimeAnalysisYunQiViewModel | null;
 }
 
 export function TimeAnalysisPage({
-  inputError,
-  inputValue,
   isDirty,
   isError,
   isPending,
-  onInputChange,
-  onInvalid,
   onRetry,
-  onSubmit,
   viewModel,
+  ...form
 }: TimeAnalysisPageProps) {
   return (
-    <div className="drilldown-page">
-      <InfoCard label="提交后分析">
-        <h2 className="drilldown-title">指定时点分析</h2>
-        <p className="drilldown-copy">填写日期和时刻，核对该时点的五运六气与所处阶段。</p>
-        <TimeAnalysisForm
-          inputError={inputError}
-          inputValue={inputValue}
-          isPending={isPending}
-          onInputChange={onInputChange}
-          onInvalid={onInvalid}
-          onSubmit={onSubmit}
-        />
-      </InfoCard>
+    <div className="drilldown-page specified-time-page">
+      <header className="specified-time-intro">
+        <h1>指定时点分析</h1>
+        <p>核对任意日期与时刻的五运六气及所处阶段</p>
+      </header>
+      <TimeAnalysisForm {...form} isPending={isPending} />
 
       {isPending ? (
         <LoadingState message="正在分析指定时点" />
@@ -78,14 +59,11 @@ export function TimeAnalysisPage({
             selectedStageIndex={viewModel.selectedStage.index}
             stages={viewModel.stages}
           />
-          <DrilldownResultNotes
-            explanations={viewModel.explanations}
-            dataSource="YunQi 指定时点计算 API"
-            ruleVersion={viewModel.ruleVersion}
-            times={mapCalculationTimes({ ...viewModel, inputTime: viewModel.analysisTime })}
-          />
         </section>
       ) : null}
+      <p id="time-analysis-hint" className="specified-time-footnote">
+        <span aria-hidden="true">◆</span> 支持 {YUNQI_YEAR_RANGE.min}–{YUNQI_YEAR_RANGE.max} 运气年 · 年界以大寒交节为准
+      </p>
     </div>
   );
 }

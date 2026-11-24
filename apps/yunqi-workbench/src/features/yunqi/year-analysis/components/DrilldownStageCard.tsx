@@ -1,7 +1,7 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { InfoCard } from '../../../../components/design/InfoCard';
 import { RelationChip } from '../../../../components/design/RelationChip';
-import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
+import { YunQiTimeRange } from '../../../../components/time/YunQiTimeDisplay';
 import { mapDrilldownStage } from '../../presentation/map-drilldown';
 import type { SixQiStageViewModel } from '../../presentation/view-model';
 
@@ -17,8 +17,7 @@ export function DrilldownStageCard({ stage, context }: {
         hint={<RelationChip label={stage.relation.direction.label} tone={display.relationTone} explanation={display.relationExplanation} />}>
         <h2 className="drilldown-title" aria-live="polite" aria-atomic="true">{title}</h2>
         <div className="drilldown-boundaries">
-          <YunQiTimeDisplay value={stage.start} variant="compact" />
-          <span>→ <YunQiTimeDisplay value={stage.end} variant="compact" /></span>
+          <YunQiTimeRange start={stage.start} end={stage.end} />
           <span>起点包含，终点不包含</span>
         </div>
         <dl className="drilldown-qi-facts ds-info-card__section">

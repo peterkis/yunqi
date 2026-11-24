@@ -1,6 +1,6 @@
 import { ElementDot } from '../../../../components/design/ElementDot';
 import { InfoCard } from '../../../../components/design/InfoCard';
-import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
+import { YunQiTimeDisplay, YunQiTimeRange } from '../../../../components/time/YunQiTimeDisplay';
 import { mapDrilldownSummary } from '../../presentation/map-drilldown';
 import type { YunQiYearSummaryViewModel } from '../../presentation/view-model';
 
@@ -21,8 +21,7 @@ export function DrilldownYearSummaryCard({ summary, compact = false }: {
         </dl>
         <div className="ds-info-card__section drilldown-boundaries">
           <span>年界</span>
-          <span>交运 <YunQiTimeDisplay value={summary.interval.start} variant="compact" /></span>
-          <span>至 <YunQiTimeDisplay value={summary.interval.end} variant="compact" /></span>
+          <YunQiTimeRange {...summary.interval} />
           <span>起点包含，终点不包含</span>
         </div>
         <p className="drilldown-meta">规则实现基线，待正式专家冻结与验证。</p>

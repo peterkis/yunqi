@@ -350,7 +350,10 @@ test('drilldown returns restore scroll within 2px and the original entry for mou
       if (input === 'mouse') await entry.click();
       else await page.keyboard.press('Enter');
       await expect(page).toHaveURL(label === '原文与释义' ? /\/yunqi\/current\/classics(?:\?motion=off)?$/ : label === '年度详情' ? /\/yunqi\/year\/\d{4}(?:\?motion=off)?$/ : /\/yunqi\/calculate(?:\?motion=off)?$/);
-      await expect(page.getByRole('region', { name: '页面导航', exact: true }).getByRole('heading', { name: label, exact: true })).toBeVisible();
+      const title = label === '指定时点'
+        ? main.getByRole('heading', { name: '指定时点分析', exact: true })
+        : page.getByRole('region', { name: '页面导航', exact: true }).getByRole('heading', { name: label, exact: true });
+      await expect(title).toBeVisible();
       await expect(page.locator(content)).toBeVisible();
       await expect(main).toBeFocused();
       await expectMotionDurations(page, testInfo, `${input}-${label}-durations`);

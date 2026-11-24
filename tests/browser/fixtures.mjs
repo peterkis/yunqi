@@ -208,8 +208,7 @@ export async function loadCurrent(page) {
   return data;
 }
 
-/** Inspect rendered main text, including content below the fold. Only the
- * calculation disclosure may expose seconds; dateTime stays canonical. */
+/** Result times outside technical details stay compact, including below the fold. */
 export async function expectCompactTimes(page) {
   const snapshot = await page.getByRole('main').evaluate(main => {
     const technical = element => element.closest('.current-technical, .birth-technical, .drilldown-technical, .constitution-time-details');
@@ -219,6 +218,7 @@ export async function expectCompactTimes(page) {
       const node = walker.currentNode;
       const element = node.parentElement;
       if (technical(element) || element.closest('.visually-hidden, script, style, option')) continue;
+      if (element.matches('.specified-time-anchors button') && node.textContent === '整点 00:00:00') continue;
       if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) text.push(node.textContent);
     }
     return {

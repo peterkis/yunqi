@@ -1,16 +1,23 @@
 import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { PanelView } from '../../../../components/layout/PanelView';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { mapPanelSummary } from '../../presentation/panel-summary';
 import { useCalculateYunQiMutation } from '../../hooks/useCalculateYunQiMutation';
 import { mapTimeAnalysisYunQi } from '../../presentation/map-time-analysis-yunqi';
 import {
-  normalizeBeijingDateTimeInput,
+  draftDate, draftClock, normalizeBeijingDateTimeInput, splitTimeInput, type TimeDraft,
 } from '../time-input';
 import { TimeAnalysisPage } from './TimeAnalysisPage';
+import { useTimeAnchorSnapshot } from '../useTimeAnchorSnapshot';
+import type { TimeAnchor } from './TimeAnalysisForm';
 
 export function TimeAnalysisView() {
   const mutation = useCalculateYunQiMutation();
-  const [inputValue, setInputValue] = useState('');
+  const navigate = useNavigate();
+  const snapshot = useTimeAnchorSnapshot();
+  const [draft, setDraft] = useState(() => splitTimeInput(snapshot.cached?.now.slice(0, 16)));
+  const inputValue = draftDate(draft) + 'T' + draftClock(draft);
   const [inputError, setInputError] = useState<string | null>(
     null,
   );
@@ -19,8 +26,9 @@ export function TimeAnalysisView() {
     ReturnType<typeof mapTimeAnalysisYunQi> | null
   >(null);
 
-  function handleInputChange(value: string) {
-    setInputValue(value);
+  function handleInputChange(value: TimeDraft) {
+    snapshot.refresh.reset();
+    setDraft(value);
     setInputError(null);
     if (!mutation.isPending) {
       mutation.reset();
@@ -30,7 +38,24 @@ export function TimeAnalysisView() {
     }
   }
 
+  function fillAnchor(anchor: TimeAnchor) {
+    if (anchor === 'midnight' && draftDate(draft)) {
+      handleInputChange({ ...draft, hour: '00', minute: '00', second: '00' });
+      return;
+    }
+    if (anchor === 'boundary' && snapshot.cached) {
+      handleInputChange(splitTimeInput(snapshot.cached.boundary));
+      return;
+    }
+    snapshot.refresh.mutate(undefined, { onSuccess: fresh => {
+      const value = anchor === 'boundary' ? fresh.boundary
+        : anchor === 'midnight' ? fresh.now.slice(0, 10) + 'T00:00:00' : fresh.now;
+      handleInputChange(splitTimeInput(value));
+    } });
+  }
+
   function submitNormalizedDateTime(apiDateTime: string) {
+    snapshot.refresh.reset();
     setInputError(null);
     setIsDirty(false);
     setViewModel(null);
@@ -45,6 +70,7 @@ export function TimeAnalysisView() {
   }
 
   function showInvalidInput() {
+    snapshot.refresh.reset();
     mutation.reset();
     setIsDirty(false);
     setViewModel(null);
@@ -79,10 +105,17 @@ export function TimeAnalysisView() {
 
   return (
     <>
+    <PanelView drilldown={{ title: '指定时点', onBack: () => navigate('/yunqi/current'),
+      toolbarActions: <button className="specified-time-now" type="button" onClick={() => fillAnchor('now')}
+        disabled={mutation.isPending || snapshot.refresh.isPending}>填入此刻</button> }} />
     {viewModel && !isDirty && !mutation.isPending && !mutation.isError && <PanelSummary viewModel={mapPanelSummary(viewModel.summary)} />}
     <TimeAnalysisPage
       inputError={inputError}
-      inputValue={inputValue}
+      draft={draft}
+      anchorYear={snapshot.cached?.year}
+      anchorError={snapshot.refresh.isError}
+      anchorLoading={snapshot.refresh.isPending}
+      onAnchor={fillAnchor}
       isDirty={isDirty}
       isError={mutation.isError}
       isPending={mutation.isPending}

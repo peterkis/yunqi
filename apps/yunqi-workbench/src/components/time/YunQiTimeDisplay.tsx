@@ -35,3 +35,14 @@ export function YunQiTimeDisplay({
     </span>
   );
 }
+
+export function YunQiTimeRange({ start, end, variant = 'compact' }: {
+  readonly start: YunQiTimeViewModel;
+  readonly end: YunQiTimeViewModel;
+  readonly variant?: 'compact' | 'full';
+}) {
+  return <span className="yunqi-time-range"><YunQiTimeDisplay value={start} variant={variant} />{' '}
+    <span className="yunqi-time-range__end"><span aria-hidden="true">→</span><span className="visually-hidden">至</span>{' '}
+      <YunQiTimeDisplay value={end} variant={variant} /></span>
+  </span>;
+}

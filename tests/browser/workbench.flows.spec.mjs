@@ -1,3 +1,4 @@
+import { fillAnalysisTime } from './time-analysis-helpers.mjs';
 import { confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
@@ -225,7 +226,8 @@ test('specified time is submit-only, rejects empty input and hides stale results
   await settle(page);
   expect(calculationRequests()).toHaveLength(0);
   expect(diagnostics.requests).toHaveLength(1);
-  const input = page.getByLabel('分析时间', { exact: true });
+  const input = page.getByRole('textbox', { name: '年', exact: true });
+  await input.fill('');
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   await expect(page.getByRole('alert')).toHaveText('请输入有效的日期和时刻');
   await expect(input).toBeFocused();
@@ -233,7 +235,7 @@ test('specified time is submit-only, rejects empty input and hides stale results
   expect(calculationRequests()).toHaveLength(0);
   expect(diagnostics.requests).toHaveLength(1);
 
-  await input.fill('2024-01-20T22:07');
+  await fillAnalysisTime(page, '2024-01-20T22:07');
   const responsePromise = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/calculate'));
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   const response = await responsePromise;
@@ -250,7 +252,7 @@ test('specified time is submit-only, rejects empty input and hides stale results
   await expectPanelLayout(page);
   await screenshot(page, testInfo, 'calculated-real-api');
 
-  await input.fill('2024-01-20T22:07:22');
+  await fillAnalysisTime(page, '2024-01-20T22:07:22');
   await expect(page.getByRole('status')).toHaveText('输入已修改，请重新分析');
   await expect(result).toHaveCount(0);
   await expectPanelLayout(page);
@@ -289,16 +291,52 @@ test('supported annual boundary years load directly from the real API', async ({
   expect(diagnostics.requests).toHaveLength(2);
 });
 
+test('specified time anchors use the service clock and submit the exact Dahan boundary', async ({ page, diagnostics }) => {
+  const initial = await loadCurrent(page);
+  await page.getByRole('link', { name: '指定时点', exact: true }).click();
+  const field = name => page.getByRole('textbox', { name, exact: true });
+  await expect(field('秒')).toHaveValue('');
+  await expect(field('秒')).toHaveAttribute('placeholder', '00');
+  const refreshed = page.waitForResponse(response => response.url().endsWith('/learning/current'));
+  await page.getByRole('button', { name: '填入此刻' }).click();
+  const { data } = await (await refreshed).json();
+  await expect(field('秒')).toHaveValue(data.facts.input.localTime.slice(17, 19));
+  await page.getByLabel('选择日期').fill('2000-02-29');
+  await page.getByRole('button', { name: '整点 00:00:00' }).click();
+  await expect(page.getByLabel('选择日期')).toHaveValue('2000-02-29');
+  for (const name of ['时', '分', '秒']) await expect(field(name)).toHaveValue('00');
+  await page.getByRole('button', { name: initial.facts.year + ' 大寒交运' }).click();
+  const boundary = data.facts.interval.start.localTime;
+  await expect(page.getByLabel('选择日期')).toHaveValue(boundary.slice(0, 10));
+  expect(diagnostics.requests.filter(r => r.url.endsWith('/calculate'))).toHaveLength(0);
+  const submitted = page.waitForResponse(r => r.url().endsWith('/yunqi/calculate'));
+  await page.getByRole('button', { name: '开始分析' }).click();
+  expect((await (await submitted).json()).data.input.localTime).toEqual(boundary);
+});
+
+test('specified time keyboard segments advance through minutes and accept an omitted second', async ({ page, diagnostics }) => {
+  await page.goto('/yunqi/calculate');
+  await page.getByRole('textbox', { name: '年', exact: true }).focus();
+  await page.keyboard.type('202402291305');
+  const seconds = page.getByRole('textbox', { name: '秒', exact: true });
+  await expect(seconds).toBeFocused();
+  await expect(seconds).toHaveValue('');
+  const submitted = page.waitForResponse(r => r.url().endsWith('/yunqi/calculate'));
+  await seconds.press('Enter');
+  expect((await (await submitted).json()).data.input.localTime).toBe('2024-02-29T13:05:00+08:00');
+  expect(diagnostics.requests).toHaveLength(1);
+});
+
 test('a real unsupported calculation receives sanitized feedback and recovers after editing', async ({ page, diagnostics }) => {
   diagnostics.allowHttpFailure('/api/v1/yunqi/calculate', 400);
   await page.goto('/yunqi/calculate');
-  await page.getByLabel('分析时间', { exact: true }).fill('1800-06-19T12:00');
+  await fillAnalysisTime(page, '1800-06-19T12:00');
   const rejected = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/calculate'));
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   expect((await rejected).status()).toBe(400);
   await expect(page.getByRole('alert')).toContainText('指定时点分析失败，请重试');
   await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toHaveCount(0);
-  await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
+  await fillAnalysisTime(page, '2024-01-20T22:07:22');
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
   expect(diagnostics.requests).toHaveLength(2);
@@ -309,14 +347,14 @@ test('pending calculation disables input and repeated activation sends only one 
   const held = new Promise(resolve => { release = resolve; });
   try {
     await page.goto('/yunqi/calculate');
-    const input = page.getByLabel('分析时间', { exact: true });
+    const input = page.getByRole('textbox', { name: '年', exact: true });
     await expect(input).toBeEditable();
     // This fault targets the submitted POST, after the real page has loaded.
     await page.route('**/api/v1/yunqi/calculate', async route => {
       await held;
       await route.continue();
     });
-    await input.fill('2024-01-20T22:07:22');
+    await fillAnalysisTime(page, '2024-01-20T22:07:22');
     await page.getByRole('button', { name: '开始分析', exact: true }).click({ clickCount: 2 });
     await expect(page.getByRole('status')).toHaveText('正在分析指定时点');
     await expect(input).toBeDisabled();
@@ -346,7 +384,7 @@ test('calculation outage is sanitized and retry recovers using the real API', as
     return route.continue();
   });
   await page.goto('/yunqi/calculate');
-  await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
+  await fillAnalysisTime(page, '2024-01-20T22:07:22');
   await page.getByRole('button', { name: '开始分析', exact: true }).click();
   await expect(page.getByRole('alert')).toContainText('指定时点分析失败，请重试');
   await expect(page.getByText('TEST_ONLY_INTERNAL_STACK')).toHaveCount(0);

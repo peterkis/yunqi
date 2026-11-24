@@ -79,6 +79,12 @@ function deferred<T>() {
   };
 }
 
+function changeAnalysisTime(dateTime: string) {
+  const [date, time] = dateTime.split('T');
+  fireEvent.change(screen.getByLabelText('选择日期'), { target: { value: date } });
+  fireEvent.change(screen.getByLabelText('选择时刻'), { target: { value: time } });
+}
+
 describe('AppRoutes', () => {
   it('opens current classics through the internal card and returns to current with route focus and titles', async () => {
     const user = userEvent.setup();
@@ -318,12 +324,12 @@ describe('AppRoutes', () => {
       screen.getByRole('heading', { name: '指定时点分析' }),
     ).toBeInTheDocument();
     expect(
-      within(screen.getByRole('region', { name: '页面导航' })).getByRole('heading', { name: '指定时点' }),
+      within(screen.getByRole('region', { name: '页面导航' })).getByRole('button', { name: '填入此刻' }),
     ).toBeInTheDocument();
     expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
-    expect(screen.getByLabelText('分析时间')).toHaveAttribute(
+    expect(screen.getByLabelText('选择日期')).toHaveAttribute(
       'type',
-      'datetime-local',
+      'date',
     );
     expect(screen.queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
     expect(client.calculate).not.toHaveBeenCalled();
@@ -347,23 +353,48 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('alert')).toHaveTextContent(
       '请输入有效的日期和时刻',
     );
-    expect(screen.getByLabelText('分析时间')).toHaveFocus();
-    expect(screen.getByLabelText('分析时间')).toHaveAttribute(
+    expect(screen.getByLabelText('年', { exact: true })).toHaveFocus();
+    expect(screen.getByLabelText('年', { exact: true })).toHaveAttribute(
       'aria-describedby', 'time-analysis-hint time-analysis-error',
     );
     expect(client.calculate).not.toHaveBeenCalled();
   });
 
-  it('rejects retained fractional seconds through the submit normalizer', () => {
+  it('keeps newer manual edits when a current-time shortcut returns late', async () => {
+    const pending = deferred<ReturnType<typeof createLearningDto>>();
+    const client = createClient({ getLearningCurrent: vi.fn().mockReturnValue(pending.promise) });
+    renderAppAt('/yunqi/calculate', client);
+    fireEvent.click(screen.getByRole('button', { name: '填入此刻' }));
+    await screen.findByText('正在读取快捷时点');
+    changeAnalysisTime('2000-02-29T03:14');
+    pending.resolve(createLearningDto());
+    await screen.findByRole('button', { name: '2026 大寒交运' });
+    expect(screen.getByLabelText('选择日期')).toHaveValue('2000-02-29');
+    expect(screen.getByLabelText('分', { exact: true })).toHaveValue('14');
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('allows manual entry after the shortcut fails and retries with the service date for midnight', async () => {
+    const dto = createLearningDto();
+    const getLearningCurrent = vi.fn().mockRejectedValueOnce(new Error('offline')).mockResolvedValue(dto);
+    const client = createClient({ getLearningCurrent });
+    renderAppAt('/yunqi/calculate', client);
+    fireEvent.click(screen.getByRole('button', { name: '当前时刻' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('未能读取快捷时点');
+    fireEvent.click(screen.getByRole('button', { name: '整点 00:00:00' }));
+    await waitFor(() => expect(screen.getByLabelText('选择日期')).toHaveValue(dto.facts.input.localTime.slice(0, 10)));
+    expect(screen.getByLabelText('秒', { exact: true })).toHaveValue('00');
+    expect(client.calculate).not.toHaveBeenCalled();
+  });
+
+  it('rejects incomplete input and prevents fractional seconds in the segmented editor', () => {
     const client = createClient();
 
     renderAppAt('/yunqi/calculate', client);
 
-    const input = screen.getByLabelText('分析时间');
-    fireEvent.change(input, {
-      target: { value: '2026-05-20T13:30:45.000' },
-    });
-    expect(input).toHaveValue('2026-05-20T13:30:45.000');
+    const input = screen.getByRole('textbox', { name: '秒' });
+    fireEvent.change(input, { target: { value: '45.000' } });
+    expect(input).toHaveValue('');
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),
     );
@@ -381,7 +412,7 @@ describe('AppRoutes', () => {
     screen.getByRole('button', { name: '开始分析' }).focus();
     await user.keyboard('{Enter}');
     expect(screen.getByRole('alert')).toHaveTextContent('请输入有效的日期和时刻');
-    expect(screen.getByLabelText('分析时间')).toHaveFocus();
+    expect(screen.getByLabelText('年', { exact: true })).toHaveFocus();
     expect(client.calculate).not.toHaveBeenCalled();
   });
 
@@ -391,18 +422,17 @@ describe('AppRoutes', () => {
       calculate: vi.fn().mockResolvedValue(createYunQiCalculationDto()),
     });
     renderAppAt('/yunqi/calculate', client);
-    const input = screen.getByLabelText('分析时间');
-    fireEvent.change(input, { target: { value: '2026-05-20T13:30' } });
+    changeAnalysisTime('2026-05-20T13:30');
     await user.click(screen.getByRole('button', { name: '开始分析' }));
     await screen.findByRole('region', { name: '指定时点分析结果' });
     expect(client.calculate).toHaveBeenCalledExactlyOnceWith({
       dateTime: '2026-05-20T13:30:00+08:00',
     });
-    fireEvent.change(input, { target: { value: '2026-05-21T13:30' } });
+    changeAnalysisTime('2026-05-21T13:30');
     expect(screen.getByText('输入已修改，请重新分析')).toBeInTheDocument();
     expect(screen.queryByRole('region', { name: '指定时点分析结果' })).not.toBeInTheDocument();
     expect(client.calculate).toHaveBeenCalledOnce();
-    fireEvent.change(input, { target: { value: '' } });
+    fireEvent.change(screen.getByLabelText('年', { exact: true }), { target: { value: '' } });
     await user.click(screen.getByRole('button', { name: '开始分析' }));
     expect(screen.getByRole('alert')).toHaveTextContent('请输入有效的日期和时刻');
     expect(screen.queryByText('输入已修改，请重新分析')).not.toBeInTheDocument();
@@ -411,7 +441,6 @@ describe('AppRoutes', () => {
   });
 
   it('submits one normalized request and renders the API canonical result', async () => {
-    const user = userEvent.setup();
     const dto = createYunQiCalculationDto();
     const client = createClient({
       calculate: vi.fn().mockResolvedValue(dto),
@@ -419,13 +448,9 @@ describe('AppRoutes', () => {
 
     renderAppAt('/yunqi/calculate', client);
 
-    fireEvent.change(screen.getByLabelText('分析时间'), {
-      target: { value: '2026-05-20T13:30' },
-    });
+    changeAnalysisTime('2026-05-20T13:30');
     await waitFor(() =>
-      expect(screen.getByLabelText('分析时间')).toHaveValue(
-        '2026-05-20T13:30',
-      ),
+      expect(screen.getByLabelText('选择日期')).toHaveValue('2026-05-20'),
     );
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),
@@ -442,14 +467,7 @@ describe('AppRoutes', () => {
     const compactTime = result.querySelector('.drilldown-time-result__time time');
     expect(compactTime).toHaveTextContent('06-19 12:00');
     expect(compactTime).toHaveAttribute('datetime', dto.input.localTime);
-    const summary = within(result).getByText('计算说明与版本');
-    const calculation = summary.closest('details')!;
-    const exactTime = within(calculation).getByText('2026-06-19 12:00:00');
-    expect(calculation).not.toHaveAttribute('open');
-    expect(exactTime).not.toBeVisible();
-    await user.click(summary);
-    expect(exactTime).toBeVisible();
-    expect(exactTime).toHaveAttribute('datetime', dto.input.localTime);
+    expect(within(result).queryByText('计算说明与版本')).not.toBeInTheDocument();
   });
 
   it('hides the first result while a second request is pending and after it fails', async () => {
@@ -464,13 +482,9 @@ describe('AppRoutes', () => {
 
     renderAppAt('/yunqi/calculate', client);
 
-    fireEvent.change(screen.getByLabelText('分析时间'), {
-      target: { value: '2026-05-20T13:30' },
-    });
+    changeAnalysisTime('2026-05-20T13:30');
     await waitFor(() =>
-      expect(screen.getByLabelText('分析时间')).toHaveValue(
-        '2026-05-20T13:30',
-      ),
+      expect(screen.getByLabelText('选择日期')).toHaveValue('2026-05-20'),
     );
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),
@@ -481,13 +495,9 @@ describe('AppRoutes', () => {
       }),
     ).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText('分析时间'), {
-      target: { value: '2026-05-21T13:30' },
-    });
+    changeAnalysisTime('2026-05-21T13:30');
     await waitFor(() =>
-      expect(screen.getByLabelText('分析时间')).toHaveValue(
-        '2026-05-21T13:30',
-      ),
+      expect(screen.getByLabelText('选择日期')).toHaveValue('2026-05-21'),
     );
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),
@@ -524,20 +534,16 @@ describe('AppRoutes', () => {
 
     renderAppAt('/yunqi/calculate', client);
 
-    fireEvent.change(screen.getByLabelText('分析时间'), {
-      target: { value: '2026-05-20T13:30' },
-    });
+    changeAnalysisTime('2026-05-20T13:30');
     await waitFor(() =>
-      expect(screen.getByLabelText('分析时间')).toHaveValue(
-        '2026-05-20T13:30',
-      ),
+      expect(screen.getByLabelText('选择日期')).toHaveValue('2026-05-20'),
     );
     const form = screen.getByRole('form', {
       name: '指定时点分析表单',
     });
     fireEvent.submit(form);
     await waitFor(() => expect(calculate).toHaveBeenCalledOnce());
-    expect(screen.getByLabelText('分析时间')).toBeDisabled();
+    expect(screen.getByLabelText('年', { exact: true })).toBeDisabled();
 
     fireEvent.submit(form);
 
@@ -554,13 +560,9 @@ describe('AppRoutes', () => {
 
     renderAppAt('/yunqi/calculate', client);
 
-    fireEvent.change(screen.getByLabelText('分析时间'), {
-      target: { value: '2026-05-20T13:30' },
-    });
+    changeAnalysisTime('2026-05-20T13:30');
     await waitFor(() =>
-      expect(screen.getByLabelText('分析时间')).toHaveValue(
-        '2026-05-20T13:30',
-      ),
+      expect(screen.getByLabelText('选择日期')).toHaveValue('2026-05-20'),
     );
     fireEvent.submit(
       screen.getByRole('form', { name: '指定时点分析表单' }),

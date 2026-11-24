@@ -197,7 +197,13 @@ for (const [path, title] of [
   test(`direct drilldown ${path} has a deterministic return`, async ({ page }) => {
     await page.goto(path);
     await expect(page.getByRole('navigation', { name: '工作台导航', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('region', { name: '页面导航' }).getByRole('heading', { name: title, exact: true })).toBeVisible();
+    const toolbar = page.getByRole('region', { name: '页面导航' });
+    if (path === '/yunqi/calculate') {
+      await expect(toolbar.getByRole('button', { name: '填入此刻' })).toBeVisible();
+      await expect(page.getByRole('main').getByRole('heading', { name: '指定时点分析', exact: true })).toBeVisible();
+    } else {
+      await expect(toolbar.getByRole('heading', { name: title, exact: true })).toBeVisible();
+    }
     await expect(page).toHaveTitle(`${title} · 运气通`);
     await page.getByRole('button', { name: '返回', exact: true }).click();
     await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);

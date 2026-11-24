@@ -83,7 +83,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 | /yunqi/constitution | 分段：体质量表 | 现行标准量表，完整作答后评分，与当前时气并列 |
 | /yunqi/year | 下钻：年度详情；返回/yunqi/current | 当下API成功后replace到其运气年；不可用时保留空态，允许手动选年 |
 | /yunqi/year/:year | 下钻：年度详情；返回/yunqi/current | URL驱动指定运气年分析 |
-| /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | E1指定时点，仅用户提交后查询 |
+| /yunqi/calculate | 下钻：指定时点；返回/yunqi/current | 日期、时刻分段录入。快捷锚点按需读取服务端当下快照，仅点击开始分析或提交表单后查询指定时点 |
 | /yunqi/inquiry | 下钻：问诊规划；返回/yunqi/current | 只读规划入口，零业务查询；不放入分段导航 |
 | 其他路径 | 下钻：页面未找到；返回/yunqi/current | 不发业务查询 |
 
@@ -121,8 +121,7 @@ mutation gcTime为0，不写URL/浏览器存储；改输入立即隐藏旧结果
 出生对照“所处运”继续使用comparisons中的客运对照，不替换为当步主客运关系。
 
 指定时点编辑后立即隐藏旧结果；出生修改抽屉保留原结果并暂时禁止与其交互。提交中限制重复激活，错误使用固定脱敏提示。
-原生required会先于submit触发，空值错误/焦点及真实datetime-local值需经过实际控件验证。
-不能为jsdom自动补出的.000修改业务输入语法。
+指定时点须通过实际控件核对分段输入、日历或时钟选择、留空秒位、首次无效字段焦点，以及快捷填入和手动编辑的先后顺序。
 
 机械约束已有 `pnpm test:workbench-governance` 和 `pnpm test:time-governance`。
 新增语法绕过需扩展原AST/绑定分析与正反变异用例，不另建正则式替代品。

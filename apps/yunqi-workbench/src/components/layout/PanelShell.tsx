@@ -146,7 +146,8 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           <div className="panel-shell__navigation">
             {view?.drilldown
               ? <section className="panel-shell__drilldown" aria-label="页面导航">
-                  <PanelHeader variant="drilldown" title={view.drilldown.title} onBack={view.drilldown.onBack} />
+                  <PanelHeader variant="drilldown" title={view.drilldown.toolbarActions ? '' : view.drilldown.title}
+                    actions={view.drilldown.toolbarActions} onBack={view.drilldown.onBack} />
                 </section>
               : route.kind === 'segment'
               ? <SegmentedNav segments={navigationItems} label="工作台导航" />

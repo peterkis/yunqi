@@ -1,6 +1,6 @@
 import { InfoCard } from '../design/InfoCard';
 import type { YunQiTimeEntryViewModel } from '../../features/yunqi/presentation/map-drilldown';
-import { YunQiTimeDisplay } from './YunQiTimeDisplay';
+import { YunQiTimeDisplay, YunQiTimeRange } from './YunQiTimeDisplay';
 
 /** Full precision is reserved for the enclosing calculation disclosure. */
 export function YunQiTimeDetails({ entries }: {
@@ -11,8 +11,8 @@ export function YunQiTimeDetails({ entries }: {
     <dl className="yunqi-time-details">
       {entries.map((entry) => <div key={entry.label}>
         <dt>{entry.label}</dt>
-        <dd><YunQiTimeDisplay value={entry.start} variant="full" />
-          {entry.end ? <> → <YunQiTimeDisplay value={entry.end} variant="full" /></> : null}
+        <dd>{entry.end ? <YunQiTimeRange start={entry.start} end={entry.end} variant="full" />
+          : <YunQiTimeDisplay value={entry.start} variant="full" />}
         </dd>
       </div>)}
     </dl>

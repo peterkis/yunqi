@@ -30,7 +30,7 @@ export function PanelHeader(props: PanelHeaderProps) {
         <span className="ds-panel-header__brand" aria-hidden="true" />
       )}
       <div className="ds-panel-header__text">
-        <h2 className="ds-panel-header__title">{props.title}</h2>
+        {props.title && <h2 className="ds-panel-header__title">{props.title}</h2>}
         {secondaryLine && <p className="ds-panel-header__status num"><InlineText>{secondaryLine}</InlineText></p>}
       </div>
       {props.actions && <div className="ds-panel-header__actions">{props.actions}</div>}
