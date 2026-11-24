@@ -103,7 +103,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const form = scope.getByRole('form', { name: '中医体质量表', exact: true });
     await expect(scope.getByRole('form')).toBeVisible();
     const storage = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
-    await activate(page, scope.getByRole('radio', { name: '男', exact: true }), input, 'Space');
+    await activate(page, scope.getByRole('radio', { name: '男性量表', exact: true }), input, 'Space');
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', expectedMotionLevel(motionMode));
     let score;
     for (let number = 1; number <= 26; number += 1) {
@@ -121,7 +121,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
         await activate(page, page.getByRole('link', { name: '当下运气', exact: true }), input);
         await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
         await expect(page).toHaveTitle('当下运气 · 运气通');
-        await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+        await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
         await activate(page, page.getByRole('link', { name: '体质量表', exact: true }), input);
         await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
         await expect(form.locator('.constitution-position')).toHaveText('已答 2 / 26');
@@ -173,13 +173,12 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const scan = await scanAccessibility(page);
     expect(scan.violations).toEqual([]);
     if (motionMode === 'off') await screenshot(page, testInfo, `M1-c-${input}-${embedded ? 'embedded' : 'standalone'}-result`);
-    await activate(page, actions.getByRole('button', { name: '结束并销毁答卷', exact: true }), input);
+    await activate(page, actions.getByRole('button', { name: '结束并销毁', exact: true }), input);
     await confirmConstitutionDestruction(page, input === 'keyboard');
-    if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();
-    else await expect(scope.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(scope.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
     await expect(scope.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storage);
-    expect(new URL(page.url()).pathname).toBe(path);
+    expect(new URL(page.url()).pathname).toBe('/yunqi/constitution');
     expectNoPersonalDataInUrl(page, motionMode);
     expect(new URL(page.url()).hash).toBe('');
     await expectMotionDurations(page, testInfo, 'M1-c-destroy-durations');
@@ -189,7 +188,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
 
 test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms without animation events', async ({ page }, testInfo) => {
   await page.goto('/yunqi/constitution?motion=off');
-  await page.getByRole('radio', { name: '男', exact: true }).click();
+  await page.getByRole('radio', { name: '男性量表', exact: true }).click();
   const budget = ANSWER_HOLD_MS + 50;
   const samples = {};
   async function timed(trigger) {
@@ -248,14 +247,14 @@ test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms 
   }
   for (let round = 0; round < 3; round += 1) {
     if (round > 0) {
-      await page.getByRole('radio', { name: '男', exact: true }).click();
+      await page.getByRole('radio', { name: '男性量表', exact: true }).click();
       await expect(position).toHaveAttribute('aria-label', /当前第 1 题/);
       await page.keyboard.press('1');
       await expect(position).toHaveAttribute('aria-label', /当前第 2 题/);
     }
-    await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+    await page.getByRole('button', { name: '结束并销毁', exact: true }).click();
     await timed('destroy');
-    await expect(page.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
   }
   await testInfo.attach('M1-c-off-timing-samples', { body: JSON.stringify({ budget, samples }), contentType: 'application/json' });
   for (const trigger of ['answer', 'previous', 'edit', 'destroy']) expectMedian(trigger);
@@ -264,7 +263,7 @@ test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms 
 
 test('M1-c selected state is immediate, full dots stagger and editable shortcuts stay local', async ({ page, motionMode }, testInfo) => {
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '男', exact: true }).click();
+  await page.getByRole('radio', { name: '男性量表', exact: true }).click();
   const immediate = await page.evaluate(async () => {
     document.querySelector('.constitution-question-title').dispatchEvent(new KeyboardEvent('keydown', { key: '5', bubbles: true }));
     await new Promise(resolve => queueMicrotask(resolve));

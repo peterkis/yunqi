@@ -24,7 +24,7 @@ describe('tab session retention', () => {
     const queryClient = createWorkbenchQueryClient();
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={client} queryClient={queryClient}><App /></AppProviders></MemoryRouter>);
-    await screen.findByRole('radio', { name: '男' });
+    await screen.findByRole('radio', { name: '男性量表' });
     await waitFor(() => expect(client.getLearningCurrent).toHaveBeenCalledOnce());
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
@@ -37,7 +37,7 @@ describe('tab session retention', () => {
     expect(client.getLearningCurrent).toHaveBeenCalledTimes(currentCalls);
     expect(client.getConstitutionQuestionnaire).toHaveBeenCalledTimes(questionnaireCalls);
     await user.click(screen.getByRole('link', { name: '体质量表' }));
-    await screen.findByRole('radio', { name: '男' });
+    await screen.findByRole('radio', { name: '男性量表' });
     await waitFor(() => expect(client.getConstitutionQuestionnaire).toHaveBeenCalledTimes(questionnaireCalls + 1));
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('link', { name: '当下运气' }));
@@ -52,7 +52,7 @@ describe('tab session retention', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={client} queryClient={queryClient}><App /></AppProviders></MemoryRouter>);
     const form = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(screen.getByRole('radio', { name: '男' }));
+    await user.click(screen.getByRole('radio', { name: '男性量表' }));
     await answerByKey(user, '4');
     act(() => { vi.advanceTimersByTime(ANSWER_HOLD_MS); });
     await user.click(screen.getByRole('link', { name: '先天对照' }));
@@ -85,14 +85,14 @@ describe('tab session retention', () => {
     const storage = { local: { ...localStorage }, session: { ...sessionStorage } };
     await user.click(screen.getByRole('link', { name: '体质量表' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(screen.getByRole('radio', { name: '男' }));
+    await user.click(screen.getByRole('radio', { name: '男性量表' }));
     await answerByKey(user, '4');
     fireEvent.keyDown(screen.getByRole('heading', { name: '测试问题 2？' }), { key: '2' });
     await user.click(screen.getByRole('link', { name: '当下运气' }));
     act(() => { vi.advanceTimersByTime(ANSWER_HOLD_MS); });
     expect(screen.getByRole('main')).toHaveFocus();
     expect(form).not.toBeVisible();
-    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '结束并销毁' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: '体质量表' }));
     expect(screen.getByRole('form')).toBe(form);
     expect(screen.getByRole('img', { name: /已答 2 \/ 8 题，当前第 3/ })).toBeVisible();
@@ -118,7 +118,7 @@ describe('tab session retention', () => {
     expect({ local: { ...localStorage }, session: { ...sessionStorage } }).toEqual(storage);
     unmount();
     render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={client}><App /></AppProviders></MemoryRouter>);
-    expect(await screen.findByRole('radio', { name: '男' })).not.toBeChecked();
+    expect(await screen.findByRole('radio', { name: '男性量表' })).not.toBeChecked();
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
   });
 
@@ -126,7 +126,7 @@ describe('tab session retention', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<MemoryRouter initialEntries={['/yunqi/constitution']}><AppProviders yunqiClient={createClientStub()}><App /></AppProviders></MemoryRouter>);
     const draft = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(within(draft).getByRole('radio', { name: '女' }));
+    await user.click(within(draft).getByRole('radio', { name: '女性量表' }));
     await answerByKey(user, '4');
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     await fillBirthDate('1990-05-12');
@@ -135,7 +135,7 @@ describe('tab session retention', () => {
     await user.click(screen.getByRole('link', { name: '体质量表' }));
     const linked = await screen.findByRole('form', { name: '中医体质量表' });
     expect(linked).not.toBe(draft);
-    expect(within(linked).getByRole('radio', { name: '女' })).not.toBeChecked();
+    expect(within(linked).getByRole('radio', { name: '女性量表' })).not.toBeChecked();
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     await user.click(screen.getByRole('link', { name: '体质量表' }));
@@ -156,20 +156,21 @@ describe('tab session retention', () => {
     await screen.findByRole('button', { name: '同时测评体质' });
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(within(form).getByRole('radio', { name: '女' }));
+    await user.click(within(form).getByRole('radio', { name: '女性量表' }));
     await answerByKey(user, '5');
     expect(screen.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     expect(screen.queryByRole('form', { name: '中医体质量表' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: '结束并销毁答卷' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: '结束并销毁' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: '体质量表' }));
     expect(screen.getByRole('form')).toBe(form);
     expect(screen.getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
     expect(client.compareBirth).toHaveBeenCalledOnce();
-    await user.click(screen.getByRole('button', { name: '结束并销毁答卷' }));
+    await user.click(screen.getByRole('button', { name: '结束并销毁' }));
     await user.click(screen.getByRole('button', { name: '确认销毁' }));
-    expect(screen.getByRole('button', { name: '同时测评体质' })).toHaveFocus();
+    expect(screen.getByRole('radio', { name: '男性量表' })).toHaveFocus();
     expect(screen.getByRole('status')).toHaveTextContent('答卷已销毁');
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     await user.click(screen.getByRole('link', { name: '当下运气' }));
     await user.click(screen.getByRole('link', { name: '先天对照' }));

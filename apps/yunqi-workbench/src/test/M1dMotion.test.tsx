@@ -236,7 +236,7 @@ describe('M1-d host sequencing', () => {
 });
 
 function TestBirthPage() {
-  return <BirthComparisonPage comparison={useBirthComparison()} onAssess={vi.fn()} onDiscardAssessment={vi.fn()} ended={0} />;
+  return <BirthComparisonPage comparison={useBirthComparison()} onAssess={vi.fn()} onDiscardAssessment={vi.fn()} />;
 }
 
 describe('M1-d birth input', () => {

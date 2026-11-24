@@ -88,7 +88,8 @@ export interface AnnualBirthComparisonViewModel {
     readonly label: string;
     readonly from: YunQiTimeViewModel;
     readonly until: YunQiTimeViewModel;
-    readonly yearSummary: string;
+    readonly birthGanzhi: string;
+    readonly movementLabel: string;
     readonly detail: string;
     readonly element: ElementKind;
   }[];

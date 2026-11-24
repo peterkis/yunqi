@@ -47,7 +47,8 @@ export interface ConstitutionContextViewModel {
 }
 
 interface ConstitutionContextFactsViewModel {
-  readonly summary: string;
+  readonly periodLabel: string;
+  readonly elementLabel: string;
   readonly element: ElementKind | undefined;
   readonly yearSummary: string;
   readonly yearElement: ElementKind | undefined;
@@ -60,7 +61,8 @@ interface ConstitutionContextFactsViewModel {
 function contextFacts(learning: LearningViewModel) {
   const { summary, currentStep } = learning.facts;
   return {
-    summary: `${summary.stemBranch.ganzhi} · ${currentStep.name} · 客气${currentStep.guestQi}`,
+    periodLabel: `${summary.stemBranch.ganzhi} · ${currentStep.name}`,
+    elementLabel: `客气${currentStep.guestQi}`,
     element: currentStep.guestElement,
     yearSummary: `${summary.stemBranch.ganzhi} · ${summary.suiYun.element}运${summary.suiYun.state}`,
     yearElement: learning.facts.annualElements.suiYun,
@@ -80,7 +82,8 @@ export function mapConstitutionContext(current: LearningViewModel, comparison?: 
       ambiguous: comparison.ambiguous,
       precision: comparison.birthPrecision,
       candidates: comparison.birthPrecision === 'year' ? comparison.candidates.map(item => ({
-        ...item, summary: item.yearSummary, yearElement: item.element, guestQiSummary: '', qiDetail: '', movementDetail: '',
+        ...item, periodLabel: item.birthGanzhi, elementLabel: item.movementLabel,
+        yearSummary: `${item.birthGanzhi} · ${item.movementLabel}`, yearElement: item.element, guestQiSummary: '', qiDetail: '', movementDetail: '',
       })) : comparison.candidates.map((candidate) => ({
         label: candidate.label, ...contextFacts(candidate.learning), from: candidate.from, until: candidate.until,
       })),

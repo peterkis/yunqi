@@ -85,7 +85,7 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await expect(page.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
   await expect(page.getByRole('heading', { name: '本次体质测评', exact: true })).toBeFocused();
   const session = page.getByRole('region', { name: '本次对照体质测评', exact: true });
-  await expect(session.getByRole('radio', { name: '男', exact: true })).toBeVisible();
+  await expect(session.getByRole('radio', { name: '男性量表', exact: true })).toBeVisible();
   await expect(page.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(1);
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
@@ -112,7 +112,7 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await screenshot(page, testInfo, 'birth-assessment-nine-results');
 
   const actions = page.locator('.panel-shell__actions');
-  const end = actions.getByRole('button', { name: '结束并销毁答卷', exact: true });
+  const end = actions.getByRole('button', { name: '结束并销毁', exact: true });
   await page.locator('.constitution-context-details > summary').focus();
   await page.keyboard.press('Tab');
   await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
@@ -122,16 +122,14 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await confirmConstitutionDestruction(page, true);
   await expect(results).toHaveCount(0);
   await expect(end).toHaveCount(0);
-  await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
-  await expect(start).not.toHaveAttribute('aria-expanded');
-  await expect(start).toBeFocused();
-  await start.click();
-  await expect(page.getByRole('radio', { name: '男', exact: true })).not.toBeChecked();
-  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+  await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
+  await expect(session.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  await expect(page.getByRole('radio', { name: '男性量表', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
   await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-  await page.getByRole('radio', { name: '女', exact: true }).click();
+  await page.getByRole('radio', { name: '女性量表', exact: true }).click();
   await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
-  await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
+  await expect(page.locator('.constitution-answer-form .constitution-actions').getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
   await page.locator('.constitution-question-screen').first().getByRole('radio').first().click();
   await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
@@ -146,7 +144,7 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
   await expect(start).not.toHaveAttribute('aria-expanded');
   await start.click();
-  await expect(page.getByRole('radio', { name: '女', exact: true })).not.toBeChecked();
+  await expect(page.getByRole('radio', { name: '女性量表', exact: true })).not.toBeChecked();
   await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
   await page.getByRole('link', { name: '先天对照', exact: true }).click();
   await page.getByRole('button', { name: '清空本次资料', exact: true }).click();
@@ -184,14 +182,14 @@ test('birth-linked assessment ignores an older real scoring response after birth
     await expect(session.getByRole('form', { name: '中医体质量表', exact: true })).toHaveCount(0);
     await expect(page.getByRole('button', { name: '同时测评体质', exact: true })).not.toHaveAttribute('aria-expanded');
     await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
-    await expect(page.getByRole('radio', { name: '男', exact: true })).not.toBeChecked();
+    await expect(page.getByRole('radio', { name: '男性量表', exact: true })).not.toBeChecked();
     releaseResponse();
     expect((await oldResponse).status()).toBe(200);
     await settle(page);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-    await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
     await expect(page.locator('.constitution-question-screen')).toHaveCount(0);
-    await page.getByRole('radio', { name: '女', exact: true }).click();
+    await page.getByRole('radio', { name: '女性量表', exact: true }).click();
     await expect(page.getByRole('img', { name: /已答 0 \/ 26/ })).toBeVisible();
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(1);
     expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);

@@ -125,10 +125,10 @@ test('motion matrix preserves current, drilldown, birth, scoring, edit, destruct
   await expect(session.locator('.constitution-question-title')).toBeFocused();
   await page.keyboard.press(String(constitutionResultValues[25]));
   await expect(session.locator('.constitution-decision h4')).toBeFocused();
-  await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).press('Enter');
+  await actions.getByRole('button', { name: '结束并销毁', exact: true }).press('Enter');
   await confirmConstitutionDestruction(page, true);
-  await expect(start).toBeFocused();
-  await expect(session.getByRole('form')).toHaveCount(0);
+  await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
+  await expect(session.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
   await page.getByRole('button', { name: '收起为胶囊条' }).press('Enter');
   const pill = page.getByRole('button', { name: /^展开运气通/ });
   await expect(pill).toBeFocused();
@@ -448,7 +448,15 @@ test('workbench segments keep their surface while pressed', async ({ page }) => 
   await expect(precision).not.toHaveAttribute('aria-describedby');
   await navigation.getByRole('link', { name: '体质量表' }).click();
   const sex = page.getByRole('radiogroup', { name: '量表所用性别' });
-  for (const name of ['男', '女']) await checkPress(sex.getByRole('radio', { name, exact: true }));
+  for (const name of ['男性量表', '女性量表']) {
+    const card = sex.getByRole('radio', { name, exact: true });
+    await card.hover();
+    const resting = await card.evaluate(node => getComputedStyle(node).backgroundColor);
+    expect(resting).not.toBe('rgba(0, 0, 0, 0)');
+    await page.mouse.down();
+    try { await expect(card).toHaveCSS('background-color', resting); }
+    finally { await page.mouse.move(1, 1); await page.mouse.up(); }
+  }
   await navigation.getByRole('link', { name: '当下运气' }).click();
   await page.getByRole('link', { name: '原文与释义', exact: true }).click();
   await checkPress(page.getByRole('button', { name: '全年', exact: true }));

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { InfoCard } from '../../../components/design/InfoCard';
 import { InlineText } from '../../../components/design/InlineText';
+import { MoreRowChevron, MoreRowSummary } from '../../../components/design/MoreRow';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
@@ -22,10 +23,6 @@ import { YunQiWheel } from './YunQiWheel';
 export interface CurrentYunQiPageProps {
   readonly viewModel: CurrentYunQiViewModel;
   readonly learning: LearningViewModel;
-}
-
-function MoreChevron() {
-  return <svg className="current-more__chevron" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="m6 4 4 4-4 4" /></svg>;
 }
 
 export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps) {
@@ -73,7 +70,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
     <nav className="current-more" aria-label="更多运气分析">
       <ul className="current-more__list">
         <li><details className="current-disclosure current-all-stages">
-          <summary className="current-more__row">其余阶段<MoreChevron /></summary>
+          <MoreRowSummary>其余阶段</MoreRowSummary>
           <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
           <InfoCard label="五步运全表">
             {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
@@ -87,11 +84,11 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           </InfoCard>
         </details></li>
 
-        <li><Link className="current-more__row" to={`/yunqi/year/${summary.year}`}>年度详情<MoreChevron /></Link></li>
-        <li><Link className="current-more__row" to="/yunqi/calculate">指定时点<MoreChevron /></Link></li>
+        <li><Link className="current-more__row" to={`/yunqi/year/${summary.year}`}>年度详情<MoreRowChevron /></Link></li>
+        <li><Link className="current-more__row" to="/yunqi/calculate">指定时点<MoreRowChevron /></Link></li>
 
         <li><details className="current-disclosure current-technical">
-          <summary className="current-more__row">计算说明与版本<MoreChevron /></summary>
+          <MoreRowSummary>计算说明与版本</MoreRowSummary>
           <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
           <InfoCard label="规则结果说明">
             <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>

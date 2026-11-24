@@ -1,9 +1,9 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent, type ReactElement } from 'react';
 import { useSegmentIndicator } from './useSegmentIndicator';
 
 export interface ControlSegmentViewModel<Value extends string> {
   readonly value: Value;
-  readonly label: string;
+  readonly label: string | ReactElement;
   readonly disabled?: boolean;
 }
 

@@ -114,7 +114,8 @@ describe('constitution presentation', () => {
   it('uses only the existing current snapshot and retains each birth candidate with canonical local time', () => {
     const current = mapLearning(createLearningDto());
     expect(mapConstitutionContext(current)).toEqual({ current: {
-      summary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.currentStep.name} · 客气${current.facts.currentStep.guestQi}`,
+      periodLabel: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.currentStep.name}`,
+      elementLabel: `客气${current.facts.currentStep.guestQi}`,
       element: current.facts.currentStep.guestElement,
       yearSummary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state}`,
       yearElement: current.facts.annualElements.suiYun,

@@ -129,14 +129,12 @@
   --birth-seal-size: clamp(126px, calc(48vh - 196px), 204px);
   --birth-seal-ink: var(--accent);
   --birth-rim: var(--accent-muted);
-  --birth-key-glint: var(--surface-card);
   --birth-key-tint: var(--accent-subtle);
   --birth-key-light: var(--jade-canvas);
 }
 @supports (color: color-mix(in srgb, black, white)) {
   .birth-entry--inline {
     --birth-rim: color-mix(in srgb, var(--accent) 36%, transparent);
-    --birth-key-glint: color-mix(in srgb, var(--surface-card) 78%, transparent);
     --birth-key-tint: color-mix(in srgb, var(--accent-muted) 38%, var(--jade-canvas));
     --birth-key-light: color-mix(in srgb, var(--accent-subtle) 72%, var(--jade-canvas));
   }
@@ -203,9 +201,7 @@
 .birth-entry--inline .birth-entry__canvas { padding-bottom: var(--space-2); }
 .birth-entry--inline .birth-entry__dock {
   margin-inline: var(--space-2); margin-bottom: var(--space-2); padding: var(--space-2);
-  border: var(--birth-hairline) solid var(--surface-card); border-color: var(--birth-key-glint);
-  border-radius: var(--radius-lg); background: var(--accent-subtle);
-  background: linear-gradient(150deg, var(--birth-key-glint), transparent 60%), var(--birth-key-tint);
+  border: 0; border-radius: var(--radius-lg); background: var(--birth-key-tint);
 }
 .birth-entry--inline .birth-keypad { gap: var(--space-1_5); margin-bottom: var(--space-2); }
 .birth-entry--inline .birth-keypad button {

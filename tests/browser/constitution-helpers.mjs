@@ -62,8 +62,8 @@ export async function changeConstitutionSex(scope, sex, answered) {
     await expect(scope.getByRole('group', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
     await scope.getByRole('button', { name: '确认', exact: true }).click();
   }
-  await expect(scope.getByRole('radio', { name: '男', exact: true })).toBeFocused();
-  await scope.getByRole('radio', { name: sex, exact: true }).click();
+  await expect(scope.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  await scope.getByRole('radio', { name: sex + '性量表', exact: true }).click();
 }
 
 export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values, stopBeforeLast = false } = {}) {
@@ -71,8 +71,8 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   // Role lookup excludes retained/aria-hidden visual copies, even if the
   // previous answer's 120ms destruction snapshot has not expired yet.
   const form = scope.getByRole('form', { name: '中医体质量表', exact: true });
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-  await scope.getByRole('radio', { name: sex, exact: true }).click();
+  await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
+  await scope.getByRole('radio', { name: sex + '性量表', exact: true }).click();
   await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
   let scoreRequest;
@@ -84,7 +84,7 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(scope.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
-    await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
+    await expect(form.locator('.constitution-actions').getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
     if (number === 26) {
       if (stopBeforeLast) return;
       scoreRequest = page.waitForRequest(request => request.url().endsWith('/constitution/assess'));
@@ -94,17 +94,17 @@ export async function answerConstitution(page, scope = page, { sex = '男', valu
   const request = await scoreRequest;
   await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toHaveCount(0);
   await expect(scope.locator('.constitution-question-screen')).toHaveCount(0);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveClass(/ds-button--secondary/);
   return request;
 }
 
 export async function confirmConstitutionDestruction(page, keyboard = false) {
   const confirm = page.getByRole('button', { name: '确认销毁', exact: true });
-  await expect(page.getByRole('group', { name: '结束并销毁本次答卷', exact: true })).toBeVisible();
+  await expect(page.getByRole('group', { name: '销毁本次答卷与结果？', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
   if (keyboard) {
-    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
     await expect(confirm).toBeFocused();
     await page.keyboard.press('Enter');
   } else await confirm.click();
@@ -116,15 +116,15 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
   await expect(result).toBeVisible();
   await waitForAnimations(page);
   const actions = page.locator('.panel-shell__actions');
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveClass(/ds-button--secondary/);
   const edit = actions.getByRole('button', { name: '返回修改', exact: true });
-  await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
+  await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁']);
   await expect(edit).toHaveClass(/ds-button--text/);
   await expect(edit).toHaveAccessibleName('返回修改');
   await expect(edit.locator('[aria-hidden="true"]')).toHaveText('‹');
   await expect.poll(async () => {
-    const [back, end] = await Promise.all([edit.boundingBox(), actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).boundingBox()]);
+    const [back, end] = await Promise.all([edit.boundingBox(), actions.getByRole('button', { name: '结束并销毁', exact: true }).boundingBox()]);
     return back && end ? back.x + back.width <= end.x : false;
   }).toBe(true);
   await expect(page.locator('.panel-shell__drilldown').getByRole('heading', { name: '体质测评结果', exact: true })).toBeVisible();

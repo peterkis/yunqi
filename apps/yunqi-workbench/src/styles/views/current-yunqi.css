@@ -5,8 +5,6 @@
   --current-hairline: 1px;
   /* Source: 1-layout.md, six-stage segment gap and compact track inset: 3px. */
   --current-progress-gap: 3px;
-  /* Source: polish card D4, P1-9: equal 44px rows in the More list. */
-  --current-more-row-height: 44px;
   color: var(--ink-primary);
   font-family: var(--font-sans);
   font-size: var(--ts-body);
@@ -146,15 +144,6 @@
 .current-pair dd { margin: 0; font-weight: var(--type-body-strong-weight); }
 
 .current-disclosure { min-width: 0; }
-.current-disclosure > summary {
-  display: list-item;
-  min-height: var(--segment-height);
-  padding-block: var(--space-1_5);
-  color: var(--accent);
-  cursor: pointer;
-  font-size: var(--ts-body);
-  line-height: var(--type-body-sm-line);
-}
 .current-relations { margin-top: var(--space-2); }
 .current-overview ul { margin: var(--space-2) 0; padding-left: var(--space-4_5); }
 .current-overview a,
@@ -171,33 +160,6 @@
 }
 .current-overview .current-more__list { margin: 0; padding: 0; list-style: none; }
 .current-more__list > li + li { border-top: var(--current-hairline) solid var(--border-subtle); }
-.current-more .current-more__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  min-height: var(--current-more-row-height);
-  padding: 0;
-  color: var(--accent);
-  font-size: var(--ts-body);
-  line-height: var(--type-body-sm-line);
-  text-decoration: none;
-  list-style: none;
-  cursor: pointer;
-}
-.current-more__row::-webkit-details-marker { display: none; }
-/* Keyboard focus uses the shared `.panel-shell :focus-visible` ring; pointer clicks show none. */
-.current-more__chevron {
-  flex: none;
-  width: var(--space-4);
-  height: var(--space-4);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: var(--space-0_5);
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-.current-more details[open] > summary .current-more__chevron { transform: rotate(90deg); }
 .current-all-stages > .ds-info-card,
 .current-technical > .ds-info-card { margin-top: var(--space-3); }
 .current-stage-navigation { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--space-0_5); margin-block: var(--space-2); }

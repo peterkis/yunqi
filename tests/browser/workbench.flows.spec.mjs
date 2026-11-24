@@ -405,10 +405,10 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await page.goto('/yunqi/constitution');
   const form = page.getByRole('form', { name: '中医体质量表', exact: true });
   await expect(form).toBeVisible();
-  const end = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
+  const end = page.getByRole('button', { name: '结束并销毁', exact: true });
   await expect(end).toHaveCount(0);
   const storageBefore = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
-  const male = form.getByRole('radio', { name: '男', exact: true });
+  const male = form.getByRole('radio', { name: '男性量表', exact: true });
   await male.focus();
   await page.keyboard.press('Space');
   await expect(page.locator('.constitution-question-title')).toBeFocused();
@@ -481,7 +481,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
 test('constitution reduced-motion answers retain the hold and previous restores an explicit choice', async ({ page, diagnostics }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '女', exact: true }).click();
+  await page.getByRole('radio', { name: '女性量表', exact: true }).click();
   await page.keyboard.press('Tab');
   await page.keyboard.press('Space');
   await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);

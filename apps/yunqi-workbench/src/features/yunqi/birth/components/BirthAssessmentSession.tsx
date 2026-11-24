@@ -5,9 +5,8 @@ import { mapConstitutionContext } from '../../../constitution/presentation/map-c
 import { mapPanelSummary } from '../../presentation/panel-summary';
 import type { BirthSessionComparison } from '../../presentation/map-learning';
 
-export function BirthAssessmentSession({ comparison, onEnd }: {
+export function BirthAssessmentSession({ comparison }: {
   readonly comparison: BirthSessionComparison;
-  readonly onEnd: () => void;
 }) {
   const heading = useRef<HTMLHeadingElement>(null);
   const { current } = comparison;
@@ -15,6 +14,6 @@ export function BirthAssessmentSession({ comparison, onEnd }: {
   return <section className="constitution-page birth-session" aria-label="本次对照体质测评">
     <PanelSummary viewModel={mapPanelSummary(current.facts.summary, { step: current.facts.currentStep, relation: current.currentQi })} />
     <h2 className="visually-hidden" tabIndex={-1} ref={heading}>本次体质测评</h2>
-    <ConstitutionAssessmentPanel context={mapConstitutionContext(current, comparison)} onEnd={onEnd} />
+    <ConstitutionAssessmentPanel context={mapConstitutionContext(current, comparison)} />
   </section>;
 }

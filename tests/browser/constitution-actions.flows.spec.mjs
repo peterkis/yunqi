@@ -1,4 +1,4 @@
-import { test, expect, screenshot, expectTypeScale, scanAccessibility } from './fixtures.mjs';
+import { test, expect, screenshot, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
@@ -14,7 +14,7 @@ const profiles = [
 
 test('constitution progress shows answered questions and keeps current dimensions in the grid', async ({ page }) => {
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '女', exact: true }).click();
+  await page.getByRole('radio', { name: '女性量表', exact: true }).click();
   const heading = page.locator('.constitution-question-title');
   await expect(heading).toHaveText('您精力充沛吗？');
   await page.keyboard.press('1');
@@ -38,12 +38,75 @@ test('constitution progress shows answered questions and keeps current dimension
   await expect(progress.getByRole('img', { name: '阳虚质：0/3', exact: true })).toBeVisible();
 });
 
+for (const [width, theme] of [[400, 'light'], [320, 'dark']]) {
+  test(`constitution destroy confirmation stays in its 44px row at ${width}px in ${theme} mode`, async ({ page }, testInfo) => {
+    await page.setViewportSize({ width, height: 640 });
+    await page.goto('/yunqi/constitution');
+    if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
+    await page.getByRole('radio', { name: '男性量表', exact: true }).click();
+    await page.keyboard.press('2');
+    const progress = page.locator('.constitution-position');
+    await expect(progress).toHaveAttribute('aria-label', /当前第 2 题/);
+    const bar = page.locator('.constitution-answer-form .constitution-actions');
+    const trigger = bar.getByRole('button', { name: '结束并销毁', exact: true });
+    await expect(bar.getByRole('button')).toHaveText(['上一题', '结束并销毁']);
+    await expect(page.locator('.panel-shell__actions')).toHaveCount(0);
+    await waitForAnimations(page);
+    await trigger.scrollIntoViewIfNeeded();
+    const geometry = () => bar.evaluate(el => {
+      const form = el.closest('form');
+      const box = node => { const { x, y, width, height } = node.getBoundingClientRect(); return { x, y, width, height }; };
+      return { bar: box(el), options: box(form.querySelector('[role="radiogroup"]')), notes: box(form.parentElement.querySelector('.constitution-notes')) };
+    });
+    const before = await geometry();
+    expect(before.bar.height).toBe(44);
+    const lastButton = await trigger.boundingBox();
+    expect(lastButton.x + lastButton.width).toBeCloseTo(before.bar.x + before.bar.width, 0);
+    await screenshot(page, testInfo, 'answer-actions');
+    await trigger.click();
+    const cancel = bar.getByRole('button', { name: '取消', exact: true });
+    await expect(cancel).toBeFocused();
+    expect(await geometry()).toEqual(before);
+    const confirm = bar.getByRole('button', { name: '确认销毁', exact: true });
+    await expect(confirm).toBeInViewport({ ratio: 1 });
+    expect(await bar.evaluate(el => el.scrollWidth <= el.clientWidth)).toBe(true);
+    await screenshot(page, testInfo, 'confirm-destroy');
+    await page.keyboard.press('5');
+    await expect(progress).toHaveText('已答 1 / 26');
+    await page.keyboard.press('Escape');
+    await expect(trigger).toBeFocused();
+    expect(await geometry()).toEqual(before);
+    await trigger.press('Enter');
+    await cancel.click();
+    await expect(trigger).toBeFocused();
+    await trigger.click();
+    const source = page.locator('.constitution-source > summary');
+    await source.click();
+    await expect(cancel).toHaveCount(0);
+    await expect(source).toBeFocused();
+    await expect(page.locator('.constitution-source')).toHaveAttribute('open', '');
+    await expect(progress).toHaveText('已答 1 / 26');
+    await trigger.click();
+    const option = page.getByRole('radio', { name: '3 有时（有些）', exact: true });
+    await option.click();
+    await expect(cancel).toHaveCount(0);
+    await expect(progress).toHaveAttribute('aria-label', '已答 2 / 26 题，当前第 3 题');
+    await bar.getByRole('button', { name: '上一题' }).click();
+    await expect(option).toBeChecked();
+    await trigger.press('Enter');
+    await page.keyboard.press('Tab');
+    await expect(confirm).toBeFocused();
+    await confirm.press('Enter');
+    await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  });
+}
+
 for (const theme of ['light', 'dark']) {
   test(`constitution F4: ${theme} question announcement has no outline and Tab keeps option rings`, async ({ page }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'no-preference' });
     await page.goto('/yunqi/constitution');
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
-    await page.getByRole('radio', { name: '男', exact: true }).click();
+    await page.getByRole('radio', { name: '男性量表', exact: true }).click();
     const heading = page.locator('h3.constitution-question-title');
     await expect(heading).toBeFocused();
     await page.keyboard.press('2');
@@ -103,7 +166,7 @@ for (const embedded of [false, true]) {
       await expectConstitutionSegments(result);
       if (profile.count === 7) await expectConstitutionMixedReference(result, testInfo);
       await expect(result.locator('.constitution-decision h4')).toHaveText(profile.title);
-      await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
+      await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁']);
       await expectViewControls(page, testInfo);
       await expectTypeScale(page, testInfo);
       const scan = await scanAccessibility(page);
@@ -120,7 +183,7 @@ for (const embedded of [false, true]) {
       await page.keyboard.press('Tab');
       await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
       await page.keyboard.press('Tab');
-      await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toBeFocused();
+      await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toBeFocused();
       await page.keyboard.press('Shift+Tab');
       await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
       await page.keyboard.press('Enter');
@@ -130,10 +193,10 @@ for (const embedded of [false, true]) {
       await expect(page.locator('.constitution-sex-summary')).toHaveText('体质维度 · 男性版更换');
       await expect(page.locator('.constitution-position')).toHaveText('已答 26 / 26');
       await screenshot(page, testInfo, `${embedded ? 'birth' : 'standalone'}-${profile.count}-matches-edit`);
-      await actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+      await page.locator('.constitution-answer-form .constitution-actions').getByRole('button', { name: '结束并销毁', exact: true }).click();
       await confirmConstitutionDestruction(page);
-      if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();
-      else await expect(page.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+      await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
+      await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
     });
   }
 }

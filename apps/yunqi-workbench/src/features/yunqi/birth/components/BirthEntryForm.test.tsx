@@ -106,6 +106,25 @@ describe('inline birth entry', () => {
     expect(key('确认并对照')).toBeDisabled(); expect(confirm).not.toHaveBeenCalled();
     expect(key('退格').querySelector('svg.lucide-delete')).not.toBeNull();
   });
+  it('keeps February 3 confirmable when any appended digit is rejected', async () => {
+    const { user, confirm } = setup();
+    await user.type(slot('年龄'), '52');
+    await user.keyboard('23');
+    const submit = key('确认并对照');
+    await waitFor(() => expect(submit).toBeEnabled());
+    for (const digit of '0123456789') {
+      await user.click(key(digit));
+      expect(slot('日')).toHaveValue('3');
+      expect(slot('日')).not.toHaveAttribute('aria-invalid', 'true');
+      expect(submit).toBeEnabled();
+    }
+    expect(screen.getByText('出生日须为 1–28。')).toBeVisible();
+    expect(screen.getByText('公历 1974-02-03')).toBeVisible();
+    expect(confirm).not.toHaveBeenCalled();
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1974-02-03' });
+  });
+
   it('discards late previews, requires a selection for multiple dates and can fall back to year only', async () => {
     let finish!: (data: BirthDatePreviewDto) => void;
     const client = createClientStub({ previewBirthDate: vi.fn()

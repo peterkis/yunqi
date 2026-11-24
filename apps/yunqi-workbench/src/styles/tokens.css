@@ -7,6 +7,9 @@
   --sheet-scrim: rgba(29,35,32,0.35);
   --input-error-bg: #fae8e2;
   --input-error-fg: #8b3828;
+  --destroy-surface: #f6efec;
+  --destroy-ink: #805246;
+  --destroy-emphasis: #a44830;
   --reading-insight-surface: #f3f6f4;
   --reading-scope-surface: #e6ece8;
   --reading-source-surface: #e3efe7;
@@ -50,6 +53,10 @@
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #4e7d5b;
+  --annual-boundary-before-bg: #edf0f6;
+  --annual-boundary-before-fg: #52617b;
+  --annual-boundary-from-bg: var(--accent-subtle);
+  --annual-boundary-from-fg: var(--accent);
   --element-wood-title: #2c5241;
   --element-fire-title: #8b452e;
   --element-earth-title: #7c5c26;
@@ -58,8 +65,8 @@
   --element-fire: #b5523b;
   --element-earth: #b08a3e;
   --element-metal-fill: #ffffff;
-  --element-metal-ring: #7d848a;
-  --element-water: #2b3a4a;
+  --element-metal-ring: #74879a;
+  --element-water: #315a82;
   --data-primary: var(--accent);
   --data-secondary: #7fa295;
   --data-neutral: #c9c4b8;
@@ -176,6 +183,9 @@
   --sheet-scrim: rgba(8,14,11,0.60);
   --input-error-bg: #422b26;
   --input-error-fg: #ffc2ac;
+  --destroy-surface: #382c28;
+  --destroy-ink: #e8b9aa;
+  --destroy-emphasis: #e5a38c;
   --reading-insight-surface: #252d29;
   --reading-scope-surface: #323d36;
   --reading-source-surface: #293d32;
@@ -219,6 +229,10 @@
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #7db08a;
+  --annual-boundary-before-bg: #2d323e;
+  --annual-boundary-before-fg: #bcc8df;
+  --annual-boundary-from-bg: var(--accent-subtle);
+  --annual-boundary-from-fg: var(--accent);
   --element-wood-title: #8ac4a6;
   --element-fire-title: #e39579;
   --element-earth-title: #deb871;
@@ -227,8 +241,8 @@
   --element-fire: #e08a72;
   --element-earth: #d6b26a;
   --element-metal-fill: #1c201e;
-  --element-metal-ring: #b7bdb8;
-  --element-water: #8fa6bf;
+  --element-metal-ring: #aebfd0;
+  --element-water: #82afd5;
   --data-primary: var(--accent);
   --data-secondary: #5e8577;
   --data-neutral: #4a4f4b;

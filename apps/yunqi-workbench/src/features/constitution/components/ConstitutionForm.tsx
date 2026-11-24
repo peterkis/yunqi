@@ -1,6 +1,8 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { ArrowLeft, ArrowRight, Mars, Venus } from 'lucide-react';
 import { Button } from '../../../components/design/Button';
 import { InlineText } from '../../../components/design/InlineText';
+import { MoreRowSummary } from '../../../components/design/MoreRow';
 import { ScaleOption } from '../../../components/design/ScaleOption';
 import { SegmentedControl } from '../../../components/design/SegmentedControl';
 import { PanelView } from '../../../components/layout/PanelView';
@@ -10,6 +12,7 @@ import type { ConstitutionContextViewModel, ConstitutionQuestionnaireViewModel, 
 import { mapQuestionnaireProgress } from '../presentation/map-constitution';
 import { useConstitutionAssessment } from '../hooks/useConstitution';
 import { ConstitutionResults } from './ConstitutionResults';
+import { ConstitutionActionBar } from './ConstitutionActionBar';
 import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 import { ConstitutionDimension } from './ConstitutionDimension';
 import { AnswerDestroyedNotice } from './AnswerDestroyedNotice';
@@ -17,14 +20,26 @@ import { fadeDestroyedAnswer } from './destroy-answer-visual';
 
 export const ANSWER_HOLD_MS = 240;
 
+const editions = ([
+  { value: 'male', title: '男性量表', Icon: Mars },
+  { value: 'female', title: '女性量表', Icon: Venus },
+] as const).map(({ value, title, Icon }) => ({
+  value,
+  label: <>
+    <span className="constitution-edition-icon" data-edition={value} aria-hidden="true"><Icon /></span>
+    <strong className="constitution-edition-title">{title}</strong>
+    <span className="constitution-edition-action" aria-hidden="true">开始作答 <ArrowRight /></span>
+  </>,
+}));
+
 export interface ConstitutionFormProps {
   readonly questionnaire: ConstitutionQuestionnaireViewModel;
   readonly context?: ConstitutionContextViewModel;
-  readonly onEnd?: () => void;
+  readonly onSessionChange?: (active: boolean) => void;
   readonly actionsEnabled?: boolean;
 }
 
-export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled = true }: ConstitutionFormProps) {
+export function ConstitutionForm({ questionnaire, context, onSessionChange, actionsEnabled = true }: ConstitutionFormProps) {
   const mutation = useConstitutionAssessment();
   const visible = useSessionVisible();
   const level = useMotionLevel();
@@ -37,7 +52,6 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   const [destroyed, setDestroyed] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const formRef = useRef<HTMLFormElement>(null);
-  const focusEnd = useRef(false);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sexRef = useRef<HTMLFieldSetElement>(null);
   const changeSexRef = useRef<HTMLButtonElement>(null);
@@ -81,19 +95,12 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }, [sex, questionIndex, mutation.result !== undefined]);
   useLayoutEffect(() => {
     if (!visible) return;
-    if (confirming) cancelSexRef.current?.focus();
+    if (confirmingSexChange) cancelSexRef.current?.focus();
     else if (focusChangeSex.current) {
       changeSexRef.current?.focus();
       focusChangeSex.current = false;
     }
-  }, [confirming]);
-
-  function focusEndAction(button: HTMLButtonElement | null) {
-    if (button && !button.disabled && focusEnd.current && visible) {
-      focusEnd.current = false;
-      button.focus();
-    }
-  }
+  }, [confirmingSexChange]);
 
   function resetScoring() {
     revision.current += 1;
@@ -105,6 +112,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   function changeSex(next: QuestionnaireSex) {
     cancelAdvance();
     resetScoring();
+    onSessionChange?.(true);
     setSex(next);
     setAnswers({});
     setQuestionIndex(0);
@@ -137,7 +145,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     fadeDestroyedAnswer(formRef.current, level);
     clearSex();
     setDestroyed((value) => value + 1);
-    onEnd?.();
+    onSessionChange?.(false);
   }
 
   function requestEnd() {
@@ -147,11 +155,11 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }
 
   function cancelEnd() {
-    focusEnd.current = true;
     setConfirmingEnd(false);
   }
 
   function previous() {
+    cancelEnd();
     cancelAdvance();
     resetScoring();
     setDirection('backward');
@@ -159,7 +167,8 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }
 
   function answer(value: number) {
-    if (!question || mutation.isPending || confirming) return;
+    if (!question || mutation.isPending || confirmingSexChange) return;
+    cancelEnd();
     cancelAdvance();
     resetScoring();
     const nextAnswers = { ...answers, [question.id]: value };
@@ -177,7 +186,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }
 
   function questionKey(event: KeyboardEvent<HTMLDivElement>) {
-    if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || confirming || mutation.isPending
+    if (event.defaultPrevented || event.repeat || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || confirmingSexChange || mutation.isPending
       || (event.target instanceof Element && event.target.closest('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"]'))) return;
     if (event.key === 'ArrowLeft' || event.key === 'Backspace') {
       event.preventDefault();
@@ -190,7 +199,7 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
   }
 
   function score(submittedAnswers: Readonly<Record<string, number>>) {
-    if (mutation.isPending || submitting.current || mutation.result || confirming) return;
+    if (mutation.isPending || submitting.current || mutation.result || confirmingSexChange) return;
     if (sex === '') {
       setError('请先选择量表所用性别。');
       sexRef.current?.focus();
@@ -217,12 +226,12 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
     event.preventDefault();
     // A native submit may validate an incomplete form or retry a failed request.
     // The final answer owns the only automatic submission after its hold.
-    if (!hasSession || completed < questions.length || mutation.isError) score(answers);
+    if (!confirmingEnd && (!hasSession || completed < questions.length || mutation.isError)) score(answers);
   }
 
   const notes = <>
     <details className="constitution-disclosure constitution-source">
-      <summary>量表来源与适用说明</summary>
+      <MoreRowSummary>量表来源与适用说明</MoreRowSummary>
       <p className="constitution-meta num"><InlineText>{mutation.result
         ? `${mutation.result.sexLabel} · ${mutation.result.questionnaireId} · ${mutation.result.version}`
         : `${questionnaire.title} · ${questionnaire.version}`}</InlineText></p>
@@ -230,27 +239,33 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
       <p>{questionnaire.sourceNote}</p>
       <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
     </details>
-    <ConstitutionContextDetails context={context} />
+    <ConstitutionContextDetails context={context} showSnapshot={!hasSession} />
   </>;
+  const disclosureRows = !mutation.result && <div className="constitution-notes">{notes}</div>;
+  const answering = Boolean(question && !mutation.result);
+  const actions = hasSession ? <ConstitutionActionBar confirming={confirmingEnd} disabled={confirmingSexChange}
+    onRequest={requestEnd} onCancel={cancelEnd} onDestroy={end}>
+    {answering && <Button variant="text" disabled={questionIndex === 0 || confirmingSexChange} onClick={previous}>
+      <ArrowLeft aria-hidden="true" />上一题
+    </Button>}
+    {mutation.result && <Button variant="text" onClick={previous}><span aria-hidden="true">‹</span> 返回修改</Button>}
+    {complete && mutation.isError && <Button type="submit" form={formId} disabled={confirmingSexChange}>重新计分</Button>}
+  </ConstitutionActionBar> : undefined;
 
   return (
-    <div className="constitution-session" onKeyDown={(event) => {
+    <div className="constitution-session" data-entry={!hasSession || undefined} onKeyDown={(event) => {
       if (confirming && event.key === 'Escape') { event.preventDefault(); if (confirmingEnd) cancelEnd(); else cancelSexChange(); }
     }}>
       <PanelView enabled={actionsEnabled}
-        drilldown={mutation.result ? { title: '体质测评结果', onBack: () => { if (!confirming) previous(); } } : undefined}
-        actions={hasSession ? <div className="constitution-actions">
-          {mutation.result ? <Button variant="text" disabled={confirming} onClick={previous}><span aria-hidden="true">‹</span> 返回修改</Button> : null}
-          <Button ref={focusEndAction} variant="secondary" disabled={confirming} onClick={requestEnd}>结束并销毁答卷</Button>
-          {complete && mutation.isError ? <Button type="submit" form={formId} disabled={confirming}>重新计分</Button> : null}
-        </div> : undefined} />
+        drilldown={mutation.result ? { title: '体质测评结果', onBack: previous } : undefined}
+        actions={answering ? undefined : actions} />
       <form ref={formRef} id={formId} className="constitution-answer-form" onSubmit={submit} aria-label="中医体质量表" aria-busy={mutation.isPending}>
         <ConstitutionContext context={context}>
           {progress && !mutation.result ? <section className="constitution-dimensions">
             <div className="constitution-progress-header">
               <div className="constitution-sex-summary">
                 <span><InlineText>{`体质维度 · ${sex === 'male' ? '男性版' : '女性版'}`}</InlineText></span>
-                <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirming} onClick={requestSexChange}>更换</Button>
+                <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
               </div>
               <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite">已答 <b>{progress.completed}</b> / {progress.total}</span>
             </div>
@@ -260,10 +275,10 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
           </section> : null}
         </ConstitutionContext>
         {sex === '' ? <fieldset className="constitution-sex" disabled={mutation.isPending} ref={sexRef} tabIndex={-1}>
-          <legend>量表所用性别</legend>
-          <SegmentedControl label="量表所用性别" compact value={sex} onChange={changeSex}
-            segments={[{ value: 'male', label: '男' }, { value: 'female', label: '女' }]} />
-          <p className="constitution-meta">仅用于显示对应条目；切换后清空本次作答和结果。</p>
+          <legend>选择量表所用性别以开始作答</legend>
+          <p id={helpId} className="constitution-meta"><InlineText>一题一屏 · 无默认答案 · 切换将清空作答</InlineText></p>
+          <SegmentedControl label="量表所用性别" describedBy={helpId} value={sex} onChange={changeSex}
+            segments={editions} slidingIndicator={false} />
         </fieldset> : null}
         {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
           <p id={confirmationId}>更换将清空已作答的 <span className="num">{completed}</span> 题</p>
@@ -272,44 +287,35 @@ export function ConstitutionForm({ questionnaire, context, onEnd, actionsEnabled
             <Button ref={cancelSexRef} variant="text" onClick={cancelSexChange}>取消</Button>
           </div>
         </section> : null}
-        {confirmingEnd ? <section className="constitution-sex-confirmation" role="group" aria-label="结束并销毁本次答卷">
-          <p>结束后将销毁本次答卷和测评结果。</p>
-          <div><Button variant="secondary" onClick={end}>确认销毁</Button><Button ref={cancelSexRef} variant="text" onClick={cancelEnd}>取消</Button></div>
-        </section> : null}
-        <div inert={confirming || undefined}>
-        {mutation.result ? (
-          <ConstitutionResults assessment={mutation.result} context={context} reveal>{notes}</ConstitutionResults>
-        ) : sex !== '' ? (
-          <>
-            {question ? (
-              <div className="constitution-question-screen" data-direction={direction} onKeyDownCapture={(event) => { if (event.key === 'ArrowLeft' || event.key === 'Backspace') questionKey(event); }} onKeyDown={questionKey}>
-                <div className="constitution-question-header">
-                  <h3 key={question.id} id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
-                  <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题</InlineText></p>
-                </div>
-                <div key={question.id} role="radiogroup" aria-labelledby={questionId} aria-describedby={helpId}>
-                  {questionnaire.options.map((option, index) => (
-                    <ScaleOption key={option.value} shortcut={option.value} label={option.label} description={option.description} showDegree
-                      checked={answers[question.id] === option.value}
-                      tabIndex={answers[question.id] === option.value || (answers[question.id] === undefined && index === 0) ? 0 : -1}
-                      onSelect={() => answer(option.value)} />
-                  ))}
-                </div>
-                <div className="constitution-previous"><Button variant="text" disabled={questionIndex === 0} onClick={previous}>上一题</Button></div>
+        {hasSession && <div inert={confirmingSexChange || undefined}>
+          {mutation.result ? (
+            <ConstitutionResults assessment={mutation.result} context={context} reveal>{notes}</ConstitutionResults>
+          ) : question ? (
+            <div className="constitution-question-screen" data-direction={direction} onKeyDownCapture={(event) => { if (event.key === 'ArrowLeft' || event.key === 'Backspace') questionKey(event); }} onKeyDown={questionKey}>
+              <div className="constitution-question-header">
+                <h3 key={question.id} id={questionId} className="constitution-question-title" tabIndex={-1} ref={headingRef}>{question.text}</h3>
+                <p id={helpId} className="constitution-meta num"><InlineText>请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题</InlineText></p>
               </div>
-            ) : (
-              mutation.isError ? <Button variant="text" onClick={previous}>返回修改</Button> : null
-            )}
-          </>
-        ) : <p className="constitution-meta">选择量表所用性别后开始作答，一题一屏，无默认答案。</p>}
-        </div>
+              <div key={question.id} role="radiogroup" aria-labelledby={questionId} aria-describedby={helpId}>
+                {questionnaire.options.map((option, index) => (
+                  <ScaleOption key={option.value} shortcut={option.value} label={option.label} description={option.description} showDegree
+                    checked={answers[question.id] === option.value}
+                    tabIndex={answers[question.id] === option.value || (answers[question.id] === undefined && index === 0) ? 0 : -1}
+                    onSelect={() => answer(option.value)} />
+                ))}
+              </div>
+            </div>
+          ) : mutation.isError ? <Button variant="text" onClick={previous}>返回修改</Button> : null}
+        </div>}
+        {answering && actions}
         {error ? <p role="alert" className="constitution-notice num">{error}</p> : null}
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
-      {destroyed > 0 && !onEnd ? <AnswerDestroyedNotice key={destroyed} /> : null}
-      {!mutation.result ? <div className="constitution-notes">{notes}</div> : null}
-      <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
+      {destroyed > 0 ? <AnswerDestroyedNotice key={destroyed} /> : null}
+      {hasSession && disclosureRows}
+      {(!hasSession || mutation.result) && <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>}
+      {!hasSession && disclosureRows}
     </div>
   );
 }

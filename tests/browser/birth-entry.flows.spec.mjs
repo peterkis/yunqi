@@ -1,4 +1,37 @@
 import { test, expect, scanAccessibility, waitForAnimations } from './fixtures.mjs';
+import { expectTextContrast } from './visual-assertions.mjs';
+
+test('rejecting an extra day digit preserves the confirmed date in inline and sheet entry', async ({ page }) => {
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  const day = form.getByRole('textbox', { name: '日', exact: true });
+  const submit = form.getByRole('button', { name: '确认并对照' });
+  const dock = form.locator('.birth-entry__dock');
+  await expect(dock).toHaveCSS('border-width', '0px');
+  await expect(dock).toHaveCSS('background-image', 'none');
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await form.getByRole('textbox', { name: '年', exact: true }).pressSequentially('1974');
+  await page.keyboard.type('239');
+  for (const variant of ['inline', 'sheet']) {
+    if (variant === 'sheet') {
+      await page.getByRole('button', { name: '修改', exact: true }).click();
+      await day.fill('');
+      for (const digit of ['3', '7']) await form.getByRole('button', { name: digit, exact: true }).click();
+    }
+    await expect(day).toHaveValue('3');
+    await expect(form.locator('[data-tone="attention"]')).toContainText('出生日须为 1–28。');
+    await expect(form).not.toContainText('已保留原日期');
+    await expect(form.locator('[data-preview-date]')).toHaveText('公历 1974-02-03');
+    await expect(submit).toBeEnabled();
+    const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+    if (variant === 'sheet') await day.press('Enter');
+    else await submit.click();
+    const response = await comparison;
+    expect(response.ok()).toBe(true);
+    expect(response.request().postDataJSON()).toEqual({ birthDate: '1974-02-03' });
+    await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1974-02-03');
+  }
+});
 
 test('inline landscape seal follows the selected date and surfaces both annual boundary candidates', async ({ page }, testInfo) => {
   await page.goto('/yunqi/birth');
@@ -54,7 +87,9 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     await expect(form.getByRole('button', { name: '仅按年份对照' })).toBeInViewport({ ratio: 1 });
     expect((await scanAccessibility(page)).violations).toEqual([]);
     await page.screenshot({ path: testInfo.outputPath('age-sheet.png') });
+    const yearResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-year-comparison'));
     await page.keyboard.press('Enter');
+    const { data: comparison } = await (await yearResponse).json();
     const main = page.getByRole('region', { name: '出生与当前运气对照结果' });
     await expect(main.getByRole('table')).toHaveCount(2);
     await expect(main.getByRole('rowheader')).toHaveCount(6);
@@ -80,8 +115,45 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     await expect(page.getByRole('button', { name: '出生阶段', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: '返回', exact: true }).click();
     await page.getByRole('link', { name: '体质量表', exact: true }).click();
-    await expect(page.getByRole('complementary', { name: '本次测评对照背景' })).toContainText('2 个候选');
+    const annualContext = page.getByLabel('当下与两个先天年度候选', { exact: true });
+    await expect(annualContext.locator('dt')).toHaveText(['当下', '先天 大寒前', '先天 大寒起']);
+    const beforeBadge = annualContext.locator('[data-boundary="before"]');
+    const fromBadge = annualContext.locator('[data-boundary="from"]');
+    await expect(beforeBadge).toHaveText('大寒前');
+    await expect(fromBadge).toHaveText('大寒起');
+    await expect(beforeBadge).toHaveCSS('border-radius', '999px');
+    await expect(fromBadge).not.toHaveCSS('background-color', await beforeBadge.evaluate(node => getComputedStyle(node).backgroundColor));
+    await expectTextContrast(beforeBadge);
+    await expectTextContrast(fromBadge);
+    await expect(annualContext.locator('.ds-element__dot')).toHaveCount(3);
+    const elementKeys = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
+    for (const [index, candidate] of comparison.candidates.entries()) {
+      const element = elementKeys[candidate.suiYun.element];
+      const dot = annualContext.locator('dd').nth(index + 1).locator(`.ds-element__dot--${element}`);
+      await expect(dot).toHaveCSS('width', '8px');
+      const token = element === 'metal' ? '--element-metal-ring' : `--element-${element}`;
+      const hex = await dot.evaluate((node, name) => getComputedStyle(node).getPropertyValue(name).trim(), token);
+      const rgb = `rgb(${[1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16)).join(', ')})`;
+      if (element === 'metal') expect(await dot.evaluate(node => getComputedStyle(node).boxShadow)).toContain(rgb);
+      else await expect(dot).toHaveCSS('background-color', rgb);
+    }
     await expect(page.getByRole('form', { name: '中医体质量表' })).toBeVisible();
+    await page.getByRole('radio', { name: '男性量表', exact: true }).click();
+    await expect(page.locator('.constitution-position')).toContainText('已答 0 / 26');
+    const columns = await annualContext.locator(':scope > div').evaluateAll(items => items.map(item => ({
+      x: item.offsetLeft, width: item.getBoundingClientRect().width,
+      heading: item.querySelector('dt').getBoundingClientRect().top,
+      period: item.querySelector('.constitution-context-period').getBoundingClientRect().top,
+      element: item.querySelector('.ds-element').getBoundingClientRect().top,
+    })));
+    expect(columns[0].x).toBeLessThan(columns[1].x);
+    expect(columns[1].x).toBeLessThan(columns[2].x);
+    for (const column of columns.slice(1)) {
+      expect(column.width).toBeCloseTo(columns[0].width, 0);
+      expect(column.heading).toBe(columns[0].heading);
+      expect(column.period).toBe(columns[0].period);
+      expect(column.element).toBe(columns[0].element);
+    }
     await page.getByRole('link', { name: '先天对照' }).click();
     await page.getByRole('button', { name: /补全生日后查看/ }).click();
     const sheet = page.getByRole('dialog', { name: '修改出生信息' });

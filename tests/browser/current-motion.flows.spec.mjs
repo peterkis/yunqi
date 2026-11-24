@@ -113,7 +113,8 @@ for (const input of ['keyboard', 'mouse']) {
     const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
     const birthRow = context.locator('.constitution-context-rows > div').filter({ has: page.getByText('先天', { exact: true }) });
     const candidate = birth.candidates[0].learning.facts;
-    await expect(birthRow.locator('dd')).toHaveText(`${candidate.stemBranch.ganzhi} · ${candidate.currentStep.name} · 客气${candidate.currentStep.guestQi}`);
+    await expect(birthRow.locator('.constitution-context-period')).toHaveText(`${candidate.stemBranch.ganzhi} · ${candidate.currentStep.name}`);
+    await expect(birthRow.locator('.ds-element')).toHaveText(`客气${candidate.currentStep.guestQi}`);
     await expect(context.getByRole('link', { name: /未填写/ })).toHaveCount(0);
     expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/birth-comparison'))).toHaveLength(2);
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', expectedMotionLevel(motionMode));
@@ -128,7 +129,8 @@ for (const input of ['keyboard', 'mouse']) {
     await activate(page, pill, input);
     await expect(collapse).toBeFocused();
     await waitForAnimations(page);
-    await expect(birthRow.locator('dd')).toHaveText(`${candidate.stemBranch.ganzhi} · ${candidate.currentStep.name} · 客气${candidate.currentStep.guestQi}`);
+    await expect(birthRow.locator('.constitution-context-period')).toHaveText(`${candidate.stemBranch.ganzhi} · ${candidate.currentStep.name}`);
+    await expect(birthRow.locator('.ds-element')).toHaveText(`客气${candidate.currentStep.guestQi}`);
     await activate(page, page.getByRole('link', { name: '先天对照', exact: true }), input);
     await activate(page, page.getByRole('button', { name: '清空本次资料', exact: true }), input);
     await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();

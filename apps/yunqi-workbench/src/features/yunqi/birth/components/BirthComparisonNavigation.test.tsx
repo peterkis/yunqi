@@ -29,7 +29,7 @@ describe('birth classics navigation', () => {
     await screen.findByRole('table');
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(within(form).getByRole('radio', { name: '男' }));
+    await user.click(within(form).getByRole('radio', { name: '男性量表' }));
     await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
     expect(screen.getByLabelText('测试地址')).toHaveTextContent('/yunqi/constitution');
     await user.click(screen.getByRole('link', { name: '先天对照' }));
@@ -45,7 +45,7 @@ describe('birth classics navigation', () => {
     expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
-    expect(screen.getByRole('button', { name: '结束并销毁答卷' }).closest('.panel-shell__actions')).not.toBeNull();
+    expect(screen.getByRole('button', { name: '结束并销毁' }).closest('.constitution-answer-form .constitution-actions')).not.toBeNull();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(storage).not.toHaveBeenCalled();

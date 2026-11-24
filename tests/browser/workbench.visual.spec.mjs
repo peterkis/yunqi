@@ -70,6 +70,45 @@ for (const state of cases) {
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('height', inputHeight);
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('appearance', 'none');
     }
+    if (state.name === 'constitution-entry') {
+      const editions = page.getByRole('radiogroup', { name: '量表所用性别' });
+      const male = editions.getByRole('radio', { name: '男性量表' });
+      const female = editions.getByRole('radio', { name: '女性量表' });
+      const [left, right] = await Promise.all([male.boundingBox(), female.boundingBox()]);
+      expect(left.y).toBe(right.y);
+      expect(left.height).toBe(right.height);
+      expect(left.width).toBeCloseTo(right.width, 0);
+      expect(right.x).toBeGreaterThan(left.x + left.width);
+      await expect(male).not.toBeChecked();
+      await expect(female).not.toBeChecked();
+      const notes = page.locator('.constitution-notes > details > summary');
+      await expect(notes).toHaveCount(3);
+      const layout = await page.locator('.constitution-session[data-entry]').evaluate(session => {
+        const main = session.closest('main');
+        const cards = session.querySelector('.constitution-sex [role="radiogroup"]').getBoundingClientRect();
+        const privacy = session.querySelector('.constitution-session-footer').getBoundingClientRect();
+        const disclosures = session.querySelector('.constitution-notes').getBoundingClientRect();
+        return {
+          gap: privacy.top - cards.bottom, afterPrivacy: disclosures.top >= privacy.bottom,
+          bottomInset: main.getBoundingClientRect().bottom - disclosures.bottom,
+          padding: parseFloat(getComputedStyle(main).paddingBottom),
+        };
+      });
+      expect(layout.gap).toBeGreaterThanOrEqual(16);
+      expect(layout.gap).toBeLessThanOrEqual(40);
+      expect(layout.afterPrivacy).toBe(true);
+      expect(layout.bottomInset).toBeCloseTo(layout.padding, 0);
+      for (const summary of await notes.all()) {
+        const arrow = () => summary.evaluate(el => getComputedStyle(el, '::after').transform);
+        const closed = await arrow();
+        expect(closed).not.toBe('none');
+        await summary.press('Enter');
+        expect(await arrow()).not.toBe(closed);
+        await summary.press('Space');
+      }
+      await page.getByRole('main').evaluate(el => { el.scrollTop = 0; });
+      await page.locator(':focus').evaluateAll(nodes => nodes.forEach(node => node.blur()));
+    }
     if (state.name === 'birth-entry') {
       await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
       if (acceptanceTheme === 'dark') {
@@ -137,7 +176,7 @@ for (const state of cases) {
           await expectConstitutionResults(page, data);
         }
       } else {
-        await page.getByRole('radio', { name: '男', exact: true }).click();
+        await page.getByRole('radio', { name: '男性量表', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
         // F4 first-screen reference: five answers retained, editing question 5.
@@ -260,10 +299,10 @@ for (const state of cases) {
       expect(controls.primary.map(control => control.label)).toEqual(labels);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
-      const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
+      const destroy = page.getByRole('button', { name: '结束并销毁', exact: true });
       await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
       if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
-      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(state.questionnaire && !state.constitutionResult ? 0 : 1);
       await expectConstitutionDisclosures(page, testInfo, Boolean(state.constitutionResult));
     }
     if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {

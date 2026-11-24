@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { InlineText } from '../../../components/design/InlineText';
+import { MoreRowSummary } from '../../../components/design/MoreRow';
 import { ElementDot } from '../../../components/design/ElementDot';
 import { SegmentedText } from '../../../components/design/SegmentedText';
 import type { ConstitutionAssessmentViewModel, ConstitutionContextViewModel } from '../presentation/map-constitution';
@@ -75,7 +76,7 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
         <p className="constitution-meta">体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。</p>
       </section>
       <div className="constitution-notes">
-        <details className="constitution-disclosure"><summary>判定说明与边界</summary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
+        <details className="constitution-disclosure"><MoreRowSummary>判定说明与边界</MoreRowSummary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
         {children}
       </div>
     </section>

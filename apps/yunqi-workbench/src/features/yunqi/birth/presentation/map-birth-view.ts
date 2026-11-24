@@ -119,7 +119,7 @@ export function mapBirthYearView(value: BirthYearComparisonDto): BirthPageViewMo
       rows, annualReadings, periodReadings: [], calculationTimes: [{ label: '可计算区间', start: from, end: until }],
       excerpts: annualReadings.map((item, index) => ({ ...item, label: item.card.heading,
         element: candidate.annualPassages[index].scope === 'annual-movement' ? element : mapQiElement(sitian) })),
-      yearSummary: `${candidate.ganzhi} · ${valueLabel}`, detail: `${valueLabel} · 司天${sitian} · 在泉${zaiquan}`, element };
+      movementLabel: valueLabel, detail: `${valueLabel} · 司天${sitian} · 在泉${zaiquan}`, element };
   });
   return {
     comparison: { birthPrecision: 'year', current, candidates, ambiguous: candidates.length > 1, message: value.message },

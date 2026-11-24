@@ -10,13 +10,14 @@ it('preserves annual precision and the same snapshot in the table, readings and 
   const user = userEvent.setup();
   const current = createLearningDto();
   const facts = current.facts;
-  const candidate = {
-    year: 1980, ganzhi: '庚申', suiYun: facts.suiYun, sitian: facts.sixQi.sitian, zaiquan: facts.sixQi.zaiquan,
+  const candidate: BirthYearComparisonDto['candidates'][number] = {
+    year: 1980, ganzhi: '庚申', suiYun: { ...facts.suiYun, element: '金', state: '太过', tone: '太商' }, sitian: facts.sixQi.sitian, zaiquan: facts.sixQi.zaiquan,
     label: '大寒交节起', from: facts.interval.start, until: facts.interval.end, annualPassages: current.annualPassages,
     comparisons: ['中运对照', '司天对照', '在泉对照'].map(title => ({ ...current.annualRelation, title, label: '同五行' })),
   };
   const result: BirthYearComparisonDto = { birthPrecision: 'year', current, message: '年度候选',
-    candidates: [{ ...candidate, year: 1979, ganzhi: '己未', label: '大寒交节前' }, candidate] };
+    candidates: [{ ...candidate, year: 1979, ganzhi: '己未', label: '大寒交节前',
+      suiYun: { ...facts.suiYun, element: '土', state: '不及', tone: '少宫' } }, candidate] };
   const client = createClientStub({ compareBirthYear: vi.fn().mockResolvedValue(result) });
   render(<AppRoutes />, { wrapper: createTestWrapper(client, '/yunqi/birth') });
   await user.click(screen.getByRole('radio', { name: '按出生年份' }));
@@ -49,7 +50,18 @@ it('preserves annual precision and the same snapshot in the table, readings and 
   await user.click(screen.getByRole('button', { name: '返回' }));
   await user.click(screen.getByRole('link', { name: '体质量表' }));
   expect(await screen.findByRole('form', { name: '中医体质量表' })).toBeVisible();
-  expect(screen.getByRole('group', { name: /大寒交节前.*己未.*大寒交节起.*庚申/ })).toBeVisible();
+  const summary = screen.getByLabelText('当下与两个先天年度候选');
+  expect([...summary.querySelectorAll('dt')].map(term => term.textContent?.replaceAll('\u202f', ' ')))
+    .toEqual(['当下', '先天 大寒前', '先天 大寒起']);
+  for (const [index, candidate] of result.candidates.entries()) {
+    const column = summary.children[index + 1];
+    expect(column.querySelector('dt')).toHaveAttribute('title', `先天 · ${candidate.label}`);
+    expect(column.querySelector('.constitution-boundary-badge')).toHaveAttribute('data-boundary', index === 0 ? 'before' : 'from');
+    const fact = column.querySelector('dd')!;
+    expect(fact.querySelector('.constitution-context-period')).toHaveTextContent(candidate.ganzhi);
+    expect(fact.querySelector('.ds-element')).toHaveTextContent(`${candidate.suiYun.element}运${candidate.suiYun.state}`);
+    expect(fact.querySelector('.ds-element__dot')).toHaveClass(index === 0 ? 'ds-element__dot--earth' : 'ds-element__dot--metal');
+  }
   expect(client.getLearningCurrent).not.toHaveBeenCalled();
   await user.click(screen.getByRole('link', { name: '先天对照' }));
   await user.click(screen.getByRole('button', { name: /补全生日后查看/ }));

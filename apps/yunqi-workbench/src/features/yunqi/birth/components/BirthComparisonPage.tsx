@@ -11,17 +11,15 @@ import { useSessionVisible } from '../../../../components/layout/SessionVisibili
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import type { useBirthComparison } from '../hooks/useBirthComparison';
-import { AnswerDestroyedNotice } from '../../../constitution/components/AnswerDestroyedNotice';
 import { RelationReadingSummary } from '../../components/RelationReadingSummary';
 import { BirthRelationOverview } from './BirthRelationOverview';
 import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
-export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment, ended }: {
+export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment }: {
   readonly comparison: ReturnType<typeof useBirthComparison>;
   readonly onAssess: () => void;
   readonly onDiscardAssessment: () => void;
-  readonly ended: number;
 }) {
   const visible = useSessionVisible();
   const guideId = useId();
@@ -34,7 +32,6 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
   const navigate = useNavigate();
   const readingLink = useRef<HTMLAnchorElement>(null);
   const wasReading = useRef(false);
-  const assessmentButton = useRef<HTMLButtonElement>(null);
   const editButton = useRef<HTMLButtonElement>(null);
   const sheetOpener = useRef<HTMLButtonElement | null>(null);
   const [editor, setEditor] = useState<{ original: BirthDraft; focus: BirthSlot }>();
@@ -103,12 +100,11 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
     if (wasReading.current && !reading && visible) readingLink.current?.focus({ preventScroll: true });
     wasReading.current = reading;
   }, [reading, visible]);
-  useEffect(() => { if (ended) assessmentButton.current?.focus(); }, [ended]);
   return (
     <div className={reading ? 'birth-page birth-page--reading' : result ? 'birth-page' : 'birth-page birth-page--entry'}>
       {result && <PanelSummary viewModel={result.summary} />}
       {!reading && result && <PanelView actions={<div className="birth-actions" inert={editing || undefined} aria-hidden={editing || undefined}>
-        <Button ref={assessmentButton} disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={onAssess}>同时测评体质</Button>
+        <Button disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={onAssess}>同时测评体质</Button>
       </div>} />}
       {showForm && visible && !reading && <BirthEntryForm variant={editing ? 'sheet' : 'inline'} initialFocus={editor?.focus} draft={draft} onEdit={edit}
         onClear={clearDraft} cleared={cleared} onConfirm={submit} pending={pending} error={error}
@@ -162,7 +158,6 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
               </div>)}
               <p className="birth-notice">{BIRTH_NOTICE}</p>
             </section>
-            {ended > 0 && <AnswerDestroyedNotice key={ended} />}
             <details className="birth-technical">
               <summary>计算说明与版本</summary>
               <h3 className="birth-label">当下快照</h3>

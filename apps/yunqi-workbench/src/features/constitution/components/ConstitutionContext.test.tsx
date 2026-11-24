@@ -26,7 +26,10 @@ describe('ConstitutionContext', () => {
     const context = mapConstitutionContext(comparison.current, comparison);
     render(<><ConstitutionContext context={context} /><ConstitutionContextDetails context={context} /></>);
     const summary = screen.getByRole('complementary', { name: '本次测评对照背景' }).querySelectorAll('dd')[1];
-    expect(summary).toHaveTextContent(context.birth!.candidates[0].summary);
+    const candidate = context.birth!.candidates[0];
+    expect(summary.querySelector('.constitution-context-period')).toHaveTextContent(candidate.periodLabel);
+    expect(summary.querySelector('.ds-element')).toHaveTextContent(candidate.elementLabel);
+    expect(summary.querySelector('.ds-element__dot')).toHaveClass(`ds-element__dot--${candidate.element}`);
     expect(screen.queryByRole('link', { name: '未填写 · 去对照 ›' })).not.toBeInTheDocument();
     await user.click(screen.getByText('计算说明与版本'));
     const details = screen.getByText('计算说明与版本').closest('details')!;
@@ -40,6 +43,9 @@ describe('ConstitutionContext', () => {
     const context = mapConstitutionContext(comparison.current, { ...comparison, ambiguous: true,
       candidates: [...comparison.candidates, { ...comparison.candidates[0], label: '候选二' }] });
     render(<ConstitutionContext context={context} />);
-    expect(screen.getByText('2 个候选')).toHaveAttribute('aria-label', context.birth!.candidates.map((candidate) => `${candidate.label}：${candidate.summary}`).join('；'));
+    const candidates = screen.getByRole('group', { name: /候选二/ });
+    expect(within(candidates).getByText('2 个候选')).toBeVisible();
+    expect(candidates).toHaveAccessibleName(context.birth!.candidates.map(c => `${c.label}：${c.periodLabel} · ${c.elementLabel}`).join('；'));
+    expect(candidates.querySelectorAll('.ds-element__dot')).toHaveLength(2);
   });
 });

@@ -27,9 +27,11 @@ interface Props {
 export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cleared, variant = 'inline', initialFocus = 'primary', pending, error }: Props) {
   const inputs = useRef<Partial<Record<BirthSlot, HTMLInputElement>>>({});
   const [slot, setSlot] = useState<BirthSlot>(initialFocus);
-  const [feedback, setFeedback] = useState<{ key: BirthSlot; message: string; prefix?: true }>();
-  const leadingZero = feedback?.prefix ? feedback.key : undefined;
-  const rejected = feedback?.prefix ? undefined : feedback;
+  const [feedback, setFeedback] = useState<{ key: BirthSlot; message: string; kind: 'prefix' | 'error' | 'retained' }>();
+  const leadingZero = feedback?.kind === 'prefix' ? feedback.key : undefined;
+  const rejected = feedback?.kind === 'error' ? feedback : undefined;
+  const retained = feedback?.kind === 'retained' ? feedback : undefined;
+  const inputBlocked = Boolean(leadingZero || rejected);
   const dialog = useRef<HTMLDialogElement>(null);
   const motion = useMotionLevel();
   const shake = useRef<Animation | undefined>(undefined);
@@ -53,7 +55,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const selected = matches?.length === 1 ? matches[0] : matches?.find(item => item.birthDate === draft.selected);
   const timeAvailable = Boolean(selected?.boundaries.length);
   const annualOnly = !draft.day && rejected?.key !== 'day' && !invalid && (!draft.month || Number(draft.month) > 0);
-  const allow = Boolean(!feedback && year && (annualOnly || (selected && (!timeAvailable || !draft.knowsTime || draft.time))));
+  const allow = Boolean(!inputBlocked && year && (annualOnly || (selected && (!timeAvailable || !draft.knowsTime || draft.time))));
   const ageMode = draft.mode === 'age';
 
   function focus(key: BirthSlot) {
@@ -79,9 +81,9 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     setFeedback(undefined);
     onEdit({ ...draft, selected: '', knowsTime: false, time: '', ...patch });
   }
-  function reject(key: BirthSlot, message: string) {
+  function reject(key: BirthSlot, message: string, kind: 'error' | 'retained' = 'error') {
     enterIntent.current = undefined;
-    setFeedback({ key, message });
+    setFeedback({ key, message, kind });
     shake.current?.cancel();
     if (motion === 'full') {
       shake.current = animateMotion(inputs.current[key]?.closest('label') ?? null, motion, [
@@ -97,12 +99,16 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
       if (leadingZero === key) reject(key, slotError(key, '00', draft, clock.today));
       else {
         enterIntent.current = undefined;
-        setFeedback({ key, prefix: true, message: '请继续输入 1–9，完成两位数录入' });
+        setFeedback({ key, kind: 'prefix', message: '请继续输入 1–9，完成两位数录入' });
       }
       return;
     }
     const message = slotError(key, raw, draft, clock.today);
-    if (message) { reject(key, message); return; }
+    if (message) {
+      const appendedDigit = raw.slice(0, -1) === draft[key] && /^\d$/.test(raw.slice(-1));
+      reject(key, message, complete && appendedDigit && !leadingZero ? 'retained' : 'error');
+      return;
+    }
     let value = raw;
     if (key !== 'primary' && raw.length === 1 &&
         (leadingZero === key || Number(raw) >= (key === 'month' ? 2 : 4))) value = '0' + raw;
@@ -111,7 +117,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     if (key === 'month' && value.length === 2 && Number(value) >= 1 && Number(value) <= 12) focus('day');
   }
   function backspace(key: BirthSlot) {
-    if (feedback?.key === key && (feedback.prefix || !draft[key])) {
+    if (feedback?.key === key && (leadingZero || !draft[key])) {
       setFeedback(undefined);
       return;
     }
@@ -160,7 +166,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     }
     if (event.key === 'Enter') {
       event.preventDefault();
-      if (feedback) return;
+      if (inputBlocked) return;
       if (request && !matches && !preview.failed) enterIntent.current = request;
       else confirm();
     }
@@ -184,9 +190,9 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     || (preview.failed ? '日期预览失败' : '') || (matches?.length === 0 ? '未找到可计算日期，请核对月日、历法或年份。' : '');
   const retry = !inputProblem && !error && (clock.failed ? clock.retry : preview.failed ? preview.retry : undefined);
   const ambiguous = !!matches && matches.length > 1 && !selected;
-  const tone = failure ? 'error' : ambiguous || selected?.boundaries.length ? 'attention' : 'normal';
+  const tone = failure ? 'error' : retained || ambiguous || selected?.boundaries.length ? 'attention' : 'normal';
   let hint = '先填年龄或出生年份，月日可稍后补全';
-  if (feedback?.prefix) hint = feedback.message;
+  if (feedback?.kind === 'prefix') hint = feedback.message;
   else if (!clock.today) hint = '正在获取当前年份…';
   else if (ambiguous) hint = '该农历月日在所填公历年内有多个匹配，请核对。';
   else if (complete) hint = '正在核对出生日期…';
@@ -213,7 +219,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
               aria-invalid={rejected?.key === key || key === 'day' && !!invalid || undefined} aria-describedby={statusId}
               inputMode="none" autoComplete="off" type="text" value={draft[key]} placeholder="—"
               onFocus={event => {
-                setFeedback(previous => previous?.prefix && previous.key !== key ? undefined : previous);
+                setFeedback(previous => previous?.kind === 'prefix' && previous.key !== key ? undefined : previous);
                 setSlot(key); event.target.select();
               }}
               onChange={event => enter(key, event.target.value, (event.nativeEvent as InputEvent).inputType?.startsWith('delete'))} onKeyDown={event => onSlotKey(event, key)}
@@ -233,25 +239,26 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
         </div>
         <div className="birth-entry__preview" data-tone={tone}>
           <div className="birth-entry__preview-copy" id={statusId} aria-live="polite">
+            {retained && !failure && <span>{retained.message}。 </span>}
             {retry ? <button type="button" onClick={() => void retry()}>{failure} · 重试</button>
               : failure ? <span role={error ? 'alert' : undefined}>{failure}</span>
-              : selected && !feedback ? <>
+              : selected && !inputBlocked ? <>
                 <span data-preview-date={selected.birthDate}>{selected.lunarLabel ? '农历' + selected.lunarLabel + ' · ' : '公历 '}{selected.birthDate}</span>
                 {!inline && <> · {selected.annualLabels.map(label => label.split(' · ')[0]).join('／')}</>}
                 {' · '}{timeAvailable ? '当日有交界' : '无交界'}
                 {inline && badge && (!ageMode || adjustment || draft.calendar === 'lunar') && <> · <span>{badge}</span></>}
               </> : hint}
           </div>
-          {!failure && !feedback && timeAvailable && <button type="button" className="birth-entry__time-toggle" aria-expanded={draft.knowsTime}
+          {!failure && !inputBlocked && timeAvailable && <button type="button" className="birth-entry__time-toggle" aria-expanded={draft.knowsTime}
             onClick={() => onEdit({ ...draft, knowsTime: !draft.knowsTime, time: '' })}>{draft.knowsTime ? '时刻不详' : '补录时刻 ›'}</button>}
         </div>
         {!failure && matches && matches.length > 1 && <fieldset className="birth-entry__matches"><legend>选择对应公历日期</legend>
           {matches.map(item => <label key={item.birthDate}><input type="radio" name={monthGroup} checked={draft.selected === item.birthDate}
             onChange={() => update({ selected: item.birthDate })} />{item.lunarLabel} · {item.birthDate}</label>)}
-          {!selected && <Button variant="text" disabled={!!feedback} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
+          {!selected && <Button variant="text" disabled={inputBlocked} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
         </fieldset>}
         {!failure && timeAvailable && draft.knowsTime && <p className="birth-entry__boundaries">{selected?.boundaries.map(item => item.label + ' ' + item.at.localTime.slice(11, 16)).join(' · ')}</p>}
-        {!failure && !feedback && timeAvailable && draft.knowsTime && <label className="birth-entry__time">出生时刻<input ref={hourField} type="time" step="1" value={draft.time}
+        {!failure && !inputBlocked && timeAvailable && draft.knowsTime && <label className="birth-entry__time">出生时刻<input ref={hourField} type="time" step="1" value={draft.time}
           onChange={event => onEdit({ ...draft, time: event.target.value })} /></label>}
       </fieldset>
       </div>
