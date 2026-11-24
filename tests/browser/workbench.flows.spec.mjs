@@ -507,6 +507,8 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByText('精确时刻', { exact: true })).toBeFocused();
+  await page.keyboard.press('Tab');
+  await expect(result.getByText('本次对照快照与候选区间', { exact: true })).toBeFocused();
   await expect(page.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
   await page.keyboard.press('Tab');
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true })).toBeFocused();

@@ -178,8 +178,7 @@ for (const embedded of [false, true]) {
       await expect(actions).toBeInViewport({ ratio: 1 });
       expect(await actions.boundingBox()).toEqual(bounds);
       expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
-      const lastContentTarget = embedded ? page.locator('.constitution-context-details > summary') : page.getByText('精确时刻', { exact: true });
-      await lastContentTarget.focus();
+      await result.getByText('本次对照快照与候选区间', { exact: true }).focus();
       await page.keyboard.press('Tab');
       await expect(actions.getByRole('button', { name: '返回修改', exact: true })).toBeFocused();
       await page.keyboard.press('Tab');
