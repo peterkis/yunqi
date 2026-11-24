@@ -78,3 +78,18 @@
 /* Keep the newly focused selector above the outgoing copy in the same panel
    stacking context, so its focus ring is visible from the first frame. */
 .constitution-sex { position: relative; z-index: calc(var(--z-popover) + 1); }
+[data-motion="full"] .constitution-sex-confirmation {
+  transition: opacity var(--motion-fast) var(--ease-standard),
+    transform var(--motion-slow) cubic-bezier(.2, .85, .28, 1.16),
+    display var(--motion-fast) allow-discrete;
+}
+[data-motion="full"] .constitution-sex-confirmation[hidden] {
+  opacity: 0; transform: translateY(calc(-1 * var(--space-1))) scale(.97);
+}
+@starting-style {
+  [data-motion="full"] .constitution-sex-confirmation:not([hidden]) {
+    opacity: 0; transform: translateY(calc(-1 * var(--space-1_5))) scale(.93, .85);
+  }
+}
+[data-motion="full"] .constitution-sex-confirmation__confirm { transition: transform var(--motion-fast) var(--ease-standard); }
+[data-motion="full"] .constitution-sex-confirmation__confirm:active { transform: scale(var(--motion-press-scale)); }

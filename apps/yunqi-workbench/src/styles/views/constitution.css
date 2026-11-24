@@ -236,19 +236,50 @@
   .constitution-edition-badge { outline: var(--constitution-hairline) solid CanvasText; }
 }
 .constitution-sex-confirmation {
-  margin-bottom: var(--space-3);
-  padding: var(--space-3);
-  border: var(--constitution-hairline) solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--surface-page);
-  color: var(--ink-secondary);
+  position: absolute; z-index: var(--z-popover); inset-inline: 0; top: calc(100% + var(--space-1));
+  display: flex; align-items: center; gap: var(--space-1_5); box-sizing: border-box;
+  padding: var(--space-1_5) var(--space-2) var(--space-1_5) var(--space-3);
+  border: var(--constitution-hairline) solid color-mix(in srgb, var(--confirm-hud-text) 12%, transparent);
+  border-radius: var(--radius-full); background: var(--confirm-hud-surface); color: var(--confirm-hud-text);
+  box-shadow: var(--shadow-float), var(--shadow-pill); transform-origin: 36% top;
   font-size: var(--ts-body);
 }
-.constitution-sex-confirmation p { margin: 0 0 var(--space-2); }
-.constitution-sex-confirmation > div { display: flex; gap: var(--space-2); }
+.constitution-sex-confirmation[hidden] { display: none; pointer-events: none; }
+.constitution-context:has(.constitution-sex-confirmation) { overflow: visible; }
+.constitution-sex-confirmation p {
+  display: flex; align-items: center; gap: var(--space-2); flex: 1; min-width: 0;
+  margin: 0; font-variant-numeric: tabular-nums;
+}
+.constitution-sex-confirmation p::before {
+  content: ''; flex: none; width: var(--dot-size); height: var(--dot-size); border-radius: 50%;
+  background: var(--confirm-hud-dot);
+}
+.constitution-sex-confirmation button {
+  flex: none; min-height: var(--segment-height); padding: 0 var(--space-2); border: 0;
+  border-radius: var(--radius-full); background: transparent; color: var(--confirm-hud-muted);
+  font: inherit; cursor: pointer;
+}
+.constitution-sex-confirmation button:hover { color: var(--confirm-hud-text); }
+.constitution-sex-confirmation button:focus-visible { outline-color: var(--confirm-hud-text); }
+.constitution-sex-confirmation .constitution-sex-confirmation__confirm {
+  padding-inline: var(--space-3); background: var(--confirm-hud-action);
+  color: var(--confirm-hud-text); font-weight: var(--type-body-strong-weight);
+}
+.constitution-sex-confirmation__confirm:hover { filter: brightness(.94); }
+@container workbench (width < 360px) {
+  .constitution-sex-confirmation {
+    inset-inline: calc(-1 * var(--space-2)); gap: var(--space-1); padding-inline: var(--space-2);
+    font-size: var(--ts-small);
+  }
+  .constitution-sex-confirmation p { gap: var(--space-1_5); }
+}
+@media (forced-colors: active) {
+  .constitution-sex-confirmation { border-color: CanvasText; }
+  .constitution-sex-confirmation button { border: var(--constitution-hairline) solid ButtonText; }
+}
 .constitution-meta,
 .constitution-session-footer { margin: 0; color: var(--ink-tertiary); font-size: var(--ts-small); line-height: var(--type-caption-line); }
-.constitution-progress-header { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); color: var(--ink-tertiary); font-size: var(--ts-small); }
+.constitution-progress-header { position: relative; display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); color: var(--ink-tertiary); font-size: var(--ts-small); }
 .constitution-position { flex: none; font-variant-numeric: tabular-nums; }
 .constitution-position b { color: var(--ink-primary); font-size: var(--ts-body); font-weight: var(--type-body-strong-weight); }
 .constitution-dimensions { padding: var(--space-2_5) var(--space-3) var(--space-3); border-top: var(--constitution-hairline) solid var(--border-subtle); }

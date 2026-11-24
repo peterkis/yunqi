@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { ArrowLeft, ArrowRight, Mars, Venus } from 'lucide-react';
 import { Button } from '../../../components/design/Button';
 import { InlineText } from '../../../components/design/InlineText';
@@ -15,6 +15,7 @@ import { ConstitutionResults } from './ConstitutionResults';
 import { ConstitutionActionBar } from './ConstitutionActionBar';
 import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 import { ConstitutionDimension } from './ConstitutionDimension';
+import { FloatingConfirmHud } from './FloatingConfirmHud';
 import { fadeDestroyedAnswer } from './destroy-answer-visual';
 
 export const ANSWER_HOLD_MS = 240;
@@ -56,9 +57,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   const headingRef = useRef<HTMLHeadingElement>(null);
   const sexRef = useRef<HTMLFieldSetElement>(null);
   const changeSexRef = useRef<HTMLButtonElement>(null);
-  const cancelSexRef = useRef<HTMLButtonElement>(null);
   const focusSex = useRef(false);
-  const focusChangeSex = useRef(false);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   // A delayed advance must not pull focus back if the user has moved elsewhere
   // (e.g. drilled into 原文 and returned) during ANSWER_HOLD_MS.
@@ -94,14 +93,8 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
       focusSex.current = false;
     }
   }, [sex, questionIndex, mutation.result !== undefined]);
-  useLayoutEffect(() => {
-    if (!visible) return;
-    if (confirmingSexChange) cancelSexRef.current?.focus();
-    else if (focusChangeSex.current) {
-      changeSexRef.current?.focus();
-      focusChangeSex.current = false;
-    }
-  }, [confirmingSexChange]);
+  const dismissSexChange = useCallback(() => setConfirmingSexChange(false), []);
+  useEffect(() => { if (!visible) dismissSexChange(); }, [visible, dismissSexChange]);
 
   function resetScoring() {
     revision.current += 1;
@@ -133,13 +126,9 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
 
   function requestSexChange() {
     cancelAdvance();
+    setConfirmingEnd(false);
     if (completed === 0) clearSex();
-    else setConfirmingSexChange(true);
-  }
-
-  function cancelSexChange() {
-    focusChangeSex.current = true;
-    setConfirmingSexChange(false);
+    else setConfirmingSexChange(open => !open);
   }
 
   function end() {
@@ -167,7 +156,8 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   }
 
   function answer(value: number) {
-    if (!question || mutation.isPending || confirmingSexChange) return;
+    if (!question || mutation.isPending) return;
+    dismissSexChange();
     cancelEnd();
     cancelAdvance();
     resetScoring();
@@ -199,7 +189,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   }
 
   function score(submittedAnswers: Readonly<Record<string, number>>) {
-    if (mutation.isPending || submitting.current || mutation.result || confirmingSexChange) return;
+    if (mutation.isPending || submitting.current || mutation.result) return;
     if (sex === '') {
       setError('请先选择量表所用性别。');
       sexRef.current?.focus();
@@ -226,7 +216,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
     event.preventDefault();
     // A native submit may validate an incomplete form or retry a failed request.
     // The final answer owns the only automatic submission after its hold.
-    if (!confirmingEnd && (!hasSession || completed < questions.length || mutation.isError)) score(answers);
+    if (!confirming && (!hasSession || completed < questions.length || mutation.isError)) score(answers);
   }
 
   const notes = <>
@@ -243,18 +233,18 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   </>;
   const disclosureRows = !mutation.result && <div className="constitution-notes">{notes}</div>;
   const answering = Boolean(question && !mutation.result);
-  const actions = hasSession ? <ConstitutionActionBar confirming={confirmingEnd} disabled={confirmingSexChange}
+  const actions = hasSession ? <ConstitutionActionBar confirming={confirmingEnd}
     onRequest={requestEnd} onCancel={cancelEnd} onDestroy={end}>
-    {answering && <Button variant="text" disabled={questionIndex === 0 || confirmingSexChange} onClick={previous}>
+    {answering && <Button variant="text" disabled={questionIndex === 0} onClick={previous}>
       <ArrowLeft aria-hidden="true" />上一题
     </Button>}
     {mutation.result && <Button variant="text" onClick={previous}><span aria-hidden="true">‹</span> 返回修改</Button>}
-    {complete && mutation.isError && <Button type="submit" form={formId} disabled={confirmingSexChange}>重新计分</Button>}
+    {complete && mutation.isError && <Button type="submit" form={formId}>重新计分</Button>}
   </ConstitutionActionBar> : undefined;
 
   return (
     <div className="constitution-session" data-entry={!hasSession || undefined} onKeyDown={(event) => {
-      if (confirming && event.key === 'Escape') { event.preventDefault(); if (confirmingEnd) cancelEnd(); else cancelSexChange(); }
+      if (confirmingEnd && event.key === 'Escape') { event.preventDefault(); cancelEnd(); }
     }}>
       <PanelView enabled={actionsEnabled}
         drilldown={mutation.result ? { title: '体质测评结果', onBack: previous } : undefined}
@@ -266,9 +256,14 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
               <div className="constitution-sex-summary">
                 <span>体质维度 · </span>
                 <span className="constitution-edition-badge" data-edition={sex}>{sex === 'male' ? '男性版' : '女性版'}</span>
-                <Button ref={changeSexRef} variant="text" disabled={mutation.isPending || confirmingSexChange} onClick={requestSexChange}>更换</Button>
+                <Button ref={changeSexRef} variant="text" disabled={mutation.isPending} onClick={requestSexChange}
+                  aria-haspopup={completed ? 'dialog' : undefined} aria-expanded={completed ? confirmingSexChange : undefined}
+                  aria-controls={completed ? confirmationId : undefined}>更换</Button>
               </div>
               <span className="constitution-position num" role="img" aria-label={progress.label} aria-live="polite">已答 <b>{progress.completed}</b> / {progress.total}</span>
+              {completed > 0 && <FloatingConfirmHud id={confirmationId} trigger={changeSexRef}
+                open={confirmingSexChange && visible} message={`更换将清空已作答的 ${completed} 题`}
+                onDismiss={dismissSexChange} onConfirm={clearSex} />}
             </div>
             <div className="constitution-progress-grid" role="list" aria-label="九种体质作答进度">
               {progress.dimensions.map((dimension) => <ConstitutionDimension key={dimension.id} dimension={dimension} />)}
@@ -281,14 +276,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
           <SegmentedControl label="量表所用性别" describedBy={helpId} value={sex} onChange={changeSex}
             segments={editions} slidingIndicator={false} />
         </fieldset> : null}
-        {confirmingSexChange ? <section className="constitution-sex-confirmation" role="group" aria-labelledby={confirmationId}>
-          <p id={confirmationId}>更换将清空已作答的 <span className="num">{completed}</span> 题</p>
-          <div>
-            <Button variant="secondary" onClick={clearSex}>确认</Button>
-            <Button ref={cancelSexRef} variant="text" onClick={cancelSexChange}>取消</Button>
-          </div>
-        </section> : null}
-        {hasSession && <div inert={confirmingSexChange || undefined}>
+        {hasSession && <div>
           {mutation.result ? (
             <ConstitutionResults assessment={mutation.result} context={context} reveal>{notes}</ConstitutionResults>
           ) : question ? (

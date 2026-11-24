@@ -5,14 +5,13 @@ import { useSessionVisible } from '../../../components/layout/SessionVisibility'
 
 interface Props {
   readonly confirming: boolean;
-  readonly disabled: boolean;
   readonly onRequest: () => void;
   readonly onCancel: () => void;
   readonly onDestroy: () => void;
   readonly children: ReactNode;
 }
 
-export function ConstitutionActionBar({ confirming, disabled, onRequest, onCancel, onDestroy, children }: Props) {
+export function ConstitutionActionBar({ confirming, onRequest, onCancel, onDestroy, children }: Props) {
   const visible = useSessionVisible();
   const bar = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -55,7 +54,7 @@ export function ConstitutionActionBar({ confirming, disabled, onRequest, onCance
       <Button variant="secondary" data-confirm-destroy onClick={onDestroy}>确认销毁</Button>
     </div> : <div key="edit" className="constitution-actions__state">
       {children}
-      <Button ref={trigger} variant="secondary" data-request-destroy disabled={disabled} onClick={onRequest}>
+      <Button ref={trigger} variant="secondary" data-request-destroy onClick={onRequest}>
         <Trash2 aria-hidden="true" />结束并销毁
       </Button>
     </div>}

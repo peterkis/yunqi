@@ -2,6 +2,11 @@
 :root,
 [data-theme="light"] {
   --surface-page: #fbfaf7;
+  --confirm-hud-surface: #1e332b;
+  --confirm-hud-text: #f5f8f6;
+  --confirm-hud-muted: #aec1b7;
+  --confirm-hud-dot: #e6a447;
+  --confirm-hud-action: #b84c2b;
   --countdown-bg: #f7f0e5;
   --countdown-fg: #805528;
   --sheet-scrim: rgba(29,35,32,0.35);
@@ -178,6 +183,11 @@
 
 [data-theme="dark"] {
   --surface-page: #151816;
+  --confirm-hud-surface: #274036;
+  --confirm-hud-text: #f5f8f6;
+  --confirm-hud-muted: #b8c9bf;
+  --confirm-hud-dot: #edb458;
+  --confirm-hud-action: #b84c2b;
   --countdown-bg: #352c24;
   --countdown-fg: #e8c29a;
   --sheet-scrim: rgba(8,14,11,0.60);

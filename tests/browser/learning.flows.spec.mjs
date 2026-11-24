@@ -283,7 +283,7 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
 });
 
 for (const theme of ['light', 'dark']) {
-  test(`constitution gender change: ${theme} inline confirmation, cancellation, Escape and empty answers`, async ({ page, diagnostics }, testInfo) => {
+  test(`constitution gender change: ${theme} anchored confirmation, outside interaction, Escape and empty answers`, async ({ page, diagnostics }, testInfo) => {
     await page.goto('/yunqi/constitution');
     if (theme === 'dark') await page.getByRole('button', { name: '切换至深色主题', exact: true }).click();
     const gender = page.getByRole('radiogroup', { name: '量表所用性别', exact: true });
@@ -315,20 +315,46 @@ for (const theme of ['light', 'dark']) {
     await page.keyboard.press('3');
     await expect(page.getByRole('form', { name: '中医体质量表', exact: true }).locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
     const change = page.getByRole('button', { name: '更换', exact: true });
-    const confirmation = page.getByRole('group', { name: '更换将清空已作答的 1 题', exact: true });
-    for (const method of ['button', 'Escape']) {
+    const confirmation = page.getByRole('alertdialog', { name: '更换将清空已作答的 1 题', exact: true });
+    const question = page.locator('.constitution-question-header:visible');
+    const hudNode = page.locator('.constitution-sex-confirmation').filter({ has: page.getByText('更换将清空已作答的 1 题', { exact: true }) });
+    await hudNode.evaluate(node => {
+      node.addEventListener('transitionrun', event => {
+        if (event.target === node && event.propertyName === 'transform') node.dataset.testSawExpansion = 'yes';
+      }, { passive: true });
+    });
+    for (const method of ['button', 'Escape', 'outside']) {
+      const before = await question.boundingBox();
       await change.click();
       await expect(confirmation).toBeVisible();
       await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
+      await waitForAnimations(page);
+      if (testInfo.project.use.motionMode === 'full') await expect(confirmation).toHaveAttribute('data-test-saw-expansion', 'yes');
+      else await expect(confirmation).not.toHaveAttribute('data-test-saw-expansion', 'yes');
+      expect(await question.boundingBox()).toEqual(before);
+      const [trigger, hud] = await Promise.all([change.boundingBox(), confirmation.boundingBox()]);
+      expect(hud.y).toBeGreaterThanOrEqual(trigger.y + trigger.height);
+      expect(hud.y - trigger.y - trigger.height).toBeLessThan(20);
+      expect(trigger.x).toBeGreaterThanOrEqual(hud.x);
+      expect(trigger.x).toBeLessThan(hud.x + hud.width);
       await checkAccessibility(page, testInfo);
       await screenshot(page, testInfo, `constitution-gender-confirmation-${theme}-${method}`);
       if (method === 'button') await page.getByRole('button', { name: '取消', exact: true }).click();
+      else if (method === 'outside') await question.click();
       else await page.keyboard.press('Escape');
       await expect(confirmation).toHaveCount(0);
-      await expect(change).toBeFocused();
+      if (method !== 'outside') await expect(change).toBeFocused();
       await expect(page.getByRole('form', { name: '中医体质量表', exact: true }).locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 2 题/);
       await expect(page.getByRole('img', { name: /已答 1 \/ 26/ })).toBeVisible();
     }
+    await change.click();
+    const option = page.getByRole('radio', { name: '4 经常（相当）', exact: true });
+    await option.click();
+    await expect(confirmation).toHaveCount(0);
+    await expect(page.getByRole('img', { name: /已答 2 \/ 26/ })).toBeVisible();
+    await expect(page.locator('.constitution-position:visible')).toHaveAttribute('aria-label', /当前第 3 题/);
+    await page.getByRole('button', { name: '上一题', exact: true }).click();
+    await expect(option).toBeChecked();
     await page.getByRole('button', { name: '上一题', exact: true }).click();
     await expect(page.getByRole('radio', { name: '3 有时（有些）', exact: true })).toBeChecked();
     await change.click();

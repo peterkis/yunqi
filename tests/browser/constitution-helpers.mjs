@@ -66,7 +66,7 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
 export async function changeConstitutionSex(scope, sex, answered) {
   await scope.getByRole('button', { name: '更换', exact: true }).click();
   if (answered > 0) {
-    await expect(scope.getByRole('group', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
+    await expect(scope.getByRole('alertdialog', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
     await scope.getByRole('button', { name: '确认', exact: true }).click();
   }
   await expect(scope.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();

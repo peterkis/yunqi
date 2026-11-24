@@ -144,17 +144,18 @@ describe('ConstitutionForm', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
-  it('accepts one option click during destroy confirmation, including the final scoring answer', async () => {
+  it.each(['结束并销毁', '更换'])('accepts a final answer in one click while %s confirmation is open', async (trigger) => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const { client } = renderForm();
     await user.click(screen.getByRole('radio', { name: '男性量表' }));
     for (let i = 0; i < 7; i++) await answerByKey(user, '1');
-    await user.click(screen.getByRole('button', { name: '结束并销毁' }));
+    await user.click(screen.getByRole('button', { name: trigger }));
     const option = screen.getByRole('radio', { name: '3 有时（有些）' });
     await user.click(option);
     expect(option).toBeChecked();
     expect(option).toHaveFocus();
     expect(screen.queryByRole('button', { name: '确认销毁' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(client.assessConstitution).not.toHaveBeenCalled();
     act(() => { vi.advanceTimersByTime(ANSWER_HOLD_MS); });
     await screen.findByRole('region', { name: '体质测评结果' });
@@ -400,7 +401,7 @@ describe('ConstitutionForm', () => {
     await user.click(screen.getByRole('button', { name: '返回修改' }));
     expect(screen.getByRole('radio', { name: '3 有时（有些）' })).toBeChecked();
     await user.click(screen.getByRole('button', { name: '更换' }));
-    expect(screen.getByRole('group', { name: '更换将清空已作答的 8 题' })).toBeVisible();
+    expect(screen.getByRole('alertdialog', { name: '更换将清空已作答的 8 题' })).toBeVisible();
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '确认' }));
     expect(screen.queryByRole('img', { name: /已答/ })).not.toBeInTheDocument();
@@ -462,7 +463,7 @@ describe('ConstitutionForm', () => {
     const change = screen.getByRole('button', { name: '更换' });
     for (const cancel of ['button', 'Escape']) {
       await user.click(change);
-      expect(screen.getByRole('group', { name: '更换将清空已作答的 1 题' })).toBeVisible();
+      expect(screen.getByRole('alertdialog', { name: '更换将清空已作答的 1 题' })).toBeVisible();
       expect(screen.getByRole('button', { name: '取消' })).toHaveFocus();
       fireEvent.submit(screen.getByRole('form'));
       expect(client.assessConstitution).not.toHaveBeenCalled();
