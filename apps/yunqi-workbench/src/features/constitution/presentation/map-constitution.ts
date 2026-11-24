@@ -1,5 +1,5 @@
 import type { ConstitutionAssessmentDto, ConstitutionQuestionnaireDto } from '@yunqi/contracts';
-import type { BirthSessionComparison, LearningViewModel } from '../../yunqi/presentation/map-learning';
+import type { AnnualSnapshotValues, BirthSessionComparison, LearningViewModel, SnapshotElementValue } from '../../yunqi/presentation/map-learning';
 import type { ElementKind, YunQiTimeViewModel } from '../../yunqi/presentation/view-model';
 
 export type QuestionnaireSex = 'male' | 'female';
@@ -53,23 +53,26 @@ interface ConstitutionContextFactsViewModel {
   readonly yearSummary: string;
   readonly yearElement: ElementKind | undefined;
   readonly guestQiSummary: string;
-  readonly detail: string;
-  readonly qiDetail: string;
-  readonly movementDetail: string;
+  readonly annual: AnnualSnapshotValues;
+  readonly stages: readonly { readonly name: string; readonly host: SnapshotElementValue; readonly guest: SnapshotElementValue }[];
 }
 
 function contextFacts(learning: LearningViewModel) {
-  const { summary, currentStep } = learning.facts;
+  const { summary, currentStep, annualElements } = learning.facts;
+  const movement = learning.currentMovement;
+  const suiYun = { label: `${summary.suiYun.element}运${summary.suiYun.state}`, element: annualElements.suiYun };
   return {
     periodLabel: `${summary.stemBranch.ganzhi} · ${currentStep.name}`,
     elementLabel: `客气${currentStep.guestQi}`,
     element: currentStep.guestElement,
-    yearSummary: `${summary.stemBranch.ganzhi} · ${summary.suiYun.element}运${summary.suiYun.state}`,
-    yearElement: learning.facts.annualElements.suiYun,
+    yearSummary: `${summary.stemBranch.ganzhi} · ${suiYun.label}`,
+    yearElement: suiYun.element,
     guestQiSummary: `${currentStep.name} · 客气${currentStep.guestQi}`,
-    detail: `${summary.suiYun.element}运${summary.suiYun.state} · 司天${summary.sitian} · 在泉${summary.zaiquan}`,
-    qiDetail: `${currentStep.name} · 主气${currentStep.hostQi} · 客气${currentStep.guestQi}`,
-    movementDetail: `${learning.currentMovement.name} · 主运${learning.currentMovement.hostLabel} · 客运${learning.currentMovement.guestLabel}`,
+    annual: { suiYun, sitian: { label: summary.sitian, element: annualElements.sitian }, zaiquan: { label: summary.zaiquan, element: annualElements.zaiquan } },
+    stages: [
+      { name: currentStep.name, host: { label: currentStep.hostQi, element: currentStep.hostElement }, guest: { label: currentStep.guestQi, element: currentStep.guestElement } },
+      { name: movement.name, host: { label: movement.hostLabel, element: movement.hostElement }, guest: { label: movement.guestLabel, element: movement.guestElement } },
+    ],
   };
 }
 
@@ -82,8 +85,9 @@ export function mapConstitutionContext(current: LearningViewModel, comparison?: 
       ambiguous: comparison.ambiguous,
       precision: comparison.birthPrecision,
       candidates: comparison.birthPrecision === 'year' ? comparison.candidates.map(item => ({
-        ...item, periodLabel: item.birthGanzhi, elementLabel: item.movementLabel,
-        yearSummary: `${item.birthGanzhi} · ${item.movementLabel}`, yearElement: item.element, guestQiSummary: '', qiDetail: '', movementDetail: '',
+        label: item.label, from: item.from, until: item.until, annual: item.annual, stages: [],
+        periodLabel: item.birthGanzhi, elementLabel: item.annual.suiYun.label, element: item.annual.suiYun.element,
+        yearSummary: `${item.birthGanzhi} · ${item.annual.suiYun.label}`, yearElement: item.annual.suiYun.element, guestQiSummary: '',
       })) : comparison.candidates.map((candidate) => ({
         label: candidate.label, ...contextFacts(candidate.learning), from: candidate.from, until: candidate.until,
       })),

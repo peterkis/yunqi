@@ -90,7 +90,8 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   await expect(page.locator('form form')).toHaveCount(0);
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(page.locator(`.constitution-time-details .constitution-context-time time[datetime="${data.current.facts.input.localTime}"]`)).toHaveCount(1);
+  await expect(context.locator('dd').first()).toContainText(data.current.facts.currentStep.guestQi);
+  await expect(session.locator('.constitution-time-details')).toHaveText('精确时刻区间起点包含，终点不包含。');
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/questionnaire'))).toHaveLength(1);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(0);
   expect(diagnostics.requests.filter(request => request.url.endsWith('/learning/current'))).toHaveLength(0);
@@ -233,6 +234,7 @@ test('birth comparison retains every real boundary candidate, its canonical inte
   for (const [index, candidate] of data.candidates.entries()) {
     const row = candidateDetails.nth(index);
     await expect(row).toBeVisible();
+    await expect(row.locator('.constitution-snapshot__badge[data-boundary]')).toHaveText(`交界日 · ${candidate.label}`);
     await expect(row.locator('time').first()).toHaveAttribute('datetime', candidate.from.localTime);
     await expect(row.locator('time').last()).toHaveAttribute('datetime', candidate.until.localTime);
   }

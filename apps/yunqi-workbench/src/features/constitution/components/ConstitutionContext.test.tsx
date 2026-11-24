@@ -17,7 +17,7 @@ describe('ConstitutionContext', () => {
     const context = screen.getByRole('complementary', { name: '本次测评对照背景' });
     expect(context.querySelector('.ds-element__dot')).not.toBeNull();
     expect(within(context).getByRole('link', { name: '未填写 · 去对照 ›' })).toHaveAttribute('href', '/yunqi/birth');
-    expect(within(context).queryByText('计算说明与版本')).not.toBeInTheDocument();
+    expect(within(context).queryByText('精确时刻')).not.toBeInTheDocument();
   });
 
   it('shows a single birth summary and keeps full current/birth details in the bottom disclosures', async () => {
@@ -31,10 +31,10 @@ describe('ConstitutionContext', () => {
     expect(summary.querySelector('.ds-element')).toHaveTextContent(candidate.elementLabel);
     expect(summary.querySelector('.ds-element__dot')).toHaveClass(`ds-element__dot--${candidate.element}`);
     expect(screen.queryByRole('link', { name: '未填写 · 去对照 ›' })).not.toBeInTheDocument();
-    await user.click(screen.getByText('计算说明与版本'));
-    const details = screen.getByText('计算说明与版本').closest('details')!;
+    await user.click(screen.getByText('精确时刻'));
+    const details = screen.getByText('精确时刻').closest('details')!;
     expect(details).not.toHaveTextContent('北京时间 UTC+08');
-    expect(details).toHaveTextContent(context.current.contractId);
+    expect(within(details).getByText('区间起点包含，终点不包含。')).toBeVisible();
     expect(details).not.toHaveTextContent(/动效|frame-in-flight|no-view-transition/);
   });
 

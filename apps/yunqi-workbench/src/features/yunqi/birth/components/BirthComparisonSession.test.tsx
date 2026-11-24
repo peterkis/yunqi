@@ -79,7 +79,7 @@ describe('birth comparison assessment session', () => {
     await user.click(screen.getByText('本次对照快照与候选区间'));
     const notes = document.querySelector('.constitution-notes') as HTMLElement;
     expect(within(notes).getByRole('region', { name: '第二个可能归属' })).toBeVisible();
-    expect(notes.querySelector('.constitution-context-time time')).toHaveAttribute('datetime', dto.current.facts.input.localTime);
+    expect(within(notes).getByRole('region', { name: '当下快照' })).toHaveTextContent(dto.current.facts.sixQi.sitian);
     expect(form.parentElement?.closest('form')).toBeNull();
     await user.click(within(form).getByRole('radio', { name: '男性量表' }));
     await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);

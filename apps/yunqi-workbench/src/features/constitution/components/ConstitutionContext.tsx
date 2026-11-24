@@ -1,12 +1,10 @@
 import type { ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import { ElementDot } from '../../../components/design/ElementDot';
-import { InlineText } from '../../../components/design/InlineText';
 import { MoreRowSummary } from '../../../components/design/MoreRow';
 import { SegmentedText } from '../../../components/design/SegmentedText';
-import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
-import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import type { ConstitutionContextViewModel } from '../presentation/map-constitution';
+import { ConstitutionSnapshotCard } from './ConstitutionSnapshotCard';
 
 const annualBoundaryBadges = new Map([
   ['大寒交节前', { text: '大寒前', tone: 'before' }],
@@ -56,29 +54,18 @@ export function ConstitutionContextDetails({ context, showSnapshot = false }: { 
   const birth = context?.birth;
   return <>
       {context ? <details className="constitution-disclosure constitution-time-details">
-        <MoreRowSummary>计算说明与版本</MoreRowSummary>
-        <p className="constitution-context-time"><YunQiTimeDisplay value={context.current.time} variant="compact" /></p>
-        <YunQiTimeDetails entries={[
-          { label: '当下快照', start: context.current.time },
-          ...(birth ? birth.candidates.map((candidate) => ({ label: candidate.label, start: candidate.from, ...(birth.precision !== 'time' ? { end: candidate.until } : {}) })) : []),
-        ]} />
-        <p className="num"><InlineText>{`${context.current.contractId} · ${context.current.ruleVersion} · ${context.current.learningRuleVersion}`}</InlineText></p>
+        <MoreRowSummary>精确时刻</MoreRowSummary>
+        <p>区间起点包含，终点不包含。</p>
       </details> : null}
       {context && (birth || showSnapshot) ? <details className="constitution-disclosure constitution-context-details">
         <MoreRowSummary>本次对照快照与候选区间</MoreRowSummary>
-        <p><InlineText>{context.current.detail}</InlineText></p>
-        <p><InlineText>{context.current.qiDetail}</InlineText></p>
-        <p><InlineText>{context.current.movementDetail}</InlineText></p>
-        {!birth && <p>尚未填写先天对照，暂无出生候选区间。</p>}
-        {birth?.ambiguous ? <p>出生归属待核对，所有候选共用一份答卷，分别保留供医师参照。</p> : null}
-        {birth?.candidates.map((candidate, index) => <section className="constitution-birth-candidate" key={index} aria-label={candidate.label}>
-          <h4>{candidate.label}</h4>
-          <p><InlineText>{candidate.detail}</InlineText></p>
-          {candidate.qiDetail && <p><InlineText>{candidate.qiDetail}</InlineText></p>}
-          {candidate.movementDetail && <p><InlineText>{candidate.movementDetail}</InlineText></p>}
-          <p>{birth.precision !== 'time' ? '可能区间（起点含、终点不含）：' : '出生时刻：'}<YunQiTimeDisplay value={candidate.from} variant="compact" />
-            {birth.precision !== 'time' ? <> → <YunQiTimeDisplay value={candidate.until} variant="compact" /></> : null}</p>
-        </section>)}
+        <div className="constitution-snapshots">
+          <ConstitutionSnapshotCard kind="current" facts={context.current} />
+          {!birth && <p>尚未填写先天对照，暂无出生候选区间。</p>}
+          {birth?.ambiguous && <p>出生归属待核对，所有候选共用一份答卷，分别保留供医师参照。</p>}
+          {birth?.candidates.map(candidate => <ConstitutionSnapshotCard key={candidate.label} kind="birth" facts={candidate}
+            precision={birth.precision} ambiguous={birth.ambiguous} />)}
+        </div>
       </details> : null}
     </>;
 }

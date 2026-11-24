@@ -48,7 +48,7 @@ describe('constitution result and snapshot', () => {
     expect(parallel.lastElementChild?.textContent).toBe('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
     expect(result).not.toHaveTextContent(/风险|易患|预测|高危/);
     await user.click(screen.getByText('本次对照快照与候选区间'));
-    expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（起点含、终点不含）');
+    expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（含起不含终）');
     expect(screen.getByRole('region', { name: '候选二' }).querySelectorAll('time')).toHaveLength(2);
     expect(within(result).getByText(dto.summary)).not.toBeVisible();
     await user.click(within(result).getByText('判定说明与边界'));
@@ -139,23 +139,16 @@ describe('constitution result and snapshot', () => {
     expect(screen.queryByText(/所有候选共用/)).not.toBeInTheDocument();
   });
 
-  it('keeps current milliseconds and candidate boundaries inside calculation details', async () => {
+  it('shows only the interval convention when the time disclosure is expanded with a linked snapshot', async () => {
     const user = userEvent.setup();
     const comparison = mapBirthComparison(createBirthComparisonDto());
-    const mapped = mapConstitutionContext(comparison.current, comparison);
-    const context = { ...mapped, current: { ...mapped.current, time: { ...mapped.current.time, localTime: '2026-06-19T12:00:23.456+08:00' } } };
-    const { container } = render(<ConstitutionContextDetails context={context} />);
-    const current = container.querySelector('.constitution-context-time time');
-    expect(current).toHaveTextContent('06-19 12:00');
-    expect(current).toHaveAttribute('datetime', context.current.time.localTime);
-    const details = screen.getByText('计算说明与版本').closest('details')!;
+    render(<ConstitutionContextDetails context={mapConstitutionContext(comparison.current, comparison)} />);
+    const summary = screen.getByText('精确时刻');
+    const details = summary.closest('details')!;
     expect(details).not.toHaveAttribute('open');
-    await user.click(screen.getByText('计算说明与版本'));
-    expect(within(details).getByText('2026-06-19 12:00:23.456')).toBeVisible();
-    expect(details).toHaveTextContent(context.current.ruleVersion);
-    expect([...details.querySelectorAll<HTMLTimeElement>('.yunqi-time-details time')].map((time) => time.dateTime)).toEqual([
-      context.current.time.localTime,
-      comparison.candidates[0].from.localTime, comparison.candidates[0].until.localTime,
-    ]);
+    await user.click(summary);
+    expect(details).toHaveAttribute('open');
+    expect(details).toHaveTextContent(/^精确时刻区间起点包含，终点不包含。$/);
+    expect(details.querySelector('time')).toBeNull();
   });
 });

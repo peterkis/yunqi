@@ -108,7 +108,8 @@ export async function confirmConstitutionDestruction(page, keyboard = false) {
     await expect(confirm).toBeFocused();
     await page.keyboard.press('Enter');
   } else await confirm.click();
-  await expect(page.getByRole('status').filter({ hasText: '答卷已销毁' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  await expect(page.getByText('答卷已销毁', { exact: true })).toHaveCount(0);
 }
 
 export async function expectConstitutionResults(page, assessment, scope = page) {
@@ -172,7 +173,7 @@ export async function expectConstitutionDisclosures(scope, testInfo, result = fa
   const summaries = notes.locator(':scope > details > summary');
   const hasBirthDetails = await notes.locator('.constitution-context-details').count();
   await expect(summaries).toHaveText([
-    ...(result ? ['判定说明与边界'] : []), '量表来源与适用说明', '计算说明与版本',
+    ...(result ? ['判定说明与边界'] : []), '量表来源与适用说明', '精确时刻',
     ...(hasBirthDetails ? ['本次对照快照与候选区间'] : []),
   ]);
   await expect(scope.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);

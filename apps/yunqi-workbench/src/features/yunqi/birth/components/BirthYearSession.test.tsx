@@ -63,6 +63,15 @@ it('preserves annual precision and the same snapshot in the table, readings and 
     expect(fact.querySelector('.ds-element__dot')).toHaveClass(index === 0 ? 'ds-element__dot--earth' : 'ds-element__dot--metal');
   }
   expect(client.getLearningCurrent).not.toHaveBeenCalled();
+  await user.click(screen.getByText('本次对照快照与候选区间'));
+  for (const [index, candidate] of result.candidates.entries()) {
+    const card = screen.getByRole('region', { name: candidate.label });
+    expect(within(card).getAllByRole('term').map(term => term.textContent)).toEqual(['岁运', '司天', '在泉']);
+    expect(card.querySelector('.ds-element__dot')).toHaveClass(index === 0 ? 'ds-element__dot--earth' : 'ds-element__dot--metal');
+    expect(card).not.toHaveTextContent('交界日');
+    expect([...card.querySelectorAll('time')].map(time => time.textContent)).toEqual(
+      [candidate.from, candidate.until].map(value => value.localTime.slice(0, 16).replace('T', ' ')));
+  }
   await user.click(screen.getByRole('link', { name: '先天对照' }));
   await user.click(screen.getByRole('button', { name: /补全生日后查看/ }));
   expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('1980');

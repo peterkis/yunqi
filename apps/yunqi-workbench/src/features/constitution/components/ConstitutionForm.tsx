@@ -15,7 +15,6 @@ import { ConstitutionResults } from './ConstitutionResults';
 import { ConstitutionActionBar } from './ConstitutionActionBar';
 import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 import { ConstitutionDimension } from './ConstitutionDimension';
-import { AnswerDestroyedNotice } from './AnswerDestroyedNotice';
 import { fadeDestroyedAnswer } from './destroy-answer-visual';
 
 export const ANSWER_HOLD_MS = 240;
@@ -26,6 +25,9 @@ const editions = ([
 ] as const).map(({ value, title, Icon }) => ({
   value,
   label: <>
+    <span className="constitution-edition-art" data-edition={value} aria-hidden="true">
+      <Icon strokeWidth={2} focusable="false" />
+    </span>
     <span className="constitution-edition-icon" data-edition={value} aria-hidden="true"><Icon /></span>
     <strong className="constitution-edition-title">{title}</strong>
     <span className="constitution-edition-action" aria-hidden="true">开始作答 <ArrowRight /></span>
@@ -49,7 +51,6 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   const [error, setError] = useState<string | null>(null);
   const [confirmingSexChange, setConfirmingSexChange] = useState(false);
   const [confirmingEnd, setConfirmingEnd] = useState(false);
-  const [destroyed, setDestroyed] = useState(0);
   const [direction, setDirection] = useState<'forward' | 'backward'>('forward');
   const formRef = useRef<HTMLFormElement>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
@@ -144,7 +145,6 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
   function end() {
     fadeDestroyedAnswer(formRef.current, level);
     clearSex();
-    setDestroyed((value) => value + 1);
     onSessionChange?.(false);
   }
 
@@ -312,7 +312,6 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
         {mutation.isError ? <p role="alert" className="constitution-notice">测评暂未完成，请核对作答或稍后重新提交。</p> : null}
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
-      {destroyed > 0 ? <AnswerDestroyedNotice key={destroyed} /> : null}
       {hasSession && disclosureRows}
       {(!hasSession || mutation.result) && <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>}
       {!hasSession && disclosureRows}

@@ -81,6 +81,15 @@ for (const state of cases) {
       expect(right.x).toBeGreaterThan(left.x + left.width);
       await expect(male).not.toBeChecked();
       await expect(female).not.toBeChecked();
+      for (const [card, glyph] of [[male, 'mars'], [female, 'venus']]) {
+        const art = card.locator('.constitution-edition-art');
+        await expect(art).toHaveAttribute('aria-hidden', 'true');
+        await expect(art).toHaveCSS('pointer-events', 'none');
+        await expect(art).toHaveCSS('background-image', /^radial-gradient\(/);
+        const watermark = art.locator(`svg.lucide-${glyph}`);
+        await expect(watermark).toBeVisible();
+        await expect(watermark).toHaveCSS('stroke-width', '2px');
+      }
       const notes = page.locator('.constitution-notes > details > summary');
       await expect(notes).toHaveCount(3);
       const layout = await page.locator('.constitution-session[data-entry]').evaluate(session => {
@@ -99,12 +108,13 @@ for (const state of cases) {
       expect(layout.afterPrivacy).toBe(true);
       expect(layout.bottomInset).toBeCloseTo(layout.padding, 0);
       for (const summary of await notes.all()) {
-        const arrow = () => summary.evaluate(el => getComputedStyle(el, '::after').transform);
-        const closed = await arrow();
-        expect(closed).not.toBe('none');
+        const arrow = summary.locator('svg');
+        await expect(arrow).toBeVisible();
+        await expect(arrow).toHaveCSS('transform', 'none');
         await summary.press('Enter');
-        expect(await arrow()).not.toBe(closed);
+        await expect(arrow).toHaveCSS('transform', 'matrix(0, 1, -1, 0, 0, 0)');
         await summary.press('Space');
+        await expect(arrow).toHaveCSS('transform', 'none');
       }
       await page.getByRole('main').evaluate(el => { el.scrollTop = 0; });
       await page.locator(':focus').evaluateAll(nodes => nodes.forEach(node => node.blur()));
@@ -447,6 +457,40 @@ for (const state of cases) {
       targets: violation.nodes.map(node => node.target),
     }));
     expect.soft(violations, 'No automatically detected WCAG A/AA violations; full details in axe-results').toEqual([]);
+    if (state.name === 'current-stage-facts') {
+      const summary = page.locator('.current-technical > summary');
+      await summary.click();
+      const card = page.getByRole('region', { name: '精确时刻', exact: true });
+      await card.scrollIntoViewIfNeeded();
+      const current = (await (await currentResponse).json()).data;
+      for (const [group, count, active] of [['六步气', 6, current.facts.currentStep], ['五步运', 5, current.currentMovement]]) {
+        const sequence = card.getByRole('region', { name: group });
+        await expect(sequence.locator('ol > li')).toHaveCount(count);
+        await expect(sequence.locator('[aria-current="step"]')).toContainText(`${active.name}当前`);
+        await expect(sequence.locator('time').first()).toHaveCSS('font-family', /monospace/);
+      }
+      const rowsFit = await card.locator('ol > li').evaluateAll(rows => {
+        const columns = [...rows[0].querySelectorAll('time')].map(time => time.getBoundingClientRect().left);
+        return rows.every(row => {
+          const label = row.querySelector('.calculation-sequence__label').getBoundingClientRect();
+          const [start, end] = [...row.querySelectorAll('time')].map(time => time.getBoundingClientRect());
+          return label.right <= start.left && start.top === end.top && row.scrollWidth <= row.clientWidth + 1
+            && Math.abs(start.left - columns[0]) < 1 && Math.abs(end.left - columns[1]) < 1;
+        });
+      });
+      expect(rowsFit).toBe(true);
+      const headingLeft = (await card.locator('.ds-info-card__label').boundingBox()).x;
+      for (const row of [page.getByRole('link', { name: '指定时点', exact: true }), summary]) {
+        const textLeft = await row.evaluate(element => {
+          const range = document.createRange();
+          range.selectNodeContents(element.firstChild);
+          return range.getBoundingClientRect().left;
+        });
+        expect(Math.abs(textLeft - headingLeft)).toBeLessThanOrEqual(1);
+      }
+      await screenshot(page, testInfo, 'current-calculation-timeline');
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+    }
     if (state.name === 'birth-result') {
       await page.getByRole('button', { name: '这些关系怎么读？' }).click();
       const guide = page.locator('.birth-relation-details:visible');
@@ -459,3 +503,31 @@ for (const state of cases) {
     }
   });
 }
+
+test('@visual constitution snapshot cards retain each element and the leap-day interval', async ({ page, acceptanceTheme }, testInfo) => {
+  await page.goto('/yunqi/birth');
+  await fillBirthDate(page, '1980-02-29');
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
+  await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
+  if (acceptanceTheme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
+  const details = page.locator('.constitution-context-details');
+  await details.locator('summary').click();
+  await expect(details.getByRole('heading')).toHaveText(['当下快照', '先天快照']);
+  const cards = details.locator('.constitution-snapshot');
+  for (const card of await cards.all()) {
+    await expect(card.locator('.constitution-snapshot__annual dt')).toHaveText(['岁运', '司天', '在泉']);
+    await expect(card.locator('.constitution-snapshot__stages dd')).toHaveCount(4);
+    await expect(card.locator('.ds-element__dot')).toHaveCount(7);
+    await expect(card).toHaveCSS('background-image', /^linear-gradient/);
+    const metrics = await card.locator('.constitution-snapshot__annual dd').evaluateAll(nodes => nodes.map(el => el.getBoundingClientRect().top));
+    expect(new Set(metrics).size).toBe(1);
+  }
+  const birth = cards.last();
+  await expect(birth.locator('.constitution-snapshot__badge')).toHaveText('当日已知时段归属一致');
+  await expect(birth.locator('.constitution-snapshot__annual .ds-element__dot').first()).toHaveClass(/dot--metal/);
+  await expect(birth.locator('time')).toHaveText(['02-29 00:00', '03-01 00:00']);
+  await expect(birth.locator('time').first()).toHaveCSS('font-family', /monospace/);
+  await details.scrollIntoViewIfNeeded();
+  await screenshot(page, testInfo, 'constitution-snapshots-expanded');
+  expect((await scanAccessibility(page)).violations).toEqual([]);
+});

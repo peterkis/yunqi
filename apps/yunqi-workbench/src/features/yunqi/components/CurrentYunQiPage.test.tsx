@@ -247,7 +247,18 @@ describe('CurrentYunQiPage', () => {
       ...dto.facts.sixQi.steps.flatMap((step) => [step.start, step.end]),
       ...dto.movements.flatMap((step) => [step.start, step.end])];
     expect([...precision.querySelectorAll('time')].map((time) => time.dateTime)).toEqual(expectedTimes.map((time) => time.localTime));
-    for (const time of precision.querySelectorAll('time')) expect(time.textContent).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    const times = [...precision.querySelectorAll('time')];
+    expect(times[0].textContent).toBe(dto.facts.input.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    for (const time of times.slice(1, 3)) expect(time.textContent).toBe(time.dateTime.slice(0, 16).replace('T', ' '));
+    for (const time of times.slice(3)) {
+      expect(time.textContent).toBe(time.dateTime.slice(5, 19).replace('T', ' '));
+      expect(time.title).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    }
+    for (const [sequence, current] of [['六步气', dto.facts.currentStep.name], ['五步运', dto.currentMovement.name]]) {
+      const selected = within(precision).getByRole('region', { name: sequence }).querySelectorAll('[aria-current="step"]');
+      expect(selected).toHaveLength(1);
+      expect(selected[0]).toHaveTextContent(`${current}当前`);
+    }
     const ruleNotes = screen.getByRole('region', { name: '规则结果说明' });
     expect(ruleNotes).toHaveTextContent('本结果依据冻结规则计算。');
     expect(within(ruleNotes).getByText(dto.ruleVersion, { exact: true })).toBeVisible();

@@ -102,11 +102,12 @@ export function mapBirthYearView(value: BirthYearComparisonDto): BirthPageViewMo
     const { suiYun, sitian, zaiquan } = candidate;
     const element = mapMovementElement(suiYun.element);
     const valueLabel = `${suiYun.element}运${suiYun.state}`;
-    const birthFacts = [
-      { label: valueLabel, element, detail: [suiYun.tone] },
-      { label: sitian, element: mapQiElement(sitian), detail: [] },
-      { label: zaiquan, element: mapQiElement(zaiquan), detail: [] },
-    ];
+    const annual = {
+      suiYun: { label: valueLabel, element, detail: [suiYun.tone] },
+      sitian: { label: sitian, element: mapQiElement(sitian), detail: [] },
+      zaiquan: { label: zaiquan, element: mapQiElement(zaiquan), detail: [] },
+    };
+    const birthFacts = [annual.suiYun, annual.sitian, annual.zaiquan];
     const annualReadings = candidate.annualPassages.map(passage => reading(passage, '全年'));
     const from = mapYunQiTime(candidate.from);
     const until = mapYunQiTime(candidate.until);
@@ -119,7 +120,7 @@ export function mapBirthYearView(value: BirthYearComparisonDto): BirthPageViewMo
       rows, annualReadings, periodReadings: [], calculationTimes: [{ label: '可计算区间', start: from, end: until }],
       excerpts: annualReadings.map((item, index) => ({ ...item, label: item.card.heading,
         element: candidate.annualPassages[index].scope === 'annual-movement' ? element : mapQiElement(sitian) })),
-      movementLabel: valueLabel, detail: `${valueLabel} · 司天${sitian} · 在泉${zaiquan}`, element };
+      annual };
   });
   return {
     comparison: { birthPrecision: 'year', current, candidates, ambiguous: candidates.length > 1, message: value.message },

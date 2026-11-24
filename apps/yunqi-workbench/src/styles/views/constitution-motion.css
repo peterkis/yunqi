@@ -78,6 +78,3 @@
 /* Keep the newly focused selector above the outgoing copy in the same panel
    stacking context, so its focus ring is visible from the first frame. */
 .constitution-sex { position: relative; z-index: calc(var(--z-popover) + 1); }
-.constitution-destroyed-notice { position: sticky; bottom: var(--space-2); }
-:is([data-motion="full"], [data-motion="reduced"]) .constitution-destroyed-notice { transition: opacity var(--motion-fast) var(--ease-exit); }
-.constitution-destroyed-notice[data-dismissed="true"] { opacity: 0; }

@@ -159,6 +159,8 @@
   line-height: var(--type-meta-line);
 }
 .current-overview .current-more__list { margin: 0; padding: 0; list-style: none; }
+.current-more__list > li > .current-more__row,
+.current-more__list > li > details > .current-more__row { padding-inline: var(--space-3); }
 .current-more__list > li + li { border-top: var(--current-hairline) solid var(--border-subtle); }
 .current-all-stages > .ds-info-card,
 .current-technical > .ds-info-card { margin-top: var(--space-3); }
@@ -224,5 +226,3 @@
 .current-classics__source { display: inline-block; margin-top: var(--space-2); font-size: var(--ts-small); line-height: var(--type-meta-line); }
 .current-classics__notice { flex: none; margin: 0; }
 .current-classics .ds-quote-block__details > summary { min-height: var(--segment-height); }
-.current-technical .yunqi-time-details { display: grid; gap: var(--space-2); margin: var(--space-2) 0 0; }
-.current-technical .yunqi-time-details dd { margin: 0; }

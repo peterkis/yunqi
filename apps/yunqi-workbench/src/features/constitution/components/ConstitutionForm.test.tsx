@@ -121,7 +121,7 @@ describe('ConstitutionForm', () => {
     expect(screen.getByRole('img', { name: /已答 1/ })).toBeVisible();
   });
 
-  it('confirms destruction, cancels with Escape or button and announces for three seconds after immediate reset', async () => {
+  it('cancels with Escape or button and returns directly to the edition selector after confirmed destruction', async () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     renderForm();
     await user.click(screen.getByRole('radio', { name: '男性量表' }));
@@ -139,10 +139,8 @@ describe('ConstitutionForm', () => {
     await user.click(screen.getByRole('button', { name: '确认销毁' }));
     expect(screen.getByRole('radio', { name: '男性量表' })).toHaveFocus();
     expect(screen.getByRole('radio', { name: '男性量表' })).not.toBeChecked();
-    expect(screen.getByRole('status')).toHaveTextContent('答卷已销毁');
-    act(() => { vi.advanceTimersByTime(2999); });
-    expect(screen.getByRole('status')).toBeVisible();
-    act(() => { vi.advanceTimersByTime(1); });
+    expect(screen.getByRole('radio', { name: '女性量表' })).not.toBeChecked();
+    expect(screen.queryByText('答卷已销毁')).not.toBeInTheDocument();
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
@@ -172,14 +170,14 @@ describe('ConstitutionForm', () => {
     render(<ConstitutionForm questionnaire={questionnaire} context={mapConstitutionContext(mapLearning(createLearningDto()))} />,
       { wrapper: createTestWrapper(client, '/yunqi/constitution') });
     const summaries = () => [...document.querySelectorAll('.constitution-notes > details > summary')].map((summary) => summary.textContent);
-    expect(summaries()).toEqual(['量表来源与适用说明', '计算说明与版本', '本次对照快照与候选区间']);
+    expect(summaries()).toEqual(['量表来源与适用说明', '精确时刻', '本次对照快照与候选区间']);
     await user.click(screen.getByText('本次对照快照与候选区间'));
     expect(screen.getByText('尚未填写先天对照，暂无出生候选区间。')).toBeVisible();
     await user.click(screen.getByText('量表来源与适用说明'));
     expect(document.querySelector('.constitution-source > p')).toHaveTextContent(`${questionnaire.title} · ${questionnaire.version}`);
     await complete(user, '女');
     await screen.findByRole('region', { name: '体质测评结果' });
-    expect(summaries()).toEqual(['判定说明与边界', '量表来源与适用说明', '计算说明与版本']);
+    expect(summaries()).toEqual(['判定说明与边界', '量表来源与适用说明', '精确时刻']);
     expect(screen.queryByText('本次量表版本')).not.toBeInTheDocument();
     await user.click(screen.getByText('量表来源与适用说明'));
     const version = screen.getByText(`女性版 · ${dto.questionnaireId} · ${dto.version}`);

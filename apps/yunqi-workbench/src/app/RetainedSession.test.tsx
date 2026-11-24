@@ -169,7 +169,7 @@ describe('tab session retention', () => {
     await user.click(screen.getByRole('button', { name: '结束并销毁' }));
     await user.click(screen.getByRole('button', { name: '确认销毁' }));
     expect(screen.getByRole('radio', { name: '男性量表' })).toHaveFocus();
-    expect(screen.getByRole('status')).toHaveTextContent('答卷已销毁');
+    expect(screen.queryByText('答卷已销毁')).not.toBeInTheDocument();
     await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));
     await user.click(screen.getByRole('link', { name: '当下运气' }));

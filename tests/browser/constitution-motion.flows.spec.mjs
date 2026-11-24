@@ -5,6 +5,33 @@ import { expectedMotionLevel, expectMotionDurations } from './motion-helpers.mjs
 
 const ANSWER_HOLD_MS = 240;
 
+test('edition watermark responds to hover according to the motion setting', async ({ page, motionMode }) => {
+  const editions = page.getByRole('radiogroup', { name: '量表所用性别' });
+  async function checkHover(level) {
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', level);
+    const cards = editions.getByRole('radio');
+    await expect(cards).toHaveCount(2);
+    for (const card of await cards.all()) {
+      const watermark = card.locator('.constitution-edition-art svg');
+      await expect(watermark).toHaveCSS('transform', 'none');
+      if (level === 'full') await expect(watermark).toHaveCSS('transition-property', 'transform');
+      await card.hover();
+      await expect(watermark).toHaveCSS('transform', level === 'full' ? 'matrix(1.1, 0, 0, 1.1, -4, 2)' : 'none');
+      await page.mouse.move(0, 0);
+      await expect(watermark).toHaveCSS('transform', 'none');
+    }
+  }
+  await page.goto('/yunqi/constitution');
+  await checkHover(expectedMotionLevel(motionMode));
+  if (motionMode === 'reduced') {
+    await page.getByRole('link', { name: '当下运气', exact: true }).click();
+    await page.getByText('动效设置', { exact: true }).click();
+    await page.getByRole('radio', { name: '标准', exact: true }).click();
+    await page.getByRole('link', { name: '体质量表', exact: true }).click();
+    await checkHover('full');
+  }
+});
+
 async function activate(page, target, input, key = 'Enter') {
   if (input === 'mouse') await target.click();
   else { await target.focus(); await page.keyboard.press(key); }

@@ -45,11 +45,21 @@ test('current route redirects, renders canonical time and closes every stage dis
   await expectCompactTimes(page);
   await page.locator('.current-technical > summary').click();
   await expectMoreRows(page);
-  const precision = page.locator('.current-technical');
-  for (const value of [data.facts.input, data.facts.interval.start, data.facts.interval.end,
-    ...data.facts.sixQi.steps.flatMap(step => [step.start, step.end]),
-    ...data.movements.flatMap(step => [step.start, step.end])]) {
-    await expect(precision.locator(`time[datetime="${value.localTime}"]`).first()).toHaveText(value.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+  const precision = page.getByRole('region', { name: '精确时刻', exact: true });
+  const anchors = precision.locator('dl time');
+  await expect(anchors).toHaveText([data.facts.input.localTime.replace('T', ' ').replace(/\+08:00$/, ''),
+    ...[data.facts.interval.start, data.facts.interval.end].map(value => value.localTime.slice(0, 16).replace('T', ' '))]);
+  for (const [name, steps, active] of [['六步气', data.facts.sixQi.steps, data.facts.currentStep], ['五步运', data.movements, data.currentMovement]]) {
+    const list = precision.getByRole('region', { name, exact: true });
+    await expect(list.getByRole('listitem')).toHaveCount(steps.length);
+    await expect(list.locator('li[aria-current="step"]')).toContainText(`${active.name}当前`);
+    for (const [index, step] of steps.entries()) {
+      const endpoints = list.getByRole('listitem').nth(index).locator('time');
+      for (const [position, value] of [step.start, step.end].entries()) {
+        await expect(endpoints.nth(position)).toHaveAttribute('datetime', value.localTime);
+        await expect(endpoints.nth(position)).toHaveText(value.localTime.slice(5, 19).replace('T', ' '));
+      }
+    }
   }
   expect(diagnostics.requests).toHaveLength(1);
   await screenshot(page, testInfo, 'current-disclosures');
@@ -458,7 +468,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
-  await expect(page.getByText('计算说明与版本', { exact: true })).toBeFocused();
+  await expect(page.getByText('精确时刻', { exact: true })).toBeFocused();
   await expect(page.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
   await page.keyboard.press('Tab');
   await expect(page.locator('.panel-shell__actions').getByRole('button', { name: '返回修改', exact: true })).toBeFocused();

@@ -234,8 +234,11 @@ test('constitution workflow keeps its snapshot, prevents partial scoring and pre
   await expect(form).toBeVisible();
   const context = page.getByRole('complementary', { name: '本次测评对照背景', exact: true });
   await expect(context).toBeVisible();
-  await expect(page.locator('.constitution-time-details .constitution-context-time time')).toHaveCount(1);
-  await expect(page.locator('.constitution-time-details')).not.toContainText('北京时间 UTC+08');
+  const timing = page.locator('.constitution-time-details');
+  await timing.locator('summary').click();
+  await expect(timing.locator('p')).toBeVisible();
+  await expect(timing).toHaveText('精确时刻区间起点包含，终点不包含。');
+  await timing.locator('summary').click();
   await form.evaluate(element => element.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true })));
   await expect(page.getByRole('alert')).toContainText('请先选择量表所用性别');
   await page.getByRole('radio', { name: '男性量表', exact: true }).click();

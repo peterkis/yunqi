@@ -79,6 +79,17 @@ export interface BirthComparisonViewModel {
   }[];
 }
 
+export interface SnapshotElementValue {
+  readonly label: string;
+  readonly element: ElementKind | undefined;
+}
+
+export interface AnnualSnapshotValues {
+  readonly suiYun: SnapshotElementValue;
+  readonly sitian: SnapshotElementValue;
+  readonly zaiquan: SnapshotElementValue;
+}
+
 export interface AnnualBirthComparisonViewModel {
   readonly birthPrecision: 'year';
   readonly ambiguous: boolean;
@@ -89,9 +100,7 @@ export interface AnnualBirthComparisonViewModel {
     readonly from: YunQiTimeViewModel;
     readonly until: YunQiTimeViewModel;
     readonly birthGanzhi: string;
-    readonly movementLabel: string;
-    readonly detail: string;
-    readonly element: ElementKind;
+    readonly annual: AnnualSnapshotValues;
   }[];
 }
 export type BirthSessionComparison = BirthComparisonViewModel | AnnualBirthComparisonViewModel;

@@ -6,17 +6,16 @@ import { QuoteBlock } from '../../../components/design/QuoteBlock';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
 import { MotionSettings } from '../../../components/layout/MotionSettings';
-import { YunQiTimeDetails } from '../../../components/time/YunQiTimeDetails';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import { formatMotionDiagnostics } from '../../../lib/motion-diagnostics';
 import { useMotion } from '../../../providers/MotionProvider';
-import { mapCalculationTimes } from '../presentation/map-drilldown';
 import { mapPanelSummary } from '../presentation/panel-summary';
 import type { LearningViewModel } from '../presentation/map-learning';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
 import { CurrentElementValue, CurrentRelation, CurrentRelationReading, CurrentTimeRange } from './CurrentYunQiParts';
 import { SixQiTimeline } from './SixQiTimeline';
 import { CurrentPeriodGrid } from './CurrentPeriodGrid';
+import { CurrentCalculationTimeline } from './CurrentCalculationTimeline';
 import { RelationReadingSummary } from './RelationReadingSummary';
 import { YunQiWheel } from './YunQiWheel';
 
@@ -89,7 +88,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
 
         <li><details className="current-disclosure current-technical">
           <MoreRowSummary>计算说明与版本</MoreRowSummary>
-          <YunQiTimeDetails entries={mapCalculationTimes({ summary, stages: viewModel.timeline, inputTime: viewModel.inputTime, movements: learning.movements })} />
+          <CurrentCalculationTimeline learning={learning} />
           <InfoCard label="规则结果说明">
             <p className="current-copy">按本次计算结果逐条说明，供规则学习与核对。</p>
             <p className="current-meta">五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</p>
