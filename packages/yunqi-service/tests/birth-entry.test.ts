@@ -1,4 +1,5 @@
 import { afterAll, describe, expect, it } from 'vitest';
+import { hostname } from 'node:os';
 import { tyme4tsCalendarProvider } from '@yunqi/calendar-adapter-tyme4ts';
 import { buildApp } from '../src/app.js';
 import { normalizeApiDateTime } from '../src/modules/time-normalizer/index.js';
@@ -61,8 +62,15 @@ describe('civil birth entry', () => {
     try {
       const response = await broken.inject({ method: 'POST', url: '/api/v1/yunqi/learning/birth-year-comparison', payload: { year: 1980 } });
       expect(response.statusCode).toBe(503);
-      expect(lines).toContain('Calendar provider unavailable');
-      expect(lines).not.toMatch(/1980|private birth input/);
+      const metadata = { pid: process.pid, hostname: hostname(), time: expect.any(Number), reqId: 'req-1' };
+      const records = lines.trim().split('\n').map(line => JSON.parse(line));
+      expect(records).toEqual([
+        { ...metadata, level: 30, msg: 'incoming request', req: {
+          method: 'POST', url: '/api/v1/yunqi/learning/birth-year-comparison', host: 'localhost:80', remoteAddress: '127.0.0.1',
+        } },
+        { ...metadata, level: 50, msg: 'Calendar provider unavailable' },
+        { ...metadata, level: 30, msg: 'request completed', res: { statusCode: 503 }, responseTime: expect.any(Number) },
+      ]);
     } finally { await broken.close(); }
   });
   it('distinguishes ordinary, movement and Great Cold boundary days', async () => {
