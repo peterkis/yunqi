@@ -313,6 +313,10 @@
   --control-interaction-surface: var(--destroy-surface);
   -webkit-tap-highlight-color: transparent;
 }
+.panel-shell__actions:has(> .constitution-actions) {
+  /* The 44px confirmation row shares the shell's 64px action area. */
+  padding-block: var(--space-2_5);
+}
 .constitution-actions::before {
   content: '';
   position: absolute;
