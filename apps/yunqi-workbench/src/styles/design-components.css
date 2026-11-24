@@ -99,7 +99,7 @@
 .ds-button--secondary:hover:not(:disabled),
 .ds-button--text:hover:not(:disabled):where(:not(.motion-segments > *)),
 .ds-button--icon:focus-visible:not(:disabled) {
-  background: var(--surface-sunken);
+  background: var(--control-interaction-surface, var(--surface-sunken));
 }
 
 .ds-button:not(:focus-visible) { outline: none; }
@@ -421,19 +421,10 @@
 }
 
 .ds-panel-header__brand {
-  display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--chip-height);
-  height: var(--chip-height);
-  border-radius: var(--radius-xs);
-  background: var(--accent);
-  color: var(--accent-on);
-  font-family: var(--font-serif);
-  font-size: var(--ts-body);
-  line-height: var(--type-chip-line);
-  font-weight: var(--type-display-xl-weight);
+  width: var(--segment-height);
+  height: var(--segment-height);
+  background: url('/favicon.svg') center / contain no-repeat;
 }
 
 .ds-panel-header__text { flex: 1; min-width: 0; }

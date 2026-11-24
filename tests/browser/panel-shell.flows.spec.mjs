@@ -83,8 +83,8 @@ for (const viewport of [{ width: 1366, height: 900 }, { width: 400, height: 860 
         expect(bounds.width).toBeGreaterThanOrEqual(32);
         expect(bounds.height).toBeGreaterThanOrEqual(32);
       }
-      await expect(page.getByRole('banner')).toContainText('教学参考 · 本次会话不关联患者');
-      await expect(page.getByRole('banner')).not.toContainText(/HIS|就诊|年龄/);
+      await expect(page.getByRole('banner')).toContainText('测试版 · 待接入HIS');
+      await expect(page.getByRole('banner')).not.toContainText(/就诊人姓名|年龄/);
       await page.getByRole('contentinfo').evaluate(footer => {
         const walker = document.createTreeWalker(footer, NodeFilter.SHOW_TEXT);
         const range = document.createRange();

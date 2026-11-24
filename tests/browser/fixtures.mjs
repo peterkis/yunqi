@@ -226,7 +226,7 @@ export async function expectCompactTimes(page) {
       timeCopy: [main.textContent, ...[...main.querySelectorAll('[aria-label], [title]')].map(element =>
         [element.getAttribute('aria-label'), element.getAttribute('title')].join(' '))].join(' '),
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
-        dateTime: time.getAttribute('datetime'), text: time.textContent,
+        dateTime: time.getAttribute('datetime'), text: time.textContent, birthAnchor: Boolean(time.closest('.birth-time-anchors')),
       })),
     };
   });
@@ -236,7 +236,7 @@ export async function expectCompactTimes(page) {
   for (const time of snapshot.times) {
     expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);
     const [month, day, clock] = time.dateTime.slice(5, 16).split(/[-T]/);
-    expect(time.text).toBe(`${month}-${day} ${clock}`);
+    expect(time.text).toBe(time.birthAnchor ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
   }
 }
 

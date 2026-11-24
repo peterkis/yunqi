@@ -204,6 +204,21 @@
 .current-stage-navigation .ds-button { padding-inline: 0; font-size: var(--ts-small); }
 .current-stage-navigation [aria-current="step"] { color: var(--accent); font-weight: var(--type-body-strong-weight); }
 .current-stage-row__heading { display: flex; align-items: center; gap: var(--space-2); }
+.current-stage-badge {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: var(--space-0_5) var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--accent-muted);
+  color: var(--accent);
+  font-family: var(--font-sans);
+  font-weight: var(--type-body-strong-weight);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+}
+.current-period h3 > .current-stage-badge { margin-inline-start: var(--space-2); }
 .current-stage-row__heading h3 .ds-element { font: inherit; }
 .current-stage-row__heading .ds-button { margin-left: auto; padding-inline: var(--space-2); font-size: var(--ts-body); }
 .current-relation-facts { margin: var(--space-2) 0 0; }

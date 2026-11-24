@@ -408,5 +408,15 @@ for (const state of cases) {
       targets: violation.nodes.map(node => node.target),
     }));
     expect.soft(violations, 'No automatically detected WCAG A/AA violations; full details in axe-results').toEqual([]);
+    if (state.name === 'birth-result') {
+      await page.getByRole('button', { name: '这些关系怎么读？' }).click();
+      const guide = page.locator('.birth-relation-details:visible');
+      await expect(guide.getByRole('table', { name: '五维生克总览' }).getByRole('rowheader')).toHaveCount(5);
+      await expect(guide.getByRole('link')).toHaveCount(0);
+      await expect(guide.locator('.learning-source')).toHaveCount(1);
+      await guide.locator('.learning-source').scrollIntoViewIfNeeded();
+      await screenshot(page, testInfo, 'birth-relations-expanded');
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+    }
   });
 }

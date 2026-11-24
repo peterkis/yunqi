@@ -1,9 +1,7 @@
 import { Fragment, useId } from 'react';
 import { ElementDot } from '../../../../components/design/ElementDot';
-import { InlineText } from '../../../../components/design/InlineText';
 import { RelationChip } from '../../../../components/design/RelationChip';
-import { RelationSourceLinks } from '../../components/RelationSourceLinks';
-import { RelationReadingSummary } from '../../components/RelationReadingSummary';
+import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import type { BirthCandidateViewModel, BirthFactViewModel, BirthPageViewModel } from '../presentation/map-birth-view';
 
 function Fact({ value, dimension }: { readonly value: BirthFactViewModel; readonly dimension: string }) {
@@ -22,7 +20,7 @@ function Fact({ value, dimension }: { readonly value: BirthFactViewModel; readon
 
 export function BirthComparisonTable({ candidate, current }: {
   readonly candidate: BirthCandidateViewModel;
-  readonly current: Pick<BirthPageViewModel, 'currentGanzhi'>;
+  readonly current: Pick<BirthPageViewModel, 'currentGanzhi' | 'currentYear' | 'currentTime'>;
 }) {
   const tableId = useId();
   const birthColumnId = `${tableId}-birth`;
@@ -33,7 +31,7 @@ export function BirthComparisonTable({ candidate, current }: {
     <table className="birth-table" aria-label={`${candidate.label} · 先天与当下并列对照`}>
       <thead>
         <tr className="birth-table__columns">
-          <th scope="col" id={birthColumnId} className="birth-table__birth"><span className="birth-label">先天 · {candidate.birthYear}</span><span className="birth-table__year"><strong>{candidate.birthGanzhi}</strong></span></th>
+          <th scope="col" id={birthColumnId} className="birth-table__birth"><span className="birth-label">先天</span><span className="birth-table__year"><strong>{candidate.birthGanzhi}</strong></span></th>
           <th scope="col" id={relationColumnId} className="birth-table__axis-label">关系</th>
           <th scope="col" id={currentColumnId} className="birth-table__current"><span className="birth-label">当下</span><span className="birth-table__year"><strong>{current.currentGanzhi}</strong></span></th>
         </tr>
@@ -60,13 +58,9 @@ export function BirthComparisonTable({ candidate, current }: {
         })}
       </tbody>
     </table>
-    <details className="birth-relation-details">
-      <RelationReadingSummary />
-      {candidate.rows.map((row) => row.relation ? <div key={row.label}>
-        <h4 className="birth-label"><InlineText>{`${row.label} · ${row.relation.label}`}</InlineText></h4>
-        <p>{row.relation.explanation}</p>
-        <RelationSourceLinks sources={row.relation.sources} />
-      </div> : null)}
-    </details>
+    <dl className="birth-time-anchors">
+      <div><dt>运气年</dt><dd><span>先天 {candidate.birthYear}</span> · <span>当下 {current.currentYear}</span></dd></div>
+      <div><dt>当下时刻</dt><dd><YunQiTimeDisplay value={current.currentTime} variant="month-day" /></dd></div>
+    </dl>
   </>;
 }

@@ -27,7 +27,7 @@ export function PanelHeader(props: PanelHeaderProps) {
           返回
         </Button>
       ) : (
-        <span className="ds-panel-header__brand" aria-hidden="true">运</span>
+        <span className="ds-panel-header__brand" aria-hidden="true" />
       )}
       <div className="ds-panel-header__text">
         <h2 className="ds-panel-header__title">{props.title}</h2>

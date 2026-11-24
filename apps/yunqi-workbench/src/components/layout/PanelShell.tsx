@@ -133,10 +133,10 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </button>
         )}
         {/* Keep the route mounted so collapsing cannot destroy local form state. */}
-        <div className="panel-shell jade-surface" id="yunqi-panel" ref={shellRef} hidden={collapsed}>
+        <div className="panel-shell jade-surface" id="yunqi-panel" data-route={route.id} ref={shellRef} hidden={collapsed}>
           <a className="panel-shell__skip-link" href="#workbench-content" onClick={() => mainRef.current?.focus()}>跳至主要内容</a>
-          <PanelHeader title="运气通" status="教学参考 · 本次会话不关联患者" actions={<>
-            <Button variant="icon" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
+          <PanelHeader title="运气通" status="测试版 · 待接入HIS" actions={<>
+            <Button variant="icon" data-theme-toggle="" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
               {theme === 'light' ? <Moon ref={themeIcon} aria-hidden="true" /> : <Sun ref={themeIcon} aria-hidden="true" />}
             </Button>
             <Button ref={collapseRef} variant="icon" aria-label="收起为胶囊条" aria-expanded={!collapsed} aria-controls="yunqi-panel" onClick={collapse}>

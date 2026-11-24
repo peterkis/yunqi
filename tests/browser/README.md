@@ -108,7 +108,7 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 | --- | --- |
 | ① Current default | `current`, `current-stage-facts` (real calculated 2026-11-18 snapshot) |
 | ② Original text | `current-classics`, `annual-classics` |
-| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics`, `birth-annual-classics` |
+| ③ Birth/current | `birth-entry`, `birth-result` (also captures the expanded relation matrix and shared citation), `birth-boundary`, `birth-classics`, `birth-annual-classics` |
 | ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
 | ⑤ Constitution result / last question | `constitution-last-question`, `constitution-result`, `birth-assessment-last-question`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed-pill` in the panel matrix, plus `collapsed pill light` / `collapsed pill dark` in the pill project |

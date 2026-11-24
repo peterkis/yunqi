@@ -48,32 +48,21 @@ export async function expectRelationSources(disclosure) {
     await expect(source).toHaveCSS('font-size', '12px');
     const metrics = await source.evaluate(element => {
       const swatch = document.createElement('span');
-      const pill = element.parentElement.classList.contains('learning-sources--pills');
-      swatch.style.color = pill ? 'var(--accent)' : 'var(--ink-tertiary)';
+      swatch.style.color = 'var(--accent)';
       element.append(swatch);
       const result = {
-        color: getComputedStyle(element).color, tokenColor: getComputedStyle(swatch).color, pill,
+        color: getComputedStyle(element).color, tokenColor: getComputedStyle(swatch).color,
         width: element.getBoundingClientRect().width, rowWidth: element.parentElement.getBoundingClientRect().width,
       };
       swatch.remove();
       return result;
     });
     expect(metrics.color).toBe(metrics.tokenColor);
-    if (metrics.pill) {
-      expect(metrics.width).toBeLessThanOrEqual(metrics.rowWidth + 1);
-      await expect(source).not.toHaveAttribute('href');
-      await expect(source.locator('svg')).toHaveCount(0);
-      await expect(source).toHaveCSS('border-radius', '999px');
-      await expect(source).toHaveAttribute('title', /《.+》/);
-    } else {
-      expect(Math.abs(metrics.width - metrics.rowWidth)).toBeLessThanOrEqual(1);
-      await expect(source).toHaveAccessibleName(/新窗口打开$/);
-      await expect(source).toHaveAttribute('target', '_blank');
-      await expect(source).toHaveAttribute('rel', 'noreferrer');
-      await expect(source.locator('svg')).toHaveAttribute('aria-hidden', 'true');
-      await expect(source.locator('svg')).toHaveCSS('width', '12px');
-      await expect(source.locator('svg')).toHaveCSS('height', '12px');
-    }
+    expect(metrics.width).toBeLessThanOrEqual(metrics.rowWidth + 1);
+    await expect(source).not.toHaveAttribute('href');
+    await expect(source.locator('svg')).toHaveCount(0);
+    await expect(source).toHaveCSS('border-radius', '999px');
+    await expect(source).toHaveAttribute('title', /《.+》/);
   }
 }
 

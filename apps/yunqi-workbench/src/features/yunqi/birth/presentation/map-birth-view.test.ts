@@ -1,8 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { createBirthComparisonDto } from '../../../../test/learning-fixtures';
+import { birthRelationOverview } from './birth-relation-overview';
 import { mapBirthView } from './map-birth-view';
 
 describe('birth presentation', () => {
+  it('counts only recognized comparisons and keeps distinct source records and dimension-specific notes', () => {
+    const dto = createBirthComparisonDto();
+    const candidate = dto.candidates[0];
+    const original = candidate.comparisons[0];
+    const extra = { ...original.sources[0], id: 'another-source', title: '另一出处' };
+    const comparisons = [
+      { ...original, title: '中运对照', label: '当前克出生' },
+      { ...original, title: '客运对照', label: '新标签', explanation: '客运专属说明', sources: [...original.sources, extra] },
+    ];
+    const view = mapBirthView({ ...dto, candidates: [{ ...candidate, comparisons }] });
+    const guide = birthRelationOverview(view.candidates[0].rows);
+    expect(guide.counts).toEqual({ 相克: 1, 相生: 0, 同五行: 0 });
+    expect(guide.sources).toEqual([...original.sources, extra]);
+    expect(guide.explanations.get('客运专属说明')).toEqual(['所处运']);
+    expect(guide.entries[1]).toMatchObject({ direction: '—', label: '暂无说明', tone: 'neutral' });
+    expect(guide.entries[4]).toMatchObject({ direction: '—', label: '新标签', tone: 'neutral' });
+  });
+
   it('keeps the guest-movement birth comparison separate from the current host/guest movement relation', () => {
     const dto = createBirthComparisonDto();
     const base = dto.candidates[0];

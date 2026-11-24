@@ -13,6 +13,16 @@ for (const theme of ['light', 'dark']) {
   test(`craft: ${theme} API time typography, pointer/keyboard theme focus and development host`, async ({ page, motionMode }, testInfo) => {
     await loadCurrent(page);
     const toggle = page.getByRole('button', { name: /^切换至.+主题$/ });
+    const glyph = toggle.locator('svg');
+    await toggle.hover();
+    if (await page.locator('.theme-root').getAttribute('data-motion') === 'full') {
+      await expect(glyph).not.toHaveCSS('transform', 'none');
+    } else {
+      await expect(glyph).toHaveCSS('transform', 'none');
+    }
+    await expect(glyph).not.toHaveCSS('fill', 'none');
+    await page.mouse.move(0, 0);
+    await expect(glyph).toHaveCSS('transform', 'none');
     // End with a real mouse click into each theme, keeping the pointer over the
     // icon. A hover background must not masquerade as a retained focus state.
     if (theme === 'light') await toggle.click();
@@ -30,7 +40,7 @@ for (const theme of ['light', 'dark']) {
     await expect(toggle).toHaveCSS('outline-width', '2px');
     await expect(toggle).toHaveCSS('outline-offset', '2px');
     await expect(toggle).toHaveCSS('outline-color', rgb(surface('focus-ring')[theme]));
-    await expect(toggle).toHaveCSS('background-color', rgb(surface('surface-sunken')[theme]));
+    await expect(toggle).toHaveCSS('background-color', rgb(surface('accent-subtle')[theme]));
 
     await expect(page.locator('.current-overview__annual time').first()).toHaveCSS('font-variant-numeric', 'tabular-nums');
     for (const label of await page.locator('.current-overview .ds-info-card__label.num').all()) {

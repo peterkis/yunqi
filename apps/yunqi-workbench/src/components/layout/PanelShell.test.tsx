@@ -35,8 +35,8 @@ describe('PanelShell', () => {
     renderShell(route);
     const banner = screen.getByRole('banner');
     expect(banner).toHaveTextContent('运气通');
-    expect(banner).toHaveTextContent('教学参考 · 本次会话不关联患者');
-    expect(banner).not.toHaveTextContent(/HIS|就诊|姓名|年龄|TCM YunQi Lab/);
+    expect(banner).toHaveTextContent('测试版 · 待接入HIS');
+    expect(banner).not.toHaveTextContent(/姓名|年龄|TCM YunQi Lab/);
     const nav = screen.getByRole('navigation', { name: '工作台导航' });
     expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['当下运气', '先天对照', '体质量表']);
     expect(nav.querySelectorAll('[aria-current="page"]')).toHaveLength(route === '/' ? 0 : 1);

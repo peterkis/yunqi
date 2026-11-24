@@ -15,6 +15,12 @@ test('current route redirects, renders canonical time and closes every stage dis
   await expectMoreRows(page);
   const toggles = page.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
+  const badge = page.locator('.current-stage-row .current-stage-badge');
+  await expect(badge).toHaveCount(1);
+  await expect(badge).toHaveText('当前');
+  await expect(badge).toHaveCSS('border-radius', '999px');
+  await expect(page.locator('.current-stage-row').nth(data.facts.currentStep.index - 1)).toContainText('当前');
+  await expect(page.locator('.current-period .current-stage-badge')).toHaveText('正在此段');
   const elementByName = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
   for (let index = 0; index < 6; index += 1) {
     const step = data.facts.sixQi.steps[index];
@@ -140,7 +146,12 @@ test('annual entry, real year query, six-stage keyboard selection, history, relo
   await expect(page.locator('.drilldown-annual-summary')).toContainText('2025');
   await settle(page);
   expect(annualRequests()).toHaveLength(beforeReload + 1);
-  await page.getByRole('button', { name: '返回', exact: true }).click();
+  const back = page.getByRole('button', { name: '返回', exact: true });
+  await back.hover();
+  await expect(back).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await page.mouse.down();
+  await expect(back).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+  await page.mouse.up();
   await expect(page.locator('.current-technical time').first()).toHaveAttribute('datetime', '2024-01-20T22:07:22+08:00');
 });
 

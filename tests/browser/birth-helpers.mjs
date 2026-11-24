@@ -68,7 +68,8 @@ export async function expectBirthComparison(page, data) {
   for (const [index, candidate] of data.candidates.entries()) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
-    await expect(article.locator('.birth-table__meta')).toHaveCount(0);
+    const anchors = article.locator('.birth-time-anchors');
+    await expect(anchors.locator('time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
     await expect(table.getByRole('columnheader')).toHaveCount(3);
     await expect(table.getByRole('columnheader', { name: /^先天/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: '关系', exact: true })).toBeVisible();
@@ -76,7 +77,7 @@ export async function expectBirthComparison(page, data) {
     await expect(table.getByRole('rowheader')).toHaveCount(5);
     await expect(table.locator('thead time, thead .num')).toHaveCount(0);
     await expect(table.locator('.birth-table__year strong')).toHaveText([candidate.learning.facts.stemBranch.ganzhi, data.current.facts.stemBranch.ganzhi]);
-    await expect(table.getByRole('columnheader').first()).toContainText('先天 · ' + candidate.learning.facts.year);
+    await expect(anchors.locator('dd').first()).toHaveText(`先天 ${candidate.learning.facts.year} · 当下 ${data.current.facts.year}`);
     for (const [position, title] of dimensions.entries()) {
       const row = table.locator('tbody tr').nth(position);
       await expect(row.getByRole('rowheader', { name: names[position], exact: true })).toHaveAttribute('scope', 'row');
@@ -182,11 +183,17 @@ export async function expectBirthDetailSegments(page, testInfo) {
     for (const i of [0, 1]) expect(Math.abs(sides[0].lines[i][0].top - sides[1].lines[i][0].top)).toBeLessThanOrEqual(1);
     await testInfo.attach(`birth-detail-${name}`, { body: JSON.stringify(sides), contentType: 'application/json' });
   }
-  const summary = table.locator('..').locator('.birth-relation-details > summary');
+  const card = table.locator('..');
+  const summary = card.getByRole('button', { name: '这些关系怎么读？' });
+  const anchors = card.locator('.birth-time-anchors');
+  const columns = await anchors.locator('div').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
+  expect(columns[0].y).toBe(columns[1].y);
+  expect(columns[0].width).toBeCloseTo(columns[1].width, 0);
   await expect(summary).toHaveAccessibleName('这些关系怎么读？');
   const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
   expect(button.height).toBe(36);
-  expect(button.y - (grid.y + grid.height)).toBeCloseTo(14, 0);
+  const anchorBounds = await anchors.boundingBox();
+  expect(button.y - (anchorBounds.y + anchorBounds.height)).toBeCloseTo(14, 0);
   expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
   const icons = await summary.locator('svg').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
   expect(icons).toHaveLength(2);

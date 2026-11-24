@@ -77,7 +77,7 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
           <InfoCard label="五步运全表">
             {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
-              <h3>{step.name}{step.index === movement.index ? <span className="current-meta"><InlineText> · 正在此段</InlineText></span> : null}</h3>
+              <h3>{step.name}{step.index === movement.index ? <span className="current-stage-badge">正在此段</span> : null}</h3>
               <CurrentTimeRange start={step.start} end={step.end} />
               <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
               <RelationChip tone={step.relation.tone} label={step.relation.label} explanation={step.relation.explanation} />

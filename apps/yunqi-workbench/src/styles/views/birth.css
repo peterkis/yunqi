@@ -235,28 +235,98 @@
 }
 .birth-table__birth .birth-table__detail { justify-content: flex-end; }
 .birth-table__relation { display: flex; justify-content: center; }
-.birth-relation-details {
-  margin-top: var(--space-3_5);
-  color: var(--ink-secondary);
-  font-size: var(--ts-small);
+.birth-time-anchors {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: var(--space-3) 0 var(--space-3_5);
+  font-variant-numeric: tabular-nums;
 }
-.birth-relation-details > .relation-reading-summary { min-height: calc(var(--control-height) - var(--space-1)); }
-
-.birth-relation-details[open] > div { margin-top: var(--space-2_5); }
+.birth-time-anchors > div { min-width: 0; padding-inline-end: var(--space-2); }
+.birth-time-anchors > div + div {
+  border-inline-start: var(--birth-hairline) solid var(--border-subtle);
+  padding-inline: var(--space-2) 0;
+  text-align: end;
+}
+.birth-time-anchors dt { color: var(--ink-tertiary); font-size: var(--ts-small); }
+.birth-time-anchors dd { margin: var(--space-0_5) 0 0; font-size: var(--ts-body); color: var(--ink-primary); }
+.birth-time-anchors dd span { white-space: nowrap; }
+.birth-candidate-card > .relation-reading-summary { min-height: calc(var(--control-height) - var(--space-1)); }
+.birth-relation-details:not([hidden]) { display: grid; gap: var(--space-3); margin-top: var(--space-2_5); }
+.birth-matrix { padding: var(--space-3_5); background-color: var(--surface-card); }
+.jade-surface .birth-matrix.jade-card { background-color: var(--reading-insight-surface); }
+.birth-matrix header, .birth-matrix__counts { display: flex; flex-wrap: wrap; align-items: center; }
+.birth-matrix header { justify-content: space-between; gap: var(--space-1_5) var(--space-2); }
+.birth-matrix h4 { margin: 0; font-size: var(--ts-title); line-height: var(--ts-title-line); font-weight: var(--type-body-strong-weight); }
+.birth-matrix__counts { gap: var(--space-1); }
+.birth-matrix table { width: 100%; margin-top: var(--space-2); border-collapse: collapse; font-size: var(--ts-body); }
+.birth-matrix tbody th, .birth-matrix td { padding: var(--space-1_5) 0; }
+.birth-matrix tbody th { text-align: start; font-weight: var(--type-body-strong-weight); }
+.birth-matrix__dimension { display: flex; align-items: center; gap: var(--space-2); }
+.birth-matrix__dimension::after {
+  content: '';
+  flex: 1;
+  height: var(--space-0_5);
+  margin-inline-end: var(--space-2);
+  background: radial-gradient(circle closest-side, var(--accent-muted) 75%, transparent 100%)
+    left center / var(--space-1) 100% repeat-x;
+}
+.birth-matrix td { width: 1%; color: var(--ink-secondary); text-align: start; }
+.birth-matrix td:first-of-type { white-space: nowrap; }
+.birth-matrix td:last-child { padding-inline-start: var(--space-3); text-align: end; }
+.birth-matrix td .birth-matrix__pill { width: max-content; max-width: 9em; overflow-wrap: anywhere; }
+.birth-matrix__pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-0_5) var(--space-2);
+  border-radius: var(--radius-full);
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+  font-weight: var(--type-body-strong-weight);
+  color: var(--birth-matrix-neutral-fg);
+  background: var(--birth-matrix-neutral-bg);
+}
+.birth-matrix__pill[data-tone="adverse"] { color: var(--birth-matrix-adverse-fg); background: var(--birth-matrix-adverse-bg); }
+.birth-matrix__pill[data-tone="incoming-control"] { color: var(--relation-incoming-control-fg); background: var(--relation-incoming-control-bg); }
+.birth-matrix__pill[data-tone="favorable"] { color: var(--birth-matrix-favorable-fg); background: var(--birth-matrix-favorable-bg); }
+.birth-matrix__counts .birth-matrix__pill { font-weight: var(--type-body-weight); }
+.birth-matrix__counts .birth-matrix__pill::before {
+  content: '';
+  width: var(--space-1);
+  height: var(--space-1);
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+.birth-matrix__principles, .birth-relation-details .learning-sources { margin-inline: var(--space-3_5); }
+.birth-matrix__principles { font-size: var(--ts-small); line-height: var(--type-body-line); color: var(--ink-secondary); }
+.birth-matrix__principles h5, .birth-matrix__principles p { display: inline; margin: 0; font-size: var(--ts-small); }
+.birth-matrix__principles h5 { margin-inline-end: var(--space-1_5); font-weight: var(--type-body-strong-weight); }
+.birth-matrix__principles p + p { display: block; margin-top: var(--space-1); }
+.birth-relation-details .learning-sources { display: grid; margin-block: 0 var(--space-1); }
+.birth-relation-details .learning-source {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-1_5);
+  padding: var(--space-1_5) var(--space-3);
+  border-radius: var(--radius-full);
+  background: var(--reading-source-surface);
+  color: var(--accent);
+  text-decoration: none;
+  font-size: var(--ts-small);
+  line-height: var(--type-meta-line);
+  overflow-wrap: anywhere;
+}
 .birth-current-readings > summary {
   min-height: var(--segment-height);
   cursor: pointer;
   color: var(--ink-secondary);
 }
 
-.birth-relation-details a,
 .birth-excerpts__header a,
 .birth-source-link { color: var(--accent); text-decoration: none; }
-.birth-relation-details a:hover,
 .birth-excerpts__header a:hover,
 .birth-source-link:hover { text-decoration: underline; }
-.birth-relation-details p { margin: var(--space-1) 0; }
-.birth-relation-details ul { margin: var(--space-1) 0 0; padding-left: var(--space-4); }
 
 .birth-excerpts,
 .birth-excerpts__candidate { display: grid; gap: var(--space-3); }

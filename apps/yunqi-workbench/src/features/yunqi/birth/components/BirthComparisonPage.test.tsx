@@ -64,10 +64,10 @@ describe('BirthComparisonPage', () => {
     for (const name of ['岁运', '司天', '在泉', '所处气', '所处运']) expect(within(table).getByRole('rowheader', { name })).toHaveAttribute('scope', 'row');
     expect(result.querySelector('.birth-candidate-interval')).toBeNull();
     expect(within(result).getByText('当日无交界 · 归属唯一')).toBeVisible();
-    expect(result.querySelector('.birth-table__meta')).toBeNull();
+    const { current, candidates } = createBirthComparisonDto();
+    expect(result.querySelector('.birth-time-anchors')).toHaveTextContent(`先天 ${candidates[0].learning.facts.year} · 当下 ${current.facts.year}`);
+    expect(result.querySelector('.birth-time-anchors time')).toHaveAttribute('datetime', current.facts.input.localTime);
     expect(table.querySelector('time, .num')).toBeNull();
-    expect(table.querySelector('.birth-table__birth')).toHaveTextContent(`先天 · ${createBirthComparisonDto().candidates[0].learning.facts.year}`);
-    expect(result.querySelector('.birth-current-time')).toBeNull();
     expect(within(result).getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。')).toBeVisible();
     await user.click(within(summary).getByRole('button', { name: '修改' }));
     await user.click(screen.getByRole('button', { name: '关闭修改' }));
@@ -194,19 +194,24 @@ describe('BirthComparisonPage', () => {
       expect(within(row).getByText(`${titles[index]}的API方向`, { exact: true })).toHaveClass('visually-hidden');
       expect(row.querySelector('.ds-relation__explanation')).toBeNull();
     }
-    const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
-    expect(disclosure).not.toHaveAttribute('open');
-    await user.click(within(disclosure).getByText('这些关系怎么读？'));
-    for (const title of titles) expect(within(disclosure).getByText(`${title}的API释义`, { exact: true })).toBeVisible();
-    expect(within(disclosure).getAllByRole('link')).toHaveLength(5);
-    expect(within(disclosure).getAllByRole('link')[0]).toHaveAttribute('href', candidate.comparisons[0].sources[0].url);
-    expect(disclosure.querySelector('ul, li')).toBeNull();
-    for (const source of within(disclosure).getAllByRole('link')) {
-      expect(source).toHaveClass('learning-source');
-      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
-      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
-      expect(source).not.toHaveTextContent('新窗口');
+    const toggle = screen.getByRole('button', { name: '这些关系怎么读？' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'false');
+    await user.click(toggle);
+    const disclosure = document.getElementById(toggle.getAttribute('aria-controls')!)!;
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+    const matrix = within(disclosure).getByRole('table', { name: '五维生克总览' });
+    expect(within(matrix).getAllByRole('rowheader')).toHaveLength(5);
+    for (const text of ['2项相克', '2项相生', '1项同五行']) expect(within(disclosure).getByText(text)).toBeVisible();
+    const directions = ['出生 → 当前', '当前 → 出生', '出生 → 当前', '当前 → 出生', '无方向'];
+    for (const [index, row] of [...matrix.querySelectorAll<HTMLTableRowElement>('tbody tr')].entries()) {
+      expect(row.cells[1]).toHaveTextContent(directions[index]);
+      expect(within(row).getByText(labels[index])).toHaveAttribute('data-tone', index === 3 ? 'incoming-control' : tones[index]);
+      expect(within(disclosure).getByText(`${titles[index]}的API释义`, { exact: false })).toBeVisible();
     }
+    expect(within(disclosure).queryByRole('link')).not.toBeInTheDocument();
+    expect(within(disclosure).getAllByText('《传统理论测试来源》')).toHaveLength(1);
+    expect(within(disclosure).getByTitle('《传统理论测试来源》')).toHaveClass('learning-source');
+    expect(disclosure.querySelector('.learning-source svg')).toBeNull();
   });
 
   it('blocks two submits in the same event turn and permits another comparison after settlement', async () => {

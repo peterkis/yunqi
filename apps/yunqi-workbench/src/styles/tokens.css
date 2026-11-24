@@ -28,6 +28,7 @@
   --ink-primary: #1d2320;
   --ink-secondary: #4a524e;
   --ink-tertiary: #5f6662;
+  --header-status-ink: #676e68;
   --ink-disabled: #9aa09c;
   --accent: #2e5b4f;
   --accent-hover: #1f4038;
@@ -38,6 +39,14 @@
   --relation-favorable-fg: #1e4a68;
   --relation-adverse-bg: #f6e7d6;
   --relation-adverse-fg: #7e4310;
+  --relation-incoming-control-bg: #f7e2da;
+  --relation-incoming-control-fg: #a34124;
+  --birth-matrix-adverse-bg: #f7eedf;
+  --birth-matrix-adverse-fg: #806237;
+  --birth-matrix-favorable-bg: #e7f1f5;
+  --birth-matrix-favorable-fg: #406679;
+  --birth-matrix-neutral-bg: #e9eeea;
+  --birth-matrix-neutral-fg: #526459;
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #4e7d5b;
@@ -188,6 +197,7 @@
   --ink-primary: #eceeea;
   --ink-secondary: #b7bdb8;
   --ink-tertiary: #959c97;
+  --header-status-ink: #8e9992;
   --ink-disabled: #5f6662;
   --accent: #7fb3a2;
   --accent-hover: #9cc7b8;
@@ -198,6 +208,14 @@
   --relation-favorable-fg: #a9cbe4;
   --relation-adverse-bg: #36281a;
   --relation-adverse-fg: #f0c08f;
+  --relation-incoming-control-bg: #49342f;
+  --relation-incoming-control-fg: #edb6a6;
+  --birth-matrix-adverse-bg: #3b3429;
+  --birth-matrix-adverse-fg: #dcc49c;
+  --birth-matrix-favorable-bg: #2a373d;
+  --birth-matrix-favorable-fg: #acccd8;
+  --birth-matrix-neutral-bg: #303a34;
+  --birth-matrix-neutral-fg: #bdcabe;
   --relation-neutral-bg: var(--surface-sunken);
   --relation-neutral-fg: var(--ink-secondary);
   --element-wood: #7db08a;

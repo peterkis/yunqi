@@ -113,15 +113,25 @@
   transform: scale(var(--motion-press-scale));
 }
 [data-motion] :is(button:not(.ds-button--text), [role="tab"]):active:not(:disabled):where(:not(.motion-segments > *)) {
-  background-color: var(--surface-sunken);
+  background-color: var(--control-interaction-surface, var(--surface-sunken));
 }
 [data-motion] .ds-button--primary:active:not(:disabled) { background-color: var(--accent-hover); }
+
+[data-theme-toggle] { -webkit-tap-highlight-color: transparent; }
+[data-theme-toggle]:active { --control-interaction-surface: var(--accent-subtle); }
+@media (hover: hover) {
+  [data-motion] [data-theme-toggle]:hover > svg { color: var(--accent); fill: var(--accent-muted); }
+  [data-motion="full"] [data-theme-toggle] > svg {
+    transition: transform var(--motion-fast) var(--ease-standard), fill var(--motion-fast) var(--ease-standard);
+  }
+  [data-motion="full"] [data-theme-toggle]:hover > svg { transform: rotate(-14deg) scale(1.12); }
+}
 [data-motion] .motion-segments > :is(button, a):active:not(:disabled) { color: var(--accent); }
 [data-motion] .ds-scale-option[aria-checked="true"]:active:not(:disabled) { background-color: var(--accent-muted); }
-:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .learning-text-link, .birth-source-link, .learning-source, .drilldown-link) {
+:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .learning-text-link, .birth-source-link, .drilldown-link) {
   transition: color var(--motion-fast) var(--ease-standard);
 }
-[data-motion] :is(.ds-button--text, .learning-text-link, .birth-source-link, .learning-source, .drilldown-link):active:not(:disabled) {
+[data-motion] :is(.ds-button--text, .learning-text-link, .birth-source-link, .drilldown-link):active:not(:disabled) {
   color: var(--accent-hover);
 }
 /* Scope segments are excluded from the text-only transition rule above. */

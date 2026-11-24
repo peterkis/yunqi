@@ -3,7 +3,7 @@ import { RelationChip } from '../../../components/design/RelationChip';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
 import type { LearningRelationViewModel, ScopedLearningRelation } from '../presentation/map-learning';
 import type { ElementKind, YunQiTimeViewModel } from '../presentation/view-model';
-import { RelationSourceLinks } from './RelationSourceLinks';
+import { RelationSources } from './RelationSources';
 
 export function CurrentElementValue({ element, label }: {
   readonly element: ElementKind | undefined;
@@ -36,6 +36,6 @@ export function CurrentRelationReading({ relation }: { readonly relation: Scoped
       <RelationChip compact tone={relation.tone} label={relation.badgeLabel} />
     </header>
     <p>{relation.explanation}</p>
-    <RelationSourceLinks sources={relation.sources} pills />
+    <RelationSources sources={relation.sources} />
   </section>;
 }

@@ -1,4 +1,19 @@
 /* Layout: docs/design/design-system/1-layout.md. All dimensions use design tokens. */
+[data-theme="dark"] .ds-panel-header__brand { background-image: url('/favicon-dark-outline.svg'); }
+
+.panel-shell:is([data-route="/yunqi/current"], [data-route="classics"], [data-route="annual"],
+  [data-route="calculate"], [data-route="inquiry"], [data-route="/yunqi/birth"], [data-route="birth-classics"]) {
+  --control-interaction-surface: var(--accent-subtle);
+  -webkit-tap-highlight-color: transparent;
+}
+.panel-shell__drilldown .ds-button--text,
+.current-overview .ds-button--text,
+.birth-page .ds-button--text { --control-interaction-surface: transparent; }
+:is(.drilldown-time-form, .birth-entry, .birth-actions) .ds-button--primary {
+  --control-interaction-surface: var(--accent-hover);
+}
+.panel-shell > .ds-panel-header .ds-panel-header__status { color: var(--header-status-ink); }
+
 .panel-shell,
 .panel-pill {
   /* Source: 1-layout.md and prototype boards 1/6, fine surface border: 1px. */

@@ -13,7 +13,7 @@ it('preserves annual precision and the same snapshot in the table, readings and 
   const candidate = {
     year: 1980, ganzhi: '庚申', suiYun: facts.suiYun, sitian: facts.sixQi.sitian, zaiquan: facts.sixQi.zaiquan,
     label: '大寒交节起', from: facts.interval.start, until: facts.interval.end, annualPassages: current.annualPassages,
-    comparisons: ['中运对照', '司天对照', '在泉对照'].map(title => ({ ...current.annualRelation, title })),
+    comparisons: ['中运对照', '司天对照', '在泉对照'].map(title => ({ ...current.annualRelation, title, label: '同五行' })),
   };
   const result: BirthYearComparisonDto = { birthPrecision: 'year', current, message: '年度候选',
     candidates: [{ ...candidate, year: 1979, ganzhi: '己未', label: '大寒交节前' }, candidate] };
@@ -26,6 +26,20 @@ it('preserves annual precision and the same snapshot in the table, readings and 
   const tables = await screen.findAllByRole('table');
   expect(tables).toHaveLength(2);
   for (const table of tables) expect(within(table).getAllByRole('rowheader')).toHaveLength(3);
+  const toggles = screen.getAllByRole('button', { name: '这些关系怎么读？' });
+  await user.click(toggles[0]);
+  const annualMatrix = screen.getByRole('table', { name: '三维生克总览' });
+  expect(within(annualMatrix).getAllByRole('rowheader').map(th => th.textContent)).toEqual(['岁运', '司天', '在泉']);
+  expect(screen.getByText('3项同五行')).toBeVisible();
+  expect(screen.getAllByText(current.annualRelation.explanation)).toHaveLength(1);
+  await user.click(toggles[1]);
+  expect(toggles[0]).toHaveAttribute('aria-expanded', 'true');
+  expect(toggles[1]).toHaveAttribute('aria-expanded', 'true');
+  expect(screen.getAllByRole('table', { name: '三维生克总览' })).toHaveLength(2);
+  await user.click(toggles[0]);
+  expect(toggles[0]).toHaveAttribute('aria-expanded', 'false');
+  expect(toggles[1]).toHaveAttribute('aria-expanded', 'true');
+  expect(screen.getAllByRole('table', { name: '三维生克总览' })).toHaveLength(1);
   expect(client.compareBirthYear).toHaveBeenCalledExactlyOnceWith({ year: 1980 });
   expect(client.previewBirthDate).not.toHaveBeenCalled();
   expect(client.compareBirth).not.toHaveBeenCalled();

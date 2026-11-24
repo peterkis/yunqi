@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
 import { InlineText } from '../../../../components/design/InlineText';
@@ -12,6 +12,8 @@ import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
 import type { useBirthComparison } from '../hooks/useBirthComparison';
 import { AnswerDestroyedNotice } from '../../../constitution/components/AnswerDestroyedNotice';
+import { RelationReadingSummary } from '../../components/RelationReadingSummary';
+import { BirthRelationOverview } from './BirthRelationOverview';
 import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
@@ -22,6 +24,11 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
   readonly ended: number;
 }) {
   const visible = useSessionVisible();
+  const guideId = useId();
+  const [openGuides, setOpenGuides] = useState<readonly number[]>([]);
+  function toggleGuide(index: number) {
+    setOpenGuides(open => open.includes(index) ? open.filter(item => item !== index) : [...open, index]);
+  }
   const { result, isPending: pending } = comparison;
   const reading = useMatch('/yunqi/birth/classics') !== null;
   const navigate = useNavigate();
@@ -50,6 +57,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
     setCleared(true);
   }
   function clearSession() {
+    setOpenGuides([]);
     comparison.reset(); onDiscardAssessment(); setEditor(undefined); setSubmitted(undefined);
     clearDraft();
   }
@@ -83,6 +91,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
     setCleared(false);
     const onSuccess = () => {
       sheetOpener.current = null;
+      setOpenGuides([]);
       setSubmitted(request);
       onDiscardAssessment();
       setEditor(undefined);
@@ -118,8 +127,9 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
           <section aria-label="出生与当前运气对照结果" className="birth-results">
             <p className={result.candidateMeta ? 'birth-candidate-meta birth-note' : 'birth-api-message'}><InlineText>{result.candidateMeta ?? result.comparison.message}</InlineText></p>
             <div className="birth-tables">
-                {result.candidates.map((candidate, index) => (
-                  <article key={`${candidate.from.localTime}-${index}`} className="birth-candidate-card birth-card" aria-label={candidate.label}>
+              {result.candidates.map((candidate, index) => (
+                <article key={`${candidate.from.localTime}-${index}`} aria-label={candidate.label}>
+                  <div className="birth-candidate-card birth-card">
                     {result.comparison.ambiguous || result.comparison.birthPrecision === 'year' ? <h3 className="birth-label">{candidate.label}</h3> : null}
                     {!result.candidateMeta && (result.comparison.birthPrecision !== 'time' ? (
                       <p className="birth-candidate-interval birth-note">
@@ -131,8 +141,14 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment,
                       </p>
                     ) : <p className="birth-candidate-time birth-note">出生时刻：<YunQiTimeDisplay value={candidate.birthTime!} variant="compact" /></p>)}
                     <BirthComparisonTable candidate={candidate} current={result} />
-                  </article>
-                ))}
+                    <RelationReadingSummary expanded={openGuides.includes(index)} controls={`${guideId}-${index}`}
+                      onToggle={() => toggleGuide(index)} />
+                  </div>
+                  <div className="birth-relation-details" id={`${guideId}-${index}`} hidden={!openGuides.includes(index)}>
+                    {openGuides.includes(index) && <BirthRelationOverview rows={candidate.rows} />}
+                  </div>
+                </article>
+              ))}
             </div>
             {result.comparison.birthPrecision === 'year' && <Button variant="secondary" data-birth-complete="" onClick={event => openEditor(event, 'complete')}>补全生日后查看所处气与所处运</Button>}
             <section className="birth-excerpts" aria-label="先天原文线索">
