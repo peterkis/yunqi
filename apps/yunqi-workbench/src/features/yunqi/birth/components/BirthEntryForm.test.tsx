@@ -106,6 +106,18 @@ describe('inline birth entry', () => {
     expect(key('确认并对照')).toBeDisabled(); expect(confirm).not.toHaveBeenCalled();
     expect(key('退格').querySelector('svg.lucide-delete')).not.toBeNull();
   });
+  it('does not carry a known birth time to another pasted boundary date', async () => {
+    const { user, confirm } = setup(createClientStub(), {
+      ...emptyBirthDraft, mode: 'year', primary: '1980', month: '03', day: '21',
+    });
+    await user.click(await screen.findByRole('button', { name: /补录时刻/ }));
+    fireEvent.change(screen.getByLabelText('出生时刻'), { target: { value: '09:30' } });
+    fireEvent.paste(slot('年'), { clipboardData: { getData: () => '1981-03-21' } });
+    await screen.findByText('公历 1981-03-21');
+    expect(screen.queryByLabelText('出生时刻')).not.toBeInTheDocument();
+    await user.click(key('确认并对照'));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1981-03-21' });
+  });
   it('keeps February 3 confirmable when any appended digit is rejected', async () => {
     const { user, confirm } = setup();
     await user.type(slot('年龄'), '52');

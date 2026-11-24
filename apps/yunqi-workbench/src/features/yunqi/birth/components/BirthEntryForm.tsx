@@ -227,12 +227,13 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
                 const parts = /^(\d{4})-(\d{2})-(\d{2})$/.exec(event.clipboardData.getData('text').trim());
                 if (!parts) return;
                 event.preventDefault();
-                const next: BirthDraft = { ...draft, mode: 'year', calendar: 'solar', primary: parts[1], month: parts[2], day: parts[3] };
+                const pasted = { mode: 'year', calendar: 'solar', primary: parts[1], month: parts[2], day: parts[3] } as const;
+                const next = { ...draft, ...pasted };
                 for (const field of slots) {
                   const message = slotError(field, next[field], next, clock.today);
                   if (message) { reject(field, message); focus(field); return; }
                 }
-                update(next); focus('day');
+                update(pasted); focus('day');
               }} /><small>{[ageMode ? '岁' : '年','月','日'][index]}</small></span>
             {!inline && key === 'primary' && badge && <span className="birth-slot__badge">{badge}</span>}
           </label>)}
