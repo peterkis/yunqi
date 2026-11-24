@@ -18,7 +18,12 @@ test('M1-d A reserves the wheel from first paint with zero layout shift and draw
   await page.addInitScript(() => {
     window.currentShifts = [];
     window.currentPaints = [];
-    window.currentShiftObserver = new PerformanceObserver(list => window.currentShifts.push(...list.getEntries().map(entry => ({ value: entry.value, recent: entry.hadRecentInput }))));
+    window.currentShiftObserver = new PerformanceObserver(list => window.currentShifts.push(...list.getEntries().map(entry => ({
+      value: entry.value, recent: entry.hadRecentInput, sources: entry.sources.map(source => ({
+        tag: source.node?.nodeName, parent: source.node?.parentElement?.className,
+        before: source.previousRect.toJSON(), after: source.currentRect.toJSON(),
+      })),
+    }))));
     window.currentShiftObserver.observe({ type: 'layout-shift', buffered: true });
     new MutationObserver(() => {
       const svg = document.querySelector('.current-year-wheel svg');
