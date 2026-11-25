@@ -164,15 +164,17 @@
   grid-auto-columns: minmax(0, 1fr);
   margin-block: var(--space-3) var(--space-4);
 }
-.current-stage-navigation .ds-button:not(:last-child)::before {
+.current-stage-navigation .ds-button::before {
   position: absolute;
   content: "";
-  inset-inline-start: calc(50% + var(--stage-node-size) / 2);
-  width: calc(100% - var(--stage-node-size));
+  inset-inline: 0;
   top: calc(var(--space-1_5) + var(--stage-node-size) / 2);
   translate: 0 -50%;
   border-top: var(--current-hairline) solid var(--accent-muted);
+  pointer-events: none;
 }
+.current-stage-navigation .ds-button:first-child::before { inset-inline-start: 50%; }
+.current-stage-navigation .ds-button:last-child::before { inset-inline-end: 50%; }
 .current-stage-navigation .ds-button {
   position: relative;
   flex-direction: column;
