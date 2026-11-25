@@ -305,7 +305,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
         {mutation.isPending ? <p role="status" className="constitution-meta">正在按量表规则计分</p> : null}
       </form>
       {hasSession && disclosureRows}
-      {(!hasSession || mutation.result) && <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>}
+      {!hasSession && <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>}
       {!hasSession && disclosureRows}
     </div>
   );

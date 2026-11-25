@@ -247,7 +247,8 @@ describe('ConstitutionForm', () => {
     expect(edit.querySelector('[aria-hidden="true"]')).toHaveTextContent('‹');
     expect(edit).toHaveClass('ds-button--text');
     expect(document.querySelector('.panel-shell__content + .panel-shell__actions + .panel-shell__footer')).not.toBeNull();
-    expect(screen.queryByRole('navigation', { name: '工作台导航' })).not.toBeInTheDocument();
+    const tabs = screen.getByRole('navigation', { name: '工作台导航' });
+    expect(within(tabs).getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
     expect(within(screen.getByRole('region', { name: '页面导航' })).getByRole('heading', { name: '体质测评结果' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();

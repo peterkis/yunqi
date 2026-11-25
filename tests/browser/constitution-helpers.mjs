@@ -119,6 +119,11 @@ export async function confirmConstitutionDestruction(page, keyboard = false) {
   await expect(page.getByText('答卷已销毁', { exact: true })).toHaveCount(0);
 }
 
+export function rankedDimensions(assessment) {
+  return [...assessment.results].sort((a, b) => b.score - a.score ||
+    Number(b.status === 'yes' && b.id !== 'balanced') - Number(a.status === 'yes' && a.id !== 'balanced'));
+}
+
 export async function expectConstitutionResults(page, assessment, scope = page) {
   const result = scope.getByRole('region', { name: '体质测评结果', exact: true });
   await expect(result).toBeVisible();
@@ -135,7 +140,14 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
     const [back, end] = await Promise.all([edit.boundingBox(), actions.getByRole('button', { name: '结束并销毁', exact: true }).boundingBox()]);
     return back && end ? back.x + back.width <= end.x : false;
   }).toBe(true);
-  await expect(page.locator('.panel-shell__drilldown').getByRole('heading', { name: '体质测评结果', exact: true })).toBeVisible();
+  const title = page.locator('.panel-shell__drilldown').getByRole('heading', { name: '体质测评结果', exact: true });
+  await expect(title).toBeVisible();
+  const tabs = page.getByRole('navigation', { name: '工作台导航' });
+  await expect(tabs.getByRole('link')).toHaveText(['当下运气', '先天对照', '体质量表']);
+  await expect(tabs.getByRole('link', { name: '体质量表' })).toHaveAttribute('aria-current', 'page');
+  await expect(tabs).toBeInViewport({ ratio: 1 });
+  const [navBox, titleBox] = await Promise.all([tabs.boundingBox(), title.boundingBox()]);
+  expect(navBox.y + navBox.height).toBeLessThanOrEqual(titleBox.y);
   await expect(page.locator('.constitution-sex-summary')).toHaveCount(0);
   await expect(page.getByRole('button', { name: '更换', exact: true })).toHaveCount(0);
   await expect(scope.locator('.constitution-answer-form > .constitution-context')).toBeHidden();
@@ -145,8 +157,9 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
   await expectConstitutionTitle(result, assessment);
   await expect(result.getByRole('img')).toHaveCount(9);
   await expect(result.locator('.constitution-bar')).toHaveCount(9);
-  await expect(result.locator('.constitution-bar-label')).toHaveText(assessment.results.map(dimension => dimension.name.replace(/质$/, '')));
-  for (const [index, dimension] of assessment.results.entries()) {
+  const ranked = rankedDimensions(assessment);
+  await expect(result.locator('.constitution-bar-label')).toHaveText(ranked.map(dimension => dimension.name.replace(/质$/, '')));
+  for (const [index, dimension] of ranked.entries()) {
     const row = result.locator('.constitution-bar').nth(index);
     await expect(row).toHaveAttribute('data-tone', dimension.status === 'yes' ? 'primary' : dimension.status === 'tendency' ? 'secondary' : 'neutral');
     await expect(row.locator('.constitution-bar-score')).toHaveText(dimension.score.toFixed(1));
@@ -156,16 +169,19 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
   }
   await expect(result.locator('.constitution-chart-guide')).toHaveCount(2);
   const reference = result.getByRole('region', { name: '与运气互参', exact: true });
-  await expect(reference.locator('dt')).toHaveText(['体质', '先天', '当下']);
+  await expect(reference.locator('dt')).toHaveText(['体质', /^先天(?:大寒交界)?$/, '当下']);
   const shortName = id => assessment.results.find(dimension => dimension.id === id).name.replace(/质$/, '');
+  const matches = ranked.filter(type => assessment.matchedTypes.includes(type.id));
+  const decision = await result.locator('.constitution-decision h4').textContent();
+  const leaders = matches.filter(type => type.score === matches[0].score).map(type => shortName(type.id));
   const summary = [
-    assessment.matchedTypes.length >= 3 ? `偏颇质兼夹 · ${assessment.matchedTypes.length} 项` : assessment.matchedTypes.map(shortName).join('、'),
+    matches.length >= 2 ? `偏颇质兼夹 · ${matches.length} 项（主：${leaders.join('、')}）` : (matches.length ? shortName(matches[0].id) : decision),
     assessment.tendencyTypes.length ? `倾向 · ${assessment.tendencyTypes.length > 2 ? `${assessment.tendencyTypes.length} 项` : assessment.tendencyTypes.map(shortName).join('、')}` : '',
   ].filter(Boolean).join('\n');
   await expect(reference.locator('dd').first()).toHaveText(summary || await result.locator('.constitution-decision h4').textContent());
   const fullName = id => assessment.results.find(dimension => dimension.id === id).name;
   await expect(reference.locator('dd').first()).toHaveAttribute('aria-label', [
-    assessment.matchedTypes.length ? `是：${assessment.matchedTypes.map(fullName).join('、')}` : await result.locator('.constitution-decision h4').textContent(),
+    assessment.matchedTypes.length ? `是：${matches.map(type => fullName(type.id)).join('、')}` : await result.locator('.constitution-decision h4').textContent(),
     assessment.tendencyTypes.length ? `倾向：${assessment.tendencyTypes.map(fullName).join('、')}` : '',
   ].filter(Boolean).join('；'));
   await expect(reference.locator(':scope > :last-child')).toHaveClass('constitution-meta');
@@ -196,6 +212,54 @@ export async function expectConstitutionDisclosures(scope, testInfo, result = fa
   });
 }
 
+/** Measure painted strokes; a centered line box alone misses mixed-font offsets. */
+export async function expectSnapshotInkAlignment(card) {
+  const png = await card.screenshot({ scale: 'css', animations: 'disabled' });
+  const groups = await card.evaluate(async (root, base64) => {
+    const image = new Image();
+    image.src = 'data:image/png;base64,' + base64;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.width;
+    canvas.height = image.height;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(image, 0, 0);
+    const pixels = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+    const origin = root.getBoundingClientRect();
+
+    function inkCenter(element) {
+      const rect = element.getBoundingClientRect();
+      const y0 = Math.floor(rect.top - origin.top);
+      const y1 = Math.ceil(rect.bottom - origin.top);
+      let top = Infinity;
+      let bottom = -Infinity;
+      for (let x = Math.round(rect.left - origin.left); x < Math.round(rect.right - origin.left); x++) {
+        // Sample directly above each column to account for the card's gradient.
+        const bg = 4 * ((y0 - 3) * canvas.width + x);
+        for (let y = y0 - 1; y <= y1; y++) {
+          const at = 4 * (y * canvas.width + x);
+          const contrast = Math.abs(pixels[at] - pixels[bg]) + Math.abs(pixels[at + 1] - pixels[bg + 1])
+            + Math.abs(pixels[at + 2] - pixels[bg + 2]);
+          if (contrast > 81) { top = Math.min(top, y); bottom = Math.max(bottom, y); }
+        }
+      }
+      if (!Number.isFinite(top)) throw new Error('No visible ink for ' + element.outerHTML);
+      return (top + bottom) / 2;
+    }
+
+    const samples = [...root.querySelectorAll('.constitution-snapshot__stages dd')].map(cell =>
+      [...cell.querySelectorAll(':scope > span:first-child, .ds-element > span')]);
+    const interval = root.querySelector('.constitution-snapshot__interval');
+    if (root.dataset.kind === 'birth' && interval) {
+      samples.push([...interval.querySelectorAll(':scope > span:first-child, time, [aria-hidden="true"]')]);
+    }
+    return samples.map(nodes => ({ text: nodes.map(n => n.textContent).join(' '), centers: nodes.map(inkCenter) }));
+  }, png.toString('base64'));
+  for (const { text, centers } of groups) {
+    expect(Math.max(...centers) - Math.min(...centers), text).toBeLessThanOrEqual(1);
+  }
+}
+
 /** Inspect text ranges too: an inline-block alone always reports one box. */
 export async function expectConstitutionSegments(scope) {
   const segments = scope.locator('.constitution-context-rows > div:first-child .ds-seg, .constitution-reference-rows > div:last-child .ds-seg');
@@ -214,12 +278,12 @@ export async function expectConstitutionMixedReference(result, testInfo) {
   await expect(reference.locator('dd').first()).toContainText('偏颇质兼夹 · 7 项');
   await waitForAnimations(result.page());
   await expect.poll(async () => reference.evaluate(element => {
-    const heights = [...element.children].map(cell => cell.getBoundingClientRect().height);
+    const rows = [...element.children].map(cell => cell.getBoundingClientRect());
     const range = document.createRange();
     range.selectNodeContents(element.querySelector('dd'));
     const lines = new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size;
-    return heights.length === 3 && Math.max(...heights) - Math.min(...heights) <= 1 && lines > 0 && lines <= 2;
-  }), { message: 'Seven matches keep three equally high wells and at most two summary lines' }).toBe(true);
+    return rows.length === 3 && rows.every((row, i) => row.width === rows[0].width && (!i || row.top >= rows[i - 1].bottom - 1)) && lines > 0 && element.scrollWidth <= element.clientWidth + 1;
+  }), { message: 'Seven matches retain three full-width rows with a wrapping summary' }).toBe(true);
   if (testInfo) await testInfo.attach('constitution-seven-match-reference', {
     body: JSON.stringify(await reference.evaluate(element => ({
       cells: [...element.children].map(cell => cell.getBoundingClientRect().toJSON()),
@@ -254,13 +318,14 @@ export async function expectConstitutionTitle(result, assessment) {
   expect(metrics.font).toBe('30px');
   expect(metrics.overflow).not.toBe('ellipsis');
   expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
-  const matched = result.locator('.constitution-matched-types .ds-relation__chip');
-  const mixedTypes = assessment.matchedTypes.length >= 2 ? assessment.matchedTypes : [];
+  const matched = result.locator('.constitution-matched-types .constitution-match-chip');
+  const mixedTypes = assessment.matchedTypes.length >= 2 ? rankedDimensions(assessment).filter(type => assessment.matchedTypes.includes(type.id)) : [];
   await expect(result.locator('.constitution-matched-types')).toHaveCount(mixedTypes.length ? 1 : 0);
   await expect(result.locator('.constitution-matched-types').getByText('兼夹', { exact: true })).toHaveCount(0);
   await expect(matched).toHaveCount(mixedTypes.length);
-  await expect(matched).toHaveText(mixedTypes.map(name));
-  await expect(result.locator('.constitution-matched-types .ds-relation__chip:not(.ds-relation__chip--neutral)')).toHaveCount(0);
+  const chipText = type => `${type.name} ${Math.round(type.score)}`;
+  await expect(matched).toHaveText(mixedTypes.map(chipText));
+  await expect(result.locator('[data-leading="true"] .constitution-match-chip')).toHaveText(mixedTypes.filter(type => type.score === mixedTypes[0].score).map(chipText));
   const chips = result.locator('.constitution-tendency-types .ds-relation__chip');
   await expect(chips).toHaveText(assessment.tendencyTypes.map(id => `${name(id).replace(/质$/, '')} 倾向`));
   await expect(result.locator('.constitution-tendency-types .ds-relation__chip:not(.ds-relation__chip--favorable)')).toHaveCount(0);
@@ -268,18 +333,17 @@ export async function expectConstitutionTitle(result, assessment) {
   if (assessment.tendencyTypes.length) {
     const tendencies = result.locator('.constitution-decision-title > .constitution-tendency-types');
     await expect(tendencies).toHaveCount(1);
-    // A wrapped group is centered as a whole; a single chip shares the title's
-    // center exactly. Both stay in the title row, including mixed-type titles.
-    await expect.poll(async () => {
-      const title = await heading.boundingBox();
-      const tags = await tendencies.boundingBox();
-      expect(tags.x).toBeGreaterThanOrEqual(title.x + title.width);
-      return Math.abs(title.y + title.height / 2 - tags.y - tags.height / 2);
-    }).toBeLessThanOrEqual(2);
-    const boxes = await Promise.all((await chips.all()).map(chip => chip.boundingBox()));
-    if (boxes.every(box => Math.abs(box.y - boxes[0].y) <= 1)) {
-      const title = await heading.boundingBox();
-      for (const chip of boxes) expect(Math.abs(title.y + title.height / 2 - chip.y - chip.height / 2)).toBeLessThanOrEqual(2);
+    const titleRow = result.locator('.constitution-decision-title');
+    const row = await titleRow.boundingBox();
+    const title = await heading.boundingBox();
+    const tags = await tendencies.boundingBox();
+    const lastChip = await chips.last().boundingBox();
+    expect(Math.abs(lastChip.x + lastChip.width - row.x - row.width)).toBeLessThanOrEqual(1);
+    const count = mixedTypes.length ? await result.locator('.constitution-match-count').boundingBox() : title;
+    const gap = await titleRow.evaluate(el => parseFloat(getComputedStyle(el).columnGap));
+    if (row.width - (count.x + count.width - row.x) >= lastChip.width + gap) {
+      expect(tags.x).toBeGreaterThanOrEqual(count.x + count.width);
+      expect(Math.abs(title.y + title.height / 2 - tags.y - tags.height / 2)).toBeLessThanOrEqual(2);
     }
   }
   await expect(result.getByText(assessment.summary, { exact: true })).toHaveCount(1);
@@ -289,9 +353,13 @@ export async function expectConstitutionTitle(result, assessment) {
 /** F5 geometry and token checks, reused after selecting each visual theme. */
 export async function expectConstitutionResultLayout(result, testInfo) {
   await expect(result.locator(':scope > section')).toHaveCount(3);
-  await expect(result.locator(':scope > section > .constitution-eyebrow, .constitution-chart-header > .constitution-eyebrow')).toHaveText(['判定', '九质转化分', '与运气互参']);
-  await expect(result.locator('.constitution-decision > :last-child')).toHaveClass('constitution-meta num');
+  await expect(result.locator('.constitution-decision-header > .constitution-eyebrow, .constitution-reference-card > .constitution-eyebrow, .constitution-chart-header > .constitution-eyebrow')).toHaveText(['判定', '九质转化分', '与运气互参']);
+  await expect(result.getByRole('button', { name: '判定标准' })).toHaveAttribute('aria-expanded', 'false');
   const heading = result.locator('.constitution-decision h4');
+  await expect(heading).toHaveCSS('outline-style', 'none');
+  const birthLabel = result.locator('.constitution-reference-birth-label');
+  const [label, candidates] = await Promise.all([birthLabel.boundingBox(), birthLabel.locator('..').locator('dd').boundingBox()]);
+  expect(Math.abs(label.y + label.height / 2 - candidates.y - candidates.height / 2)).toBeLessThanOrEqual(1);
   expect(await heading.evaluate(element => getComputedStyle(element).fontFamily)).toContain('Noto Serif SC');
   await expect(heading).toHaveCSS('font-size', '30px');
   await expect(heading).toHaveCSS('line-height', '33px');
@@ -309,7 +377,7 @@ export async function expectConstitutionResultLayout(result, testInfo) {
     const plot = element.querySelector('.constitution-chart-plot').getBoundingClientRect();
     const track = element.querySelector('.constitution-bar-track').getBoundingClientRect();
     return {
-      columns: getComputedStyle(element.querySelector('.constitution-reference-rows')).gridTemplateColumns.split(' ').map(Number.parseFloat),
+      referenceRows: [...element.querySelectorAll('.constitution-reference-rows > div')].map(row => row.getBoundingClientRect().toJSON()),
       guides: [...element.querySelectorAll('.constitution-chart-guide')].map(guide => ({
         ratio: (guide.getBoundingClientRect().left - track.left) / track.width,
         height: guide.getBoundingClientRect().height, plotHeight: plot.height,
@@ -327,14 +395,17 @@ export async function expectConstitutionResultLayout(result, testInfo) {
           }[row.dataset.tone]),
           matched: row.dataset.tone === 'primary' && !row.hasAttribute('data-balanced'),
           background: getComputedStyle(row).backgroundColor,
-          matchBackground: color(row, '--constitution-match-bg'),
           scoreWeight: Number(getComputedStyle(row.querySelector('.constitution-bar-score')).fontWeight),
         };
       }),
     };
   });
-  expect(metrics.columns).toHaveLength(3);
-  for (const width of metrics.columns) expect(Math.abs(width - metrics.columns[0])).toBeLessThanOrEqual(1);
+  expect(metrics.referenceRows).toHaveLength(3);
+  metrics.referenceRows.forEach((row, i) => {
+    expect(row.x).toBeCloseTo(metrics.referenceRows[0].x, 0);
+    expect(row.width).toBeCloseTo(metrics.referenceRows[0].width, 0);
+    if (i) expect(row.y).toBeGreaterThanOrEqual(metrics.referenceRows[i - 1].bottom - 1);
+  });
   expect(metrics.rows).toHaveLength(9);
   for (const row of metrics.rows) {
     expect(row.columns[0]).toBe(52);
@@ -342,8 +413,8 @@ export async function expectConstitutionResultLayout(result, testInfo) {
     expect(row.height).toBe(24);
     expect(row.trackHeight).toBe(8);
     expect(row.fill).toBe(row.expectedFill);
+    expect(row.background).toBe('rgba(0, 0, 0, 0)');
     if (row.matched) {
-      expect(row.background).toBe(row.matchBackground);
       expect(row.scoreWeight).toBe(700);
     }
   }

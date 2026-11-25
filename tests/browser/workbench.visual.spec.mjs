@@ -1,7 +1,7 @@
 import { expectSelectedTimeLayout, fillAnalysisTime } from './time-analysis-helpers.mjs';
 import { fillBirthDate, expectBirthMirror, expectBirthDetailSegments } from './birth-helpers.mjs';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes, scanAccessibility } from './fixtures.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectSnapshotInkAlignment } from './constitution-helpers.mjs';
 import { expectClassicsCards, expectFocusRings, expectViewControls } from './visual-assertions.mjs';
 import { expectClassicsAlignment, expectMoreRows, expectPillGeometry } from './consistency-helpers.mjs';
 import { expectCurrentStageFacts, useCalculatedCurrentSnapshot } from './stage-facts-helpers.mjs';
@@ -316,7 +316,7 @@ for (const state of cases) {
       const destroy = page.getByRole('button', { name: '结束并销毁', exact: true });
       await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
       if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
-      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(state.questionnaire && !state.constitutionResult ? 0 : 1);
+      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(state.questionnaire ? 0 : 1);
       await expectConstitutionDisclosures(page, testInfo, Boolean(state.constitutionResult));
     }
     if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
@@ -544,6 +544,17 @@ test('@visual constitution snapshot cards retain each element and the leap-day i
     await expect(card.locator('.constitution-snapshot__stages dd')).toHaveCount(4);
     await expect(card.locator('.ds-element__dot')).toHaveCount(7);
     await expect(card).toHaveCSS('background-image', /^linear-gradient/);
+    await expect(card).toHaveCSS('background-origin', 'border-box');
+    await expect(card).toHaveCSS('background-repeat', 'no-repeat');
+    const offsets = await card.locator('.constitution-snapshot__stages > div').evaluateAll(rows => rows.map(row => {
+      const centers = [...row.querySelectorAll('dt, dd, dd > span, .ds-element > span:last-child')].map(node => {
+        const rect = node.getBoundingClientRect();
+        return rect.top + rect.height / 2;
+      });
+      return Math.max(...centers) - Math.min(...centers);
+    }));
+    for (const offset of offsets) expect(offset).toBeLessThanOrEqual(1);
+    await expectSnapshotInkAlignment(card);
     const metrics = await card.locator('.constitution-snapshot__annual dd').evaluateAll(nodes => nodes.map(el => el.getBoundingClientRect().top));
     expect(new Set(metrics).size).toBe(1);
   }

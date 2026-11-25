@@ -20,12 +20,19 @@ describe('constitution result and snapshot', () => {
     const result = screen.getByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '偏颇质兼夹' })).toHaveFocus();
     expect(within(result).getByRole('group', { name: '符合判定的体质' })).not.toHaveTextContent('兼夹');
-    expect([...result.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['气虚质', '阳虚质']);
+    expect([...result.querySelectorAll('.constitution-matched-types .constitution-match-chip')].map((chip) => chip.textContent)).toEqual(['气虚质 0', '阳虚质 0']);
     expect([...result.querySelectorAll('.constitution-tendency-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阴虚 倾向', '痰湿 倾向']);
-    expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(2);
-    expect(result.querySelectorAll('.constitution-decision-title .ds-relation__chip--favorable')).toHaveLength(2);
+    expect(result.querySelectorAll('[data-leading="true"] .constitution-match-chip')).toHaveLength(2);
+    expect(result.querySelectorAll('.constitution-tendency-types .ds-relation__chip--favorable')).toHaveLength(2);
     expect(within(result).getByRole('group', { name: '倾向体质' })).not.toHaveTextContent(/\d/);
-    expect(result.querySelector('.constitution-decision')?.lastElementChild).toHaveClass('constitution-meta');
+    const standards = within(result).getByRole('button', { name: '判定标准' });
+    const formula = within(result).getByText(/转化分 = 100/);
+    expect(formula).not.toBeVisible();
+    await user.click(standards);
+    expect(standards).toHaveAttribute('aria-expanded', 'true');
+    expect(formula).toBeVisible();
+    await user.click(standards);
+    expect(formula).not.toBeVisible();
     expect(result.querySelector('.constitution-result-navigation')).toBeNull();
     expect(within(result).queryByRole('button', { name: '返回修改' })).not.toBeInTheDocument();
     expect([...result.querySelectorAll('.constitution-bar-label')].map((node) => node.textContent)).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
@@ -41,14 +48,14 @@ describe('constitution result and snapshot', () => {
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);
     const parallel = within(result).getByRole('region', { name: '与运气互参' });
     expect([...parallel.querySelectorAll('dt')].map((node) => node.textContent)).toEqual(['体质', '先天', '当下']);
-    expect(parallel.querySelector('dd')?.textContent?.replaceAll('\u202f', ' ')).toBe('气虚、阳虚\n倾向 · 阴虚、痰湿');
+    expect(parallel.querySelector('dd')?.textContent?.replaceAll('\u202f', ' ')).toBe('偏颇质兼夹 · 2 项（主：气虚、阳虚）\n倾向 · 阴虚、痰湿');
     expect(parallel.querySelector('dd')).toHaveAttribute('aria-label', '是：气虚质、阳虚质；倾向：阴虚质、痰湿质');
     expect(parallel).toHaveTextContent('候选二');
     expect(parallel.lastElementChild).toHaveClass('constitution-meta');
     expect(parallel.lastElementChild?.textContent).toBe('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
     expect(result).not.toHaveTextContent(/风险|易患|预测|高危/);
     await user.click(screen.getByText('本次对照快照与候选区间'));
-    expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（含起不含终）');
+    expect(within(screen.getByRole('region', { name: '候选二' })).getByText('可能区间', { exact: true })).toBeVisible();
     expect(screen.getByRole('region', { name: '候选二' }).querySelectorAll('time')).toHaveLength(2);
     expect(within(result).getByText(dto.summary)).not.toBeVisible();
     await user.click(within(result).getByText('判定说明与边界'));
@@ -63,11 +70,11 @@ describe('constitution result and snapshot', () => {
       results: dto.results.map((result) => ({ ...result, status: matches.some((match) => match.id === result.id) ? 'yes' : 'no' })) })} />);
     const decision = screen.getByRole('region', { name: '量表判定' });
     expect(within(decision).getByRole('heading')).toHaveTextContent(count === 1 ? '气虚质' : '偏颇质兼夹');
-    expect([...decision.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(count >= 2 ? matches.map((result) => result.name) : []);
+    expect([...decision.querySelectorAll('.constitution-matched-types .constitution-match-chip')].map((chip) => chip.textContent)).toEqual(count >= 2 ? matches.map((result) => result.name + ' ' + result.score) : []);
     if (count === 1) expect(decision.querySelector('.constitution-matched-types')).toBeNull();
     expect(within(decision).queryByText(dto.summary)).not.toBeInTheDocument();
     const summary = document.querySelector('.constitution-reference-summary');
-    expect(summary).toHaveTextContent(count >= 3 ? `偏颇质兼夹 · ${count} 项` : matches.map((type) => type.name.replace(/质$/, '')).join('、'));
+    expect(summary).toHaveTextContent(count >= 2 ? `偏颇质兼夹 · ${count} 项` : matches.map((type) => type.name.replace(/质$/, '')).join('、'));
     expect(summary).toHaveAttribute('aria-label', `是：${matches.map((type) => type.name).join('、')}`);
   });
 
@@ -125,6 +132,22 @@ describe('constitution result and snapshot', () => {
     expect(parallel.querySelectorAll('.ds-seg')).toHaveLength(4);
     rerender(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={{ ...context, birth: { ...context.birth!, candidates: [] } }} />);
     expect(parallel).toHaveTextContent('未填写');
+  });
+
+  it.each([false, true])('labels a date-only Dahan pair only when the returned YunQi years change (%s)', crossesYear => {
+    const comparison = mapBirthComparison(createBirthComparisonDto());
+    const first = comparison.candidates[0];
+    const facts = first.learning.facts;
+    const second = { ...first, label: '可能归属 2', learning: { ...first.learning,
+      facts: { ...facts, summary: { ...facts.summary, year: facts.summary.year + Number(crossesYear) } },
+    } };
+    const context = mapConstitutionContext(comparison.current, { ...comparison, birthPrecision: 'date', ambiguous: true,
+      candidates: [{ ...first, label: '可能归属 1' }, second] });
+    render(<ConstitutionResults assessment={mapAssessment(createAssessmentDto())} context={context} />);
+    const card = screen.getByRole('region', { name: '与运气互参' });
+    expect(card.querySelectorAll('.constitution-dahan-badge')).toHaveLength(crossesYear ? 1 : 0);
+    expect([...card.querySelectorAll('.constitution-candidate-prefix')].map(node => node.textContent))
+      .toEqual(crossesYear ? ['交节前', '交节起'] : ['可能归属 1', '可能归属 2']);
   });
 
   it('shows a precise birth instant without inventing an interval or multiple candidate labels', async () => {

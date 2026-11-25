@@ -491,6 +491,7 @@ test('constitution keyboard loop answers one question at a time and destroys the
   const { data } = await response.json();
   const result = page.getByRole('region', { name: '体质测评结果', exact: true });
   await expect(result.locator('.constitution-decision h4')).toBeFocused();
+  await expect(result.locator('.constitution-decision h4')).toHaveCSS('outline-style', 'none');
   await expect(result.getByRole('img')).toHaveCount(9);
   const request = JSON.parse(diagnostics.requests.find(item => item.url.endsWith('/constitution/assess')).body);
   expect(Object.keys(request.answers)).toHaveLength(26);
@@ -501,6 +502,14 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await result.locator('.constitution-decision h4').focus();
   await screenshot(page, testInfo, 'constitution-keyboard-result');
   // Content disclosures precede the shell actions; the footer follows them in DOM.
+  await page.keyboard.press('Tab');
+  const standards = result.getByRole('button', { name: '判定标准' });
+  await expect(standards).toBeFocused();
+  await expect(standards).toHaveCSS('outline-style', 'solid');
+  await page.keyboard.press('Enter');
+  await expect(standards).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Space');
+  await expect(standards).toHaveAttribute('aria-expanded', 'false');
   await page.keyboard.press('Tab');
   await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');

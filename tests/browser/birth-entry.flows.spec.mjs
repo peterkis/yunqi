@@ -1,5 +1,6 @@
 import { test, expect, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { expectTextContrast } from './visual-assertions.mjs';
+import { expectBirthCandidateBadges } from './birth-helpers.mjs';
 
 test('rejecting an extra day digit preserves the confirmed date in inline and sheet entry', async ({ page }) => {
   await page.goto('/yunqi/birth');
@@ -82,6 +83,8 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     await expect(form).toContainText('推算 1980 年');
     await expect(seal).toContainText('待定');
     await expect(form).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(form.locator('.birth-entry__dock')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
+    await expect(form.locator('.birth-keypad')).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(form.locator('.birth-slot').first()).toHaveCSS('box-shadow', 'none');
     await expect(form.getByRole('radiogroup', { name: '出生年份录入方式' })).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)');
     await expect(form.getByRole('button', { name: '仅按年份对照' })).toBeInViewport({ ratio: 1 });
@@ -92,6 +95,7 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     const { data: comparison } = await (await yearResponse).json();
     const main = page.getByRole('region', { name: '出生与当前运气对照结果' });
     await expect(main.getByRole('table')).toHaveCount(2);
+    await expectBirthCandidateBadges(main, comparison.candidates);
     await expect(main.getByRole('rowheader')).toHaveCount(6);
     const summary = page.getByRole('group', { name: '出生资料摘要' });
     await expect(summary).toHaveCSS('align-items', 'baseline');
@@ -102,7 +106,7 @@ for (const [width, height, dark] of [[400, 640, false], [400, 860, true], [1366,
     }
     for (const interval of await main.locator('.birth-candidate-interval').all()) {
       const [label, range, start, end] = await interval.evaluate(node =>
-        [node.firstElementChild, node.lastElementChild, ...node.lastElementChild.children].map(el => {
+        [node.querySelector('.birth-interval-label'), node.lastElementChild, ...node.lastElementChild.children].map(el => {
           const box = el.getBoundingClientRect();
           return { top: box.top, bottom: box.bottom };
         }));
