@@ -43,7 +43,7 @@ export function ConstitutionSnapshotCard(props: SnapshotProps) {
       <span className="constitution-snapshot__times"><YunQiTimeDisplay value={props.facts.time} /></span>
     </footer>}
     {birth && <footer className="constitution-snapshot__interval">
-      <span>{birth.precision === 'time' ? '出生时刻：' : '可能区间（含起不含终）'}</span>
+      <span>{birth.precision === 'time' ? '出生时刻：' : '可能区间'}</span>
       <span className="constitution-snapshot__times">
         <YunQiTimeDisplay value={birth.facts.from} variant={timeFormat} />
         {birth.precision !== 'time' && <><span aria-hidden="true">→</span><span className="visually-hidden">至</span>

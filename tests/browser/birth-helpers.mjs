@@ -1,5 +1,34 @@
 import { expect, expectCompactTimes, waitForAnimations } from './fixtures.mjs';
-import { expectElementTitle } from './visual-assertions.mjs';
+import { expectElementTitle, expectTextContrast } from './visual-assertions.mjs';
+
+export async function expectBirthCandidateBadges(result, candidates) {
+  const badges = result.locator('.birth-tables[data-multiple] .birth-candidate-interval > h3.birth-label');
+  if (candidates.length < 2) {
+    await expect(badges).toHaveCount(0);
+    return;
+  }
+  await expect(badges).toHaveText(candidates.map(candidate => candidate.label));
+  for (const badge of await badges.all()) {
+    await expect(badge).toHaveCSS('border-radius', '999px');
+    await expectTextContrast(badge);
+    const inset = await badge.evaluate(node => {
+      const card = node.closest('.birth-candidate-card'), css = getComputedStyle(card);
+      const bounds = card.getBoundingClientRect(), chip = node.getBoundingClientRect();
+      const label = card.querySelector('.birth-interval-label').getBoundingClientRect();
+      return {
+        top: chip.top - bounds.top - parseFloat(css.paddingTop) - parseFloat(css.borderTopWidth),
+        right: bounds.right - chip.right - parseFloat(css.paddingRight) - parseFloat(css.borderRightWidth),
+        labelCenter: label.y + label.height / 2 - chip.y - chip.height / 2,
+        gap: chip.left - label.right,
+      };
+    });
+    expect(Math.abs(inset.top)).toBeLessThanOrEqual(1);
+    expect(Math.abs(inset.right)).toBeLessThanOrEqual(1);
+    expect(Math.abs(inset.labelCenter)).toBeLessThanOrEqual(1);
+    expect(inset.gap).toBeGreaterThan(0);
+  }
+  await expect(badges.last()).not.toHaveCSS('background-color', await badges.first().evaluate(node => getComputedStyle(node).backgroundColor));
+}
 
 export async function fillBirthDate(page, value) {
   const mode = page.getByRole('radio', { name: '按出生年份' });
@@ -63,6 +92,7 @@ export async function expectBirthComparison(page, data) {
   await expect(page.getByRole('form', { name: '出生运气输入' })).toHaveCount(0);
   const candidates = result.locator('.birth-candidate-card');
   await expect(candidates).toHaveCount(data.candidates.length);
+  await expectBirthCandidateBadges(result, data.candidates);
   const names = ['岁运', '司天', '在泉', '所处气', '所处运'];
   const dimensions = ['中运对照', '司天对照', '在泉对照', '客气对照', '客运对照'];
   for (const [index, candidate] of data.candidates.entries()) {
@@ -131,7 +161,8 @@ export async function expectBirthComparison(page, data) {
       await expect(precision.locator('time').first()).toHaveAttribute('datetime', data.birthPrecision === 'date' ? candidate.from.localTime : candidate.learning.facts.input.localTime);
     } else if (data.birthPrecision === 'date') {
       const interval = article.locator('.birth-candidate-interval');
-      await expect(interval).toContainText('起点包含，终点不包含');
+      await expect(interval.locator('.birth-interval-label')).toHaveText('可能出生区间');
+      await expect(interval).not.toContainText('起点包含，终点不包含');
       await expect(interval.locator('time')).toHaveCount(2);
       await expect(interval.locator('time').first()).toHaveAttribute('datetime', candidate.from.localTime);
       await expect(interval.locator('time').last()).toHaveAttribute('datetime', candidate.until.localTime);

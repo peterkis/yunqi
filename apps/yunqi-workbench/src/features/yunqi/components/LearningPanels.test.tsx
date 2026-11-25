@@ -47,10 +47,13 @@ describe('live learning cards replacing demo panels', () => {
     expect(precision.querySelector(`time[datetime="${movement.end.localTime}"]`)).toBeVisible();
     await user.click(screen.getByText('这些关系怎么读？'));
     const reading = screen.getByText('这些关系怎么读？').closest('details')!;
-    expect(within(reading).getByText(movement.explanation)).toBeVisible();
+    expect(reading).not.toHaveTextContent(movement.explanation);
     expect(reading).not.toHaveTextContent('教学口径，待专家确认');
     await user.click(screen.getByText('其余阶段', { exact: true }));
-    expect(screen.getByRole('region', { name: '五步运全表' })).toHaveTextContent(movement.boundaryMethod);
+    const timeline = screen.getByRole('region', { name: '五运全表' });
+    expect(timeline).not.toHaveTextContent(movement.boundaryMethod);
+    expect(timeline.querySelector('footer')).toHaveTextContent(movement.explanation);
+    expect(screen.getAllByText(movement.explanation, { exact: true })).toHaveLength(1);
   });
 
   it('hides a sampled instant when birth precision is a date', () => {

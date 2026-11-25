@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { test, expect, loadCurrent, screenshot } from './fixtures.mjs';
 import { expectMotionDurations, expectTransitionDuration, expectImmediateFocusRing } from './motion-helpers.mjs';
+import { expectTextContrast } from './visual-assertions.mjs';
 
 const tokens = JSON.parse(readFileSync('docs/design/design-system/tokens.json', 'utf8'));
 const surface = name => {
@@ -61,6 +62,7 @@ for (const theme of ['light', 'dark']) {
     }
     const disclosure = page.locator('.current-all-stages');
     await disclosure.locator('summary').first().click();
+    for (const badge of await disclosure.locator('.current-stage-badge').all()) await expectTextContrast(badge);
     const detail = page.locator('.current-stage-row > [role="region"]:not([hidden])').first();
     await expectTransitionDuration(page, detail);
     if (await page.evaluate(() => CSS.supports('interpolate-size', 'allow-keywords'))) {

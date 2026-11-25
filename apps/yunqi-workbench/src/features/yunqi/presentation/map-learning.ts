@@ -1,5 +1,5 @@
 import type { BirthComparisonDto, ClassicalPassageDto, LearningRelationDto, MovementStepDto, YunQiLearningDto } from '@yunqi/contracts';
-import { mapCurrentYunQi } from './map-current-yunqi';
+import { mapCurrentYunQi, stageStatus } from './map-current-yunqi';
 import { mapYunQiTime } from './map-yunqi-shared';
 import { mapStageProgress } from './map-stage-progress';
 import { mapMovementElement, mapMovementRelation, mapRelationTone } from './visual-mappings';
@@ -17,6 +17,8 @@ export interface LearningRelationViewModel {
 export interface MovementViewModel {
   readonly index: number;
   readonly name: string;
+  readonly tickLabel: string;
+  readonly status: ReturnType<typeof stageStatus>;
   readonly start: YunQiTimeViewModel;
   readonly end: YunQiTimeViewModel;
   readonly hostLabel: string;
@@ -129,8 +131,10 @@ export function compactSourceTitle(title: string): string {
     .replace(/^(《[^》]+》)卷[一二三四五六七八九十百]+·(.+)$/, '$1$2');
 }
 
-function mapMovement(value: MovementStepDto): MovementViewModel {
+function mapMovement(value: MovementStepDto, currentIndex: number): MovementViewModel {
+  const status = stageStatus(value.index, currentIndex);
   return { index: value.index, name: value.name, start: mapYunQiTime(value.start), end: mapYunQiTime(value.end),
+    tickLabel: value.name.replace(/运$/, ''), status: status.code === 'current' ? { ...status, label: '正在此段' } : status,
     hostLabel: `${value.host.element}运${value.host.state}（${value.host.tone}）`,
     guestLabel: `${value.guest.element}运${value.guest.state}（${value.guest.tone}）`,
     hostValue: `${value.host.element}运${value.host.state}`,
@@ -156,22 +160,21 @@ function mapPassage(value: ClassicalPassageDto, periodScopeLabel: '当前阶段'
 
 export function mapLearning(value: YunQiLearningDto, periodScopeLabel: '当前阶段' | '出生阶段' = '当前阶段'): LearningViewModel {
   const facts = mapCurrentYunQi(value.facts);
+  const movements = value.movements.map(step => mapMovement(step, value.currentMovement.index));
   const currentMovementProgress = mapStageProgress(value.currentMovementProgress, {
     startLabel: value.currentMovement.startLabel, endLabel: value.currentMovement.endLabel,
     endLocalTime: value.currentMovement.end.localTime, transition: '交运',
   });
   return { facts, ruleVersion: value.ruleVersion,
     annualRelation: scopedRelation(value.annualRelation, '全年'), currentQi: scopedRelation(value.currentQi, facts.currentStep.name),
-    currentMovement: mapMovement(value.currentMovement), movements: value.movements.map(mapMovement),
+    currentMovement: mapMovement(value.currentMovement, value.currentMovement.index), movements,
     currentMovementProgress,
     annualWheel: {
       label: `年轮：外环六步气，当前第${facts.currentStep.index}步${facts.currentStep.name}，${facts.currentStepProgress.elapsedLabel}；内环五步运，当前第${value.currentMovement.index}运${value.currentMovement.name}，${currentMovementProgress.elapsedLabel}`,
       ganzhi: facts.summary.stemBranch.ganzhi,
       annualLabel: `${facts.summary.suiYun.element}运${facts.summary.suiYun.state}之年`,
       qi: facts.timeline.map((step) => ({ index: step.index, tickLabel: step.tickLabel, status: step.status.code })),
-      movements: value.movements.map((step) => ({ index: step.index,
-        status: step.index < value.currentMovement.index ? 'completed' : step.index === value.currentMovement.index ? 'current' : 'upcoming',
-      })),
+      movements: movements.map(step => ({ index: step.index, status: step.status.code })),
     },
     annualPassages: value.annualPassages.map((passage) => mapPassage(passage, periodScopeLabel)),
     currentPassages: value.currentPassages.map((passage) => mapPassage(passage, periodScopeLabel)), notes: [...value.notes] };

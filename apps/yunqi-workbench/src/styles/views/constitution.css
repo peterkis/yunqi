@@ -75,19 +75,6 @@
   border: var(--constitution-hairline) dashed var(--ink-tertiary); border-radius: var(--radius-full);
 }
 .constitution-context-empty > span:last-child { text-decoration: underline; }
-.constitution-reference-rows { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-2); margin: 0; }
-.constitution-reference-rows > div {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-.constitution-reference-rows dt { color: var(--ink-tertiary); font-size: var(--ts-small); }
-.constitution-reference-rows dd { min-width: 0; margin: 0; overflow-wrap: break-word; font-size: var(--ts-body); font-weight: var(--type-body-strong-weight); }
-.constitution-reference-rows .constitution-reference-summary { white-space: pre-line; font-size: var(--ts-small); line-height: var(--ts-small-line); }
-.constitution-reference-rows .ds-element { align-items: baseline; }
-.constitution-context-candidate { display: block; }
-.constitution-context-candidate + .constitution-context-candidate { margin-top: var(--space-1); }
 .constitution-workspace .yunqi-time { gap: var(--space-1); font-size: var(--ts-small); line-height: var(--type-caption-line); }
 .constitution-workspace .yunqi-time time { font-family: var(--font-sans); }
 .constitution-disclosure { min-width: 0; color: var(--ink-secondary); font-size: var(--ts-small); }
@@ -108,7 +95,11 @@
   --snapshot-ink: var(--countdown-fg);
 }
 @media (prefers-contrast: no-preference) and (forced-colors: none) {
-  .constitution-snapshot { background-image: linear-gradient(to right, var(--snapshot-wash), transparent 65%); }
+  .constitution-snapshot {
+    --jade-card-shadow: var(--shadow-snapshot);
+    background-image: linear-gradient(to right, var(--snapshot-wash), transparent 65%);
+    background-origin: border-box; background-repeat: no-repeat;
+  }
 }
 .constitution-snapshot__header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--space-1); }
 .constitution-snapshot__header h4, .constitution-snapshot__badge {
@@ -130,13 +121,25 @@
   margin: var(--space-3) 0 0; padding-block-start: var(--space-2_5);
 }
 .constitution-snapshot__stages { display: grid; gap: var(--space-2); }
-.constitution-snapshot__stages > div { display: grid; grid-template-columns: 3em repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-items: baseline; font-size: var(--ts-body); }
+.constitution-snapshot__stages > div {
+  display: grid; grid-template-columns: 3em repeat(2, minmax(0, 1fr)); gap: var(--space-2); align-items: center;
+  font-size: var(--ts-body); line-height: calc(var(--ts-small) * var(--type-caption-line));
+}
 .constitution-snapshot__stages dt { font-weight: var(--type-body-strong-weight); }
-.constitution-snapshot__stages dd { display: flex; align-items: baseline; gap: var(--space-1); margin: 0; min-width: 0; font-size: var(--ts-small); }
+.constitution-snapshot__stages dd { display: flex; align-items: center; gap: var(--space-1); margin: 0; min-width: 0; font-size: var(--ts-small); }
 .constitution-snapshot__stages dd > span:first-child { flex: none; color: var(--ink-secondary); }
+/* The small Han glyphs sit slightly below the midpoint of their line box. */
+.constitution-snapshot__stages .ds-element__dot { position: relative; inset-block-start: calc(var(--space-0_5) / 2); }
 .constitution-snapshot__interval { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--space-1); color: var(--ink-secondary); }
 .constitution-snapshot__times { display: inline-flex; flex-wrap: wrap; align-items: baseline; justify-content: flex-end; gap: var(--space-1); margin-inline-start: auto; color: var(--ink-primary); }
 .constitution-snapshot__times .yunqi-time time { font-family: var(--font-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.constitution-birth-candidate .constitution-snapshot__interval { justify-content: flex-start; gap: var(--space-2); }
+.constitution-birth-candidate .constitution-snapshot__times { justify-content: flex-start; margin-inline-start: 0; }
+@container workbench (width < 380px) {
+  .constitution-snapshot[data-kind="birth"] { padding-inline: var(--space-2); }
+  .constitution-birth-candidate .constitution-snapshot__interval { gap: var(--space-1); }
+  .constitution-birth-candidate .yunqi-time time { font-family: var(--font-sans); font-variant-numeric: tabular-nums; }
+}
 
 .constitution-answer-form { display: grid; gap: var(--space-3); min-width: 0; margin: 0; }
 .constitution-sex { min-width: 0; margin: var(--space-2) 0; padding: 0; border: 0; }
@@ -228,7 +231,7 @@
 .constitution-sex-summary .ds-button { min-height: 0; padding: 0; font-size: var(--ts-small); line-height: inherit; }
 .constitution-edition-badge {
   padding: var(--space-0_5) var(--space-1_5); border-radius: var(--radius-full);
-  background: var(--accent-subtle); color: var(--accent); white-space: nowrap;
+  background: var(--constitution-male-bg); color: var(--constitution-male-ink); white-space: nowrap;
   font-weight: var(--type-body-strong-weight);
 }
 .constitution-edition-badge[data-edition="female"] { background: var(--countdown-bg); color: var(--countdown-fg); }
@@ -340,10 +343,12 @@
 .constitution-actions .ds-button:disabled { color: var(--ink-tertiary); opacity: .65; }
 .constitution-actions svg { width: var(--space-4); height: var(--space-4); }
 .constitution-actions [data-request-destroy] {
+  --control-interaction-surface: color-mix(in srgb, var(--destroy-trigger-bg) 88%, var(--input-error-fg));
   margin-inline-start: auto;
   padding-inline: var(--space-3);
-  background: var(--destroy-surface);
-  color: var(--destroy-ink);
+  background: var(--destroy-trigger-bg);
+  color: var(--input-error-fg);
+  font-weight: var(--type-body-strong-weight);
 }
 .constitution-actions [data-confirm-destroy] {
   --control-interaction-surface: var(--destroy-ink);
@@ -367,7 +372,7 @@
   border-radius: 50%;
   background: var(--destroy-emphasis);
 }
-.constitution-actions [data-request-destroy]:hover:not(:disabled),
+.constitution-actions [data-request-destroy]:hover:not(:disabled) { background: var(--control-interaction-surface); }
 .constitution-actions[data-confirming] .ds-button--text:hover:not(:disabled) {
   background: color-mix(in srgb, var(--destroy-surface) 91%, var(--destroy-ink));
 }
@@ -382,7 +387,6 @@
 .constitution-result-view {
   /* Assessment states use their own roles. Theme inputs come from the shared palette. */
   --constitution-match-fill: color-mix(in oklab, var(--element-fire) 88%, var(--relation-adverse-fg));
-  --constitution-match-bg: color-mix(in oklab, var(--constitution-match-fill) 12%, var(--surface-card));
   --constitution-tendency-fill: color-mix(in oklab, var(--element-earth) 88%, var(--relation-adverse-fg));
   --constitution-tendency-bg: var(--relation-adverse-bg);
   --constitution-balanced-fill: var(--data-secondary);
@@ -391,20 +395,52 @@
   min-width: 0;
   gap: var(--space-3);
 }
-/* The result's three-column reference card owns this context; the answering
+/* The result's reference card owns this context; the answering
    context remains unchanged and returns when the user edits the answers. */
 .constitution-answer-form:has(.constitution-result-view) > .constitution-context { display: none; }
 .constitution-eyebrow { margin: 0; color: var(--ink-tertiary); font-family: var(--font-sans); font-size: var(--ts-small); line-height: var(--type-label-line); font-weight: var(--type-label-weight); letter-spacing: var(--type-label-tracking); }
-.constitution-decision { padding-inline: var(--space-4_5); }
-.constitution-decision-title { display: flex; align-items: center; gap: var(--space-2_5); margin-top: var(--space-1_5); }
+.constitution-decision {
+  padding-inline: var(--space-4_5);
+  background-image: linear-gradient(90deg, var(--excerpt-metal-wash), transparent var(--space-4));
+}
+.constitution-decision-header { display: grid; grid-template-columns: 1fr auto; align-items: center; }
+.constitution-decision-header .constitution-decision-title { grid-area: 2 / 1 / 3 / -1; }
+.constitution-decision-header button {
+  grid-area: 1 / 2; justify-self: end;
+  display: inline-flex; align-items: center; gap: var(--space-1); min-height: var(--segment-height);
+  border: 0; border-radius: var(--radius-xs); padding: 0 var(--space-1); background: transparent;
+  color: var(--ink-tertiary); font: inherit; font-size: var(--ts-small); cursor: pointer;
+}
+.constitution-decision-header button:is(:hover, [aria-expanded="true"]) { color: var(--accent); background: var(--accent-subtle); }
+.constitution-decision-header svg { width: var(--space-3_5); height: var(--space-3_5); }
+.constitution-match-count { color: var(--ink-tertiary); font-size: var(--ts-body); }
+.constitution-decision-title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2_5); margin-top: var(--space-1_5); }
 .constitution-decision h4 { flex: none; margin: 0; font-family: var(--font-serif); font-size: var(--ts-display-result); line-height: var(--ts-display-result-line); font-weight: var(--ts-display-result-weight); white-space: nowrap; }
-.constitution-tendency-types { display: flex; flex: 1; flex-wrap: wrap; align-items: center; gap: var(--space-1_5); min-width: 0; }
+.constitution-tendency-types {
+  display: flex; flex: 1 1 min-content; flex-wrap: wrap; justify-content: flex-end;
+  align-items: center; min-width: min-content; gap: var(--space-1_5);
+}
 .constitution-decision > .constitution-meta { margin-top: var(--space-2); line-height: var(--ts-body-line); }
-.constitution-matched-types { display: flex; flex-wrap: wrap; gap: var(--space-1_5); margin-top: var(--space-2); }
-.constitution-matched-types .ds-relation__chip { background: var(--constitution-match-bg); color: var(--ink-primary); }
+.constitution-matched-types { display: grid; gap: var(--space-1_5); margin-top: var(--space-3); }
+.constitution-match-tier { display: flex; flex-wrap: wrap; gap: var(--space-1_5); }
+.constitution-match-chip {
+  display: inline-flex; align-items: baseline; gap: var(--space-1_5); white-space: nowrap;
+  border-radius: var(--radius-full); padding: var(--space-0_5) var(--space-2_5); font-size: var(--ts-body);
+  background: var(--relation-incoming-control-bg); color: var(--relation-incoming-control-fg);
+}
+.constitution-match-tier[data-leading="true"] .constitution-match-chip {
+  background: var(--confirm-hud-action); color: var(--confirm-hud-text); font-weight: var(--type-body-strong-weight);
+}
+.constitution-match-chip b { font-weight: inherit; }
+.constitution-standards { padding-top: var(--space-2); border-top: var(--constitution-hairline) solid var(--border-subtle); }
+.constitution-standards p { margin: 0; }
+.constitution-standards p + p { margin-top: var(--space-1); }
 .constitution-tendency-types .ds-relation__chip { background: var(--constitution-tendency-bg); color: var(--relation-adverse-fg); }
 .constitution-score-card { padding: var(--space-3_5) var(--space-4) var(--space-2_5); }
 .constitution-chart-header { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space-2); color: var(--ink-tertiary); font-size: var(--ts-small); }
+.constitution-chart-header h4, .constitution-reference-card > h4 {
+  font-size: var(--ts-body); color: var(--ink-primary); font-weight: var(--type-title-weight); letter-spacing: normal;
+}
 .constitution-chart-plot {
   --constitution-chart-label: calc(var(--control-height) + var(--space-3));
   --constitution-chart-score: var(--input-height);
@@ -428,12 +464,12 @@
 .constitution-bar[data-tone="secondary"] { --constitution-row-fill: var(--constitution-tendency-fill); color: var(--ink-primary); }
 .constitution-bar[data-tone="primary"]:not([data-balanced]) {
   --constitution-row-fill: var(--constitution-match-fill);
-  background: var(--constitution-match-bg);
-  border-radius: var(--radius-xs);
   color: var(--ink-primary);
   font-weight: var(--type-body-strong-weight);
 }
 .constitution-bar-label { padding-inline-start: var(--space-1); }
+.constitution-bar-label, .constitution-bar-score { font-size: var(--ts-body); }
+.constitution-bar[data-tone="neutral"]:not([data-balanced]) { color: var(--ink-tertiary); }
 .constitution-bar-score { padding-inline-end: var(--space-1); text-align: right; font-variant-numeric: tabular-nums; }
 .constitution-bar[data-tone="primary"]:not([data-balanced]) .constitution-bar-score { font-weight: var(--ts-display-result-weight); }
 .constitution-bar-track { position: relative; height: var(--space-2); border-radius: var(--radius-full); background: var(--data-track); }
@@ -448,13 +484,39 @@
 .constitution-chart-guide--30 { inset-inline-start: var(--constitution-tick-thirty); }
 .constitution-chart-guide--40 { inset-inline-start: var(--constitution-tick-forty); }
 .constitution-reference-card { padding: var(--space-3_5) var(--space-3); }
-.constitution-reference-rows { margin: var(--space-2_5) 0; font-size: var(--ts-small); }
-/* Keep the count and tendency on two lines within three equal narrow wells. */
-.constitution-reference-rows > div { padding: var(--space-2_5) var(--space-1); border-radius: var(--radius-sm); background: var(--surface-page); }
+.constitution-reference-rows {
+  display: grid; grid-template-columns: max-content minmax(0, 1fr); column-gap: var(--space-3);
+  margin: var(--space-1) 0 var(--space-2);
+}
+.constitution-reference-rows > div {
+  grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; align-items: baseline;
+  padding-block: var(--space-2); min-width: 0;
+}
+.constitution-reference-rows > div + div { border-top: var(--constitution-hairline) solid var(--border-subtle); }
+.constitution-reference-rows dt { display: flex; align-items: center; gap: var(--space-1); color: var(--ink-tertiary); font-size: var(--ts-small); }
+.constitution-reference-birth-label { align-self: center; }
+.constitution-reference-rows dd { min-width: 0; margin: 0; font-size: var(--ts-body); }
+.constitution-reference-summary { white-space: pre-line; }
+.constitution-reference-summary strong { display: inline-block; font-weight: var(--type-body-strong-weight); }
+.constitution-reference-leaders { display: inline-block; max-width: 100%; }
+.constitution-reference-leaders, .constitution-reference-tendency { color: var(--ink-secondary); }
+.constitution-reference-leaders > span { display: inline-block; white-space: nowrap; }
+.constitution-dahan-badge { padding-inline: var(--space-1); border-radius: var(--radius-xs); background: var(--countdown-bg); color: var(--countdown-fg); white-space: nowrap; }
+.constitution-context-candidate, .constitution-current-reference { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--space-1_5); }
+.constitution-context-candidate + .constitution-context-candidate { margin-top: var(--space-1); }
+.constitution-candidate-prefix { color: var(--ink-secondary); white-space: nowrap; }
+@container workbench (width < 360px) {
+  .constitution-decision-title:has(.constitution-match-count):has(.constitution-tendency-types > :only-child) {
+    display: grid; grid-template-columns: max-content 1fr; row-gap: var(--space-0_5);
+    grid-template-areas: "decision count" "decision tendency";
+  }
+  .constitution-result-title { grid-area: decision; }
+  .constitution-match-count { grid-area: count; justify-self: end; }
+  .constitution-tendency-types { grid-area: tendency; }
+  .constitution-reference-rows dt { flex-direction: column; align-items: flex-start; }
+}
 .constitution-workspace :focus-visible,
 .constitution-session :focus-visible { outline: var(--space-0_5) solid var(--focus-ring); outline-offset: var(--space-0_5); }
-/* F4: programmatic question focus remains for announcement, without a box.
-   Interactive targets retain the shared keyboard focus ring above. */
-.constitution-question-title:focus,
-.constitution-question-title:focus-visible { outline: none; }
+/* These headings receive focus to announce a question or result. */
+:is(.constitution-question-title, .constitution-result-title)[tabindex="-1"]:focus { outline: none; }
 .birth-constitution { margin-top: var(--space-3); }

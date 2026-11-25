@@ -85,15 +85,9 @@
   padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
   background: var(--surface-card); border-top: var(--birth-hairline) solid var(--border-subtle);
 }
-.birth-keypad { display: grid; grid-template-columns: repeat(3,1fr); gap: var(--space-1) var(--space-2); margin-bottom: var(--space-3); }
+.birth-keypad { margin-bottom: var(--space-3); }
 .birth-entry--inline .birth-entry__dock { flex: 1; display: flex; flex-direction: column; }
 .birth-entry--inline .birth-keypad { flex: 1; grid-auto-rows: 1fr; }
-.birth-keypad button {
-  min-height: var(--option-height); display: grid; place-items: center; color: var(--ink-primary);
-  border: 0; border-radius: var(--radius-sm); background: transparent; font: inherit; font-size: var(--ts-body); cursor: pointer;
-}
-.birth-keypad button[data-digit] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; font-size: var(--ts-title); }
-.birth-keypad button:hover, .birth-keypad button:active { background: var(--accent-subtle); }
 .birth-entry__dock > .ds-button { width: 100%; min-height: calc(var(--option-height) - var(--space-0_5)); border-radius: var(--radius-full); }
 .birth-entry__dock > .ds-button:disabled { opacity: .45; box-shadow: none; }
 [data-motion=full] .birth-keypad button { transition: background-color 90ms ease, transform 90ms ease; }
@@ -201,7 +195,7 @@
 .birth-entry--inline .birth-entry__canvas { padding-bottom: var(--space-2); }
 .birth-entry--inline .birth-entry__dock {
   margin-inline: var(--space-2); margin-bottom: var(--space-2); padding: var(--space-2);
-  border: 0; border-radius: var(--radius-lg); background: var(--birth-key-tint);
+  border: 0; background: transparent;
 }
 .birth-entry--inline .birth-keypad { gap: var(--space-1_5); margin-bottom: var(--space-2); }
 .birth-entry--inline .birth-keypad button {

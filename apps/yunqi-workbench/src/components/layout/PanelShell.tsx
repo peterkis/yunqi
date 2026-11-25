@@ -144,14 +144,13 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
             </Button>
           </>} />
           <div className="panel-shell__navigation">
+            {route.kind === 'segment' && <SegmentedNav segments={navigationItems} label="工作台导航" />}
             {view?.drilldown
               ? <section className="panel-shell__drilldown" aria-label="页面导航">
                   <PanelHeader variant="drilldown" title={view.drilldown.toolbarActions ? '' : view.drilldown.title}
                     actions={view.drilldown.toolbarActions} onBack={view.drilldown.onBack} />
                 </section>
-              : route.kind === 'segment'
-              ? <SegmentedNav segments={navigationItems} label="工作台导航" />
-              : <section className="panel-shell__drilldown" aria-label="页面导航">
+              : route.kind === 'drilldown' && <section className="panel-shell__drilldown" aria-label="页面导航">
                   <PanelHeader variant="drilldown" title={route.title} subtitle={route.subtitle} onBack={() => navigate(route.backTo)} />
                 </section>}
           </div>

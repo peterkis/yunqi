@@ -1,6 +1,6 @@
 import { test, expect, screenshot, expectTypeScale, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { fillBirthDate } from './birth-helpers.mjs';
-import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference, confirmConstitutionDestruction } from './constitution-helpers.mjs';
+import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments, expectConstitutionMixedReference, confirmConstitutionDestruction, expectSnapshotInkAlignment } from './constitution-helpers.mjs';
 import { expectViewControls } from './visual-assertions.mjs';
 
 // Fixed answer vectors for the versioned male questionnaire, sent through the
@@ -9,8 +9,75 @@ import { expectViewControls } from './visual-assertions.mjs';
 const profiles = [
   { count: 1, title: '痰湿质', values: constitutionResultValues },
   { count: 2, title: '偏颇质兼夹', values: [1, 3, 2, 4, 4, 4, 3, 5, 2, 1, 4, 3, 2, 2, 1, 3, 3, 2, 2, 2, 4, 1, 4, 2, 2, 2] },
+  { count: 6, title: '偏颇质兼夹', values: [4, 4, 2, 4, 4, 5, 4, 5, 4, 4, 4, 3, 3, 4, 2, 3, 3, 3, 4, 4, 2, 3, 2, 2, 2, 2] },
   { count: 7, title: '偏颇质兼夹', values: [1, 2, 2, 3, 5, 4, 3, 2, 5, 5, 4, 2, 3, 5, 3, 1, 5, 3, 3, 4, 1, 4, 5, 4, 4, 3] },
 ];
+
+test('five scored matches highlight both leaders and show the two Dahan candidates in separate lines', async ({ page }, testInfo) => {
+  await page.goto('/yunqi/birth');
+  await page.getByRole('radio', { name: '按出生年份' }).click();
+  await page.getByRole('textbox', { name: '年', exact: true }).fill('1987');
+  await page.getByRole('button', { name: '仅按年份对照' }).click();
+  await page.getByRole('button', { name: '同时测评体质' }).click();
+  const values = [4, 4, 3, 3, 4, 4, 3, 4, 1, 2, 2, 4, 4, 4, 3, 3, 3, 2, 2, 2, 4, 4, 2, 2, 2, 2];
+  const request = await answerConstitution(page, page, { values });
+  const { data } = await (await request.response()).json();
+  const result = await expectConstitutionResults(page, data);
+  await expect(result.locator('.constitution-match-count')).toHaveText('5 项达标');
+  await expect(result.locator('[data-leading="true"] .constitution-match-chip')).toHaveText(['气虚质 75', '痰湿质 75']);
+  await expect(result.locator('[data-leading="false"] .constitution-match-chip')).toHaveText(['气郁质 67', '阳虚质 58', '湿热质 50']);
+  const reference = result.locator('.constitution-reference-rows');
+  await expect(reference.locator('.constitution-dahan-badge')).toHaveText('大寒交界');
+  await expect(reference.locator('.constitution-candidate-prefix')).toHaveText(['交节前', '交节起']);
+  await expect(reference.locator('.constitution-context-candidate .ds-element')).toHaveText(['丙寅 · 水运太过', '丁卯 · 木运不及']);
+  const standards = result.getByRole('button', { name: '判定标准' });
+  await standards.press('Enter');
+  await expect(result.locator('.constitution-standards')).toBeVisible();
+  await standards.press('Space');
+  await expect(result.locator('.constitution-standards')).toBeHidden();
+  for (const width of [400, 320]) {
+    await page.setViewportSize({ width, height: 640 });
+    if (width === 320) await page.getByRole('button', { name: '切换至深色主题' }).click();
+    await expectConstitutionResultLayout(result, testInfo);
+    const lines = await reference.locator('.constitution-context-candidate').evaluateAll(items => items.map(item => {
+      const prefix = item.firstElementChild.getBoundingClientRect();
+      const value = item.lastElementChild.getBoundingClientRect();
+      return { top: prefix.top, bottom: prefix.bottom, valueTop: value.top, overflow: item.scrollWidth - item.clientWidth };
+    }));
+    expect(lines[0].bottom).toBeLessThanOrEqual(lines[1].top);
+    for (const line of lines) {
+      expect(Math.abs(line.top - line.valueTop)).toBeLessThanOrEqual(3);
+      expect(line.overflow).toBeLessThanOrEqual(1);
+    }
+    const snapshots = result.getByText('本次对照快照与候选区间', { exact: true });
+    await snapshots.click();
+    const shadowMargin = await snapshots.evaluate(summary => {
+      const content = getComputedStyle(summary.closest('details'), '::details-content');
+      return content.overflowX === 'clip' ? parseFloat(content.overflowClipMargin) : null;
+    });
+    if (shadowMargin !== null) expect(shadowMargin).toBeGreaterThanOrEqual(16);
+    const intervals = result.locator('.constitution-birth-candidate footer');
+    await expect(intervals).toHaveCount(2);
+    const footers = await intervals.all();
+    const [before, after] = await Promise.all(footers.map(footer => footer.locator('time').allTextContents()));
+    expect(before[0]).toBe('1987-01-01 00:00');
+    expect(after[0]).toBe(before[1]);
+    expect(after[1]).toBe('1988-01-01 00:00');
+    for (const footer of footers) {
+      await expect(footer.getByText('可能区间', { exact: true })).toBeVisible();
+      const sameLine = await footer.evaluate(node => {
+        const label = node.firstElementChild.getBoundingClientRect();
+        const [start, end] = [...node.querySelectorAll('time')].map(time => time.getBoundingClientRect());
+        return label.right < start.left && label.top < start.bottom && label.bottom > start.top &&
+          Math.abs(start.y - end.y) <= 1 && end.right <= node.getBoundingClientRect().right + 1;
+      });
+      expect(sameLine).toBe(true);
+      await expectSnapshotInkAlignment(footer.locator('..'));
+    }
+    await snapshots.click();
+    expect((await scanAccessibility(page)).violations).toEqual([]);
+  }
+});
 
 test('constitution progress shows answered questions and keeps current dimensions in the grid', async ({ page }) => {
   await page.goto('/yunqi/constitution');
@@ -159,7 +226,15 @@ for (const embedded of [false, true]) {
       const { data } = await response.json();
       expect(data.matchedTypes).toHaveLength(profile.count);
       expect(data.matchedTypes).not.toContain('balanced');
+      const narrowTendency = embedded && profile.count === 6;
+      if (narrowTendency) await page.setViewportSize({ width: 320, height: 640 });
       const result = await expectConstitutionResults(page, data);
+      if (narrowTendency) {
+        const count = await result.locator('.constitution-match-count').boundingBox();
+        const tag = await result.getByText('气郁 倾向', { exact: true }).boundingBox();
+        expect(tag.y).toBeGreaterThanOrEqual(count.y + count.height);
+        expect(Math.abs(tag.x + tag.width - count.x - count.width)).toBeLessThanOrEqual(1);
+      }
       if (profile.count === 1) expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
       await expectConstitutionResultLayout(result, testInfo);
       await expectConstitutionDisclosures(page, testInfo, true);

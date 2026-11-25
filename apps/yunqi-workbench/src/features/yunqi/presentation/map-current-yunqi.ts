@@ -27,20 +27,18 @@ const STAGE_TICKS = {
   初之气: '初', 二之气: '二', 三之气: '三', 四之气: '四', 五之气: '五', 终之气: '终',
 } as const satisfies Record<SixQiStageViewModel['name'], string>;
 
+export function stageStatus(index: number, currentIndex: number) {
+  const code = index < currentIndex ? 'completed' : index === currentIndex ? 'current' : 'upcoming';
+  return labeledCode<YunQiStageStatusCode>(code, STAGE_STATUS_LABELS);
+}
+
 function enhanceCurrentStage(
   stage: SixQiStageViewModel,
   currentStepIndex: number,
 ): CurrentSixQiStageViewModel {
-  const status: YunQiStageStatusCode =
-    stage.index < currentStepIndex
-      ? 'completed'
-      : stage.index === currentStepIndex
-        ? 'current'
-        : 'upcoming';
-
   return {
     ...stage,
-    status: labeledCode(status, STAGE_STATUS_LABELS),
+    status: stageStatus(stage.index, currentStepIndex),
     hostElement: mapQiElement(stage.hostQi),
     guestElement: mapQiElement(stage.guestQi),
     tickLabel: STAGE_TICKS[stage.name],

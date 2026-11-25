@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { InfoCard } from './InfoCard';
 import { ElementDot } from './ElementDot';
 import { RelationChip } from './RelationChip';
-import { SixQiTimelineItem } from '../../features/yunqi/components/SixQiTimelineItem';
+import { StageTimelineItem } from '../../features/yunqi/components/StageTimelineItem';
 import { mapCurrentYunQi } from '../../features/yunqi/presentation/map-current-yunqi';
 import { createYunQiCalculationDto } from '../../test/yunqi-fixtures';
 
@@ -29,15 +29,15 @@ describe('presentation semantics migrated from demo primitives', () => {
     const user = userEvent.setup();
     const onToggle = vi.fn();
     const step = mapCurrentYunQi(createYunQiCalculationDto()).currentStep;
-    const props = { step, onToggle, timelineId: 'sixqi-test', rootRef: null };
-    const { rerender } = render(<SixQiTimelineItem {...props} isExpanded={false} />);
+    const props = { step, onToggle, rootId: 'sixqi-test-step-3', rootRef: null };
+    const { rerender } = render(<StageTimelineItem {...props} isExpanded={false} />);
     const button = screen.getByRole('button', { name: '展开三之气详情' });
     expect(button).toHaveAttribute('aria-expanded', 'false');
     expect(button).toHaveAttribute('aria-controls', 'sixqi-test-step-3-details');
     expect(screen.getByText('三之气详情').closest('[role="region"]')).not.toBeVisible();
     await user.click(button);
     expect(onToggle).toHaveBeenCalledOnce();
-    rerender(<SixQiTimelineItem {...props} isExpanded />);
+    rerender(<StageTimelineItem {...props} isExpanded />);
     expect(screen.getByRole('button', { name: '收起三之气详情' })).toHaveAttribute('aria-expanded', 'true');
     const detail = screen.getByRole('region', { name: '三之气详情' });
     expect(detail).toHaveAttribute('id', 'sixqi-test-step-3-details');

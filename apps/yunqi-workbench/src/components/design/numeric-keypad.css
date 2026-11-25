@@ -1,0 +1,19 @@
+.numeric-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-1) var(--space-2);
+}
+.numeric-keypad button {
+  display: grid;
+  place-items: center;
+  min-height: var(--option-height);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--ink-primary);
+  font: inherit;
+  font-size: var(--ts-body);
+  cursor: pointer;
+}
+.numeric-keypad button[data-digit] { font-family: var(--font-mono); font-size: var(--ts-title); font-variant-numeric: tabular-nums; }
+.numeric-keypad button:is(:hover, :active):where(:enabled) { background: var(--accent-subtle); }

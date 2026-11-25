@@ -1,6 +1,6 @@
 import { test, expect, loadCurrent, scanAccessibility, waitForAnimations, screenshot, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { fillBirthDate, expectBirthComparison } from './birth-helpers.mjs';
-import { confirmConstitutionDestruction, expectConstitutionResults } from './constitution-helpers.mjs';
+import { confirmConstitutionDestruction, expectConstitutionResults, rankedDimensions } from './constitution-helpers.mjs';
 import { expectedMotionLevel, expectMotionDurations } from './motion-helpers.mjs';
 
 const ANSWER_HOLD_MS = 240;
@@ -77,7 +77,7 @@ async function observeResult(page) {
   });
 }
 
-async function expectReveal(page, motionMode, testInfo, name) {
+async function expectReveal(page, motionMode, testInfo, name, assessment) {
   await waitForAnimations(page);
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
   const sample = await page.evaluate(() => {
@@ -88,7 +88,7 @@ async function expectReveal(page, motionMode, testInfo, name) {
   await testInfo.attach(name, { body: JSON.stringify(sample), contentType: 'application/json' });
   expect(Number.isFinite(sample.paintBoundary)).toBe(true);
   expect(sample.shifts.filter(shift => shift.start >= sample.paintBoundary).reduce((total, shift) => total + shift.value, 0), 'No layout shift after result entry paint, including input-associated shifts').toBe(0);
-  expect(sample.reveal.labels).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
+  expect(sample.reveal.labels).toEqual(rankedDimensions(assessment).map(type => type.name.replace(/质$/, '')));
   expect(sample.reveal.guides).toEqual(Array(2).fill({ transform: 'none', animations: 0 }));
   const animations = sample.reveal.animations;
   expect(Math.max(0, ...animations.map(animation => animation.end))).toBeLessThanOrEqual(motionMode === 'full' ? 400 : motionMode === 'off' ? 0 : 120);
@@ -172,7 +172,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const assessment = (await (await score).json()).data;
     const result = await expectConstitutionResults(page, assessment, scope);
     await expect(scope.locator('.constitution-decision h4')).toBeFocused();
-    await expectReveal(page, motionMode, testInfo, 'first-submit-reveal');
+    await expectReveal(page, motionMode, testInfo, 'first-submit-reveal', assessment);
     await expectMotionDurations(page, testInfo, 'M1-c-result-durations');
     const finalAnswer = (26 - 1) % 5 + 1;
     await activate(page, actions.getByRole('button', { name: '返回修改', exact: true }), input);
@@ -185,9 +185,8 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     else await scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) }).click();
     expect((await (await secondScore).json()).data).toEqual(assessment);
     await expect(result).toBeVisible();
-    await expectReveal(page, motionMode, testInfo, 'resubmit-reveal');
-    // The result header replaces the tabs. Native history leaves the result;
-    // returning via its tab must recover the same in-memory result silently.
+    await expectReveal(page, motionMode, testInfo, 'resubmit-reveal', assessment);
+    // Native history and the visible result tabs both retain the scored session.
     await page.goBack();
     await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
@@ -196,6 +195,15 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     await expect(page).toHaveTitle('体质测评结果 · 运气通');
     await expect(result).toBeVisible();
     await expect(result).toHaveAttribute('data-reveal', 'false');
+    const tabs = page.getByRole('navigation', { name: '工作台导航' });
+    const destination = input === 'mouse' ? '先天对照' : '当下运气';
+    await activate(page, tabs.getByRole('link', { name: destination, exact: true }), input);
+    await expect(tabs.getByRole('link', { name: destination, exact: true })).toHaveAttribute('aria-current', 'page');
+    await expect(result).toBeHidden();
+    await activate(page, tabs.getByRole('link', { name: '体质量表', exact: true }), input);
+    await expect(result).toBeVisible();
+    await expect(result).toHaveAttribute('data-reveal', 'false');
+    await expect(result.locator('.constitution-bar-score')).toHaveText(rankedDimensions(assessment).map(row => row.score.toFixed(1)));
     expect(diagnostics.requests.filter(request => request.url.endsWith('/constitution/assess'))).toHaveLength(2);
     const scan = await scanAccessibility(page);
     expect(scan.violations).toEqual([]);

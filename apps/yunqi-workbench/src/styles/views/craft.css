@@ -72,6 +72,8 @@
       content-visibility var(--motion-base) var(--ease-standard) allow-discrete;
   }
   [data-motion="full"] details[open]::details-content { block-size: auto; opacity: 1; }
+  /* Keep the height animation clipped while letting rounded snapshot shadows fade into the panel gutter. */
+  [data-motion="full"] .constitution-context-details::details-content { overflow-clip-margin: var(--space-4); }
 }
 
 /* Global no-JS fallback. Explicit data-motion rules have higher specificity,

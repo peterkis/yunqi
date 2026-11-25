@@ -2,7 +2,7 @@ import { test, expect, loadCurrent, settle, screenshot, scanAccessibility, expec
 import { expectBirthComparison, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, changeConstitutionSex, confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { expectClassicsAlignment, expectRelationSources, expectTextLink } from './consistency-helpers.mjs';
-import { expectCurrentStageFacts, expectMovementRelation } from './stage-facts-helpers.mjs';
+import { expectCurrentStageFacts, expectMovementRelation, expectStageDividerAlignment, expectStageHeadingAlignment, expectStageNode } from './stage-facts-helpers.mjs';
 import { expectClassicsCards, expectTextContrast } from './visual-assertions.mjs';
 
 async function checkAccessibility(page, testInfo) {
@@ -43,7 +43,7 @@ test('current cards retain real API facts, folded stages and sourced original re
     await expect(chip).toHaveText(relation.label === '相生 · 相得' ? '相得' : relation.label);
     await expect(chip).toHaveCSS('background-color', await summaryChips[i].evaluate(node => getComputedStyle(node).backgroundColor));
   }
-  await expect(sourceDetails.locator('.current-relations__method')).toContainText(data.currentMovement.explanation);
+  await expect(sourceDetails).not.toContainText(data.currentMovement.explanation);
   await expect(page.locator('.panel-shell__colophon')).toHaveCount(0);
   await screenshot(page, testInfo, 'current-guide-expanded');
   await expect(sourceDetails.getByRole('link')).toHaveCount(0);
@@ -60,10 +60,39 @@ test('current cards retain real API facts, folded stages and sourced original re
   await otherStages.locator(':scope > summary').focus();
   await page.keyboard.press('Enter');
   await expect(page.locator('.current-stage-row button').first()).toBeVisible();
-  await expect(page.getByRole('region', { name: '五步运全表' }).getByRole('heading')).toHaveCount(data.movements.length);
+  const movements = page.getByRole('region', { name: '五运全表' });
+  const rail = movements.getByRole('navigation');
+  await expect(rail.getByRole('button')).toHaveCount(data.movements.length);
+  await expect(movements.getByRole('heading', { level: 3 })).toHaveCount(data.movements.length);
+  await expect(movements.getByRole('region')).toHaveCount(1);
+  await expect(rail.locator('[aria-current="step"]')).toHaveAccessibleName(new RegExp(data.currentMovement.name));
   for (const step of data.movements) {
-    await expectMovementRelation(page.getByRole('region', { name: '五步运全表' }).getByRole('region', { name: step.name, exact: true }), step);
+    const point = rail.getByRole('button', { name: new RegExp(step.name) });
+    const item = page.locator(`[id="${await point.getAttribute('aria-controls')}"]`);
+    if (await point.getAttribute('aria-expanded') === 'true') await point.press('Space');
+    const current = step.index === data.currentMovement.index;
+    await expectStageNode(point, current, false);
+    await expectStageHeadingAlignment(item);
+    await point.press('Enter');
+    const detail = movements.getByRole('region', { name: `${step.name}详情` });
+    await expectStageNode(point, current, true);
+    await point.press('Space');
+    await expect(detail).toBeHidden();
+    await expectStageNode(point, current, false);
+    await point.click();
+    await expectMovementRelation(detail, step);
+    await expectStageDividerAlignment(detail);
+    await expect(movements.locator('footer').getByText(step.explanation, { exact: true })).toBeVisible();
+    await expect(movements.getByText(step.explanation, { exact: true })).toHaveCount(1);
+    await expectStageHeadingAlignment(item);
+    await expect(movements).not.toContainText(step.boundaryMethod);
+    await expect(detail.locator('dd')).toHaveText([step.host, step.guest].map(value => `${value.element}运${value.state}（${value.tone}）`));
+    await expect(item.locator('time')).toHaveText([step.start, step.end].map(value => value.localTime.slice(5, 16).replace('T', ' ')));
   }
+  await expect(movements.getByRole('region')).toHaveCount(data.movements.length);
+  await movements.getByRole('button', { name: '收起初运详情' }).press('Space');
+  await expect(rail.getByRole('button', { name: /初运/ })).toHaveAttribute('aria-expanded', 'false');
+  await expect(movements.getByRole('region')).toHaveCount(data.movements.length - 1);
   await otherStages.locator(':scope > summary').press('Space');
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   await expect(page.getByText('文献线索，非个体发病预测', { exact: true })).toHaveCount(0);

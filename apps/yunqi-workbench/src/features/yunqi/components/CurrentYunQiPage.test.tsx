@@ -86,7 +86,7 @@ describe('CurrentYunQiPage', () => {
       expect(within(insight).getByText(relation.scope)).toBeVisible();
       expect(insight.querySelector('.ds-relation__chip')).toHaveClass(`ds-relation__chip--${relation.tone}`);
     }
-    expect(within(disclosure).getByText('推演口径').parentElement).toHaveTextContent(learning.currentMovement.explanation);
+    expect(screen.getByText('推演口径').closest('footer')).toHaveTextContent(learning.currentMovement.explanation);
     expect(screen.queryByText('文献线索，非个体发病预测', { exact: true })).not.toBeInTheDocument();
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
     const ruleCard = screen.getByText('规则推演说明').closest('section')!;
@@ -221,21 +221,23 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByText(dto.currentQi.explanation)).toBeVisible();
     expect(screen.getByText(dto.annualRelation.explanation)).toBeVisible();
     expect(within(reading.parentElement!).getAllByTitle(dto.annualRelation.sources[0].title)[0]).toBeVisible();
-    expect(within(reading.parentElement!).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
+    expect(reading.parentElement).not.toHaveTextContent(dto.currentMovement.explanation);
 
-    expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
+    expect(screen.getByRole('region', { name: '六气交接时间线' })).not.toBeVisible();
     const allStages = screen.getByText('其余阶段', { exact: true });
     await user.click(allStages);
-    const timeline = screen.getByRole('region', { name: '六步交接时间线' });
+    const timeline = screen.getByRole('region', { name: '六气交接时间线' });
     expect(within(timeline).getAllByRole('button', { name: /第 [1-6] 步/ })).toHaveLength(6);
     expect(within(timeline).getAllByRole('article')).toHaveLength(6);
     expect(within(timeline).getByRole('button', { name: '收起三之气详情' })).toHaveAttribute('aria-expanded', 'true');
     const currentDetails = within(timeline).getByRole('region', { name: '三之气详情' });
     expect(currentDetails).toHaveTextContent('客生主');
-    expect(currentDetails).toHaveTextContent('客生主，相得');
-    const movements = screen.getByRole('region', { name: '五步运全表' });
+    expect(currentDetails.querySelector('.ds-relation__chip')).toHaveTextContent('客生主 · 相得');
+    expect(currentDetails.querySelector('.current-stage-comparison__direction')).toHaveTextContent('不同六气 · 不同五行 · 客生主');
+    const movements = screen.getByRole('region', { name: '五运全表' });
+    expect(within(movements).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
     expect(within(movements).getAllByRole('region')).toHaveLength(dto.movements.length);
-    expect(movements).toHaveTextContent(dto.currentMovement.boundaryMethod);
+    expect(movements).not.toHaveTextContent(dto.currentMovement.boundaryMethod);
     expect(movements).toHaveTextContent('火运太过（太徵）');
     expect(movements).toHaveTextContent('木运不及（少角）');
     expect(within(movements).getByText(dto.movements[0].relation.traditionalLabel)).toHaveClass('ds-relation__chip--favorable');

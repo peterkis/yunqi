@@ -122,19 +122,19 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
         {result ? (
           <section aria-label="出生与当前运气对照结果" className="birth-results">
             <p className={result.candidateMeta ? 'birth-candidate-meta birth-note' : 'birth-api-message'}><InlineText>{result.candidateMeta ?? result.comparison.message}</InlineText></p>
-            <div className="birth-tables">
+            <div className="birth-tables" data-multiple={result.candidates.length > 1 || undefined}>
               {result.candidates.map((candidate, index) => (
                 <article key={`${candidate.from.localTime}-${index}`} aria-label={candidate.label}>
                   <div className="birth-candidate-card birth-card">
-                    {result.comparison.ambiguous || result.comparison.birthPrecision === 'year' ? <h3 className="birth-label">{candidate.label}</h3> : null}
                     {!result.candidateMeta && (result.comparison.birthPrecision !== 'time' ? (
-                      <p className="birth-candidate-interval birth-note">
-                        <span>可能出生区间（起点包含，终点不包含）：</span>
+                      <div className="birth-candidate-interval birth-note">
+                        {(result.comparison.ambiguous || result.comparison.birthPrecision === 'year') && <h3 className="birth-label">{candidate.label}</h3>}
+                        <span className="birth-interval-label">可能出生区间</span>
                         <span className="birth-interval-range num">
                           <span>{result.comparison.birthPrecision === 'year' ? candidate.from.localTime.slice(0, 16).replace('T', ' ') : <YunQiTimeDisplay value={candidate.from} variant="compact" />}</span>
                           {' '}<span>至 {result.comparison.birthPrecision === 'year' ? candidate.until.localTime.slice(0, 16).replace('T', ' ') : <YunQiTimeDisplay value={candidate.until} variant="compact" />}</span>
                         </span>
-                      </p>
+                      </div>
                     ) : <p className="birth-candidate-time birth-note">出生时刻：<YunQiTimeDisplay value={candidate.birthTime!} variant="compact" /></p>)}
                     <BirthComparisonTable candidate={candidate} current={result} />
                     <RelationReadingSummary expanded={openGuides.includes(index)} controls={`${guideId}-${index}`}

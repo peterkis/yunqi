@@ -91,12 +91,12 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Constitution | Male/female questionnaire entry cards and three expandable entry notes; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; automatic scoring after the last answer and manual retry on a scoring error; nine dimensions and parallel context; sex-change/end clearing |
 | Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared answer controls with standalone assessment, end/reopen/reset and stale response isolation |
 | Answer controls | Previous and End share a 44px row beneath the choices. At 400px light and 320px dark, opening and cancelling confirmation preserves the geometry of the row, choices and notes. Checks cover Escape, focus restoration, keyboard confirmation and all three motion modes. |
-| Result/actions (D3/F5) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, neutral matched chips only for ≥2 matches; favorable `<简称> 倾向` chips without digits beside the title (vertical centers within 2px, wrapped groups centered as a whole); standard DTO bar order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three equal parallel context blocks; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
+| Result/actions (D3/F5) | Real scoring responses for 1/2/6/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, scored mixed-type chips, tied maxima emphasized together, expandable scoring criteria, programmatic title focus without an outline, right-aligned tendency chips; descending score order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three full-width context rows with separately labelled Dahan candidates; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
-| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; interactive focus targets keep a 2px ring, with the F4 question-announcement exception below; axe WCAG 2.1 A/AA scans |
+| Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; interactive focus targets keep a 2px ring, with the two programmatic heading exceptions below; axe WCAG 2.1 A/AA scans |
 
 ### Visual states
 
@@ -200,7 +200,7 @@ F5's `constitution-result` and birth-linked `birth-assessment-result` use a fixe
 answer vector with one matched type and two tendencies, checked against the
 real Service response. Both states cover 400×860, 1366×768 and 1920×1080 (and
 the other panel projects), checking title/chip alignment, favorable chip
-contrast, standard-order horizontal bars, equal context columns, typography,
+contrast, descending score bars, full-width context rows, typography,
 screenshots and axe. The standalone state replays the real 2026-11-18 current
 calculation; the linked assessment keeps its birth response's current snapshot.
 
@@ -221,8 +221,7 @@ content below the current scroll position.
 Focus checks visit every available button, link, input, select, summary and
 explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
-original regression assertions. Only `h3.constitution-question-title[tabindex="-1"]`
-asserts `outline-style: none`, as required by F4 for programmatic announcements.
+original regression assertions. Question and result announcement headings (both `tabindex="-1"`) omit the outline. On the specified-time route, the gate checks a visible underline on the focused control, its picker icon or the main heading instead of a rectangular ring.
 M1-a replaces D5's local values with shared motion tokens. Standard mode uses
 120ms interaction and 180ms disclosure transitions; reduced mode only permits
 opacity and color transitions up to 120ms, and off mode has zero durations.

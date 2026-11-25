@@ -41,6 +41,7 @@ export interface ConstitutionContextViewModel {
   };
   readonly birth?: {
     readonly ambiguous: boolean;
+    readonly dahanSplit: boolean;
     readonly precision: 'date' | 'time' | 'year';
     readonly candidates: readonly (ConstitutionContextFactsViewModel & { readonly label: string; readonly from: YunQiTimeViewModel; readonly until: YunQiTimeViewModel })[];
   };
@@ -83,6 +84,10 @@ export function mapConstitutionContext(current: LearningViewModel, comparison?: 
       ruleVersion: current.facts.ruleVersion, learningRuleVersion: current.ruleVersion, contractId: current.facts.contractId },
     ...(comparison ? { birth: {
       ambiguous: comparison.ambiguous,
+      dahanSplit: comparison.ambiguous && comparison.candidates.length === 2 && (
+        comparison.birthPrecision === 'year' ||
+        comparison.candidates[0].learning.facts.summary.year !== comparison.candidates[1].learning.facts.summary.year
+      ),
       precision: comparison.birthPrecision,
       candidates: comparison.birthPrecision === 'year' ? comparison.candidates.map(item => ({
         label: item.label, from: item.from, until: item.until, annual: item.annual, stages: [],
@@ -102,8 +107,10 @@ export interface ConstitutionAssessmentViewModel {
   readonly summary: string;
   readonly decision: string;
   readonly referenceSummary: string;
+  readonly referenceLeaders: readonly string[];
+  readonly referenceTendency: string;
   readonly referenceLabel: string;
-  readonly matchedTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
+  readonly matchedTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string; readonly score: number }[];
   readonly tendencyTypes: readonly { readonly id: string; readonly name: string; readonly shortName: string }[];
   readonly boundaryNote: string;
   readonly results: readonly {
@@ -163,31 +170,34 @@ export function mapQuestionnaireProgress(questionnaire: ConstitutionQuestionnair
 }
 
 export function mapAssessment(value: ConstitutionAssessmentDto): ConstitutionAssessmentViewModel {
-  // Presentation follows the API's statuses, never score thresholds or ranking.
+  // Rank the returned scores for display; membership and decisions come from the API.
   const namedType = (id: string) => {
     const name = value.results.find((result) => result.id === id)!.name;
     return { id, name, shortName: name.replace(/质$/, '') };
   };
-  const matchedTypes = value.matchedTypes.map(namedType);
+  const ranked = [...value.results].sort((a, b) => b.score - a.score ||
+    Number(b.status === 'yes' && b.id !== 'balanced') - Number(a.status === 'yes' && a.id !== 'balanced'));
+  const matchedTypes = ranked.filter(result => value.matchedTypes.includes(result.id))
+    .map(({ id, name, score }) => ({ id, name, shortName: name.replace(/质$/, ''), score }));
   const tendencyTypes = value.tendencyTypes.map(namedType);
   const balanced = value.results.find((result) => result.id === 'balanced');
   const decision = balanced?.status === 'yes' ? balanced.name
     : balanced?.status === 'basically' ? `基本是${balanced.name}`
     : matchedTypes.length === 1 ? matchedTypes[0].name
     : matchedTypes.length > 1 ? '偏颇质兼夹' : '未达明确类型';
-  const referenceSummary = [
-    matchedTypes.length >= 3 ? `偏颇质兼夹 · ${matchedTypes.length} 项` : matchedTypes.map((type) => type.shortName).join('、'),
-    tendencyTypes.length ? `倾向 · ${tendencyTypes.length > 2 ? `${tendencyTypes.length} 项` : tendencyTypes.map((type) => type.shortName).join('、')}` : '',
-  ].filter(Boolean).join('\n') || decision;
+  const mixed = matchedTypes.length >= 2;
+  const referenceSummary = mixed ? `${decision} · ${matchedTypes.length} 项` : matchedTypes[0]?.shortName ?? decision;
+  const referenceLeaders = mixed ? matchedTypes.filter(type => type.score === matchedTypes[0].score).map(type => type.shortName) : [];
+  const referenceTendency = tendencyTypes.length ? `倾向 · ${tendencyTypes.length > 2 ? `${tendencyTypes.length} 项` : tendencyTypes.map(type => type.shortName).join('、')}` : '';
   const referenceLabel = [
     matchedTypes.length ? `是：${matchedTypes.map((type) => type.name).join('、')}` : decision,
     tendencyTypes.length ? `倾向：${tendencyTypes.map((type) => type.name).join('、')}` : '',
   ].filter(Boolean).join('；');
   return { questionnaireId: value.questionnaireId, version: value.version, summary: value.summary,
     sexLabel: value.sex === 'male' ? '男性版' : '女性版',
-    decision, referenceSummary, referenceLabel, matchedTypes, tendencyTypes,
+    decision, referenceSummary, referenceLeaders, referenceTendency, referenceLabel, matchedTypes, tendencyTypes,
     boundaryNote: value.boundaryNote,
-    results: value.results.map((result) => ({
+    results: ranked.map((result) => ({
       id: result.id, name: result.name, shortName: result.name.replace(/质$/, ''), label: result.label, status: result.status, score: result.score,
       displayScore: result.score.toFixed(1), rawScore: result.rawScore, itemCount: result.itemCount,
       tone: result.status === 'yes' ? 'primary' : result.status === 'tendency' ? 'secondary' : 'neutral',

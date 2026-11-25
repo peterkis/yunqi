@@ -150,17 +150,36 @@ export async function expectFocusRings(page, testInfo) {
   await page.keyboard.press('Tab');
   await page.locator('.panel-shell__skip-link').focus();
   const targets = page.locator('button, a[href], input:not([type="hidden"]), select, textarea, summary, [tabindex]');
+  const calculate = await page.locator('.panel-shell').getAttribute('data-route') === 'calculate';
   const checked = [];
   try {
     for (const target of await targets.all()) {
       if (!await target.isVisible() || !await target.isEnabled()) continue;
       await target.focus();
       await expect(target).toBeFocused();
-      if (await target.evaluate(element => element.matches('h3.constitution-question-title[tabindex="-1"]'))) {
-        // F4 explicitly removes the ring only from the programmatic question
-        // announcement. All interactive targets keep the exact ring below.
+      if (calculate) {
         await expect(target).toHaveCSS('outline-style', 'none');
-        checked.push('question announcement: no outline');
+        await expect.poll(() => target.evaluate(el => {
+          const picker = el.closest('.specified-time-picker');
+          if (picker || el.matches('.ds-button--icon, .numeric-keypad button:has(svg)')) {
+            const icon = picker ?? el;
+            return getComputedStyle(icon).outlineStyle === 'none' &&
+              getComputedStyle(icon, '::after').borderBottomWidth === '2px';
+          }
+          if (el.matches('.specified-time-segments input')) {
+            const css = getComputedStyle(el);
+            return el.hasAttribute('data-active') && (css.boxShadow.includes('inset') || css.borderBottomWidth === '2px');
+          }
+          const label = el.matches('main') ? el.querySelector('.specified-time-intro h1') : el;
+          return getComputedStyle(label).textDecorationLine.includes('underline');
+        })).toBe(true);
+        checked.push(await target.getAttribute('aria-label') || await target.textContent());
+        continue;
+      }
+      if (await target.evaluate(element => element.matches(':is(h3.constitution-question-title, h4.constitution-result-title)[tabindex="-1"]'))) {
+        // Only the two programmatic announcement headings use a ringless focus.
+        await expect(target).toHaveCSS('outline-style', 'none');
+        checked.push('heading announcement: no outline');
         continue;
       }
       // Keep C1/C5's retrying assertions and exact values after demo CSS removal.

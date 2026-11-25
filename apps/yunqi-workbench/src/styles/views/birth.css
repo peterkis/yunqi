@@ -127,7 +127,6 @@
   background: var(--surface-card);
 }
 
-.birth-page .birth-candidate-card > .birth-label,
 .birth-page .birth-candidate-interval,
 .birth-page .birth-candidate-time { margin-bottom: var(--space-2); }
 .birth-candidate-interval { display: grid; gap: var(--space-0_5); }
@@ -140,6 +139,24 @@
 
 .birth-candidate-card {
   padding: var(--space-3_5) var(--space-3_5) var(--space-3);
+}
+.birth-tables[data-multiple] .birth-candidate-interval {
+  grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "label badge" "dates dates";
+  align-items: center; column-gap: var(--space-2);
+}
+.birth-tables[data-multiple] .birth-interval-label { grid-area: label; }
+.birth-tables[data-multiple] .birth-interval-range { grid-area: dates; }
+.birth-tables[data-multiple] .birth-candidate-interval > .birth-label {
+  grid-area: badge; justify-self: end;
+  padding: var(--space-0_5) var(--space-2); border-radius: var(--radius-full);
+  background: var(--countdown-bg); color: var(--countdown-fg); line-height: var(--type-caption-line);
+  font-weight: var(--type-chip-weight); letter-spacing: normal;
+}
+.birth-tables[data-multiple] > article:first-child .birth-candidate-interval > .birth-label {
+  background: var(--annual-boundary-before-bg); color: var(--annual-boundary-before-fg);
+}
+.birth-tables[data-multiple] > article:last-child .birth-candidate-interval > .birth-label {
+  background: var(--annual-boundary-from-bg); color: var(--annual-boundary-from-fg);
 }
 
 @container workbench (width < 360px) {
