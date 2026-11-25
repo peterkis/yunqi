@@ -2,7 +2,7 @@ import { fillAnalysisTime } from './time-analysis-helpers.mjs';
 import { confirmConstitutionDestruction } from './constitution-helpers.mjs';
 import { test, expect, loadCurrent, settle, screenshot, expectPanelLayout, expectCompactTimes, expectNoPersonalDataInUrl } from './fixtures.mjs';
 import { expectMoreRows } from './consistency-helpers.mjs';
-import { expectCurrentStageFacts } from './stage-facts-helpers.mjs';
+import { expectCurrentStageFacts, expectStageDividerAlignment, expectStageHeadingAlignment, expectStageNode } from './stage-facts-helpers.mjs';
 import { expectElementTitle } from './visual-assertions.mjs';
 
 test('current route redirects, renders canonical time and closes every stage disclosure', async ({ page, diagnostics }, testInfo) => {
@@ -14,32 +14,53 @@ test('current route redirects, renders canonical time and closes every stage dis
   await expect(page.locator('.current-stage-row button').first()).toBeHidden();
   await page.locator('.current-all-stages > summary').click();
   await expectMoreRows(page);
-  const toggles = page.locator('.current-stage-row button');
+  await expect(page.locator('.current-all-stages .ds-info-card')).toHaveCount(0);
+  const qiTimeline = page.getByRole('region', { name: '六气交接时间线' });
+  const toggles = qiTimeline.locator('.current-stage-row button');
   await expect(toggles).toHaveCount(6);
-  const badge = page.locator('.current-stage-row .current-stage-badge');
+  const badge = qiTimeline.locator('.current-stage-row .current-stage-badge');
   await expect(badge).toHaveCount(1);
   await expect(badge).toHaveText('当前');
   await expect(badge).toHaveCSS('border-radius', '999px');
-  await expect(page.locator('.current-stage-row').nth(data.facts.currentStep.index - 1)).toContainText('当前');
+  await expect(qiTimeline.locator('.current-stage-row').nth(data.facts.currentStep.index - 1)).toContainText('当前');
   await expect(page.locator('.current-period .current-stage-badge')).toHaveText('正在此段');
   const elementByName = { 木: 'wood', 火: 'fire', 土: 'earth', 金: 'metal', 水: 'water' };
   for (let index = 0; index < 6; index += 1) {
     const step = data.facts.sixQi.steps[index];
-    const heading = page.locator('.current-stage-row').nth(index).getByRole('heading', { name: step.name, exact: true });
-    await expectElementTitle(heading, elementByName[step.guestQi.slice(-1)], '.ds-info-card');
+    const row = qiTimeline.locator('.current-stage-row').nth(index);
+    const heading = row.getByRole('heading', { name: step.name, exact: true });
+    await expectElementTitle(heading, elementByName[step.guestQi.slice(-1)], '.panel-shell');
     const toggle = toggles.nth(index);
     const detailsId = await toggle.getAttribute('aria-controls');
     const details = page.locator(`[id="${detailsId}"]`);
     if (await toggle.getAttribute('aria-expanded') === 'true') await toggle.press('Enter');
     await expect(details).toBeHidden();
+    await expectStageHeadingAlignment(row);
     await toggle.press('Space');
     await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(details).toBeVisible();
+    await expect(details.locator('.current-stage-comparison__direction')).toBeVisible();
+    await expectStageHeadingAlignment(row);
+    const range = row.locator('.current-time-range');
+    const tops = await range.locator('.yunqi-time, [aria-hidden="true"]').evaluateAll(parts => parts.map(part => part.getBoundingClientRect().top));
+    expect(Math.max(...tops) - Math.min(...tops), 'Expanded range fits on one line in the standard panel').toBeLessThanOrEqual(1);
+    await expectStageDividerAlignment(details);
+    await expect(details.locator('.ds-relation__chip')).toHaveText(step.relation.traditionalLabel.replace('，', ' · '));
+    await expect(details.getByText(step.hostQi, { exact: true }).first()).toBeVisible();
+    await expect(details.getByText(step.guestQi, { exact: true }).last()).toBeVisible();
     await toggle.press('Enter');
     await expect(details).toBeHidden();
   }
   // The compact stage navigation and details both remain keyboard reachable.
-  await expect(page.getByRole('navigation', { name: '六气年度六阶段概览' })).toBeVisible();
+  const rail = page.getByRole('navigation', { name: '六气年度六阶段概览' });
+  await expect(rail).toBeVisible();
+  const firstNode = rail.getByRole('button').first();
+  await firstNode.click();
+  await expectStageNode(firstNode, data.facts.currentStep.index === 1, true);
+  await expect(toggles.first()).toHaveAttribute('aria-expanded', 'true');
+  await firstNode.click();
+  await expectStageNode(firstNode, data.facts.currentStep.index === 1, false);
+  await expect(toggles.first()).toHaveAttribute('aria-expanded', 'false');
   await toggles.last().click();
   await expect(toggles.last()).toHaveAttribute('aria-expanded', 'true');
   await settle(page);
@@ -327,6 +348,44 @@ test('specified time keyboard segments advance through minutes and accept an omi
   expect(diagnostics.requests).toHaveLength(1);
 });
 
+test('specified time keypad replaces the prefill and submits a mouse-entered date and time', async ({ page, diagnostics }) => {
+  await loadCurrent(page);
+  await page.getByRole('link', { name: '指定时点', exact: true }).click();
+  const pad = page.getByRole('group', { name: '数字键盘', exact: true });
+  const field = name => page.getByRole('textbox', { name, exact: true });
+  const press = name => pad.getByRole('button', { name, exact: true }).click();
+  const enter = async digits => { for (const digit of digits) await press(digit); };
+  await expect(pad.getByRole('button')).toHaveCount(12);
+  await expect(field('年')).toHaveValue(/^\d{4}$/);
+  await enter('2024');
+  await expect(field('年')).toHaveValue('2024');
+  await expect(field('月')).toBeFocused();
+  await press('清空日期和时刻');
+  await expect(field('年')).toBeFocused();
+  for (const name of ['年', '月', '日', '时', '分', '秒']) await expect(field(name)).toHaveValue('');
+  await enter('202402291305');
+  await expect(field('秒')).toBeFocused();
+  await press('退格');
+  await expect(field('分')).toBeFocused();
+  await expect(field('分')).toHaveValue('0');
+  await enter('723');
+  await field('时').click();
+  await enter('08');
+  await expect(field('分')).toHaveValue('07');
+  await expect(field('秒')).toHaveValue('23');
+  const requests = () => diagnostics.requests.filter(request => request.url.endsWith('/api/v1/yunqi/calculate'));
+  expect(requests()).toHaveLength(0);
+  const response = page.waitForResponse(r => r.url().endsWith('/api/v1/yunqi/calculate'));
+  await page.getByRole('button', { name: '开始分析', exact: true }).click();
+  expect((await response).ok()).toBe(true);
+  expect(JSON.parse(requests()[0].body)).toEqual({ dateTime: '2024-02-29T08:07:23+08:00' });
+  const result = page.getByRole('region', { name: '指定时点分析结果', exact: true });
+  await expect(result).toBeVisible();
+  await press('清空日期和时刻');
+  await expect(result).toBeHidden();
+  expect(requests()).toHaveLength(1);
+});
+
 test('a real unsupported calculation receives sanitized feedback and recovers after editing', async ({ page, diagnostics }) => {
   diagnostics.allowHttpFailure('/api/v1/yunqi/calculate', 400);
   await page.goto('/yunqi/calculate');
@@ -358,6 +417,7 @@ test('pending calculation disables input and repeated activation sends only one 
     await page.getByRole('button', { name: '开始分析', exact: true }).click({ clickCount: 2 });
     await expect(page.getByRole('status')).toHaveText('正在分析指定时点');
     await expect(input).toBeDisabled();
+    await expect(page.getByRole('group', { name: '数字键盘' }).locator('button:disabled')).toHaveCount(12);
     await expect(page.getByRole('button', { name: '正在分析', exact: true })).toBeDisabled();
     await screenshot(page, testInfo, 'calculation-loading');
     await page.keyboard.press('Enter');

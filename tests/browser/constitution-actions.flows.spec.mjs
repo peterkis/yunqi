@@ -51,6 +51,11 @@ test('five scored matches highlight both leaders and show the two Dahan candidat
     }
     const snapshots = result.getByText('本次对照快照与候选区间', { exact: true });
     await snapshots.click();
+    const shadowMargin = await snapshots.evaluate(summary => {
+      const content = getComputedStyle(summary.closest('details'), '::details-content');
+      return content.overflowX === 'clip' ? parseFloat(content.overflowClipMargin) : null;
+    });
+    if (shadowMargin !== null) expect(shadowMargin).toBeGreaterThanOrEqual(16);
     const intervals = result.locator('.constitution-birth-candidate footer');
     await expect(intervals).toHaveCount(2);
     const footers = await intervals.all();

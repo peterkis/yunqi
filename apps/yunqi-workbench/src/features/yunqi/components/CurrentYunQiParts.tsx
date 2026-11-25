@@ -12,15 +12,16 @@ export function CurrentElementValue({ element, label }: {
   return element ? <ElementDot element={element} label={label} /> : <span>{label}</span>;
 }
 
-export function CurrentTimeRange({ start, end }: {
+export function CurrentTimeRange({ start, end, variant = 'compact' }: {
   readonly start: YunQiTimeViewModel;
   readonly end: YunQiTimeViewModel;
+  readonly variant?: 'compact' | 'date-only';
 }) {
   return <span className="current-time-range">
-    <YunQiTimeDisplay value={start} variant="compact" />
+    <YunQiTimeDisplay value={start} variant={variant} />
     <span aria-hidden="true"> → </span>
     <span className="visually-hidden">至</span>
-    <YunQiTimeDisplay value={end} variant="compact" />
+    <YunQiTimeDisplay value={end} variant={variant} />
   </span>;
 }
 

@@ -3,21 +3,21 @@ import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
-import type { SixQiTimelineViewModel } from '../presentation/view-model';
-import { SixQiTimeline, type SixQiTimelineProps } from './SixQiTimeline';
+import type { CurrentSixQiStageTuple } from '../presentation/view-model';
+import { StageTimeline, type StageTimelineProps } from './StageTimeline';
 
-const acceptsTimelineViewModel = (_steps: SixQiTimelineProps['steps']) => undefined;
+const acceptsTimelineViewModel = (_steps: StageTimelineProps['steps']) => undefined;
 
 describe('panel stage navigation replacing the demo rail', () => {
   it('consumes the canonical six-step timeline without a parallel model', () => {
-    const canonicalTimeline: SixQiTimelineViewModel = mapCurrentYunQi(createYunQiCalculationDto()).timeline;
+    const canonicalTimeline: CurrentSixQiStageTuple = mapCurrentYunQi(createYunQiCalculationDto()).timeline;
     expect(() => acceptsTimelineViewModel(canonicalTimeline)).not.toThrow();
   });
 
   it('connects six categorical controls to direct API indexes, statuses and exact boundary times', async () => {
     const user = userEvent.setup();
     const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
-    render(<SixQiTimeline steps={viewModel.timeline} currentStepIndex={viewModel.currentStep.index} />);
+    render(<StageTimeline kind="qi" steps={viewModel.timeline} currentStepIndex={viewModel.currentStep.index} />);
     const nav = screen.getByRole('navigation', { name: '六气年度六阶段概览' });
     expect(within(nav).getAllByRole('button')).toHaveLength(6);
     for (const step of viewModel.timeline) {

@@ -1,10 +1,13 @@
+import { useState } from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { createYunQiCalculationDto } from '../../../../test/yunqi-fixtures';
 import { mapTimeAnalysisYunQi } from '../../presentation/map-time-analysis-yunqi';
 import type { TimeAnalysisYunQiViewModel } from '../../presentation/view-model';
 import { splitTimeInput } from '../time-input';
 import { TimeAnalysisPage } from './TimeAnalysisPage';
+import { TimeAnalysisForm } from './TimeAnalysisForm';
 
 function renderPage(
   overrides: Partial<{
@@ -35,6 +38,37 @@ function renderPage(
 }
 
 describe('TimeAnalysisPage', () => {
+  it('edits a selected digit with the keypad and leaves an invalid hour available for correction', async () => {
+    const user = userEvent.setup();
+    const invalid = vi.fn(), submit = vi.fn((event) => event.preventDefault());
+    function Form() {
+      const [draft, setDraft] = useState(splitTimeInput('2024-02-29T13:05'));
+      return <TimeAnalysisForm draft={draft} onInputChange={setDraft} onInvalid={invalid} onSubmit={submit}
+        inputError={null} isPending={false} anchorLoading={false} anchorError={false} onAnchor={vi.fn()} />;
+    }
+    render(<Form />);
+    const pad = within(screen.getByRole('group', { name: '数字键盘' }));
+    const press = (name: string) => user.click(pad.getByRole('button', { name }));
+    const hour = screen.getByRole<HTMLInputElement>('textbox', { name: '时' });
+    await user.click(hour);
+    hour.setSelectionRange(0, 1);
+    await press('9');
+    expect(hour).toHaveValue('93');
+    expect(hour).toHaveFocus();
+    await press('4');
+    expect(hour).toHaveValue('93');
+    await user.click(screen.getByRole('button', { name: '开始分析' }));
+    expect(invalid).toHaveBeenCalledOnce();
+    expect(submit).not.toHaveBeenCalled();
+    await press('退格');
+    expect(hour).toHaveValue('');
+    await press('0');
+    await press('8');
+    expect(screen.getByRole('textbox', { name: '分' })).toHaveFocus();
+    await user.click(screen.getByRole('button', { name: '开始分析' }));
+    expect(submit).toHaveBeenCalledOnce();
+  });
+
   it('renders the canonical success result with neutral selected-time semantics', () => {
     renderPage();
 

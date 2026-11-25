@@ -3,6 +3,7 @@ import { animateMotion } from '../../../../lib/motion';
 import { useMotionLevel } from '../../../../providers/MotionProvider';
 import { Delete, X } from 'lucide-react';
 import { Button } from '../../../../components/design/Button';
+import { NumericKeypad } from '../../../../components/design/NumericKeypad';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { useBirthPreview, useBirthReferenceDate } from '../hooks/useBirthEntry';
 import { birthdayAdjustment, birthYear, dayError, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
@@ -10,7 +11,6 @@ import { BirthYearSeal } from './BirthYearSeal';
 import '../../../../styles/views/birth-entry.css';
 
 const slots: BirthSlot[] = ['primary', 'month', 'day'];
-const digits = ['1','2','3','4','5','6','7','8','9','清空','0','退格'];
 interface Props {
   draft: BirthDraft;
   onEdit: (draft: BirthDraft) => void;
@@ -264,10 +264,8 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
       </fieldset>
       </div>
       <div className="birth-entry__dock">
-        <div className="birth-keypad" aria-label="数字键盘">{digits.map(value => <button type="button" key={value}
-          disabled={pending} data-digit={value.length === 1 || undefined} aria-label={value === '清空' ? (variant === 'sheet' ? '清空输入' : '清空本次资料') : value} onMouseDown={event => event.preventDefault()} onClick={() => virtualKey(value)}>{value === '退格'
-            ? (inline ? <Delete size={20} aria-hidden="true" /> : <X size={18} aria-hidden="true" />)
-            : value}</button>)}</div>
+        <NumericKeypad className="birth-keypad" disabled={pending} onKey={virtualKey}
+          clearLabel={inline ? '清空本次资料' : '清空输入'} backspaceIcon={inline ? <Delete size={20} aria-hidden="true" /> : undefined} />
         <Button type="submit" disabled={!allow || pending}>{pending ? '正在对照…' : annualOnly ? '仅按年份对照' : '确认并对照'}</Button>
         {!inline && <p className="birth-entry__privacy">本次修改确认后生效，关闭可返回原对照。</p>}
       </div>

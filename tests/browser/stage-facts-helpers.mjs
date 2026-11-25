@@ -26,6 +26,74 @@ function expectedPeriodLabels(step, progress, transition) {
   return { range: `${step.startTerm ?? step.startLabel} → ${step.endTerm ?? step.endLabel}`, remaining };
 }
 
+export async function expectStageDividerAlignment(detail) {
+  const divider = detail.locator('.current-stage-comparison__divider');
+  await expect(divider).toHaveCSS('align-items', 'center');
+  const metrics = await divider.evaluate(node => {
+    const row = node.getBoundingClientRect();
+    const chip = node.querySelector('.ds-relation__chip').getBoundingClientRect();
+    return {
+      centerOffset: Math.abs((chip.top + chip.bottom - row.top - row.bottom) / 2),
+      lineLengths: ['::before', '::after'].map(side => parseFloat(getComputedStyle(node, side).width)),
+    };
+  });
+  expect(metrics.centerOffset).toBeLessThanOrEqual(0.5);
+  for (const length of metrics.lineLengths) expect(length).toBeGreaterThan(0);
+
+  const direction = detail.locator('.current-stage-comparison__direction');
+  if (await direction.count()) {
+    const box = await direction.boundingBox();
+    const badge = await divider.locator('.ds-relation__chip').boundingBox();
+    expect(box.y + box.height).toBeLessThanOrEqual(badge.y + 1);
+    expect(Math.abs(box.x + box.width / 2 - badge.x - badge.width / 2)).toBeLessThanOrEqual(1);
+    const [host, guest] = await detail.locator('.current-stage-comparison dt').evaluateAll(labels => labels.map(label => {
+      const range = document.createRange();
+      range.selectNodeContents(label);
+      return range.getBoundingClientRect().toJSON();
+    }));
+    expect(box.x).toBeGreaterThan(host.right);
+    expect(box.x + box.width).toBeLessThan(guest.left);
+  }
+}
+
+export async function expectStageHeadingAlignment(row) {
+  const centers = await row.evaluate(node => {
+    const center = selector => {
+      const rect = node.querySelector(selector).getBoundingClientRect();
+      return rect.y + rect.height / 2;
+    };
+    return [
+      center('h3'), center('.current-stage-status, .current-stage-badge'), center('.current-time-range'),
+    ];
+  });
+  for (const center of centers.slice(1)) expect(Math.abs(center - centers[0])).toBeLessThanOrEqual(1);
+}
+
+export async function expectStageNode(button, current, expanded) {
+  await expect(button).toHaveAttribute('aria-expanded', String(expanded));
+  if (current) await expect(button).toHaveAttribute('aria-current', 'step');
+  else await expect(button).not.toHaveAttribute('aria-current', 'step');
+  await expect.poll(() => button.evaluate(node => {
+    const point = node.querySelector('.current-stage-navigation__point');
+    const label = getComputedStyle(node.querySelector('.current-stage-navigation__label'));
+    const dot = getComputedStyle(point);
+    const seed = getComputedStyle(point, '::before');
+    const pointer = getComputedStyle(point, '::after');
+    const shadow = dot.boxShadow;
+    return {
+      seed: seed.content !== 'none',
+      triangle: pointer.content !== 'none' && pointer.clipPath.startsWith('polygon'),
+      halo: shadow !== 'none' && shadow.split(/,(?![^()]*\))/).some(layer => !layer.includes('inset')),
+      rings: (shadow.match(/inset/g) ?? []).length,
+      capsule: label.backgroundColor !== 'rgba(0, 0, 0, 0)',
+      bold: Number(label.fontWeight) >= 600,
+    };
+  })).toEqual({
+    seed: !current, triangle: expanded && !current, halo: current,
+    rings: expanded ? (current ? 2 : 0) : 1, capsule: current && expanded, bold: current || expanded,
+  });
+}
+
 export async function expectMovementRelation(region, movement) {
   const { relation, host, guest } = movement;
   // YQ-LEARNING-RULES-1.3.0 (expert-confirmed): 相得 and 客胜主=顺 are favorable,

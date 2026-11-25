@@ -3,7 +3,6 @@ import { InfoCard } from '../../../components/design/InfoCard';
 import { InlineText } from '../../../components/design/InlineText';
 import { MoreRowChevron, MoreRowSummary } from '../../../components/design/MoreRow';
 import { QuoteBlock } from '../../../components/design/QuoteBlock';
-import { RelationChip } from '../../../components/design/RelationChip';
 import { PanelSummary } from '../../../components/layout/PanelSummary';
 import { MotionSettings } from '../../../components/layout/MotionSettings';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
@@ -12,8 +11,8 @@ import { useMotion } from '../../../providers/MotionProvider';
 import { mapPanelSummary } from '../presentation/panel-summary';
 import type { LearningViewModel } from '../presentation/map-learning';
 import type { CurrentYunQiViewModel } from '../presentation/view-model';
-import { CurrentElementValue, CurrentRelation, CurrentRelationReading, CurrentTimeRange } from './CurrentYunQiParts';
-import { SixQiTimeline } from './SixQiTimeline';
+import { CurrentElementValue, CurrentRelation, CurrentRelationReading } from './CurrentYunQiParts';
+import { StageTimeline } from './StageTimeline';
 import { CurrentPeriodGrid } from './CurrentPeriodGrid';
 import { CurrentCalculationTimeline } from './CurrentCalculationTimeline';
 import { CurrentRuleExplanation } from './CurrentRuleExplanation';
@@ -55,7 +54,6 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
           <div className="current-relations__body">
             <CurrentRelationReading relation={learning.annualRelation} />
             <CurrentRelationReading relation={learning.currentQi} />
-            <p className="current-relations__method"><strong>推演口径</strong> · <span>{movement.explanation}</span></p>
           </div>
         </details>
       </section>
@@ -71,17 +69,8 @@ export function CurrentYunQiPage({ viewModel, learning }: CurrentYunQiPageProps)
       <ul className="current-more__list">
         <li><details className="current-disclosure current-all-stages">
           <MoreRowSummary>其余阶段</MoreRowSummary>
-          <SixQiTimeline steps={viewModel.timeline} currentStepIndex={currentStep.index} />
-          <InfoCard label="五步运全表">
-            {learning.movements.map((step) => <section className="current-period" key={step.index} aria-label={step.name}>
-              <h3>{step.name}{step.index === movement.index ? <span className="current-stage-badge">正在此段</span> : null}</h3>
-              <CurrentTimeRange start={step.start} end={step.end} />
-              <dl className="current-pair"><div><dt>主运</dt><dd><CurrentElementValue element={step.hostElement} label={step.hostLabel} /></dd></div><div><dt>客运</dt><dd><CurrentElementValue element={step.guestElement} label={step.guestLabel} /></dd></div></dl>
-              <RelationChip tone={step.relation.tone} label={step.relation.label} explanation={step.relation.explanation} />
-              <p className="current-copy">{step.explanation}</p>
-              <p className="current-meta">{step.boundaryMethod}</p>
-            </section>)}
-          </InfoCard>
+          <StageTimeline kind="qi" steps={viewModel.timeline} currentStepIndex={currentStep.index} />
+          <StageTimeline kind="movement" steps={learning.movements} currentStepIndex={movement.index} />
         </details></li>
 
         <li><Link className="current-more__row" to={`/yunqi/year/${summary.year}`}>年度详情<MoreRowChevron /></Link></li>

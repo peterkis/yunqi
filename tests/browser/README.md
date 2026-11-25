@@ -221,7 +221,7 @@ content below the current scroll position.
 Focus checks visit every available button, link, input, select, summary and
 explicit tabindex target in keyboard modality without activation. Exact 2px
 solid outline / 2px offset assertions retry automatically, including C1/C5's
-original regression assertions. Only the question and result announcement headings (both `tabindex="-1"`) use `outline-style: none`. The next interactive control retains its keyboard ring.
+original regression assertions. Question and result announcement headings (both `tabindex="-1"`) omit the outline. On the specified-time route, the gate checks a visible underline on the focused control, its picker icon or the main heading instead of a rectangular ring.
 M1-a replaces D5's local values with shared motion tokens. Standard mode uses
 120ms interaction and 180ms disclosure transitions; reduced mode only permits
 opacity and color transitions up to 120ms, and off mode has zero durations.

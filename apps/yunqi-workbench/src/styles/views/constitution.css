@@ -96,6 +96,7 @@
 }
 @media (prefers-contrast: no-preference) and (forced-colors: none) {
   .constitution-snapshot {
+    --jade-card-shadow: var(--shadow-snapshot);
     background-image: linear-gradient(to right, var(--snapshot-wash), transparent 65%);
     background-origin: border-box; background-repeat: no-repeat;
   }
@@ -230,7 +231,7 @@
 .constitution-sex-summary .ds-button { min-height: 0; padding: 0; font-size: var(--ts-small); line-height: inherit; }
 .constitution-edition-badge {
   padding: var(--space-0_5) var(--space-1_5); border-radius: var(--radius-full);
-  background: var(--accent-subtle); color: var(--accent); white-space: nowrap;
+  background: var(--constitution-male-bg); color: var(--constitution-male-ink); white-space: nowrap;
   font-weight: var(--type-body-strong-weight);
 }
 .constitution-edition-badge[data-edition="female"] { background: var(--countdown-bg); color: var(--countdown-fg); }
@@ -342,10 +343,12 @@
 .constitution-actions .ds-button:disabled { color: var(--ink-tertiary); opacity: .65; }
 .constitution-actions svg { width: var(--space-4); height: var(--space-4); }
 .constitution-actions [data-request-destroy] {
+  --control-interaction-surface: color-mix(in srgb, var(--destroy-trigger-bg) 88%, var(--input-error-fg));
   margin-inline-start: auto;
   padding-inline: var(--space-3);
-  background: var(--destroy-surface);
-  color: var(--destroy-ink);
+  background: var(--destroy-trigger-bg);
+  color: var(--input-error-fg);
+  font-weight: var(--type-body-strong-weight);
 }
 .constitution-actions [data-confirm-destroy] {
   --control-interaction-surface: var(--destroy-ink);
@@ -369,7 +372,7 @@
   border-radius: 50%;
   background: var(--destroy-emphasis);
 }
-.constitution-actions [data-request-destroy]:hover:not(:disabled),
+.constitution-actions [data-request-destroy]:hover:not(:disabled) { background: var(--control-interaction-surface); }
 .constitution-actions[data-confirming] .ds-button--text:hover:not(:disabled) {
   background: color-mix(in srgb, var(--destroy-surface) 91%, var(--destroy-ink));
 }

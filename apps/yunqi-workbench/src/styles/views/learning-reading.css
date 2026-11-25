@@ -83,14 +83,6 @@
   color: var(--accent);
   overflow-wrap: anywhere;
 }
-.current-relations__method {
-  margin: var(--space-3) var(--space-1) 0;
-  color: var(--ink-tertiary);
-  font-size: var(--ts-small);
-  line-height: var(--type-body-line);
-}
-.current-relations__method strong { font-weight: var(--type-body-strong-weight); }
-
 .learning-text-link { color: var(--accent); text-decoration: none; }
 .learning-text-link:hover,
 .learning-text-link:focus-visible { text-decoration: underline; }

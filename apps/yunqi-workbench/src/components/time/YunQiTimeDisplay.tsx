@@ -2,13 +2,14 @@ import type { YunQiTimeViewModel } from '../../features/yunqi/presentation/view-
 
 export interface YunQiTimeDisplayProps {
   readonly value: YunQiTimeViewModel;
-  readonly variant?: 'compact' | 'year-minute' | 'month-day' | 'month-day-second' | 'full';
+  readonly variant?: 'compact' | 'year-minute' | 'month-day' | 'date-only' | 'month-day-second' | 'full';
 }
 
 function toHumanLocalTime(
   localTime: string,
   variant: NonNullable<YunQiTimeDisplayProps['variant']>,
 ) {
+  if (variant === 'date-only') return localTime.slice(5, 10);
   if (variant === 'compact' || variant === 'year-minute') {
     return localTime.slice(variant === 'compact' ? 5 : 0, 16).replace('T', ' ');
   }
@@ -26,7 +27,7 @@ export function YunQiTimeDisplay({
   value,
   variant = 'full',
 }: YunQiTimeDisplayProps) {
-  const exact = variant === 'month-day-second' || variant === 'year-minute' ? toHumanLocalTime(value.localTime, 'full') : undefined;
+  const exact = variant === 'month-day-second' || variant === 'year-minute' || variant === 'date-only' ? toHumanLocalTime(value.localTime, 'full') : undefined;
   return (
     <span className="yunqi-time">
       <time dateTime={value.localTime} title={exact} aria-label={exact}>

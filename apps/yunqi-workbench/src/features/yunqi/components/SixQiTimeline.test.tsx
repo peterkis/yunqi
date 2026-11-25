@@ -3,9 +3,9 @@ import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { createYunQiCalculationDto } from '../../../test/yunqi-fixtures';
 import { mapCurrentYunQi } from '../presentation/map-current-yunqi';
-import { SixQiTimeline } from './SixQiTimeline';
+import { StageTimeline } from './StageTimeline';
 
-describe('SixQiTimeline', () => {
+describe('StageTimeline', () => {
   const scrollIntoView = vi.fn();
 
   beforeEach(() => {
@@ -20,7 +20,7 @@ describe('SixQiTimeline', () => {
     const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
 
     render(
-      <SixQiTimeline
+      <StageTimeline kind="qi"
         steps={viewModel.timeline}
         currentStepIndex={viewModel.currentStep.index}
       />,
@@ -64,7 +64,7 @@ describe('SixQiTimeline', () => {
     const firstDto = createYunQiCalculationDto();
     const firstViewModel = mapCurrentYunQi(firstDto);
     const { rerender } = render(
-      <SixQiTimeline
+      <StageTimeline kind="qi"
         steps={firstViewModel.timeline}
         currentStepIndex={firstViewModel.currentStep.index}
       />,
@@ -81,7 +81,7 @@ describe('SixQiTimeline', () => {
     const nextViewModel = mapCurrentYunQi(nextDto);
     scrollIntoView.mockReset();
     rerender(
-      <SixQiTimeline
+      <StageTimeline kind="qi"
         steps={nextViewModel.timeline}
         currentStepIndex={nextViewModel.currentStep.index}
       />,
@@ -105,7 +105,7 @@ describe('SixQiTimeline', () => {
     const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
 
     render(
-      <SixQiTimeline
+      <StageTimeline kind="qi"
         steps={viewModel.timeline}
         currentStepIndex={viewModel.currentStep.index}
       />,
@@ -133,8 +133,12 @@ describe('SixQiTimeline', () => {
 
     await user.click(railControl);
 
+    expect(railControl).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.getByRole('button', { name: '展开初之气详情' })).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('region', { name: '初之气详情' })).not.toBeInTheDocument();
+    expect(scrollIntoView).toHaveBeenCalledTimes(1);
     expect(
-      screen.getByRole('button', { name: '收起初之气详情' }),
+      screen.getByRole('button', { name: '收起三之气详情' }),
     ).toHaveAttribute('aria-expanded', 'true');
   });
 
@@ -143,11 +147,11 @@ describe('SixQiTimeline', () => {
     const viewModel = mapCurrentYunQi(createYunQiCalculationDto());
     const { container } = render(
       <>
-        <SixQiTimeline
+        <StageTimeline kind="qi"
           steps={viewModel.timeline}
           currentStepIndex={viewModel.currentStep.index}
         />
-        <SixQiTimeline
+        <StageTimeline kind="qi"
           steps={viewModel.timeline}
           currentStepIndex={viewModel.currentStep.index}
         />

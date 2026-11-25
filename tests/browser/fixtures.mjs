@@ -228,6 +228,7 @@ export async function expectCompactTimes(page) {
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
         dateTime: time.getAttribute('datetime'), text: time.textContent, birthAnchor: Boolean(time.closest('.birth-time-anchors')),
         snapshotTime: Boolean(time.closest('.constitution-snapshot[data-kind="current"]')),
+        collapsedStage: Boolean(time.closest('.current-stage-row[data-expanded="false"]')),
       })),
     };
   });
@@ -241,7 +242,11 @@ export async function expectCompactTimes(page) {
       continue;
     }
     const [month, day, clock] = time.dateTime.slice(5, 16).split(/[-T]/);
-    expect(time.text).toBe(time.birthAnchor ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
+    if (time.collapsedStage) {
+      expect(time.text).toBe(`${month}-${day}`);
+    } else {
+      expect(time.text).toBe(time.birthAnchor ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
+    }
   }
 }
 
