@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: YunQi Service API
-  version: 1.5.0
+  version: 1.6.0
   description: Versioned YunQi time-fact and rule-mapping contract.
 components:
   schemas:
@@ -814,6 +814,184 @@ components:
           type: string
           pattern: ^\d{2}:\d{2}:\d{2}$
       additionalProperties: false
+    BirthYearRequest:
+      type: object
+      required:
+        - year
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      additionalProperties: false
+    BirthDatePreviewRequest:
+      type: object
+      required:
+        - year
+        - calendar
+        - month
+        - day
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        calendar:
+          anyOf:
+            - type: string
+              enum:
+                - solar
+            - type: string
+              enum:
+                - lunar
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        day:
+          type: integer
+          minimum: 1
+          maximum: 31
+        leap:
+          type: boolean
+      additionalProperties: false
+    BirthDatePreviewDto:
+      type: object
+      required:
+        - matches
+      properties:
+        matches:
+          type: array
+          items:
+            type: object
+            required:
+              - birthDate
+              - lunarLabel
+              - leap
+              - annualLabels
+              - boundaries
+            properties:
+              birthDate:
+                type: string
+              lunarLabel:
+                type: string
+              leap:
+                type: boolean
+              annualLabels:
+                type: array
+                items:
+                  type: string
+              boundaries:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - label
+                    - at
+                  properties:
+                    label:
+                      type: string
+                    at:
+                      $ref: "#/components/schemas/YunQiTimeDto"
+                  additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+    BirthYearComparisonDto:
+      type: object
+      required:
+        - birthPrecision
+        - current
+        - message
+        - candidates
+      properties:
+        birthPrecision:
+          type: string
+          enum:
+            - year
+        current:
+          $ref: "#/components/schemas/YunQiLearningDto"
+        message:
+          type: string
+        candidates:
+          type: array
+          items:
+            type: object
+            required:
+              - label
+              - from
+              - until
+              - year
+              - ganzhi
+              - suiYun
+              - sitian
+              - zaiquan
+              - annualPassages
+              - comparisons
+            properties:
+              label:
+                type: string
+              from:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              until:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              year:
+                type: integer
+              ganzhi:
+                type: string
+              suiYun:
+                $ref: "#/components/schemas/SuiYunDto"
+              sitian:
+                type: string
+              zaiquan:
+                type: string
+              annualPassages:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClassicalPassageDto"
+              comparisons:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningRelationDto"
+            additionalProperties: false
+          minItems: 1
+          maxItems: 2
+      additionalProperties: false
+    BirthDatePreviewSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthDatePreviewDto"
+      additionalProperties: false
+    BirthYearSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthYearComparisonDto"
+      additionalProperties: false
     BirthComparisonDto:
       type: object
       required:
@@ -1342,6 +1520,80 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-date-preview:
+    post:
+      operationId: previewBirthDate
+      summary: Resolve a birthday within a civil year
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthDatePreviewRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthDatePreviewSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-year-comparison:
+    post:
+      operationId: compareBirthYear
+      summary: Compare possible annual structures for a civil birth year
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthYearRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthYearSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /api/v1/yunqi/learning/birth-comparison:
     post:
       operationId: compareBirth
@@ -1458,4 +1710,4 @@ tags:
     description: YunQi contract endpoints
   - name: constitution
     description: Versioned questionnaire and non-persistent scoring
-x-yunqi-contract-id: YQ-API-CONTRACT-1.3.0
+x-yunqi-contract-id: YQ-API-CONTRACT-1.4.0

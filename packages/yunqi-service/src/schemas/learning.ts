@@ -44,6 +44,35 @@ export const BirthRequestSchema = Type.Object({
   birthTime: Type.Optional(Type.String({ pattern: '^\\d{2}:\\d{2}:\\d{2}$' })),
 }, { ...Closed, $id: 'BirthRequest' });
 
+export const BirthYearRequestSchema = Type.Object({
+  year: Type.Integer({ minimum: 1900, maximum: 2100 }),
+}, { ...Closed, $id: 'BirthYearRequest' });
+
+export const BirthDatePreviewRequestSchema = Type.Object({
+  ...BirthYearRequestSchema.properties,
+  calendar: Type.Union([Type.Literal('solar'), Type.Literal('lunar')]),
+  month: Type.Integer({ minimum: 1, maximum: 12 }), day: Type.Integer({ minimum: 1, maximum: 31 }),
+  leap: Type.Optional(Type.Boolean()),
+}, { ...Closed, $id: 'BirthDatePreviewRequest' });
+
+export const BirthDatePreviewDtoSchema = Type.Object({
+  matches: Type.Array(Type.Object({
+    birthDate: Type.String(), lunarLabel: Type.String(), leap: Type.Boolean(),
+    annualLabels: Type.Array(Type.String()),
+    boundaries: Type.Array(Type.Object({ label: Type.String(), at: Type.Ref('YunQiTimeDto') }, Closed)),
+  }, Closed)),
+}, { ...Closed, $id: 'BirthDatePreviewDto' });
+
+export const BirthYearComparisonDtoSchema = Type.Object({
+  birthPrecision: Type.Literal('year'), current: Type.Ref('YunQiLearningDto'), message: Type.String(),
+  candidates: Type.Array(Type.Object({
+    label: Type.String(), from: Type.Ref('YunQiTimeDto'), until: Type.Ref('YunQiTimeDto'),
+    year: Type.Integer(), ganzhi: Type.String(), suiYun: Type.Ref('SuiYunDto'),
+    sitian: Type.String(), zaiquan: Type.String(), annualPassages: Type.Array(Type.Ref('ClassicalPassageDto')),
+    comparisons: Type.Array(Type.Ref('LearningRelationDto')),
+  }, Closed), { minItems: 1, maxItems: 2 }),
+}, { ...Closed, $id: 'BirthYearComparisonDto' });
+
 export const BirthComparisonDtoSchema = Type.Object({
   ruleVersion: Type.String(), birthPrecision: Type.Union([Type.Literal('date'), Type.Literal('time')]),
   ambiguous: Type.Boolean(), message: Type.String(), current: Type.Ref('YunQiLearningDto'),
@@ -60,6 +89,17 @@ export const BirthSuccessSchema = Type.Object({
   code: Type.Literal('SUCCESS'), message: Type.Literal(''), data: Type.Ref('BirthComparisonDto'),
 }, { ...Closed, $id: 'BirthSuccessResponse' });
 
+export const BirthDatePreviewSuccessSchema = Type.Object({
+  ...BirthSuccessSchema.properties, data: Type.Ref('BirthDatePreviewDto'),
+}, { ...Closed, $id: 'BirthDatePreviewSuccessResponse' });
+export const BirthYearSuccessSchema = Type.Object({
+  ...BirthSuccessSchema.properties, data: Type.Ref('BirthYearComparisonDto'),
+}, { ...Closed, $id: 'BirthYearSuccessResponse' });
+
+export type BirthYearRequest = Static<typeof BirthYearRequestSchema>;
+export type BirthDatePreviewRequest = Static<typeof BirthDatePreviewRequestSchema>;
+export type BirthDatePreviewDto = Static<typeof BirthDatePreviewDtoSchema, Context>;
+export type BirthYearComparisonDto = Static<typeof BirthYearComparisonDtoSchema, Context>;
 export type BirthRequest = Static<typeof BirthRequestSchema>;
 // Reuse the existing context, so references never become handwritten DTO copies.
 type Context = import('./yunqi.js').YunQiSchemaContext & {
@@ -77,4 +117,5 @@ export type MovementStepDto = Static<typeof MovementStepDtoSchema, Context>;
 
 export const learningSchemas = [LearningRelationDtoSchema, ClassicalPassageDtoSchema, MovementRelationDtoSchema,
   MovementStepDtoSchema, YunQiLearningDtoSchema, BirthRequestSchema,
-  BirthComparisonDtoSchema, LearningSuccessSchema, BirthSuccessSchema] as const;
+  BirthYearRequestSchema, BirthDatePreviewRequestSchema, BirthDatePreviewDtoSchema, BirthYearComparisonDtoSchema,
+  BirthDatePreviewSuccessSchema, BirthYearSuccessSchema, BirthComparisonDtoSchema, LearningSuccessSchema, BirthSuccessSchema] as const;

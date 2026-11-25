@@ -22,20 +22,22 @@ function renderPage() {
 }
 
 describe('CurrentYunQiPage', () => {
-  it('places the fourteen period cells in one shared grid with seven explicit paired rows', () => {
+  it('aligns the two periods and nests the remaining-time labels in their titles', () => {
     const { learning } = renderPage();
     const qi = screen.getByRole('region', { name: '当步气' });
     const movement = screen.getByRole('region', { name: '当步运' });
     const grid = document.querySelector('.current-period-grid')!;
     const columns = [
-      { region: qi, column: 1, text: ['三之气', '小满 → 大暑', '还有 34 天', `主气${learning.facts.currentStep.hostQi}`, `客气${learning.facts.currentStep.guestQi}`, '相得', '客生主'] },
-      { region: movement, column: 3, text: ['二之运', '春分后13日 → 芒种后10日', '还有 34 天', '主运火运太过', '客运木运不及', '相得\u202f·\u202f客生主', '客木生主火'] },
+      { region: qi, column: 1, title: '三之气', text: ['小满 → 大暑', `主气${learning.facts.currentStep.hostQi}`, `客气${learning.facts.currentStep.guestQi}`, '相得', '客生主'] },
+      { region: movement, column: 3, title: '二之运', text: ['春分后13日 → 芒种后10日', '主运火运太过', '客运木运不及', '相得\u202f·\u202f客生主', '客木生主火'] },
     ];
-    expect(grid.querySelectorAll('.current-period-cell')).toHaveLength(14);
-    for (const { region, column, text } of columns) {
+    expect(grid.querySelectorAll('.current-period-cell')).toHaveLength(12);
+    for (const { region, column, title, text } of columns) {
       expect(region.parentElement).toBe(grid);
       const cells = [...region.querySelectorAll('.current-period-cell')];
-      expect(cells.map((cell) => cell.textContent)).toEqual(text);
+      expect(cells[0].querySelector('h3')).toHaveTextContent(title);
+      expect(cells[0].querySelector('.current-period-cell--remaining')).toHaveTextContent('还有 34 天');
+      expect(cells.slice(1).map((cell) => cell.textContent)).toEqual(text);
       for (const [index, cell] of cells.entries()) {
         expect(cell).toHaveStyle({ gridColumn: `${column}`, gridRow: `${index + 1}` });
       }
@@ -61,7 +63,7 @@ describe('CurrentYunQiPage', () => {
     expect(more.querySelector('.current-technical')).not.toHaveAttribute('open');
   });
 
-  it('uses book-title source rows with decorative external icons and leaves the teaching notice to the footer', async () => {
+  it('uses book-title source rows and keeps the teaching notice in calculation details', async () => {
     const user = userEvent.setup();
     const learning = mapLearning(createLearningDto());
     render(<ThemeProvider><PanelShell>
@@ -69,19 +71,27 @@ describe('CurrentYunQiPage', () => {
     </PanelShell></ThemeProvider>, { wrapper: PageWrapper });
     const disclosure = screen.getByText('这些关系怎么读？').closest('details')!;
     await user.click(within(disclosure).getByText('这些关系怎么读？'));
-    const sources = within(disclosure).getAllByRole('link');
+    expect(within(disclosure).queryByRole('link')).toBeNull();
+    const sources = within(disclosure).getAllByTitle('《传统理论测试来源》');
     expect(sources).toHaveLength(2);
     for (const source of sources) {
       expect(source).toHaveTextContent('《传统理论测试来源》');
-      expect(source).toHaveAccessibleName('《传统理论测试来源》，新窗口打开');
-      expect(source).toHaveAttribute('target', '_blank');
-      expect(source).toHaveAttribute('rel', 'noreferrer');
-      expect(source).not.toHaveTextContent('新窗口');
-      expect(source.querySelector('svg')).toHaveAttribute('aria-hidden', 'true');
+      expect(source).not.toHaveAttribute('href');
+      expect(source.querySelector('svg')).toBeNull();
     }
     expect(disclosure.querySelector('ul, li')).toBeNull();
+    for (const relation of [learning.annualRelation, learning.currentQi]) {
+      const insight = within(disclosure).getByRole('region', { name: relation.title });
+      expect(within(insight).getByRole('heading', { name: relation.heading })).toBeVisible();
+      expect(within(insight).getByText(relation.scope)).toBeVisible();
+      expect(insight.querySelector('.ds-relation__chip')).toHaveClass(`ds-relation__chip--${relation.tone}`);
+    }
+    expect(within(disclosure).getByText('推演口径').parentElement).toHaveTextContent(learning.currentMovement.explanation);
+    expect(screen.queryByText('文献线索，非个体发病预测', { exact: true })).not.toBeInTheDocument();
     expect(disclosure).not.toHaveTextContent('教学口径，待专家确认');
-    expect(screen.getByRole('contentinfo').textContent?.match(/教学口径，待专家确认/g)).toHaveLength(1);
+    const ruleCard = screen.getByText('规则推演说明').closest('section')!;
+    expect(ruleCard).toHaveTextContent('辅助参考，不作诊断依据');
+    expect(ruleCard).toHaveTextContent(learning.currentMovement.boundaryMethod);
   });
 
   it('shows the movement DTO relation with the same chip as qi and no placeholder', () => {
@@ -156,8 +166,7 @@ describe('CurrentYunQiPage', () => {
     expect(screen.getByRole('link', { name: '指定时点' })).toHaveAttribute('href', '/yunqi/calculate');
     expect(screen.getByRole('link', { name: '原文与释义' })).toHaveAttribute('href', '/yunqi/current/classics');
     expect(screen.getByText('“主胜逆，客胜从。”')).toBeVisible();
-    expect(screen.getByText('文献线索，非个体发病预测')).toBeVisible();
-    expect(screen.getAllByText('文献线索，非个体发病预测')).toHaveLength(1);
+    expect(document.querySelector('.current-overview__quote .ds-info-card__hint')).toBeNull();
   });
 
   it('shows same-day transitions using the two independently supplied API end clocks', () => {
@@ -211,7 +220,7 @@ describe('CurrentYunQiPage', () => {
     await user.click(reading);
     expect(screen.getByText(dto.currentQi.explanation)).toBeVisible();
     expect(screen.getByText(dto.annualRelation.explanation)).toBeVisible();
-    expect(screen.getAllByRole('link', { name: /传统理论测试来源/ })[0]).toHaveAttribute('href', dto.annualRelation.sources[0].url);
+    expect(within(reading.parentElement!).getAllByTitle(dto.annualRelation.sources[0].title)[0]).toBeVisible();
     expect(within(reading.parentElement!).getByText(dto.currentMovement.explanation, { exact: true })).toBeVisible();
 
     expect(screen.getByRole('region', { name: '六步交接时间线' })).not.toBeVisible();
@@ -240,15 +249,28 @@ describe('CurrentYunQiPage', () => {
       ...dto.facts.sixQi.steps.flatMap((step) => [step.start, step.end]),
       ...dto.movements.flatMap((step) => [step.start, step.end])];
     expect([...precision.querySelectorAll('time')].map((time) => time.dateTime)).toEqual(expectedTimes.map((time) => time.localTime));
-    for (const time of precision.querySelectorAll('time')) expect(time.textContent).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
-    const ruleNotes = screen.getByRole('region', { name: '规则结果说明' });
+    const times = [...precision.querySelectorAll('time')];
+    expect(times[0].textContent).toBe(dto.facts.input.localTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    for (const time of times.slice(1, 3)) expect(time.textContent).toBe(time.dateTime.slice(0, 16).replace('T', ' '));
+    for (const time of times.slice(3)) {
+      expect(time.textContent).toBe(time.dateTime.slice(5, 19).replace('T', ' '));
+      expect(time.title).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
+    }
+    for (const [sequence, current] of [['六步气', dto.facts.currentStep.name], ['五步运', dto.currentMovement.name]]) {
+      const selected = within(precision).getByRole('region', { name: sequence }).querySelectorAll('[aria-current="step"]');
+      expect(selected).toHaveLength(1);
+      expect(selected[0]).toHaveTextContent(`${current}当前`);
+    }
+    const ruleNotes = screen.getByRole('region', { name: '规则推演说明' });
     expect(ruleNotes).toHaveTextContent('本结果依据冻结规则计算。');
-    expect(within(ruleNotes).getByText(dto.ruleVersion, { exact: true })).toBeVisible();
+    expect(within(ruleNotes).getByTitle(dto.ruleVersion)).toHaveTextContent('规则引擎 v1.3.0');
+    expect(within(ruleNotes).queryByText(/典籍数据/)).not.toBeInTheDocument();
+    expect(within(ruleNotes).getAllByRole('listitem')).toHaveLength(4);
     const trace = screen.getByRole('region', { name: '追溯信息' });
     expect(trace).toHaveTextContent('YunQi 当前查询 API');
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.4.0');
     expect(trace).toHaveTextContent('YQ-MVP-RULES-1.1.0');
-    expect(trace).toHaveTextContent('北京时间 UTC+08');
+    expect(trace).not.toHaveTextContent('北京时间 UTC+08');
   });
 
   it('keeps API milliseconds only in calculation details', async () => {

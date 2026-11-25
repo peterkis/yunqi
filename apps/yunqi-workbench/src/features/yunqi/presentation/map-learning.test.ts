@@ -1,8 +1,28 @@
 import { describe, expect, it } from 'vitest';
 import { createBirthComparisonDto, createLearningDto } from '../../../test/learning-fixtures';
-import { mapBirthComparison, mapLearning } from './map-learning';
+import { compactSourceTitle, mapBirthComparison, mapLearning } from './map-learning';
 
 describe('learning reading context', () => {
+  it('uses the API stage for the reading heading and preserves unfamiliar titles and verdicts', () => {
+    const dto = createLearningDto();
+    const stage = dto.facts.currentStep.name;
+    const result = mapLearning({
+      ...dto,
+      currentQi: { ...dto.currentQi, title: `${stage} · 客主加临`, label: '相生 · 相得' },
+      annualRelation: { ...dto.annualRelation, title: '另一范围 · 年度说明', label: '待核关系' },
+    });
+    expect(result.currentQi).toMatchObject({ scope: stage, heading: '客主加临', label: '相生 · 相得', badgeLabel: '相得', tone: 'favorable' });
+    expect(result.annualRelation).toMatchObject({ scope: '全年', heading: '另一范围 · 年度说明', badgeLabel: '待核关系', tone: 'neutral' });
+  });
+
+  it.each([
+    ['《黄帝内经·素问》至真要大论篇第七十四·客主逆从', '《素问·至真要大论》客主逆从'],
+    ['《医宗金鉴》卷三十五·六十年运气上下相临歌', '《医宗金鉴》六十年运气上下相临歌'],
+    ['《另一书目》篇名待核', '《另一书目》篇名待核'],
+  ])('shortens recognized source formats without guessing the contents of %s', (full, visible) => {
+    expect(compactSourceTitle(full)).toBe(visible);
+  });
+
   it('preserves explicit DTO relations for the current movement and every list entry', () => {
     const dto = createLearningDto();
     const result = mapLearning(dto);

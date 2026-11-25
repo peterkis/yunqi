@@ -37,6 +37,10 @@ console.log(formatYunQiInstant(result.currentStep.start));
 
 当前规则来源是仓库根目录的 `rules/PHASE1_IMPLEMENTATION_RULES_V1_1.md` 和 `@yunqi/domain` 的规则实现，规则版本为 `YQ-MVP-RULES-1.1.0`；旧版规则说明和原始资料保留，当前专家状态仍为“待正式冻结”。本适配器只提供时间和历法基础设施，不输出诊断、处方、治疗建议或个性化医疗结论，也不参与医疗决策。
 
+## 农历生日反查
+
+`resolveLunarBirthday(year, month, day, leap?)` 的 year 始终是公历出生年。它在这个公历年覆盖的农历月份中查找匹配，再按公历年月日筛选。省略 leap 时返回普通月与闰月的所有匹配，传 true 或 false 时只取对应月型。每项带公历日期和农历月日名称，结果按日期排序。未来日期、可支持时段以及年度归属由 Service 和 Domain 判断。
+
 ## 本地验证
 
 在仓库根目录执行：

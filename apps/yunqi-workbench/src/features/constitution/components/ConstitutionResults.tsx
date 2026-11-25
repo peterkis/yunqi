@@ -2,6 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { InlineText } from '../../../components/design/InlineText';
+import { MoreRowSummary } from '../../../components/design/MoreRow';
 import { ElementDot } from '../../../components/design/ElementDot';
 import { SegmentedText } from '../../../components/design/SegmentedText';
 import type { ConstitutionAssessmentViewModel, ConstitutionContextViewModel } from '../presentation/map-constitution';
@@ -16,7 +17,13 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
   const [revealing, setRevealing] = useState(reveal && visible);
   const birth = context?.birth;
   const headingRef = useRef<HTMLHeadingElement>(null);
-  useLayoutEffect(() => { if (visible) headingRef.current?.focus(); }, []);
+  useLayoutEffect(() => {
+    const heading = headingRef.current;
+    const active = document.activeElement;
+    if (visible && !heading?.closest('[inert]') && (active === document.body || heading?.closest('form')?.contains(active))) {
+      heading?.focus();
+    }
+  }, []);
   useEffect(() => {
     if (!visible) { setRevealing(false); return; }
     if (!revealing) return;
@@ -35,25 +42,29 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
             {assessment.tendencyTypes.map((type) => <RelationChip key={type.id} label={`${type.shortName} 倾向`} tone="favorable" />)}
           </div> : null}
         </div>
-        {assessment.matchedTypes.length >= 2 ? <dl className="constitution-type-groups">
-          <div className="constitution-matched-types">
-            <dt>兼夹</dt><dd>{assessment.matchedTypes.map((type) => <RelationChip key={type.id} label={type.name} tone="neutral" />)}</dd>
-          </div>
-        </dl> : null}
+        {assessment.matchedTypes.length >= 2 ? <div className="constitution-matched-types" role="group" aria-label="符合判定的体质">
+          {assessment.matchedTypes.map((type) => <RelationChip key={type.id} label={type.name} tone="neutral" />)}
+        </div> : null}
         <p className="constitution-meta num">偏颇质转化分 ≥40 为“是”、30–39 为“倾向是”；平和质本类需 ≥60，且其余均 &lt;30 为“是”、均 &lt;40 且未达前项为“基本是”。</p>
       </section>
       <section className="constitution-card constitution-score-card" aria-label="九种体质转化分">
         <header className="constitution-chart-header"><h4 className="constitution-eyebrow">九质转化分</h4><span className="num"><InlineText>刻度 30 · 40</InlineText></span></header>
-        <ul className="constitution-bars" aria-label="九种体质转化分">
-          {assessment.results.map((result, index) => <li key={result.id} className="constitution-bar" data-tone={result.tone} style={{ '--constitution-bar-index': index } as CSSProperties}>
-            <span className="constitution-bar-label">{result.shortName}</span>
-            <div className="constitution-bar-track" role="img" aria-label={result.chartLabel}>
-              <span className="constitution-bar-fill" style={{ '--constitution-fill': result.fillWidth } as CSSProperties} />
-              <span className="constitution-bar-tick constitution-bar-tick--30" /><span className="constitution-bar-tick constitution-bar-tick--40" />
-            </div>
-            <span className="constitution-bar-score num">{result.displayScore}</span>
-          </li>)}
-        </ul>
+        <div className="constitution-chart-plot">
+          <ul className="constitution-bars" aria-label="九种体质转化分">
+            {assessment.results.map((result, index) => <li key={result.id} className="constitution-bar" data-tone={result.tone}
+              data-balanced={result.id === 'balanced' || undefined} style={{ '--constitution-bar-index': index } as CSSProperties}>
+              <span className="constitution-bar-label">{result.shortName}</span>
+              <div className="constitution-bar-track" role="img" aria-label={result.chartLabel}>
+                <span className="constitution-bar-fill" style={{ '--constitution-fill': result.fillWidth } as CSSProperties} />
+              </div>
+              <span className="constitution-bar-score num">{result.displayScore}</span>
+            </li>)}
+          </ul>
+          <div className="constitution-chart-guides" aria-hidden="true">
+            <span className="constitution-chart-guide constitution-chart-guide--30" />
+            <span className="constitution-chart-guide constitution-chart-guide--40" />
+          </div>
+        </div>
       </section>
       <section className="constitution-card constitution-reference-card" aria-label="与运气互参">
         <h4 className="constitution-eyebrow">与运气互参</h4>
@@ -65,7 +76,7 @@ export function ConstitutionResults({ assessment, context, children, reveal = fa
         <p className="constitution-meta">体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。</p>
       </section>
       <div className="constitution-notes">
-        <details className="constitution-disclosure"><summary>判定说明与边界</summary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
+        <details className="constitution-disclosure"><MoreRowSummary>判定说明与边界</MoreRowSummary><p>{assessment.summary}</p><p>{assessment.boundaryNote}</p><p>九项分别判定，可同时符合多质或倾向；分数显示一位小数，判定采用未取整分数。</p></details>
         {children}
       </div>
     </section>

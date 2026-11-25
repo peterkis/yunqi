@@ -1,11 +1,13 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { Moon, Sun } from 'lucide-react';
 import { getPanelRoute, navigationItems } from '../../app/routes';
 import { PanelNavigation } from '../../app/PanelNavigation';
+import { BackToTop } from './BackToTop';
 import type { PanelSummaryViewModel } from '../../features/yunqi/presentation/panel-summary';
 import { useTheme } from '../../providers/ThemeProvider';
-import { useMotionLevel } from '../../providers/MotionProvider';
-import { motionMilliseconds } from '../../lib/motion';
+import { useMotionLevel, useMotionPreference } from '../../providers/MotionProvider';
+import { animateMotion, motionMilliseconds } from '../../lib/motion';
 import { Button } from '../design/Button';
 import { InlineText } from '../design/InlineText';
 import { PanelHeader } from '../design/PanelHeader';
@@ -35,6 +37,19 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   const route = getPanelRoute(pathname);
   const { theme, toggleTheme } = useTheme();
   const level = useMotionLevel();
+  const themeIcon = useRef<SVGSVGElement>(null);
+  const previousTheme = useRef(theme);
+  useLayoutEffect(() => {
+    if (previousTheme.current === theme) return;
+    previousTheme.current = theme;
+    if (level !== 'full') return;
+    const animation = animateMotion(themeIcon.current, level, [
+      { opacity: 0.6, transform: 'rotate(-20deg) scale(0.85)' },
+      { opacity: 1, transform: 'rotate(0deg) scale(1)' },
+    ], '--motion-base', '--ease-standard');
+    return () => animation?.cancel();
+  }, [theme, level]);
+  const manualStandard = useMotionPreference() === 'full';
   const [phase, setPhase] = useState<'expanded' | 'collapsing' | 'collapsed' | 'pill-exit' | 'expanding'>('expanded');
   const collapsed = phase === 'collapsed' || phase === 'pill-exit';
   const shellRef = useRef<HTMLDivElement>(null);
@@ -46,6 +61,17 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const wasCollapsed = useRef(false);
+
+  useLayoutEffect(() => {
+    const main = mainRef.current;
+    if (!main || level !== 'full' || phase !== 'expanded') return;
+    let disposed = false;
+    let detach: (() => void) | undefined;
+    void import('../../lib/panel-wheel-scroll').then(({ attachPanelWheelScroll }) => {
+      if (!disposed) detach = attachPanelWheelScroll(main, { manualStandard });
+    }, () => { /* A missing optional motion chunk leaves native scrolling in place. */ });
+    return () => { disposed = true; detach?.(); };
+  }, [level, manualStandard, phase, pathname]);
 
   // Timers advance state even without CSS/WAAPI/events. A live switch to off
   // completes an outstanding exit synchronously in the layout commit.
@@ -107,16 +133,11 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </button>
         )}
         {/* Keep the route mounted so collapsing cannot destroy local form state. */}
-        <div className="panel-shell" id="yunqi-panel" ref={shellRef} hidden={collapsed}>
+        <div className="panel-shell jade-surface" id="yunqi-panel" data-route={route.id} ref={shellRef} hidden={collapsed}>
           <a className="panel-shell__skip-link" href="#workbench-content" onClick={() => mainRef.current?.focus()}>跳至主要内容</a>
-          <PanelHeader title="运气通" status="教学参考 · 本次会话不关联患者" actions={<>
-            <Button variant="icon" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                {theme === 'light' ? <path d="M20 14A8 8 0 0 1 10 4a8 8 0 1 0 10 10Z" /> : <>
-                  <circle cx="12" cy="12" r="4" />
-                  <path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5" />
-                </>}
-              </svg>
+          <PanelHeader title="运气通" status="测试版 · 待接入HIS" actions={<>
+            <Button variant="icon" data-theme-toggle="" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
+              {theme === 'light' ? <Moon ref={themeIcon} aria-hidden="true" /> : <Sun ref={themeIcon} aria-hidden="true" />}
             </Button>
             <Button ref={collapseRef} variant="icon" aria-label="收起为胶囊条" aria-expanded={!collapsed} aria-controls="yunqi-panel" onClick={collapse}>
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" /></svg>
@@ -125,7 +146,8 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           <div className="panel-shell__navigation">
             {view?.drilldown
               ? <section className="panel-shell__drilldown" aria-label="页面导航">
-                  <PanelHeader variant="drilldown" title={view.drilldown.title} onBack={view.drilldown.onBack} />
+                  <PanelHeader variant="drilldown" title={view.drilldown.toolbarActions ? '' : view.drilldown.title}
+                    actions={view.drilldown.toolbarActions} onBack={view.drilldown.onBack} />
                 </section>
               : route.kind === 'segment'
               ? <SegmentedNav segments={navigationItems} label="工作台导航" />
@@ -135,7 +157,14 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={title}>{children}</main>
           {viewActions && <div className="panel-shell__actions">{viewActions}</div>}
-          <footer className="panel-shell__footer"><InlineText>五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据</InlineText></footer>
+          <footer className="panel-shell__footer">
+            <span className="panel-shell__byline">
+              <span className="panel-shell__credit">中医科 <span aria-hidden="true">×</span> 信息管理部</span>
+              <span>联合研发</span>
+            </span>
+            <span className="num">© 2026-2027</span>
+            {phase === 'expanded' && <BackToTop key={pathname} contentRef={mainRef} />}
+          </footer>
         </div>
       </div>
     </PanelViewContext.Provider>

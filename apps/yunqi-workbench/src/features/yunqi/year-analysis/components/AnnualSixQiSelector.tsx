@@ -24,11 +24,12 @@ export function AnnualSixQiSelector({
     <InfoCard label="六气 · 年度阶段">
       <fieldset className="drilldown-stage-selector">
         <legend>选择六气阶段</legend>
-        <p className="drilldown-meta"><InlineText>选择后在下方查看详情 · 北京时间 UTC+08</InlineText></p>
+        <p className="drilldown-meta"><InlineText>选择后在下方查看详情</InlineText></p>
         <div className="drilldown-stage-selector__options">
           {stages.map((stage) => (
             <label
               className="drilldown-stage-selector__option"
+              data-selected={stage.index === selectedStepIndex}
               key={stage.index}
             >
               <input
@@ -42,11 +43,11 @@ export function AnnualSixQiSelector({
               />
               <strong>{stage.name}</strong>
               <span className="drilldown-stage-selector__range">
-                <YunQiTimeDisplay value={stage.start} variant="compact" showStandard={false} />
-                <span>→ <YunQiTimeDisplay value={stage.end} variant="compact" showStandard={false} /></span>
+                <YunQiTimeDisplay value={stage.start} variant="compact" />
+                <span>→ <YunQiTimeDisplay value={stage.end} variant="compact" /></span>
               </span>
               <span className="visually-hidden" id={`${groupName}-${stage.index}-range`}>
-                开始 {stage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 {stage.end.localTime.slice(5, 16).replace('T', ' ')}，北京时间 UTC+08；精确边界见计算说明与版本
+                开始 {stage.start.localTime.slice(5, 16).replace('T', ' ')}，结束 {stage.end.localTime.slice(5, 16).replace('T', ' ')}；精确边界见计算说明与版本
               </span>
             </label>
           ))}

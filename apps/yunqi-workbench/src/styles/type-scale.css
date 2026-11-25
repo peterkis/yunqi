@@ -19,6 +19,7 @@
   --ts-body: var(--type-body-size);
   --ts-body-line: var(--type-body-line);
   --ts-body-weight: var(--type-body-weight);
+  --ts-countdown: var(--type-meta-size);
   --ts-small: var(--type-caption-size);
   --ts-small-line: var(--type-caption-line);
   --ts-small-weight: var(--type-caption-weight);

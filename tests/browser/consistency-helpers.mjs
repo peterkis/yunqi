@@ -45,16 +45,10 @@ export async function expectRelationSources(disclosure) {
   for (const source of await sources.all()) {
     await expect(source).toHaveText(/^《.+》/);
     await expect(source).not.toContainText('新窗口');
-    await expect(source).toHaveAccessibleName(/新窗口打开$/);
-    await expect(source).toHaveAttribute('target', '_blank');
-    await expect(source).toHaveAttribute('rel', 'noreferrer');
     await expect(source).toHaveCSS('font-size', '12px');
-    await expect(source.locator('svg')).toHaveAttribute('aria-hidden', 'true');
-    await expect(source.locator('svg')).toHaveCSS('width', '12px');
-    await expect(source.locator('svg')).toHaveCSS('height', '12px');
     const metrics = await source.evaluate(element => {
       const swatch = document.createElement('span');
-      swatch.style.color = 'var(--ink-tertiary)';
+      swatch.style.color = 'var(--accent)';
       element.append(swatch);
       const result = {
         color: getComputedStyle(element).color, tokenColor: getComputedStyle(swatch).color,
@@ -64,7 +58,11 @@ export async function expectRelationSources(disclosure) {
       return result;
     });
     expect(metrics.color).toBe(metrics.tokenColor);
-    expect(Math.abs(metrics.width - metrics.rowWidth)).toBeLessThanOrEqual(1);
+    expect(metrics.width).toBeLessThanOrEqual(metrics.rowWidth + 1);
+    await expect(source).not.toHaveAttribute('href');
+    await expect(source.locator('svg')).toHaveCount(0);
+    await expect(source).toHaveCSS('border-radius', '999px');
+    await expect(source).toHaveAttribute('title', /《.+》/);
   }
 }
 

@@ -5,6 +5,33 @@ import { expectedMotionLevel, expectMotionDurations } from './motion-helpers.mjs
 
 const ANSWER_HOLD_MS = 240;
 
+test('edition watermark responds to hover according to the motion setting', async ({ page, motionMode }) => {
+  const editions = page.getByRole('radiogroup', { name: '量表所用性别' });
+  async function checkHover(level) {
+    await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', level);
+    const cards = editions.getByRole('radio');
+    await expect(cards).toHaveCount(2);
+    for (const card of await cards.all()) {
+      const watermark = card.locator('.constitution-edition-art svg');
+      await expect(watermark).toHaveCSS('transform', 'none');
+      if (level === 'full') await expect(watermark).toHaveCSS('transition-property', 'transform');
+      await card.hover();
+      await expect(watermark).toHaveCSS('transform', level === 'full' ? 'matrix(1.1, 0, 0, 1.1, -4, 2)' : 'none');
+      await page.mouse.move(0, 0);
+      await expect(watermark).toHaveCSS('transform', 'none');
+    }
+  }
+  await page.goto('/yunqi/constitution');
+  await checkHover(expectedMotionLevel(motionMode));
+  if (motionMode === 'reduced') {
+    await page.getByRole('link', { name: '当下运气', exact: true }).click();
+    await page.getByText('动效设置', { exact: true }).click();
+    await page.getByRole('radio', { name: '标准', exact: true }).click();
+    await page.getByRole('link', { name: '体质量表', exact: true }).click();
+    await checkHover('full');
+  }
+});
+
 async function activate(page, target, input, key = 'Enter') {
   if (input === 'mouse') await target.click();
   else { await target.focus(); await page.keyboard.press(key); }
@@ -34,10 +61,10 @@ async function observeResult(page) {
           end: Number(animation.effect.getComputedTiming().endTime),
           frames: animation.effect.getKeyframes(),
         })),
-        ticks: [...result.querySelectorAll('.constitution-bar-tick')].map(tick => ({ transform: getComputedStyle(tick).transform, animations: tick.getAnimations().length })),
+        guides: [...result.querySelectorAll('.constitution-chart-guide')].map(guide => ({ transform: getComputedStyle(guide).transform, animations: guide.getAnimations().length })),
         labels: [...result.querySelectorAll('.constitution-bar-label')].map(label => label.textContent),
       };
-      // The explicit submit replaces the complete view and its shell header.
+      // The scoring response replaces the pending view and its shell header.
       // Keep those commit entries in the artifact; measure reveal stability
       // after its first paint, before the 60ms bar sequence begins. Do not
       // exclude recent-input entries from the animation's own shift sum.
@@ -62,7 +89,7 @@ async function expectReveal(page, motionMode, testInfo, name) {
   expect(Number.isFinite(sample.paintBoundary)).toBe(true);
   expect(sample.shifts.filter(shift => shift.start >= sample.paintBoundary).reduce((total, shift) => total + shift.value, 0), 'No layout shift after result entry paint, including input-associated shifts').toBe(0);
   expect(sample.reveal.labels).toEqual(['平和', '气虚', '阳虚', '阴虚', '痰湿', '湿热', '血瘀', '气郁', '特禀']);
-  expect(sample.reveal.ticks).toEqual(Array(18).fill({ transform: 'none', animations: 0 }));
+  expect(sample.reveal.guides).toEqual(Array(2).fill({ transform: 'none', animations: 0 }));
   const animations = sample.reveal.animations;
   expect(Math.max(0, ...animations.map(animation => animation.end))).toBeLessThanOrEqual(motionMode === 'full' ? 400 : motionMode === 'off' ? 0 : 120);
   if (motionMode === 'full') {
@@ -95,7 +122,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     if (embedded) {
       await fillBirthDate(page, '1990-05-12');
       const response = page.waitForResponse(item => item.url().endsWith('/learning/birth-comparison'));
-      await activate(page, page.getByRole('button', { name: '查看对照', exact: true }), input);
+      await activate(page, page.getByRole('button', { name: '确认并对照', exact: true }), input);
       await expectBirthComparison(page, (await (await response).json()).data);
       await activate(page, page.getByRole('button', { name: '同时测评体质', exact: true }), input);
     }
@@ -103,8 +130,9 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const form = scope.getByRole('form', { name: '中医体质量表', exact: true });
     await expect(scope.getByRole('form')).toBeVisible();
     const storage = await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }));
-    await activate(page, scope.getByRole('radio', { name: '男', exact: true }), input, 'Space');
+    await activate(page, scope.getByRole('radio', { name: '男性量表', exact: true }), input, 'Space');
     await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', expectedMotionLevel(motionMode));
+    let score;
     for (let number = 1; number <= 26; number += 1) {
       await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
       if (number === 2) {
@@ -120,10 +148,10 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
         await activate(page, page.getByRole('link', { name: '当下运气', exact: true }), input);
         await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
         await expect(page).toHaveTitle('当下运气 · 运气通');
-        await expect(page.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-        await activate(page, page.getByRole('link', { name: tab, exact: true }), input);
-        await expect(page).toHaveURL(new RegExp(`${path}(?:\\?motion=off)?$`));
-        await expect(form.locator('.constitution-position')).toHaveText('2 / 26');
+        await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
+        await activate(page, page.getByRole('link', { name: '体质量表', exact: true }), input);
+        await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
+        await expect(form.locator('.constitution-position')).toHaveText('已答 2 / 26');
         // Tab navigation intentionally focuses main. Re-enter the retained
         // question before continuing its local numeric shortcuts.
         if (input === 'keyboard') {
@@ -132,16 +160,15 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
           await expect(option).toBeFocused();
         }
       }
+      if (number === 26) {
+        await observeResult(page);
+        score = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
+      }
       const value = (number - 1) % 5 + 1;
       if (input === 'keyboard') await page.keyboard.press(String(value));
       else await scope.getByRole('radio', { name: new RegExp(`^${value} `) }).click();
     }
     const actions = page.locator('.panel-shell__actions');
-    const submit = actions.getByRole('button', { name: '查看结果', exact: true });
-    await expect(submit).toBeFocused();
-    await observeResult(page);
-    const score = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-    await activate(page, submit, input);
     const assessment = (await (await score).json()).data;
     const result = await expectConstitutionResults(page, assessment, scope);
     await expect(scope.locator('.constitution-decision h4')).toBeFocused();
@@ -152,12 +179,10 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     await expect(scope.locator('.constitution-question-title')).toBeFocused();
     await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 26 题/);
     await expect(scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) })).toBeChecked();
-    if (input === 'keyboard') await page.keyboard.press(String(finalAnswer));
-    else await scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) }).click();
-    await expect(submit).toBeFocused();
     await observeResult(page);
     const secondScore = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-    await activate(page, submit, input);
+    if (input === 'keyboard') await page.keyboard.press(String(finalAnswer));
+    else await scope.getByRole('radio', { name: new RegExp(`^${finalAnswer} `) }).click();
     expect((await (await secondScore).json()).data).toEqual(assessment);
     await expect(result).toBeVisible();
     await expectReveal(page, motionMode, testInfo, 'resubmit-reveal');
@@ -166,8 +191,8 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     await page.goBack();
     await expect(page).toHaveURL(/\/yunqi\/current(?:\?motion=off)?$/);
     await expect(page.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
-    await activate(page, page.getByRole('link', { name: tab, exact: true }), input);
-    await expect(page).toHaveURL(new RegExp(`${path}(?:\\?motion=off)?$`));
+    await activate(page, page.getByRole('link', { name: '体质量表', exact: true }), input);
+    await expect(page).toHaveURL(/\/yunqi\/constitution(?:\?motion=off)?$/);
     await expect(page).toHaveTitle('体质测评结果 · 运气通');
     await expect(result).toBeVisible();
     await expect(result).toHaveAttribute('data-reveal', 'false');
@@ -175,13 +200,12 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
     const scan = await scanAccessibility(page);
     expect(scan.violations).toEqual([]);
     if (motionMode === 'off') await screenshot(page, testInfo, `M1-c-${input}-${embedded ? 'embedded' : 'standalone'}-result`);
-    await activate(page, actions.getByRole('button', { name: '结束并销毁答卷', exact: true }), input);
+    await activate(page, actions.getByRole('button', { name: '结束并销毁', exact: true }), input);
     await confirmConstitutionDestruction(page, input === 'keyboard');
-    if (embedded) await expect(actions.getByRole('button', { name: '同时测评体质', exact: true })).toBeFocused();
-    else await expect(scope.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(scope.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
     await expect(scope.getByRole('region', { name: '体质测评结果', exact: true })).toHaveCount(0);
     expect(await page.evaluate(() => ({ local: { ...localStorage }, session: { ...sessionStorage } }))).toEqual(storage);
-    expect(new URL(page.url()).pathname).toBe(path);
+    expect(new URL(page.url()).pathname).toBe('/yunqi/constitution');
     expectNoPersonalDataInUrl(page, motionMode);
     expect(new URL(page.url()).hash).toBe('');
     await expectMotionDurations(page, testInfo, 'M1-c-destroy-durations');
@@ -191,7 +215,7 @@ for (const input of ['keyboard', 'mouse']) for (const embedded of [false, true])
 
 test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms without animation events', async ({ page }, testInfo) => {
   await page.goto('/yunqi/constitution?motion=off');
-  await page.getByRole('radio', { name: '男', exact: true }).click();
+  await page.getByRole('radio', { name: '男性量表', exact: true }).click();
   const budget = ANSWER_HOLD_MS + 50;
   const samples = {};
   async function timed(trigger) {
@@ -237,32 +261,27 @@ test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms 
     await expect(position).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
     await page.keyboard.press('1');
   }
-  const submit = page.getByRole('button', { name: '查看结果', exact: true });
   const result = page.getByRole('region', { name: '体质测评结果', exact: true });
-  await expect(submit).toBeFocused();
-  await page.keyboard.press('Enter');
   await expect(result).toBeVisible();
   for (let round = 0; round < 3; round += 1) {
     await timed('edit');
     await expect(position).toHaveAttribute('aria-label', /当前第 26 题/);
     if (round < 2) {
-      // Editing returns to the last question; re-answering it restores submit.
+      // Editing returns to the last question; re-answering it scores the edited answers.
       await page.keyboard.press('1');
-      await expect(submit).toBeFocused();
-      await page.keyboard.press('Enter');
       await expect(result).toBeVisible();
     }
   }
   for (let round = 0; round < 3; round += 1) {
     if (round > 0) {
-      await page.getByRole('radio', { name: '男', exact: true }).click();
+      await page.getByRole('radio', { name: '男性量表', exact: true }).click();
       await expect(position).toHaveAttribute('aria-label', /当前第 1 题/);
       await page.keyboard.press('1');
       await expect(position).toHaveAttribute('aria-label', /当前第 2 题/);
     }
-    await page.getByRole('button', { name: '结束并销毁答卷', exact: true }).click();
+    await page.getByRole('button', { name: '结束并销毁', exact: true }).click();
     await timed('destroy');
-    await expect(page.getByRole('radio', { name: '男', exact: true })).toBeFocused();
+    await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
   }
   await testInfo.attach('M1-c-off-timing-samples', { body: JSON.stringify({ budget, samples }), contentType: 'application/json' });
   for (const trigger of ['answer', 'previous', 'edit', 'destroy']) expectMedian(trigger);
@@ -271,7 +290,7 @@ test('M1-c off advances, reverses, edits and destroys within the hold plus 50ms 
 
 test('M1-c selected state is immediate, full dots stagger and editable shortcuts stay local', async ({ page, motionMode }, testInfo) => {
   await page.goto('/yunqi/constitution');
-  await page.getByRole('radio', { name: '男', exact: true }).click();
+  await page.getByRole('radio', { name: '男性量表', exact: true }).click();
   const immediate = await page.evaluate(async () => {
     document.querySelector('.constitution-question-title').dispatchEvent(new KeyboardEvent('keydown', { key: '5', bubbles: true }));
     await new Promise(resolve => queueMicrotask(resolve));

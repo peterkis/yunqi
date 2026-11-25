@@ -5,26 +5,22 @@ import { mapBirthView } from '../presentation/map-birth-view';
 import { BirthComparisonTable } from './BirthComparisonTable';
 
 describe('BirthComparisonTable mirror semantics', () => {
-  it.each([
-    { label: '所处气', birth: ['主厥阴风木', '客少阴君火'], current: ['主厥阴风木', '客少阳相火'] },
-    { label: '所处运', birth: ['主少角', '客太商'], current: ['主太羽', '客少商'] },
-  ])('keeps $label detail phrases in separate segments on both mirror sides', ({ label, birth, current }) => {
-    const view = mapBirthView(createBirthComparisonDto());
-    const candidate = view.candidates[0];
-    const rows = candidate.rows.map((row) => row.label === label ? {
-      ...row,
-      birth: { ...row.birth, detail: [birth.join(' · ')] },
-      current: { ...row.current, detail: [current.join(' · ')] },
-    } : row);
-    render(<BirthComparisonTable candidate={{ ...candidate, rows }} current={view} />);
-    const row = screen.getByRole('rowheader', { name: label }).closest('tr')!;
-    const details = row.querySelectorAll('.birth-table__detail');
-    expect(details).toHaveLength(2);
-    for (const [index, phrases] of [birth, current].entries()) {
-      expect([...details[index].querySelectorAll('.ds-seg')].map(segment => segment.textContent)).toEqual(phrases);
-      expect(details[index].textContent).toBe(phrases.join('\u202f·\u202f'));
-      expect(details[index].querySelectorAll('wbr')).toHaveLength(1);
-      expect(details[index].closest('td')).toHaveClass(index === 0 ? 'birth-table__birth' : 'birth-table__current');
+  it('renders host and guest separately on both comparison sides', () => {
+    const dto = createBirthComparisonDto();
+    const view = mapBirthView(dto);
+    render(<BirthComparisonTable candidate={view.candidates[0]} current={view} />);
+    for (const label of ['所处气', '所处运']) {
+      const row = screen.getByRole('rowheader', { name: label }).closest('tr')!;
+      const cells = within(row).getAllByRole('cell');
+      for (const [index, learning] of [dto.candidates[0].learning, dto.current].entries()) {
+        const expected = label === '所处气'
+          ? [learning.facts.currentStep.hostQi, learning.facts.currentStep.guestQi]
+          : [learning.currentMovement.host.tone, learning.currentMovement.guest.tone];
+        const detail = cells[index].querySelector('.birth-table__detail')!;
+        expect([...detail.children].map(line => line.textContent)).toEqual([`主 ${expected[0]}`, `客 ${expected[1]}`]);
+        if (label === '所处运') expect(detail.textContent).toBe(`主 ${expected[0]} · 客 ${expected[1]}`);
+        else expect(detail).not.toHaveTextContent(/[·•]/);
+      }
     }
   });
 
@@ -54,17 +50,18 @@ describe('BirthComparisonTable mirror semantics', () => {
       expect(row.children[1]).toBe(heading);
       expect(cells[0]).toHaveAttribute('headers', `${heading.id} ${columns[0].id}`);
       expect(cells[1]).toHaveAttribute('headers', `${heading.id} ${columns[2].id}`);
-      const parts = [value.label, value.birth.label, ...value.birth.detail, `关系${index} 说明${index}`, value.current.label, ...value.current.detail];
+      const separator = value.label === '所处运' ? ' · ' : ' ';
+      const parts = [value.label, value.birth.label, value.birth.detail.join(separator), `关系${index} 说明${index}`, value.current.label, value.current.detail.join(separator)];
       // Accessible row naming must precede the first value with the dimension,
       // then place the relation (including its hidden explanation) before current.
-      expect(row).toHaveAccessibleName(parts.join(' ').replace(/\s+/g, ' ').trim().replaceAll(' · ', '\u202f·\u202f'));
+      expect(row).toHaveAccessibleName(parts.filter(Boolean).join(' '));
       expect(within(row).getByText(`说明${index}`)).toHaveClass('visually-hidden');
     }
     expect(table.querySelectorAll('.ds-element__dot')).toHaveLength(10);
     expect(table.querySelector('thead time')).toBeNull();
   });
 
-  it('keeps empty detail space and explicit missing relations without inventing an element', () => {
+  it('omits empty details and shows an explicit missing relation without inventing an element', () => {
     const view = mapBirthView(createBirthComparisonDto());
     const candidate = view.candidates[0];
     render(<BirthComparisonTable candidate={{ ...candidate, rows: [{
@@ -74,7 +71,7 @@ describe('BirthComparisonTable mirror semantics', () => {
     const birth = table.querySelector('.birth-table__dimension .birth-table__birth')!;
     expect(birth).toHaveTextContent('接口值');
     expect(birth.querySelector('.ds-element')).toBeNull();
-    expect(birth.querySelector('.birth-table__detail > span')).toHaveAttribute('aria-hidden', 'true');
+    expect(birth.querySelector('.birth-table__detail')).toBeNull();
     expect(within(table).getByText('此维度暂未返回关系说明。')).toBeInTheDocument();
     expect(table.querySelector('.ds-relation__chip')).toBeNull();
   });

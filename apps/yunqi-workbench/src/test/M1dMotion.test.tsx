@@ -9,6 +9,7 @@ import { SessionVisibility } from '../components/layout/SessionVisibility';
 import { PanelShell } from '../components/layout/PanelShell';
 import { YunQiWheel } from '../features/yunqi/components/YunQiWheel';
 import { CurrentPeriodGrid } from '../features/yunqi/components/CurrentPeriodGrid';
+import { useBirthComparison } from '../features/yunqi/birth/hooks/useBirthComparison';
 import { BirthComparisonPage } from '../features/yunqi/birth/components/BirthComparisonPage';
 import { mapLearning } from '../features/yunqi/presentation/map-learning';
 import { createClientStub, createLearningDto } from './learning-fixtures';
@@ -234,17 +235,17 @@ describe('M1-d host sequencing', () => {
   });
 });
 
+function TestBirthPage() {
+  return <BirthComparisonPage comparison={useBirthComparison()} onAssess={vi.fn()} onDiscardAssessment={vi.fn()} />;
+}
+
 describe('M1-d birth input', () => {
-  it.each(['full', 'reduced', 'off'] as const)('clears after fast rendering time with a status and year focus in %s', async level => {
+  it.each(['full', 'reduced', 'off'] as const)('clears the keypad with a status and year focus in %s', async level => {
     motion.level = level;
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
-    fillBirthDate('1990-05-12');
+    render(<TestBirthPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    await fillBirthDate('1990-05-12');
     fireEvent.click(screen.getByRole('button', { name: '清空本次资料' }));
-    if (level !== 'off') {
-      act(() => vi.advanceTimersByTime(119));
-      expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('1990');
-      act(() => vi.advanceTimersByTime(1));
-    }
+    expect(screen.getByRole('form', { name: '出生运气输入' })).toBeVisible();
     expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
     expect(screen.getByRole('textbox', { name: '年' })).toHaveFocus();
     expect(screen.getAllByRole('status')).toHaveLength(1);
@@ -254,45 +255,41 @@ describe('M1-d birth input', () => {
     // edit/submit or unmount, unlike 4.9's timed answer-destruction notice.
     act(() => vi.advanceTimersByTime(10_000));
     expect(screen.getByRole('status').textContent).toBe('已清空本次资料');
-    fillBirthDate('1991-06-13');
+    await fillBirthDate('1991-06-13');
     expect(screen.queryByRole('status')).not.toBeInTheDocument();
     await act(async () => {});
   });
 
   it('cancels an old clear when editing and finishes a hidden retained clear without stealing focus', async () => {
-    function Content({ visible }: { visible: boolean }) { return <SessionVisibility.Provider value={visible}><BirthComparisonPage /></SessionVisibility.Provider>; }
+    function Content({ visible }: { visible: boolean }) { return <SessionVisibility.Provider value={visible}><TestBirthPage /></SessionVisibility.Provider>; }
     const view = render(<Content visible />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
-    fillBirthDate('1990-05-12');
+    await fillBirthDate('1990-05-12');
     fireEvent.click(screen.getByRole('button', { name: '清空本次资料' }));
-    fillBirthDate('1991-05-12');
+    await fillBirthDate('1991-05-12');
     act(() => vi.advanceTimersByTime(120));
     expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('1991');
     fireEvent.click(screen.getByRole('button', { name: '清空本次资料' }));
     const outside = screen.getByRole('link', { name: '当下运气' });
     outside.focus();
     view.rerender(<Content visible={false} />);
-    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
+    expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     expect(outside).toHaveFocus();
     await act(async () => {});
   });
 
-  it('collapses the submitted input height, reopens with year focus, and ignores absent WAAPI', async () => {
-    const bounds = vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(function (this: HTMLElement) {
-      return DOMRect.fromRect({ height: this.querySelector('form') ? 200 : 30 });
-    });
-    render(<BirthComparisonPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
-    fillBirthDate('1990-05-12');
+  it('opens a prefilled edit sheet with year focus and allows missing WAAPI', async () => {
+    render(<TestBirthPage />, { wrapper: createTestWrapper(createClientStub(), '/yunqi/birth') });
+    await fillBirthDate('1990-05-12');
     fireEvent.submit(screen.getByRole('form', { name: '出生运气输入' }));
     await act(async () => { await vi.advanceTimersByTimeAsync(1); });
     expect(screen.getByRole('group', { name: '出生资料摘要' })).toBeVisible();
-    expect(effects.some(effect => effect.options.duration === 180 && effect.frames[0]?.height === '200px' && effect.frames[1]?.height === '30px')).toBe(true);
+    expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: '修改' }));
     expect(screen.getByRole('textbox', { name: '年' })).toHaveFocus();
-    expect(effects.some(effect => effect.frames[0]?.height === '30px' && effect.frames[1]?.height === '200px')).toBe(true);
+    expect(screen.getByRole('dialog', { name: '修改出生信息' })).toBeVisible();
     Reflect.deleteProperty(Element.prototype, 'animate');
     expect(animateMotion(screen.getByRole('form'), 'full', [{ opacity: 0 }, { opacity: 1 }], '--motion-base')).toBeUndefined();
     expect(animateMotion(null, 'full', [], '--motion-base')).toBeUndefined();
     expect(motionMilliseconds(document.body, '--missing-token')).toBe(0);
-    bounds.mockRestore();
   });
 });

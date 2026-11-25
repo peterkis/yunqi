@@ -3,7 +3,7 @@ import type { BirthComparisonRequest } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../providers/YunQiClientProvider';
 import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 
-export function useLearningCurrentQuery() {
+export function useLearningCurrentQuery(enabled = true) {
   const client = useYunQiClient();
   const visible = useSessionVisible();
   return useQuery({
@@ -12,8 +12,8 @@ export function useLearningCurrentQuery() {
     // The service owns the clock. Refresh a visible current view so a long
     // consultation does not leave yesterday's stage on screen.
     staleTime: 0,
-    enabled: visible,
-    refetchInterval: visible ? 60_000 : false,
+    enabled: visible && enabled,
+    refetchInterval: visible && enabled ? 60_000 : false,
   });
 }
 

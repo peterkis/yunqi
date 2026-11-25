@@ -29,8 +29,10 @@ export function installErrorHandler(app: FastifyInstance): void {
       return reply.status(400).send(body);
     }
 
+    // Calendar failures can embed the queried birth year in their cause.
+    const logFields = request.routeOptions.url?.startsWith('/api/v1/yunqi/learning/birth-') ? {} : { err: error };
     if (error instanceof CalendarProviderUnavailableError) {
-      request.log.error({ err: error }, 'Calendar provider unavailable');
+      request.log.error(logFields, 'Calendar provider unavailable');
       const body: ErrorResponse = {
         code: 'CALENDAR_PROVIDER_UNAVAILABLE',
         message: '历法服务暂时不可用',
@@ -57,7 +59,7 @@ export function installErrorHandler(app: FastifyInstance): void {
       return reply.status(400).send(body);
     }
 
-    request.log.error({ err: error }, 'Unhandled service error');
+    request.log.error(logFields, 'Unhandled service error');
     const body: ErrorResponse = {
       code: 'INTERNAL_ERROR',
       message: '服务内部错误',

@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { AsyncState } from '../../../components/feedback/AsyncState';
 import { InlineText } from '../../../components/design/InlineText';
 import { useConstitutionQuestionnaire } from '../hooks/useConstitution';
@@ -7,12 +7,14 @@ import { ConstitutionForm } from './ConstitutionForm';
 import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionContext';
 
 /** Mounting owns one local answer session; removing the panel discards it. */
-export function ConstitutionAssessmentPanel({ context, onEnd, actionsEnabled = true }: { readonly context?: ConstitutionContextViewModel; readonly onEnd?: () => void; readonly actionsEnabled?: boolean }) {
+export function ConstitutionAssessmentPanel({ context, actionsEnabled = true }: { readonly context?: ConstitutionContextViewModel; readonly actionsEnabled?: boolean }) {
   const questionnaire = useConstitutionQuestionnaire();
-  // Once this mount has shown a settled questionnaire, a failed background refresh keeps the
-  // cached data so the answer session survives; a reopened session still surfaces the failure.
+  // A refresh failure must preserve an active answer sheet. Finishing it lets
+  // the empty entry show a later refresh failure until the next successful load.
   const established = useRef(false);
-  if (questionnaire.data && !questionnaire.isError && !questionnaire.isFetching) established.current = true;
+  useEffect(() => {
+    if (questionnaire.data && !questionnaire.isError && !questionnaire.isFetching) established.current = true;
+  }, [questionnaire.data, questionnaire.isError, questionnaire.isFetching, questionnaire.dataUpdatedAt]);
   const blocking = !questionnaire.data || (questionnaire.isError && !established.current);
   return (
     <div className="constitution-workspace">
@@ -24,10 +26,11 @@ export function ConstitutionAssessmentPanel({ context, onEnd, actionsEnabled = t
         loadingMessage="正在加载体质量表"
         errorMessage="体质量表加载失败"
         onRetry={() => { void questionnaire.refetch(); }}
-        renderData={(data) => <ConstitutionForm questionnaire={mapQuestionnaire(data)} context={context} onEnd={onEnd} actionsEnabled={actionsEnabled} />}
+        renderData={(data) => <ConstitutionForm questionnaire={mapQuestionnaire(data)} context={context}
+          onSessionChange={active => { established.current = active; }} actionsEnabled={actionsEnabled} />}
       />
       {blocking ? <ConstitutionContextDetails context={context} /> : null}
-      {blocking && onEnd ?
+      {blocking && context?.birth ?
         <footer className="constitution-session-footer"><InlineText>答卷仅存本次会话，不入库 · 结束即销毁</InlineText></footer>
       : null}
     </div>

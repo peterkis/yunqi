@@ -2,7 +2,7 @@ import { createContext, useContext, useLayoutEffect, type ReactNode } from 'reac
 
 export interface PanelViewOptions {
   readonly actions?: ReactNode;
-  readonly drilldown?: { readonly title: string; readonly onBack: () => void };
+  readonly drilldown?: { readonly title: string; readonly onBack: () => void; readonly toolbarActions?: ReactNode };
 }
 
 export const PanelViewContext = createContext<

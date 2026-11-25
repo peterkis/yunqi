@@ -27,6 +27,8 @@ const allowedRuntimeDependencies = {
   '@tanstack/react-query': '5.101.2',
   '@yunqi/client': 'workspace:*',
   '@yunqi/contracts': 'workspace:*',
+  lenis: '1.3.27',
+  'lucide-react': '1.78.0',
   react: '19.2.7',
   'react-dom': '19.2.7',
   'react-router-dom': '7.18.1',
@@ -289,6 +291,8 @@ test('Workbench workspace and versions are pinned', () => {
   assert.equal(rootPackage.engines.node, '>=22');
   assert.match(workspace, /apps\/\*/);
   assert.equal(app.dependencies['react-router-dom'], '7.18.1');
+  assert.equal(app.dependencies.lenis, '1.3.27');
+  assert.equal(app.dependencies['lucide-react'], '1.78.0');
   assert.doesNotMatch(JSON.stringify(app), /next|axios/);
 });
 

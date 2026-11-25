@@ -24,7 +24,7 @@ function measure(track: HTMLElement, animate?: (selected: HTMLElement | null) =>
 
 /** One geometry owner for route tabs, local choices and reading scopes.
  * Measurements are layout coordinates, independent of the press transform. */
-export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement>(selection: string) {
+export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement>(selection: string, enabled = true) {
   const trackRef = useRef<Element>(null);
   const previous = useRef<HTMLElement | null>(null);
   const activeProbe = useRef<InFlightProbeHandle | undefined>(undefined);
@@ -32,6 +32,7 @@ export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement
   const observeInFlight = useMotionInFlightObserver();
 
   useLayoutEffect(() => {
+    if (!enabled) return;
     const track = trackRef.current!;
     let animated = false;
     const selected = measure(track, next => {
@@ -46,9 +47,10 @@ export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement
       probe?.cancel();
       if (activeProbe.current === probe) activeProbe.current = undefined;
     };
-  }, [selection, level, observeInFlight]);
+  }, [enabled, selection, level, observeInFlight]);
 
   useLayoutEffect(() => {
+    if (!enabled) return;
     const track = trackRef.current!;
     function resize() {
       // A resize also cancels an in-flight slide: the next paint is aligned.
@@ -63,7 +65,7 @@ export function useSegmentIndicator<Element extends HTMLElement = HTMLDivElement
     }
     window.addEventListener('resize', resize);
     return () => window.removeEventListener('resize', resize);
-  }, []);
+  }, [enabled]);
 
   return trackRef;
 }

@@ -1,6 +1,7 @@
 import type { YunQiCalculationDto } from '@yunqi/contracts';
 import {
   mapSixQiStageTuple,
+  mapRuleExplanations,
   mapYunQiTime,
   mapYunQiYearSummary,
 } from './map-yunqi-shared';
@@ -25,7 +26,7 @@ export function mapTimeAnalysisYunQi(
     summary: mapYunQiYearSummary(dto),
     selectedStage,
     stages,
-    explanations: dto.explanations,
+    explanations: mapRuleExplanations(dto.explanations),
     ruleVersion: dto.ruleVersion,
   };
 }

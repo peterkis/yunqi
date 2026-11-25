@@ -1,9 +1,9 @@
 import { fireEvent, render, screen, within } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import { createYunQiCalculationDto } from '../../../../test/yunqi-fixtures';
 import { mapTimeAnalysisYunQi } from '../../presentation/map-time-analysis-yunqi';
 import type { TimeAnalysisYunQiViewModel } from '../../presentation/view-model';
+import { splitTimeInput } from '../time-input';
 import { TimeAnalysisPage } from './TimeAnalysisPage';
 
 function renderPage(
@@ -16,7 +16,8 @@ function renderPage(
   return render(
     <TimeAnalysisPage
       inputError={null}
-      inputValue=""
+      draft={splitTimeInput('2026-05-20T13:30')}
+      anchorLoading={false} anchorError={false} onAnchor={vi.fn()}
       isDirty={overrides.isDirty ?? false}
       isError={overrides.isError ?? false}
       isPending={false}
@@ -34,8 +35,7 @@ function renderPage(
 }
 
 describe('TimeAnalysisPage', () => {
-  it('renders the canonical success result with neutral selected-time semantics', async () => {
-    const user = userEvent.setup();
+  it('renders the canonical success result with neutral selected-time semantics', () => {
     renderPage();
 
     expect(screen.getByText('规则实现基线，待正式专家冻结与验证。')).toBeInTheDocument();
@@ -49,9 +49,7 @@ describe('TimeAnalysisPage', () => {
     ).toBeInTheDocument();
     expect(result.querySelector('.drilldown-time-result__time time')).toHaveTextContent('06-19 12:00');
     expect(result.querySelector('.drilldown-time-result__time time')).toHaveAttribute('datetime', '2026-06-19T12:00:00+08:00');
-    expect(
-      within(result).getAllByText('北京时间 UTC+08').length,
-    ).toBeGreaterThan(0);
+    expect(within(result).queryByText('北京时间 UTC+08')).not.toBeInTheDocument();
     expect(
       within(result).getByRole('region', { name: '年度概览' }),
     ).toBeInTheDocument();
@@ -75,15 +73,7 @@ describe('TimeAnalysisPage', () => {
     expect([...stage.querySelectorAll('time')].map((time) => time.dateTime)).toEqual([
       '2026-05-21T11:00:00+08:00', '2026-07-23T12:00:00+08:00',
     ]);
-    const summary = within(result).getByText('计算说明与版本');
-    const calculation = summary.closest('details')!;
-    const source = within(calculation).getByText('YunQi 指定时点计算 API');
-    expect(calculation).not.toHaveAttribute('open');
-    expect(source).not.toBeVisible();
-    await user.click(summary);
-    expect(source).toBeVisible();
-    expect(within(calculation).getByText('YQ-MVP-RULES-1.1.0')).toBeVisible();
-    expect(within(calculation).getByText('YQ-API-CONTRACT-1.3.0')).toBeVisible();
+    expect(within(result).queryByText('计算说明与版本')).not.toBeInTheDocument();
     expect(
       within(result).queryByText('已结束'),
     ).not.toBeInTheDocument();
@@ -120,7 +110,8 @@ describe('TimeAnalysisPage', () => {
     render(
       <TimeAnalysisPage
         inputError={null}
-        inputValue=""
+        draft={splitTimeInput('2026-05-20T13:30')}
+        anchorLoading={false} anchorError={false} onAnchor={vi.fn()}
         isDirty={false}
         isError={false}
         isPending={false}

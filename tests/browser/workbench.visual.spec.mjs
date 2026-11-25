@@ -1,3 +1,4 @@
+import { expectSelectedTimeLayout, fillAnalysisTime } from './time-analysis-helpers.mjs';
 import { fillBirthDate, expectBirthMirror, expectBirthDetailSegments } from './birth-helpers.mjs';
 import { test, expect, settle, screenshot, expectPanelLayout, expectTypeScale, expectCompactTimes, scanAccessibility } from './fixtures.mjs';
 import { answerConstitution, constitutionResultValues, expectConstitutionAnswerLayout, expectConstitutionResults, expectConstitutionResultLayout, expectConstitutionDisclosures, expectConstitutionSegments } from './constitution-helpers.mjs';
@@ -25,11 +26,11 @@ const cases = [
   { name: 'birth-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true },
   { name: 'birth-annual-classics', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthClassics: true, annualClassics: true },
   { name: 'birth-assessment', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true },
-  { name: 'birth-assessment-complete', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionComplete: true },
+  { name: 'birth-assessment-last-question', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionLastQuestion: true },
   { name: 'birth-assessment-result', path: '/yunqi/birth', ready: '出生运气对照', birth: true, birthAssessment: true, questionnaire: true, constitutionResult: true },
   { name: 'constitution-entry', path: '/yunqi/constitution', ready: '中医体质测评' },
   { name: 'constitution-questions', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, snapshot: '2026-11-18T08:44:00+08:00' },
-  { name: 'constitution-complete', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionComplete: true },
+  { name: 'constitution-last-question', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionLastQuestion: true },
   { name: 'constitution-result', path: '/yunqi/constitution', ready: '中医体质测评', questionnaire: true, constitutionResult: true, snapshot: '2026-11-18T08:44:00+08:00' },
   { name: 'not-found', path: '/yunqi/inquiry/new', ready: '页面未找到' },
   { name: 'collapsed-pill', path: '/yunqi/current', current: true, collapsed: true, snapshot: '2026-11-18T08:44:00+08:00' },
@@ -62,26 +63,91 @@ for (const state of cases) {
     else if (state.classics) {
       await expect(page.getByRole('group', { name: '原文范围' })).toBeVisible();
       if (state.annualClassics) await page.getByRole('button', { name: '全年', exact: true }).click();
-    } else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
+    } else if (state.path === '/yunqi/birth') await expect(page.getByRole('form', { name: '出生运气输入' })).toBeVisible();
+    else await expect(page.getByRole('main').getByRole('heading', { name: state.ready, exact: true })).toBeVisible();
     if (state.name === 'annual-entry') {
       await expect(page.locator('.drilldown-annual-summary')).toBeVisible();
       const inputHeight = await page.locator(':root').evaluate(root => getComputedStyle(root).getPropertyValue('--input-height').trim());
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('height', inputHeight);
       await expect(page.getByRole('combobox', { name: '分析年份' })).toHaveCSS('appearance', 'none');
     }
+    if (state.name === 'constitution-entry') {
+      const editions = page.getByRole('radiogroup', { name: '量表所用性别' });
+      const male = editions.getByRole('radio', { name: '男性量表' });
+      const female = editions.getByRole('radio', { name: '女性量表' });
+      const [left, right] = await Promise.all([male.boundingBox(), female.boundingBox()]);
+      expect(left.y).toBe(right.y);
+      expect(left.height).toBe(right.height);
+      expect(left.width).toBeCloseTo(right.width, 0);
+      expect(right.x).toBeGreaterThan(left.x + left.width);
+      await expect(male).not.toBeChecked();
+      await expect(female).not.toBeChecked();
+      for (const [card, glyph] of [[male, 'mars'], [female, 'venus']]) {
+        const art = card.locator('.constitution-edition-art');
+        await expect(art).toHaveAttribute('aria-hidden', 'true');
+        await expect(art).toHaveCSS('pointer-events', 'none');
+        await expect(art).toHaveCSS('background-image', /^radial-gradient\(/);
+        const watermark = art.locator(`svg.lucide-${glyph}`);
+        await expect(watermark).toBeVisible();
+        await expect(watermark).toHaveCSS('stroke-width', '2px');
+      }
+      const notes = page.locator('.constitution-notes > details > summary');
+      await expect(notes).toHaveCount(3);
+      const layout = await page.locator('.constitution-session[data-entry]').evaluate(session => {
+        const main = session.closest('main');
+        const cards = session.querySelector('.constitution-sex [role="radiogroup"]').getBoundingClientRect();
+        const privacy = session.querySelector('.constitution-session-footer').getBoundingClientRect();
+        const disclosures = session.querySelector('.constitution-notes').getBoundingClientRect();
+        return {
+          gap: privacy.top - cards.bottom, afterPrivacy: disclosures.top >= privacy.bottom,
+          bottomInset: main.getBoundingClientRect().bottom - disclosures.bottom,
+          padding: parseFloat(getComputedStyle(main).paddingBottom),
+        };
+      });
+      expect(layout.gap).toBeGreaterThanOrEqual(16);
+      expect(layout.gap).toBeLessThanOrEqual(40);
+      expect(layout.afterPrivacy).toBe(true);
+      expect(layout.bottomInset).toBeCloseTo(layout.padding, 0);
+      for (const summary of await notes.all()) {
+        const arrow = summary.locator('svg');
+        await expect(arrow).toBeVisible();
+        await expect(arrow).toHaveCSS('transform', 'none');
+        await summary.press('Enter');
+        await expect(arrow).toHaveCSS('transform', 'matrix(0, 1, -1, 0, 0, 0)');
+        await summary.press('Space');
+        await expect(arrow).toHaveCSS('transform', 'none');
+      }
+      await page.getByRole('main').evaluate(el => { el.scrollTop = 0; });
+      await page.locator(':focus').evaluateAll(nodes => nodes.forEach(node => node.blur()));
+    }
+    if (state.name === 'birth-entry') {
+      await expect(page.getByRole('textbox', { name: '年龄' })).toBeFocused();
+      if (acceptanceTheme === 'dark') {
+        await page.getByRole('button', { name: '切换至深色主题' }).click();
+      }
+      await expect(page.getByRole('button', { name: '仅按年份对照' })).toBeInViewport({ ratio: 1 });
+      await expect(page.getByRole('dialog')).toHaveCount(0);
+      await expectPanelLayout(page);
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+      await screenshot(page, testInfo, state.name);
+      return;
+    }
     if (state.path === '/yunqi/birth' || state.path === '/yunqi/constitution') {
       await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
     }
     if (state.calculate) {
-      await page.getByLabel('分析时间', { exact: true }).fill('2024-01-20T22:07:22');
+      await fillAnalysisTime(page, '2024-01-20T22:07:22');
+      const response = state.name === 'calculate-result' ? page.waitForResponse(r => r.url().endsWith('/yunqi/calculate')) : undefined;
       await page.getByRole('button', { name: '开始分析', exact: true }).click();
       if (state.outage) {
         await expect(page.getByRole('alert')).toContainText(state.message);
       } else {
-        await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toBeVisible();
+        const result = page.getByRole('region', { name: '指定时点分析结果', exact: true });
+        await expect(result).toBeVisible();
+        if (response) await expectSelectedTimeLayout(result, (await (await response).json()).data);
       }
       if (state.dirty) {
-        await page.getByLabel('分析时间', { exact: true }).fill('2024-01-21T22:07:22');
+        await fillAnalysisTime(page, '2024-01-21T22:07:22');
         await expect(page.getByRole('status')).toHaveText('输入已修改，请重新分析');
         await expect(page.getByRole('region', { name: '指定时点分析结果', exact: true })).toHaveCount(0);
       }
@@ -91,7 +157,7 @@ for (const state of cases) {
       const responsePromise = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
       const birthDate = state.birthDate ?? '1990-05-12';
       await fillBirthDate(page, birthDate);
-      await page.getByRole('button', { name: '查看对照' }).click();
+      await page.getByRole('button', { name: '确认并对照' }).click();
       await expect(page.getByRole('region', { name: '出生与当前运气对照结果' })).toBeVisible();
       const { data } = await (await responsePromise).json();
       await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText(`${birthDate} · 时刻不详 · 修改`);
@@ -100,7 +166,7 @@ for (const state of cases) {
         await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
         await fillBirthDate(page, data.current.facts.interval.start.localTime.slice(0, 10));
         const boundaryResponse = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
-        await page.getByRole('button', { name: '查看对照' }).click();
+        await page.getByRole('button', { name: '确认并对照' }).click();
         const { data: boundary } = await (await boundaryResponse).json();
         expect(boundary.ambiguous).toBe(true);
         await expect(page.locator('.birth-table')).toHaveCount(boundary.candidates.length);
@@ -115,18 +181,16 @@ for (const state of cases) {
       await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
     }
     if (state.questionnaire) {
-      if (state.constitutionComplete || state.constitutionResult) {
-        await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : {});
+      if (state.constitutionLastQuestion || state.constitutionResult) {
+        const scored = await answerConstitution(page, page, state.constitutionResult ? { values: constitutionResultValues } : { stopBeforeLast: true });
         if (state.constitutionResult) {
-          const scoreResponse = page.waitForResponse(response => response.url().endsWith('/constitution/assess'));
-          await page.getByRole('button', { name: '查看结果', exact: true }).click();
-          const { data } = await (await scoreResponse).json();
+          const { data } = await (await scored.response()).json();
           expect(data.matchedTypes).toEqual(['phlegm_dampness']);
           expect(data.tendencyTypes).toEqual(['qi_stagnation', 'special_diathesis']);
           await expectConstitutionResults(page, data);
         }
       } else {
-        await page.getByRole('radio', { name: '男', exact: true }).click();
+        await page.getByRole('radio', { name: '男性量表', exact: true }).click();
         await expect(page.locator('.constitution-question-screen')).toHaveCount(1);
         await expect(page.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
         // F4 first-screen reference: five answers retained, editing question 5.
@@ -245,14 +309,14 @@ for (const state of cases) {
     }
     const controls = await expectViewControls(page, testInfo);
     if (state.name.startsWith('birth') && !state.birthClassics) {
-      const labels = state.birthAssessment ? state.constitutionComplete ? ['查看结果'] : [] : state.birth ? ['同时测评体质'] : ['查看对照'];
+      const labels = state.birthAssessment ? [] : state.birth ? ['同时测评体质'] : ['查看对照'];
       expect(controls.primary.map(control => control.label)).toEqual(labels);
     }
     if (state.birthAssessment || state.name.startsWith('constitution')) {
-      const destroy = page.getByRole('button', { name: '结束并销毁答卷', exact: true });
+      const destroy = page.getByRole('button', { name: '结束并销毁', exact: true });
       await expect(destroy).toHaveCount(state.questionnaire ? 1 : 0);
       if (state.questionnaire) await expect(destroy).toHaveClass(/ds-button--secondary/);
-      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(1);
+      await expect(page.locator('footer.constitution-session-footer')).toHaveCount(state.questionnaire && !state.constitutionResult ? 0 : 1);
       await expectConstitutionDisclosures(page, testInfo, Boolean(state.constitutionResult));
     }
     if (state.name.startsWith('birth') || state.name.startsWith('constitution')) {
@@ -272,7 +336,7 @@ for (const state of cases) {
         expect(await actions.evaluate(element => element.previousElementSibling.matches('.panel-shell__content') && element.nextElementSibling.matches('.panel-shell__footer'))).toBe(true);
       }
     }
-    if (state.birth && !state.birthClassics) {
+    if (state.birth && !state.birthClassics && !state.birthAssessment) {
       await expectBirthMirror(page);
       const birthLayout = await page.locator('.birth-table').first().evaluate(table => ({
         columns: getComputedStyle(table.querySelector('tr')).gridTemplateColumns.split(' ').map(Number.parseFloat),
@@ -297,10 +361,8 @@ for (const state of cases) {
       for (const value of birthLayout.values) expect(value).toEqual({ size: 14, weight: '600', line: 21 });
       expect(birthLayout.chips).toEqual([20, 20, 20, 20, 20]);
       expect(birthLayout.dots).toEqual([7, 7, 7, 7, 7, 7, 7, 7, 7, 7]);
-      if (!state.birthAssessment) {
-        expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
-        expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
-      }
+      expect(birthLayout.textSizes.length).toBeLessThanOrEqual(5);
+      expect([...birthLayout.textSizes].sort()).toEqual(['12px', '14px', '15px', '24px']);
       await testInfo.attach('birth-layout-metrics', { body: JSON.stringify(birthLayout, null, 2), contentType: 'application/json' });
     }
     if (state.questionnaire) {
@@ -308,7 +370,7 @@ for (const state of cases) {
       const typography = await expectTypeScale(page, testInfo, `${state.name}-constitution`);
       expect(typography.sizes.every(size => [12, 14, 15, 20, 24, 30, 40].includes(size))).toBe(true);
       const question = page.locator('.constitution-question-title');
-      if (!state.constitutionResult && !state.constitutionComplete) {
+      if (!state.constitutionResult && !state.constitutionLastQuestion) {
         const metrics = await question.evaluate(element => ({ size: getComputedStyle(element).fontSize, font: getComputedStyle(element).fontFamily }));
         expect(metrics.size).toBe('20px');
         expect(metrics.font).toContain('Noto Serif SC');
@@ -318,7 +380,7 @@ for (const state of cases) {
         for (const height of options) expect(height).toBeGreaterThanOrEqual(40);
         await page.getByRole('radiogroup').getByRole('radio').first().focus();
         await page.keyboard.press('ArrowDown');
-        await expect(page.locator('.constitution-position')).toHaveText('5 / 26');
+        await expect(page.locator('.constitution-position')).toHaveText('已答 5 / 26');
         await expect(page.locator('.constitution-position')).toHaveAttribute('aria-label', /当前第 5 题/);
         const focusedOption = page.getByRole('radiogroup').getByRole('radio').nth(1);
         await expect(focusedOption).toHaveCSS('outline-width', '2px');
@@ -399,5 +461,98 @@ for (const state of cases) {
       targets: violation.nodes.map(node => node.target),
     }));
     expect.soft(violations, 'No automatically detected WCAG A/AA violations; full details in axe-results').toEqual([]);
+    if (state.name === 'current-stage-facts') {
+      const summary = page.locator('.current-technical > summary');
+      await summary.click();
+      const card = page.getByRole('region', { name: '精确时刻', exact: true });
+      await card.scrollIntoViewIfNeeded();
+      const current = (await (await currentResponse).json()).data;
+      for (const [group, count, active] of [['六步气', 6, current.facts.currentStep], ['五步运', 5, current.currentMovement]]) {
+        const sequence = card.getByRole('region', { name: group });
+        await expect(sequence.locator('ol > li')).toHaveCount(count);
+        await expect(sequence.locator('[aria-current="step"]')).toContainText(`${active.name}当前`);
+        await expect(sequence.locator('time').first()).toHaveCSS('font-family', /monospace/);
+      }
+      const rowsFit = await card.locator('ol > li').evaluateAll(rows => {
+        const columns = [...rows[0].querySelectorAll('time')].map(time => time.getBoundingClientRect().left);
+        return rows.every(row => {
+          const label = row.querySelector('.calculation-sequence__label').getBoundingClientRect();
+          const [start, end] = [...row.querySelectorAll('time')].map(time => time.getBoundingClientRect());
+          return label.right <= start.left && start.top === end.top && row.scrollWidth <= row.clientWidth + 1
+            && Math.abs(start.left - columns[0]) < 1 && Math.abs(end.left - columns[1]) < 1;
+        });
+      });
+      expect(rowsFit).toBe(true);
+      const headingLeft = (await card.locator('.ds-info-card__label').boundingBox()).x;
+      for (const row of [page.getByRole('link', { name: '指定时点', exact: true }), summary]) {
+        const textLeft = await row.evaluate(element => {
+          const range = document.createRange();
+          range.selectNodeContents(element.firstChild);
+          return range.getBoundingClientRect().left;
+        });
+        expect(Math.abs(textLeft - headingLeft)).toBeLessThanOrEqual(1);
+      }
+      await screenshot(page, testInfo, 'current-calculation-timeline');
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+      const rules = page.getByRole('region', { name: '规则推演说明' });
+      await rules.scrollIntoViewIfNeeded();
+      await expect(rules.locator('time')).toHaveText([current.facts.interval.start, current.facts.interval.end]
+        .map(time => time.localTime.replace('T', ' ').replace(/\+08:00$/, '')));
+      const interval = rules.locator('.rule-explanation__interval');
+      await expect(interval.locator('.rule-explanation__endpoint')).toHaveText(['起', '止']);
+      const label = await rules.getByText('实际区间', { exact: true }).boundingBox();
+      const range = await interval.boundingBox();
+      const [start, end] = await Promise.all([interval.locator('time').first().boundingBox(), interval.locator('time').last().boundingBox()]);
+      const arrow = await interval.getByText('↓', { exact: true }).boundingBox();
+      expect(Math.abs((label.y + label.height / 2) - (range.y + range.height / 2))).toBeLessThanOrEqual(1);
+      expect(Math.abs(start.x - end.x)).toBeLessThanOrEqual(1);
+      expect(arrow.y).toBeGreaterThanOrEqual(start.y + start.height);
+      expect(arrow.y + arrow.height).toBeLessThanOrEqual(end.y);
+      expect(end.x + end.width).toBeLessThanOrEqual(range.x + range.width + 1);
+      await expect(rules.getByRole('listitem')).toHaveCount(4);
+      await expect(rules.locator('.ds-element__dot')).toHaveCount(5);
+      await expect(rules.locator('.rule-explanation__number')).toHaveText(['01', '02', '03', '04']);
+      await expect(rules.locator('.rule-explanation__versions > span')).toHaveText(['规则引擎 v1.3.0', '典籍数据 v1.1.0']);
+      await expect(rules).not.toContainText(/YQ-|T\d\d:|\+08:00/);
+      await screenshot(page, testInfo, 'current-rule-explanation');
+    }
+    if (state.name === 'birth-result') {
+      await page.getByRole('button', { name: '这些关系怎么读？' }).click();
+      const guide = page.locator('.birth-relation-details:visible');
+      await expect(guide.getByRole('table', { name: '五维生克总览' }).getByRole('rowheader')).toHaveCount(5);
+      await expect(guide.getByRole('link')).toHaveCount(0);
+      await expect(guide.locator('.learning-source')).toHaveCount(1);
+      await guide.locator('.learning-source').scrollIntoViewIfNeeded();
+      await screenshot(page, testInfo, 'birth-relations-expanded');
+      expect((await scanAccessibility(page)).violations).toEqual([]);
+    }
   });
 }
+
+test('@visual constitution snapshot cards retain each element and the leap-day interval', async ({ page, acceptanceTheme }, testInfo) => {
+  await page.goto('/yunqi/birth');
+  await fillBirthDate(page, '1980-02-29');
+  await page.getByRole('button', { name: '确认并对照', exact: true }).click();
+  await page.getByRole('button', { name: '同时测评体质', exact: true }).click();
+  if (acceptanceTheme === 'dark') await page.getByRole('button', { name: '切换至深色主题' }).click();
+  const details = page.locator('.constitution-context-details');
+  await details.locator('summary').click();
+  await expect(details.getByRole('heading')).toHaveText(['当下快照', '先天快照']);
+  const cards = details.locator('.constitution-snapshot');
+  for (const card of await cards.all()) {
+    await expect(card.locator('.constitution-snapshot__annual dt')).toHaveText(['岁运', '司天', '在泉']);
+    await expect(card.locator('.constitution-snapshot__stages dd')).toHaveCount(4);
+    await expect(card.locator('.ds-element__dot')).toHaveCount(7);
+    await expect(card).toHaveCSS('background-image', /^linear-gradient/);
+    const metrics = await card.locator('.constitution-snapshot__annual dd').evaluateAll(nodes => nodes.map(el => el.getBoundingClientRect().top));
+    expect(new Set(metrics).size).toBe(1);
+  }
+  const birth = cards.last();
+  await expect(birth.locator('.constitution-snapshot__badge')).toHaveText('当日已知时段归属一致');
+  await expect(birth.locator('.constitution-snapshot__annual .ds-element__dot').first()).toHaveClass(/dot--metal/);
+  await expect(birth.locator('time')).toHaveText(['02-29 00:00', '03-01 00:00']);
+  await expect(birth.locator('time').first()).toHaveCSS('font-family', /monospace/);
+  await details.scrollIntoViewIfNeeded();
+  await screenshot(page, testInfo, 'constitution-snapshots-expanded');
+  expect((await scanAccessibility(page)).violations).toEqual([]);
+});

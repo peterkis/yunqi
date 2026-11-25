@@ -22,6 +22,7 @@ import './styles/views/motion-flows.css';
 import './styles/views/constitution-motion.css';
 import './styles/views/current-motion.css';
 import './styles/views/panel-motion.css';
+import './styles/background-surface.css';
 
 if (import.meta.env.DEV) {
   document.body.classList.add('workbench-dev-host');

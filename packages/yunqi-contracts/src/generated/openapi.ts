@@ -89,6 +89,40 @@ export interface paths {
         readonly patch?: never;
         readonly trace?: never;
     };
+    readonly "/api/v1/yunqi/learning/birth-date-preview": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Resolve a birthday within a civil year */
+        readonly post: operations["previewBirthDate"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
+    readonly "/api/v1/yunqi/learning/birth-year-comparison": {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly get?: never;
+        readonly put?: never;
+        /** Compare possible annual structures for a civil birth year */
+        readonly post: operations["compareBirthYear"];
+        readonly delete?: never;
+        readonly options?: never;
+        readonly head?: never;
+        readonly patch?: never;
+        readonly trace?: never;
+    };
     readonly "/api/v1/yunqi/learning/calculate": {
         readonly parameters: {
             readonly query?: never;
@@ -182,6 +216,32 @@ export interface components {
             readonly message: string;
             readonly ruleVersion: string;
         };
+        readonly BirthDatePreviewDto: {
+            readonly matches: readonly {
+                readonly annualLabels: readonly string[];
+                readonly birthDate: string;
+                readonly boundaries: readonly {
+                    readonly at: components["schemas"]["YunQiTimeDto"];
+                    readonly label: string;
+                }[];
+                readonly leap: boolean;
+                readonly lunarLabel: string;
+            }[];
+        };
+        readonly BirthDatePreviewRequest: {
+            readonly calendar: "solar" | "lunar";
+            readonly day: number;
+            readonly leap?: boolean;
+            readonly month: number;
+            readonly year: number;
+        };
+        readonly BirthDatePreviewSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["BirthDatePreviewDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
         readonly BirthRequest: {
             readonly birthDate: string;
             readonly birthTime?: string;
@@ -190,6 +250,34 @@ export interface components {
             /** @enum {string} */
             readonly code: "SUCCESS";
             readonly data: components["schemas"]["BirthComparisonDto"];
+            /** @enum {string} */
+            readonly message: "";
+        };
+        readonly BirthYearComparisonDto: {
+            /** @enum {string} */
+            readonly birthPrecision: "year";
+            readonly candidates: readonly {
+                readonly annualPassages: readonly components["schemas"]["ClassicalPassageDto"][];
+                readonly comparisons: readonly components["schemas"]["LearningRelationDto"][];
+                readonly from: components["schemas"]["YunQiTimeDto"];
+                readonly ganzhi: string;
+                readonly label: string;
+                readonly sitian: string;
+                readonly suiYun: components["schemas"]["SuiYunDto"];
+                readonly until: components["schemas"]["YunQiTimeDto"];
+                readonly year: number;
+                readonly zaiquan: string;
+            }[];
+            readonly current: components["schemas"]["YunQiLearningDto"];
+            readonly message: string;
+        };
+        readonly BirthYearRequest: {
+            readonly year: number;
+        };
+        readonly BirthYearSuccessResponse: {
+            /** @enum {string} */
+            readonly code: "SUCCESS";
+            readonly data: components["schemas"]["BirthYearComparisonDto"];
             /** @enum {string} */
             readonly message: "";
         };
@@ -687,6 +775,108 @@ export interface operations {
                 };
                 content: {
                     readonly "application/json": components["schemas"]["BirthSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly previewBirthDate: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["BirthDatePreviewRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["BirthDatePreviewSuccessResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 400: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 500: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description Default Response */
+            readonly 503: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    readonly compareBirthYear: {
+        readonly parameters: {
+            readonly query?: never;
+            readonly header?: never;
+            readonly path?: never;
+            readonly cookie?: never;
+        };
+        readonly requestBody: {
+            readonly content: {
+                readonly "application/json": components["schemas"]["BirthYearRequest"];
+            };
+        };
+        readonly responses: {
+            /** @description Default Response */
+            readonly 200: {
+                headers: {
+                    readonly [name: string]: unknown;
+                };
+                content: {
+                    readonly "application/json": components["schemas"]["BirthYearSuccessResponse"];
                 };
             };
             /** @description Default Response */

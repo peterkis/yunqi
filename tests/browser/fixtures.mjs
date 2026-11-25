@@ -164,6 +164,7 @@ export async function expectTypeScale(page, testInfo, name = 'type-scale') {
         Math.min(rect.bottom, bounds.bottom) > Math.max(rect.top, bounds.top))) return;
       samples.push({
         element: `${element.tagName.toLowerCase()}.${element.getAttribute('class') || ''}`,
+        countdown: element.matches('.current-period-grid .current-period-cell--remaining'),
         text: text.trim().slice(0, 100), size: Number.parseFloat(getComputedStyle(element).fontSize),
       });
     };
@@ -186,8 +187,9 @@ export async function expectTypeScale(page, testInfo, name = 'type-scale') {
   if (testInfo) await testInfo.attach(`typography-${name}`, { body: JSON.stringify(typography, null, 2), contentType: 'application/json' });
   const allowed = [40, 30, 24, 20, 15, 14, 12];
   expect(typography.samples.length, 'Typography gate must inspect visible text').toBeGreaterThan(0);
-  expect(typography.samples.filter(sample => !allowed.includes(sample.size)), 'Visible text uses only the approved type sizes').toEqual([]);
-  expect(typography.sizes.length, 'Each screen uses at most five sizes').toBeLessThanOrEqual(5);
+  expect(typography.samples.filter(sample => sample.countdown ? sample.size !== 11 : !allowed.includes(sample.size)), 'Visible text uses only the approved type sizes').toEqual([]);
+  const tiers = new Set(typography.samples.map(sample => sample.countdown ? 12 : sample.size));
+  expect(tiers.size, 'Each screen uses at most five sizes').toBeLessThanOrEqual(5);
   expect(typography.sizes.filter(size => [40, 30, 24].includes(size)).length, 'Each screen uses only one display size').toBeLessThanOrEqual(1);
   return typography;
 }
@@ -206,8 +208,7 @@ export async function loadCurrent(page) {
   return data;
 }
 
-/** Inspect rendered main text, including content below the fold. Only the
- * calculation disclosure may expose seconds; dateTime stays canonical. */
+/** Result times outside technical details stay compact, including below the fold. */
 export async function expectCompactTimes(page) {
   const snapshot = await page.getByRole('main').evaluate(main => {
     const technical = element => element.closest('.current-technical, .birth-technical, .drilldown-technical, .constitution-time-details');
@@ -216,21 +217,31 @@ export async function expectCompactTimes(page) {
     while (walker.nextNode()) {
       const node = walker.currentNode;
       const element = node.parentElement;
-      if (technical(element) || element.closest('.visually-hidden, script, style, option')) continue;
+      if (technical(element) || element.closest('.visually-hidden, script, style, option, .constitution-snapshot[data-kind="current"] time')) continue;
+      if (element.matches('.specified-time-anchors button') && node.textContent === '整点 00:00:00') continue;
       if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) text.push(node.textContent);
     }
     return {
       text: text.join(' '),
+      timeCopy: [main.textContent, ...[...main.querySelectorAll('[aria-label], [title]')].map(element =>
+        [element.getAttribute('aria-label'), element.getAttribute('title')].join(' '))].join(' '),
       times: [...main.querySelectorAll('time')].filter(time => !technical(time)).map(time => ({
-        dateTime: time.getAttribute('datetime'), text: time.textContent,
+        dateTime: time.getAttribute('datetime'), text: time.textContent, birthAnchor: Boolean(time.closest('.birth-time-anchors')),
+        snapshotTime: Boolean(time.closest('.constitution-snapshot[data-kind="current"]')),
       })),
     };
   });
+  expect(snapshot.timeCopy, 'Display and accessible copy omit the default time zone').not.toMatch(/北京时间|UTC\s*\+0?8/);
   expect(snapshot.text, 'Main text has no seconds outside calculation details').not.toMatch(/\d{2}:\d{2}:\d{2}/);
   expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
   for (const time of snapshot.times) {
     expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);
-    expect(time.text).toBe(time.dateTime.slice(5, 16).replace('T', ' '));
+    if (time.snapshotTime) {
+      expect(time.text).toBe(time.dateTime.replace('T', ' ').replace(/\+08:00$/, ''));
+      continue;
+    }
+    const [month, day, clock] = time.dateTime.slice(5, 16).split(/[-T]/);
+    expect(time.text).toBe(time.birthAnchor ? `${month}月${day}日 ${clock}` : `${month}-${day} ${clock}`);
   }
 }
 

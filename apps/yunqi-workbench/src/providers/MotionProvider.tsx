@@ -236,6 +236,10 @@ export function useMotionLevel(): MotionLevel {
   return useContext(MotionContext)?.level ?? 'off';
 }
 
+export function useMotionPreference(): MotionPreference {
+  return useContext(MotionContext)?.preference ?? 'auto';
+}
+
 export function useMotionInFlightObserver(): ObserveInFlightMotion | undefined {
   return useContext(MotionContext)?.observeInFlight;
 }

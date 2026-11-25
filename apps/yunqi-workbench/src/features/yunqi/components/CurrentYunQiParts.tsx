@@ -1,9 +1,9 @@
 import { ElementDot } from '../../../components/design/ElementDot';
 import { RelationChip } from '../../../components/design/RelationChip';
 import { YunQiTimeDisplay } from '../../../components/time/YunQiTimeDisplay';
-import type { LearningRelationViewModel } from '../presentation/map-learning';
+import type { LearningRelationViewModel, ScopedLearningRelation } from '../presentation/map-learning';
 import type { ElementKind, YunQiTimeViewModel } from '../presentation/view-model';
-import { RelationSourceLinks } from './RelationSourceLinks';
+import { RelationSources } from './RelationSources';
 
 export function CurrentElementValue({ element, label }: {
   readonly element: ElementKind | undefined;
@@ -17,10 +17,10 @@ export function CurrentTimeRange({ start, end }: {
   readonly end: YunQiTimeViewModel;
 }) {
   return <span className="current-time-range">
-    <YunQiTimeDisplay value={start} variant="compact" showStandard={false} />
+    <YunQiTimeDisplay value={start} variant="compact" />
     <span aria-hidden="true"> → </span>
     <span className="visually-hidden">至</span>
-    <YunQiTimeDisplay value={end} variant="compact" showStandard={false} />
+    <YunQiTimeDisplay value={end} variant="compact" />
   </span>;
 }
 
@@ -28,10 +28,14 @@ export function CurrentRelation({ relation }: { readonly relation: LearningRelat
   return <RelationChip label={relation.label} tone={relation.tone} explanation={relation.relation} />;
 }
 
-export function CurrentRelationReading({ relation }: { readonly relation: LearningRelationViewModel }) {
+export function CurrentRelationReading({ relation }: { readonly relation: ScopedLearningRelation }) {
   return <section className="current-relation-reading" aria-label={relation.title}>
-    <h4>{relation.title}</h4>
+    <header className="current-relation-reading__head">
+      <span className="current-relation-reading__scope">{relation.scope}</span>
+      <h4>{relation.heading}</h4>
+      <RelationChip compact tone={relation.tone} label={relation.badgeLabel} />
+    </header>
     <p>{relation.explanation}</p>
-    <RelationSourceLinks sources={relation.sources} />
+    <RelationSources sources={relation.sources} />
   </section>;
 }

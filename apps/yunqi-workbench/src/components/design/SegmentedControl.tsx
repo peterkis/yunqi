@@ -1,25 +1,27 @@
-import { useRef, type KeyboardEvent } from 'react';
+import { useRef, type KeyboardEvent, type ReactElement } from 'react';
 import { useSegmentIndicator } from './useSegmentIndicator';
 
 export interface ControlSegmentViewModel<Value extends string> {
   readonly value: Value;
-  readonly label: string;
+  readonly label: string | ReactElement;
   readonly disabled?: boolean;
 }
 
 export interface SegmentedControlProps<Value extends string> {
   readonly label: string;
+  readonly describedBy?: string;
   readonly segments: readonly ControlSegmentViewModel<Value>[];
   readonly value: Value | '';
   readonly onChange: (value: Value) => void;
   readonly compact?: boolean;
+  readonly slidingIndicator?: boolean;
   readonly disabled?: boolean;
 }
 
 /** Local selection only; navigation remains SegmentedNav's responsibility. */
-export function SegmentedControl<Value extends string>({ label, segments, value, onChange, compact = false, disabled = false }: SegmentedControlProps<Value>) {
+export function SegmentedControl<Value extends string>({ label, describedBy, segments, value, onChange, compact = false, disabled = false, slidingIndicator = true }: SegmentedControlProps<Value>) {
   const buttons = useRef<(HTMLButtonElement | null)[]>([]);
-  const trackRef = useSegmentIndicator(value);
+  const trackRef = useSegmentIndicator(value, slidingIndicator);
   const enabled = segments.map((segment, index) => ({ ...segment, index })).filter((segment) => !segment.disabled);
   const tabStop = enabled.find((segment) => segment.value === value) ?? enabled[0];
 
@@ -43,9 +45,9 @@ export function SegmentedControl<Value extends string>({ label, segments, value,
   }
 
   return (
-    <div ref={trackRef} role="radiogroup" aria-label={label} aria-disabled={disabled || undefined}
-      className={`ds-segmented-control motion-segments${compact ? ' ds-segmented-control--compact' : ''}`}>
-      <span className="motion-segment-indicator" aria-hidden="true" />
+    <div ref={trackRef} role="radiogroup" aria-label={label} aria-describedby={describedBy} aria-disabled={disabled || undefined}
+      className={`ds-segmented-control${slidingIndicator ? ' motion-segments' : ''}${compact ? ' ds-segmented-control--compact' : ''}`}>
+      {slidingIndicator && <span className="motion-segment-indicator" aria-hidden="true" />}
       {segments.map((segment, index) => (
         <button key={segment.value} ref={(button) => { buttons.current[index] = button; }}
           type="button" role="radio" aria-checked={value === segment.value}

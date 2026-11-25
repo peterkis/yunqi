@@ -1,10 +1,10 @@
 import { expect, waitForAnimations } from './fixtures.mjs';
 
-export async function expectTextContrast(target) {
-  const colors = await target.evaluate(element => {
-    const style = getComputedStyle(element);
-    return { foreground: style.color, background: style.backgroundColor };
-  });
+export async function expectTextContrast(target, surfaceSelector) {
+  const colors = await target.evaluate((element, selector) => {
+    const surface = selector ? element.closest(selector) : element;
+    return { foreground: getComputedStyle(element).color, background: getComputedStyle(surface).backgroundColor };
+  }, surfaceSelector);
   const luminance = color => {
     const channels = color.match(/[\d.]+/g).map(Number);
     expect(channels.length === 3 || channels[3] === 1, 'Contrast samples must be opaque').toBe(true);
@@ -18,6 +18,17 @@ export async function expectTextContrast(target) {
   const ratio = (values[1] + 0.05) / (values[0] + 0.05);
   expect(ratio, `Text contrast for ${await target.textContent()}`).toBeGreaterThanOrEqual(4.5);
   return ratio;
+}
+
+export async function expectElementTitle(value, element, surface) {
+  const title = value.locator('.ds-element > span:last-child');
+  await expect(value.locator(`.ds-element__dot--${element}`)).toBeVisible();
+  const hex = await title.evaluate((node, key) =>
+    getComputedStyle(node).getPropertyValue(`--element-${key}-title`).trim(), element);
+  expect(hex).toMatch(/^#[0-9a-f]{6}$/i);
+  const rgb = [1, 3, 5].map(offset => parseInt(hex.slice(offset, offset + 2), 16));
+  await expect(title).toHaveCSS('color', `rgb(${rgb.join(', ')})`);
+  await expectTextContrast(title, surface);
 }
 
 /** K01 gates run in both themes and every panel/workstation visual project. */
@@ -44,8 +55,7 @@ export async function expectClassicsCards(page, testInfo) {
       };
       const badge = getComputedStyle(element.querySelector('.classics-card__badge'));
       const result = {
-        current, border: css.borderTopColor,
-        expectedBorder: color(current ? '--accent' : '--border-default'),
+        current, border: css.borderTopColor, shadow: css.boxShadow,
         headerBackground: getComputedStyle(element.querySelector('.classics-card__header')).backgroundColor,
         expectedHeader: current ? color('--accent-subtle') : 'rgba(0, 0, 0, 0)',
         badgeBackground: badge.backgroundColor, badgeColor: badge.color,
@@ -56,7 +66,8 @@ export async function expectClassicsCards(page, testInfo) {
       swatch.remove();
       return result;
     });
-    expect(style.border).toBe(style.expectedBorder);
+    expect(style.border).toBe('rgba(0, 0, 0, 0)');
+    expect(style.shadow).not.toBe('none');
     expect(style.headerBackground).toBe(style.expectedHeader);
     expect(style.badgeBackground).toBe(style.expectedBackground);
     expect(style.badgeColor).toBe(style.expectedColor);

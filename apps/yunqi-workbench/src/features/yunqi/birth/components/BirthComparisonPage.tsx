@@ -1,208 +1,163 @@
-import { useEffect, useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type MouseEvent } from 'react';
 import { Link, useMatch, useNavigate } from 'react-router-dom';
 import { Button } from '../../../../components/design/Button';
 import { InlineText } from '../../../../components/design/InlineText';
-import { DateField } from '../../../../components/design/DateField';
-import { SegmentedControl } from '../../../../components/design/SegmentedControl';
+import { BirthEntryForm } from './BirthEntryForm';
+import { emptyBirthDraft, type BirthDraft, type BirthSlot, type BirthSubmission } from '../presentation/birth-entry';
 import { QuoteBlock } from '../../../../components/design/QuoteBlock';
 import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { PanelView } from '../../../../components/layout/PanelView';
 import { useSessionVisible } from '../../../../components/layout/SessionVisibility';
-import { useMotionLevel } from '../../../../providers/MotionProvider';
-import { animateMotion, motionMilliseconds } from '../../../../lib/motion';
 import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
 import { YunQiTimeDetails } from '../../../../components/time/YunQiTimeDetails';
-import { useBirthComparison } from '../hooks/useBirthComparison';
-import { BirthAssessmentSession } from './BirthAssessmentSession';
+import type { useBirthComparison } from '../hooks/useBirthComparison';
+import { RelationReadingSummary } from '../../components/RelationReadingSummary';
+import { BirthRelationOverview } from './BirthRelationOverview';
 import { BirthComparisonTable } from './BirthComparisonTable';
 import { BIRTH_NOTICE, BirthClassicsView } from './BirthClassicsView';
 
-export function BirthComparisonPage() {
+export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment }: {
+  readonly comparison: ReturnType<typeof useBirthComparison>;
+  readonly onAssess: () => void;
+  readonly onDiscardAssessment: () => void;
+}) {
   const visible = useSessionVisible();
-  const level = useMotionLevel();
-  const mutation = useBirthComparison();
-  const { result } = mutation;
+  const guideId = useId();
+  const [openGuides, setOpenGuides] = useState<readonly number[]>([]);
+  function toggleGuide(index: number) {
+    setOpenGuides(open => open.includes(index) ? open.filter(item => item !== index) : [...open, index]);
+  }
+  const { result, isPending: pending } = comparison;
   const reading = useMatch('/yunqi/birth/classics') !== null;
   const navigate = useNavigate();
   const readingLink = useRef<HTMLAnchorElement>(null);
-  const dateInput = useRef<HTMLInputElement>(null);
   const wasReading = useRef(false);
-  // A ref also blocks a second submit in the same event turn before pending renders.
-  const submitting = useRef(false);
-  const [birthDate, setBirthDate] = useState('');
-  const [dateRevision, setDateRevision] = useState(0);
-  const [birthTime, setBirthTime] = useState('');
-  const [knowsTime, setKnowsTime] = useState(false);
-  const [inputError, setInputError] = useState<string | null>(null);
-  const [wasEdited, setWasEdited] = useState(false);
-  const [comparisonRevision, setComparisonRevision] = useState(0);
-  const [formExpanded, setFormExpanded] = useState(false);
-  const [clearing, setClearing] = useState(false);
+  const editButton = useRef<HTMLButtonElement>(null);
+  const sheetOpener = useRef<HTMLButtonElement | null>(null);
+  const [editor, setEditor] = useState<{ original: BirthDraft; focus: BirthSlot }>();
+  const editing = editor !== undefined;
+  const showForm = !result || editing;
+  const wasShowingForm = useRef(showForm);
+  const [draft, setDraft] = useState(emptyBirthDraft);
+  const [submitted, setSubmitted] = useState<BirthSubmission>();
+  const summary = submitted && ('year' in submitted ? `公历 ${submitted.year} 年 · 仅年份`
+    : `${submitted.birthDate} · ${submitted.birthTime?.slice(0, 5) ?? '时刻不详'}`);
   const [cleared, setCleared] = useState(false);
-  const clearingRef = useRef(false);
-  const inputRegion = useRef<HTMLDivElement>(null);
-  const birthView = useRef<HTMLDivElement>(null);
-  const previousInputSize = useRef<{ collapsed: boolean; height: number } | undefined>(undefined);
-  const collapsed = result !== undefined && !formExpanded;
-  const formId = useId();
-
-  useEffect(() => {
-    if (formExpanded && visible && !reading) dateInput.current?.focus();
-  }, [formExpanded, dateRevision]);
-
+  const submitting = useRef(false);
+  const error = comparison.isError ? '无法完成对照，请核对出生日期、支持范围和网络后重试。' : undefined;
+  function edit(next: BirthDraft) {
+    if (comparison.isError) comparison.resetStatus();
+    setDraft(next); setCleared(false);
+  }
+  function clearDraft() {
+    edit({ ...emptyBirthDraft, mode: draft.mode, calendar: draft.calendar });
+    setCleared(true);
+  }
+  function clearSession() {
+    setOpenGuides([]);
+    comparison.reset(); onDiscardAssessment(); setEditor(undefined); setSubmitted(undefined);
+    clearDraft();
+  }
+  function openEditor(event: MouseEvent<HTMLButtonElement>, intent: 'modify' | 'complete') {
+    if (!submitted) return;
+    sheetOpener.current = event.currentTarget;
+    const focus = intent === 'modify' ? 'primary' : draft.month ? 'day' : 'month';
+    setEditor({ original: draft, focus });
+    if (intent === 'modify') {
+      const year = 'year' in submitted ? String(submitted.year) : submitted.birthDate.slice(0, 4);
+      setDraft({ ...draft, mode: 'year', primary: year });
+    }
+    setCleared(false);
+  }
+  function cancelEdit() {
+    if (!editor || pending) return;
+    setDraft(editor.original); setEditor(undefined); setCleared(false); comparison.resetStatus();
+  }
+  useEffect(() => { if (!visible && editing && !pending) cancelEdit(); }, [visible, editing, pending]);
   useLayoutEffect(() => {
-    const element = inputRegion.current!;
-    if (!visible || reading) { previousInputSize.current = undefined; return; }
-    const height = element.getBoundingClientRect().height;
-    const previous = previousInputSize.current;
-    previousInputSize.current = { collapsed, height };
-    if (!previous || previous.collapsed === collapsed || level !== 'full') return;
-    const animation = animateMotion(element, level, [{ height: `${previous.height}px` }, { height: `${height}px` }], '--motion-base', '--ease-standard');
-    return () => animation?.cancel();
-  }, [collapsed, knowsTime, level, visible, reading]);
-
-  useLayoutEffect(() => {
-    if (!clearing) return;
-    // Hidden retained sessions finish the requested clear without moving focus.
-    if (level === 'off' || !visible || reading) { clearNow(); return; }
-    const animation = animateMotion(birthView.current, level, [{ opacity: 1 }, { opacity: 0 }], '--motion-fast', '--ease-exit', 'forwards');
-    const timer = setTimeout(clearNow, motionMilliseconds(birthView.current!, '--motion-fast'));
-    return () => { clearTimeout(timer); animation?.cancel(); };
-  }, [clearing, level, visible, reading]);
-
+    if (wasShowingForm.current && !showForm && visible && !reading) {
+      const target = sheetOpener.current?.isConnected ? sheetOpener.current : editButton.current;
+      target?.focus({ preventScroll: true });
+      sheetOpener.current = null;
+    }
+    wasShowingForm.current = showForm;
+  }, [showForm, visible, reading]);
+  function submit(request: BirthSubmission) {
+    if (submitting.current) return;
+    submitting.current = true;
+    setCleared(false);
+    const onSuccess = () => {
+      sheetOpener.current = null;
+      setOpenGuides([]);
+      setSubmitted(request);
+      onDiscardAssessment();
+      setEditor(undefined);
+    };
+    const callbacks = { onSuccess, onSettled: () => { submitting.current = false; } };
+    comparison.submit(request, callbacks);
+  }
   useEffect(() => {
     if (wasReading.current && !reading && visible) readingLink.current?.focus({ preventScroll: true });
     wasReading.current = reading;
-  }, [reading]);
-
-  function edited() {
-    cancelClear();
-    setWasEdited(result !== undefined || wasEdited);
-    setInputError(null);
-    mutation.reset();
-  }
-
-  function invalid() {
-    mutation.reset();
-    setInputError('请填写有效的出生日期；已选择知道时刻时，还需填写出生时刻。');
-  }
-
-  function submit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (mutation.isPending || submitting.current) return;
-    cancelClear();
-    submitting.current = true;
-    const request = knowsTime
-      ? { birthDate, birthTime: birthTime.length === 5 ? `${birthTime}:00` : birthTime }
-      : { birthDate };
-    setInputError(null);
-    setWasEdited(false);
-    setFormExpanded(false);
-    // A fast response can batch away the pending render; an explicit new
-    // comparison must still discard the previous local questionnaire.
-    setComparisonRevision((revision) => revision + 1);
-    mutation.submit(request, { onSettled: () => { submitting.current = false; } });
-  }
-
-  function cancelClear() {
-    clearingRef.current = false;
-    setClearing(false);
-    setCleared(false);
-  }
-
-  function clear() {
-    if (clearingRef.current) return;
-    if (level === 'off') clearNow();
-    else { clearingRef.current = true; setClearing(true); }
-  }
-
-  function clearNow() {
-    mutation.reset();
-    setBirthDate('');
-    setDateRevision((value) => value + 1);
-    setBirthTime('');
-    setKnowsTime(false);
-    setInputError(null);
-    setWasEdited(false);
-    setFormExpanded(true);
-    submitting.current = false;
-    clearingRef.current = false;
-    setClearing(false);
-    setCleared(true);
-  }
-
+  }, [reading, visible]);
   return (
-    <div className={reading ? 'birth-page birth-page--reading' : 'birth-page'}>
-      {result ? <PanelSummary viewModel={result.summary} /> : null}
-      {!reading && !collapsed ? <PanelView actions={<div className="birth-actions">
-        <Button type="submit" form={formId} disabled={mutation.isPending}>{mutation.isPending ? '正在对照…' : '查看对照'}</Button>
-      </div>} /> : null}
-      <div className="birth-view" ref={birthView} hidden={reading}>
+    <div className={reading ? 'birth-page birth-page--reading' : result ? 'birth-page' : 'birth-page birth-page--entry'}>
+      {result && <PanelSummary viewModel={result.summary} />}
+      {!reading && result && <PanelView actions={<div className="birth-actions" inert={editing || undefined} aria-hidden={editing || undefined}>
+        <Button disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={onAssess}>同时测评体质</Button>
+      </div>} />}
+      {showForm && visible && !reading && <BirthEntryForm variant={editing ? 'sheet' : 'inline'} initialFocus={editor?.focus} draft={draft} onEdit={edit}
+        onClear={clearDraft} cleared={cleared} onConfirm={submit} pending={pending} error={error}
+        onReturn={editing ? cancelEdit : undefined} />}
+      <div className="birth-view" hidden={reading || !result} inert={editing || undefined} aria-hidden={editing || undefined}>
         <h2 className="visually-hidden">出生运气对照</h2>
-        <div className="birth-input-region" ref={inputRegion}>
-        {collapsed ? <div className="birth-input-summary" role="group" aria-label="出生资料摘要">
-          <span className="num"><InlineText>{`${birthDate} · ${knowsTime ? birthTime.slice(0, 5) : '时刻不详'} · `}</InlineText></span>
-          <Button variant="text" onClick={() => setFormExpanded(true)}>修改</Button>
-          <Button variant="text" onClick={clear}>清空本次资料</Button>
-        </div> : <form id={formId} className="birth-input" onSubmit={submit} aria-label="出生运气输入" aria-busy={mutation.isPending}>
-          <fieldset disabled={mutation.isPending}>
-            <legend className="visually-hidden">出生资料</legend>
-            <div className="birth-input__fields">
-              <DateField key={dateRevision} ref={dateInput} label="出生日期（公历）" value={birthDate} required onInvalid={invalid}
-                onChange={(value) => { setBirthDate(value); edited(); }} describedBy="birth-input-note" />
-              <div className="birth-input__known-time">
-                <SegmentedControl label="出生时刻是否已知" compact value={knowsTime ? 'known' : 'unknown'}
-                  segments={[{ value: 'unknown', label: '时刻不详' }, { value: 'known', label: '已知时刻' }]}
-                  onChange={(value) => { setKnowsTime(value === 'known'); edited(); }} />
-              </div>
-              {knowsTime ? (
-                <label>
-                  出生时刻（北京时间）
-                  <input className="num" type="time" step="1" value={birthTime} required onInvalid={invalid} onChange={(event) => { setBirthTime(event.target.value); edited(); }} />
-                </label>
-              ) : null}
-            </div>
-            <p id="birth-input-note" className="birth-note">手动填写，按北京时间 UTC+08 展示；时刻不详时保留当天所有可能归属。</p>
-            <div className="birth-input__actions">
-              <Button variant="text" onClick={clear}>清空本次资料</Button>
-            </div>
-          </fieldset>
-        </form>}
+        <div className="birth-input-region">
+          {result && <div className="birth-input-summary" role="group" aria-label="出生资料摘要">
+            <span className="num"><InlineText>{summary + ' · '}</InlineText></span>
+            <Button ref={editButton} variant="text" onClick={event => openEditor(event, 'modify')}>修改</Button>
+            <Button variant="text" onClick={clearSession}>清空本次资料</Button>
+          </div>}
         </div>
-        {cleared ? <p role="status" className="visually-hidden">已清空本次资料</p> : null}
-        {inputError ? <p role="alert" className="birth-notice">{inputError}</p> : null}
-        {mutation.isError ? <p role="alert" className="birth-notice">无法完成对照，请核对出生日期、支持范围和网络后重试。</p> : null}
-        {wasEdited ? <p role="status" className="birth-note">资料已修改，请重新对照；原结果已隐藏。</p> : null}
-        {mutation.isPending ? <p role="status" className="birth-note">正在计算出生与当前运气</p> : null}
+        {pending ? <p role="status" className="birth-note">正在计算出生与当前运气</p> : null}
         {result ? (
           <section aria-label="出生与当前运气对照结果" className="birth-results">
             <p className={result.candidateMeta ? 'birth-candidate-meta birth-note' : 'birth-api-message'}><InlineText>{result.candidateMeta ?? result.comparison.message}</InlineText></p>
             <div className="birth-tables">
-                {result.candidates.map((candidate, index) => (
-                  <article key={`${candidate.from.localTime}-${index}`} className="birth-candidate-card birth-card" aria-label={candidate.label}>
-                    {result.comparison.ambiguous ? <h3 className="birth-label">{candidate.label}</h3> : null}
-                    {!result.candidateMeta && (result.comparison.birthPrecision === 'date' ? (
+              {result.candidates.map((candidate, index) => (
+                <article key={`${candidate.from.localTime}-${index}`} aria-label={candidate.label}>
+                  <div className="birth-candidate-card birth-card">
+                    {result.comparison.ambiguous || result.comparison.birthPrecision === 'year' ? <h3 className="birth-label">{candidate.label}</h3> : null}
+                    {!result.candidateMeta && (result.comparison.birthPrecision !== 'time' ? (
                       <p className="birth-candidate-interval birth-note">
-                        可能出生区间（起点包含，终点不包含）：
-                        <YunQiTimeDisplay value={candidate.from} variant="compact" showStandard={false} />
-                        <span> 至 </span>
-                        <YunQiTimeDisplay value={candidate.until} variant="compact" />
+                        <span>可能出生区间（起点包含，终点不包含）：</span>
+                        <span className="birth-interval-range num">
+                          <span>{result.comparison.birthPrecision === 'year' ? candidate.from.localTime.slice(0, 16).replace('T', ' ') : <YunQiTimeDisplay value={candidate.from} variant="compact" />}</span>
+                          {' '}<span>至 {result.comparison.birthPrecision === 'year' ? candidate.until.localTime.slice(0, 16).replace('T', ' ') : <YunQiTimeDisplay value={candidate.until} variant="compact" />}</span>
+                        </span>
                       </p>
-                    ) : <p className="birth-candidate-time birth-note">出生时刻：<YunQiTimeDisplay value={candidate.birthTime} variant="compact" /></p>)}
+                    ) : <p className="birth-candidate-time birth-note">出生时刻：<YunQiTimeDisplay value={candidate.birthTime!} variant="compact" /></p>)}
                     <BirthComparisonTable candidate={candidate} current={result} />
-                  </article>
-                ))}
+                    <RelationReadingSummary expanded={openGuides.includes(index)} controls={`${guideId}-${index}`}
+                      onToggle={() => toggleGuide(index)} />
+                  </div>
+                  <div className="birth-relation-details" id={`${guideId}-${index}`} hidden={!openGuides.includes(index)}>
+                    {openGuides.includes(index) && <BirthRelationOverview rows={candidate.rows} />}
+                  </div>
+                </article>
+              ))}
             </div>
-            <section className="birth-card birth-excerpts" aria-label="先天原文线索">
+            {result.comparison.birthPrecision === 'year' && <Button variant="secondary" data-birth-complete="" onClick={event => openEditor(event, 'complete')}>补全生日后查看所处气与所处运</Button>}
+            <section className="birth-excerpts" aria-label="先天原文线索">
               <header className="birth-excerpts__header"><h3 className="birth-label">先天原文线索</h3><Link ref={readingLink} to="/yunqi/birth/classics">全部原文<svg className="birth-link-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" /></svg></Link></header>
               {result.candidates.map((candidate, index) => <div className="birth-excerpts__candidate" key={`${candidate.from.localTime}-${index}`}>
                 {result.comparison.ambiguous ? <h4 className="birth-label">{candidate.label}</h4> : null}
-                {candidate.excerpts.map((passage) => <QuoteBlock key={passage.id} compact quote={passage.excerpt} source={passage.source} />)}
+                {candidate.excerpts.map((passage) => <div className="birth-excerpt reading-excerpt jade-card" data-element={passage.element} key={passage.id}>
+                  <QuoteBlock compact label={passage.label} quote={passage.excerpt} source={passage.source} />
+                </div>)}
                 {candidate.excerpts.length === 0 ? <p className="birth-note">此范围暂未收录已核对原文。</p> : null}
               </div>)}
               <p className="birth-notice">{BIRTH_NOTICE}</p>
             </section>
-            <BirthAssessmentSession key={comparisonRevision} comparison={result.comparison} actionsEnabled={collapsed && !reading} />
             <details className="birth-technical">
               <summary>计算说明与版本</summary>
               <h3 className="birth-label">当下快照</h3>
@@ -215,9 +170,7 @@ export function BirthComparisonPage() {
               {result.comparison.current.notes.map((note) => <p className="birth-note" key={note}>{note}</p>)}
             </details>
           </section>
-        ) : (
-          <p className="birth-note">填写出生日期并提交后，即可并列对照。资料仅保存在本次会话内存，清空后销毁。</p>
-        )}
+        ) : null}
       </div>
       {reading && (result ? <BirthClassicsView viewModel={result} /> : (
         <section className="birth-classics" aria-label="先天原文与释义">

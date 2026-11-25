@@ -114,14 +114,25 @@ describe('constitution presentation', () => {
   it('uses only the existing current snapshot and retains each birth candidate with canonical local time', () => {
     const current = mapLearning(createLearningDto());
     expect(mapConstitutionContext(current)).toEqual({ current: {
-      summary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.currentStep.name} · 客气${current.facts.currentStep.guestQi}`,
+      periodLabel: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.currentStep.name}`,
+      elementLabel: `客气${current.facts.currentStep.guestQi}`,
       element: current.facts.currentStep.guestElement,
       yearSummary: `${current.facts.summary.stemBranch.ganzhi} · ${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state}`,
       yearElement: current.facts.annualElements.suiYun,
       guestQiSummary: `${current.facts.currentStep.name} · 客气${current.facts.currentStep.guestQi}`,
-      detail: `${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state} · 司天${current.facts.summary.sitian} · 在泉${current.facts.summary.zaiquan}`,
-      qiDetail: `${current.facts.currentStep.name} · 主气${current.facts.currentStep.hostQi} · 客气${current.facts.currentStep.guestQi}`,
-      movementDetail: `${current.currentMovement.name} · 主运${current.currentMovement.hostLabel} · 客运${current.currentMovement.guestLabel}`,
+      annual: {
+        suiYun: { label: `${current.facts.summary.suiYun.element}运${current.facts.summary.suiYun.state}`, element: current.facts.annualElements.suiYun },
+        sitian: { label: current.facts.summary.sitian, element: current.facts.annualElements.sitian },
+        zaiquan: { label: current.facts.summary.zaiquan, element: current.facts.annualElements.zaiquan },
+      },
+      stages: [
+        { name: current.facts.currentStep.name,
+          host: { label: current.facts.currentStep.hostQi, element: current.facts.currentStep.hostElement },
+          guest: { label: current.facts.currentStep.guestQi, element: current.facts.currentStep.guestElement } },
+        { name: current.currentMovement.name,
+          host: { label: current.currentMovement.hostLabel, element: current.currentMovement.hostElement },
+          guest: { label: current.currentMovement.guestLabel, element: current.currentMovement.guestElement } },
+      ],
       time: current.facts.inputTime,
       ruleVersion: current.facts.ruleVersion,
       learningRuleVersion: current.ruleVersion,

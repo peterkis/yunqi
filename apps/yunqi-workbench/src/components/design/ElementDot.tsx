@@ -13,12 +13,13 @@ export interface ElementDotProps {
   /** A presentation label such as 少阴君火; the element name is the fallback. */
   readonly label?: string;
   readonly compact?: boolean;
+  readonly semanticTitle?: boolean;
 }
 
-export function ElementDot({ element, label, compact = false }: ElementDotProps) {
+export function ElementDot({ element, label, compact = false, semanticTitle = false }: ElementDotProps) {
   const text = label?.trim() || elementLabels[element];
   return (
-    <span className={`ds-element${compact ? ' ds-element--compact' : ''}`}>
+    <span className={`ds-element${compact ? ' ds-element--compact' : ''}`} data-title-element={semanticTitle ? element : undefined}>
       <span
         className={`ds-element__dot ds-element__dot--${element}`}
         aria-hidden="true"

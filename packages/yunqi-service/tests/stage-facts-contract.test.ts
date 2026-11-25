@@ -26,7 +26,7 @@ describe('Contract 1.3.0 stage facts over HTTP', () => {
     app = await buildApp({ provider: tyme4tsCalendarProvider, now, logger: false });
     await app.ready();
     document = app.swagger();
-    expect(document['x-yunqi-contract-id']).toBe('YQ-API-CONTRACT-1.3.0');
+    expect(document['x-yunqi-contract-id']).toBe('YQ-API-CONTRACT-1.4.0');
     ajv = new Ajv2020({ strict: false, allErrors: true });
     ajv.addSchema({ $id: rootId, components: document.components });
   });

@@ -15,7 +15,10 @@ export async function expectMotionCopy(page, { level, reason, engine }) {
   }
   const prefix = reason === 'manual' ? '已手动选择' : '自动跟随系统与设备能力';
   await expect(page.locator('.theme-root')).toHaveAttribute('data-motion', level);
-  await expect(more.locator('.motion-settings p')).toHaveText(`${prefix}，当前：${labels[level]}（原因：${reasons[reason]}）`);
+  await expect(more.locator('.motion-settings p')).toHaveText([
+    `${prefix}，当前：${labels[level]}（原因：${reasons[reason]}）`,
+    ...(reason === 'system' ? ['选择“标准”可在本应用启用平滑滚轮和完整动效。'] : []),
+  ]);
   const trace = more.getByRole('region', { name: '追溯信息', exact: true });
   const line = trace.locator('p').filter({ hasText: /^动效 / });
   await expect(line).toHaveCount(1);

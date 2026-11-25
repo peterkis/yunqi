@@ -5,8 +5,7 @@
   margin-top: var(--space-1);
 }
 
-.current-overview .learning-source,
-.birth-relation-details .learning-source {
+.current-overview .learning-source {
   display: flex;
   align-items: baseline;
   gap: var(--space-1);
@@ -16,26 +15,124 @@
   text-decoration: none;
 }
 
-.learning-source svg {
+/* Excerpt surfaces are shared by the birth clues and the current passage. */
+.reading-excerpt { --excerpt-tint: var(--excerpt-wood-wash); --excerpt-pigment: var(--excerpt-wood-pigment); }
+.reading-excerpt[data-element="metal"] { --excerpt-tint: var(--excerpt-metal-wash); --excerpt-pigment: var(--excerpt-metal-pigment); }
+.reading-excerpt[data-element="water"] { --excerpt-tint: var(--excerpt-water-wash); --excerpt-pigment: var(--excerpt-water-pigment); }
+.reading-excerpt[data-element="fire"] { --excerpt-tint: var(--excerpt-fire-wash); --excerpt-pigment: var(--excerpt-fire-pigment); }
+.reading-excerpt[data-element="earth"] { --excerpt-tint: var(--excerpt-earth-wash); --excerpt-pigment: var(--excerpt-earth-pigment); }
+@media (prefers-contrast: no-preference) and (forced-colors: none) {
+  .reading-excerpt {
+    background-image: linear-gradient(90deg, var(--excerpt-tint), transparent 20%);
+    background-origin: border-box;
+    background-repeat: no-repeat;
+  }
+}
+.reading-excerpt .ds-quote-block__label,
+.reading-excerpt .ds-info-card__label {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  gap: var(--space-1_5);
+  padding: var(--space-0_5) var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--accent-subtle);
+  background-color: color-mix(in srgb, var(--excerpt-pigment) 11%, var(--jade-card-color));
+  color: var(--ink-secondary);
+  color: color-mix(in srgb, var(--excerpt-pigment) 34%, var(--ink-primary));
+  letter-spacing: normal;
+}
+.reading-excerpt .ds-quote-block__label::before,
+.reading-excerpt .ds-info-card__label::before {
+  content: '';
   flex: none;
-  width: var(--space-3);
-  height: var(--space-3);
-  fill: none;
-  stroke: currentColor;
-  stroke-width: var(--space-0_5);
-  stroke-linecap: round;
-  stroke-linejoin: round;
+  width: var(--space-1_5);
+  height: var(--space-1_5);
+  border-radius: var(--radius-full);
+  background-color: var(--excerpt-pigment);
 }
+.reading-excerpt .ds-quote-block__original { line-height: var(--type-quote-line); }
+.reading-excerpt .ds-quote-block__source { text-align: end; }
 
-.current-overview .learning-source:hover,
-.current-overview .learning-source:focus-visible,
-.birth-relation-details .learning-source:hover,
-.birth-relation-details .learning-source:focus-visible {
+.current-relations__body { padding-top: var(--space-3); }
+.current-relations__body > * + * { margin-top: var(--space-2_5); }
+.current-relation-reading {
+  padding: var(--space-3) var(--space-3_5);
+  border-radius: var(--radius-lg);
+  background-color: var(--reading-insight-surface);
+  color: var(--ink-secondary);
+}
+.current-relation-reading__head { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-1_5); }
+.current-relation-reading__scope {
+  padding: var(--space-0_5) var(--space-1_5);
+  border-radius: var(--radius-xs);
+  background-color: var(--reading-scope-surface);
+  color: var(--ink-secondary);
+  font-size: var(--ts-small);
+}
+.current-relation-reading h4 { flex: 1; min-width: min-content; margin: 0; color: var(--ink-primary); font-size: var(--ts-body); font-weight: var(--type-body-strong-weight); }
+.current-relation-reading p { margin: var(--space-1_5) 0 0; line-height: var(--type-body-line); }
+.learning-sources--pills { display: flex; flex-wrap: wrap; gap: var(--space-1_5); margin-top: var(--space-2); }
+.current-relation-reading .learning-source {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-full);
+  background-color: var(--reading-source-surface);
+  color: var(--accent);
+  overflow-wrap: anywhere;
+}
+.current-relations__method {
+  margin: var(--space-3) var(--space-1) 0;
   color: var(--ink-tertiary);
-  text-decoration: underline;
+  font-size: var(--ts-small);
+  line-height: var(--type-body-line);
 }
+.current-relations__method strong { font-weight: var(--type-body-strong-weight); }
 
-/* The InfoCard drill-down already uses this same text-link treatment. */
 .learning-text-link { color: var(--accent); text-decoration: none; }
 .learning-text-link:hover,
 .learning-text-link:focus-visible { text-decoration: underline; }
+
+.relation-reading-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1_5);
+  width: 100%;
+  min-height: var(--control-height);
+  padding: var(--space-1_5) var(--space-3_5);
+  border: 0;
+  border-radius: var(--radius-full);
+  background: var(--accent-subtle);
+  background-image: linear-gradient(90deg, var(--jade-guide-start), var(--jade-guide-end));
+  color: var(--accent);
+  font-size: var(--ts-body);
+  line-height: var(--type-body-line);
+  font-weight: var(--type-body-strong-weight);
+  list-style: none;
+  cursor: pointer;
+}
+.relation-reading-summary::-webkit-details-marker { display: none; }
+.relation-reading-summary svg {
+  flex: none;
+  width: var(--space-4);
+  height: var(--space-4);
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+details[open] > .relation-reading-summary .relation-reading-summary__chevron,
+.relation-reading-summary[aria-expanded="true"] .relation-reading-summary__chevron { transform: rotate(180deg); }
+@media (hover: hover) {
+  .relation-reading-summary:hover { background: var(--accent-subtle); color: var(--accent-hover); }
+}
+@media (prefers-contrast: more), (forced-colors: active) {
+  .relation-reading-summary { background-image: none; }
+}
+@media (forced-colors: active) {
+  .relation-reading-summary { border: var(--panel-hairline) solid ButtonText; }
+}

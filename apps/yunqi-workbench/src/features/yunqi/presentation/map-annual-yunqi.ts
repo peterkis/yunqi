@@ -1,6 +1,7 @@
 import type { YunQiYearDto } from '@yunqi/contracts';
 import {
   mapSixQiStageTuple,
+  mapRuleExplanations,
   mapYunQiYearSummary,
 } from './map-yunqi-shared';
 import type { AnnualYunQiViewModel } from './view-model';
@@ -11,7 +12,7 @@ export function mapAnnualYunQi(
   return {
     summary: mapYunQiYearSummary(dto),
     stages: mapSixQiStageTuple(dto.sixQi.steps),
-    explanations: dto.explanations,
+    explanations: mapRuleExplanations(dto.explanations),
     ruleVersion: dto.ruleVersion,
   };
 }

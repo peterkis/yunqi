@@ -1,8 +1,27 @@
 import { describe, expect, it } from 'vitest';
 import { createBirthComparisonDto } from '../../../../test/learning-fixtures';
+import { birthRelationOverview } from './birth-relation-overview';
 import { mapBirthView } from './map-birth-view';
 
 describe('birth presentation', () => {
+  it('counts only recognized comparisons and keeps distinct source records and dimension-specific notes', () => {
+    const dto = createBirthComparisonDto();
+    const candidate = dto.candidates[0];
+    const original = candidate.comparisons[0];
+    const extra = { ...original.sources[0], id: 'another-source', title: '另一出处' };
+    const comparisons = [
+      { ...original, title: '中运对照', label: '当前克出生' },
+      { ...original, title: '客运对照', label: '新标签', explanation: '客运专属说明', sources: [...original.sources, extra] },
+    ];
+    const view = mapBirthView({ ...dto, candidates: [{ ...candidate, comparisons }] });
+    const guide = birthRelationOverview(view.candidates[0].rows);
+    expect(guide.counts).toEqual({ 相克: 1, 相生: 0, 同五行: 0 });
+    expect(guide.sources).toEqual([...original.sources, extra]);
+    expect(guide.explanations.get('客运专属说明')).toEqual(['所处运']);
+    expect(guide.entries[1]).toMatchObject({ direction: '—', label: '暂无说明', tone: 'neutral' });
+    expect(guide.entries[4]).toMatchObject({ direction: '—', label: '新标签', tone: 'neutral' });
+  });
+
   it('keeps the guest-movement birth comparison separate from the current host/guest movement relation', () => {
     const dto = createBirthComparisonDto();
     const base = dto.candidates[0];
@@ -47,8 +66,8 @@ describe('birth presentation', () => {
       ['所处运', '客运独有方向', 'adverse'],
     ]);
     expect(rows[0].birth.label).toBe(`${base.learning.facts.suiYun.element}运${base.learning.facts.suiYun.state}`);
-    expect(rows[3].birth.detail).toEqual([`主${base.learning.facts.currentStep.hostQi} · 客${base.learning.facts.currentStep.guestQi}`]);
-    expect(rows[4].current.detail).toEqual(['主太徵 · 客少角']);
+    expect(rows[3].birth.detail).toEqual([`主 ${base.learning.facts.currentStep.hostQi}`, `客 ${base.learning.facts.currentStep.guestQi}`]);
+    expect(rows[4].current.detail).toEqual(['主 太徵', '客 少角']);
     expect(rows[3].birth.element).toBe('fire');
     expect(rows[4].current.element).toBe('wood');
     expect(result.currentTime.localTime).toBe(dto.current.facts.input.localTime);
@@ -60,7 +79,7 @@ describe('birth presentation', () => {
     ['木', '厥阴风木', 'wood'], ['火', '少阴君火', 'fire'],
     ['土', '太阴湿土', 'earth'], ['金', '阳明燥金', 'metal'],
     ['水', '太阳寒水', 'water'], ['火', '少阳相火', 'fire'],
-  ] as const)('renders %s / %s with its enum-backed dot identity', (element, qi, expected) => {
+  ] as const)('maps %s / %s to the guest title and dot independently on each side', (element, qi, expected) => {
     const dto = createBirthComparisonDto();
     const candidate = dto.candidates[0];
     const learning = candidate.learning;
@@ -73,8 +92,8 @@ describe('birth presentation', () => {
     expect(rows[0].birth.element).toBe(expected);
     expect(rows[1].birth.element).toBe(expected);
     expect(rows[2].birth.element).toBe(expected);
-    expect(rows[3].birth.element).toBe(expected);
-    expect(rows[4].birth.element).toBe(expected);
+    expect([rows[3].birth.element, rows[3].current.element]).toEqual([expected, 'fire']);
+    expect([rows[4].birth.element, rows[4].current.element]).toEqual([expected, 'wood']);
   });
 
   it('retains every interval and historical scope without showing a sampled instant as an unknown birth time', () => {
@@ -118,5 +137,21 @@ describe('birth presentation', () => {
     expect(reading.source).toBe(`《${passage.work}·${passage.chapter}》${passage.section}`);
     expect(reading.sourceUrl).toBe(passage.sourceUrl);
     expect(result.candidates[0].periodReadings[0].fullQuote).toBeUndefined();
+  });
+
+  it('labels the two excerpts from their sections and distinguishes annual movement from the governing qi', () => {
+    const dto = createBirthComparisonDto();
+    const candidate = dto.candidates[0];
+    const learning = candidate.learning;
+    const view = mapBirthView({ ...dto, candidates: [{ ...candidate, learning: { ...learning,
+      facts: { ...learning.facts, suiYun: { ...learning.facts.suiYun, element: '木' },
+        sixQi: { ...learning.facts.sixQi, sitian: '阳明燥金' }, currentStep: { ...learning.facts.currentStep, name: '五之气' } },
+      annualPassages: [{ ...learning.annualPassages[0], scope: 'annual-movement', section: '岁木不及' }],
+      currentPassages: [{ ...learning.currentPassages[0], section: '阳明之政·卯酉之纪·五之气' }],
+    } }] });
+    expect(view.candidates[0].excerpts.map(({ label, element }) => [label, element])).toEqual([
+      ['岁木不及', 'wood'], ['五之气 · 阳明之政', 'metal'],
+    ]);
+    expect(view.candidates[0].excerpts[1].source).toContain('阳明之政·卯酉之纪·五之气');
   });
 });

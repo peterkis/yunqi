@@ -1,15 +1,21 @@
 import { expect, expectCompactTimes, waitForAnimations } from './fixtures.mjs';
+import { expectElementTitle } from './visual-assertions.mjs';
 
 export async function fillBirthDate(page, value) {
+  const mode = page.getByRole('radio', { name: '按出生年份' });
+  if (await mode.getAttribute('aria-checked') !== 'true') await mode.click();
   const parts = value ? value.split('-') : ['', '', ''];
   const field = page.getByRole('group', { name: '出生日期（公历）', exact: true });
   for (const [index, name] of ['年', '月', '日'].entries()) {
     await field.getByRole('textbox', { name, exact: true }).fill(parts[index]);
   }
+  if (value) await expect(field.locator('..').locator('[data-preview-date]')).toHaveAttribute('data-preview-date', value);
   await expect(page.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
 }
 
 export async function expectBirthDate(page, value) {
+  const mode = page.getByRole('radio', { name: '按出生年份' });
+  if (await mode.getAttribute('aria-checked') !== 'true') await mode.click();
   const parts = value ? value.split('-') : ['', '', ''];
   for (const [index, name] of ['年', '月', '日'].entries()) {
     await expect(page.getByRole('textbox', { name, exact: true })).toHaveValue(parts[index]);
@@ -18,7 +24,10 @@ export async function expectBirthDate(page, value) {
 
 export async function expandBirthInput(page) {
   await page.getByRole('button', { name: '修改', exact: true }).click();
-  await expect(page.getByRole('textbox', { name: '年', exact: true })).toBeFocused();
+  const year = page.getByRole('textbox', { name: '年', exact: true });
+  await expect(year).toBeFocused();
+  await expect(year).toHaveValue(/^\d{4}$/);
+  expect(await year.evaluate(el => [el.selectionStart, el.selectionEnd])).toEqual([0, 4]);
 }
 
 export async function expectBirthReadings(container, passages) {
@@ -59,8 +68,8 @@ export async function expectBirthComparison(page, data) {
   for (const [index, candidate] of data.candidates.entries()) {
     const article = candidates.nth(index);
     const table = article.getByRole('table');
-    await expect(article.locator('.birth-table__time time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
-    await expect(article.locator('.birth-table__time')).toContainText('北京时间 UTC+08');
+    const anchors = article.locator('.birth-time-anchors');
+    await expect(anchors.locator('time')).toHaveAttribute('datetime', data.current.facts.input.localTime);
     await expect(table.getByRole('columnheader')).toHaveCount(3);
     await expect(table.getByRole('columnheader', { name: /^先天/ })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: '关系', exact: true })).toBeVisible();
@@ -68,7 +77,7 @@ export async function expectBirthComparison(page, data) {
     await expect(table.getByRole('rowheader')).toHaveCount(5);
     await expect(table.locator('thead time, thead .num')).toHaveCount(0);
     await expect(table.locator('.birth-table__year strong')).toHaveText([candidate.learning.facts.stemBranch.ganzhi, data.current.facts.stemBranch.ganzhi]);
-    await expect(article.locator('.birth-table__years')).toHaveText(`运气年：先天 ${candidate.learning.facts.year} · 当下 ${data.current.facts.year}`);
+    await expect(anchors.locator('dd').first()).toHaveText(`先天 ${candidate.learning.facts.year} · 当下 ${data.current.facts.year}`);
     for (const [position, title] of dimensions.entries()) {
       const row = table.locator('tbody tr').nth(position);
       await expect(row.getByRole('rowheader', { name: names[position], exact: true })).toHaveAttribute('scope', 'row');
@@ -89,12 +98,31 @@ export async function expectBirthComparison(page, data) {
         if (position === 2) await expect(cell).toContainText(learning.facts.sixQi.zaiquan);
         if (position === 3) {
           await expect(cell).toContainText(learning.facts.currentStep.name);
-          await expect(cell).toContainText(`主${learning.facts.currentStep.hostQi} · 客${learning.facts.currentStep.guestQi}`);
+          await expect(cell.locator('.birth-table__detail > div')).toHaveText([`主 ${learning.facts.currentStep.hostQi}`, `客 ${learning.facts.currentStep.guestQi}`]);
         }
         if (position === 4) {
           await expect(cell).toContainText(learning.currentMovement.name);
-          await expect(cell).toContainText(`主${learning.currentMovement.host.tone} · 客${learning.currentMovement.guest.tone}`);
+          const detail = cell.locator('.birth-table__detail');
+          await expect(detail).toHaveText(`主 ${learning.currentMovement.host.tone} · 客 ${learning.currentMovement.guest.tone}`);
+          const pairs = await detail.evaluate(node => {
+            const bounds = node.getBoundingClientRect();
+            const [host, guest] = [...node.children].map(part => part.getBoundingClientRect());
+            return { sameLine: host.top === guest.top, fits: host.left >= bounds.left - 1 && guest.right <= bounds.right + 1 };
+          });
+          expect(pairs).toEqual({ sameLine: true, fits: true });
+          await expect(cell.locator('.birth-table__detail > div')).toHaveText([`主 ${learning.currentMovement.host.tone}`, `客 ${learning.currentMovement.guest.tone}`]);
         }
+      }
+      if (position === 1 || position === 2) {
+        await expect(row.locator('.birth-table__detail')).toHaveCount(0);
+        const centerOffsets = await row.evaluate(element => {
+          const axis = element.querySelector('.birth-table__axis').getBoundingClientRect();
+          return [...element.querySelectorAll('.birth-table__value')].map(value => {
+            const bounds = value.getBoundingClientRect();
+            return Math.abs(axis.y + axis.height / 2 - bounds.y - bounds.height / 2);
+          });
+        });
+        for (const offset of centerOffsets) expect(offset).toBeLessThanOrEqual(1);
       }
     }
     if (single) {
@@ -119,54 +147,67 @@ export async function expectBirthComparison(page, data) {
   await expectCompactTimes(page);
 }
 
-// F6: check the text inside each inline-block as well as its single outer box.
+// Measure the text itself to catch wrapping or loss of mirror alignment.
 export async function expectBirthDetailSegments(page, testInfo) {
   const table = page.getByRole('table').first();
+  await waitForAnimations(page);
   for (const name of ['所处气', '所处运']) {
     const row = table.getByRole('rowheader', { name, exact: true }).locator('..');
-    await expect(row.locator('.birth-table__detail .ds-seg')).toHaveCount(4);
-  }
-  await waitForAnimations(page);
-  let measurements;
-  await expect(async () => {
-    measurements = await table.locator('.birth-table__detail:has(.ds-seg)').evaluateAll(details => details.map(detail => ({
-      row: detail.closest('tr').querySelector('.birth-table__dimension-label').textContent,
-      side: detail.closest('td').classList.contains('birth-table__birth') ? 'birth' : 'current',
-      align: getComputedStyle(detail).textAlign,
-      overflowWrap: getComputedStyle(detail).overflowWrap,
+    for (const value of await row.locator('.birth-table__value').all()) {
+      const element = await value.getAttribute('data-element');
+      await expectElementTitle(value, element, '.birth-candidate-card');
+    }
+    const sides = await row.locator('.birth-table__detail').evaluateAll(details => details.map(detail => ({
       bounds: detail.getBoundingClientRect().toJSON(),
-      segments: [...detail.querySelectorAll('.ds-seg')].map(segment => {
+      lines: [...detail.children].map(line => {
         const range = document.createRange();
-        range.selectNodeContents(segment.querySelector('.ds-seg__text'));
-        return {
-          text: segment.textContent,
-          boxes: segment.getClientRects().length,
-          lines: new Set([...range.getClientRects()].filter(rect => rect.width > 0).map(rect => Math.round(rect.top))).size,
-          bounds: segment.getBoundingClientRect().toJSON(),
-          fits: segment.scrollWidth <= segment.clientWidth + 1,
-        };
+        range.selectNodeContents(line);
+        return [...range.getClientRects()].filter(rect => rect.width > 0).map(rect => rect.toJSON());
       }),
     })));
-    expect(measurements.length).toBeGreaterThan(0);
-    for (const detail of measurements) {
-      expect(detail.align).toBe(detail.side === 'birth' ? 'right' : 'left');
-      expect(detail.overflowWrap).toBe('break-word');
-      for (const segment of detail.segments) {
-        expect(segment.boxes, segment.text).toBe(1);
-        expect(segment.lines, segment.text).toBe(1);
-        expect(segment.fits, segment.text).toBe(true);
-      }
-      const first = detail.segments[0].bounds;
-      const last = detail.segments.at(-1).bounds;
-      if (detail.row === '所处气') expect(last.top).toBeGreaterThan(first.top);
-      if (detail.side === 'birth') expect(Math.abs(last.right - detail.bounds.right)).toBeLessThanOrEqual(1);
-      else {
-        expect(Math.abs(first.left - detail.bounds.left)).toBeLessThanOrEqual(1);
-        if (last.top > first.top + 1) expect(Math.abs(last.left - detail.bounds.left)).toBeLessThanOrEqual(1);
+    expect(sides).toHaveLength(2);
+    for (const [i, side] of sides.entries()) {
+      expect(side.lines.map(line => line.length)).toEqual([1, 1]);
+      const [host, guest] = side.lines.map(line => line[0]);
+      const edge = i === 0 ? 'right' : 'left';
+      if (name === '所处运') {
+        expect(guest.top).toBe(host.top);
+        expect(guest.left).toBeGreaterThan(host.right);
+        const outer = i === 0 ? guest : host;
+        expect(Math.abs(outer[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
+      } else {
+        expect(guest.top).toBeGreaterThan(host.top);
+        for (const phrase of [host, guest]) expect(Math.abs(phrase[edge] - side.bounds[edge])).toBeLessThanOrEqual(1);
       }
     }
-  }).toPass();
-  await testInfo.attach('birth-detail-segments', { body: JSON.stringify(measurements, null, 2), contentType: 'application/json' });
+    for (const i of [0, 1]) expect(Math.abs(sides[0].lines[i][0].top - sides[1].lines[i][0].top)).toBeLessThanOrEqual(1);
+    await testInfo.attach(`birth-detail-${name}`, { body: JSON.stringify(sides), contentType: 'application/json' });
+  }
+  const card = table.locator('..');
+  const summary = card.getByRole('button', { name: '这些关系怎么读？' });
+  const anchors = card.locator('.birth-time-anchors');
+  const columns = await anchors.locator('div').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
+  expect(columns[0].y).toBe(columns[1].y);
+  expect(columns[0].width).toBeCloseTo(columns[1].width, 0);
+  await expect(summary).toHaveAccessibleName('这些关系怎么读？');
+  const [button, grid] = await Promise.all([summary.boundingBox(), table.boundingBox()]);
+  expect(button.height).toBe(36);
+  const anchorBounds = await anchors.boundingBox();
+  expect(button.y - (anchorBounds.y + anchorBounds.height)).toBeCloseTo(14, 0);
+  expect(Math.abs(button.width - grid.width)).toBeLessThanOrEqual(1);
+  const icons = await summary.locator('svg').evaluateAll(nodes => nodes.map(node => node.getBoundingClientRect().toJSON()));
+  expect(icons).toHaveLength(2);
+  expect(Math.abs((icons[0].left + icons[1].right) / 2 - (button.x + button.width / 2))).toBeLessThanOrEqual(1);
+  await expect(summary).toHaveCSS('user-select', 'none');
+  const excerpts = page.getByRole('region', { name: '先天原文线索' });
+  await expect(excerpts.locator('.birth-excerpt')).toHaveCount(2);
+  for (const card of await excerpts.locator('.birth-excerpt').all()) {
+    await expect(card).toHaveCSS('background-image', /linear-gradient.*20%/);
+    await expect(card).toHaveCSS('background-origin', 'border-box');
+    await expect(card).toHaveCSS('background-repeat', 'no-repeat');
+    await expect(card.locator('blockquote')).not.toHaveCSS('user-select', 'none');
+    await expect(card.locator('figcaption')).toBeVisible();
+  }
 }
 
 // Measure the actual value/dot groups, so equal cell widths alone cannot hide

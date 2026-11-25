@@ -59,11 +59,12 @@
 
 /* Only full motion interpolates intrinsic height. All other modes retain
    native details semantics, including on older browsers. */
-@supports (interpolate-size: allow-keywords) {
+@supports (interpolate-size: allow-keywords) and (transition-behavior: allow-discrete) and selector(details::details-content) {
   [data-motion="full"] details { interpolate-size: allow-keywords; }
   [data-motion="full"] details::details-content {
     block-size: 0;
     opacity: 0;
+    overflow: hidden;
     overflow: clip;
     overflow-clip-margin: var(--space-1);
     transition: block-size var(--motion-base) var(--ease-standard),

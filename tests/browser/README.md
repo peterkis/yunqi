@@ -1,5 +1,7 @@
 # Browser acceptance
 
+`birth-entry.flows.spec.mjs` exercises age-only and year-only entry, lunar date resolution, two matching civil dates, annual readings and the linked assessment against the real Service. It verifies that 修改 selects the submitted year in a prefilled draft, 补全生日 focuses the first missing date part, and an actual click on the scrim discards edits while preserving the comparison table. The layouts are checked in a 400×640 light panel, a 400×860 dark panel and a 1366×900 workstation. Set `YUNQI_BROWSER_CHANNEL=chrome` for installed Chrome.
+
 This suite checks the approved read-only Workbench with a real local Service,
 the real calendar adapter, and Vite's same-origin proxy. It covers workflow
 completion and visible UI behavior. It does not establish expert rule approval,
@@ -72,7 +74,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 - Success paths use real HTTP responses. Three outage/retry cases inject one
   synthetic `503` response; a pending case delays one real request. These are
   explicit transport fault tests, not service reliability measurements.
-- The same-page birth assessment regression also delays delivery of one real
+- The birth-linked assessment in the constitution tab regression also delays delivery of one real
   scoring response while birth inputs create a new session. It verifies that
   the older response cannot restore discarded answers or results.
 
@@ -86,8 +88,9 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Invalid year | Malformed/unsupported years send no business query; a valid selection recovers |
 | Specified time | Submit-only; required input; explicit POST and minute/second normalization; pending/duplicate prevention; dirty-result hiding; sanitized error/retry and real unsupported-year recovery |
 | Birth | Segmented numeric date/optional styled known time; no native date/radio inputs; submitted summary, edit/year focus and clear/expand; single-candidate metadata and all boundary candidates with canonical intervals; symmetric annual/period readings; edits hide old results; shell primary switches from 查看对照 to 同时测评体质 |
-| Constitution | Button segments for sex; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; explicit complete submit; nine dimensions and parallel context; sex-change/end clearing |
-| Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared shell actions with standalone assessment, end/reopen/reset and stale response isolation |
+| Constitution | Male/female questionnaire entry cards and three expandable entry notes; merged current/birth context and nine-dimension progress, shared-item counts and all current memberships; inline sex-change confirmation/count, cancel/Esc focus restore and direct zero-answer change in both themes; no native date/radio inputs; one question per screen, 26 applicable answers, keys 1–5, focus-only arrows, previous question, reduced motion; accent question header and degree dots; automatic scoring after the last answer and manual retry on a scoring error; nine dimensions and parallel context; sex-change/end clearing |
+| Same-page assessment | Lazy single questionnaire, no nested forms/current re-query, response snapshot, shared answer controls with standalone assessment, end/reopen/reset and stale response isolation |
+| Answer controls | Previous and End share a 44px row beneath the choices. At 400px light and 320px dark, opening and cancelling confirmation preserves the geometry of the row, choices and notes. Checks cover Escape, focus restoration, keyboard confirmation and all three motion modes. |
 | Result/actions (D3/F5) | Real scoring responses for 1/2/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, neutral matched chips only for ≥2 matches; favorable `<简称> 倾向` chips without digits beside the title (vertical centers within 2px, wrapped groups centered as a whole); standard DTO bar order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three equal parallel context blocks; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
 | Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
@@ -97,7 +100,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 
 ### Visual states
 
-`workbench.visual.spec.mjs` has 26 panel states and one collapsed-pill capture,
+`workbench.visual.spec.mjs` has 27 panel states and one collapsed-pill capture,
 each run in all six panel / workstation projects. The collapsed-pill spec adds two theme states at its
 424 × 88 host viewport, containing the unchanged 400 × 64 pill with 12px
 left/right, 10px top and 14px bottom margins. The seven prototype boards are represented as follows:
@@ -106,11 +109,11 @@ left/right, 10px top and 14px bottom margins. The seven prototype boards are rep
 | --- | --- |
 | ① Current default | `current`, `current-stage-facts` (real calculated 2026-11-18 snapshot) |
 | ② Original text | `current-classics`, `annual-classics` |
-| ③ Birth/current | `birth-entry`, `birth-result`, `birth-boundary`, `birth-classics`, `birth-annual-classics` |
-| ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment` |
-| ⑤ Constitution result / completion | `constitution-complete`, `constitution-result`, `birth-assessment-complete`, `birth-assessment-result` |
+| ③ Birth/current | `birth-entry`, `birth-result` (also captures the expanded relation matrix and shared citation), `birth-boundary`, `birth-classics`, `birth-annual-classics` |
+| ④ Questionnaire in progress | `constitution-entry`, `constitution-questions`, `birth-assessment`, `constitution-snapshots-expanded` (current and birth cards with a leap-day interval) |
+| ⑤ Constitution result / last question | `constitution-last-question`, `constitution-result`, `birth-assessment-last-question`, `birth-assessment-result` |
 | ⑥ Collapsed pill | `collapsed-pill` in the panel matrix, plus `collapsed pill light` / `collapsed pill dark` in the pill project |
-| ⑦ Workstation placement | All 26 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
+| ⑦ Workstation placement | All 27 panel states in `workstation-light`, `workstation-768` and `workstation-1080`; submitted birth first-screen check at 768 high and both current cards visible at heights ≥ 900 |
 | Annual drill-down | `annual-entry`, `annual-result`, `annual-invalid`, `annual-error` |
 | Specified-time drill-down | `calculate-entry`, `calculate-result`, `calculate-error`, `calculate-dirty` |
 | Planning / not-found drill-down | `inquiry`, `not-found` (direct load) |
@@ -123,13 +126,13 @@ are retained as evidence only, not as an approved visual baseline.
 
 | Project | Viewport | Theme / states |
 | --- | --- | --- |
-| `panel-light` | 400 × 860 | Light, 26 panel states |
-| `panel-dark` | 400 × 860 | Dark, 26 panel states |
-| `panel-min-height` | 400 × 640 | Light, 26 panel states; current content scrolls while header, navigation and footer stay fixed |
+| `panel-light` | 400 × 860 | Light, 27 panel states |
+| `panel-dark` | 400 × 860 | Dark, 27 panel states |
+| `panel-min-height` | 400 × 640 | Light, 27 panel states; current content scrolls while header, navigation and footer stay fixed |
 | `collapsed-pill` | 424 × 88 host | Light and dark, two states; 400 × 64 pill, 12/10/14px margins, transparent host |
-| `workstation-light` | 1366 × 900 | Light, 26 states; 400px panel at the right edge |
-| `workstation-768` | 1366 × 768 | Light, 26 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
-| `workstation-1080` | 1920 × 1080 | Light, 26 states; same right-edge panel |
+| `workstation-light` | 1366 × 900 | Light, 27 states; 400px panel at the right edge |
+| `workstation-768` | 1366 × 768 | Light, 27 states; same right-edge panel, submitted birth headings and annual-movement row fit in the first screen |
+| `workstation-1080` | 1920 × 1080 | Light, 27 states; same right-edge panel |
 
 F6 adds a pill capture to each of the six panel/workstation projects. The
 `panel-dark` project collects all six requested references: current, current-stage
@@ -155,9 +158,9 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **75 flow/foundation/oracle tests in each of three motion
-projects + 8 capability tests + 164 visual/accessibility tests = 397 tests in
-13 files**. These are test cases and repeated state checks,
+The suite discovers **103 flow/foundation/oracle tests in each of three motion
+projects + 22 capability tests + 170 visual/accessibility tests = 501 tests in
+17 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):
 
@@ -184,7 +187,7 @@ the current/neutral badges, original → interpretation → source order, serif/
 font stacks, and ≥4.5:1 label/badge contrast in both themes. The trailing notice
 stays visible while scrolling and expanding full passages.
 
-F4's `constitution-questions` and embedded `birth-assessment` capture question 5
+F4's `constitution-questions` and birth-linked `birth-assessment` capture question 5
 with five retained answers in every panel project, including 400×860,
 1366×768 and 1920×1080. They check the merged two-column context, nine progress
 cells, 48px options with five 7px degree dots, the question-only accent header
@@ -193,13 +196,13 @@ the new question receives focus with no outline, while Tab to an option keeps
 its 2px ring. Calculation/version details follow the form beside the source
 disclosure; the keyboard traversal assertions follow this new order.
 
-F5's `constitution-result` and embedded `birth-assessment-result` use a fixed
+F5's `constitution-result` and birth-linked `birth-assessment-result` use a fixed
 answer vector with one matched type and two tendencies, checked against the
 real Service response. Both states cover 400×860, 1366×768 and 1920×1080 (and
 the other panel projects), checking title/chip alignment, favorable chip
 contrast, standard-order horizontal bars, equal context columns, typography,
 screenshots and axe. The standalone state replays the real 2026-11-18 current
-calculation; the embedded state keeps its birth response's current snapshot.
+calculation; the linked assessment keeps its birth response's current snapshot.
 
 Every screenshot calls the shared typography gate: allowed sizes
 {40, 30, 24, 20, 15, 14, 12}, at most five distinct sizes on screen and only one

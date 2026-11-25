@@ -36,3 +36,19 @@ export function normalizeBeijingDateTimeInput(
 
   return { ok: false, reason: 'format' };
 }
+
+export function splitTimeInput(localTime = '') {
+  return {
+    year: localTime.slice(0, 4), month: localTime.slice(5, 7), day: localTime.slice(8, 10),
+    hour: localTime.slice(11, 13), minute: localTime.slice(14, 16), second: localTime.slice(17, 19),
+  };
+}
+export type TimeDraft = ReturnType<typeof splitTimeInput>;
+
+export function draftDate({ year, month, day }: TimeDraft) {
+  return year.length === 4 && month && day ? [year, month.padStart(2, '0'), day.padStart(2, '0')].join('-') : '';
+}
+
+export function draftClock({ hour, minute, second }: TimeDraft) {
+  return hour && minute ? [hour, minute, second || '0'].map(value => value.padStart(2, '0')).join(':') : '';
+}

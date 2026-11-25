@@ -64,6 +64,7 @@ export async function expectCurrentStageFacts(page, data) {
     const labels = expectedPeriodLabels(step, progress, transition);
     await expect(region.locator('.current-period-cell--range')).toHaveText(labels.range);
     await expect(region.locator('.current-period-cell--remaining')).toHaveText(labels.remaining);
+    await expect(region.locator('.current-period-cell--remaining')).toHaveCSS('font-size', '11px');
   }
   await expect(qi.locator('time')).toHaveCount(0);
   await expect(movement.locator('time')).toHaveCount(0);
@@ -110,14 +111,14 @@ export async function expectCurrentStageFacts(page, data) {
 export async function expectCurrentPeriodAlignment(page) {
   const grid = page.locator('.current-period-grid');
   await expect(grid).toHaveCSS('display', 'grid');
-  await expect(grid.locator('.current-period-cell')).toHaveCount(14);
+  await expect(grid.locator('.current-period-cell')).toHaveCount(12);
   const qi = grid.getByRole('region', { name: '当步气', exact: true });
   const movement = grid.getByRole('region', { name: '当步运', exact: true });
   await expect(qi).toHaveCSS('display', 'contents');
   await expect(movement).toHaveCSS('display', 'contents');
   await waitForAnimations(page);
   await expect(async () => {
-    for (let row = 0; row < 7; row += 1) {
+    for (let row = 0; row < 6; row += 1) {
       const [left, right] = await Promise.all([
         qi.locator('.current-period-cell').nth(row).boundingBox(),
         movement.locator('.current-period-cell').nth(row).boundingBox(),
@@ -125,6 +126,30 @@ export async function expectCurrentPeriodAlignment(page) {
       expect(left, `Qi row ${row + 1} has a box`).not.toBeNull();
       expect(right, `Movement row ${row + 1} has a box`).not.toBeNull();
       expect(Math.abs(left.y - right.y), `Period row ${row + 1} aligns within one pixel`).toBeLessThanOrEqual(1);
+    }
+    const columns = await grid.locator('.current-period-column').evaluateAll(regions => regions.map(region => {
+      const header = region.querySelector('.current-period-cell--title').getBoundingClientRect();
+      const badge = region.querySelector('.current-period-cell--remaining').getBoundingClientRect();
+      const heading = region.querySelector('h3').getBoundingClientRect();
+      const center = header.left + header.width / 2;
+      const offsets = [...region.querySelectorAll('.current-period-cell--range, .current-meta, .ds-element, .ds-relation__chip, .ds-relation__explanation')].map(node => {
+        // Measure the text itself for full-width blocks, and the dot/chip as a group.
+        const range = document.createRange();
+        range.selectNodeContents(node);
+        const rect = node.matches('.ds-element, .ds-relation__chip') ? node.getBoundingClientRect() : range.getBoundingClientRect();
+        return { text: node.textContent, offset: Math.abs(rect.left + rect.width / 2 - center) };
+      });
+      return { badgeTop: badge.top, headingTop: heading.top, rightGap: header.right - badge.right,
+        leftGap: heading.left - header.left, fits: heading.right <= badge.left && badge.right <= header.right + 1, offsets };
+    }));
+    expect(Math.abs(columns[0].badgeTop - columns[1].badgeTop), 'Countdowns share a top edge').toBeLessThanOrEqual(1);
+    expect(Math.abs(columns[0].headingTop - columns[1].headingTop), 'Headings share a row').toBeLessThanOrEqual(1);
+    for (const column of columns) {
+      expect(column.fits).toBe(true);
+      expect(Math.abs(column.leftGap)).toBeLessThanOrEqual(1);
+      expect(Math.abs(column.headingTop - column.badgeTop)).toBeLessThanOrEqual(1);
+      expect(Math.abs(column.rightGap)).toBeLessThanOrEqual(1);
+      for (const item of column.offsets) expect(item.offset, item.text).toBeLessThanOrEqual(1);
     }
   }).toPass({ timeout: 10_000 });
 }

@@ -36,6 +36,8 @@ const ALLOWED_RUNTIME_DEPENDENCIES = new Set([
   '@tanstack/react-query',
   '@yunqi/client',
   '@yunqi/contracts',
+  'lenis',
+  'lucide-react',
   'react',
   'react-dom',
   'react-router-dom',

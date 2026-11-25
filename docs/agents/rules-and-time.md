@@ -55,7 +55,7 @@ Controller、route、DTO mapper和serializer不得自行创建Date、调用Date.
 `calculateYunQiByCalendarTime()`。
 
 React组件、hook、selector、mapper、serializer和formatter直接使用API规范localTime，
-或只处理固定北京时间字段/字符串的专用formatter；标注“北京时间 UTC+08”。
+或只处理固定北京时间字段/字符串的专用formatter。界面省略默认时区，机器可读的时间属性保留完整偏移。
 不得用`new Date(result.epochMilliseconds)`等方式重建展示时间。前端epoch仅可作排序、缓存键、审计和兼容。
 
 ## 未来持久化合同

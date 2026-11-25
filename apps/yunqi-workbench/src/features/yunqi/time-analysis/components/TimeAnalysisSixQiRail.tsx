@@ -1,5 +1,7 @@
 import { InfoCard } from '../../../../components/design/InfoCard';
-import { YunQiTimeDisplay } from '../../../../components/time/YunQiTimeDisplay';
+import { ElementDot } from '../../../../components/design/ElementDot';
+import { YunQiTimeRange } from '../../../../components/time/YunQiTimeDisplay';
+import { mapQiElement } from '../../presentation/visual-mappings';
 import type {
   SixQiStageTuple,
   SixQiStageViewModel,
@@ -15,42 +17,31 @@ export function TimeAnalysisSixQiRail({
   stages,
 }: TimeAnalysisSixQiRailProps) {
   return (
-    <InfoCard label="六气阶段概览" meta="北京时间 UTC+08">
+    <InfoCard label="六气阶段概览" className="drilldown-stage-overview-card">
       <p className="drilldown-meta">按步序排列，仅标明所选时点所在阶段。</p>
       <ol className="drilldown-stage-overview">
         {stages.map((stage) => {
           const isSelected = stage.index === selectedStageIndex;
+          const guestElement = mapQiElement(stage.guestQi);
+          const hostElement = mapQiElement(stage.hostQi);
 
           return (
             <li
               className="drilldown-stage-overview__stage"
               key={stage.index}
             >
-              <span className="drilldown-meta">
-                第 {stage.index} 步
-              </span>
-              <strong>{stage.name}</strong>
-              {isSelected ? (
-                <span className="drilldown-selection-label">所选时点</span>
-              ) : null}
-              <span className="drilldown-copy">
-                主气 {stage.hostQi}
-              </span>
-              <span className="drilldown-copy">
-                客气 {stage.guestQi}
-              </span>
-              <span className="drilldown-boundaries">
-                <YunQiTimeDisplay
-                  variant="compact"
-                  showStandard={false}
-                  value={stage.start}
-                />
-                <span>→ <YunQiTimeDisplay
-                  variant="compact"
-                  showStandard={false}
-                  value={stage.end}
-                /></span>
-              </span>
+              <div className="drilldown-stage-overview__heading">
+                <strong>{guestElement ? <ElementDot compact semanticTitle element={guestElement} label={stage.name} /> : stage.name}</strong>
+                <YunQiTimeRange start={stage.start} end={stage.end} />
+                <span className="drilldown-stage-overview__step">
+                  {isSelected && <span className="drilldown-selection-label">所选时点</span>}
+                  <span>第 {stage.index} 步</span>
+                </span>
+              </div>
+              <div className="drilldown-stage-overview__qi">
+                <span>主气 {hostElement ? <ElementDot compact element={hostElement} label={stage.hostQi} /> : stage.hostQi}</span>
+                <span>客气 {guestElement ? <ElementDot compact element={guestElement} label={stage.guestQi} /> : stage.guestQi}</span>
+              </div>
             </li>
           );
         })}

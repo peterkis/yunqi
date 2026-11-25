@@ -20,7 +20,7 @@ export function CurrentClassicsPage({ learning }: { readonly learning: LearningV
       <Button variant="text" aria-pressed={scope === 'annual'} aria-controls={readingId} onClick={() => setScope('annual')}>全年</Button>
       <Button variant="text" aria-pressed={scope === 'current'} aria-controls={readingId} onClick={() => setScope('current')}>当下阶段</Button>
     </div>
-    <div className="current-classics__readings" id={readingId} role="region" aria-label={scope === 'annual' ? '全年原文' : '当下阶段原文'} tabIndex={0}>
+    <div className="current-classics__readings" data-panel-scroll="" id={readingId} role="region" aria-label={scope === 'annual' ? '全年原文' : '当下阶段原文'} tabIndex={0}>
       {passages.map((passage) => <ClassicsReadingCard key={passage.id} reading={mapClassicsCard(passage, scope === 'current')} />)}
       {passages.length === 0 ? <p className="current-copy">此范围暂未收录已核对原文。</p> : null}
       <ClassicsReadingNotice />

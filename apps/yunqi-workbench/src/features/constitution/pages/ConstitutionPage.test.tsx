@@ -10,7 +10,7 @@ describe('ConstitutionPage', () => {
     const client = createClientStub();
     render(<ConstitutionPage />, { wrapper: createTestWrapper(client) });
     expect(await screen.findByRole('form', { name: '中医体质量表' })).toBeVisible();
-    expect(document.querySelector('.constitution-context-time time')).toHaveAttribute('datetime', createLearningDto().facts.input.localTime);
+    expect(screen.getByRole('complementary', { name: '本次测评对照背景' })).toHaveTextContent(createLearningDto().facts.currentStep.guestQi);
     expect(client.getConstitutionQuestionnaire).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).toHaveBeenCalledOnce();
     expect(client.assessConstitution).not.toHaveBeenCalled();
@@ -30,7 +30,7 @@ describe('ConstitutionPage', () => {
     await user.click(retries[1]);
     await screen.findByRole('form', { name: '中医体质量表' });
     await user.click(screen.getByRole('button', { name: '重试' }));
-    await waitFor(() => expect(document.querySelector('.constitution-context-time time')).not.toBeNull());
+    expect(await screen.findByText('精确时刻')).toBeVisible();
     expect(client.assessConstitution).not.toHaveBeenCalled();
   });
 });

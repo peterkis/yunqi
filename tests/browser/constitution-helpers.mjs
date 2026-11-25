@@ -23,7 +23,14 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
   const header = scope.locator('.constitution-question-header');
   await expect(header.locator(':scope > *')).toHaveCount(2);
   await expect(header.locator('h3.constitution-question-title')).toHaveAttribute('tabindex', '-1');
-  await expect(header.locator('p')).toHaveText('请患者根据近一年的体验和感觉作答 · 数字键 1–5 · ← 上一题');
+  await expect(header.locator('p > span')).toHaveText(['请患者根据近一年的体验和感觉作答', '数字键 1–5 · ← 上一题']);
+  const [instruction, shortcuts] = await header.locator('p > span').evaluateAll(spans => spans.map(span => {
+    const range = document.createRange();
+    range.selectNodeContents(span);
+    return [...range.getClientRects()].map(rect => ({ top: rect.top, bottom: rect.bottom }));
+  }));
+  expect(shortcuts).toHaveLength(1);
+  expect(shortcuts[0].top).toBeGreaterThanOrEqual(instruction.at(-1).bottom);
   await expect(header).not.toContainText(/体质量表|男性版|女性版|\d+\s*\/\s*26/);
   const contrast = await expectTextContrast(header);
   const accentColor = await header.evaluate(element => getComputedStyle(element).backgroundColor);
@@ -59,54 +66,57 @@ export async function expectConstitutionAnswerLayout(scope, testInfo) {
 export async function changeConstitutionSex(scope, sex, answered) {
   await scope.getByRole('button', { name: '更换', exact: true }).click();
   if (answered > 0) {
-    await expect(scope.getByRole('group', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
+    await expect(scope.getByRole('alertdialog', { name: `更换将清空已作答的 ${answered} 题`, exact: true })).toBeVisible();
     await scope.getByRole('button', { name: '确认', exact: true }).click();
   }
-  await expect(scope.getByRole('radio', { name: '男', exact: true })).toBeFocused();
-  await scope.getByRole('radio', { name: sex, exact: true }).click();
+  await expect(scope.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  await scope.getByRole('radio', { name: sex + '性量表', exact: true }).click();
 }
 
-export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values } = {}) {
+export async function answerConstitution(page, scope = page, { sex = '男', value = 1, values, stopBeforeLast = false } = {}) {
   const actions = page.locator('.panel-shell__actions');
   // Role lookup excludes retained/aria-hidden visual copies, even if the
   // previous answer's 120ms destruction snapshot has not expired yet.
   const form = scope.getByRole('form', { name: '中医体质量表', exact: true });
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(0);
-  await scope.getByRole('radio', { name: sex, exact: true }).click();
+  await expect(page.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(0);
+  await scope.getByRole('radio', { name: sex + '性量表', exact: true }).click();
   await expect(scope.getByRole('radiogroup', { name: '量表所用性别', exact: true })).toHaveCount(0);
   await expect(scope.locator('input[type="date"], input[type="radio"]')).toHaveCount(0);
+  let scoreRequest;
   for (let number = 1; number <= 26; number += 1) {
     await expect(form.locator('.constitution-position')).toHaveAttribute('aria-label', new RegExp(`当前第 ${number} 题`));
-    await expect(form.locator('.constitution-position')).toHaveText(`${number - 1} / 26`);
+    await expect(form.locator('.constitution-position')).toHaveText(`已答 ${number - 1} / 26`);
     await expect(form.locator('.constitution-position.num')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(form.locator('.constitution-question-screen')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup')).toHaveCount(1);
     await expect(scope.getByRole('radiogroup').getByRole('radio')).toHaveCount(5);
     await expect(scope.getByRole('radiogroup').getByRole('radio', { checked: true })).toHaveCount(0);
-    await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
+    await expect(form.locator('.constitution-actions').getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
+    if (number === 26) {
+      if (stopBeforeLast) return;
+      scoreRequest = page.waitForRequest(request => request.url().endsWith('/constitution/assess'));
+    }
     await page.keyboard.press(String(values ? values[number - 1] : value));
   }
-  await expect(scope.getByRole('heading', { name: '26 题已全部作答', exact: true })).toBeVisible();
-  const submit = actions.getByRole('button', { name: '查看结果', exact: true });
-  await expect(submit).toBeFocused();
-  await expect(submit).toBeVisible();
-  await expect(submit).toHaveAttribute('form', await scope.getByRole('form', { name: '中医体质量表', exact: true }).getAttribute('id'));
-  await expect(submit).toHaveClass(/ds-button--primary/);
+  const request = await scoreRequest;
+  await expect(actions.getByRole('button', { name: '查看结果', exact: true })).toHaveCount(0);
   await expect(scope.locator('.constitution-question-screen')).toHaveCount(0);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveClass(/ds-button--secondary/);
+  return request;
 }
 
 export async function confirmConstitutionDestruction(page, keyboard = false) {
   const confirm = page.getByRole('button', { name: '确认销毁', exact: true });
-  await expect(page.getByRole('group', { name: '结束并销毁本次答卷', exact: true })).toBeVisible();
+  await expect(page.getByRole('group', { name: '销毁本次答卷与结果？', exact: true })).toBeVisible();
   await expect(page.getByRole('button', { name: '取消', exact: true })).toBeFocused();
   if (keyboard) {
-    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
     await expect(confirm).toBeFocused();
     await page.keyboard.press('Enter');
   } else await confirm.click();
-  await expect(page.getByRole('status').filter({ hasText: '答卷已销毁' })).toBeVisible();
+  await expect(page.getByRole('radio', { name: '男性量表', exact: true })).toBeFocused();
+  await expect(page.getByText('答卷已销毁', { exact: true })).toHaveCount(0);
 }
 
 export async function expectConstitutionResults(page, assessment, scope = page) {
@@ -114,15 +124,15 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
   await expect(result).toBeVisible();
   await waitForAnimations(page);
   const actions = page.locator('.panel-shell__actions');
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveCount(1);
-  await expect(actions.getByRole('button', { name: '结束并销毁答卷', exact: true })).toHaveClass(/ds-button--secondary/);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveCount(1);
+  await expect(actions.getByRole('button', { name: '结束并销毁', exact: true })).toHaveClass(/ds-button--secondary/);
   const edit = actions.getByRole('button', { name: '返回修改', exact: true });
-  await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁答卷']);
+  await expect(actions.getByRole('button')).toHaveText(['‹ 返回修改', '结束并销毁']);
   await expect(edit).toHaveClass(/ds-button--text/);
   await expect(edit).toHaveAccessibleName('返回修改');
   await expect(edit.locator('[aria-hidden="true"]')).toHaveText('‹');
   await expect.poll(async () => {
-    const [back, end] = await Promise.all([edit.boundingBox(), actions.getByRole('button', { name: '结束并销毁答卷', exact: true }).boundingBox()]);
+    const [back, end] = await Promise.all([edit.boundingBox(), actions.getByRole('button', { name: '结束并销毁', exact: true }).boundingBox()]);
     return back && end ? back.x + back.width <= end.x : false;
   }).toBe(true);
   await expect(page.locator('.panel-shell__drilldown').getByRole('heading', { name: '体质测评结果', exact: true })).toBeVisible();
@@ -143,8 +153,8 @@ export async function expectConstitutionResults(page, assessment, scope = page) 
     await expect(row.locator('.constitution-bar-score')).toHaveCSS('font-variant-numeric', 'tabular-nums');
     await expect(row.getByRole('img')).toHaveAttribute('aria-label', `${dimension.name}，转化分 ${dimension.score.toFixed(1)} 分（满分100），判定${dimension.label}；参考刻度30与40；原始分${dimension.rawScore}，${dimension.itemCount}个条目。`);
     await expect(row.locator('.constitution-bar-fill')).toHaveAttribute('style', `--constitution-fill: ${dimension.score}%;`);
-    await expect(row.locator('.constitution-bar-tick')).toHaveCount(2);
   }
+  await expect(result.locator('.constitution-chart-guide')).toHaveCount(2);
   const reference = result.getByRole('region', { name: '与运气互参', exact: true });
   await expect(reference.locator('dt')).toHaveText(['体质', '先天', '当下']);
   const shortName = id => assessment.results.find(dimension => dimension.id === id).name.replace(/质$/, '');
@@ -170,7 +180,7 @@ export async function expectConstitutionDisclosures(scope, testInfo, result = fa
   const summaries = notes.locator(':scope > details > summary');
   const hasBirthDetails = await notes.locator('.constitution-context-details').count();
   await expect(summaries).toHaveText([
-    ...(result ? ['判定说明与边界'] : []), '量表来源与适用说明', '计算说明与版本',
+    ...(result ? ['判定说明与边界'] : []), '量表来源与适用说明', '精确时刻',
     ...(hasBirthDetails ? ['本次对照快照与候选区间'] : []),
   ]);
   await expect(scope.locator('summary').filter({ hasText: /^本次量表版本$/ })).toHaveCount(0);
@@ -247,6 +257,7 @@ export async function expectConstitutionTitle(result, assessment) {
   const matched = result.locator('.constitution-matched-types .ds-relation__chip');
   const mixedTypes = assessment.matchedTypes.length >= 2 ? assessment.matchedTypes : [];
   await expect(result.locator('.constitution-matched-types')).toHaveCount(mixedTypes.length ? 1 : 0);
+  await expect(result.locator('.constitution-matched-types').getByText('兼夹', { exact: true })).toHaveCount(0);
   await expect(matched).toHaveCount(mixedTypes.length);
   await expect(matched).toHaveText(mixedTypes.map(name));
   await expect(result.locator('.constitution-matched-types .ds-relation__chip:not(.ds-relation__chip--neutral)')).toHaveCount(0);
@@ -295,8 +306,15 @@ export async function expectConstitutionResultLayout(result, testInfo) {
       swatch.remove();
       return value;
     };
+    const plot = element.querySelector('.constitution-chart-plot').getBoundingClientRect();
+    const track = element.querySelector('.constitution-bar-track').getBoundingClientRect();
     return {
       columns: getComputedStyle(element.querySelector('.constitution-reference-rows')).gridTemplateColumns.split(' ').map(Number.parseFloat),
+      guides: [...element.querySelectorAll('.constitution-chart-guide')].map(guide => ({
+        ratio: (guide.getBoundingClientRect().left - track.left) / track.width,
+        height: guide.getBoundingClientRect().height, plotHeight: plot.height,
+        line: getComputedStyle(guide).borderInlineStartStyle,
+      })),
       rows: [...element.querySelectorAll('.constitution-bar')].map(row => {
         const track = row.querySelector('.constitution-bar-track');
         const bounds = track.getBoundingClientRect();
@@ -304,11 +322,13 @@ export async function expectConstitutionResultLayout(result, testInfo) {
           columns: getComputedStyle(row).gridTemplateColumns.split(' ').map(Number.parseFloat),
           height: row.getBoundingClientRect().height, trackHeight: bounds.height,
           fill: getComputedStyle(row.querySelector('.constitution-bar-fill')).backgroundColor,
-          expectedFill: color(row, `--data-${row.dataset.tone}`),
-          ticks: [...track.querySelectorAll('.constitution-bar-tick')].map(tick => ({
-            ratio: (tick.getBoundingClientRect().left - bounds.left) / bounds.width,
-            height: tick.getBoundingClientRect().height,
-          })),
+          expectedFill: color(row, row.hasAttribute('data-balanced') ? '--constitution-balanced-fill' : {
+            primary: '--constitution-match-fill', secondary: '--constitution-tendency-fill', neutral: '--constitution-low-fill',
+          }[row.dataset.tone]),
+          matched: row.dataset.tone === 'primary' && !row.hasAttribute('data-balanced'),
+          background: getComputedStyle(row).backgroundColor,
+          matchBackground: color(row, '--constitution-match-bg'),
+          scoreWeight: Number(getComputedStyle(row.querySelector('.constitution-bar-score')).fontWeight),
         };
       }),
     };
@@ -322,12 +342,17 @@ export async function expectConstitutionResultLayout(result, testInfo) {
     expect(row.height).toBe(24);
     expect(row.trackHeight).toBe(8);
     expect(row.fill).toBe(row.expectedFill);
-    expect(row.ticks).toHaveLength(2);
-    row.ticks.forEach((tick, index) => {
-      expect(tick.ratio).toBeCloseTo(index === 0 ? 0.3 : 0.4, 2);
-      expect(tick.height).toBe(14);
-    });
+    if (row.matched) {
+      expect(row.background).toBe(row.matchBackground);
+      expect(row.scoreWeight).toBe(700);
+    }
   }
+  expect(metrics.guides).toHaveLength(2);
+  metrics.guides.forEach((guide, index) => {
+    expect(guide.ratio).toBeCloseTo(index === 0 ? 0.3 : 0.4, 2);
+    expect(guide.height).toBe(guide.plotHeight);
+    expect(guide.line).toBe('dashed');
+  });
   for (const chip of await result.locator('.constitution-tendency-types .ds-relation__chip').all()) await expectTextContrast(chip);
   if (testInfo) await testInfo.attach('constitution-result-layout', { body: JSON.stringify(metrics), contentType: 'application/json' });
 }

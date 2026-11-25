@@ -21,10 +21,10 @@
 | 组件或契约 | 当前版本 |
 | --- | --- |
 | `@yunqi/domain` | `1.4.0` |
-| `@yunqi/service` | `2.3.0` |
-| `@yunqi/contracts` / `@yunqi/client` | `1.3.0` |
-| 业务 API Contract | `YQ-API-CONTRACT-1.3.0` |
-| OpenAPI 文档版本 / 规范版本 | `1.5.0` / `3.1.0` |
+| `@yunqi/service` | `2.4.0` |
+| `@yunqi/contracts` / `@yunqi/client` | `1.4.0` |
+| 业务 API Contract | `YQ-API-CONTRACT-1.4.0` |
+| OpenAPI 文档版本 / 规范版本 | `1.6.0` / `3.1.0` |
 
 第一阶段规则是已版本化的实现基线，待正式专家冻结与验证，状态以
 `rules/RULE_FREEZE_NOTE.md` 为准。API Contract 冻结不代表专家验证通过。
@@ -37,7 +37,7 @@
 [YQ-CONSTITUTION-1.0.0](rules/CONSTITUTION-GBT46939-2025.md)。
 经典内容更新为[YQ-CLASSICAL-READING-1.1.0](rules/CLASSICAL_READING_V1_1.md)，
 补充连续气候与病候选段，不改变运气计算、量表计分或API结构。
-[当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.3.0.md)记录新增接口及消费方影响；
+[当前契约与迁移说明](docs/contracts/YQ-API-CONTRACT-1.4.0.md)记录新增接口及消费方影响；
 [1.0.0](docs/contracts/YQ-API-CONTRACT-1.0.0.md)、
 [1.1.0](docs/contracts/YQ-API-CONTRACT-1.1.0.md)说明、原始确认单与历史冻结文件保留。
 
@@ -52,9 +52,9 @@ Workbench 已按[运气通设计规范与原型](docs/design/README.md)实现400
 
 - 当前页聚焦年度中运、司天、在泉，以及当下所属的运与气；其余阶段按需展开。
 - 年度司天与中运、当步主客气分别显示生克方向和传统关系提示，经典摘录、阅读释义及出处分别展示。
-- `/yunqi/birth` 将出生时令与当前运气并列对照，双方均提供年度与阶段原文。时刻不详时保留当日交界候选，不将取样点当作出生时刻；不从生日推断疾病或替代体质测评。
-- 出生对照内可主动打开一份体质量表，与本次当前快照同时查看。结束测评、修改出生资料、清空或重新对照会销毁本次答卷及结果；不会额外刷新成另一份当前快照。
-- `/yunqi/constitution` 提供 `GB/T 46939-2025` 体质量表，每个性别实际作答26题，一题一屏，支持数字键1–5与上一题；完整作答并提交后显示九质评分、倾向及兼夹结果，并列查看当前运气。
+- `/yunqi/birth` 可按年龄或公历出生年查看年度候选，补充公历或农历月日后查看完整对照与阶段原文。时刻不详时保留当日交界候选，不将取样点当作出生时刻；不从生日推断疾病或替代体质测评。
+- 出生对照内可主动打开一份体质量表，与本次当前快照同时查看。结束测评、清空已提交资料或成功提交新对照时销毁原关联答卷。取消修改会返回原对照及其当前快照。
+- `/yunqi/constitution` 提供 `GB/T 46939-2025` 体质量表，每个性别实际作答26题，一题一屏，支持数字键1–5与上一题；答完最后一题后自动显示九质评分、倾向及兼夹结果。已填写先天对照时，量表同步显示本次对照的先天与当下背景。
 - `/yunqi/year` 与 `/yunqi/calculate` 保留年度及指定时点分析；`/yunqi/inquiry` 仍为问诊规划入口。
 
 五步运采用已标识的节气偏移教学口径，待专家确认。出生信息与量表答卷仅用于本次页面会话，
@@ -65,14 +65,14 @@ Workbench 已按[运气通设计规范与原型](docs/design/README.md)实现400
 
 - `@yunqi/domain`: deterministic YunQi rules, sourced learning explanations,
   authoritative calendar-time calculation and constitution scoring;
-- `@yunqi/calendar-adapter-tyme4ts`: solar-term adapter;
+- `@yunqi/calendar-adapter-tyme4ts`: solar-term adapter and lunar birthday lookup within a Gregorian birth year;
 - `@yunqi/service`: Fastify runtime and OpenAPI schema source;
 - `@yunqi/contracts`: generated, browser-safe public DTO facade;
 - `@yunqi/client`: Fetch/Axios-structural typed browser client.
 - `@yunqi/workbench`: Vite/React current, annual and specified-time analysis,
   birth/current comparison, constitution assessment and an inquiry-planning entry.
 
-The current business API is defined by `YQ-API-CONTRACT-1.3.0`; machine freeze
+The current business API is defined by `YQ-API-CONTRACT-1.4.0`; machine freeze
 registration and drift checks are owned by `@yunqi/contracts`. React consumers
 must import DTOs from `@yunqi/contracts` and client behavior from
 `@yunqi/client`; they must not duplicate API DTOs.
@@ -114,6 +114,8 @@ cannot depend on React, TanStack Query, transport, or `@yunqi/client`.
 | POST | `/api/v1/yunqi/calculate` | Core facts for an explicitly submitted time |
 | GET | `/api/v1/yunqi/learning/current` | Current facts, movements, relations and classical passages |
 | POST | `/api/v1/yunqi/learning/calculate` | Learning result for a submitted time |
+| POST | `/api/v1/yunqi/learning/birth-year-comparison` | Annual candidates for a Gregorian birth year |
+| POST | `/api/v1/yunqi/learning/birth-date-preview` | Resolve solar or lunar month/day and preview actual boundaries |
 | POST | `/api/v1/yunqi/learning/birth-comparison` | Birth-period candidates and a current snapshot |
 | GET | `/api/v1/constitution/questionnaire` | Versioned questionnaire and scoring-item definitions |
 | POST | `/api/v1/constitution/assess` | Complete-answer assessment with all nine results |

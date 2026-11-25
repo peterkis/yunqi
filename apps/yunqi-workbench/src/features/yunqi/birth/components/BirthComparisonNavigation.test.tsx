@@ -24,13 +24,15 @@ describe('birth classics navigation', () => {
     const user = userEvent.setup();
     const storage = vi.spyOn(Storage.prototype, 'setItem');
     const client = renderBirth();
-    fillBirthDate('1990-05-12');
-    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '确认并对照' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('button', { name: '同时测评体质' }));
     const form = await screen.findByRole('form', { name: '中医体质量表' });
-    await user.click(within(form).getByRole('radio', { name: '男' }));
+    await user.click(within(form).getByRole('radio', { name: '男性量表' }));
     await user.click(within(form).getAllByRole('radio', { name: '3 有时（有些）' })[0]);
+    expect(screen.getByLabelText('测试地址')).toHaveTextContent('/yunqi/constitution');
+    await user.click(screen.getByRole('link', { name: '先天对照' }));
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth\/classics$/);
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
@@ -39,10 +41,11 @@ describe('birth classics navigation', () => {
     expect(document.querySelector('.panel-shell__actions')).toBeNull();
     await user.click(screen.getByRole('button', { name: '返回' }));
     expect(screen.getByRole('link', { name: '全部原文' })).toHaveFocus();
-    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
-    expect(screen.getByRole('button', { name: '结束并销毁答卷' }).closest('.panel-shell__actions')).not.toBeNull();
     expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-05-12 · 时刻不详 · 修改');
     expect(screen.queryByRole('form', { name: '出生运气输入' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: '同时测评体质' }));
+    expect(within(form).getByRole('img', { name: /已答 1 \/ 8/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: '结束并销毁' }).closest('.constitution-answer-form .constitution-actions')).not.toBeNull();
     expect(client.compareBirth).toHaveBeenCalledOnce();
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
     expect(storage).not.toHaveBeenCalled();
@@ -55,7 +58,7 @@ describe('birth classics navigation', () => {
     expect(screen.getByText('本页尚无出生对照，请先填写出生资料。')).toBeVisible();
     expect(client.compareBirth).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: '返回出生输入' }));
-    expect(screen.getByRole('textbox', { name: '年' })).toHaveValue('');
+    expect(screen.getByRole('textbox', { name: '年龄' })).toHaveValue('');
     expect(screen.getByLabelText('测试地址')).toHaveTextContent(/^\/yunqi\/birth$/);
     expect(client.getLearningCurrent).not.toHaveBeenCalled();
   });
@@ -67,8 +70,8 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, ambiguous: true, candidates: [candidate, {
       ...candidate, label: '交界后', learning: { ...candidate.learning, annualPassages: [], currentPassages: [] },
     }] });
-    fillBirthDate('1990-05-12');
-    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await fillBirthDate('1990-05-12');
+    await user.click(screen.getByRole('button', { name: '确认并对照' }));
     await screen.findByRole('table', { name: /交界后/ });
     expect(within(screen.getByRole('region', { name: '先天原文线索' })).getByText('此范围暂未收录已核对原文。')).toBeVisible();
     await user.click(screen.getByRole('link', { name: '全部原文' }));
@@ -87,10 +90,10 @@ describe('birth classics navigation', () => {
     renderBirth('/yunqi/birth', { ...dto, birthPrecision: 'time', candidates: [{ ...candidate, learning: { ...candidate.learning,
       annualPassages: [{ ...candidate.learning.annualPassages[0], quote: `“${quote}”` }],
     } }] });
-    fillBirthDate('1990-05-12');
-    await user.click(screen.getByRole('radio', { name: '已知时刻' }));
-    fireEvent.change(screen.getByLabelText('出生时刻（北京时间）'), { target: { value: '09:30:21' } });
-    await user.click(screen.getByRole('button', { name: '查看对照' }));
+    await fillBirthDate('1990-03-21');
+    await user.click(screen.getByRole('button', { name: /补录时刻/ }));
+    fireEvent.change(screen.getByLabelText('出生时刻', { exact: true }), { target: { value: '09:30:21' } });
+    await user.click(screen.getByRole('button', { name: '确认并对照' }));
     await screen.findByRole('table');
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     const reading = screen.getByRole('region', { name: '先天原文与释义' });

@@ -35,15 +35,18 @@ describe('PanelShell', () => {
     renderShell(route);
     const banner = screen.getByRole('banner');
     expect(banner).toHaveTextContent('运气通');
-    expect(banner).toHaveTextContent('教学参考 · 本次会话不关联患者');
-    expect(banner).not.toHaveTextContent(/HIS|就诊|姓名|年龄|TCM YunQi Lab/);
+    expect(banner).toHaveTextContent('测试版 · 待接入HIS');
+    expect(banner).not.toHaveTextContent(/姓名|年龄|TCM YunQi Lab/);
     const nav = screen.getByRole('navigation', { name: '工作台导航' });
     expect(within(nav).getAllByRole('link').map((link) => link.textContent)).toEqual(['当下运气', '先天对照', '体质量表']);
     expect(nav.querySelectorAll('[aria-current="page"]')).toHaveLength(route === '/' ? 0 : 1);
     if (route !== '/') expect(within(nav).getByRole('link', { name: label })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByRole('main', { name: label })).toHaveAttribute('tabindex', '0');
     expect(screen.getByRole('link', { name: '跳至主要内容' })).toHaveAttribute('href', '#workbench-content');
-    expect(screen.getByRole('contentinfo')).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
+    const footer = screen.getByRole('contentinfo');
+    expect(footer.querySelector('.panel-shell__credit')).toHaveTextContent('中医科 × 信息管理部');
+    expect(within(footer).getByText('联合研发')).toBeVisible();
+    expect(within(footer).getByText('© 2026-2027')).toBeVisible();
     expect(document.title).toBe(`${label} · 运气通`);
   });
 
@@ -87,9 +90,13 @@ describe('PanelShell', () => {
   it('keeps the existing accessible theme labels and toggles both directions', async () => {
     const user = userEvent.setup();
     const { container } = renderShell();
-    await user.click(screen.getByRole('button', { name: '切换至深色主题' }));
+    const dark = screen.getByRole('button', { name: '切换至深色主题' });
+    expect(dark.querySelector('svg.lucide-moon')).not.toBeNull();
+    await user.click(dark);
     expect(container.querySelector('.theme-root')).toHaveAttribute('data-theme', 'dark');
-    await user.click(screen.getByRole('button', { name: '切换至浅色主题' }));
+    const light = screen.getByRole('button', { name: '切换至浅色主题' });
+    expect(light.querySelector('svg.lucide-sun')).not.toBeNull();
+    await user.click(light);
     expect(container.querySelector('.theme-root')).toHaveAttribute('data-theme', 'light');
   });
 

@@ -12,7 +12,7 @@ type GeneratedCalculationSuccessResponse =
   Schemas['CalculationSuccessResponse'];
 
 export const YUNQI_API_CONTRACT_ID =
-  'YQ-API-CONTRACT-1.3.0' as const;
+  'YQ-API-CONTRACT-1.4.0' as const;
 
 export type CalculateRequest = Schemas['CalculateRequest'];
 export type ApiErrorResponse = Schemas['ErrorResponse'];
@@ -89,6 +89,12 @@ export type LearningRelationDto = Schemas['LearningRelationDto'];
 export type ClassicalPassageDto = Schemas['ClassicalPassageDto'];
 export type MovementStepDto = Schemas['MovementStepDto'];
 export type YunQiLearningDto = Omit<Schemas['YunQiLearningDto'], 'facts'> & { readonly facts: YunQiCalculationDto };
+export type BirthYearRequest = Schemas['BirthYearRequest'];
+export type BirthDatePreviewRequest = Schemas['BirthDatePreviewRequest'];
+export type BirthDatePreviewDto = Schemas['BirthDatePreviewDto'];
+export type BirthYearComparisonDto = Omit<Schemas['BirthYearComparisonDto'], 'current'> & { readonly current: YunQiLearningDto };
+export type BirthYearSuccessResponse = Omit<Schemas['BirthYearSuccessResponse'], 'data'> & { readonly data: BirthYearComparisonDto };
+export type BirthDatePreviewSuccessResponse = Schemas['BirthDatePreviewSuccessResponse'];
 export type BirthComparisonRequest = Schemas['BirthRequest'];
 export type BirthComparisonDto = Omit<Schemas['BirthComparisonDto'], 'current' | 'candidates'> & {
   readonly current: YunQiLearningDto;

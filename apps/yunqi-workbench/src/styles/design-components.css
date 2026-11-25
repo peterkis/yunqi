@@ -97,9 +97,9 @@
 }
 
 .ds-button--secondary:hover:not(:disabled),
-.ds-button--text:hover:not(:disabled),
+.ds-button--text:hover:not(:disabled):where(:not(.motion-segments > *)),
 .ds-button--icon:focus-visible:not(:disabled) {
-  background: var(--surface-sunken);
+  background: var(--control-interaction-surface, var(--surface-sunken));
 }
 
 .ds-button:not(:focus-visible) { outline: none; }
@@ -132,6 +132,11 @@
 }
 
 .ds-element > span:last-child { min-width: 0; }
+.ds-element[data-title-element="wood"] { color: var(--element-wood-title); }
+.ds-element[data-title-element="fire"] { color: var(--element-fire-title); }
+.ds-element[data-title-element="earth"] { color: var(--element-earth-title); }
+.ds-element[data-title-element="metal"] { color: var(--element-metal-title); }
+.ds-element[data-title-element="water"] { color: var(--element-water-title); }
 
 /* Atomic inline phrases wrap at wbr separators. Only an over-wide phrase
    constrains its inner text box and permits an emergency word break. */
@@ -161,6 +166,16 @@
   border: 0;
   /* Paint the fractional ring without Chromium's border-width pixel rounding. */
   box-shadow: inset 0 0 0 var(--ds-metal-ring-width) var(--element-metal-ring);
+}
+
+.ds-element[data-title-element] .ds-element__dot--metal { background-color: transparent; }
+@media (forced-colors: active) {
+  .ds-element__dot { forced-color-adjust: none; background-color: CanvasText; }
+  .ds-element .ds-element__dot--metal {
+    background-color: transparent;
+    border: var(--ds-hairline) solid CanvasText;
+    box-shadow: none;
+  }
 }
 
 .ds-relation {
@@ -400,26 +415,16 @@
   gap: var(--space-2_5);
   height: var(--header-height);
   padding: 0 var(--space-2_5) 0 var(--space-4);
-  border-bottom: var(--ds-hairline) solid var(--border-default);
   background: var(--surface-page);
   color: var(--ink-primary);
   font-family: var(--font-sans);
 }
 
 .ds-panel-header__brand {
-  display: inline-flex;
   flex: none;
-  align-items: center;
-  justify-content: center;
-  width: var(--chip-height);
-  height: var(--chip-height);
-  border-radius: var(--radius-xs);
-  background: var(--accent);
-  color: var(--accent-on);
-  font-family: var(--font-serif);
-  font-size: var(--ts-body);
-  line-height: var(--type-chip-line);
-  font-weight: var(--type-display-xl-weight);
+  width: var(--segment-height);
+  height: var(--segment-height);
+  background: url('/favicon.svg') center / contain no-repeat;
 }
 
 .ds-panel-header__text { flex: 1; min-width: 0; }

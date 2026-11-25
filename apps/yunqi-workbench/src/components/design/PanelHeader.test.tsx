@@ -14,7 +14,7 @@ describe('PanelHeader', () => {
       </Button>
     } />);
     expect(screen.getByRole('banner')).toBeVisible();
-    expect(screen.getByText('运')).toHaveAttribute('aria-hidden', 'true');
+    expect(screen.getByRole('banner').querySelector('.ds-panel-header__brand')).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByRole('heading', { name: '运气通' })).toBeVisible();
     expect(screen.getByText('理论学习 · 只读展示')).toBeVisible();
     await user.tab();
@@ -27,7 +27,7 @@ describe('PanelHeader', () => {
     const user = userEvent.setup();
     const onBack = vi.fn();
     render(<PanelHeader variant="drilldown" title="原文与释义" subtitle="当下阶段" onBack={onBack} />);
-    expect(screen.queryByText('运')).not.toBeInTheDocument();
+    expect(document.querySelector('.ds-panel-header__brand')).not.toBeInTheDocument();
     expect(screen.queryByRole('banner')).not.toBeInTheDocument();
     expect(screen.getByRole('heading', { name: '原文与释义' })).toBeVisible();
     expect(screen.getByText('当下阶段')).toBeVisible();

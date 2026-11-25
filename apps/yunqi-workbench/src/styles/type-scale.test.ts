@@ -21,7 +21,9 @@ function assertTierSizes(css: string) {
   for (const match of source.matchAll(/(?:^|[;{])\s*(font-size|font|--ts-[\w-]+)\s*:\s*([^;{}]+)(?=[;}])/gi)) {
     const property = match[1].toLowerCase();
     const value = match[2].replace(/\s*!important\s*$/i, '').trim();
-    if (property === 'font-size') expect(sizeVariables, match[0]).toContain(value);
+    if (property === 'font-size' && value === 'var(--ts-countdown)') {
+      expect(source.slice(0, match.index + 1)).toMatch(/(?:^|[{}])\s*\.current-period-cell--remaining\s*\{[^{}]*$/);
+    } else if (property === 'font-size') expect(sizeVariables, match[0]).toContain(value);
     // A shorthand can otherwise bypass the font-size check entirely.
     if (property === 'font') expect(value, match[0]).toBe('inherit');
     expect(property, 'Only type-scale.css may define or override a tier').not.toMatch(/^--ts-/);
@@ -35,7 +37,8 @@ describe('application typography scale', () => {
       .map((match) => [match[1], match[2].trim()]);
     const tokens = Object.fromEntries([...readFileSync('src/styles/tokens.css', 'utf8')
       .matchAll(/(--type-[\w-]+)\s*:\s*([^;]+);/g)].map((match) => [match[1], match[2].trim()]));
-    const expected: Record<string, string> = {};
+    expect(tokens['--type-meta-size']).toBe('11px');
+    const expected: Record<string, string> = { '--ts-countdown': 'var(--type-meta-size)' };
     for (const [tier, [token, pixels]] of Object.entries(tiers)) {
       for (const [suffix, property] of [['', 'size'], ['-line', 'line'], ['-weight', 'weight']]) {
         const source = `--type-${token}-${property}`;
@@ -71,6 +74,7 @@ describe('application typography scale', () => {
     ['responsive sizes', '.invalid { font-size: clamp(14px, 2vw, 20px); }'],
     ['direct legacy tokens', '.invalid { font-size: var(--type-value-size); }'],
     ['non-tier aliases', '.invalid { font-size: var(--button-size); }'],
+    ['countdown size used for ordinary text', '.invalid { font-size: var(--ts-countdown); }'],
     ['fallbacks', '.invalid { font-size: var(--ts-body, 13px); }'],
     ['inherited sizes', '.invalid { font-size: inherit; }'],
     ['shorthands', '.invalid { font: 600 13px sans-serif; }'],

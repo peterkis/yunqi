@@ -1,51 +1,19 @@
-import { useEffect, useId, useRef, useState } from 'react';
-import { Button } from '../../../../components/design/Button';
-import { PanelView } from '../../../../components/layout/PanelView';
-import { useSessionVisible } from '../../../../components/layout/SessionVisibility';
-import { AnswerDestroyedNotice } from '../../../constitution/components/AnswerDestroyedNotice';
+import { useEffect, useRef } from 'react';
+import { PanelSummary } from '../../../../components/layout/PanelSummary';
 import { ConstitutionAssessmentPanel } from '../../../constitution/components/ConstitutionAssessmentPanel';
 import { mapConstitutionContext } from '../../../constitution/presentation/map-constitution';
-import type { BirthComparisonViewModel } from '../../presentation/map-learning';
+import { mapPanelSummary } from '../../presentation/panel-summary';
+import type { BirthSessionComparison } from '../../presentation/map-learning';
 
-export function BirthAssessmentSession({ comparison, actionsEnabled = true }: { readonly comparison: BirthComparisonViewModel; readonly actionsEnabled?: boolean }) {
-  const [active, setActive] = useState(false);
-  const [destroyed, setDestroyed] = useState(0);
-  const visible = useSessionVisible();
-  const panelId = useId();
-  const headingRef = useRef<HTMLHeadingElement>(null);
-  const restoreActionFocus = useRef(false);
-
-  useEffect(() => {
-    if (active && visible) headingRef.current?.focus();
-  }, [active]);
-
-  function end() {
-    restoreActionFocus.current = true;
-    setDestroyed((value) => value + 1);
-    setActive(false);
-  }
-
-  function focusStart(button: HTMLButtonElement | null) {
-    // PanelView publishes the action into a later shell commit.
-    if (button && restoreActionFocus.current && visible) {
-      restoreActionFocus.current = false;
-      button.focus();
-    }
-  }
-
-  return (
-    <section className="birth-session" id={panelId} aria-label="本次对照体质测评">
-      {!active ? <PanelView enabled={actionsEnabled} actions={<div className="birth-actions">
-        <Button ref={focusStart} aria-expanded={false} aria-controls={panelId} onClick={() => setActive(true)}>同时测评体质</Button>
-      </div>} /> : null}
-      <p className="birth-note">问卷按需打开。结束测评、修改出生资料、清空或重新对照，都会清除本次作答和测评结果。</p>
-      {destroyed > 0 ? <AnswerDestroyedNotice key={destroyed} /> : null}
-      {active ? (
-        <div className="birth-constitution">
-          <h3 className="birth-assessment-heading" tabIndex={-1} ref={headingRef}>本次体质测评</h3>
-          <ConstitutionAssessmentPanel context={mapConstitutionContext(comparison.current, comparison)} onEnd={end} actionsEnabled={actionsEnabled} />
-        </div>
-      ) : null}
-    </section>
-  );
+export function BirthAssessmentSession({ comparison }: {
+  readonly comparison: BirthSessionComparison;
+}) {
+  const heading = useRef<HTMLHeadingElement>(null);
+  const { current } = comparison;
+  useEffect(() => { heading.current?.focus(); }, []);
+  return <section className="constitution-page birth-session" aria-label="本次对照体质测评">
+    <PanelSummary viewModel={mapPanelSummary(current.facts.summary, { step: current.facts.currentStep, relation: current.currentQi })} />
+    <h2 className="visually-hidden" tabIndex={-1} ref={heading}>本次体质测评</h2>
+    <ConstitutionAssessmentPanel context={mapConstitutionContext(current, comparison)} />
+  </section>;
 }

@@ -8,7 +8,7 @@ import { ConstitutionContext, ConstitutionContextDetails } from './ConstitutionC
 import { ConstitutionResults } from './ConstitutionResults';
 
 describe('constitution result and snapshot', () => {
-  it('retains coexisting types and candidates, with neutral matches, favorable tendencies and original API explanations', async () => {
+  it('retains coexisting types and candidates, with grouped matches, tendencies and original API explanations', async () => {
     const user = userEvent.setup();
     const birth = mapBirthComparison(createBirthComparisonDto());
     const comparison = { ...birth, ambiguous: true, candidates: [...birth.candidates, { ...birth.candidates[0], label: '候选二' }] };
@@ -19,6 +19,7 @@ describe('constitution result and snapshot', () => {
     render(<><ConstitutionContext context={context} /><ConstitutionContextDetails context={context} /><ConstitutionResults assessment={assessment} context={context} /></>);
     const result = screen.getByRole('region', { name: '体质测评结果' });
     expect(within(result).getByRole('heading', { name: '偏颇质兼夹' })).toHaveFocus();
+    expect(within(result).getByRole('group', { name: '符合判定的体质' })).not.toHaveTextContent('兼夹');
     expect([...result.querySelectorAll('.constitution-matched-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['气虚质', '阳虚质']);
     expect([...result.querySelectorAll('.constitution-tendency-types .ds-relation__chip')].map((chip) => chip.textContent)).toEqual(['阴虚 倾向', '痰湿 倾向']);
     expect(result.querySelectorAll('.ds-relation__chip--neutral')).toHaveLength(2);
@@ -33,8 +34,8 @@ describe('constitution result and snapshot', () => {
       expect(chart).toBeVisible();
       expect(within(chart.closest('li')!).getByText(item.displayScore)).toHaveClass('num');
       expect(chart.closest('li')?.children).toHaveLength(3);
-      expect(chart.querySelectorAll('.constitution-bar-tick')).toHaveLength(2);
     }
+    expect(result.querySelectorAll('.constitution-chart-guide')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="primary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="secondary"]')).toHaveLength(2);
     expect(result.querySelectorAll('[data-tone="neutral"]')).toHaveLength(5);
@@ -47,7 +48,7 @@ describe('constitution result and snapshot', () => {
     expect(parallel.lastElementChild?.textContent).toBe('体质、先天、当下三者并列供医师综合判断，系统不自动辨证、不给方药。');
     expect(result).not.toHaveTextContent(/风险|易患|预测|高危/);
     await user.click(screen.getByText('本次对照快照与候选区间'));
-    expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（起点含、终点不含）');
+    expect(screen.getByRole('region', { name: '候选二' })).toHaveTextContent('可能区间（含起不含终）');
     expect(screen.getByRole('region', { name: '候选二' }).querySelectorAll('time')).toHaveLength(2);
     expect(within(result).getByText(dto.summary)).not.toBeVisible();
     await user.click(within(result).getByText('判定说明与边界'));
@@ -138,23 +139,16 @@ describe('constitution result and snapshot', () => {
     expect(screen.queryByText(/所有候选共用/)).not.toBeInTheDocument();
   });
 
-  it('keeps current milliseconds and candidate boundaries inside calculation details', async () => {
+  it('shows only the interval convention when the time disclosure is expanded with a linked snapshot', async () => {
     const user = userEvent.setup();
     const comparison = mapBirthComparison(createBirthComparisonDto());
-    const mapped = mapConstitutionContext(comparison.current, comparison);
-    const context = { ...mapped, current: { ...mapped.current, time: { ...mapped.current.time, localTime: '2026-06-19T12:00:23.456+08:00' } } };
-    const { container } = render(<ConstitutionContextDetails context={context} />);
-    const current = container.querySelector('.constitution-context-time time');
-    expect(current).toHaveTextContent('06-19 12:00');
-    expect(current).toHaveAttribute('datetime', context.current.time.localTime);
-    const details = screen.getByText('计算说明与版本').closest('details')!;
+    render(<ConstitutionContextDetails context={mapConstitutionContext(comparison.current, comparison)} />);
+    const summary = screen.getByText('精确时刻');
+    const details = summary.closest('details')!;
     expect(details).not.toHaveAttribute('open');
-    await user.click(screen.getByText('计算说明与版本'));
-    expect(within(details).getByText('2026-06-19 12:00:23.456')).toBeVisible();
-    expect(details).toHaveTextContent(context.current.ruleVersion);
-    expect([...details.querySelectorAll<HTMLTimeElement>('.yunqi-time-details time')].map((time) => time.dateTime)).toEqual([
-      context.current.time.localTime,
-      comparison.candidates[0].from.localTime, comparison.candidates[0].until.localTime,
-    ]);
+    await user.click(summary);
+    expect(details).toHaveAttribute('open');
+    expect(details).toHaveTextContent(/^精确时刻区间起点包含，终点不包含。$/);
+    expect(details.querySelector('time')).toBeNull();
   });
 });

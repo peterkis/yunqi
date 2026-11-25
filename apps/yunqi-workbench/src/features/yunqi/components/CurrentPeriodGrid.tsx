@@ -27,19 +27,21 @@ function PeriodColumn({ label, column, name, progress, host, guest, relation }: 
     return () => clearTimeout(timer);
   }, [name, level]);
   return <section className="current-period-column" aria-label={label}>
-    <div className="current-period-cell current-period-cell--title" data-emphasized={emphasized} style={{ gridColumn: column, gridRow: 1 }}><h3>{name}</h3></div>
+    <div className="current-period-cell current-period-cell--title" data-emphasized={emphasized} style={{ gridColumn: column, gridRow: 1 }}>
+      <h3>{name}</h3>
+      <span className="current-period-cell--remaining num">{progress.remainingLabel}</span>
+    </div>
     <div className="current-period-cell current-period-cell--range num" style={{ gridColumn: column, gridRow: 2 }}>{progress.rangeLabel}</div>
-    <div className="current-period-cell current-period-cell--remaining num" style={{ gridColumn: column, gridRow: 3 }}>{progress.remainingLabel}</div>
-    <div className="current-period-cell current-period-cell--value current-period-cell--host" style={{ gridColumn: column, gridRow: 4 }}>
+    <div className="current-period-cell current-period-cell--value current-period-cell--host" style={{ gridColumn: column, gridRow: 3 }}>
       <span className="current-meta">{host.label}</span><CurrentElementValue element={host.element} label={host.value} />
     </div>
-    <div className="current-period-cell current-period-cell--value" style={{ gridColumn: column, gridRow: 5 }}>
+    <div className="current-period-cell current-period-cell--value" style={{ gridColumn: column, gridRow: 4 }}>
       <span className="current-meta">{guest.label}</span><CurrentElementValue element={guest.element} label={guest.value} />
     </div>
-    <div className="current-period-cell current-period-cell--relation" style={{ gridColumn: column, gridRow: 6 }}>
+    <div className="current-period-cell current-period-cell--relation" style={{ gridColumn: column, gridRow: 5 }}>
       <RelationChip label={relation.label} tone={relation.tone} segmented />
     </div>
-    <div className="current-period-cell current-period-cell--explanation" style={{ gridColumn: column, gridRow: 7 }}>
+    <div className="current-period-cell current-period-cell--explanation" style={{ gridColumn: column, gridRow: 6 }}>
       {relation.explanation && <span className="ds-relation__explanation"><InlineText>{relation.explanation}</InlineText></span>}
     </div>
   </section>;

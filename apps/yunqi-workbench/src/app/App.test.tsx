@@ -38,7 +38,8 @@ describe('App', () => {
       }, { timeout: 5_000 }),
     ).toBeVisible();
     const footer = within(view.container).getByRole('contentinfo');
-    expect(footer).toHaveTextContent('五步运为教学口径，待专家确认 · 辅助参考，不作诊断依据');
+    expect(footer).toHaveTextContent(/中医科\s*×\s*信息管理部\s*联合研发/);
+    expect(footer).toHaveTextContent('© 2026-2027');
     const summary = within(view.container).getByText('计算说明与版本');
     const calculation = summary.closest('details')!;
     const trace = within(calculation).getByRole('region', { name: '追溯信息' });
@@ -46,8 +47,8 @@ describe('App', () => {
     expect(trace).not.toBeVisible();
     await user.click(summary);
     expect(trace).toBeVisible();
-    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.3.0');
-    expect(within(trace).getByText(/YQ-API-CONTRACT-1\.3\.0/)).toBeVisible();
+    expect(trace).toHaveTextContent('YQ-API-CONTRACT-1.4.0');
+    expect(within(trace).getByText(/YQ-API-CONTRACT-1\.4\.0/)).toBeVisible();
     expect(within(trace).getByText(/YQ-MVP-RULES-1\.1\.0/)).toBeVisible();
   });
 });

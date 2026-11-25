@@ -2,12 +2,10 @@ import { act, render, screen, within } from '@testing-library/react';
 import type { CSSProperties } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { SessionVisibility } from '../../../components/layout/SessionVisibility';
-import { MotionProvider } from '../../../providers/MotionProvider';
 import { createAssessmentDto } from '../../../test/learning-fixtures';
 import { mapAssessment } from '../presentation/map-constitution';
 import { ConstitutionDimension } from './ConstitutionDimension';
 import { ConstitutionResults } from './ConstitutionResults';
-import { AnswerDestroyedNotice } from './AnswerDestroyedNotice';
 import { fadeDestroyedAnswer } from './destroy-answer-visual';
 
 beforeEach(() => { vi.useFakeTimers(); });
@@ -21,7 +19,6 @@ describe('constitution motion lifecycle', () => {
       return <SessionVisibility.Provider value={visible}>
         <div role="list" aria-label="维度作答进度"><ConstitutionDimension dimension={complete ? { ...dimension, count: '✓' } : dimension} /></div>
         <ConstitutionResults assessment={assessment} reveal />
-        <AnswerDestroyedNotice />
       </SessionVisibility.Provider>;
     }
     const view = render(<Content visible complete={false} />);
@@ -80,20 +77,6 @@ describe('constitution motion lifecycle', () => {
     hidden.unmount();
     render(<ConstitutionResults assessment={assessment} />);
     expect(screen.getByRole('region', { name: '体质测评结果' })).toHaveAttribute('data-reveal', 'false');
-  });
-
-  it('keeps the reduced notice visible for three seconds, then fades for 120ms and removes its status', () => {
-    vi.stubGlobal('CSS', { supports: () => true });
-    localStorage.setItem('yunqi-motion', 'reduced');
-    render(<MotionProvider><AnswerDestroyedNotice /></MotionProvider>);
-    act(() => { vi.advanceTimersByTime(2999); });
-    expect(screen.getByRole('status')).toHaveAttribute('data-dismissed', 'false');
-    act(() => { vi.advanceTimersByTime(1); });
-    expect(screen.getByRole('status')).toHaveAttribute('data-dismissed', 'true');
-    act(() => { vi.advanceTimersByTime(119); });
-    expect(screen.getByRole('status')).toBeInTheDocument();
-    act(() => { vi.advanceTimersByTime(1); });
-    expect(screen.queryByRole('status')).not.toBeInTheDocument();
   });
 
   it('guards optional destruction WAAPI, makes its copy inert and removes it independently of live form unmount', async () => {
