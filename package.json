@@ -28,7 +28,11 @@
     "contracts:freeze": "pnpm build:contract-source && node scripts/generate-yunqi-contracts.mjs && node scripts/freeze-yunqi-contract.mjs",
     "openapi:generate": "pnpm contracts:generate",
     "openapi:validate": "pnpm contracts:check && pnpm --filter @yunqi/service openapi:lint && pnpm --filter @yunqi/service openapi:check",
-    "schema:validate": "pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts"
+    "schema:validate": "pnpm build:contract-source && pnpm --filter @yunqi/service exec vitest run tests/openapi-contract.test.ts",
+    "start:native": "node native/verification/run.mjs serve",
+    "test:native": "node native/verification/run.mjs test",
+    "verify:native": "node native/verification/run.mjs verify",
+    "verify:native-http": "node native/verification/run.mjs verify-http"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",

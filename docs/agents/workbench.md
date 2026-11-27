@@ -43,7 +43,7 @@ optional chaining、方法引用、bracket access、解构也不能取得client�
 重构前页面的布局、样式、组件形态和浏览器截图均为demo，不再作为设计参考或验收基线；新增或修改界面不得沿用demo样式。
 
 - 颜色、字号、间距、圆角、阴影、尺寸只取[设计令牌](../design/design-system/tokens.json)，以CSS变量实现，不写裸值；浅/深两主题。
-- 字体与图标本地加载，禁止Google Fonts、在线字体和在线图标库；思源黑体/宋体完整字库随应用分发并附OFL许可。
+- 按[工作台离线字体](../design/README.md#工作台离线字体)使用 YunQi 常用黑体/宋体，其他字形按需读取随包的完整思源字库。保留 OFL 许可。仅预载常用黑体，所有字体和图标均从本地加载。
   `pnpm test:workbench-governance` 拒绝index.html与CSS中的远程资源，浏览器验收拒绝离开自有origin的请求。
 - 字号只用[全应用 5 档字号阶梯](../design/type-scale.md)（40/30/24 首眼、20、15、14、12），每屏不超过 5 级、首眼只一个。
 - 动效遵守[本地 M1 约定](../design/design-system/1-layout.md#动效2026-11-19-本地授权-m1)：复用 motion tokens、`useMotionLevel` 三档；默认终态可见，WAAPI 守卫，不等待动画事件。

@@ -12,3 +12,8 @@ docs/五运六气规则规格包_V1.0/** -text
 docs/design/design-system/** -text
 docs/design/prototypes/** -text
 apps/yunqi-workbench/public/fonts/OFL.txt text eol=lf
+
+# Static HTTP responses are compared against the original bytes.
+native-http/assets/** -text
+# Preserve the reference server's byte-exact HTML responses, including upstream whitespace.
+native-http/assets/index*.html -whitespace

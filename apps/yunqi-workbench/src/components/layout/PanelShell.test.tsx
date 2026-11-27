@@ -28,6 +28,19 @@ const snapshot: PanelSummaryViewModel = {
 };
 
 describe('PanelShell', () => {
+  it('offers only the desktop host a bottom height grip with pointer and keyboard controls', async () => {
+    const resize = vi.fn(async (_step?: -1 | 1) => {});
+    const user = userEvent.setup();
+    const view = render(<MemoryRouter><ThemeProvider><PanelShell onResizeHeight={resize}>内容</PanelShell></ThemeProvider></MemoryRouter>);
+    const grip = screen.getByRole('button', { name: '调整窗口高度' });
+    await user.pointer([{ keys: '[MouseLeft>]', target: grip }, { keys: '[/MouseLeft]' }]);
+    grip.focus();
+    await user.keyboard('{ArrowUp}{ArrowDown}');
+    expect(resize.mock.calls).toEqual([[], [-1], [1]]);
+    view.unmount();
+    renderShell();
+    expect(screen.queryByRole('button', { name: '调整窗口高度' })).toBeNull();
+  });
   it.each([
     ['/', '当下运气'], ['/yunqi/current', '当下运气'],
     ['/yunqi/birth', '先天对照'], ['/yunqi/constitution', '体质量表'],

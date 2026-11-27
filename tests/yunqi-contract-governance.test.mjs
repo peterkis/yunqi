@@ -1048,16 +1048,6 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     'pnpm/action-setup@',
     'actions/setup-node@',
     'node-version: 22',
-    'pnpm install --frozen-lockfile',
-    'pnpm test:project-guidance',
-    'pnpm test:time-governance',
-    'pnpm contracts:check',
-    'pnpm test',
-    'pnpm typecheck',
-    'pnpm test:coverage',
-    'pnpm schema:validate',
-    'pnpm exec playwright install --with-deps chromium',
-    'pnpm test:browser',
   ];
 
   for (const marker of requiredMarkers) {
@@ -1070,18 +1060,26 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     'pnpm test:time-governance',
     'pnpm contracts:check',
     'pnpm test',
+    'pnpm test:native',
+    'pnpm verify:native --exhaustive',
+    'pnpm verify:native-http',
     'pnpm typecheck',
     'pnpm test:coverage',
     'pnpm schema:validate',
     'pnpm exec playwright install --with-deps chromium',
     'pnpm test:browser',
   ];
-  const actualCommands = workflow
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line.startsWith('run: '))
-    .map((line) => line.slice('run: '.length));
-  assert.deepEqual(actualCommands, orderedCommands);
+  const parsed = parse(workflow);
+  const commands = (job) => job.steps.filter((step) => 'run' in step).map((step) => step.run);
+  assert.deepEqual(commands(parsed.jobs['quality-gates']), orderedCommands);
+  const windows = parsed.jobs['windows-desktop'];
+  assert.equal(windows['runs-on'], 'windows-latest');
+  assert.deepEqual(commands(windows), [
+    'pnpm install --frozen-lockfile',
+    'pnpm --filter "@yunqi/workbench..." run build',
+    'cargo test --release --locked --manifest-path desktop/src-tauri/Cargo.toml',
+    'node --test desktop/update-service.test.mjs',
+  ]);
   const visit = (node) => {
     if (!node || typeof node !== 'object') return;
     if ('uses' in node) {
@@ -1089,7 +1087,7 @@ test('GitHub quality-gates workflow contains the required ordered gates', () => 
     }
     for (const value of Object.values(node)) visit(value);
   };
-  visit(parse(workflow));
+  visit(parsed);
 });
 
 test('byte-compared contract artifacts are pinned to LF line endings', () => {
@@ -1102,6 +1100,7 @@ test('byte-compared contract artifacts are pinned to LF line endings', () => {
     'packages/yunqi-service/openapi/*.yaml text eol=lf',
     'packages/yunqi-contracts/src/generated/*.ts text eol=lf',
     'packages/yunqi-contracts/contract/*.json text eol=lf',
+    'native-http/assets/** -text',
   ]) {
     assert.ok(attributes.includes(marker), `missing ${marker}`);
   }

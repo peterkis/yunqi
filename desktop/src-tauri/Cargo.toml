@@ -1,0 +1,30 @@
+[package]
+name = "yunqi-sidebar"
+version = "0.2.3"
+edition = "2021"
+description = "运气通 Windows 离线侧栏"
+license = "LicenseRef-Proprietary"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+webview2-com = "0.39"
+windows-core = "0.62"
+yunqi-core = { path = "../../native" }
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-single-instance = "2"
+tokio = { version = "1", features = ["io-util", "sync", "time", "fs", "macros"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+base64 = "0.23"
+ed25519-dalek = "2.2"
+getrandom = "0.4"
+hex = "0.4"
+reqwest = { version = "0.13", default-features = false }
+semver = "1"
+sha2 = "0.11"
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_RemoteDesktop", "Win32_System_Threading", "Win32_System_SystemInformation", "Win32_UI_Shell", "Win32_UI_WindowsAndMessaging", "Win32_Graphics_Gdi", "Win32_UI_Controls", "Win32_UI_HiDpi", "Win32_UI_Input_KeyboardAndMouse"] }
+
+[profile.release]
+strip = true

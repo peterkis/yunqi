@@ -1,0 +1,8 @@
+{
+  "identifier": "sidebar",
+  "description": "Bundled offline sidebar window",
+  "windows": [
+    "main"
+  ],
+  "permissions": ["core:event:allow-listen", "core:event:allow-unlisten"]
+}

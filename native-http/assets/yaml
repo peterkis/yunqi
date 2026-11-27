@@ -1,0 +1,1713 @@
+openapi: 3.1.0
+info:
+  title: YunQi Service API
+  version: 1.6.0
+  description: Versioned YunQi time-fact and rule-mapping contract.
+components:
+  schemas:
+    HealthData:
+      type: object
+      required:
+        - status
+        - apiVersion
+      properties:
+        status:
+          type: string
+          enum:
+            - ok
+        apiVersion:
+          type: string
+          enum:
+            - v1
+      additionalProperties: false
+    YunQiTimeDto:
+      type: object
+      required:
+        - localTime
+        - epochMilliseconds
+        - offset
+        - calendarTimeStandard
+      properties:
+        localTime:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$
+        epochMilliseconds:
+          type: integer
+          minimum: -9007199254740991
+          maximum: 9007199254740991
+        offset:
+          type: string
+          enum:
+            - +08:00
+        calendarTimeStandard:
+          type: string
+          enum:
+            - BeijingStandardTime+08:00
+      additionalProperties: false
+    SixQiBoundaryTerm:
+      anyOf:
+        - type: string
+          enum:
+            - 大寒
+        - type: string
+          enum:
+            - 春分
+        - type: string
+          enum:
+            - 小满
+        - type: string
+          enum:
+            - 大暑
+        - type: string
+          enum:
+            - 秋分
+        - type: string
+          enum:
+            - 小雪
+    StageProgressDto:
+      type: object
+      required:
+        - elapsedRatio
+        - remainingCalendarDays
+        - endsOnInputDate
+      properties:
+        elapsedRatio:
+          type: number
+          minimum: 0
+          exclusiveMaximum: 1
+        remainingCalendarDays:
+          type: integer
+          minimum: 0
+        endsOnInputDate:
+          type: boolean
+      additionalProperties: false
+    HostGuestRelationDto:
+      type: object
+      required:
+        - qiRelation
+        - elementRelation
+        - direction
+        - traditionalLabel
+      properties:
+        qiRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_QI
+            - type: string
+              enum:
+                - DIFFERENT_QI
+        elementRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_ELEMENT
+            - type: string
+              enum:
+                - DIFFERENT_ELEMENT
+        direction:
+          anyOf:
+            - type: string
+              enum:
+                - NONE
+            - type: string
+              enum:
+                - HOST_GENERATES_GUEST
+            - type: string
+              enum:
+                - GUEST_GENERATES_HOST
+            - type: string
+              enum:
+                - HOST_CONTROLS_GUEST
+            - type: string
+              enum:
+                - GUEST_CONTROLS_HOST
+        traditionalLabel:
+          type: string
+      additionalProperties: false
+    SixQiStepDto:
+      type: object
+      required:
+        - index
+        - name
+        - start
+        - end
+        - startTerm
+        - endTerm
+        - hostQi
+        - guestQi
+        - relation
+      properties:
+        index:
+          type: integer
+          minimum: 1
+          maximum: 6
+        name:
+          anyOf:
+            - type: string
+              enum:
+                - 初之气
+            - type: string
+              enum:
+                - 二之气
+            - type: string
+              enum:
+                - 三之气
+            - type: string
+              enum:
+                - 四之气
+            - type: string
+              enum:
+                - 五之气
+            - type: string
+              enum:
+                - 终之气
+        start:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        end:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        startTerm:
+          $ref: "#/components/schemas/SixQiBoundaryTerm"
+        endTerm:
+          $ref: "#/components/schemas/SixQiBoundaryTerm"
+        hostQi:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        guestQi:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        relation:
+          $ref: "#/components/schemas/HostGuestRelationDto"
+      additionalProperties: false
+    StemBranchDto:
+      type: object
+      required:
+        - ganzhi
+        - stem
+        - branch
+      properties:
+        ganzhi:
+          type: string
+          minLength: 2
+          maxLength: 2
+        stem:
+          anyOf:
+            - type: string
+              enum:
+                - 甲
+            - type: string
+              enum:
+                - 乙
+            - type: string
+              enum:
+                - 丙
+            - type: string
+              enum:
+                - 丁
+            - type: string
+              enum:
+                - 戊
+            - type: string
+              enum:
+                - 己
+            - type: string
+              enum:
+                - 庚
+            - type: string
+              enum:
+                - 辛
+            - type: string
+              enum:
+                - 壬
+            - type: string
+              enum:
+                - 癸
+        branch:
+          anyOf:
+            - type: string
+              enum:
+                - 子
+            - type: string
+              enum:
+                - 丑
+            - type: string
+              enum:
+                - 寅
+            - type: string
+              enum:
+                - 卯
+            - type: string
+              enum:
+                - 辰
+            - type: string
+              enum:
+                - 巳
+            - type: string
+              enum:
+                - 午
+            - type: string
+              enum:
+                - 未
+            - type: string
+              enum:
+                - 申
+            - type: string
+              enum:
+                - 酉
+            - type: string
+              enum:
+                - 戌
+            - type: string
+              enum:
+                - 亥
+      additionalProperties: false
+    SuiYunDto:
+      type: object
+      required:
+        - element
+        - state
+        - tone
+      properties:
+        element:
+          anyOf:
+            - type: string
+              enum:
+                - 木
+            - type: string
+              enum:
+                - 火
+            - type: string
+              enum:
+                - 土
+            - type: string
+              enum:
+                - 金
+            - type: string
+              enum:
+                - 水
+        state:
+          anyOf:
+            - type: string
+              enum:
+                - 太过
+            - type: string
+              enum:
+                - 不及
+        tone:
+          anyOf:
+            - type: string
+              enum:
+                - 太角
+            - type: string
+              enum:
+                - 少角
+            - type: string
+              enum:
+                - 太徵
+            - type: string
+              enum:
+                - 少徵
+            - type: string
+              enum:
+                - 太宫
+            - type: string
+              enum:
+                - 少宫
+            - type: string
+              enum:
+                - 太商
+            - type: string
+              enum:
+                - 少商
+            - type: string
+              enum:
+                - 太羽
+            - type: string
+              enum:
+                - 少羽
+      additionalProperties: false
+    YunQiIntervalDto:
+      type: object
+      required:
+        - start
+        - end
+      properties:
+        start:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        end:
+          $ref: "#/components/schemas/YunQiTimeDto"
+      additionalProperties: false
+    SixQiDto:
+      type: object
+      required:
+        - sitian
+        - zaiquan
+        - steps
+      properties:
+        sitian:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        zaiquan:
+          anyOf:
+            - type: string
+              enum:
+                - 厥阴风木
+            - type: string
+              enum:
+                - 少阴君火
+            - type: string
+              enum:
+                - 太阴湿土
+            - type: string
+              enum:
+                - 少阳相火
+            - type: string
+              enum:
+                - 阳明燥金
+            - type: string
+              enum:
+                - 太阳寒水
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/SixQiStepDto"
+          minItems: 6
+          maxItems: 6
+      additionalProperties: false
+    YunQiYearDto:
+      type: object
+      required:
+        - ruleVersion
+        - year
+        - stemBranch
+        - interval
+        - suiYun
+        - sixQi
+        - explanations
+      properties:
+        ruleVersion:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        stemBranch:
+          $ref: "#/components/schemas/StemBranchDto"
+        interval:
+          $ref: "#/components/schemas/YunQiIntervalDto"
+        suiYun:
+          $ref: "#/components/schemas/SuiYunDto"
+        sixQi:
+          $ref: "#/components/schemas/SixQiDto"
+        explanations:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    YunQiCalculationDto:
+      type: object
+      required:
+        - ruleVersion
+        - year
+        - stemBranch
+        - interval
+        - suiYun
+        - sixQi
+        - explanations
+        - input
+        - currentStep
+        - currentStepProgress
+      properties:
+        ruleVersion:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        stemBranch:
+          $ref: "#/components/schemas/StemBranchDto"
+        interval:
+          $ref: "#/components/schemas/YunQiIntervalDto"
+        suiYun:
+          $ref: "#/components/schemas/SuiYunDto"
+        sixQi:
+          $ref: "#/components/schemas/SixQiDto"
+        explanations:
+          type: array
+          items:
+            type: string
+        input:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        currentStep:
+          $ref: "#/components/schemas/SixQiStepDto"
+        currentStepProgress:
+          $ref: "#/components/schemas/StageProgressDto"
+      additionalProperties: false
+    CalculateRequest:
+      type: object
+      required:
+        - dateTime
+      properties:
+        dateTime:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?(?:Z|\+08:00)?$
+          example: 2024-05-20T21:00:00
+      additionalProperties: false
+      examples:
+        - dateTime: 2024-05-20T21:00:00
+        - dateTime: 2024-05-20T13:00:00Z
+        - dateTime: 2024-05-20T21:00:00+08:00
+    YearParams:
+      type: object
+      required:
+        - year
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      additionalProperties: false
+    HealthSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/HealthData"
+      additionalProperties: false
+      examples:
+        - code: SUCCESS
+          message: ""
+          data:
+            status: ok
+            apiVersion: v1
+    YearSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiYearDto"
+      additionalProperties: false
+    CalculationSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiCalculationDto"
+      additionalProperties: false
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+        - details
+      properties:
+        code:
+          anyOf:
+            - type: string
+              enum:
+                - INVALID_ARGUMENT
+            - type: string
+              enum:
+                - CALENDAR_PROVIDER_UNAVAILABLE
+            - type: string
+              enum:
+                - INTERNAL_ERROR
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: {}
+      additionalProperties: false
+      examples:
+        - code: INVALID_ARGUMENT
+          message: 请求参数无效
+          details: {}
+        - code: CALENDAR_PROVIDER_UNAVAILABLE
+          message: 历法服务暂时不可用
+          details: {}
+        - code: INTERNAL_ERROR
+          message: 服务内部错误
+          details: {}
+    LearningRelationDto:
+      type: object
+      required:
+        - title
+        - label
+        - relation
+        - explanation
+        - sourceIds
+        - sources
+      properties:
+        title:
+          type: string
+        label:
+          type: string
+        relation:
+          type: string
+        explanation:
+          type: string
+        sourceIds:
+          type: array
+          items:
+            type: string
+        sources:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - title
+              - url
+            properties:
+              id:
+                type: string
+              title:
+                type: string
+              url:
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    ClassicalPassageDto:
+      type: object
+      required:
+        - id
+        - work
+        - chapter
+        - section
+        - scope
+        - quote
+        - explanation
+        - sourceUrl
+      properties:
+        id:
+          type: string
+        work:
+          type: string
+        chapter:
+          type: string
+        section:
+          type: string
+        scope:
+          type: string
+        quote:
+          type: string
+        explanation:
+          type: string
+        sourceUrl:
+          type: string
+      additionalProperties: false
+    MovementRelationDto:
+      type: object
+      required:
+        - elementRelation
+        - direction
+        - traditionalLabel
+      properties:
+        elementRelation:
+          anyOf:
+            - type: string
+              enum:
+                - SAME_ELEMENT
+            - type: string
+              enum:
+                - DIFFERENT_ELEMENT
+        direction:
+          anyOf:
+            - type: string
+              enum:
+                - NONE
+            - type: string
+              enum:
+                - HOST_GENERATES_GUEST
+            - type: string
+              enum:
+                - GUEST_GENERATES_HOST
+            - type: string
+              enum:
+                - HOST_CONTROLS_GUEST
+            - type: string
+              enum:
+                - GUEST_CONTROLS_HOST
+        traditionalLabel:
+          type: string
+      additionalProperties: false
+    MovementStepDto:
+      type: object
+      required:
+        - index
+        - name
+        - start
+        - end
+        - startLabel
+        - endLabel
+        - host
+        - guest
+        - relation
+        - boundaryMethod
+        - explanation
+      properties:
+        index:
+          type: integer
+          minimum: 1
+          maximum: 5
+        name:
+          type: string
+        start:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        end:
+          $ref: "#/components/schemas/YunQiTimeDto"
+        startLabel:
+          type: string
+        endLabel:
+          type: string
+        host:
+          $ref: "#/components/schemas/SuiYunDto"
+        guest:
+          $ref: "#/components/schemas/SuiYunDto"
+        relation:
+          $ref: "#/components/schemas/MovementRelationDto"
+        boundaryMethod:
+          type: string
+        explanation:
+          type: string
+      additionalProperties: false
+    YunQiLearningDto:
+      type: object
+      required:
+        - ruleVersion
+        - facts
+        - annualRelation
+        - currentQi
+        - currentMovement
+        - currentMovementProgress
+        - movements
+        - annualPassages
+        - currentPassages
+        - notes
+      properties:
+        ruleVersion:
+          type: string
+        facts:
+          $ref: "#/components/schemas/YunQiCalculationDto"
+        annualRelation:
+          $ref: "#/components/schemas/LearningRelationDto"
+        currentQi:
+          $ref: "#/components/schemas/LearningRelationDto"
+        currentMovement:
+          $ref: "#/components/schemas/MovementStepDto"
+        currentMovementProgress:
+          $ref: "#/components/schemas/StageProgressDto"
+        movements:
+          type: array
+          items:
+            $ref: "#/components/schemas/MovementStepDto"
+          minItems: 5
+          maxItems: 5
+        annualPassages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassicalPassageDto"
+        currentPassages:
+          type: array
+          items:
+            $ref: "#/components/schemas/ClassicalPassageDto"
+        notes:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+    BirthRequest:
+      type: object
+      required:
+        - birthDate
+      properties:
+        birthDate:
+          type: string
+          pattern: ^\d{4}-\d{2}-\d{2}$
+        birthTime:
+          type: string
+          pattern: ^\d{2}:\d{2}:\d{2}$
+      additionalProperties: false
+    BirthYearRequest:
+      type: object
+      required:
+        - year
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+      additionalProperties: false
+    BirthDatePreviewRequest:
+      type: object
+      required:
+        - year
+        - calendar
+        - month
+        - day
+      properties:
+        year:
+          type: integer
+          minimum: 1900
+          maximum: 2100
+        calendar:
+          anyOf:
+            - type: string
+              enum:
+                - solar
+            - type: string
+              enum:
+                - lunar
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        day:
+          type: integer
+          minimum: 1
+          maximum: 31
+        leap:
+          type: boolean
+      additionalProperties: false
+    BirthDatePreviewDto:
+      type: object
+      required:
+        - matches
+      properties:
+        matches:
+          type: array
+          items:
+            type: object
+            required:
+              - birthDate
+              - lunarLabel
+              - leap
+              - annualLabels
+              - boundaries
+            properties:
+              birthDate:
+                type: string
+              lunarLabel:
+                type: string
+              leap:
+                type: boolean
+              annualLabels:
+                type: array
+                items:
+                  type: string
+              boundaries:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - label
+                    - at
+                  properties:
+                    label:
+                      type: string
+                    at:
+                      $ref: "#/components/schemas/YunQiTimeDto"
+                  additionalProperties: false
+            additionalProperties: false
+      additionalProperties: false
+    BirthYearComparisonDto:
+      type: object
+      required:
+        - birthPrecision
+        - current
+        - message
+        - candidates
+      properties:
+        birthPrecision:
+          type: string
+          enum:
+            - year
+        current:
+          $ref: "#/components/schemas/YunQiLearningDto"
+        message:
+          type: string
+        candidates:
+          type: array
+          items:
+            type: object
+            required:
+              - label
+              - from
+              - until
+              - year
+              - ganzhi
+              - suiYun
+              - sitian
+              - zaiquan
+              - annualPassages
+              - comparisons
+            properties:
+              label:
+                type: string
+              from:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              until:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              year:
+                type: integer
+              ganzhi:
+                type: string
+              suiYun:
+                $ref: "#/components/schemas/SuiYunDto"
+              sitian:
+                type: string
+              zaiquan:
+                type: string
+              annualPassages:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ClassicalPassageDto"
+              comparisons:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningRelationDto"
+            additionalProperties: false
+          minItems: 1
+          maxItems: 2
+      additionalProperties: false
+    BirthDatePreviewSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthDatePreviewDto"
+      additionalProperties: false
+    BirthYearSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthYearComparisonDto"
+      additionalProperties: false
+    BirthComparisonDto:
+      type: object
+      required:
+        - ruleVersion
+        - birthPrecision
+        - ambiguous
+        - message
+        - current
+        - candidates
+      properties:
+        ruleVersion:
+          type: string
+        birthPrecision:
+          anyOf:
+            - type: string
+              enum:
+                - date
+            - type: string
+              enum:
+                - time
+        ambiguous:
+          type: boolean
+        message:
+          type: string
+        current:
+          $ref: "#/components/schemas/YunQiLearningDto"
+        candidates:
+          type: array
+          items:
+            type: object
+            required:
+              - label
+              - from
+              - until
+              - learning
+              - comparisons
+            properties:
+              label:
+                type: string
+              from:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              until:
+                $ref: "#/components/schemas/YunQiTimeDto"
+              learning:
+                $ref: "#/components/schemas/YunQiLearningDto"
+              comparisons:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningRelationDto"
+            additionalProperties: false
+          minItems: 1
+          maxItems: 4
+      additionalProperties: false
+    LearningSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/YunQiLearningDto"
+      additionalProperties: false
+    BirthSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/BirthComparisonDto"
+      additionalProperties: false
+    ConstitutionQuestionnaireDto:
+      type: object
+      required:
+        - id
+        - version
+        - title
+        - standard
+        - sourceUrl
+        - sourceNote
+        - instructions
+        - questions
+        - scales
+        - options
+      properties:
+        id:
+          type: string
+          enum:
+            - GBT46939-2025
+        version:
+          type: string
+        title:
+          type: string
+        standard:
+          type: string
+        sourceUrl:
+          type: string
+        sourceNote:
+          type: string
+        instructions:
+          type: array
+          items:
+            type: string
+        questions:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - text
+              - sex
+            properties:
+              id:
+                type: string
+              text:
+                type: string
+              sex:
+                anyOf:
+                  - type: string
+                    enum:
+                      - all
+                  - type: string
+                    enum:
+                      - male
+                  - type: string
+                    enum:
+                      - female
+            additionalProperties: false
+        scales:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - items
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              items:
+                type: array
+                items:
+                  type: object
+                  required:
+                    - questionId
+                    - reverse
+                  properties:
+                    questionId:
+                      type: string
+                    reverse:
+                      type: boolean
+                  additionalProperties: false
+            additionalProperties: false
+        options:
+          type: array
+          items:
+            type: object
+            required:
+              - value
+              - label
+            properties:
+              value:
+                type: integer
+                minimum: 1
+                maximum: 5
+              label:
+                type: string
+            additionalProperties: false
+      additionalProperties: false
+    ConstitutionRequest:
+      type: object
+      required:
+        - questionnaireId
+        - sex
+        - answers
+      properties:
+        questionnaireId:
+          type: string
+          enum:
+            - GBT46939-2025
+        sex:
+          anyOf:
+            - type: string
+              enum:
+                - male
+            - type: string
+              enum:
+                - female
+        answers:
+          type: object
+          maxProperties: 27
+          additionalProperties:
+            type: integer
+            minimum: 1
+            maximum: 5
+      additionalProperties: false
+    ConstitutionAssessmentDto:
+      type: object
+      required:
+        - questionnaireId
+        - version
+        - sex
+        - results
+        - matchedTypes
+        - tendencyTypes
+        - summary
+        - boundaryNote
+      properties:
+        questionnaireId:
+          type: string
+        version:
+          type: string
+        sex:
+          anyOf:
+            - type: string
+              enum:
+                - male
+            - type: string
+              enum:
+                - female
+        results:
+          type: array
+          items:
+            type: object
+            required:
+              - id
+              - name
+              - itemCount
+              - rawScore
+              - score
+              - status
+              - label
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              itemCount:
+                type: integer
+              rawScore:
+                type: integer
+              score:
+                type: number
+                minimum: 0
+                maximum: 100
+              status:
+                anyOf:
+                  - type: string
+                    enum:
+                      - yes
+                  - type: string
+                    enum:
+                      - tendency
+                  - type: string
+                    enum:
+                      - basically
+                  - type: string
+                    enum:
+                      - no
+              label:
+                type: string
+            additionalProperties: false
+          minItems: 9
+          maxItems: 9
+        matchedTypes:
+          type: array
+          items:
+            type: string
+        tendencyTypes:
+          type: array
+          items:
+            type: string
+        summary:
+          type: string
+        boundaryNote:
+          type: string
+      additionalProperties: false
+    QuestionnaireSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/ConstitutionQuestionnaireDto"
+      additionalProperties: false
+    AssessmentSuccessResponse:
+      type: object
+      required:
+        - code
+        - message
+        - data
+      properties:
+        code:
+          type: string
+          enum:
+            - SUCCESS
+        message:
+          type: string
+          enum:
+            - ""
+        data:
+          $ref: "#/components/schemas/ConstitutionAssessmentDto"
+      additionalProperties: false
+paths:
+  /health:
+    get:
+      operationId: getHealth
+      summary: Get service health
+      tags:
+        - system
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthSuccessResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/year/{year}:
+    get:
+      operationId: getYunQiYear
+      summary: Get a YunQi year
+      tags:
+        - yunqi
+      parameters:
+        - schema:
+            type: integer
+            minimum: 1900
+            maximum: 2100
+          in: path
+          name: year
+          required: true
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YearSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/current:
+    get:
+      operationId: getCurrentYunQi
+      summary: Get YunQi facts for the current instant
+      tags:
+        - yunqi
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalculationSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/calculate:
+    post:
+      operationId: calculateYunQi
+      summary: Calculate YunQi facts for a date-time
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalculationSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/current:
+    get:
+      operationId: getLearningCurrent
+      summary: Current YunQi facts with sourced learning notes
+      tags:
+        - yunqi
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/calculate:
+    post:
+      operationId: calculateLearning
+      summary: YunQi learning notes for a selected fixed-Beijing time
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalculateRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-date-preview:
+    post:
+      operationId: previewBirthDate
+      summary: Resolve a birthday within a civil year
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthDatePreviewRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthDatePreviewSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-year-comparison:
+    post:
+      operationId: compareBirthYear
+      summary: Compare possible annual structures for a civil birth year
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthYearRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthYearSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/yunqi/learning/birth-comparison:
+    post:
+      operationId: compareBirth
+      summary: Compare birth-period facts and current facts without disease inference
+        or storage
+      tags:
+        - yunqi
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BirthRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BirthSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/constitution/questionnaire:
+    get:
+      operationId: getConstitutionQuestionnaire
+      summary: Versioned GB/T 46939-2025 questionnaire
+      tags:
+        - constitution
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionnaireSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+  /api/v1/constitution/assess:
+    post:
+      operationId: assessConstitution
+      summary: Score a complete questionnaire without retaining responses
+      tags:
+        - constitution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConstitutionRequest"
+      responses:
+        "200":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssessmentSuccessResponse"
+        "400":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "503":
+          description: Default Response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+servers:
+  - url: http://localhost:3000
+    description: Local server
+tags:
+  - name: system
+    description: Service status endpoints
+  - name: yunqi
+    description: YunQi contract endpoints
+  - name: constitution
+    description: Versioned questionnaire and non-persistent scoring
+x-yunqi-contract-id: YQ-API-CONTRACT-1.4.0

@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../../providers/YunQiClientProvider';
+import { liveClockQueryOptions } from '../../../../lib/live-clock-query';
 import { currentYunQiQueryOptions } from '../../api/query-options';
 
 export function useBirthReferenceDate() {
   const client = useYunQiClient();
-  const query = useQuery({ ...currentYunQiQueryOptions(client), staleTime: 0, refetchInterval: 60_000 });
+  const query = useQuery({ ...currentYunQiQueryOptions(client), ...liveClockQueryOptions });
   const local = query.data?.input.localTime;
   const today = local ? { year: Number(local.slice(0, 4)), month: Number(local.slice(5, 7)), day: Number(local.slice(8, 10)) } : undefined;
   return { today, failed: query.isError, retry: query.refetch };

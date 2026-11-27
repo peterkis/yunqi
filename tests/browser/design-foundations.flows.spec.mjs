@@ -98,7 +98,9 @@ for (const theme of ['light', 'dark']) {
         await testInfo.attach('foundation-metrics', { body: JSON.stringify({ theme, fonts: [...fonts], metrics }, null, 2), contentType: 'application/json' });
       }
     }
-    expect([...fonts].sort()).toEqual(['/fonts/NotoSansSC-VF.woff2', '/fonts/NotoSerifSC-VF.woff2']);
+    // The fixture's U+202F status separator can also request the full sans font.
+    const uiFonts = ['/fonts/YunQiUISans-VF.woff2', '/fonts/YunQiUISerif-VF.woff2'];
+    expect([...fonts].filter(path => path !== '/fonts/NotoSansSC-VF.woff2').sort()).toEqual(uiFonts);
     expect(diagnostics.requests).toEqual([]);
     const quoteCard = page.getByRole('region', { name: '当下原文', exact: true });
     await expect(quoteCard.getByText('文献线索，非个体发病预测。', { exact: true })).toHaveCount(1);
@@ -199,5 +201,59 @@ for (const theme of ['light', 'dark']) {
     const scan = await scanAccessibility(page);
     await testInfo.attach('foundation-axe-results', { body: JSON.stringify(scan, null, 2), contentType: 'application/json' });
     expect(scan.violations).toEqual([]);
+
+    const primaryPages = [
+      ['/yunqi/current', page.getByRole('region', { name: '当步运', exact: true })],
+      ['/yunqi/birth', page.getByRole('radio', { name: '按出生年份' })],
+      ['/yunqi/constitution', page.getByRole('radio', { name: '男性量表' })],
+    ];
+    const requestedFonts = () => page.evaluate(() => performance.getEntriesByType('resource')
+      .map(resource => new URL(resource.name).pathname).filter(path => path.endsWith('.woff2')).sort());
+    for (const [path, ready] of primaryPages) {
+      await page.goto(path);
+      await expect(ready).toBeVisible();
+      await settle(page);
+      await page.evaluate(() => document.fonts.ready);
+      expect(await requestedFonts(), path).toEqual(uiFonts);
+    }
+
+    // Add visible glyphs after inspecting the normal production views.
+    const cases = [
+      { id: 'common-sans', token: 'sans', glyph: '甲', face: /^YunQiUISans-/ },
+      { id: 'common-serif', token: 'serif', glyph: '甲', face: /^YunQiUISerif-/ },
+      { id: 'rare-sans', token: 'sans', glyph: '龘', face: /^NotoSansSC-/ },
+      { id: 'rare-serif', token: 'serif', glyph: '龘', face: /^NotoSerifSC-/ },
+    ];
+    await page.evaluate(async probes => {
+      const root = document.querySelector('.theme-root');
+      for (const { id, token, glyph } of probes) {
+        const span = document.createElement('span');
+        span.id = id;
+        span.style.font = `600 24px var(--font-${token})`;
+        span.textContent = glyph;
+        root.appendChild(span);
+        span.getBoundingClientRect();
+      }
+      await document.fonts.ready;
+    }, cases.map(({ id, token, glyph }) => ({ id, token, glyph })));
+    const cdp = await page.context().newCDPSession(page);
+    try {
+      await cdp.send('DOM.enable');
+      await cdp.send('CSS.enable');
+      const { root } = await cdp.send('DOM.getDocument');
+      for (const { id, face } of cases) {
+        const { nodeId } = await cdp.send('DOM.querySelector', { nodeId: root.nodeId, selector: '#' + id });
+        const rendered = await cdp.send('CSS.getPlatformFontsForNode', { nodeId });
+        expect(rendered.fonts, `Font painting #${id}`).toEqual([
+          expect.objectContaining({ postScriptName: expect.stringMatching(face), isCustomFont: true, glyphCount: 1 }),
+        ]);
+      }
+    } finally {
+      await cdp.detach();
+    }
+    expect(await requestedFonts()).toEqual([
+      '/fonts/NotoSansSC-VF.woff2', '/fonts/NotoSerifSC-VF.woff2',
+      '/fonts/YunQiUISans-VF.woff2', '/fonts/YunQiUISerif-VF.woff2',
+    ]);
   });
 }

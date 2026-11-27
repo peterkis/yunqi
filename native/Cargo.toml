@@ -1,0 +1,18 @@
+[package]
+name = "yunqi-core"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+tyme4rs = "=1.5.1"
+regex = "1"
+
+[[bin]]
+name = "yunqi-probe"
+path = "src/bin/probe.rs"
+
+[dev-dependencies]
+jsonschema = { version = "=0.63.2", default-features = false }

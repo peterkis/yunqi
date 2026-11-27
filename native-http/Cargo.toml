@@ -1,0 +1,16 @@
+[package]
+name = "yunqi-http"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+yunqi-core = { path = "../native" }
+serde_json = "1"
+hyper = { version = "1", features = ["http1", "server"] }
+hyper-util = { version = "0.1", features = ["tokio"] }
+http-body-util = "0.1"
+tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "sync", "macros"] }
+tokio-io-timeout = "1.2"
+flate2 = "1"
+percent-encoding = "2"

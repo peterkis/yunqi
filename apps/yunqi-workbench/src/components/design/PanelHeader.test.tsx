@@ -5,6 +5,18 @@ import { Button } from './Button';
 import { PanelHeader } from './PanelHeader';
 
 describe('PanelHeader', () => {
+  it('starts a desktop drag from the title and leaves the action buttons interactive', async () => {
+    const user = userEvent.setup();
+    const drag = vi.fn();
+    const action = vi.fn();
+    render(<PanelHeader title="运气通" status="离线" onTitleDrag={drag}
+      actions={<Button variant="icon" aria-label="主题" onClick={action}><svg /></Button>} />);
+    await user.click(screen.getByRole('heading', { name: '运气通' }));
+    expect(drag).toHaveBeenCalledOnce();
+    await user.click(screen.getByRole('button', { name: '主题' }));
+    expect(action).toHaveBeenCalledOnce();
+    expect(drag).toHaveBeenCalledOnce();
+  });
   it('renders the brand, title, neutral status, and named action slot', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

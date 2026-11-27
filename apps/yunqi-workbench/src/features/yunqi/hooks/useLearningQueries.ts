@@ -1,6 +1,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import type { BirthComparisonRequest } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../providers/YunQiClientProvider';
+import { liveClockQueryOptions } from '../../../lib/live-clock-query';
 import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 
 export function useLearningCurrentQuery(enabled = true) {
@@ -11,9 +12,8 @@ export function useLearningCurrentQuery(enabled = true) {
     queryFn: () => client.getLearningCurrent(),
     // The service owns the clock. Refresh a visible current view so a long
     // consultation does not leave yesterday's stage on screen.
-    staleTime: 0,
+    ...liveClockQueryOptions,
     enabled: visible && enabled,
-    refetchInterval: visible && enabled ? 60_000 : false,
   });
 }
 

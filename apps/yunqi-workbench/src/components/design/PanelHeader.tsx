@@ -5,6 +5,7 @@ import { InlineText } from './InlineText';
 export type PanelHeaderProps = {
   readonly title: string;
   readonly actions?: ReactNode;
+  readonly onTitleDrag?: () => void;
 } & (
   | { readonly variant?: 'default'; readonly status: string }
   | {
@@ -18,7 +19,14 @@ export function PanelHeader(props: PanelHeaderProps) {
   const secondaryLine = props.variant === 'drilldown' ? props.subtitle : props.status;
 
   return (
-    <header className="ds-panel-header" role={props.variant === 'drilldown' ? 'presentation' : undefined}>
+    <header className="ds-panel-header" role={props.variant === 'drilldown' ? 'presentation' : undefined}
+      data-draggable-title={props.onTitleDrag ? '' : undefined}
+      onPointerDown={props.onTitleDrag ? event => {
+        if (event.button !== 0 || !event.isPrimary || !(event.target instanceof Element)
+          || event.target.closest('.ds-panel-header__actions,button,a,input')) return;
+        event.preventDefault();
+        props.onTitleDrag?.();
+      } : undefined}>
       {props.variant === 'drilldown' ? (
         <Button variant="text" onClick={props.onBack}>
           <svg className="ds-panel-header__back-icon" viewBox="0 0 16 16" aria-hidden="true">
@@ -29,7 +37,7 @@ export function PanelHeader(props: PanelHeaderProps) {
       ) : (
         <span className="ds-panel-header__brand" aria-hidden="true" />
       )}
-      <div className="ds-panel-header__text">
+      <div className="ds-panel-header__text" title={props.onTitleDrag ? '拖动标题移动窗口，贴近顶部松手可自动隐藏' : undefined}>
         {props.title && <h2 className="ds-panel-header__title">{props.title}</h2>}
         {secondaryLine && <p className="ds-panel-header__status num"><InlineText>{secondaryLine}</InlineText></p>}
       </div>

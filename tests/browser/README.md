@@ -93,7 +93,7 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
 | Answer controls | Previous and End share a 44px row beneath the choices. At 400px light and 320px dark, opening and cancelling confirmation preserves the geometry of the row, choices and notes. Checks cover Escape, focus restoration, keyboard confirmation and all three motion modes. |
 | Result/actions (D3/F5) | Real scoring responses for 1/2/6/7 biased matches in standalone and birth sessions at 400×640; one-line 30px title without ellipsis, scored mixed-type chips, tied maxima emphasized together, expandable scoring criteria, programmatic title focus without an outline, right-aligned tendency chips; descending score order, 52px / track / 36px rows with 8px bars and 30/40 ticks; three full-width context rows with separately labelled Dahan candidates; no sex-change eyebrow, one readonly version disclosure, original API explanation/boundary; pinned actions and content → actions → footer order, axe scans |
 | Navigation | Three segments with `aria-current`; deterministic drill-down return; no-query inquiry and not-found; skip link and keyboard scrolling; collapse/expand focus, draft/scroll retention, no summary fetch |
-| Foundations and oracles | Local fonts and token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
+| Foundations and oracles | Common-font requests, on-demand complete local fonts and rendered common/rare glyphs in both families; token measurements in both themes; type-scale rejection cases; root `pnpm test` runs four synthetic layout-fixture regressions |
 | Craft (D5) | Tabular API times, date fields, year selector, answer progress and scores; narrow display separators with original book-title dots retained; quote-start trimming when supported; mouse/Tab theme focus in both themes; 140ms ease-out motion and zero reduced-motion transitions; DEV host background (production CSS exclusion runs with the Workbench build) |
 | Runtime | Owned same-origin requests, no external resource requests, unhandled page errors or unexpected console errors; injected errors allowed only for the exact endpoint/status |
 | Visual | Screenshots and type scale for every state; main text without seconds/milliseconds, canonical time attributes and exact calculation details; 1366×768 submitted birth headings and first annual-movement row in viewport; horizontal overflow, control fitting, single-line annual values and stage times; targets and primary-button count; interactive focus targets keep a 2px ring, with the two programmatic heading exceptions below; axe WCAG 2.1 A/AA scans |
@@ -158,8 +158,8 @@ Gaussian standard deviations), with signed viewport clearances. At the 424×88
 host every clearance must be ≥ 0: the margins hold the full tail of `0 2px 8px`.
 Larger panel viewports still record clearances as evidence only.
 
-The suite discovers **103 flow/foundation/oracle tests in each of three motion
-projects + 22 capability tests + 170 visual/accessibility tests = 501 tests in
+The suite discovers **109 flow/foundation/oracle tests in each of three motion
+projects + 22 capability tests + 170 visual/accessibility tests = 519 tests in
 17 files**. These are test cases and repeated state checks,
 not independent clinical samples. Reproduce the inventory without launching a
 browser (global setup and browser assertions do not run):

@@ -15,7 +15,7 @@ Domain `1.4.0`、Service `2.4.0`、Contracts / Client `1.4.0`，OpenAPI 文档 `
 | DTO所有权、契约、服务及客户端 | [api-contracts.md](api-contracts.md) | [ADR-002](../architecture/ADR-002-yunqi-contract-freeze.md)、[Contract 1.4.0](../contracts/YQ-API-CONTRACT-1.4.0.md) |
 | 教学关系、经典摘录、五步运、出生对照和体质量表 | [rules-and-time.md](rules-and-time.md)、[clinical-scope.md](clinical-scope.md) | [教学规则1.3.0](../../rules/LEARNING_RULES_V1_3.md)、[量表规则](../../rules/CONSTITUTION-GBT46939-2025.md) |
 | React依赖、路由、Provider、展示 | [workbench.md](workbench.md) | [Workbench README](../../apps/yunqi-workbench/README.md)、[治理脚本](../../scripts/check-yunqi-workbench-governance.mjs) |
-| UI视觉、交互、设计令牌、原型 | [workbench.md](workbench.md#界面设计) | [设计规范与原型](../design/README.md)；重构前页面为demo，不作参考 |
+| UI视觉、交互、设计令牌、离线字体、原型 | [workbench.md](workbench.md#界面设计) | [设计规范与原型](../design/README.md)；重构前页面为demo，不作参考 |
 | 医疗边界、问诊、Phase3-E | [clinical-scope.md](clinical-scope.md) | [临床验证入口](../clinical-validation/phase3-e/README.md) |
 | 相关检查、浏览器、交付证据 | [verification.md](verification.md) | [根命令](../../package.json)、[CI](../../.github/workflows/ci.yml) |
 | 历史会话与常见错误检索 | [history-and-evidence.md](history-and-evidence.md) | [复盘索引](../retrospectives/README.md) |
