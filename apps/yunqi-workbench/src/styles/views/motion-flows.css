@@ -128,10 +128,10 @@
 }
 [data-motion] .motion-segments > :is(button, a):active:not(:disabled) { color: var(--accent); }
 [data-motion] .ds-scale-option[aria-checked="true"]:active:not(:disabled) { background-color: var(--accent-muted); }
-:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .learning-text-link, .birth-source-link, .drilldown-link) {
+:is(.theme-root[data-motion="full"], .theme-root[data-motion="reduced"]) :is(.ds-button--text, .birth-source-link, .drilldown-link) {
   transition: color var(--motion-fast) var(--ease-standard);
 }
-[data-motion] :is(.ds-button--text, .learning-text-link, .birth-source-link, .drilldown-link):active:not(:disabled) {
+[data-motion] :is(.ds-button--text, .birth-source-link, .drilldown-link):active:not(:disabled) {
   color: var(--accent-hover);
 }
 /* Scope segments are excluded from the text-only transition rule above. */

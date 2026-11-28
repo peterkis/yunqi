@@ -64,6 +64,8 @@ export interface FetchTransportOptions {
   readonly fetchImpl?: typeof fetch;
 }
 
+const currentYunQiPath = '/api/v1/yunqi/current';
+
 export function createFetchTransport(
   options: FetchTransportOptions,
 ): YunQiTransport {
@@ -77,6 +79,8 @@ export function createFetchTransport(
     async request<T>(request: TransportRequest): Promise<T> {
       const response = await fetchImpl(baseUrl + request.path, {
         method: request.method,
+        // This endpoint is also used to validate the Beijing date just before submitting.
+        ...(request.method === 'GET' && request.path === currentYunQiPath ? { cache: 'no-store' as const } : {}),
         headers: {
           accept: 'application/json',
           ...(request.body === undefined
@@ -129,7 +133,7 @@ export function createYunQiClient(
       const response =
         await transport.request<CalculationSuccessResponse>({
           method: 'GET',
-          path: '/api/v1/yunqi/current',
+          path: currentYunQiPath,
         });
       return response.data;
     },

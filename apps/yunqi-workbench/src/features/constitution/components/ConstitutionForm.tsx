@@ -5,6 +5,7 @@ import { InlineText } from '../../../components/design/InlineText';
 import { MoreRowSummary } from '../../../components/design/MoreRow';
 import { ScaleOption } from '../../../components/design/ScaleOption';
 import { SegmentedControl } from '../../../components/design/SegmentedControl';
+import { SourceCitation } from '../../../components/design/SourceCitation';
 import { PanelView } from '../../../components/layout/PanelView';
 import { useSessionVisible } from '../../../components/layout/SessionVisibility';
 import { useMotionLevel } from '../../../providers/MotionProvider';
@@ -227,7 +228,7 @@ export function ConstitutionForm({ questionnaire, context, onSessionChange, acti
         : `${questionnaire.title} · ${questionnaire.version}`}</InlineText></p>
       {questionnaire.instructions.map((instruction, index) => <p key={index}>{instruction}</p>)}
       <p>{questionnaire.sourceNote}</p>
-      <a href={questionnaire.sourceUrl} target="_blank" rel="noreferrer">查看标准来源（新窗口）</a>
+      <SourceCitation title={`${questionnaire.standard} · ${questionnaire.title}`}>{questionnaire.standard}</SourceCitation>
     </details>
     <ConstitutionContextDetails context={context} />
   </>;

@@ -41,13 +41,14 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
   const [draft, setDraft] = useState(emptyBirthDraft);
   const [submitted, setSubmitted] = useState<BirthSubmission>();
   const summary = submitted && ('year' in submitted ? `公历 ${submitted.year} 年 · 仅年份`
-    : `${submitted.birthDate} · ${submitted.birthTime?.slice(0, 5) ?? '时刻不详'}`);
+    : `${submitted.birthDate} · ${submitted.birthTime ?? '时刻不详'}`);
   const [cleared, setCleared] = useState(false);
+  const [comparisonDateChanged, setComparisonDateChanged] = useState(false);
   const submitting = useRef(false);
   const error = comparison.isError ? '无法完成对照，请核对出生日期、支持范围和网络后重试。' : undefined;
   function edit(next: BirthDraft) {
     if (comparison.isError) comparison.resetStatus();
-    setDraft(next); setCleared(false);
+    setDraft(next); setCleared(false); setComparisonDateChanged(false);
   }
   function clearDraft() {
     edit({ ...emptyBirthDraft, mode: draft.mode, calendar: draft.calendar });
@@ -65,13 +66,14 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
     setEditor({ original: draft, focus });
     if (intent === 'modify') {
       const year = 'year' in submitted ? String(submitted.year) : submitted.birthDate.slice(0, 4);
-      setDraft({ ...draft, mode: 'year', primary: year });
+      setDraft({ ...draft, mode: 'year', primary: year,
+        selected: 'birthDate' in submitted ? submitted.birthDate : '', ageBeforeYear: undefined, yearBeforeAge: undefined });
     }
-    setCleared(false);
+    setCleared(false); setComparisonDateChanged(false);
   }
   function cancelEdit() {
     if (!editor || pending) return;
-    setDraft(editor.original); setEditor(undefined); setCleared(false); comparison.resetStatus();
+    setDraft(editor.original); setEditor(undefined); setCleared(false); setComparisonDateChanged(false); comparison.resetStatus();
   }
   useEffect(() => { if (!visible && editing && !pending) cancelEdit(); }, [visible, editing, pending]);
   useLayoutEffect(() => {
@@ -82,10 +84,11 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
     }
     wasShowingForm.current = showForm;
   }, [showForm, visible, reading]);
-  function submit(request: BirthSubmission) {
+  function submit(request: BirthSubmission, confirmationReferenceDate?: string) {
     if (submitting.current) return;
     submitting.current = true;
     setCleared(false);
+    setComparisonDateChanged(false);
     const onSuccess = () => {
       sheetOpener.current = null;
       setOpenGuides([]);
@@ -93,7 +96,10 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
       onDiscardAssessment();
       setEditor(undefined);
     };
-    const callbacks = { onSuccess, onSettled: () => { submitting.current = false; } };
+    const callbacks = {
+      onSuccess, confirmationReferenceDate, onDateChanged: () => setComparisonDateChanged(true),
+      onSettled: () => { submitting.current = false; },
+    };
     comparison.submit(request, callbacks);
   }
   useEffect(() => {
@@ -107,7 +113,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
         <Button disabled={editing} variant={editing ? 'secondary' : 'primary'} onClick={onAssess}>同时测评体质</Button>
       </div>} />}
       {showForm && visible && !reading && <BirthEntryForm variant={editing ? 'sheet' : 'inline'} initialFocus={editor?.focus} draft={draft} onEdit={edit}
-        onClear={clearDraft} cleared={cleared} onConfirm={submit} pending={pending} error={error}
+        onClear={clearDraft} cleared={cleared} onConfirm={submit} pending={pending} error={error} comparisonDateChanged={comparisonDateChanged}
         onReturn={editing ? cancelEdit : undefined} />}
       <div className="birth-view" hidden={reading || !result} inert={editing || undefined} aria-hidden={editing || undefined}>
         <h2 className="visually-hidden">出生运气对照</h2>

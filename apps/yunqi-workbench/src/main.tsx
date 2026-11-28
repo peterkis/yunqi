@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { App } from './app/App';
 import { AppProviders } from './providers/AppProviders';
+import { connectDesktop, trackDesktopFoldedWindow } from './providers/desktop-host';
 import './styles/fonts.css';
 import './styles/tokens.css';
 import './styles/type-scale.css';
@@ -29,11 +30,18 @@ if (import.meta.env.DEV) {
   void import('./styles/dev-host.css');
 }
 
+const desktop = window.__TAURI__ && connectDesktop(window.__TAURI__.core, window.__TAURI__.event);
+if (desktop) {
+  document.documentElement.classList.add('windows-sidebar');
+  const stopTracking = trackDesktopFoldedWindow(window.matchMedia('(max-height: 8px)'));
+  import.meta.hot?.dispose(stopTracking);
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter useTransitions={false}>
-      <AppProviders>
-        <App />
+      <AppProviders yunqiClient={desktop?.client} queryClient={desktop?.queryClient}>
+        <App host={desktop} />
       </AppProviders>
     </BrowserRouter>
   </StrictMode>,

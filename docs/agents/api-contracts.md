@@ -6,7 +6,8 @@
 
 ## 所有权
 
-- `@yunqi/service` 是Fastify运行时与TypeBox schema唯一来源。
+- `@yunqi/service` 保留 Fastify 参考实现与 TypeBox schema，继续生成 OpenAPI 和冻结基线。
+- `native` 负责版本化业务调用、请求校验、返回 DTO 和错误封装。Tauri 桌面直接调用；独立 `native-http` 提供浏览器 HTTP、限流与本地文档。Rust 变更运行 `pnpm test:native` 和 `pnpm verify:native --exhaustive`。
 - `@yunqi/contracts` 从OpenAPI生成类型派生浏览器安全DTO facade；生成文件保持内部。
 - `@yunqi/client` 只依赖Contracts，提供浏览器安全transport、client和query options。
 - React/Next从Contracts导入DTO，从Client获得API能力；不得自行声明、复制或扩展DTO。

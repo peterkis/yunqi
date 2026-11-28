@@ -312,11 +312,36 @@ test('supported annual boundary years load directly from the real API', async ({
   expect(diagnostics.requests).toHaveLength(2);
 });
 
+test('specified time preserves the current snapshot past the Dahan boundary', async ({ page }) => {
+  const at = '2024-01-20T22:07:30+08:00';
+  await page.route('**/api/v1/yunqi/learning/current', async route => {
+    // Seed the current snapshot with an actual service computation eight seconds past Dahan.
+    const response = await route.fetch({
+      url: new URL('/api/v1/yunqi/learning/calculate', route.request().url()).href,
+      method: 'POST',
+      postData: { dateTime: at },
+    });
+    await route.fulfill({ response });
+  });
+  const current = await loadCurrent(page);
+  expect(current.facts.year).toBe(2024);
+  expect(current.facts.input.localTime).toBe(at);
+  await page.getByRole('link', { name: '指定时点', exact: true }).click();
+  await expect(page.getByRole('textbox', { name: '秒', exact: true })).toHaveValue('30');
+  const submitted = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/calculate'));
+  await page.getByRole('button', { name: '开始分析', exact: true }).click();
+  const result = await submitted;
+  expect(result.request().postDataJSON()).toEqual({ dateTime: at });
+  const { data } = await result.json();
+  expect(data.year).toBe(2024);
+  expect(data.input.localTime).toBe(at);
+});
+
 test('specified time anchors use the service clock and submit the exact Dahan boundary', async ({ page, diagnostics }) => {
   const initial = await loadCurrent(page);
   await page.getByRole('link', { name: '指定时点', exact: true }).click();
   const field = name => page.getByRole('textbox', { name, exact: true });
-  await expect(field('秒')).toHaveValue('');
+  await expect(field('秒')).toHaveValue(initial.facts.input.localTime.slice(17, 19));
   await expect(field('秒')).toHaveAttribute('placeholder', '00');
   const refreshed = page.waitForResponse(response => response.url().endsWith('/learning/current'));
   await page.getByRole('button', { name: '填入此刻' }).click();
@@ -574,6 +599,12 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const citation = page.locator('.constitution-source > span.learning-source');
+  await expect(citation).toHaveText('GB/T 46939-2025');
+  await expect(citation).toHaveAttribute('title', /中医体质分类与判定量表/);
+  await expect(citation).toHaveCSS('border-radius', '999px');
+  await expect(page.locator('.constitution-source').getByRole('link')).toHaveCount(0);
   await page.keyboard.press('Tab');
   await expect(page.getByText('精确时刻', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');

@@ -11,10 +11,6 @@ import {
   type IngressClock,
   type IngressLimits,
 } from './plugins/ingress.js';
-import {
-  registerOpenApi,
-  registerSwaggerUi,
-} from './plugins/openapi.js';
 import { healthRoutes } from './routes/health.js';
 import { yunqiRoutes } from './routes/yunqi.js';
 import { learningRoutes } from './routes/learning.js';
@@ -26,6 +22,8 @@ export interface BuildAppOptions {
   now: () => number;
   logger?: FastifyServerOptions['logger'];
   ingress?: Partial<IngressLimits>;
+  /** Set to false to omit documentation routes from this Fastify instance. */
+  documentation?: boolean;
   /** Internal test seam for the ingress rate window; defaults to a monotonic clock. */
   ingressClock?: IngressClock;
 }
@@ -50,7 +48,8 @@ export async function buildApp(
 
   installIngress(app, ingress, options.ingressClock);
 
-  await registerOpenApi(app);
+  const docs = options.documentation === false ? undefined : await import('./plugins/openapi.js');
+  await docs?.registerOpenApi(app);
   for (const schema of contractSchemas) {
     app.addSchema(schema);
   }
@@ -61,7 +60,7 @@ export async function buildApp(
     provider: options.provider,
     now: options.now,
   });
-  await registerSwaggerUi(app);
+  await docs?.registerSwaggerUi(app);
   await app.register(learningRoutes, { prefix: '/api/v1/yunqi/learning', provider: options.provider, now: options.now });
   await app.register(constitutionRoutes, { prefix: '/api/v1/constitution' });
 

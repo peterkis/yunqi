@@ -246,10 +246,62 @@
   stroke-linejoin: round;
 }
 
+/* Keep actions reachable on small Windows work areas at high display scaling. */
+.windows-sidebar .panel-shell { min-height: min(var(--panel-min-height), 100dvh); }
+.windows-sidebar .ds-panel-header__actions .ds-button--icon[aria-pressed="true"] {
+  color: var(--accent);
+  background: var(--accent-subtle);
+}
+.windows-sidebar .ds-button--icon[aria-pressed="true"] svg path:last-child { fill: currentColor; }
+.windows-sidebar .panel-viewport--collapsed {
+  cursor: move;
+  min-height: calc(var(--pill-height) + var(--space-3_5));
+  padding-top: 0;
+}
+.panel-height-grip {
+  display: grid; place-items: center; flex: none; width: 100%; height: var(--space-2);
+  padding: 0; border: 0; color: var(--ink-tertiary); background: transparent;
+  cursor: ns-resize; touch-action: none;
+}
+.panel-height-grip::after {
+  content: ""; width: var(--space-6); height: var(--space-0_5);
+  border-radius: var(--radius-full); background: currentColor;
+}
+.panel-height-grip:hover, .panel-height-grip:focus-visible { color: var(--accent); }
+.windows-sidebar [data-draggable-title] { cursor: move; user-select: none; touch-action: none; }
+.windows-sidebar [data-draggable-title] .ds-panel-header__actions { cursor: auto; }
+@media (max-height: 8px) {
+  html.windows-sidebar, .windows-sidebar body, .windows-sidebar #root, .windows-sidebar .theme-root {
+    background: transparent;
+    height: 100%; min-height: 0; overflow: hidden; scrollbar-width: none;
+  }
+  .windows-sidebar .panel-viewport { display: none; }
+  .windows-sidebar .theme-root::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: var(--accent);
+    border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+  }
+}
+
 /* Collapsed host: clear every backdrop, including the DEV body's sunken surface.
    The html-qualified body selector also wins if dev-host.css loads later. */
 html:has(.panel-viewport--collapsed),
 html:has(.panel-viewport--collapsed) body,
 .theme-root:has(.panel-viewport--collapsed) {
   background: transparent;
+}
+
+.panel-update-notice {
+  flex: none;
+  padding: var(--space-2) var(--space-4);
+}
+.panel-update-notice p {
+  margin: 0;
+}
+.panel-update-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
 }

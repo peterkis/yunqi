@@ -208,9 +208,13 @@ export async function loadCurrent(page) {
   return data;
 }
 
-/** Result times outside technical details stay compact, including below the fold. */
-export async function expectCompactTimes(page) {
-  const snapshot = await page.getByRole('main').evaluate(main => {
+/** Result times stay compact except for a confirmed birth time in the summary. */
+export async function expectCompactTimes(page, { birthTime } = {}) {
+  if (birthTime !== undefined) {
+    expect(birthTime).toMatch(/^\d{2}:\d{2}:\d{2}$/);
+    await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText(birthTime);
+  }
+  const snapshot = await page.getByRole('main').evaluate((main, birthTime) => {
     const technical = element => element.closest('.current-technical, .birth-technical, .drilldown-technical, .constitution-time-details');
     const text = [];
     const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT);
@@ -219,7 +223,9 @@ export async function expectCompactTimes(page) {
       const element = node.parentElement;
       if (technical(element) || element.closest('.visually-hidden, script, style, option, .constitution-snapshot[data-kind="current"] time')) continue;
       if (element.matches('.specified-time-anchors button') && node.textContent === '整点 00:00:00') continue;
-      if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) text.push(node.textContent);
+      if (element.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) {
+        text.push(birthTime && element.closest('.birth-input-summary .num') ? node.textContent.replace(birthTime, '') : node.textContent);
+      }
     }
     return {
       text: text.join(' '),
@@ -231,9 +237,9 @@ export async function expectCompactTimes(page) {
         collapsedStage: Boolean(time.closest('.current-stage-row[data-expanded="false"]')),
       })),
     };
-  });
+  }, birthTime);
   expect(snapshot.timeCopy, 'Display and accessible copy omit the default time zone').not.toMatch(/北京时间|UTC\s*\+0?8/);
-  expect(snapshot.text, 'Main text has no seconds outside calculation details').not.toMatch(/\d{2}:\d{2}:\d{2}/);
+  expect(snapshot.text, 'Main text has no seconds outside calculation details and the confirmed birth time').not.toMatch(/\d{2}:\d{2}:\d{2}/);
   expect(snapshot.text, 'Main text has no milliseconds outside calculation details').not.toMatch(/\.\d{3}/);
   for (const time of snapshot.times) {
     expect(time.dateTime, 'time.dateTime retains full canonical API precision').toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{3})?\+08:00$/);

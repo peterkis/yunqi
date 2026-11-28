@@ -1,5 +1,6 @@
 import { useId } from 'react';
 import { InlineText } from '../../../components/design/InlineText';
+import { SourceCitation } from '../../../components/design/SourceCitation';
 import type { ClassicsCardViewModel } from '../presentation/map-classics';
 
 function OriginalText({ children }: { readonly children: string }) {
@@ -33,10 +34,9 @@ export function ClassicsReadingCard({ reading }: { readonly reading: ClassicsCar
         <p>{reading.interpretation}</p>
       </section>
       <footer className="classics-card__source">
-        <p><span>{reading.sourceTitle}</span><span><InlineText>{reading.sourceSection}</InlineText></span></p>
-        <a className="learning-text-link" href={reading.sourceUrl} target="_blank" rel="noreferrer">
-          出处 <span aria-hidden="true">›</span><span className="visually-hidden">：{reading.sourceTitle}{reading.sourceSection}（新窗口打开）</span>
-        </a>
+        <SourceCitation title={`${reading.sourceTitle}${reading.sourceSection}`}>
+          <InlineText>{`${reading.sourceTitle}${reading.sourceSection}`}</InlineText>
+        </SourceCitation>
       </footer>
     </div>
   </article>;

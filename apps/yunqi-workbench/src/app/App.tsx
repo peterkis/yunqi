@@ -1,9 +1,9 @@
-import { PanelShell } from '../components/layout/PanelShell';
+import { PanelShell, type PanelHostMotionHooks } from '../components/layout/PanelShell';
 import { AppRoutes } from './AppRoutes';
 
-export function App() {
+export function App({ host }: { readonly host?: PanelHostMotionHooks } = {}) {
   return (
-    <PanelShell>
+    <PanelShell {...host}>
       <AppRoutes />
     </PanelShell>
   );

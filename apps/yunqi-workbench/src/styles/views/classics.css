@@ -102,18 +102,11 @@
   font-weight: var(--type-body-weight);
 }
 .classics-card__source {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-3);
   padding-top: var(--space-3);
   border-top: calc(var(--space-0_5) / 2) solid var(--border-subtle);
   font-size: var(--ts-small);
   line-height: var(--type-body-line);
 }
-.classics-card__source > p { min-width: 0; margin: 0; color: var(--ink-tertiary); }
-.classics-card__source > p > span { display: block; }
-.classics-card__source > a { flex: none; }
 .current-classics__readings > .classics-card + .classics-card { margin-top: var(--space-3); }
 
 /* The notice follows the last card in normal flow. For long readings it sticks

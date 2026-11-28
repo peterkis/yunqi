@@ -15,11 +15,17 @@ import { RelationChip } from '../design/RelationChip';
 import { SegmentedNav } from '../design/SegmentedNav';
 import { PanelSummaryContext } from './PanelSummary';
 import { PanelViewContext, type PanelViewOptions } from './PanelView';
+import { WindowPinButton, type WindowPin } from './WindowPinButton';
+import { DesktopUpdateNotice, type DesktopUpdates } from './DesktopUpdateNotice';
 
 export interface PanelHostMotionHooks {
-  /** Synchronous host resize hooks; the Web default is a no-op. */
-  readonly onBeforeCollapse?: () => void;
-  readonly onAfterExpand?: () => void;
+  readonly pin?: WindowPin;
+  readonly updates?: DesktopUpdates;
+  readonly onBeforeCollapse?: () => void | Promise<void>;
+  readonly onAfterExpand?: () => void | Promise<void>;
+  readonly onDragMargin?: () => void;
+  readonly onTitleDrag?: () => void;
+  readonly onResizeHeight?: (step?: -1 | 1) => Promise<void>;
 }
 
 export interface PanelShellProps extends PanelHostMotionHooks {
@@ -31,7 +37,7 @@ export function PanelShell(props: PanelShellProps) {
   return <PanelNavigation><PanelFrame {...props} /></PanelNavigation>;
 }
 
-function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: PanelShellProps) {
+function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand, onDragMargin, onTitleDrag, onResizeHeight, pin, updates }: PanelShellProps) {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const route = getPanelRoute(pathname);
@@ -61,6 +67,7 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   const collapseRef = useRef<HTMLButtonElement>(null);
   const expandRef = useRef<HTMLButtonElement>(null);
   const wasCollapsed = useRef(false);
+  const [hostError, setHostError] = useState(false);
 
   useLayoutEffect(() => {
     const main = mainRef.current;
@@ -77,23 +84,29 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   // completes an outstanding exit synchronously in the layout commit.
   useLayoutEffect(() => {
     if (phase !== 'collapsing' && phase !== 'pill-exit' && phase !== 'expanding') return;
+    let active = true;
     function advance() {
-      if (phase === 'collapsing') { onBeforeCollapse?.(); setPhase('collapsed'); }
-      else if (phase === 'pill-exit') { onAfterExpand?.(); setPhase('expanding'); }
-      else setPhase('expanded');
+      if (phase === 'expanding') { setPhase('expanded'); return; }
+      const shrinking = phase === 'collapsing';
+      const next = shrinking ? 'collapsed' : level === 'off' ? 'expanded' : 'expanding';
+      const resize = shrinking ? onBeforeCollapse?.() : onAfterExpand?.();
+      if (!resize) { setPhase(next); return; }
+      void resize.then(() => { if (active) setPhase(next); }, () => {
+        if (active) { setHostError(true); setPhase(shrinking ? 'expanded' : 'collapsed'); }
+      });
     }
-    if (level === 'off') { advance(); return; }
-    const timer = setTimeout(advance, motionMilliseconds(shellRef.current!, phase === 'expanding' ? '--motion-slow' : '--motion-fast'));
-    return () => clearTimeout(timer);
+    const timer = level === 'off' ? undefined : setTimeout(advance, motionMilliseconds(shellRef.current!, phase === 'expanding' ? '--motion-slow' : '--motion-fast'));
+    if (level === 'off') advance();
+    return () => { active = false; clearTimeout(timer); };
   }, [phase, level, onBeforeCollapse, onAfterExpand]);
 
   function collapse() {
-    if (level === 'off') { onBeforeCollapse?.(); setPhase('collapsed'); }
-    else setPhase('collapsing');
+    setHostError(false);
+    setPhase('collapsing');
   }
   function expand() {
-    if (level === 'off') { onAfterExpand?.(); setPhase('expanded'); }
-    else setPhase('pill-exit');
+    setHostError(false);
+    setPhase('pill-exit');
   }
 
   useEffect(() => {
@@ -109,7 +122,11 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
   return (
     <PanelSummaryContext.Provider value={setSummary}>
     <PanelViewContext.Provider value={setView}>
-      <div className={`panel-viewport${collapsed ? ' panel-viewport--collapsed' : ''}`} data-panel-phase={phase}>
+      <div className={`panel-viewport${collapsed ? ' panel-viewport--collapsed' : ''}`} data-panel-phase={phase}
+        onPointerDown={collapsed && onDragMargin ? (event) => {
+          if (event.button === 0 && event.target === event.currentTarget) onDragMargin();
+        } : undefined}>
+        {hostError && <span role="alert">窗口调整失败，请重试</span>}
         {collapsed && (
           <button className="panel-pill" type="button" ref={expandRef}
             aria-expanded={false} aria-controls="yunqi-panel" onClick={expand}>
@@ -135,10 +152,11 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
         {/* Keep the route mounted so collapsing cannot destroy local form state. */}
         <div className="panel-shell jade-surface" id="yunqi-panel" data-route={route.id} ref={shellRef} hidden={collapsed}>
           <a className="panel-shell__skip-link" href="#workbench-content" onClick={() => mainRef.current?.focus()}>跳至主要内容</a>
-          <PanelHeader title="运气通" status="测试版 · 待接入HIS" actions={<>
+          <PanelHeader title="运气通" status="测试版 · 待接入HIS" onTitleDrag={onTitleDrag} actions={<>
             <Button variant="icon" data-theme-toggle="" aria-label={`切换至${theme === 'light' ? '深色' : '浅色'}主题`} onClick={toggleTheme}>
               {theme === 'light' ? <Moon ref={themeIcon} aria-hidden="true" /> : <Sun ref={themeIcon} aria-hidden="true" />}
             </Button>
+            {pin && <WindowPinButton pin={pin} />}
             <Button ref={collapseRef} variant="icon" aria-label="收起为胶囊条" aria-expanded={!collapsed} aria-controls="yunqi-panel" onClick={collapse}>
               <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10" /></svg>
             </Button>
@@ -156,6 +174,7 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
           </div>
           <main className="panel-shell__content" id="workbench-content" ref={mainRef} tabIndex={0} aria-label={title}>{children}</main>
           {viewActions && <div className="panel-shell__actions">{viewActions}</div>}
+          {updates && <DesktopUpdateNotice updates={updates} />}
           <footer className="panel-shell__footer">
             <span className="panel-shell__byline">
               <span className="panel-shell__credit">中医科 <span aria-hidden="true">×</span> 信息管理部</span>
@@ -164,6 +183,21 @@ function PanelFrame({ children, actions, onBeforeCollapse, onAfterExpand }: Pane
             <span className="num">© 2026-2027</span>
             {phase === 'expanded' && <BackToTop key={pathname} contentRef={mainRef} />}
           </footer>
+          {onResizeHeight && phase === 'expanded' && <button className="panel-height-grip" type="button"
+            aria-label="调整窗口高度" title="拖动底边调高，或使用上下方向键"
+            onPointerDown={event => {
+              if (event.isPrimary && event.button === 0) {
+                event.preventDefault();
+                void onResizeHeight().catch(() => setHostError(true));
+              }
+            }}
+            onKeyDown={event => {
+              if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                void onResizeHeight(event.key === 'ArrowUp' ? -1 : 1).catch(() => setHostError(true));
+              }
+            }}
+          />}
         </div>
       </div>
     </PanelViewContext.Provider>

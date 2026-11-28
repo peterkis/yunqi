@@ -5,6 +5,10 @@ export type BirthSubmission = BirthYearRequest | BirthComparisonRequest;
 export interface BirthDraft {
   mode: 'age' | 'year';
   primary: string;
+  /** Typed age behind an unedited year-mode round trip. */
+  ageBeforeYear?: string;
+  /** Entered Gregorian year behind a derived age. */
+  yearBeforeAge?: number;
   calendar: 'solar' | 'lunar';
   month: string;
   day: string;
@@ -16,10 +20,20 @@ export const emptyBirthDraft: BirthDraft = {
   mode: 'age', primary: '', calendar: 'solar', month: '', day: '', selected: '', knowsTime: false, time: '',
 };
 
+/** Business date from a canonical API Beijing timestamp, never the device clock. */
+export function beijingDate(localTime: string): string {
+  return localTime.slice(0, 10);
+}
+
 export interface BirthReferenceDate {
   year: number;
   month: number;
   day: number;
+}
+
+/** Parse the date fields of a canonical Beijing date returned by the service. */
+export function birthReferenceDate(localDate: string): BirthReferenceDate {
+  return { year: Number(localDate.slice(0, 4)), month: Number(localDate.slice(5, 7)), day: Number(localDate.slice(8, 10)) };
 }
 
 /** A later month alone is conclusive; this month's day must be known. */
@@ -31,13 +45,41 @@ export function birthdayAdjustment(draft: BirthDraft, today: BirthReferenceDate 
   return undefined;
 }
 
+/** Age estimate for an entered year when an exact Gregorian birthday is not known. */
+export function approximateBirthAge(draft: BirthDraft, year: number, today: BirthReferenceDate): number {
+  return today.year - year - Number(Boolean(birthdayAdjustment(draft, today)));
+}
+
 export function birthYear(draft: BirthDraft, today: BirthReferenceDate | undefined) {
   if (!draft.primary || !today) return undefined;
   const value = Number(draft.primary);
   if (draft.mode === 'age' && value > 120) return undefined;
   if (draft.mode === 'year' && draft.primary.length !== 4) return undefined;
-  const year = draft.mode === 'age' ? today.year - value - (birthdayAdjustment(draft, today) ? 1 : 0) : value;
+  const year = draft.mode === 'age'
+    ? draft.yearBeforeAge ?? (today.year - value - Number(Boolean(birthdayAdjustment(draft, today))))
+    : value;
   return year >= 1900 && year <= Math.min(2100, today.year) ? year : undefined;
+}
+
+/** A known attained age allows either of two adjacent Gregorian birth years. */
+export function lunarAgeBirthYears(age: string, referenceYear: number | undefined): number[] {
+  if (!age || !referenceYear || Number(age) > 120) return [];
+  const latest = referenceYear - Number(age);
+  return [latest - 1, latest].filter(year => year >= 1900 && year <= 2100);
+}
+
+/** Ambiguous month/day candidates can still establish one Gregorian year. */
+export function sharedBirthYear(candidates: readonly { birthDate: string }[] | undefined): number | undefined {
+  const first = candidates?.[0]?.birthDate.slice(0, 4);
+  return first && candidates?.every(({ birthDate }) => birthDate.startsWith(first + '-')) ? Number(first) : undefined;
+}
+
+export function attainedAge(birthDate: string, today: BirthReferenceDate): number {
+  const year = Number(birthDate.slice(0, 4));
+  const month = Number(birthDate.slice(5, 7));
+  const day = Number(birthDate.slice(8, 10));
+  const birthdayAhead = month > today.month || (month === today.month && day > today.day);
+  return today.year - year - Number(birthdayAhead);
 }
 
 export type BirthSlot = 'primary' | 'month' | 'day';

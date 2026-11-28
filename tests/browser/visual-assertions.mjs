@@ -80,8 +80,13 @@ export async function expectClassicsCards(page, testInfo) {
     await expect(card.locator('.classics-card__original > h4')).toHaveText('原 文');
     await expect(card.locator('.classics-card__interpretation > h4')).toHaveText('释 义');
     await expect(card.locator('.classics-card__opening').first()).toHaveAttribute('aria-hidden', 'true');
-    await expect(card.locator('.classics-card__source > p > span')).toHaveCount(2);
-    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('target', '_blank');
+    const source = card.locator('.classics-card__source > span.learning-source');
+    await expect(source).toHaveText(/^《.+》/);
+    await expect(source).toHaveAttribute('title', /^《.+》/);
+    await expect(source).toHaveCSS('border-radius', '999px');
+    await expect(source).not.toHaveAttribute('tabindex');
+    await expect(card.locator('.classics-card__source').getByRole('link')).toHaveCount(0);
+    await expect(source.locator('svg')).toHaveCount(0);
     const contrasts = [];
     for (const label of await card.locator('.classics-card__label').all()) contrasts.push(await expectTextContrast(label));
     contrasts.push(await expectTextContrast(badge));

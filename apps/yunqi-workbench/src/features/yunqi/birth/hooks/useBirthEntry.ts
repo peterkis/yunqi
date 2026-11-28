@@ -1,15 +1,24 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest } from '@yunqi/contracts';
+import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest, YunQiCalculationDto } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../../providers/YunQiClientProvider';
+import { liveClockQueryOptions } from '../../../../lib/live-clock-query';
 import { currentYunQiQueryOptions } from '../../api/query-options';
+import { beijingDate, birthReferenceDate } from '../presentation/birth-entry';
+
+// Consume the backend's canonical Beijing date, without local clock conversion.
+const referenceDate = (data: YunQiCalculationDto | undefined) => data && beijingDate(data.input.localTime);
 
 export function useBirthReferenceDate() {
   const client = useYunQiClient();
-  const query = useQuery({ ...currentYunQiQueryOptions(client), staleTime: 0, refetchInterval: 60_000 });
-  const local = query.data?.input.localTime;
-  const today = local ? { year: Number(local.slice(0, 4)), month: Number(local.slice(5, 7)), day: Number(local.slice(8, 10)) } : undefined;
-  return { today, failed: query.isError, retry: query.refetch };
+  const query = useQuery({ ...currentYunQiQueryOptions(client), ...liveClockQueryOptions });
+  const localDate = referenceDate(query.data);
+  const today = localDate ? birthReferenceDate(localDate) : undefined;
+  async function readFreshDate() {
+    const result = await query.refetch({ throwOnError: true, cancelRefetch: true });
+    return referenceDate(result.data);
+  }
+  return { today, localDate, failed: query.isError, retry: query.refetch, readFreshDate };
 }
 
 export function useBirthYearComparison() {
@@ -17,21 +26,22 @@ export function useBirthYearComparison() {
   return useMutation({ mutationFn: (request: BirthYearRequest) => client.compareBirthYear(request), gcTime: 0 });
 }
 
-export function useBirthPreview(request: BirthDatePreviewRequest | undefined) {
+export function useBirthPreview(requests: readonly BirthDatePreviewRequest[] | undefined) {
   const client = useYunQiClient();
-  const [result, setResult] = useState<{ request: BirthDatePreviewRequest; matches?: BirthDatePreviewDto['matches']; failed?: boolean }>();
-  const [attempt, retry] = useState(0);
+  const [result, setResult] = useState<{ client: typeof client; requests: readonly BirthDatePreviewRequest[]; attempt: number; matches?: BirthDatePreviewDto['matches']; failed?: boolean }>();
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     setResult(undefined);
-    if (!request) return;
+    if (!requests) return;
     let active = true;
     const timer = setTimeout(() => {
-      client.previewBirthDate(request).then(
-        ({ matches }) => { if (active) setResult({ request, matches }); },
-        () => { if (active) setResult({ request, failed: true }); },
+      Promise.all(requests.map(request => client.previewBirthDate(request))).then(
+        results => { if (active) setResult({ client, requests, attempt, matches: results.flatMap(({ matches }) => matches) }); },
+        () => { if (active) setResult({ client, requests, attempt, failed: true }); },
       );
     }, 180);
     return () => { active = false; clearTimeout(timer); };
-  }, [client, request, attempt]);
-  return { ...(result?.request === request ? result : undefined), retry: () => retry(value => value + 1) };
+  }, [client, requests, attempt]);
+  const active = result?.client === client && result.requests === requests && result.attempt === attempt ? result : undefined;
+  return { matches: active?.matches, failed: active?.failed, retry: () => setAttempt(value => value + 1) };
 }

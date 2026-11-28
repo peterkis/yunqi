@@ -1,0 +1,58 @@
+{
+  "productName": "运气通",
+  "version": "0.2.3",
+  "identifier": "cn.yunqi.offlinepilot",
+  "build": {
+    "frontendDist": "../../apps/yunqi-workbench/dist"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "运气通",
+        "width": 400,
+        "height": 1020,
+        "resizable": false,
+        "maximizable": false,
+        "decorations": false,
+        "transparent": true,
+        "shadow": false,
+        "visible": false,
+        "backgroundColor": "#00000000"
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; frame-src 'none'; base-uri 'none'"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis"
+    ],
+    "publisher": "TCM YunQi Lab",
+    "icon": [
+      "icons/icon.ico",
+      "icons/icon.png"
+    ],
+    "resources": {
+      "icons/icon.ico": "icons/YunQi-Windows-2d8f8d2d.ico",
+      "licenses/tyme4rs-MIT.txt": "licenses/tyme4rs-MIT.txt"
+    },
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller"
+      },
+      "nsis": {
+        "compression": "zlib",
+        "installerHooks": "offline-runtime.nsh",
+        "installMode": "currentUser",
+        "languages": [
+          "SimpChinese"
+        ],
+        "displayLanguageSelector": false
+      }
+    }
+  }
+}

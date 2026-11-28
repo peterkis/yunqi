@@ -3587,11 +3587,11 @@ test('rejects remote resource in a public stylesheet', async () => {
 
 test('accepts locally shipped fonts, preload, data URIs and commented-out remote references', async () => {
   const fixture = createFixture({
-    indexHtml: `<html lang="zh-CN"><head><!-- <link href="https://fonts.googleapis.com/css2"> --><link rel="preload" href="/fonts/NotoSansSC-VF.woff2" as="font" type="font/woff2" crossorigin><link rel="icon" href="./favicon.svg"></head><body><a href="https://example.org/standard">标准原文</a>${ENTRY}</body></html>`,
+    indexHtml: `<html lang="zh-CN"><head><!-- <link href="https://fonts.googleapis.com/css2"> --><link rel="preload" href="/fonts/YunQiUISans-VF.woff2" as="font" type="font/woff2" crossorigin><link rel="icon" href="./favicon.svg"></head><body><a href="https://example.org/standard">标准原文</a>${ENTRY}</body></html>`,
   });
   writeFixtureFile(fixture, 'apps/yunqi-workbench/src/styles/fonts.css', [
     '/* Formerly: @import url("https://fonts.googleapis.com/css2"); */',
-    '@font-face { font-family: "Noto Sans SC"; src: url("/fonts/NotoSansSC-VF.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }',
+    '@font-face { font-family: "Noto Sans SC"; src: url("/fonts/YunQiUISans-VF.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }',
     '@font-face { font-family: "Noto Serif SC"; src: url(./fonts/NotoSerifSC-VF.woff2) format("woff2"); }',
     '.mark { background: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27/%3E"); }',
   ].join('\n'));

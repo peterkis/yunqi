@@ -1,0 +1,28 @@
+# SHA-256 of tracked bytes | tracked source revision time (IMF-fixdate UTC) | filename
+# Initial timestamp is the commit which imported these exact bytes (c1830ea).
+# When a resource changes, replace its digest and advance its timestamp to the new
+# revision time (whole seconds, strictly newer, not in the future). For .gz files
+# use the digest of the checked-in compressed file; both encodings share its date.
+# A SHA mismatch aborts the build rather than quietly preserving a stale date.
+# Do not use checkout mtimes or the build clock. Updates need no Git at build time.
+
+e2d09f74a77005e85e9f9bd501e3b7599ccae19d918538461196dde42f7f1b97 | Fri, 27 Nov 2026 14:23:53 GMT | LICENSE-fastify-swagger-ui
+e534ce05cb727f1ad3048aeb71bf4bb8756db73c427fcf99871490c2fa921a69 | Fri, 27 Nov 2026 14:23:53 GMT | favicon-16x16.png
+1e22f0e774bc3cce706c99f6850d1ca5cd20075e87040cc269e3b389e308d201 | Fri, 27 Nov 2026 14:23:53 GMT | favicon-32x32.png
+f328835fd8b0a9beb07188f7d35ee77b5f95bb80270ac557b70b125137832840 | Fri, 27 Nov 2026 14:23:53 GMT | index-slash.html
+84fb780bcd49867ecc91df32f174cd9b237337113a05cdc514043b4637156f80 | Fri, 27 Nov 2026 14:23:53 GMT | index.css.gz
+c2241ce43bbe3a824e11d94f54a286dec302173088f1540de8f18f5b23e8a726 | Fri, 27 Nov 2026 14:23:53 GMT | index.html
+1a8abb32e59fcfb5896caae4b7a20e2bc832f0a206099eccf32073e2788d13a8 | Fri, 27 Nov 2026 14:23:53 GMT | json
+77d5e170a8413aedd8964086cc67b44d5728882a2a4abe30170aea791cd1f784 | Fri, 27 Nov 2026 14:23:53 GMT | logo.svg
+f3546c5b74b44eac7de5b4193a641b4f23365470c109b490c566bac0de446745 | Fri, 27 Nov 2026 14:23:53 GMT | oauth2-redirect.html
+7c2de447f1292bc2cf561b454748b3f4f5a2e289fd04ad0df63a1edd880fbec4 | Fri, 27 Nov 2026 14:23:53 GMT | oauth2-redirect.js.gz
+182bb3302ce4c2f5e1255b5e29e616197642bdae672720a72fec31f4283dc6a3 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-initializer.js.gz
+c02094eb27f52736b7342b6c6e4fca84dd3095612ffd193df9035c4161476877 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-bundle.js.gz
+cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-dist-LICENSE
+0d20d1adef18aee3f40dd258172155521ce702ac445cb5f7b7d60ed32dad2fb2 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-dist-NOTICE
+2bdcc3961bc716e07b91bbb4daad7fceadf016bcf108a97c6867a16cd925dd57 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-dist-swagger-ui-bundle.js.LICENSE.txt
+a45e524865129f32926a0cd15deac63332f4dda3f393dcb80fe14df4f81e69b8 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-dist-swagger-ui-standalone-preset.js.LICENSE.txt
+536b0384bf9d0e6be5ae3993b418ce0a83b30f8683e1316e8723e9826900d599 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui-standalone-preset.js.gz
+79f950450970f74c01b1d6e2425c0f78495d3f8b6b982f2852a7d31d229ef297 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui.css.gz
+0941805bf641f9751eb851324baed98816c99fc35820ad52226c752243a41b09 | Fri, 27 Nov 2026 14:23:53 GMT | swagger-ui.js.gz
+ceec03af2eede14c1ca8c3819b44a1e41663a6d7c285638e3f911a06a8e1242c | Fri, 27 Nov 2026 14:23:53 GMT | yaml

@@ -56,6 +56,7 @@
 - 覆盖率：Workbench阈值保持行/语句/函数90、分支85；组件、mapper和hook同样计入，
   不得用exclude或降阈值绕开。CSS不计入覆盖率，视觉约束由浏览器验收和治理检查承担。
 - 本地资源：治理检查拒绝index.html与CSS中的远程资源引用；浏览器验收拒绝任何离开自有origin的请求。
+- [离线字库](../design/README.md#工作台离线字体)：运行 `pnpm --filter @yunqi/workbench exec vitest run src/styles/fonts.test.ts`。构建后用 `pnpm exec playwright test tests/browser/design-foundations.flows.spec.mjs` 检查常用文字仅请求两份小字库，加入生僻字后两种完整字库按需加载，并核对实际绘制字形。桌面字体变更还应在包内程序核对当下、先天、量表的文字、换行与字号。
 - 浏览器验收：400×860浅/深、400×640最小高度、424×88收起态透明宿主窗口（400×64胶囊＋左右12、上10、下14外边距，shadow-pill尾迹不得被裁）、1366×900工作站右侧面板。
   收起时检查html/body/主题根/视口透明（含DEV底色），展开左缘1px内阴影且内容安全边距仍16px。
   覆盖七画板状态及年度、指定时点、问诊规划、未找到下钻页，按同一变更同步更新flows/visual。

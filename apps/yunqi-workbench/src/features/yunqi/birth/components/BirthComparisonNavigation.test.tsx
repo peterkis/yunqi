@@ -98,11 +98,12 @@ describe('birth classics navigation', () => {
     await user.click(screen.getByRole('link', { name: '全部原文' }));
     const reading = screen.getByRole('region', { name: '先天原文与释义' });
     expect(within(reading).queryByText(/可能出生区间/)).not.toBeInTheDocument();
-    const source = within(screen.getByRole('region', { name: '出生运气原文' })).getByRole('link', { name: /^出处/ });
-    expect(source).toHaveClass('learning-text-link');
-    expect(source).toHaveAccessibleName(expect.stringContaining('新窗口打开'));
-    expect(source).toHaveAttribute('target', '_blank');
-    expect(source).toHaveAttribute('rel', 'noreferrer');
+    const original = screen.getByRole('region', { name: '出生运气原文' });
+    const passage = candidate.learning.currentPassages[0];
+    const source = within(original).getByTitle(`《${passage.work}·${passage.chapter}》${passage.section}`);
+    expect(source).toHaveClass('learning-source');
+    expect(source).toBeVisible();
+    expect(within(original).queryByRole('link')).not.toBeInTheDocument();
     await user.click(within(reading).getByRole('button', { name: '全年' }));
     await user.click(within(reading).getByText('展开全段'));
     expect(within(reading).getByText(quote, { exact: true })).toBeVisible();

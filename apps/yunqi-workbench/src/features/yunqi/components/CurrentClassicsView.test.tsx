@@ -21,7 +21,8 @@ describe('CurrentClassicsView', () => {
     expect(screen.queryByText('SECRET_STACK')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: '重试' }));
     expect(await screen.findByRole('group', { name: '原文范围' })).toBeVisible();
-    expect(screen.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', 'https://example.org/classics');
+    expect(screen.getByRole('article').querySelector('.classics-card__source > span.learning-source')).toHaveTextContent(/^《.+》/);
+    expect(screen.queryByRole('link', { name: /^出处/ })).not.toBeInTheDocument();
     expect(client.getLearningCurrent).toHaveBeenCalledTimes(2);
   });
 });

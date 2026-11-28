@@ -1,7 +1,6 @@
 import { test, expect, settle, screenshot, expectCompactTimes, scanAccessibility, expectNoPersonalDataInUrl, waitForAnimations } from './fixtures.mjs';
 import { expectBirthComparison, expectBirthMirror, expectBirthReadings, expandBirthInput, fillBirthDate, expectBirthDate } from './birth-helpers.mjs';
 import { answerConstitution, expectConstitutionResults, confirmConstitutionDestruction } from './constitution-helpers.mjs';
-import { expectTextLink } from './consistency-helpers.mjs';
 import { expectClassicsCards } from './visual-assertions.mjs';
 
 async function compareBirth(page, birthDate = '1990-05-12') {
@@ -46,7 +45,6 @@ test('birth-linked birth assessment reads matching annual and period passages, s
   const historical = reading.locator('.birth-reading-candidate').first();
   await expect(reading.getByRole('button', { name: '出生阶段', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expectBirthReadings(historical, data.candidates[0].learning.currentPassages);
-  await expectTextLink(page, historical.getByRole('link', { name: /^出处/ }).first());
   await expectClassicsCards(page, testInfo);
   await expect(reading.locator('.classics-card--current')).toHaveCount(0);
   await expect(historical.getByText('出生阶段', { exact: true })).toBeVisible();
@@ -307,7 +305,7 @@ test('birth inputs enforce required time, block repeated pending activation and 
   }
 
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
-  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-03-21 · 09:30 · 修改');
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-03-21 · 09:30:00 · 修改');
   await expandBirthInput(page);
   await expect(time).toHaveValue('09:30');
   await expect(date).toBeFocused();
@@ -315,8 +313,8 @@ test('birth inputs enforce required time, block repeated pending activation and 
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('dialog', { name: '修改出生信息' })).toBeVisible();
   await compareBirth(page, '1990-03-21');
-  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31');
-  await expectCompactTimes(page);
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31:21');
+  await expectCompactTimes(page, { birthTime: '09:31:21' });
   await expandBirthInput(page);
   await fillBirthDate(page, '1990-05-21');
   await expect(result).toHaveCount(0);

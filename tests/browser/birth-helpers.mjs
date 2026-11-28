@@ -75,8 +75,8 @@ export async function expectBirthReadings(container, passages) {
     await expect(card.getByText('原 文', { exact: true })).toBeVisible();
     await expect(card.getByText('释 义', { exact: true })).toBeVisible();
     await expect(card.locator('.classics-card__interpretation > p')).toHaveText(passage.explanation);
-    await expect(card.locator('.classics-card__source > p')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
-    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.locator('.classics-card__source .learning-source')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
+    await expect(card.locator('.classics-card__source').getByRole('link')).toHaveCount(0);
     if (await full.count()) await full.locator('summary').press('Enter');
   }
 }
@@ -175,7 +175,8 @@ export async function expectBirthComparison(page, data) {
   await expect(result.getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。', { exact: true })).toBeVisible();
   await expect(result.getByText('综合结论', { exact: true })).toHaveCount(0);
   await expect(result.locator('.birth-tables')).not.toContainText('→');
-  await expectCompactTimes(page);
+  await expectCompactTimes(page, { birthTime: data.birthPrecision === 'time'
+    ? data.candidates[0].learning.facts.input.localTime.slice(11, 19) : undefined });
 }
 
 // Measure the text itself to catch wrapping or loss of mirror alignment.

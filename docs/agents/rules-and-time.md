@@ -13,7 +13,9 @@
 
 ## 领域所有权
 
-`packages/yunqi-domain` 只使用TypeScript、纯函数、不可变领域对象及版本化规则。
+桌面与 HTTP 共用 Rust 引擎：`native/src/domain` 负责五运六气及教学输出，`native/src/calendar` 负责固定北京时间、tyme4rs 与出生日期对照，`native/src/constitution` 负责量表。业务入口显式传入时点。发布前运行原始实现差分以及 Rust 冻结契约测试。
+
+作为对照基准的 `packages/yunqi-domain` 只使用TypeScript、纯函数、不可变领域对象及版本化规则。
 保持可独立测试、运行和发布。禁止依赖React/Vue、Fastify/Express、数据库/ORM、
 UI库、浏览器API及Contracts/Client。Service和adapter也不得反向依赖Contracts/Client。
 

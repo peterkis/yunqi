@@ -123,9 +123,9 @@ test('current cards retain real API facts, folded stages and sourced original re
   await expectClassicsAlignment(page);
   const notice = page.getByText('原文为文献线索，非个体发病预测', { exact: true });
   await expect(notice).toBeInViewport({ ratio: 1 });
-  const currentSource = page.getByRole('link', { name: /^出处/ }).first();
-  await expect(currentSource).toHaveAttribute('href', data.currentPassages[0].sourceUrl);
-  await expectTextLink(page, currentSource);
+  const firstPassage = data.currentPassages[0];
+  const currentSource = page.locator('.classics-card__source .learning-source').first();
+  await expect(currentSource).toHaveText(`《${firstPassage.work}·${firstPassage.chapter}》${firstPassage.section}（摘录）`);
   const annualScope = page.getByRole('button', { name: '全年', exact: true });
   await annualScope.focus();
   await page.keyboard.press('Enter');
@@ -140,7 +140,7 @@ test('current cards retain real API facts, folded stages and sourced original re
   for (let index = 0; index < data.annualPassages.length; index += 1) {
     const passage = data.annualPassages[index];
     const card = cards.nth(index);
-    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.locator('.classics-card__source .learning-source')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}（摘录）`);
     await expect(card.getByText(passage.explanation, { exact: true })).toBeVisible();
     const full = card.locator('details');
     if (passage.quote.length > 90) {

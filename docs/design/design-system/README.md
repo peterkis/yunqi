@@ -47,47 +47,11 @@
 - **宋体 `serif`（Noto Serif SC）**：干支、阶段名、结论名词、题干、古籍原文。它负责“有分量的东西”和“经典的声音”。
 - **黑体 `sans`（Noto Sans SC）**：其余一切——数值、说明、标签、按钮、表单。
 
-### 本地加载（强制）
+### 本地加载（工作台）
 
-院内网无法访问外网，**字体一律随应用下载、本地加载，禁止引用 Google Fonts 或任何在线字体服务。** 字体文件就在本系统的 `fonts/` 目录：
+工作台按 2026-11-27 批准的[离线字体规则](../README.md#工作台离线字体)实施。黑体与宋体均按字符范围选用常用字库或完整原字体，支持 400–700 可变字重。首屏仅预载常用黑体。原始 WOFF2、两份常用 WOFF2 及 OFL 许可随安装包交付。院内网的网页部署使用同源本地资源。
 
-| 文件 | 家族 | 字重 | 大小 |
-| --- | --- | --- | --- |
-| `fonts/NotoSansSC-VF.woff2` | Noto Sans SC（思源黑体） | 400–700 可变 | 约 7.7 MB |
-| `fonts/NotoSerifSC-VF.woff2` | Noto Serif SC（思源宋体） | 400–700 可变 | 约 11 MB |
-| `fonts/OFL.txt` | SIL Open Font License 1.1 | — | 允许随软件分发 |
-
-- 来源：Google Fonts 官方仓库（google/fonts）的可变字体，转为 woff2，字重轴裁到 400–700（本系统只用 400/500/600/700）。
-- **未做字符子集化**：完整保留简体字库，古籍原文中的生僻字（迺、霿、胕、脽、欬、瘅、鼽、衄等）均已核对可显示。不要为了减小体积再做子集，否则原文会出现豆腐块。
-- 一个可变字体文件覆盖全部字重，不需要分别加载 regular / medium / bold。
-
-部署方式：
-
-1. 把 `fonts/` 目录原样放进插件的静态资源（Tauri 宿主打包进应用资源；或放到内网 Nginx 静态目录，同源访问）。
-2. 用 `@font-face` 声明，`font-display: swap`，字重写成范围：
-
-```css
-@font-face {
-  font-family: "Noto Sans SC";
-  src: url("./fonts/NotoSansSC-VF.woff2") format("woff2");
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: "Noto Serif SC";
-  src: url("./fonts/NotoSerifSC-VF.woff2") format("woff2");
-  font-weight: 400 700;
-  font-style: normal;
-  font-display: swap;
-}
-```
-
-3. 首屏只预加载黑体：`<link rel="preload" href="./fonts/NotoSansSC-VF.woff2" as="font" type="font/woff2" crossorigin>`。宋体按需加载。
-4. Nginx 部署时给 `.woff2` 设 `Cache-Control: public, max-age=31536000, immutable`，文件名变更即换版本。
-5. 字体加载完成前的回退：黑体 → 微软雅黑（Windows 工作站）→ 苹方；宋体 → SimSun → 宋体-简。回退字形宽度相近，不会造成布局跳动。
-
-本系统的 `tokens.json` 已在 `type.fonts` 中登记这两个文件，生成的 `tokens.css` 会自动带上对应的 `@font-face`。
+设计源文件位于本目录的 [fonts/](fonts/)，`tokens.json` 的 `type.fonts` 登记画布使用的两份完整原字体。工作台字体声明、字符表、生成方式和生僻字回退验收以[工作台离线字体](../README.md#工作台离线字体)为准。组件继续使用已有字体令牌。
 
 ### 在 Design 画布上使用
 

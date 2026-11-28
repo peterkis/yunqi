@@ -185,7 +185,10 @@ describe('ConstitutionForm', () => {
     expect(version).toBeVisible();
     expect(version).toBe(document.querySelector('.constitution-source > p'));
     expect(screen.getAllByText(/女性版/)).toHaveLength(1);
-    expect(screen.getByRole('link', { name: '查看标准来源（新窗口）' })).toHaveAttribute('href', questionnaire.sourceUrl);
+    const citation = screen.getByTitle(`${questionnaire.standard} · ${questionnaire.title}`);
+    expect(citation).toHaveTextContent(questionnaire.standard);
+    expect(citation).not.toHaveAttribute('href');
+    expect(citation.closest('.constitution-source')?.querySelector('a, [role="link"]')).toBeNull();
   });
 
   it('combines the context and nine dimensions, counts shared answers, and keeps only the question and hint in the header', async () => {
@@ -297,7 +300,10 @@ describe('ConstitutionForm', () => {
     expect(screen.getByText('男性版 · GBT46939-2025 · test-1')).toBeVisible();
     expect(screen.getAllByText(/test-1/)).toHaveLength(1);
     await user.click(screen.getByText('量表来源与适用说明'));
-    expect(screen.getByRole('link', { name: '查看标准来源（新窗口）' })).toHaveAttribute('href', questionnaire.sourceUrl);
+    const citation = screen.getByTitle(`${questionnaire.standard} · ${questionnaire.title}`);
+    expect(citation).toHaveTextContent(questionnaire.standard);
+    expect(citation).not.toHaveAttribute('href');
+    expect(citation.closest('.constitution-source')?.querySelector('a, [role="link"]')).toBeNull();
     await user.click(screen.getByRole('button', { name: '返回修改' }));
     expect(screen.queryByRole('region', { name: '体质测评结果' })).not.toBeInTheDocument();
     expect(document.querySelector('.constitution-sex-summary')).toHaveTextContent('体质维度 · 男性版更换');

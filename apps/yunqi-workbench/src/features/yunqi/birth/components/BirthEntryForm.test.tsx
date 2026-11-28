@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import type { BirthDatePreviewDto } from '@yunqi/contracts';
 import { createClientStub } from '../../../../test/learning-fixtures';
 import { createTestWrapper } from '../../../../test/test-utils';
+import { createYunQiCalculationDto } from '../../../../test/yunqi-fixtures';
 import { emptyBirthDraft, type BirthDraft } from '../presentation/birth-entry';
 import { BirthEntryForm } from './BirthEntryForm';
 
@@ -21,6 +22,11 @@ function setup(client = createClientStub(), initial = emptyBirthDraft) {
 const slot = (name: string) => screen.getByRole('textbox', { name });
 const key = (name: string) => screen.getByRole('button', { name });
 const match = (birthDate: string, lunarLabel = '') => ({ birthDate, lunarLabel, leap: false, annualLabels: ['年度信息'], boundaries: [] });
+const dateReference = (date: string) => {
+  const current = createYunQiCalculationDto();
+  return vi.fn().mockResolvedValue({ ...current, input: { ...current.input, localTime: date + 'T12:00:00+08:00' } });
+};
+const lunarAgeDraft = { ...emptyBirthDraft, primary: '25', calendar: 'lunar', month: '08', day: '15' } as const;
 
 describe('inline birth entry', () => {
   it('adjusts the solar birth year for an upcoming birthday and uses the same keypad and keyboard slots', async () => {
@@ -30,7 +36,7 @@ describe('inline birth entry', () => {
     await waitFor(() => expect(key('仅按年份对照')).toBeEnabled());
     const inferred = Number(screen.getByText(/推算 \d{4} 年/).textContent?.match(/\d{4}/)?.[0]);
     await user.keyboard('{Enter}');
-    expect(confirm).toHaveBeenCalledWith({ year: inferred });
+    expect(confirm).toHaveBeenCalledWith({ year: inferred }, '2026-06-19');
     await user.click(key('3'));
     expect(slot('月')).toHaveValue('03'); expect(slot('日')).toHaveFocus();
     await user.keyboard('{Backspace}');
@@ -40,13 +46,13 @@ describe('inline birth entry', () => {
     await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
     expect(slot('年龄')).toHaveValue('46');
     fireEvent.change(slot('月'), { target: { value: '12' } });
-    await user.click(key('仅按年份对照')); expect(confirm).toHaveBeenLastCalledWith({ year: inferred - 1 });
+    await user.click(key('仅按年份对照')); expect(confirm).toHaveBeenLastCalledWith({ year: inferred - 1 }, '2026-06-19');
     await user.type(slot('日'), '15');
     await waitFor(() => expect(key('确认并对照')).toBeEnabled());
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenLastCalledWith({ birthDate: (inferred - 1) + '-12-15' });
+    expect(confirm).toHaveBeenLastCalledWith({ birthDate: (inferred - 1) + '-12-15' }, '2026-06-19');
     await user.click(screen.getByRole('radio', { name: '农历' }));
-    expect(screen.getByText(`推算公历 ${inferred} 年`)).toBeVisible();
+    expect(screen.queryByText(`推算公历 ${inferred} 年`)).not.toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
   it('uses the day to correct only when the reported month is the reference month', async () => {
@@ -134,7 +140,7 @@ describe('inline birth entry', () => {
     expect(screen.getByText('公历 1974-02-03')).toBeVisible();
     expect(confirm).not.toHaveBeenCalled();
     await user.click(submit);
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1974-02-03' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1974-02-03' }, '2026-06-19');
   });
 
   it('discards late previews, requires a selection for multiple dates and can fall back to year only', async () => {
@@ -152,6 +158,164 @@ describe('inline birth entry', () => {
     await user.click(key('仅按年份对照')); expect(confirm).toHaveBeenLastCalledWith({ year: 1980 });
     await user.click(screen.getByRole('radio', { name: /1980-12-20/ }));
     await user.click(key('确认并对照')); expect(confirm).toHaveBeenLastCalledWith({ birthDate: '1980-12-20' });
+  });
+  it('waits for both years and uses attained age rather than subtracting it from the current year', async () => {
+    let finishLatest!: (data: BirthDatePreviewDto) => void;
+    const client = createClientStub({
+      getCurrent: dateReference('2026-01-01'),
+      previewBirthDate: vi.fn(({ year }) => year === 2000
+        ? Promise.resolve({ matches: [match('2000-09-12', '八月十五')] })
+        : new Promise<BirthDatePreviewDto>(resolve => { finishLatest = resolve; })),
+    });
+    const { confirm, user } = setup(client, lunarAgeDraft);
+    await waitFor(() => expect(client.previewBirthDate).toHaveBeenCalledTimes(2));
+    expect(vi.mocked(client.previewBirthDate).mock.calls.map(([request]) => request)).toEqual([
+      { year: 2000, calendar: 'lunar', month: 8, day: 15 },
+      { year: 2001, calendar: 'lunar', month: 8, day: 15 },
+    ]);
+    expect(key('确认并对照')).toBeDisabled();
+    expect(screen.queryByText(/2000-09-12/)).not.toBeInTheDocument();
+    await user.keyboard('{Enter}');
+    expect(confirm).not.toHaveBeenCalled();
+    await act(async () => finishLatest({ matches: [match('2001-10-01', '八月十五')] }));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' }, '2026-01-01');
+    expect(screen.getByText(/八月十五 · 2000-09-12/)).toBeVisible();
+    expect(screen.queryByText(/2001-10-01/)).not.toBeInTheDocument();
+  });
+  it('requires explicit selection for multiple exact-age dates across years and includes birthdays occurring today', async () => {
+    const client = createClientStub({
+      getCurrent: dateReference('2026-09-21'),
+      previewBirthDate: vi.fn(async ({ year }) => ({ matches: year === 2001
+        ? [match('2001-10-01', '八月十五')] : [match('2002-09-21', '八月十五')] })),
+    });
+    const { user, confirm } = setup(client, { ...lunarAgeDraft, primary: '24' });
+    await screen.findByRole('radio', { name: /八月十五 · 2001-10-01/ });
+    expect(screen.getByRole('radio', { name: /八月十五 · 2002-09-21/ })).toBeVisible();
+    expect(screen.queryByRole('button', { name: '仅按年份对照' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: '按出生年份' }));
+    expect(slot('年')).toHaveValue('');
+    await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
+    expect(slot('年龄')).toHaveValue('24');
+    await screen.findByRole('radio', { name: /八月十五 · 2001-10-01/ });
+    await user.keyboard('{Enter}');
+    expect(key('确认并对照')).toBeDisabled();
+    expect(confirm).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('radio', { name: /八月十五 · 2001-10-01/ }));
+    await user.click(key('确认并对照'));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2001-10-01' }, '2026-09-21');
+  });
+  it('keeps both regular and leap month matches that fit the entered age', async () => {
+    const client = createClientStub({
+      getCurrent: dateReference('2026-06-19'),
+      previewBirthDate: vi.fn(async ({ year }) => ({ matches: year === 2023
+        ? [match('2023-02-20', '二月初一'), { ...match('2023-03-22', '闰二月初一'), leap: true }]
+        : [match('2022-03-03', '二月初一')] })),
+    });
+    const { user, confirm } = setup(client, { ...lunarAgeDraft, primary: '3', month: '02', day: '01' });
+    const leap = await screen.findByRole('radio', { name: /闰二月初一 · 2023-03-22/ });
+    expect(screen.getByRole('radio', { name: /^二月初一 · 2023-02-20$/ })).toBeVisible();
+    expect(screen.queryByRole('radio', { name: /2022-03-03/ })).not.toBeInTheDocument();
+    await user.click(leap);
+    await user.click(key('确认并对照'));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-03-22' }, '2026-06-19');
+  });
+  it('retains the selected lunar date and limits alternatives to the entered year when switching modes', async () => {
+    const client = createClientStub({
+      getCurrent: dateReference('2026-02-25'),
+      previewBirthDate: vi.fn(async ({ year }) => ({ matches: year === 2023
+        ? [match('2023-02-20', '二月初一'), { ...match('2023-03-22', '闰二月初一'), leap: true }]
+        : [match('2022-03-03', '二月初一')] })),
+    });
+    const { user, confirm } = setup(client, { ...lunarAgeDraft, mode: 'year', primary: '2023', month: '02', day: '01' });
+    const regular = await screen.findByRole('radio', { name: /^二月初一 · 2023-02-20$/ });
+    const ageMode = screen.getByRole('radio', { name: '按年龄推算' });
+    expect(ageMode).toBeDisabled();
+    await user.click(regular);
+    await user.click(ageMode);
+    expect(slot('年龄')).toHaveValue('3');
+    expect(await screen.findByRole('radio', { name: /2023-03-22/ })).not.toBeChecked();
+    expect(screen.getByRole('radio', { name: /^二月初一 · 2023-02-20$/ })).toBeChecked();
+    expect(screen.queryByRole('radio', { name: /2022-03-03/ })).not.toBeInTheDocument();
+    expect(client.previewBirthDate).not.toHaveBeenCalledWith(expect.objectContaining({ year: 2022 }));
+    await user.click(key('确认并对照'));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-02-20' }, '2026-02-25');
+  });
+  it('requires another confirmation after a day change even if the original birthday still qualifies', async () => {
+    const getCurrent = dateReference('2026-09-11')
+      .mockResolvedValueOnce(await dateReference('2026-09-10')());
+    const client = createClientStub({
+      getCurrent,
+      previewBirthDate: vi.fn(async ({ year }) => ({ matches: year === 2000
+        ? [match('2000-09-12', '八月十五')] : [match('2001-10-01', '八月十五')] })),
+    });
+    const { user, confirm } = setup(client, lunarAgeDraft);
+    await screen.findByText(/八月十五 · 2000-09-12/);
+    await user.keyboard('{Enter}');
+    await screen.findByText(/北京日期已变更/);
+    expect(confirm).not.toHaveBeenCalled();
+    await waitFor(() => expect(key('确认并对照')).toBeEnabled());
+    await user.click(key('确认并对照'));
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' }, '2026-09-11');
+    expect(getCurrent).toHaveBeenCalledTimes(3);
+  });
+  it('keeps an explicitly entered annual birth year on a later clock refresh', async () => {
+    const before = await dateReference('2026-08-31')();
+    const getCurrent = dateReference('2026-09-01').mockResolvedValueOnce(before).mockResolvedValueOnce(before);
+    const { user, confirm } = setup(createClientStub({ getCurrent }),
+      { ...emptyBirthDraft, mode: 'year', primary: '2000', month: '09' });
+    await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
+    await waitFor(() => expect(slot('年龄')).toHaveValue('25'));
+    const submit = key('仅按年份对照');
+    await user.click(submit);
+    await screen.findByText(/北京日期已变更/);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(slot('年龄')).toHaveValue('26');
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2000 }, '2026-09-01');
+    confirm.mockClear();
+    await user.clear(slot('年龄'));
+    await user.type(slot('年龄'), '25');
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2001 }, '2026-09-01');
+  });
+  it('does not submit an age-derived year when the fresh service clock fails', async () => {
+    const getCurrent = dateReference('2026-09-11')
+      .mockResolvedValueOnce(await dateReference('2026-09-11')())
+      .mockRejectedValueOnce(new Error('private'));
+    const { user, confirm } = setup(createClientStub({ getCurrent }), { ...emptyBirthDraft, primary: '25' });
+    const submit = key('仅按年份对照');
+    await waitFor(() => expect(submit).toBeEnabled());
+    await user.click(submit);
+    const retry = await screen.findByRole('button', { name: /获取当前北京日期失败/ });
+    expect(submit).toBeDisabled();
+    expect(confirm).not.toHaveBeenCalled();
+    expect(screen.queryByText(/private/)).not.toBeInTheDocument();
+    await user.click(retry);
+    await waitFor(() => expect(submit).toBeEnabled());
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2001 }, '2026-09-11');
+  });
+  it('never submits from a partial result when either year fails and explains no exact-age matches after retry', async () => {
+    const client = createClientStub({
+      getCurrent: dateReference('2026-01-01'),
+      previewBirthDate: vi.fn()
+        .mockResolvedValueOnce({ matches: [match('2000-09-12', '八月十五')] })
+        .mockRejectedValueOnce(new Error('private'))
+        .mockResolvedValueOnce({ matches: [] })
+        .mockResolvedValueOnce({ matches: [match('2001-10-01', '八月十五')] }),
+    });
+    const { user, confirm } = setup(client, lunarAgeDraft);
+    const retry = await screen.findByRole('button', { name: /日期预览失败/ });
+    expect(key('确认并对照')).toBeDisabled();
+    expect(screen.queryByText(/2000-09-12|private/)).not.toBeInTheDocument();
+    await user.keyboard('{Enter}');
+    expect(confirm).not.toHaveBeenCalled();
+    await user.click(retry);
+    expect(key('确认并对照')).toBeDisabled();
+    await screen.findByText(/未找到符合所填周岁/);
+    expect(key('确认并对照')).toBeDisabled();
+    expect(client.previewBirthDate).toHaveBeenCalledTimes(4);
+    expect(confirm).not.toHaveBeenCalled();
   });
   it('honors one Enter pressed while a valid date is still being resolved', async () => {
     let finish!: (data: BirthDatePreviewDto) => void;
