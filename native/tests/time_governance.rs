@@ -61,6 +61,11 @@ fn probe(timezone: &str) -> Vec<Value> {
         // Actual 2024 Dahan boundary with a one millisecond step on either side.
         q(learning, "2024-01-20T22:07:21.999"),
         q(learning, "2024-01-20T22:07:22.000"),
+        q(learning, "2024-01-20T14:07:22Z"),
+        q(learning, "2024-01-20T22:07:22.001+08:00"),
+        // The second qi starts at the actual spring equinox, not at local midnight.
+        q(learning, "2024-03-20T11:06:24.999+08:00"),
+        q(learning, "2024-03-20T03:06:25Z"),
         json!({"method":"GET","path":"/api/v1/yunqi/current","nowMs":now}),
         json!({"method":"POST","path":"/api/v1/yunqi/learning/birth-date-preview","body":{"year":2023,"calendar":"lunar","month":2,"day":1},"nowMs":now}),
     ];
@@ -97,6 +102,14 @@ fn same_fixed_beijing_results_in_different_host_time_zones() {
     );
     assert_eq!(utc[2]["body"]["data"]["facts"]["year"], 2023);
     assert_eq!(utc[3]["body"]["data"]["facts"]["year"], 2024);
+    assert_eq!(utc[3], utc[4], "UTC and local inputs at the same boundary");
+    assert_eq!(utc[5]["body"]["data"]["facts"]["year"], 2024);
+    assert_eq!(utc[6]["body"]["data"]["facts"]["currentStep"]["index"], 1);
+    assert_eq!(utc[7]["body"]["data"]["facts"]["currentStep"]["index"], 2);
+    assert_eq!(
+        utc[7]["body"]["data"]["facts"]["input"]["localTime"],
+        "2024-03-20T11:06:25+08:00"
+    );
     for zone in ["Asia/Shanghai", "America/Los_Angeles", "Pacific/Auckland"] {
         assert_eq!(utc, probe(zone), "{zone}");
     }

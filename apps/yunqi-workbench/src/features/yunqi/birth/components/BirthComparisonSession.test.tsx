@@ -48,7 +48,8 @@ describe('birth comparison assessment session', () => {
     expect(within(historical).getByText('释 义')).toBeVisible();
     expect(within(historical).getByText('出生阶段', { exact: true })).not.toHaveClass('classics-card__badge--current');
     expect(reading.querySelector('.classics-card--current')).not.toBeInTheDocument();
-    expect(within(historical).getByRole('link', { name: /^出处/ })).toHaveAttribute('href', 'https://example.org/classics');
+    expect(historical.querySelector('.classics-card__source > span.learning-source')).toHaveTextContent(/^《.+》/);
+    expect(within(historical).queryByRole('link')).not.toBeInTheDocument();
     await user.click(within(reading).getByRole('button', { name: '全年' }));
     expect(within(historical).getByText('全年适用')).toBeVisible();
     const current = within(reading).getByText('对照时的当下原文').closest('details')!;

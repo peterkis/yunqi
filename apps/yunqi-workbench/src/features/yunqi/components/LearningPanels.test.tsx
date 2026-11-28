@@ -20,8 +20,8 @@ describe('live learning cards replacing demo panels', () => {
     expect(screen.getByText('原 文')).toBeVisible();
     expect(screen.getByText('释 义')).toBeVisible();
     expect(screen.getByText(learning.annualPassages[0].explanation)).toBeVisible();
-    expect(screen.getByRole('link')).toHaveAttribute('href', learning.annualPassages[0].sourceUrl);
-    expect(screen.getByRole('link')).toHaveAttribute('rel', 'noreferrer');
+    expect(screen.getByTitle(learning.annualPassages[0].source)).toBeVisible();
+    expect(screen.queryByRole('link')).not.toBeInTheDocument();
   });
 
   it('does not invent missing source text', async () => {

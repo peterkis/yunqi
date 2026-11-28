@@ -159,7 +159,7 @@ Jade Ambient Surface 是展开态工作台共用的本地表面样式。授权�
 | 视觉角色 | 令牌与行为 |
 | --- | --- |
 | 解读子卡、维度标签 | `reading-insight-surface`、`reading-scope-surface`，正文和次要信息沿用墨色阶梯 |
-| 出处胶囊 | `reading-source-surface` 配 `accent` 前景，长题名可换行；内网版显示可复制的短书目，悬停可读完整题名，不提供外链或外链图标 |
+| 出处胶囊 | `reading-source-surface` 配 `accent` 前景，长题名可换行；当下关系解读、当下与先天原文、量表来源统一显示可选择复制的书目或标准号，悬停可读完整出处，不提供外链或外链图标 |
 | 原文卡和标签 | 当下原文复用先天摘录的 `reading-excerpt` 表面，默认雾青；五行洗色与圆点由 `excerpt-{wood,metal,water,fire,earth}-{wash,pigment}` 供应，渐变在左侧 20% 衰减 |
 
 折叠以原生 `details/summary` 支持点击、Enter 和空格。标准动效且浏览器支持内在高度插值、

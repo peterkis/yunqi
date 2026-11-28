@@ -41,6 +41,7 @@ fn invoke(method: &str, path: &str, body: &Value, now: i64) -> Option<Result<Val
         return Some(Ok(json!({"status":"ok","apiVersion":"v1"})));
     }
     let endpoint = path.strip_prefix(YUNQI);
+    let clock = || calendar::YunQiCalendarTime::from_clock_epoch(now);
     let data = match (method, endpoint) {
         ("GET", Some(year))
             if year
@@ -50,8 +51,8 @@ fn invoke(method: &str, path: &str, body: &Value, now: i64) -> Option<Result<Val
             validation::integer(&json!(&year[5..]), "/year", 1900, 2100)
                 .and_then(|y| domain::year(y).map_err(business_error))
         }
-        ("GET", Some("current")) => domain::current(now).map_err(business_error),
-        ("GET", Some("learning/current")) => domain::learning(now).map_err(business_error),
+        ("GET", Some("current")) => domain::current(clock()).map_err(business_error),
+        ("GET", Some("learning/current")) => domain::learning(clock()).map_err(business_error),
         ("POST", Some(op @ ("calculate" | "learning/calculate"))) => {
             validation::request(body, "CalculateRequest").and_then(|b| {
                 let time = calendar::parse_datetime(b["dateTime"].as_str().unwrap())
@@ -65,14 +66,14 @@ fn invoke(method: &str, path: &str, body: &Value, now: i64) -> Option<Result<Val
             })
         }
         ("POST", Some("learning/birth-comparison")) => validation::request(body, "BirthRequest")
-            .and_then(|b| calendar::birth::comparison(&b, now).map_err(business_error)),
+            .and_then(|b| calendar::birth::comparison(&b, clock()).map_err(business_error)),
         ("POST", Some("learning/birth-year-comparison")) => {
             validation::request(body, "BirthYearRequest")
-                .and_then(|b| calendar::birth::year(&b, now).map_err(business_error))
+                .and_then(|b| calendar::birth::year(&b, clock()).map_err(business_error))
         }
         ("POST", Some("learning/birth-date-preview")) => {
             validation::request(body, "BirthDatePreviewRequest")
-                .and_then(|b| calendar::birth::preview(&b, now).map_err(business_error))
+                .and_then(|b| calendar::birth::preview(&b, clock()).map_err(business_error))
         }
         ("GET", None) if path == "/api/v1/constitution/questionnaire" => {
             Ok(constitution::questionnaire())

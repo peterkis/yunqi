@@ -1,8 +1,5 @@
 //! Date-only birthdays are half-open intervals. A solar-term day can be ambiguous.
-use super::{
-    compare_local, format_time, local_year, parse_datetime, resolve_lunar_birthday, solar_term,
-    DAY_MS,
-};
+use super::{format_time, parse_datetime, resolve_lunar_birthday, solar_term, YunQiCalendarTime};
 use crate::domain::{compare_elements, learning, qi_element};
 use serde_json::{json, Value};
 
@@ -13,31 +10,15 @@ const AMBIGUOUS: &str = "出生时间不详，所填日期跨运气交界；请�
 const UNAMBIGUOUS: &str =
     "出生时间不详；所填日期已发生的时段归属一致。下列区间用于核对，不是推定的出生时刻。";
 
-fn before(left: i64, right: i64) -> bool {
-    compare_local(left, right).is_lt()
-}
-
-fn earlier(left: i64, right: i64) -> i64 {
-    if before(left, right) {
-        left
-    } else {
-        right
-    }
-}
-
-fn supported_day_start(start: i64) -> Result<i64, String> {
-    if local_year(start) != 1900 {
+fn supported_day_start(start: YunQiCalendarTime) -> Result<YunQiCalendarTime, String> {
+    if start.year() != 1900 {
         return Ok(start);
     }
     let minimum = solar_term(1900, "大寒")?;
-    if !before(minimum, start + DAY_MS) {
+    if minimum >= start.add_days(1) {
         return Err("出生日期早于支持范围".into());
     }
-    Ok(if before(start, minimum) {
-        minimum
-    } else {
-        start
-    })
+    Ok(if start < minimum { minimum } else { start })
 }
 
 fn scalar<'a>(value: &'a Value, pointer: &str) -> Result<&'a str, String> {
@@ -84,26 +65,26 @@ fn comparisons(birth: &Value, current: &Value, annual_only: bool) -> Result<Vec<
         .collect()
 }
 
-pub fn year(body: &Value, now: i64) -> Result<Value, String> {
+pub fn year(body: &Value, now: YunQiCalendarTime) -> Result<Value, String> {
     let year = asked_year(body)?;
-    let this_year = local_year(now);
+    let this_year = now.year();
     if year > this_year {
         return Err("出生年份不能晚于当前年份".into());
     }
     let start = parse_datetime(&format!("{year}-01-01T00:00:00"))?;
     let boundary = solar_term(year, "大寒")?;
     let until = if year == this_year {
-        now + 1
+        now.shift_milliseconds(1)
     } else {
         parse_datetime(&format!("{}-01-01T00:00:00", year + 1))?
     };
     let current = learning(now)?;
     let mut candidates = Vec::new();
     for (label, from, end) in [
-        ("大寒交节前", start, earlier(boundary, until)),
+        ("大寒交节前", start, boundary.min(until)),
         ("大寒交节起", boundary, until),
     ] {
-        if !before(from, end) || (year == 1900 && from == start) {
+        if from >= end || (year == 1900 && from == start) {
             continue;
         }
         let birth = learning(from)?;
@@ -158,7 +139,7 @@ fn day_boundaries(first: &Value, last: &Value, date: &str) -> Result<Vec<Value>,
     Ok(result)
 }
 
-pub fn preview(body: &Value, now: i64) -> Result<Value, String> {
+pub fn preview(body: &Value, now: YunQiCalendarTime) -> Result<Value, String> {
     let year = asked_year(body)?;
     let calendar = body["calendar"].as_str().ok_or(INVALID)?;
     let month = body["month"]
@@ -173,7 +154,7 @@ pub fn preview(body: &Value, now: i64) -> Result<Value, String> {
         .get("leap")
         .map(|v| v.as_bool().ok_or(INVALID))
         .transpose()?;
-    if year > local_year(now) || (calendar == "solar" && leap.is_some()) {
+    if year > now.year() || (calendar == "solar" && leap.is_some()) {
         return Err("出生日期或历法选项无效".into());
     }
     let dates = match calendar {
@@ -187,17 +168,17 @@ pub fn preview(body: &Value, now: i64) -> Result<Value, String> {
     for mut date in dates {
         let birth_date = scalar(&date, "/birthDate")?;
         let start = parse_datetime(&format!("{birth_date}T00:00:00"))?;
-        if before(now, start) {
+        if now < start {
             continue;
         }
-        let end = start + DAY_MS;
-        if year == 1900 && !before(solar_term(1900, "大寒")?, end) {
+        let end = start.add_days(1);
+        if year == 1900 && solar_term(1900, "大寒")? >= end {
             continue;
         }
         let first = learning(supported_day_start(start)?)?;
-        let last = learning(end - 1)?;
+        let last = learning(end.shift_milliseconds(-1))?;
         let mut labels = vec![annual_label(&first)?];
-        let last_label = if before(now, end) {
+        let last_label = if now < end {
             annual_label(&learning(now)?)?
         } else {
             annual_label(&last)?
@@ -215,7 +196,12 @@ pub fn preview(body: &Value, now: i64) -> Result<Value, String> {
     Ok(result)
 }
 
-fn partition_day(first: &Value, last: &Value, from: i64, until: i64) -> Result<Vec<i64>, String> {
+fn partition_day(
+    first: &Value,
+    last: &Value,
+    from: YunQiCalendarTime,
+    until: YunQiCalendarTime,
+) -> Result<Vec<YunQiCalendarTime>, String> {
     let mut points = vec![from, until];
     for value in [first, last] {
         for at in steps(value, "/facts/sixQi/steps")?
@@ -224,11 +210,9 @@ fn partition_day(first: &Value, last: &Value, from: i64, until: i64) -> Result<V
             .chain(std::iter::once(&value["facts"]["interval"]["end"]))
             .chain(steps(value, "/movements")?.iter().map(|s| &s["start"]))
         {
-            let epoch = at["epochMilliseconds"]
-                .as_i64()
-                .ok_or("无效的出生对照交界")?;
-            if before(from, epoch) && before(epoch, until) {
-                points.push(epoch);
+            let boundary = parse_datetime(scalar(at, "/localTime")?)?;
+            if from < boundary && boundary < until {
+                points.push(boundary);
             }
         }
     }
@@ -237,7 +221,7 @@ fn partition_day(first: &Value, last: &Value, from: i64, until: i64) -> Result<V
     Ok(points)
 }
 
-pub fn comparison(body: &Value, now: i64) -> Result<Value, String> {
+pub fn comparison(body: &Value, now: YunQiCalendarTime) -> Result<Value, String> {
     let date = body["birthDate"].as_str().ok_or(INVALID)?;
     let time = body
         .get("birthTime")
@@ -249,7 +233,7 @@ pub fn comparison(body: &Value, now: i64) -> Result<Value, String> {
     } else {
         supported_day_start(start)?
     };
-    if before(now, from) {
+    if now < from {
         return Err("出生时间不能晚于当前时点".into());
     }
     let current = learning(now)?;
@@ -257,8 +241,8 @@ pub fn comparison(body: &Value, now: i64) -> Result<Value, String> {
     let (points, precision, message) = if time.is_some() {
         (vec![from, from], "time", KNOWN)
     } else {
-        let until = earlier(start + DAY_MS, now + 1);
-        let last = learning(until - 1)?;
+        let until = start.add_days(1).min(now.shift_milliseconds(1));
+        let last = learning(until.shift_milliseconds(-1))?;
         let points = partition_day(&initial, &last, from, until)?;
         let message = if points.len() > 2 {
             AMBIGUOUS
@@ -321,11 +305,14 @@ mod tests {
         assert_eq!(result["candidates"].as_array().unwrap().len(), 1);
         assert_eq!(
             result["candidates"][0]["until"]["epochMilliseconds"],
-            now + 1
+            now.shift_milliseconds(1).epoch()
         );
         let cutoff = solar_term(1900, "大寒").unwrap();
         let date = format_time(cutoff)["localTime"].as_str().unwrap()[..10].to_owned();
         let result = comparison(&json!({"birthDate":date}), now).unwrap();
-        assert_eq!(result["candidates"][0]["from"]["epochMilliseconds"], cutoff);
+        assert_eq!(
+            result["candidates"][0]["from"]["epochMilliseconds"],
+            cutoff.epoch()
+        );
     }
 }

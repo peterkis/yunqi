@@ -574,6 +574,12 @@ test('constitution keyboard loop answers one question at a time and destroys the
   await expect(page.getByText('判定说明与边界', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByText('量表来源与适用说明', { exact: true })).toBeFocused();
+  await page.keyboard.press('Enter');
+  const citation = page.locator('.constitution-source > span.learning-source');
+  await expect(citation).toHaveText('GB/T 46939-2025');
+  await expect(citation).toHaveAttribute('title', /中医体质分类与判定量表/);
+  await expect(citation).toHaveCSS('border-radius', '999px');
+  await expect(page.locator('.constitution-source').getByRole('link')).toHaveCount(0);
   await page.keyboard.press('Tab');
   await expect(page.getByText('精确时刻', { exact: true })).toBeFocused();
   await page.keyboard.press('Tab');

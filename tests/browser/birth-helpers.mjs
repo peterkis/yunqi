@@ -75,8 +75,8 @@ export async function expectBirthReadings(container, passages) {
     await expect(card.getByText('原 文', { exact: true })).toBeVisible();
     await expect(card.getByText('释 义', { exact: true })).toBeVisible();
     await expect(card.locator('.classics-card__interpretation > p')).toHaveText(passage.explanation);
-    await expect(card.locator('.classics-card__source > p')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
-    await expect(card.getByRole('link', { name: /^出处/ })).toHaveAttribute('href', passage.sourceUrl);
+    await expect(card.locator('.classics-card__source .learning-source')).toHaveText(`《${passage.work}·${passage.chapter}》${passage.section}`);
+    await expect(card.locator('.classics-card__source').getByRole('link')).toHaveCount(0);
     if (await full.count()) await full.locator('summary').press('Enter');
   }
 }

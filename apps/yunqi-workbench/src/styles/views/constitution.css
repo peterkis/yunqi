@@ -80,7 +80,6 @@
 .constitution-disclosure { min-width: 0; color: var(--ink-secondary); font-size: var(--ts-small); }
 .constitution-disclosure + .constitution-disclosure { border-top: var(--constitution-hairline) solid var(--border-subtle); }
 .constitution-disclosure p { margin: var(--space-1) 0; }
-.constitution-source a { color: var(--accent); }
 
 .constitution-snapshots { display: grid; gap: var(--space-3); padding-block: var(--space-1) var(--space-3); }
 .constitution-snapshot {

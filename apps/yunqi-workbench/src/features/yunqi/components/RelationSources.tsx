@@ -1,3 +1,4 @@
+import { SourceCitation } from '../../../components/design/SourceCitation';
 import { compactSourceTitle, type LearningRelationViewModel } from '../presentation/map-learning';
 
 export function RelationSources({ sources }: {
@@ -6,7 +7,7 @@ export function RelationSources({ sources }: {
   if (!sources.length) return null;
   return <div className="learning-sources learning-sources--pills">
     {sources.map(source =>
-      <span className="learning-source" key={source.id} title={source.title}>{compactSourceTitle(source.title)}</span>
+      <SourceCitation key={source.id} title={source.title}>{compactSourceTitle(source.title)}</SourceCitation>
     )}
   </div>;
 }

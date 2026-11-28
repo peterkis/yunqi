@@ -1,7 +1,7 @@
 //! Fixed Gregorian Beijing standard time. All astronomical values come from 6tail's
 //! tyme4rs. No machine time zone or historical DST enters business calculations.
 use serde_json::{json, Value};
-use std::{cmp::Ordering, sync::OnceLock};
+use std::sync::OnceLock;
 use tyme4rs::tyme::{
     lunar::{LunarYear, LUNAR_DAY_NAMES, LUNAR_MONTH_NAMES},
     solar::{SolarDay, SolarTerm},
@@ -20,8 +20,11 @@ const TERMS: [&str; 9] = [
 const FIRST_PROVIDER_YEAR: i32 = 1899;
 const LAST_PROVIDER_YEAR: i32 = 2102;
 
-#[derive(Clone, Copy, Eq, Ord, PartialEq, PartialOrd)]
-struct LocalFields {
+/// Authoritative civil fields in fixed Beijing standard time (UTC+08:00).
+/// Private fields keep invalid dates and different time standards out of the domain.
+/// Epoch milliseconds are derived, never stored as a second source of truth.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd)]
+pub struct YunQiCalendarTime {
     year: i32,
     month: u32,
     day: u32,
@@ -31,10 +34,10 @@ struct LocalFields {
     millisecond: u32,
 }
 
-impl LocalFields {
+impl YunQiCalendarTime {
     // Proleptic Gregorian days relative to 1970-01-01, March-based 400-year eras,
     // exactly as in domain/calendar/time.ts; no cutover or locale delegation.
-    fn day_number(self) -> i64 {
+    pub(crate) fn day_number(self) -> i64 {
         let month = i64::from(self.month);
         let year = i64::from(self.year) - i64::from(month <= 2);
         let era = year.div_euclid(400);
@@ -62,16 +65,48 @@ impl LocalFields {
     }
 
     fn epoch(self) -> i64 {
-        self.day_number() * DAY_MS
-            + i64::from(self.hour) * 3_600_000
+        self.day_number() * DAY_MS + self.millisecond_of_day() - OFFSET_MS
+    }
+
+    pub(crate) fn milliseconds_since(self, earlier: Self) -> i64 {
+        (self.day_number() - earlier.day_number()) * DAY_MS + self.millisecond_of_day()
+            - earlier.millisecond_of_day()
+    }
+
+    fn millisecond_of_day(self) -> i64 {
+        i64::from(self.hour) * 3_600_000
             + i64::from(self.minute) * 60_000
             + i64::from(self.second) * 1000
             + i64::from(self.millisecond)
-            - OFFSET_MS
     }
 
-    fn from_epoch(epoch: i64) -> Self {
-        let day = local_day_number(epoch) + 719_468;
+    /// Normalize a system clock reading at the dispatch boundary.
+    pub(crate) fn from_clock_epoch(epoch: i64) -> Self {
+        let shifted = epoch.rem_euclid(DAY_MS) + OFFSET_MS;
+        Self::from_civil_day(
+            epoch.div_euclid(DAY_MS) + shifted / DAY_MS,
+            shifted % DAY_MS,
+        )
+    }
+
+    pub(crate) fn year(self) -> i32 {
+        self.year
+    }
+
+    pub(crate) fn add_days(self, days: i64) -> Self {
+        Self::from_civil_day(self.day_number() + days, self.millisecond_of_day())
+    }
+
+    pub(crate) fn shift_milliseconds(self, amount: i64) -> Self {
+        let shifted = self.millisecond_of_day() + amount;
+        Self::from_civil_day(
+            self.day_number() + shifted.div_euclid(DAY_MS),
+            shifted.rem_euclid(DAY_MS),
+        )
+    }
+
+    fn from_civil_day(day: i64, ms: i64) -> Self {
+        let day = day + 719_468;
         let era = day.div_euclid(146_097);
         let day_in_era = day.rem_euclid(146_097);
         let year_in_era =
@@ -79,7 +114,6 @@ impl LocalFields {
         let day_in_year = day_in_era - (365 * year_in_era + year_in_era / 4 - year_in_era / 100);
         let shifted_month = (5 * day_in_year + 2) / 153;
         let month = shifted_month + if shifted_month < 10 { 3 } else { -9 };
-        let ms = (epoch.rem_euclid(DAY_MS) + OFFSET_MS) % DAY_MS;
         Self {
             year: (era * 400 + year_in_era + i64::from(month <= 2)) as i32,
             month: month as u32,
@@ -110,21 +144,8 @@ impl LocalFields {
     }
 }
 
-pub fn local_day_number(epoch: i64) -> i64 {
-    epoch.div_euclid(DAY_MS) + (epoch.rem_euclid(DAY_MS) + OFFSET_MS) / DAY_MS
-}
-
-pub fn local_year(epoch: i64) -> i32 {
-    LocalFields::from_epoch(epoch).year
-}
-
-/// Domain boundary ownership follows Gregorian field ordering in fixed Beijing time.
-pub fn compare_local(left: i64, right: i64) -> Ordering {
-    LocalFields::from_epoch(left).cmp(&LocalFields::from_epoch(right))
-}
-
-pub fn format_time(epoch: i64) -> Value {
-    json!({"localTime":LocalFields::from_epoch(epoch).iso(), "epochMilliseconds":epoch,
+pub fn format_time(time: YunQiCalendarTime) -> Value {
+    json!({"localTime":time.iso(), "epochMilliseconds":time.epoch(),
            "offset":"+08:00","calendarTimeStandard":"BeijingStandardTime+08:00"})
 }
 
@@ -136,7 +157,7 @@ fn digits(input: &[u8]) -> Option<u32> {
 
 /// Only the API grammar is accepted: YYYY-MM-DDTHH:mm:ss[.SSS] with no
 /// suffix, +08:00 or Z. Leap seconds and automatically rolled dates are invalid.
-pub fn parse_datetime(input: &str) -> Result<i64, String> {
+pub fn parse_datetime(input: &str) -> Result<YunQiCalendarTime, String> {
     let utc = input.ends_with('Z');
     let body = input
         .strip_suffix('Z')
@@ -160,7 +181,7 @@ pub fn parse_datetime(input: &str) -> Result<i64, String> {
     } else {
         0
     };
-    let fields = LocalFields {
+    let fields = YunQiCalendarTime {
         year: digits(&body[0..4]).ok_or(INVALID_DATE)? as i32,
         month: digits(&body[5..7]).ok_or(INVALID_DATE)?,
         day: digits(&body[8..10]).ok_or(INVALID_DATE)?,
@@ -172,14 +193,18 @@ pub fn parse_datetime(input: &str) -> Result<i64, String> {
     if !fields.valid() {
         return Err(INVALID_DATE.into());
     }
-    Ok(fields.epoch() + if utc { OFFSET_MS } else { 0 })
+    Ok(if utc {
+        fields.shift_milliseconds(OFFSET_MS)
+    } else {
+        fields
+    })
 }
 
-pub fn solar_term(year: i32, name: &str) -> Result<i64, String> {
+pub fn solar_term(year: i32, name: &str) -> Result<YunQiCalendarTime, String> {
     // Bounded cache for supported years and both adjacent endpoints. The lookup
     // avoids repeated astronomical calculation across annual, learning and birth views.
     const COUNT: usize = (LAST_PROVIDER_YEAR - FIRST_PROVIDER_YEAR + 1) as usize * TERMS.len();
-    static CACHE: [OnceLock<i64>; COUNT] = [const { OnceLock::new() }; COUNT];
+    static CACHE: [OnceLock<YunQiCalendarTime>; COUNT] = [const { OnceLock::new() }; COUNT];
     if !(FIRST_PROVIDER_YEAR..=LAST_PROVIDER_YEAR).contains(&year) {
         return Err(format!("节气查询年份超出范围：{year}"));
     }
@@ -199,7 +224,7 @@ pub fn solar_term(year: i32, name: &str) -> Result<i64, String> {
     {
         return Err(format!("节气查询结果与请求不一致：{year} {name}"));
     }
-    let local = LocalFields {
+    let local = YunQiCalendarTime {
         year,
         month: time.get_month() as u32,
         day: time.get_day() as u32,
@@ -211,11 +236,11 @@ pub fn solar_term(year: i32, name: &str) -> Result<i64, String> {
     if !local.valid() {
         return Err(format!("节气时间无效：{year} {name}"));
     }
-    Ok(*cell.get_or_init(|| local.epoch()))
+    Ok(*cell.get_or_init(|| local))
 }
 
 struct LunarPeriod {
-    first_day: i64,
+    first_day: YunQiCalendarTime,
     month: u8,
     days: u8,
     leap: bool,
@@ -240,7 +265,7 @@ fn birth_year(year: i32) -> BirthYear {
             if solar.is_after(end) || start.subtract(solar) >= days as isize {
                 continue;
             }
-            let midnight = LocalFields {
+            let midnight = YunQiCalendarTime {
                 year: solar.get_year() as i32,
                 month: solar.get_month() as u32,
                 day: solar.get_day() as u32,
@@ -248,8 +273,7 @@ fn birth_year(year: i32) -> BirthYear {
                 minute: 0,
                 second: 0,
                 millisecond: 0,
-            }
-            .epoch();
+            };
             months.push(LunarPeriod {
                 month: period.get_month() as u8,
                 first_day: midnight,
@@ -277,8 +301,8 @@ pub fn resolve_lunar_birthday(year: i32, month: u32, day: u32, leap: Option<bool
         {
             continue;
         }
-        // Day 1 anchors the exact converted month; under fixed +08 a day is 86,400,000 ms.
-        let solar = LocalFields::from_epoch(period.first_day + i64::from(day - 1) * DAY_MS);
+        // Day 1 anchors the exact converted Gregorian month and day.
+        let solar = period.first_day.add_days(i64::from(day - 1));
         if solar.year == year {
             matches.push(json!({
                 "birthDate":format!("{year:04}-{:02}-{:02}",solar.month,solar.day),
@@ -308,7 +332,7 @@ mod tests {
             (1991, "小满", 674_832_014_000),
             (1991, "大暑", 680_256_668_000),
         ] {
-            assert_eq!(solar_term(year, name).unwrap(), ms, "{year} {name}");
+            assert_eq!(solar_term(year, name).unwrap().epoch(), ms, "{year} {name}");
         }
     }
 
@@ -372,7 +396,7 @@ mod cross_language {
             let year = fields[0].parse().unwrap();
             for (term, expected) in TERMS.iter().zip(&fields[3..]) {
                 assert_eq!(
-                    solar_term(year, term).unwrap(),
+                    solar_term(year, term).unwrap().epoch(),
                     expected.parse::<i64>().unwrap(),
                     "{year} {term}"
                 );

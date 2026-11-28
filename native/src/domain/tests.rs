@@ -91,7 +91,9 @@ fn all_52_passages_are_reachable_and_match_their_scope() {
     for y in 1984..2044 {
         let facts = year(y).unwrap();
         for step in facts["sixQi"]["steps"].as_array().unwrap() {
-            let result = learning(step["start"]["epochMilliseconds"].as_i64().unwrap()).unwrap();
+            let result =
+                learning(parse_datetime(step["start"]["localTime"].as_str().unwrap()).unwrap())
+                    .unwrap();
             let annual = result["annualPassages"].as_array().unwrap();
             let current = result["currentPassages"].as_array().unwrap();
             let movement = &facts["suiYun"];
@@ -141,8 +143,8 @@ fn original_2026_progress_and_boundary_witness() {
         result["currentMovementProgress"],
         json!({"elapsedRatio":0.095,"remainingCalendarDays":63,"endsOnInputDate":false})
     );
-    let edge = 1_800_430_190_000;
-    let prev = learning(edge - 1).unwrap();
+    let edge = parse_datetime("2027-01-20T15:29:50+08:00").unwrap();
+    let prev = learning(edge.shift_milliseconds(-1)).unwrap();
     let next = learning(edge).unwrap();
     assert_eq!(prev["facts"]["year"], 2026);
     assert_eq!(prev["currentMovementProgress"]["elapsedRatio"], 0.999);
@@ -166,13 +168,17 @@ fn beijing_midnight_and_gregorian_centuries_use_calendar_days() {
     ] {
         let start = parse_datetime(&format!("{y}-02-28T00:00:00")).unwrap();
         let end = parse_datetime(&format!("{y}-03-01T12:00:00")).unwrap();
-        let actual = progress(start, end, start + DAY_MS / 2);
+        let actual = progress(start, end, start.shift_milliseconds(43_200_000));
         assert_eq!(actual["remainingCalendarDays"], days);
         assert_eq!(actual["elapsedRatio"], ratio);
     }
     let start = parse_datetime("2026-11-21T00:00:00").unwrap();
     assert_eq!(
-        progress(start, start + DAY_MS, start + DAY_MS - 1),
+        progress(
+            start,
+            start.add_days(1),
+            start.add_days(1).shift_milliseconds(-1)
+        ),
         json!({"elapsedRatio":0.999,"remainingCalendarDays":1,"endsOnInputDate":false})
     );
 }
@@ -193,7 +199,11 @@ fn twin_fires_preserve_identity_in_both_directions() {
 fn learning_and_core_preserve_distinct_supported_range_errors() {
     let last = solar_term(2101, "大寒").unwrap();
     let first = solar_term(1900, "大寒").unwrap();
-    for ms in [first - 1, last, last + 1] {
+    for ms in [
+        first.shift_milliseconds(-1),
+        last,
+        last.shift_milliseconds(1),
+    ] {
         assert_eq!(learning(ms).unwrap_err(), "请求时点无效");
         assert_eq!(current(ms).unwrap_err(), "年份必须是 1900 到 2100 的整数");
     }
