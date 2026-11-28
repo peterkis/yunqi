@@ -57,10 +57,11 @@ fn inspect(file: &Path, source: &Source) -> io::Result<(Envelope, Release)> {
 }
 
 fn webview_satisfies(release: &Release) -> bool {
-    tauri::webview_version()
-        .ok()
-        .and_then(|version| version.split('.').next()?.parse::<u32>().ok())
-        .is_some_and(|major| major >= release.webview_min)
+    release.supports_webview(
+        tauri::webview_version()
+            .ok()
+            .and_then(|version| version.split('.').next()?.parse::<u32>().ok()),
+    )
 }
 
 fn open_cached_package(path: &Path, expected: u64) -> io::Result<(fs::File, u64)> {
@@ -96,7 +97,8 @@ impl Updater {
     }
 
     fn scheduled(&self, release: &Release) -> bool {
-        fs::read_to_string(self.root.join("next.txt")).is_ok_and(|v| v == release.digest)
+        fs::read_to_string(self.root.join("next.txt"))
+            .is_ok_and(|digest| release.matches_manifest(&digest))
     }
 
     fn status(&self) -> Status {
@@ -105,7 +107,9 @@ impl Updater {
             scheduled: ready
                 .as_ref()
                 .is_some_and(|release| self.scheduled(release)),
-            digest: ready.as_ref().map(|release| release.digest.clone()),
+            digest: ready
+                .as_ref()
+                .map(|release| release.manifest_digest.clone()),
             version: ready.map(|release| release.version),
             failed: self.root.join("failed.txt").is_file(),
         }
@@ -120,25 +124,42 @@ impl Updater {
         let Some((envelope, release)) = self.source.manifest().await? else {
             return Ok(());
         };
-        if !webview_satisfies(&release)
-            || self
-                .ready()
-                .is_ok_and(|ready| ready.digest == release.digest)
+        let ready = self.ready().ok();
+        if !webview_satisfies(&release) {
+            if ready.is_some() {
+                self.clear_authorization(window)?;
+            }
+            return Ok(());
+        }
+        if ready
+            .as_ref()
+            .is_some_and(|ready| release.matches_manifest(&ready.manifest_digest))
         {
             return Ok(());
         }
 
         let candidate = self.root.join("candidate.json");
         let package = self.root.join("package.exe");
-        if !inspect(&candidate, &self.source)
-            .is_ok_and(|(_, cached)| cached.digest == release.digest)
+        let cached = inspect(&candidate, &self.source)
+            .ok()
+            .map(|(_, release)| release);
+        if !cached
+            .as_ref()
+            .is_some_and(|cached| release.matches_manifest(&cached.manifest_digest))
         {
-            remove(&self.root.join("ready.json"))?;
             remove(&self.root.join("failed.txt"))?;
-            remove(&self.root.join("next.txt"))?;
-            remove(&package)?;
+            self.clear_authorization(window)?;
+            // Consent and readiness are manifest-specific; signed package bytes
+            // can still be reused when the package and its chunk layout agree.
+            if !cached
+                .as_ref()
+                .is_some_and(|cached| release.can_reuse_package(cached))
+            {
+                remove(&package)?;
+            }
             record(&candidate, &serde_json::to_vec(&envelope)?)?;
-            let _ = window.emit(CHANGE, ());
+        } else if ready.is_some() {
+            self.clear_authorization(window)?;
         }
 
         let (mut file, mut offset) = open_cached_package(&package, release.length)?;
@@ -227,7 +248,7 @@ impl Updater {
         };
         if !requested.map_or_else(
             || self.scheduled(&release),
-            |digest| digest == release.digest,
+            |digest| release.matches_manifest(digest),
         ) || !webview_satisfies(&release)
         {
             return Ok(false);
@@ -260,6 +281,7 @@ impl Updater {
             .arg(UPDATER_ARG)
             .arg(process::id().to_string())
             .arg(original)
+            .arg(&release.manifest_digest)
             .spawn()?;
 
         let armed = self.root.join("armed.txt");
@@ -311,8 +333,12 @@ pub async fn update_action(
         "next" => {
             let _operation = updater.operation.lock().await;
             match updater.ready() {
-                Ok(release) if release.digest == digest => {
-                    record(&updater.root.join("next.txt"), release.digest.as_bytes()).map(|_| true)
+                Ok(release) if release.matches_manifest(&digest) && webview_satisfies(&release) => {
+                    record(
+                        &updater.root.join("next.txt"),
+                        release.manifest_digest.as_bytes(),
+                    )
+                    .map(|_| true)
                 }
                 _ => Ok(false),
             }
@@ -388,7 +414,7 @@ pub fn installing() -> bool {
     })
 }
 
-fn handoff(pid: u32, original: &Path) -> io::Result<()> {
+fn handoff(pid: u32, original: &Path, manifest_digest: &str) -> io::Result<()> {
     let helper = env::current_exe()?;
     let root = helper.parent().ok_or_else(invalid)?;
     if helper.file_name().and_then(|name| name.to_str()) != Some("install-helper.exe") {
@@ -397,6 +423,9 @@ fn handoff(pid: u32, original: &Path) -> io::Result<()> {
     let lock = exclusive(&root.join("install.lock"))?;
     let source = Source::configured().ok_or_else(invalid)?;
     let (_, release) = inspect(&root.join("ready.json"), &source)?;
+    if !release.matches_manifest(manifest_digest) {
+        return Err(invalid());
+    }
     let parent = open_parent(pid)?;
     let armed = fs::write(root.join("armed.txt"), []);
     if !wait_parent(parent) || armed.is_err() {
@@ -427,9 +456,14 @@ pub fn handle_helper() -> bool {
     if args.next().is_none_or(|arg| arg != UPDATER_ARG) {
         return false;
     }
-    if let (Some(pid), Some(original)) = (args.next(), args.next()) {
-        if let Some(pid) = pid.to_str().and_then(|pid| pid.parse().ok()) {
-            let _ = handoff(pid, Path::new(&original));
+    if let (Some(pid), Some(original), Some(manifest_digest)) =
+        (args.next(), args.next(), args.next())
+    {
+        if let (Some(pid), Some(manifest_digest)) = (
+            pid.to_str().and_then(|pid| pid.parse().ok()),
+            manifest_digest.to_str(),
+        ) {
+            let _ = handoff(pid, Path::new(&original), manifest_digest);
         }
     }
     true

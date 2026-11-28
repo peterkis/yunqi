@@ -30,6 +30,22 @@ pub struct Release {
     pub digest: String,
     pub chunk_size: u64,
     pub chunks: Vec<String>,
+    #[serde(skip)]
+    pub manifest_digest: String,
+}
+
+impl Release {
+    pub fn matches_manifest(&self, digest: &str) -> bool {
+        self.manifest_digest == digest
+    }
+
+    pub fn supports_webview(&self, major: Option<u32>) -> bool {
+        major.is_some_and(|major| major >= self.webview_min)
+    }
+
+    pub fn can_reuse_package(&self, cached: &Self) -> bool {
+        self.digest == cached.digest && self.length == cached.length && self.chunks == cached.chunks
+    }
 }
 
 #[derive(Deserialize)]
@@ -38,6 +54,7 @@ struct Approval {
     nonce: String,
     version: String,
     digest: String,
+    manifest_digest: String,
     allowed: bool,
 }
 
@@ -50,7 +67,7 @@ fn public_key(value: Option<&str>) -> Option<VerifyingKey> {
     VerifyingKey::from_bytes(&bytes.try_into().ok()?).ok()
 }
 
-fn verify<T: DeserializeOwned>(envelope: &Envelope, key: &VerifyingKey) -> io::Result<T> {
+fn verified_payload(envelope: &Envelope, key: &VerifyingKey) -> io::Result<Vec<u8>> {
     let payload = STANDARD.decode(&envelope.payload).map_err(|_| invalid())?;
     let bytes = STANDARD
         .decode(&envelope.signature)
@@ -58,7 +75,11 @@ fn verify<T: DeserializeOwned>(envelope: &Envelope, key: &VerifyingKey) -> io::R
     let signature = Signature::from_slice(&bytes).map_err(|_| invalid())?;
     key.verify_strict(&payload, &signature)
         .map_err(|_| invalid())?;
-    serde_json::from_slice(&payload).map_err(|_| invalid())
+    Ok(payload)
+}
+
+fn verify<T: DeserializeOwned>(envelope: &Envelope, key: &VerifyingKey) -> io::Result<T> {
+    serde_json::from_slice(&verified_payload(envelope, key)?).map_err(|_| invalid())
 }
 
 pub fn hash(bytes: &[u8]) -> String {
@@ -112,7 +133,9 @@ impl Source {
     }
 
     pub fn release(&self, envelope: &Envelope) -> io::Result<Option<Release>> {
-        let manifest: Release = verify(envelope, &self.release_key)?;
+        let payload = verified_payload(envelope, &self.release_key)?;
+        let mut manifest: Release = serde_json::from_slice(&payload).map_err(|_| invalid())?;
+        manifest.manifest_digest = hash(&payload);
         let version = Version::parse(&manifest.version).map_err(|_| invalid())?;
         if !version.pre.is_empty()
             || !version.build.is_empty()
@@ -142,12 +165,16 @@ impl Source {
         let mut random = [0; 32];
         getrandom::fill(&mut random).map_err(|_| invalid())?;
         let nonce = hex::encode(random);
-        let path = format!("approve/{nonce}/{}/{}", release.version, release.digest);
+        let path = format!(
+            "approve/{nonce}/{}/{}/{}",
+            release.version, release.digest, release.manifest_digest
+        );
         let envelope: Envelope = decode(self.get(&path, CHECK_TIME).await?).await?;
         let approval: Approval = verify(&envelope, &self.approval_key)?;
         if approval.nonce != nonce
             || approval.version != release.version
             || approval.digest != release.digest
+            || approval.manifest_digest != release.manifest_digest
         {
             return Err(invalid());
         }
@@ -233,7 +260,7 @@ mod tests {
     #[test]
     fn signed_payload_rejects_an_edited_approval() {
         let key = SigningKey::from_bytes(&[3; 32]);
-        let payload = br#"{"nonce":"fresh","version":"0.1.11","digest":"known","allowed":false}"#;
+        let payload = br#"{"nonce":"fresh","version":"0.1.11","digest":"known","manifest_digest":"manifest","allowed":false}"#;
         let mut envelope = Envelope {
             payload: STANDARD.encode(payload),
             signature: STANDARD.encode(key.sign(payload).to_bytes()),
@@ -241,7 +268,7 @@ mod tests {
         let approval: Approval = verify(&envelope, &key.verifying_key()).expect("signed approval");
         assert!(!approval.allowed);
         envelope.payload = STANDARD
-            .encode(br#"{"nonce":"fresh","version":"0.1.11","digest":"known","allowed":true}"#);
+            .encode(br#"{"nonce":"fresh","version":"0.1.11","digest":"known","manifest_digest":"manifest","allowed":true}"#);
         assert!(verify::<Approval>(&envelope, &key.verifying_key()).is_err());
     }
 
@@ -281,8 +308,17 @@ mod tests {
             }),
             &release_key,
         );
+        let raised_manifest = signed(
+            serde_json::json!({
+                "version":"0.1.11", "platform":"windows-x64", "webview_min":150,
+                "length":package.len(), "chunk_size":CHUNK, "digest":digest, "chunks":[digest]
+            }),
+            &release_key,
+        );
+        let manifest_envelope: Envelope = serde_json::from_slice(&manifest).unwrap();
+        let manifest_digest = hash(&STANDARD.decode(&manifest_envelope.payload).unwrap());
         let server = thread::spawn(move || {
-            for index in 0..5 {
+            for index in 0..8 {
                 let (mut connection, _) = listener.accept().unwrap();
                 let mut input = BufReader::new(&mut connection);
                 let mut request = String::new();
@@ -306,12 +342,17 @@ mod tests {
                         let fields: Vec<_> = path.split('/').collect();
                         assert_eq!(fields[1], "approve");
                         let nonce = if index == 3 { "replayed" } else { fields[2] };
-                        signed(
-                            serde_json::json!({
-                                "nonce": nonce, "version": fields[3], "digest": fields[4], "allowed": true
-                            }),
-                            &approval_key,
-                        )
+                        assert_eq!(fields.len(), 6);
+                        assert_eq!(fields[5], manifest_digest);
+                        let mut payload = serde_json::json!({
+                            "nonce": nonce, "version": fields[3], "digest": fields[4],
+                            "manifest_digest": if index == 4 { "other" } else { fields[5] },
+                            "allowed": index != 5
+                        });
+                        if index == 6 {
+                            payload.as_object_mut().unwrap().remove("manifest_digest");
+                        }
+                        signed(payload, &approval_key)
                     }
                 };
                 write!(
@@ -323,10 +364,35 @@ mod tests {
                 connection.write_all(&bytes).unwrap();
             }
         });
-        let (_, release) = source.manifest().await.unwrap().unwrap();
+        let (envelope, release) = source.manifest().await.unwrap().unwrap();
+        let payload = STANDARD.decode(&envelope.payload).unwrap();
+        assert_eq!(release.manifest_digest, hash(&payload));
+        let raised_envelope = serde_json::from_slice(&raised_manifest).unwrap();
+        let raised = source.release(&raised_envelope).unwrap().unwrap();
+        assert!(raised.can_reuse_package(&release));
+        assert!(release.matches_manifest(&release.manifest_digest));
+        assert!(
+            !raised.matches_manifest(&release.manifest_digest),
+            "cached readiness and consent"
+        );
+        assert!(release.supports_webview(Some(148)));
+        assert!(
+            !raised.supports_webview(Some(148)),
+            "recheck against the newly selected floor"
+        );
+        assert!(raised.supports_webview(Some(150)));
         assert!(source.chunk(&release, 0).await.is_err(), "modified bytes");
         assert_eq!(source.chunk(&release, 0).await.unwrap(), package);
         assert!(source.approve(&release).await.is_err(), "replayed approval");
+        assert!(
+            source.approve(&release).await.is_err(),
+            "wrong manifest digest"
+        );
+        assert!(
+            !source.approve(&release).await.unwrap(),
+            "updated or withdrawn manifest"
+        );
+        assert!(source.approve(&release).await.is_err(), "legacy approval");
         assert!(source.approve(&release).await.unwrap());
         server.join().unwrap();
     }

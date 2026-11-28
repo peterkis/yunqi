@@ -42,7 +42,7 @@ async function activeRelease(root, key) {
       || !release.chunks.every(hash => hashPattern.test(hash))) {
       throw new Error('invalid manifest');
     }
-    return { release, envelope };
+    return { release, envelope, manifestDigest: createHash('sha256').update(payload).digest('hex') };
   } catch (error) {
     if (error.code === 'ENOENT') return null;
     throw error;
@@ -109,7 +109,7 @@ export function updateService({ root, releaseKey, approvalKey, rate = 512 * 1024
       response.setTimeout(15000, () => response.destroy());
       if (request.method !== 'GET') return send(response, 405);
       const path = request.url;
-      const approval = /^\/approve\/([a-f0-9]{64})\/([0-9.]{5,29})\/([a-f0-9]{64})$/.exec(path);
+      const approval = /^\/approve\/([a-f0-9]{64})\/([0-9.]{5,29})\/([a-f0-9]{64})\/([a-f0-9]{64})$/.exec(path);
       const part = /^\/chunks\/([a-f0-9]{64})\/(0|[1-9]\d{0,2})$/.exec(path);
       if (path !== '/release' && !approval && !part) return send(response, 404);
       if (part && sending) return send(response, 503, undefined, { 'retry-after': '3' });
@@ -125,10 +125,11 @@ export function updateService({ root, releaseKey, approvalKey, rate = 512 * 1024
         const active = await activeRelease(root, releaseKey);
         if (path === '/release') return active ? json(response, active.envelope) : send(response, 204);
         if (approval) {
-          const [, nonce, version, digest] = approval;
+          const [, nonce, version, digest, manifestDigest] = approval;
           if (!buildVersion.test(version)) return send(response, 400);
-          const allowed = active?.release.version === version && active.release.digest === digest;
-          return json(response, signed({ nonce, version, digest, allowed }, approvalKey));
+          const allowed = active?.release.version === version && active.release.digest === digest
+            && active.manifestDigest === manifestDigest;
+          return json(response, signed({ nonce, version, digest, manifest_digest: manifestDigest, allowed }, approvalKey));
         }
         if (!active || active.release.digest !== part[1]) return send(response, 404);
         const release = active.release;

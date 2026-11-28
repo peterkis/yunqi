@@ -38,7 +38,9 @@ test('signed release, bounded concurrent transfer, resume, and signed withdrawal
     assert.equal(verify(null, payload, key, Buffer.from(envelope.signature, 'base64')), true);
     return JSON.parse(payload);
   }
-  const manifest = verifyResponse(await (await get('/release')).json(), releaseKeys.publicKey);
+  const releaseEnvelope = await (await get('/release')).json();
+  const manifestDigest = envelope => createHash('sha256').update(Buffer.from(envelope.payload, 'base64')).digest('hex');
+  const manifest = verifyResponse(releaseEnvelope, releaseKeys.publicKey);
   assert.deepEqual(manifest, release);
 
   const start = performance.now();
@@ -55,9 +57,27 @@ test('signed release, bounded concurrent transfer, resume, and signed withdrawal
   const end = Buffer.from(await resume.arrayBuffer());
   assert.deepEqual(Buffer.concat([prefix, end]), bytes);
   const nonce = 'c'.repeat(64);
-  const approvePath = '/approve/' + nonce + '/' + manifest.version + '/' + manifest.digest;
-  const approved = verifyResponse(await (await get(approvePath)).json(), approvalKeys.publicKey);
-  assert.deepEqual(approved, { nonce, version: manifest.version, digest: manifest.digest, allowed: true });
+  const legacyPath = '/approve/' + nonce + '/' + manifest.version + '/' + manifest.digest;
+  const requestApproval = async digest => verifyResponse(
+    await (await get(legacyPath + '/' + digest)).json(), approvalKeys.publicKey);
+  const approvePath = legacyPath + '/' + manifestDigest(releaseEnvelope);
+  const approved = await requestApproval(manifestDigest(releaseEnvelope));
+  assert.deepEqual(approved, { nonce, version: manifest.version, digest: manifest.digest,
+    manifest_digest: manifestDigest(releaseEnvelope), allowed: true });
+
+  // A legitimate metadata-only republish must not invalidate downloaded package bytes,
+  // but it must immediately invalidate authorization tied to the old WebView2 floor.
+  const raised = await publish(root, installer, manifest.version, 150, releaseKeys.privateKey);
+  assert.equal(raised.digest, manifest.digest);
+  assert.deepEqual(raised.chunks, manifest.chunks);
+  const freshEnvelope = await (await get('/release')).json();
+  assert.equal(verifyResponse(freshEnvelope, releaseKeys.publicKey).webview_min, 150);
+  assert.notEqual(manifestDigest(freshEnvelope), manifestDigest(releaseEnvelope));
+  assert.deepEqual(await requestApproval(manifestDigest(releaseEnvelope)), { ...approved, allowed: false });
+  assert.deepEqual(await requestApproval(manifestDigest(freshEnvelope)), {
+    ...approved, manifest_digest: manifestDigest(freshEnvelope), allowed: true,
+  });
+  assert.equal((await get(legacyPath)).status, 404, 'old protocol must not authorize an installation');
 
   await writeFile(join(root, 'paused'), '');
   assert.equal((await get(approvePath)).status, 503);

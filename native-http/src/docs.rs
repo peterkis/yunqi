@@ -1,20 +1,34 @@
 //! These assets are the offline Swagger UI and OpenAPI snapshots from the reference service.
 use hyper::{
     body::Bytes,
-    header::{ACCEPT_ENCODING, CONTENT_ENCODING, CONTENT_LENGTH, CONTENT_SECURITY_POLICY, VARY},
+    header::{
+        ACCEPT_ENCODING, ACCEPT_RANGES, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_LENGTH,
+        CONTENT_RANGE, CONTENT_SECURITY_POLICY, ETAG, IF_MATCH, IF_NONE_MATCH, IF_RANGE, RANGE,
+        VARY,
+    },
     HeaderMap,
 };
+use std::{cmp::Ordering, ops::Range};
+
+#[derive(Clone, Copy)]
+struct Representation {
+    bytes: &'static [u8],
+    tag: &'static str,
+}
 
 pub struct Asset {
-    identity: &'static [u8],
-    gzip: Option<&'static [u8]>,
+    identity: Representation,
+    gzip: Option<Representation>,
     pub mime: &'static str,
 }
 
 macro_rules! asset {
     ($name:literal, $mime:literal) => {
         Asset {
-            identity: include_bytes!(concat!("../assets/", $name)),
+            identity: Representation {
+                bytes: include_bytes!(concat!("../assets/", $name)),
+                tag: include_str!(concat!(env!("OUT_DIR"), "/etag-", $name)),
+            },
             gzip: None,
             mime: $mime,
         }
@@ -22,8 +36,14 @@ macro_rules! asset {
     ($name:literal, $mime:literal, gzip) => {{
         static IDENTITY: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/", $name));
         Asset {
-            identity: IDENTITY,
-            gzip: Some(include_bytes!(concat!("../assets/", $name, ".gz"))),
+            identity: Representation {
+                bytes: IDENTITY,
+                tag: include_str!(concat!(env!("OUT_DIR"), "/etag-", $name)),
+            },
+            gzip: Some(Representation {
+                bytes: include_bytes!(concat!("../assets/", $name, ".gz")),
+                tag: include_str!(concat!(env!("OUT_DIR"), "/etag-", $name, ".gz")),
+            }),
             mime: $mime,
         }
     }};
@@ -103,21 +123,211 @@ pub fn get(path: &str) -> Option<Asset> {
         _ => return None,
     })
 }
+pub struct AssetReply {
+    pub status: u16,
+    pub body: Bytes,
+    pub headers: HeaderMap,
+}
+
+fn matches_tag_list(mut raw: &[u8], tag: &[u8], weak_match: bool) -> bool {
+    raw = raw.trim_ascii();
+    if raw == b"*" {
+        return true;
+    }
+    let mut matched = false;
+    while !raw.is_empty() {
+        if let Some(rest) = raw.strip_prefix(b",") {
+            raw = rest.trim_ascii_start();
+            continue;
+        }
+        let weak = raw.starts_with(b"W/");
+        if weak {
+            raw = &raw[2..];
+        }
+        let Some(opaque) = raw.strip_prefix(b"\"") else {
+            return false;
+        };
+        let Some(last) = opaque.iter().position(|&byte| byte == b'"') else {
+            return false;
+        };
+        if !opaque[..last]
+            .iter()
+            .all(|byte| *byte == 0x21 || (0x23..=0x7e).contains(byte) || *byte >= 0x80)
+        {
+            return false;
+        }
+        matched |= (weak_match || !weak) && &raw[..last + 2] == tag;
+        raw = raw[last + 2..].trim_ascii_start();
+        if !raw.is_empty() && !raw.starts_with(b",") {
+            return false;
+        }
+    }
+    matched
+}
+
+enum RequestedRange {
+    Ignore,
+    Unsatisfiable,
+    Satisfiable(Range<usize>),
+}
+
+fn decimal(raw: &str) -> Option<&str> {
+    (!raw.is_empty() && raw.bytes().all(|byte| byte.is_ascii_digit()))
+        .then(|| raw.trim_start_matches('0'))
+}
+
+fn compare_decimal(left: &str, right: &str) -> Ordering {
+    left.len().cmp(&right.len()).then_with(|| left.cmp(right))
+}
+
+fn offset(digits: &str) -> usize {
+    if digits.is_empty() {
+        0
+    } else {
+        digits.parse().unwrap_or(usize::MAX)
+    }
+}
+
+fn byte_range(raw: &str, len: usize) -> RequestedRange {
+    use RequestedRange::*;
+    let Some((unit, spec)) = raw.trim().split_once('=') else {
+        return Ignore;
+    };
+    if !unit.eq_ignore_ascii_case("bytes") || spec.contains(',') || len == 0 {
+        return Ignore;
+    }
+    let Some((start, end)) = spec.split_once('-') else {
+        return Ignore;
+    };
+    if start.is_empty() {
+        let Some(suffix) = decimal(end) else {
+            return Ignore;
+        };
+        let suffix = offset(suffix);
+        return if suffix == 0 {
+            Unsatisfiable
+        } else {
+            Satisfiable(len.saturating_sub(suffix)..len)
+        };
+    }
+    let Some(first) = decimal(start) else {
+        return Ignore;
+    };
+    let end = if end.is_empty() {
+        len
+    } else {
+        let Some(last) = decimal(end) else {
+            return Ignore;
+        };
+        if compare_decimal(first, last) == Ordering::Greater {
+            return Ignore;
+        }
+        offset(last).saturating_add(1).min(len)
+    };
+    let start = offset(first);
+    if start >= len {
+        Unsatisfiable
+    } else {
+        Satisfiable(start..end)
+    }
+}
+
 impl Asset {
-    pub fn payload(&self, accept_gzip: bool, head: bool, headers: &mut HeaderMap) -> Bytes {
+    pub fn respond(&self, request: &HeaderMap, head: bool, cacheable: bool) -> AssetReply {
+        let gzip = self.gzip.filter(|_| prefers_gzip(request));
+        let variant = gzip.unwrap_or(self.identity);
+        let mut headers = HeaderMap::new();
         headers.insert(CONTENT_SECURITY_POLICY, "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'self'".parse().unwrap());
-        if let Some(gzip) = self.gzip {
+        if self.gzip.is_some() {
             headers.insert(VARY, "accept-encoding".parse().unwrap());
-            if accept_gzip {
-                headers.insert(CONTENT_ENCODING, "gzip".parse().unwrap());
-                return Bytes::from_static(gzip);
+        }
+
+        let mut status = 200;
+        let mut bytes = variant.bytes;
+        if cacheable {
+            let tag = variant.tag;
+            let len = bytes.len();
+            headers.insert(CACHE_CONTROL, "public, max-age=0".parse().unwrap());
+            headers.insert(ETAG, tag.parse().unwrap());
+            headers.insert(ACCEPT_RANGES, "bytes".parse().unwrap());
+
+            let any_tag = |name, weak_match| {
+                request
+                    .get_all(name)
+                    .iter()
+                    .any(|value| matches_tag_list(value.as_bytes(), tag.as_bytes(), weak_match))
+            };
+            if request.contains_key(IF_MATCH) && !any_tag(IF_MATCH, false) {
+                return AssetReply {
+                    status: 412,
+                    body: Bytes::new(),
+                    headers,
+                };
             }
-            if head {
-                headers.insert(CONTENT_LENGTH, self.identity.len().into());
-                return Bytes::new();
+            if any_tag(IF_NONE_MATCH, true) {
+                return AssetReply {
+                    status: 304,
+                    body: Bytes::new(),
+                    headers,
+                };
+            }
+
+            // RFC 9110 defines the Range request header for GET only.
+            // Dates are not validators here: the embedded bytes have no stable mtime.
+            let values = request.get_all(IF_RANGE);
+            let mut if_range = values.iter();
+            if !head
+                && if_range
+                    .next()
+                    .is_none_or(|value| value.as_bytes().trim_ascii() == tag.as_bytes())
+                && if_range.next().is_none()
+            {
+                let values = request.get_all(RANGE);
+                let mut ranges = values.iter();
+                if let Some(raw) = ranges
+                    .next()
+                    .filter(|_| ranges.next().is_none())
+                    .and_then(|value| value.to_str().ok())
+                {
+                    match byte_range(raw, len) {
+                        RequestedRange::Ignore => {}
+                        RequestedRange::Unsatisfiable => {
+                            headers
+                                .insert(CONTENT_RANGE, format!("bytes */{len}").parse().unwrap());
+                            return AssetReply {
+                                status: 416,
+                                body: Bytes::new(),
+                                headers,
+                            };
+                        }
+                        RequestedRange::Satisfiable(range) => {
+                            headers.insert(
+                                CONTENT_RANGE,
+                                format!("bytes {}-{}/{len}", range.start, range.end - 1)
+                                    .parse()
+                                    .unwrap(),
+                            );
+                            status = 206;
+                            bytes = &bytes[range];
+                        }
+                    }
+                }
             }
         }
-        Bytes::from_static(self.identity)
+        if gzip.is_some() {
+            headers.insert(CONTENT_ENCODING, "gzip".parse().unwrap());
+        }
+        let body = if head {
+            headers.insert(CONTENT_LENGTH, bytes.len().into());
+            Bytes::new()
+        } else {
+            Bytes::from_static(bytes)
+        };
+        AssetReply {
+            status,
+            body,
+            headers,
+        }
     }
 }
 
@@ -155,11 +365,13 @@ mod tests {
         ] {
             let path = format!("/docs/static/{name}");
             let asset = get(&path).unwrap();
-            let mut headers = HeaderMap::new();
-            let first = asset.payload(false, false, &mut headers);
-            let second = get(&path)
-                .unwrap()
-                .payload(false, false, &mut HeaderMap::new());
+            let req = HeaderMap::new();
+            let AssetReply {
+                body: first,
+                headers,
+                ..
+            } = asset.respond(&req, false, true);
+            let second = get(&path).unwrap().respond(&req, false, true).body;
             assert!(!first.is_empty(), "{path}");
             assert_eq!(
                 first.as_ptr(),
@@ -170,13 +382,17 @@ mod tests {
             assert!(!headers.contains_key(CONTENT_ENCODING));
             assert!(headers.contains_key(CONTENT_SECURITY_POLICY));
 
-            let mut headers = HeaderMap::new();
-            let head = asset.payload(false, true, &mut headers);
-            assert!(head.is_empty());
-            assert_eq!(headers[CONTENT_LENGTH], first.len().to_string());
+            let head = asset.respond(&req, true, true);
+            assert!(head.body.is_empty());
+            assert_eq!(head.headers[CONTENT_LENGTH], first.len().to_string());
 
-            let mut headers = HeaderMap::new();
-            let gzip = asset.payload(true, false, &mut headers);
+            let mut req = HeaderMap::new();
+            req.insert(ACCEPT_ENCODING, "gzip".parse().unwrap());
+            let AssetReply {
+                body: gzip,
+                headers,
+                ..
+            } = asset.respond(&req, false, true);
             assert_eq!(headers[CONTENT_ENCODING], "gzip");
             assert_eq!(headers[VARY], "accept-encoding");
             // The original single-member gzip trailer independently gives the identity length.

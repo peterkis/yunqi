@@ -8,6 +8,7 @@ import {createInterface} from 'node:readline';
 import {pathToFileURL} from 'node:url';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {writeFile} from 'node:fs/promises';
+import {verifySwaggerHttp} from './swagger-http.mjs';
 
 const [original, program, output] = process.argv.slice(2);
 if (!original || !program) throw Error('Expected original-worktree yunqi-http-binary [report.json]');
@@ -87,6 +88,22 @@ try {
   await check(y+'/year/2024',json({}));
   await check(lesson+'/calculate',post(JSON.stringify({dateTime:' '.repeat(1_048_576)})));
   await sleep(1100);
+  const bom=Buffer.from([0xef,0xbb,0xbf]);
+  const validJson=Buffer.from('{"dateTime":"2024-01-20T22:07:22"}');
+  await check(y+'/calculate',post(Buffer.concat([bom,validJson])),
+    {expectedStatus:200,label:y+'/calculate (UTF-8 BOM)'});
+  await check(y+'/calculate',post(Buffer.concat([bom,bom,validJson])),
+    {expectedStatus:400,label:y+'/calculate (double BOM)'});
+  await check(y+'/calculate',post(Buffer.concat([Buffer.from(' '),bom,validJson])),
+    {expectedStatus:400,label:y+'/calculate (non-leading BOM)'});
+  await check(y+'/%79ear/2024',undefined,{expectedStatus:200});
+  await check(y+'/%79ear/%32%30%32%34',undefined,{expectedStatus:200});
+  await check(y+'/year/20%2F24',undefined,{expectedStatus:400});
+  await check(y+'/year/20/24',undefined,{expectedStatus:404});
+  await check(y+'/year/20%252F24',undefined,{expectedStatus:400});
+  await check(y+'/year/%E9',undefined,{expectedStatus:400});
+  await check(y+'/year/',undefined,{expectedStatus:400});
+  await sleep(1100);
   for(const p of ['/docs','/docs/','/docs/json','/docs/yaml','/docs/static/swagger-ui-bundle.js','/docs/static/index.css']){
     const [n,o]=await Promise.all([fetch(rustUrl+p),fetch(referenceUrl+p)]);
     assert.equal(n.status,o.status,p);
@@ -123,7 +140,8 @@ try {
   await sleep(1100);
   const [resumed,oldResumed]=await Promise.all([get(rustUrl),get(referenceUrl)]);
   assert.equal(resumed.status,200);assert.deepEqual(resumed,oldResumed);
-  const result={matchedRequests:cases, matchedChecks:checked, currentClockChecks:clockChecked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
+  const swaggerStaticChecks=await verifySwaggerHttp(rustUrl);
+  const result={swaggerStaticChecks, matchedRequests:cases, matchedChecks:checked, currentClockChecks:clockChecked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
   if(output) await writeFile(output,JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify(result));
 } finally {

@@ -26,7 +26,7 @@ use tokio::{
     sync::{OwnedSemaphorePermit, Semaphore},
 };
 use tokio_io_timeout::TimeoutStream;
-use yunqi_core::{clock_ms, dispatch};
+use yunqi_core::{clock_ms, dispatch, dispatch_annual_query, Reply};
 
 type HttpReply = Response<Full<Bytes>>;
 type Guard = Arc<OwnedSemaphorePermit>;
@@ -160,7 +160,9 @@ async fn read_payload(req: Request<Incoming>) -> Result<Value, ()> {
     match content_type.as_deref() {
         None if bytes.is_empty() => Ok(Value::Null),
         Some("application/json") => {
-            let value = serde_json::from_slice(&bytes).map_err(|_| ())?;
+            // Fastify's JSON reader removes one UTF-8 BOM only at the start.
+            let json = bytes.strip_prefix(b"\xef\xbb\xbf").unwrap_or(&bytes);
+            let value = serde_json::from_slice(json).map_err(|_| ())?;
             if allowed_fields(&value) {
                 Ok(value)
             } else {
@@ -172,15 +174,34 @@ async fn read_payload(req: Request<Incoming>) -> Result<Value, ()> {
     }
 }
 
-fn decode_year(path: &str) -> Cow<'_, str> {
-    const YEAR: &str = "/api/v1/yunqi/year/";
-    if let Some(argument) = path.strip_prefix(YEAR) {
-        if argument.contains('%') && !argument.contains('/') {
-            let decoded = percent_encoding::percent_decode_str(argument).decode_utf8_lossy();
-            return Cow::Owned(format!("{YEAR}{decoded}"));
+fn decode_segment(segment: &str) -> Result<Cow<'_, str>, ()> {
+    let mut bytes = segment.bytes();
+    while let Some(byte) = bytes.next() {
+        if byte == b'%'
+            && !matches!((bytes.next(), bytes.next()), (Some(a), Some(b))
+                if a.is_ascii_hexdigit() && b.is_ascii_hexdigit())
+        {
+            return Err(());
         }
     }
-    Cow::Borrowed(path)
+    percent_encoding::percent_decode_str(segment)
+        .decode_utf8()
+        .map_err(|_| ())
+}
+
+fn annual_parameter(path: &str) -> Option<Result<Cow<'_, str>, ()>> {
+    // Match exact raw segment boundaries before decoding any URI components.
+    let mut segments = path.strip_prefix('/')?.split('/');
+    for expected in ["api", "v1", "yunqi", "year"] {
+        if decode_segment(segments.next()?).ok()? != expected {
+            return None;
+        }
+    }
+    let year = segments.next()?;
+    if segments.next().is_some() {
+        return None;
+    }
+    Some(decode_segment(year))
 }
 
 async fn handle(
@@ -199,38 +220,47 @@ async fn handle(
         raw_method.clone()
     };
     let uri = req.uri().clone();
-    let path = decode_year(uri.path());
+    let path = uri.path();
     let mut reply = if method == Method::GET && path == "/docs/static/index.html" {
         let mut redirect = response(302, "text/plain", Bytes::new(), Some(guard));
         redirect
             .headers_mut()
             .insert(LOCATION, "/docs/".parse().unwrap());
         redirect
-    } else if let Some(asset) = docs::get(&path).filter(|_| method == Method::GET) {
-        let accept_gzip = docs::prefers_gzip(req.headers());
-        let mut headers = hyper::HeaderMap::new();
-        // Fastify generates the initializer per document and serves the other static files with revalidation.
-        if path.starts_with("/docs/static/") && path != "/docs/static/swagger-initializer.js" {
-            headers.insert(CACHE_CONTROL, "public, max-age=0".parse().unwrap());
+    } else if let Some(asset) = docs::get(path).filter(|_| method == Method::GET) {
+        // Fastify's static middleware revalidates bundled files, not its generated initializer.
+        let cacheable =
+            path.starts_with("/docs/static/") && path != "/docs/static/swagger-initializer.js";
+        let result = asset.respond(req.headers(), raw_method == Method::HEAD, cacheable);
+        let mut reply = response(result.status, asset.mime, result.body, Some(guard));
+        if result.status == 304 {
+            reply.headers_mut().remove(CONTENT_TYPE);
         }
-        let bytes = asset.payload(accept_gzip, raw_method == Method::HEAD, &mut headers);
-        let mut reply = response(200, asset.mime, bytes, Some(guard));
-        reply.headers_mut().extend(headers);
+        reply.headers_mut().extend(result.headers);
         reply
     } else {
-        let payload = if method == Method::POST && has_post(&path) {
+        let payload = if method == Method::POST && has_post(path) {
             match read_payload(req).await {
                 Ok(body) => body,
-                Err(()) => return Ok(invalid(guard, no_store(&path))),
+                Err(()) => return Ok(invalid(guard, no_store(path))),
             }
         } else {
             Value::Null
         };
-        let path = path.into_owned();
+        let path = path.to_owned();
         let task_guard = guard.clone();
         let outcome=tokio::task::spawn_blocking(move ||{
             let _permit=task_guard; // stays active even if the caller disconnects during CPU work
-            let mut reply=dispatch(method.as_str(),&path,&payload,clock_ms());
+            let mut reply = match (method == Method::GET).then(|| annual_parameter(&path)).flatten() {
+                Some(Ok(year)) => dispatch_annual_query(&year),
+                Some(Err(())) => Reply {
+                    status: 400,
+                    body: json!({"error":"Bad Request","code":"FST_ERR_BAD_URL",
+                        "message":format!("'{path}' is not a valid url component"),"statusCode":400}),
+                    headers: json!({}),
+                },
+                None => dispatch(method.as_str(), &path, &payload, clock_ms()),
+            };
             if reply.status==404 {
                 reply.body=json!({"message":format!("Route {}:{} not found",raw_method,uri),"error":"Not Found","statusCode":404});
             }

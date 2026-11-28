@@ -36,6 +36,17 @@ fn business_error(message: String) -> Value {
     }
 }
 
+fn annual_query(year: &str) -> Result<Value, Value> {
+    validation::integer(&json!(year), "/year", 1900, 2100)
+        .and_then(|year| domain::year(year).map_err(business_error))
+}
+
+/// Dispatch a year value already separated and decoded by the HTTP router.
+/// An encoded slash in a single raw segment must reach validation, not routing.
+pub fn dispatch_annual_query(year: &str) -> Reply {
+    result_reply(annual_query(year), json!({}))
+}
+
 fn invoke(method: &str, path: &str, body: &Value, now: i64) -> Option<Result<Value, Value>> {
     if method == "GET" && path == "/health" {
         return Some(Ok(json!({"status":"ok","apiVersion":"v1"})));
@@ -48,8 +59,7 @@ fn invoke(method: &str, path: &str, body: &Value, now: i64) -> Option<Result<Val
                 .strip_prefix("year/")
                 .is_some_and(|y| !y.is_empty() && !y.contains('/')) =>
         {
-            validation::integer(&json!(&year[5..]), "/year", 1900, 2100)
-                .and_then(|y| domain::year(y).map_err(business_error))
+            annual_query(&year[5..])
         }
         ("GET", Some("current")) => domain::current(clock()).map_err(business_error),
         ("GET", Some("learning/current")) => domain::learning(clock()).map_err(business_error),
@@ -91,7 +101,18 @@ pub fn dispatch(method: &str, path: &str, body: &Value, now: i64) -> Reply {
         json!({})
     };
     match invoke(method, path, body, now) {
-        Some(Ok(data)) => {
+        Some(result) => result_reply(result, headers),
+        None => Reply {
+            status: 404,
+            body: json!({"message":format!("Route {method}:{path} not found"),"error":"Not Found","statusCode":404}),
+            headers: json!({}),
+        },
+    }
+}
+
+fn result_reply(result: Result<Value, Value>, headers: Value) -> Reply {
+    match result {
+        Ok(data) => {
             let mut body = json!({"code":"SUCCESS","message":""});
             body["data"] = data;
             Reply {
@@ -100,7 +121,7 @@ pub fn dispatch(method: &str, path: &str, body: &Value, now: i64) -> Reply {
                 headers,
             }
         }
-        Some(Err(body)) => Reply {
+        Err(body) => Reply {
             status: if body["code"] == "CALENDAR_PROVIDER_UNAVAILABLE" {
                 503
             } else {
@@ -108,11 +129,6 @@ pub fn dispatch(method: &str, path: &str, body: &Value, now: i64) -> Reply {
             },
             body,
             headers,
-        },
-        None => Reply {
-            status: 404,
-            body: json!({"message":format!("Route {method}:{path} not found"),"error":"Not Found","statusCode":404}),
-            headers: json!({}),
         },
     }
 }
