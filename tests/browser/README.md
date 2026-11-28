@@ -67,7 +67,10 @@ the installed-browser run separately. CI keeps its default bundled Chromium.
   sharing the ephemeral listener preserves the client without using that port.
 - The Service receives the fixed system-clock epoch `1705759642000`, whose API
   canonical input is `2024-01-20T22:07:22+08:00`. Test code does not calculate
-  domain results or invent a second rule oracle.
+  domain results or invent a second rule oracle. The birth rollover scenarios
+  override the clock per request on the owned loopback service, so fixtures can
+  place the clock read and comparison POST on opposite sides of midnight.
+  The real handlers generate the complete, internally consistent responses.
 - The browser uses `America/New_York`; assertions verify the API's canonical
   Beijing time is displayed without browser-zone reinterpretation.
 - Teardown closes owned listeners and Vite and records `cleanupPassed`.

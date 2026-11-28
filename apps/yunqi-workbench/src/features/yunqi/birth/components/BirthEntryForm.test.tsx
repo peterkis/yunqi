@@ -189,13 +189,18 @@ describe('inline birth entry', () => {
         ? [match('2001-10-01', '八月十五')] : [match('2002-09-21', '八月十五')] })),
     });
     const { user, confirm } = setup(client, { ...lunarAgeDraft, primary: '24' });
-    const earlier = await screen.findByRole('radio', { name: /八月十五 · 2001-10-01/ });
+    await screen.findByRole('radio', { name: /八月十五 · 2001-10-01/ });
     expect(screen.getByRole('radio', { name: /八月十五 · 2002-09-21/ })).toBeVisible();
     expect(screen.queryByRole('button', { name: '仅按年份对照' })).not.toBeInTheDocument();
+    await user.click(screen.getByRole('radio', { name: '按出生年份' }));
+    expect(slot('年')).toHaveValue('');
+    await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
+    expect(slot('年龄')).toHaveValue('24');
+    await screen.findByRole('radio', { name: /八月十五 · 2001-10-01/ });
     await user.keyboard('{Enter}');
     expect(key('确认并对照')).toBeDisabled();
     expect(confirm).not.toHaveBeenCalled();
-    await user.click(earlier);
+    await user.click(screen.getByRole('radio', { name: /八月十五 · 2001-10-01/ }));
     await user.click(key('确认并对照'));
     expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2001-10-01' }, '2026-09-21');
   });

@@ -305,7 +305,7 @@ test('birth inputs enforce required time, block repeated pending activation and 
   }
 
   const result = page.getByRole('region', { name: '出生与当前运气对照结果', exact: true });
-  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-03-21 · 09:30 · 修改');
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('1990-03-21 · 09:30:00 · 修改');
   await expandBirthInput(page);
   await expect(time).toHaveValue('09:30');
   await expect(date).toBeFocused();
@@ -313,8 +313,8 @@ test('birth inputs enforce required time, block repeated pending activation and 
   await expect(result).toHaveCount(0);
   await expect(page.getByRole('dialog', { name: '修改出生信息' })).toBeVisible();
   await compareBirth(page, '1990-03-21');
-  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31');
-  await expectCompactTimes(page);
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('09:31:21');
+  await expectCompactTimes(page, { birthTime: '09:31:21' });
   await expandBirthInput(page);
   await fillBirthDate(page, '1990-05-21');
   await expect(result).toHaveCount(0);

@@ -1,31 +1,10 @@
 import { test, expect, scanAccessibility, waitForAnimations } from './fixtures.mjs';
 import { expectTextContrast } from './visual-assertions.mjs';
 import { expectBirthCandidateBadges } from './birth-helpers.mjs';
-
-// Keep the real birth calculation and inject only its independently sampled service clock.
-async function birthComparisonClock(page, dateTime) {
-  const response = await page.request.post('/api/v1/yunqi/learning/calculate', { data: { dateTime } });
-  expect(response.ok()).toBe(true);
-  return (await response.json()).data;
-}
-
-async function setBirthComparisonClock(page, current, onRequest = () => {}) {
-  await page.route('**/learning/birth-comparison', async route => {
-    onRequest(route.request());
-    const response = await route.fetch();
-    expect(response.ok()).toBe(true);
-    const json = await response.json();
-    await route.fulfill({ response, json: { ...json, data: { ...json.data, current } } });
-  });
-}
+import { routeBirthClock } from './test-clock.mjs';
 
 test('lunar birthday and age resolve to the Gregorian year that satisfies the attained age', async ({ page }) => {
-  const current = await page.request.post('/api/v1/yunqi/calculate', {
-    data: { dateTime: '2026-01-01T00:00:00+08:00' },
-  });
-  expect(current.ok()).toBe(true);
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
-  await setBirthComparisonClock(page, await birthComparisonClock(page, '2026-01-01T00:00:00+08:00'));
+  await routeBirthClock(page, { current: '2026-01-01T00:00:00+08:00' });
   const checkedYears = new Set();
   page.on('request', request => {
     if (request.url().endsWith('/learning/birth-date-preview')) {
@@ -49,12 +28,7 @@ test('lunar birthday and age resolve to the Gregorian year that satisfies the at
 });
 
 test('switching a confirmed lunar birthday to age mode keeps the same Gregorian date', async ({ page }) => {
-  const current = await page.request.post('/api/v1/yunqi/calculate', {
-    data: { dateTime: '2026-01-01T00:00:00+08:00' },
-  });
-  expect(current.ok()).toBe(true);
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
-  await setBirthComparisonClock(page, await birthComparisonClock(page, '2026-01-01T00:00:00+08:00'));
+  await routeBirthClock(page, { current: '2026-01-01T00:00:00+08:00' });
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
   await form.getByRole('radio', { name: '按出生年份' }).click();
@@ -75,12 +49,8 @@ test('switching a confirmed lunar birthday to age mode keeps the same Gregorian 
 });
 
 test('an age-based lunar birthday is rechecked at Beijing midnight before submitting', async ({ page }) => {
-  const [before, after] = await Promise.all([
-    '2026-09-11T23:59:50+08:00', '2026-09-12T00:00:05+08:00',
-  ].map(dateTime => page.request.post('/api/v1/yunqi/calculate', { data: { dateTime } })));
-  expect(before.ok() && after.ok()).toBe(true);
-  let current = before;
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
+  const clock = { current: '2026-09-11T23:59:50+08:00' };
+  await routeBirthClock(page, clock);
   const comparisons = [];
   page.on('request', request => {
     if (request.url().endsWith('/learning/birth-comparison')) comparisons.push(request.postDataJSON());
@@ -94,8 +64,7 @@ test('an age-based lunar birthday is rechecked at Beijing midnight before submit
   await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
   const preview = form.locator('[data-preview-date]');
   await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
-  current = after;
-  await setBirthComparisonClock(page, await birthComparisonClock(page, '2026-09-12T00:00:05+08:00'));
+  clock.current = '2026-09-12T00:00:05+08:00';
   await form.getByRole('button', { name: '确认并对照' }).click();
   await expect(form.getByText(/北京日期已变更/)).toBeVisible({ timeout: 3000 });
   await expect(form.getByText(/未找到符合所填周岁/)).toBeVisible();
@@ -112,14 +81,8 @@ test('an age-based lunar birthday is rechecked at Beijing midnight before submit
 });
 
 test('a comparison sampled just after Beijing midnight is not accepted for the previous age date', async ({ page }) => {
-  const before = await page.request.post('/api/v1/yunqi/calculate', {
-    data: { dateTime: '2026-09-11T23:59:59.999+08:00' },
-  });
-  const after = await page.request.post('/api/v1/yunqi/calculate', { data: { dateTime: '2026-09-12T00:00:00+08:00' } });
-  expect(before.ok() && after.ok()).toBe(true);
-  let clock = before;
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: clock }));
-  await setBirthComparisonClock(page, await birthComparisonClock(page, '2026-09-12T00:00:00+08:00'));
+  const clock = { current: '2026-09-11T23:59:59.999+08:00', comparison: '2026-09-12T00:00:00+08:00' };
+  await routeBirthClock(page, clock);
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
   await form.getByRole('radio', { name: '农历', exact: true }).click();
@@ -128,16 +91,18 @@ test('a comparison sampled just after Beijing midnight is not accepted for the p
   await form.getByRole('textbox', { name: '月', exact: true }).fill('8');
   await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
   await expect(form.locator('[data-preview-date]')).toHaveAttribute('data-preview-date', '2000-09-12');
+  const preflight = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/current'));
   const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
   await form.getByRole('button', { name: '确认并对照' }).click();
-  const response = await comparison;
+  const [reading, response] = await Promise.all([preflight, comparison]);
+  expect((await reading.json()).data.input.localTime).toBe('2026-09-11T23:59:59.999+08:00');
   expect(response.request().postDataJSON()).toEqual({ birthDate: '2000-09-12' });
   expect((await response.json()).data.current.facts.input.localTime).toBe('2026-09-12T00:00:00+08:00');
   await expect(form.getByText(/北京日期已变更/)).toBeVisible({ timeout: 3000 });
   await expect(form.getByText(/未找到符合所填周岁/)).toBeVisible();
   await expect(age).toHaveValue('25');
   await expect(page.getByRole('group', { name: '出生资料摘要' })).toHaveCount(0);
-  clock = after;
+  clock.current = clock.comparison;
   await age.fill('26');
   await form.getByRole('radio', { name: /2000-09-12/ }).check();
   await form.getByRole('button', { name: '确认并对照' }).click();
@@ -145,15 +110,12 @@ test('a comparison sampled just after Beijing midnight is not accepted for the p
 });
 
 test('a Beijing date refresh keeps the exact time for the same birth date', async ({ page }) => {
-  const [before, after] = await Promise.all([
-    '2026-04-28T23:59:50+08:00', '2026-04-29T00:00:05+08:00',
-  ].map(dateTime => page.request.post('/api/v1/yunqi/calculate', { data: { dateTime } })));
-  expect(before.ok() && after.ok()).toBe(true);
-  let clock = before;
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: clock }));
+  const clock = { current: '2026-04-28T23:59:50+08:00' };
+  await routeBirthClock(page, clock);
   const comparisons = [];
-  await setBirthComparisonClock(page, await birthComparisonClock(page, '2026-04-29T00:00:05+08:00'),
-    request => comparisons.push(request.postDataJSON()));
+  page.on('request', request => {
+    if (request.url().endsWith('/learning/birth-comparison')) comparisons.push(request.postDataJSON());
+  });
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
   await form.getByRole('textbox', { name: '年龄' }).fill('2');
@@ -162,7 +124,7 @@ test('a Beijing date refresh keeps the exact time for the same birth date', asyn
   await form.getByRole('button', { name: /补录时刻/ }).click();
   const birthTime = form.getByLabel('出生时刻');
   await birthTime.fill('22:07:21');
-  clock = after;
+  clock.current = '2026-04-29T00:00:05+08:00';
   const submit = form.getByRole('button', { name: '确认并对照' });
   await submit.click();
   await expect(form.getByText(/北京日期已变更/)).toBeVisible({ timeout: 3000 });
@@ -174,17 +136,19 @@ test('a Beijing date refresh keeps the exact time for the same birth date', asyn
   expect(response.ok()).toBe(true);
   const { data } = await response.json();
   expect(data.candidates.map(candidate => candidate.learning.facts.year)).toEqual([2023]);
+  expect(data.current.facts.input.localTime).toBe('2026-04-29T00:00:05+08:00');
+  expect(data.candidates[0].learning.facts.suiYun.element).toBe('火');
+  expect(data.current.facts.suiYun.element).toBe('水');
+  expect(data.candidates[0].comparisons.find(({ title }) => title === '中运对照')).toMatchObject({
+    label: '当前克出生', relation: '当前水克出生火',
+  });
   expect(comparisons).toEqual([{ birthDate: '2024-01-20', birthTime: '22:07:21' }]);
   await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('22:07:21');
   await expect(page.getByText('时刻已知 · 归属唯一')).toBeVisible();
 });
 
 test('fast mode round trip restores the confirmed year while the age preview is unresolved', async ({ page }) => {
-  const current = await page.request.post('/api/v1/yunqi/calculate', {
-    data: { dateTime: '2026-01-01T00:00:00+08:00' },
-  });
-  expect(current.ok()).toBe(true);
-  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
+  await routeBirthClock(page, { current: '2026-01-01T00:00:00+08:00' });
   let release;
   const hold = new Promise(resolve => { release = resolve; });
   await page.route('**/learning/birth-date-preview', async route => {
@@ -212,6 +176,36 @@ test('fast mode round trip restores the confirmed year while the age preview is 
   } finally {
     release();
   }
+});
+
+test('same-year lunar candidates preserve the year and typed age across mode changes', async ({ page }) => {
+  await routeBirthClock(page, { current: '2026-06-19T12:00:00+08:00' });
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  const age = form.getByRole('textbox', { name: '年龄' });
+  await age.fill('3');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('2');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('1');
+  const dates = form.getByRole('group', { name: '选择对应公历日期' });
+  const regular = dates.getByRole('radio', { name: /2023-02-20/ });
+  const leap = dates.getByRole('radio', { name: /2023-03-22/ });
+  const submit = form.getByRole('button', { name: '确认并对照' });
+  await expect(regular).toBeVisible();
+  await expect(leap).toBeVisible();
+  await expect(submit).toBeDisabled();
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await expect(form.getByRole('textbox', { name: '年', exact: true })).toHaveValue('2023', { timeout: 3000 });
+  await expect(regular).not.toBeChecked();
+  await expect(leap).not.toBeChecked();
+  await expect(submit).toBeDisabled();
+  await form.getByRole('radio', { name: '按年龄推算' }).click();
+  await expect(age).toHaveValue('3');
+  await expect(regular).not.toBeChecked();
+  await expect(leap).not.toBeChecked();
+  await expect(submit).toBeDisabled();
+  await leap.check();
+  await expect(submit).toBeEnabled();
 });
 
 test('birth boundary prompts and the submitted summary retain seconds', async ({ page }) => {

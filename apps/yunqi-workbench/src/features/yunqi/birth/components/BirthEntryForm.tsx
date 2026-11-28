@@ -6,7 +6,7 @@ import { Button } from '../../../../components/design/Button';
 import { NumericKeypad } from '../../../../components/design/NumericKeypad';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { useBirthPreview, useBirthReferenceDate } from '../hooks/useBirthEntry';
-import { attainedAge, birthdayAdjustment, birthYear, dayError, lunarAgeBirthYears, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
+import { attainedAge, birthdayAdjustment, birthYear, dayError, lunarAgeBirthYears, sharedBirthYear, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
 import { BirthYearSeal } from './BirthYearSeal';
 import '../../../../styles/views/birth-entry.css';
 
@@ -74,9 +74,9 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     : matches?.length === 1 ? matches[0] : undefined;
   const age = selected && today ? attainedAge(selected.birthDate, today) : yearAge;
   const unresolvedLunarYear = draft.calendar === 'lunar' && complete && inferredYear !== undefined && (!selected || clock.failed);
-  const canSwitchToAge = !unresolvedLunarYear
-    && (age === undefined || (age >= 0 && age <= 120));
-  const year = exactLunarAge ? (selected ? Number(selected.birthDate.slice(0, 4)) : undefined) : inferredYear;
+  const canSwitchToAge = draft.lunarAgeBeforeYear !== undefined || (!unresolvedLunarYear
+    && (age === undefined || (age >= 0 && age <= 120)));
+  const year = exactLunarAge ? (selected ? Number(selected.birthDate.slice(0, 4)) : sharedBirthYear(matches)) : inferredYear;
   const timeAvailable = Boolean(selected?.boundaries.length);
   const annualOnly = !draft.day && rejected?.key !== 'day' && !invalid && (!draft.month || Number(draft.month) > 0);
   const allow = Boolean(!inputBlocked && year && (!ageMode || !clock.failed) &&
@@ -109,7 +109,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    onEdit({ ...draft, selected: '', knowsTime: false, time: '', ...patch });
+    onEdit({ ...draft, selected: '', knowsTime: false, time: '', lunarAgeBeforeYear: undefined, ...patch });
   }
   function reject(key: BirthSlot, message: string, kind: 'error' | 'retained' = 'error') {
     enterIntent.current = undefined;
@@ -232,11 +232,12 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     // Editing any date field clears it, so a changed birthday can never revive an old year.
     const retainedDate = draft.calendar === 'lunar' ? selected?.birthDate ?? draft.selected : draft.selected;
     const restoredYear = exactLunarAge && retainedDate ? Number(retainedDate.slice(0, 4)) : year;
-    const primary = mode === 'year' ? restoredYear : age;
+    const primary = mode === 'year' ? restoredYear : draft.lunarAgeBeforeYear ?? age;
+    const lunarAgeBeforeYear = mode === 'year' && exactLunarAge ? draft.primary || undefined : undefined;
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate });
+    onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate, lunarAgeBeforeYear });
     focus('primary');
   }
   const yearPrefix = exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';

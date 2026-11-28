@@ -5,6 +5,7 @@ export type BirthSubmission = BirthYearRequest | BirthComparisonRequest;
 export interface BirthDraft {
   mode: 'age' | 'year';
   primary: string;
+  lunarAgeBeforeYear?: string;
   calendar: 'solar' | 'lunar';
   month: string;
   day: string;
@@ -50,6 +51,12 @@ export function lunarAgeBirthYears(age: string, referenceYear: number | undefine
   if (!age || !referenceYear || Number(age) > 120) return [];
   const latest = referenceYear - Number(age);
   return [latest - 1, latest].filter(year => year >= 1900 && year <= 2100);
+}
+
+/** Ambiguous month/day candidates can still establish one Gregorian year. */
+export function sharedBirthYear(candidates: readonly { birthDate: string }[] | undefined): number | undefined {
+  const first = candidates?.[0]?.birthDate.slice(0, 4);
+  return first && candidates?.every(({ birthDate }) => birthDate.startsWith(first + '-')) ? Number(first) : undefined;
 }
 
 export function attainedAge(birthDate: string, today: BirthReferenceDate): number {

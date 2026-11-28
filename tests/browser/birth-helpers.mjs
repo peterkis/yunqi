@@ -175,7 +175,8 @@ export async function expectBirthComparison(page, data) {
   await expect(result.getByText('出生时令结构不等于体质，原文病候是文献线索而非发病预测。请与体质量表、四诊互参。', { exact: true })).toBeVisible();
   await expect(result.getByText('综合结论', { exact: true })).toHaveCount(0);
   await expect(result.locator('.birth-tables')).not.toContainText('→');
-  await expectCompactTimes(page);
+  await expectCompactTimes(page, { birthTime: data.birthPrecision === 'time'
+    ? data.candidates[0].learning.facts.input.localTime.slice(11, 19) : undefined });
 }
 
 // Measure the text itself to catch wrapping or loss of mirror alignment.

@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { buildApp } from '../../packages/yunqi-service/dist/index.js';
 import { tyme4tsCalendarProvider } from '../../packages/calendar-adapters/tyme4ts/dist/index.js';
+import { createBrowserTestClock } from './test-clock.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const workbenchRoot = resolve(root, 'apps/yunqi-workbench');
@@ -12,10 +13,12 @@ const requireWorkbench = createRequire(resolve(workbenchRoot, 'package.json'));
 const { createServer } = await import(pathToFileURL(requireWorkbench.resolve('vite')).href);
 
 export default async function globalSetup() {
+  const clock = createBrowserTestClock(1_705_759_642_000);
   const app = await buildApp({
     provider: tyme4tsCalendarProvider,
-    now: () => 1_705_759_642_000,
+    now: clock.now,
   });
+  app.addHook('onRequest', clock.onRequest);
   const previousTarget = process.env.YUNQI_DEV_API_TARGET;
   const previousBase = process.env.VITE_YUNQI_API_BASE_URL;
   let vite;
