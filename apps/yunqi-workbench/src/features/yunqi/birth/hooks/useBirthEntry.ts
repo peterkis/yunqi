@@ -1,16 +1,23 @@
 import { useEffect, useState } from 'react';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest } from '@yunqi/contracts';
+import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest, YunQiCalculationDto } from '@yunqi/contracts';
 import { useYunQiClient } from '../../../../providers/YunQiClientProvider';
 import { liveClockQueryOptions } from '../../../../lib/live-clock-query';
 import { currentYunQiQueryOptions } from '../../api/query-options';
 
+// Consume the backend's canonical Beijing date, without local clock conversion.
+const referenceDate = (data: YunQiCalculationDto | undefined) => data?.input.localTime.slice(0, 10);
+
 export function useBirthReferenceDate() {
   const client = useYunQiClient();
   const query = useQuery({ ...currentYunQiQueryOptions(client), ...liveClockQueryOptions });
-  const localDate = query.data?.input.localTime.slice(0, 10);
+  const localDate = referenceDate(query.data);
   const today = localDate ? { year: Number(localDate.slice(0, 4)), month: Number(localDate.slice(5, 7)), day: Number(localDate.slice(8, 10)) } : undefined;
-  return { today, localDate, failed: query.isError, retry: query.refetch };
+  async function readFreshDate() {
+    const result = await query.refetch({ throwOnError: true, cancelRefetch: true });
+    return referenceDate(result.data);
+  }
+  return { today, localDate, failed: query.isError, retry: query.refetch, readFreshDate };
 }
 
 export function useBirthYearComparison() {

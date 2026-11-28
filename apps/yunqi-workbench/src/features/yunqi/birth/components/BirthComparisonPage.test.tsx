@@ -129,7 +129,7 @@ describe('BirthComparisonPage', () => {
     expect(client.compareBirth).toHaveBeenCalledExactlyOnceWith({ birthDate: '1990-03-21', birthTime: '09:30:00' });
     await act(async () => { resolve(response); });
     await screen.findByRole('region', { name: '出生与当前运气对照结果' });
-    expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-03-21 · 09:30 · 修改');
+    expect(screen.getByRole('group', { name: '出生资料摘要' })).toHaveTextContent('1990-03-21 · 09:30:00 · 修改');
     expect(screen.getByText('时刻已知 · 归属唯一')).toBeVisible();
     expect(document.querySelector('.birth-candidate-interval')).toBeNull();
     await user.click(screen.getByRole('button', { name: '清空本次资料' }));

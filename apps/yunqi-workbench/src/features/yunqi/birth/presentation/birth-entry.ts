@@ -47,12 +47,12 @@ export function lunarAgeBirthYears(age: string, referenceYear: number | undefine
   return [latest - 1, latest].filter(year => year >= 1900 && year <= 2100);
 }
 
-export function hasAttainedAge(birthDate: string, age: number, today: BirthReferenceDate): boolean {
+export function attainedAge(birthDate: string, today: BirthReferenceDate): number {
   const year = Number(birthDate.slice(0, 4));
   const month = Number(birthDate.slice(5, 7));
   const day = Number(birthDate.slice(8, 10));
   const birthdayAhead = month > today.month || (month === today.month && day > today.day);
-  return today.year - year - Number(birthdayAhead) === age;
+  return today.year - year - Number(birthdayAhead);
 }
 
 export type BirthSlot = 'primary' | 'month' | 'day';

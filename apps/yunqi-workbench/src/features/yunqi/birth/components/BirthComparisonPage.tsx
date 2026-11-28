@@ -41,7 +41,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
   const [draft, setDraft] = useState(emptyBirthDraft);
   const [submitted, setSubmitted] = useState<BirthSubmission>();
   const summary = submitted && ('year' in submitted ? `公历 ${submitted.year} 年 · 仅年份`
-    : `${submitted.birthDate} · ${submitted.birthTime?.slice(0, 5) ?? '时刻不详'}`);
+    : `${submitted.birthDate} · ${submitted.birthTime ?? '时刻不详'}`);
   const [cleared, setCleared] = useState(false);
   const submitting = useRef(false);
   const error = comparison.isError ? '无法完成对照，请核对出生日期、支持范围和网络后重试。' : undefined;

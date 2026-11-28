@@ -117,6 +117,14 @@ describe('browser YunQi client', () => {
     );
   });
 
+  it('reads the service clock without reusing a cached GET response', async () => {
+    const fetchImpl = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ data: { input: { localTime: '2026-09-12T00:00:05+08:00' } } }));
+    const client = createYunQiClient(createFetchTransport({ baseUrl: 'https://yunqi.example', fetchImpl }));
+    await client.getCurrent();
+    expect(fetchImpl).toHaveBeenCalledWith('https://yunqi.example/api/v1/yunqi/current',
+      expect.objectContaining({ method: 'GET', cache: 'no-store' }));
+  });
+
   it('uses the runtime fetch implementation when none is injected', async () => {
     const payload = {
       code: 'SUCCESS',

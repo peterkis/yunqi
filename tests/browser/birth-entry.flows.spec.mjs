@@ -30,6 +30,85 @@ test('lunar birthday and age resolve to the Gregorian year that satisfies the at
   await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('2000-09-12');
 });
 
+test('switching a confirmed lunar birthday to age mode keeps the same Gregorian date', async ({ page }) => {
+  const current = await page.request.post('/api/v1/yunqi/calculate', {
+    data: { dateTime: '2026-01-01T00:00:00+08:00' },
+  });
+  expect(current.ok()).toBe(true);
+  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  await form.getByRole('textbox', { name: '年', exact: true }).fill('2001');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('8');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
+  const preview = form.locator('[data-preview-date]');
+  await expect(preview).toHaveAttribute('data-preview-date', '2001-10-01');
+  await form.getByRole('radio', { name: '按年龄推算' }).click();
+  await expect(form.getByRole('textbox', { name: '年龄' })).toHaveValue('24');
+  await expect(preview).toHaveAttribute('data-preview-date', '2001-10-01');
+  const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  const response = await comparison;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ birthDate: '2001-10-01' });
+});
+
+test('an age-based lunar birthday is rechecked at Beijing midnight before submitting', async ({ page }) => {
+  const [before, after] = await Promise.all([
+    '2026-09-11T23:59:50+08:00', '2026-09-12T00:00:05+08:00',
+  ].map(dateTime => page.request.post('/api/v1/yunqi/calculate', { data: { dateTime } })));
+  expect(before.ok() && after.ok()).toBe(true);
+  let current = before;
+  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
+  const comparisons = [];
+  page.on('request', request => {
+    if (request.url().endsWith('/learning/birth-comparison')) comparisons.push(request.postDataJSON());
+  });
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  const age = form.getByRole('textbox', { name: '年龄' });
+  await age.fill('25');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('8');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
+  const preview = form.locator('[data-preview-date]');
+  await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
+  current = after;
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  await expect(form.getByText(/北京日期已变更/)).toBeVisible({ timeout: 3000 });
+  await expect(form.getByText(/未找到符合所填周岁/)).toBeVisible();
+  await expect(form.getByRole('button', { name: '确认并对照' })).toBeDisabled();
+  expect(comparisons).toEqual([]);
+  await age.fill('26');
+  // At 26 there are two matches, so explicitly reselect the intended birthday.
+  await form.getByRole('radio', { name: /2000-09-12/ }).check();
+  await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
+  const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  expect((await comparison).ok()).toBe(true);
+  expect(comparisons).toEqual([{ birthDate: '2000-09-12' }]);
+});
+
+test('birth boundary prompts and the submitted summary retain seconds', async ({ page }) => {
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await form.getByRole('textbox', { name: '年', exact: true }).fill('2024');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('01');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('20');
+  await form.getByRole('button', { name: /补录时刻/ }).click();
+  await expect(form.locator('.birth-entry__boundaries')).toContainText('22:07:22');
+  await form.getByLabel('出生时刻').fill('22:07:21');
+  const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  const response = await comparison;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ birthDate: '2024-01-20', birthTime: '22:07:21' });
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('22:07:21');
+});
+
 test('rejecting an extra day digit preserves the confirmed date in inline and sheet entry', async ({ page }) => {
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
