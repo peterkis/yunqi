@@ -72,10 +72,15 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const selected = draft.selected
     ? matches?.find(item => item.birthDate === draft.selected)
     : matches?.length === 1 ? matches[0] : undefined;
-  const age = selected && today ? attainedAge(selected.birthDate, today) : yearAge;
+  const knownBirthDate = selected?.birthDate || (!ageMode ? draft.selected : '');
+  const confirmedAge = knownBirthDate && today ? attainedAge(knownBirthDate, today) : undefined;
+  const age = confirmedAge ?? yearAge;
+  // A previously typed age is only a round-trip aid while the exact date remains unresolved.
+  const retainedAge = knownBirthDate ? undefined : draft.lunarAgeBeforeYear;
   const unresolvedLunarYear = draft.calendar === 'lunar' && complete && inferredYear !== undefined && (!selected || clock.failed);
-  const canSwitchToAge = draft.lunarAgeBeforeYear !== undefined || (!unresolvedLunarYear
-    && (age === undefined || (age >= 0 && age <= 120)));
+  const ageInRange = age === undefined || (age >= 0 && age <= 120);
+  const canSwitchToAge = knownBirthDate ? confirmedAge !== undefined && !clock.failed && ageInRange
+    : retainedAge !== undefined || (!unresolvedLunarYear && ageInRange);
   const year = exactLunarAge ? (selected ? Number(selected.birthDate.slice(0, 4)) : sharedBirthYear(matches)) : inferredYear;
   const timeAvailable = Boolean(selected?.boundaries.length);
   const annualOnly = !draft.day && rejected?.key !== 'day' && !invalid && (!draft.month || Number(draft.month) > 0);
@@ -232,7 +237,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     // Editing any date field clears it, so a changed birthday can never revive an old year.
     const retainedDate = draft.calendar === 'lunar' ? selected?.birthDate ?? draft.selected : draft.selected;
     const restoredYear = exactLunarAge && retainedDate ? Number(retainedDate.slice(0, 4)) : year;
-    const primary = mode === 'year' ? restoredYear : draft.lunarAgeBeforeYear ?? age;
+    const primary = mode === 'year' ? restoredYear : retainedAge ?? age;
     const lunarAgeBeforeYear = mode === 'year' && exactLunarAge ? draft.primary || undefined : undefined;
     enterIntent.current = undefined;
     setFeedback(undefined);

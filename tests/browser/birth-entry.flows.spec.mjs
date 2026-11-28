@@ -208,6 +208,64 @@ test('same-year lunar candidates preserve the year and typed age across mode cha
   await expect(submit).toBeEnabled();
 });
 
+test('returning to age mode after a birthday recalculates the age of the retained birth date', async ({ page }) => {
+  await page.clock.install();
+  const clock = { current: '2026-09-11T23:59:50+08:00' };
+  await routeBirthClock(page, clock);
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  const preview = form.locator('[data-preview-date]');
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  await form.getByRole('textbox', { name: '年龄' }).fill('25');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('8');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
+  await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await expect(form.getByRole('textbox', { name: '年', exact: true })).toHaveValue('2000');
+  await expect(form.locator('.birth-entry__preview-copy')).toContainText('周岁 25 岁');
+  clock.current = '2026-09-12T00:00:05+08:00';
+  const refresh = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/current'));
+  await page.clock.fastForward(60_000);
+  expect((await (await refresh).json()).data.input.localTime).toBe(clock.current);
+  await expect(form.locator('.birth-entry__preview-copy')).toContainText('周岁 26 岁');
+  await form.getByRole('radio', { name: '按年龄推算' }).click();
+  await expect(form.getByRole('textbox', { name: '年龄' })).toHaveValue('26', { timeout: 3000 });
+  await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
+  await expect(form.getByRole('radio', { name: /2000-09-12/ })).toBeChecked();
+  const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  const response = await comparison;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ birthDate: '2000-09-12' });
+});
+
+test('editing a committed lunar birthday keeps the submitted choice when year mode reveals a leap candidate', async ({ page }) => {
+  await routeBirthClock(page, { current: '2026-03-10T12:00:00+08:00' });
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  await form.getByRole('textbox', { name: '年龄' }).fill('3');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('2');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('1');
+  await expect(form.locator('[data-preview-date]')).toHaveAttribute('data-preview-date', '2023-02-20');
+  const summary = page.getByRole('group', { name: '出生资料摘要' });
+  const submitted = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  expect((await submitted).request().postDataJSON()).toEqual({ birthDate: '2023-02-20' });
+  await expect(summary).toContainText('2023-02-20');
+  await summary.getByRole('button', { name: '修改', exact: true }).click();
+  const editor = page.getByRole('dialog', { name: '修改出生信息' });
+  await expect(editor.getByRole('textbox', { name: '年', exact: true })).toHaveValue('2023');
+  await expect(editor.getByRole('radio', { name: /2023-02-20/ })).toBeChecked({ timeout: 3000 });
+  await expect(editor.getByRole('radio', { name: /2023-03-22/ })).not.toBeChecked();
+  const unchanged = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await editor.getByRole('button', { name: '确认并对照' }).click();
+  const response = await unchanged;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ birthDate: '2023-02-20' });
+  await expect(summary).toContainText('2023-02-20');
+});
+
 test('birth boundary prompts and the submitted summary retain seconds', async ({ page }) => {
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
