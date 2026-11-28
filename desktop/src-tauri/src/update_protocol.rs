@@ -181,9 +181,19 @@ impl Source {
     ) -> io::Result<ManifestCheck> {
         let response = self.get("release", CHECK_TIME).await?;
         if response.status() == StatusCode::NO_CONTENT {
+            // A bare 204 is not proof of withdrawal. Ask for a fresh, signed
+            // decision bound to the exact manifest before touching local consent.
+            let revoked = if let Some(ready) = ready {
+                !self.approve(ready).await?
+            } else {
+                false
+            };
+            if revoked {
+                clear_authorization(root)?;
+            }
             return Ok(ManifestCheck {
                 installable: None,
-                revoked: false,
+                revoked,
             });
         }
         let envelope = decode(response).await?;
@@ -377,7 +387,7 @@ mod tests {
         let manifest_envelope: Envelope = serde_json::from_slice(&manifest).unwrap();
         let manifest_digest = hash(&STANDARD.decode(&manifest_envelope.payload).unwrap());
         let server = thread::spawn(move || {
-            for index in 0..11 {
+            for index in 0..20 {
                 let (mut connection, _) = listener.accept().unwrap();
                 let mut input = BufReader::new(&mut connection);
                 let mut request = String::new();
@@ -390,8 +400,22 @@ mod tests {
                     }
                 }
                 let path = request.split_whitespace().nth(1).unwrap();
+                if matches!(index, 11 | 13 | 15 | 17) {
+                    assert_eq!(path, "/release");
+                    write!(
+                        connection,
+                        "HTTP/1.1 204 No Content\r\nConnection: close\r\n\r\n"
+                    )
+                    .unwrap();
+                    continue;
+                }
+                if index == 12 {
+                    assert!(path.starts_with("/approve/"));
+                    write!(connection, "HTTP/1.1 503 Service Unavailable\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").unwrap();
+                    continue;
+                }
                 let bytes = match index {
-                    0 | 10 => {
+                    0 | 10 | 19 => {
                         assert_eq!(path, "/release");
                         manifest.clone()
                     }
@@ -414,12 +438,19 @@ mod tests {
                         let mut payload = serde_json::json!({
                             "nonce": nonce, "version": fields[3], "digest": fields[4],
                             "manifest_digest": if index == 4 { "other" } else { fields[5] },
-                            "allowed": index != 5
+                            "allowed": !matches!(index, 5 | 14 | 18)
                         });
                         if index == 6 {
                             payload.as_object_mut().unwrap().remove("manifest_digest");
                         }
-                        signed(payload, &approval_key)
+                        signed(
+                            payload,
+                            if index == 14 {
+                                &release_key
+                            } else {
+                                &approval_key
+                            },
+                        )
                     }
                 };
                 write!(
@@ -501,6 +532,38 @@ mod tests {
         assert!(
             !next.exists(),
             "re-publishing the original release cannot restore consent"
+        );
+        // Re-arm A in the test, then withdraw it (204). Neither an unavailable
+        // approval service, an unsigned-by-approval-key denial, nor an approval
+        // racing with re-publication should erase the stored consent.
+        fs::write(&ready, serde_json::to_vec(&envelope).unwrap()).unwrap();
+        fs::write(&next, &release.manifest_digest).unwrap();
+        for _ in 0..2 {
+            assert!(source.check_manifest(&root, Some(&release)).await.is_err());
+            assert!(ready.exists() && next.exists());
+        }
+        assert!(
+            !source
+                .check_manifest(&root, Some(&release))
+                .await
+                .unwrap()
+                .revoked
+        );
+        assert!(ready.exists() && next.exists());
+        let withdrawn = source.check_manifest(&root, Some(&release)).await.unwrap();
+        assert!(withdrawn.revoked);
+        assert!(withdrawn.installable.is_none());
+        assert!(!ready.exists() && !next.exists());
+        assert_eq!(fs::read(&cached).unwrap(), package);
+        let republished = source.check_manifest(&root, None).await.unwrap();
+        assert!(republished
+            .installable
+            .unwrap()
+            .1
+            .matches_manifest(&release.manifest_digest));
+        assert!(
+            !ready.exists() && !next.exists(),
+            "the same manifest cannot re-arm withdrawn consent"
         );
         fs::remove_dir_all(root).unwrap();
         server.join().unwrap();

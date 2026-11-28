@@ -75,7 +75,29 @@ async function matchesPackage(path, length, digest) {
   }
 }
 
-export async function publish(root, installer, version, webviewMin, key) {
+const replacementDelays = [20, 40, 80, 160, 320];
+const sharingConflict = error => ['EPERM', 'EBUSY', 'EACCES'].includes(error.code);
+
+async function replaceAtomically(staged, target, replace, alreadyReady = async () => false) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      if (await alreadyReady()) return;
+      // Never unlink the active path before replacing it.
+      await replace(staged, target);
+      return;
+    } catch (error) {
+      if (!sharingConflict(error)) throw error;
+      if (attempt === replacementDelays.length) {
+        // Another publisher may have succeeded while our final rename failed.
+        if (await alreadyReady()) return;
+        throw error;
+      }
+      await sleep(replacementDelays[attempt]);
+    }
+  }
+}
+
+export async function publish(root, installer, version, webviewMin, key, { replace = rename } = {}) {
   if (!buildVersion.test(version) || !Number.isSafeInteger(webviewMin) || webviewMin < 1
     || key.asymmetricKeyType !== 'ed25519') throw new Error('invalid release arguments');
   await mkdir(join(root, 'packages'), { recursive: true });
@@ -103,17 +125,19 @@ export async function publish(root, installer, version, webviewMin, key) {
       await link(staged, artifact);
     } catch (error) {
       if (error.code !== 'EEXIST') throw error;
-      if (!(await matchesPackage(artifact, length, digest))) {
-        // The staged file is complete and verified. Replace in one same-directory
-        // rename, never unlink the active path; if blocked, don't publish metadata.
-        await rename(staged, artifact);
-      }
+      // Recheck length and SHA-256 on retry: a concurrent publisher may have
+      // repaired the same digest. Otherwise only an atomic rename may repair it.
+      await replaceAtomically(staged, artifact, replace, () => matchesPackage(artifact, length, digest));
     }
     const release = { version, platform: 'windows-x64', webview_min: webviewMin,
       length, digest, chunk_size: chunkSize, chunks };
     const manifest = join(root, randomUUID() + '.json');
     await writeFile(manifest, JSON.stringify(signed(release, key)), { flag: 'wx' });
-    await rename(manifest, join(root, 'active.json'));
+    try {
+      await replaceAtomically(manifest, join(root, 'active.json'), replace);
+    } finally {
+      await unlink(manifest).catch(() => {});
+    }
     return release;
   } finally {
     await unlink(staged).catch(() => {});

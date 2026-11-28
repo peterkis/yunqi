@@ -244,6 +244,30 @@ test('returning to age mode just after Beijing midnight refreshes before recalcu
   expect(response.request().postDataJSON()).toEqual({ birthDate: '2000-09-12' });
 });
 
+test('a month-only birth keeps the entered year across Beijing date changes', async ({ page }) => {
+  await page.clock.install();
+  const clock = { current: '2026-08-31T23:59:50+08:00' };
+  await routeBirthClock(page, clock);
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '按出生年份' }).click();
+  await form.getByRole('textbox', { name: '年', exact: true }).fill('2000');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('9');
+  await expect(form.getByRole('button', { name: '仅按年份对照' })).toBeEnabled();
+  clock.current = '2026-09-01T00:00:05+08:00';
+  await page.clock.fastForward(15_000);
+  await form.getByRole('radio', { name: '按年龄推算' }).click();
+  const age = form.getByRole('textbox', { name: '年龄' });
+  await expect(age).toHaveValue('26');
+
+  const posted = page.waitForResponse(response => response.url().endsWith('/learning/birth-year-comparison'));
+  await form.getByRole('button', { name: '仅按年份对照' }).click();
+  const response = await posted;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ year: 2000 });
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('2000');
+});
+
 test('editing a committed lunar birthday keeps the submitted choice when year mode reveals a leap candidate', async ({ page }) => {
   await routeBirthClock(page, { current: '2026-03-10T12:00:00+08:00' });
   await page.goto('/yunqi/birth');

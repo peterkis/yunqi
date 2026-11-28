@@ -257,6 +257,26 @@ describe('inline birth entry', () => {
     expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' }, '2026-09-11');
     expect(getCurrent).toHaveBeenCalledTimes(3);
   });
+  it('keeps an explicitly entered annual birth year on a later clock refresh', async () => {
+    const before = await dateReference('2026-08-31')();
+    const getCurrent = dateReference('2026-09-01').mockResolvedValueOnce(before).mockResolvedValueOnce(before);
+    const { user, confirm } = setup(createClientStub({ getCurrent }),
+      { ...emptyBirthDraft, mode: 'year', primary: '2000', month: '09' });
+    await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
+    await waitFor(() => expect(slot('年龄')).toHaveValue('25'));
+    const submit = key('仅按年份对照');
+    await user.click(submit);
+    await screen.findByText(/北京日期已变更/);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(slot('年龄')).toHaveValue('26');
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2000 }, '2026-09-01');
+    confirm.mockClear();
+    await user.clear(slot('年龄'));
+    await user.type(slot('年龄'), '25');
+    await user.click(submit);
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2001 }, '2026-09-01');
+  });
   it('does not submit an age-derived year when the fresh service clock fails', async () => {
     const getCurrent = dateReference('2026-09-11')
       .mockResolvedValueOnce(await dateReference('2026-09-11')())

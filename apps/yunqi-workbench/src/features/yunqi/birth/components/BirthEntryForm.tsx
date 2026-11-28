@@ -6,7 +6,7 @@ import { Button } from '../../../../components/design/Button';
 import { NumericKeypad } from '../../../../components/design/NumericKeypad';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { useBirthPreview, useBirthReferenceDate } from '../hooks/useBirthEntry';
-import { attainedAge, birthdayAdjustment, birthReferenceDate, birthYear, dayError, lunarAgeBirthYears, sharedBirthYear, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
+import { approximateBirthAge, attainedAge, birthdayAdjustment, birthReferenceDate, birthYear, dayError, lunarAgeBirthYears, sharedBirthYear, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
 import { BirthYearSeal } from './BirthYearSeal';
 import '../../../../styles/views/birth-entry.css';
 
@@ -25,7 +25,7 @@ interface Props {
   pending: boolean;
 }
 
-export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cleared, variant = 'inline', initialFocus = 'primary', pending: comparing, comparisonDateChanged, error }: Props) {
+export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm, onClear, cleared, variant = 'inline', initialFocus = 'primary', pending: comparing, comparisonDateChanged, error }: Props) {
   const inputs = useRef<Partial<Record<BirthSlot, HTMLInputElement>>>({});
   const [slot, setSlot] = useState<BirthSlot>(initialFocus);
   const [feedback, setFeedback] = useState<{ key: BirthSlot; message: string; kind: 'prefix' | 'error' | 'retained' }>();
@@ -46,12 +46,19 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const monthGroup = useId();
   const statusId = useId();
   const hourField = useRef<HTMLInputElement>(null);
-  const previouslyKnewTime = useRef(draft.knowsTime);
+  const previouslyKnewTime = useRef(storedDraft.knowsTime);
   const clock = useBirthReferenceDate();
-  const ageMode = draft.mode === 'age';
+  const ageMode = storedDraft.mode === 'age';
+  const pinnedYear = ageMode ? storedDraft.yearBeforeAge : undefined;
+  // A converted age still represents the entered year or selected birthday.
+  // Clock refreshes update its displayed age rather than changing that origin.
+  const draft = pinnedYear !== undefined && clock.today
+    ? { ...storedDraft, primary: String(storedDraft.selected ? attainedAge(storedDraft.selected, clock.today)
+      : approximateBirthAge(storedDraft, pinnedYear, clock.today)) }
+    : storedDraft;
   const inferredYear = birthYear(draft, clock.today);
   const adjustment = birthdayAdjustment(draft, clock.today);
-  const yearAge = inferredYear !== undefined && clock.today ? clock.today.year - inferredYear - (adjustment ? 1 : 0) : undefined;
+  const yearAge = inferredYear !== undefined && clock.today ? approximateBirthAge(draft, inferredYear, clock.today) : undefined;
   const invalid = dayError(draft, inferredYear);
   const complete = Boolean(Number(draft.month) && Number(draft.day) && !invalid);
   const exactLunarAge = ageMode && draft.calendar === 'lunar' && complete;
@@ -121,7 +128,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    onEdit({ ...draft, selected: '', knowsTime: false, time: '', lunarAgeBeforeYear: undefined, ...patch });
+    onEdit({ ...draft, selected: '', knowsTime: false, time: '', lunarAgeBeforeYear: undefined, yearBeforeAge: undefined, ...patch });
   }
   function reject(key: BirthSlot, message: string, kind: 'error' | 'retained' = 'error') {
     enterIntent.current = undefined;
@@ -249,15 +256,19 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    if (mode === 'age' && retainedDate) {
-      // The minute poll may still be showing yesterday. Do not switch on a stale age.
+    const enteredYear = !ageMode && /^\d{4}$/.test(draft.primary) ? Number(draft.primary) : undefined;
+    if (mode === 'age' && (retainedDate || (enteredYear !== undefined && retainedAge === undefined))) {
+      // The minute poll may still be showing yesterday, even with just a year or month.
       checkingRef.current = true;
       setCheckingDate(true);
       try {
         const freshDate = await clock.readFreshDate();
         if (!mounted.current || !freshDate) return;
-        primary = attainedAge(retainedDate, birthReferenceDate(freshDate));
-        if (primary < 0 || primary > 120) return;
+        const reference = birthReferenceDate(freshDate);
+        const freshYear = birthYear(draft, reference);
+        primary = retainedDate ? attainedAge(retainedDate, reference)
+          : freshYear === undefined ? undefined : approximateBirthAge(draft, freshYear, reference);
+        if (primary === undefined || primary < 0 || primary > 120) return;
         focusAfterSwitch.current = true;
       } catch {
         // Stay in year mode; the clock query exposes a retry.
@@ -267,7 +278,8 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
         if (mounted.current) setCheckingDate(false);
       }
     }
-    onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate, lunarAgeBeforeYear });
+    onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate,
+      lunarAgeBeforeYear, yearBeforeAge: mode === 'age' && retainedAge === undefined ? enteredYear : undefined });
     if (!focusAfterSwitch.current) focus('primary');
   }
   const yearPrefix = exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';

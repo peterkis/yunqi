@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, verify } from 'node:crypto';
 import { once } from 'node:events';
-import { mkdir, mkdtemp, readFile, readdir, rm, rmdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rename, rm, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -133,6 +133,58 @@ for (const corruption of ['wrong-size', 'same-size']) {
     assert.deepEqual(await readdir(join(root, 'packages')), [initial.digest + '.exe']);
   });
 }
+
+test('a publisher recovers a sharing conflict only after the stored package is verified', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'yunqi-republish-sharing-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const installer = join(root, 'fixture.exe');
+  const { privateKey } = generateKeyPairSync('ed25519');
+  const bytes = Buffer.from('MZ verified test fixture');
+  const damaged = Buffer.from(bytes);
+  damaged[damaged.length - 1] ^= 1;
+  await writeFile(installer, bytes);
+  const initial = await publish(root, installer, '0.1.11', 145, privateKey);
+  const artifact = join(root, 'packages', initial.digest + '.exe');
+  const active = join(root, 'active.json');
+  const previous = await readFile(active);
+  const busy = () => Object.assign(new Error('fixture sharing conflict'), { code: 'EPERM' });
+
+  await writeFile(artifact, damaged);
+  await assert.rejects(publish(root, installer, '0.1.12', 145, privateKey, {
+    replace: async (source, target) => {
+      if (target === artifact) throw busy();
+      await rename(source, target);
+    },
+  }), { code: 'EPERM' });
+  assert.deepEqual(await readFile(active), previous, 'same length alone cannot allow activation');
+  assert.deepEqual(await readFile(artifact), damaged);
+
+  let artifactAttempts = 0;
+  let activeAttempts = 0;
+  const recovered = await publish(root, installer, '0.1.12', 145, privateKey, {
+    replace: async (source, target) => {
+      if (target === artifact) {
+        artifactAttempts++;
+        assert.deepEqual(await readFile(active), previous);
+        // Another publisher wins the replacement; this publisher sees EPERM.
+        const other = join(root, 'packages', 'peer.part');
+        await writeFile(other, bytes);
+        await rename(other, artifact);
+        throw busy();
+      }
+      if (++activeAttempts === 1) throw busy();
+      await rename(source, target);
+    },
+  });
+  assert.equal(recovered.digest, initial.digest);
+  assert.equal(artifactAttempts, 1, 'reuse after full revalidation instead of replacing again');
+  assert.equal(activeAttempts, 2, 'transient contention during manifest activation also converges');
+  assert.deepEqual(await readFile(artifact), bytes);
+  assert.deepEqual(await readdir(join(root, 'packages')), [initial.digest + '.exe']);
+  assert.deepEqual((await readdir(root)).filter(name => name.endsWith('.json')), ['active.json']);
+  const { payload } = JSON.parse(await readFile(active, 'utf8'));
+  assert.equal(JSON.parse(Buffer.from(payload, 'base64')).version, '0.1.12');
+});
 
 test('failed artifact replacement leaves the previous manifest active', async t => {
   const root = await mkdtemp(join(tmpdir(), 'yunqi-republish-blocked-'));

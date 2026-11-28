@@ -6,6 +6,7 @@ export interface BirthDraft {
   mode: 'age' | 'year';
   primary: string;
   lunarAgeBeforeYear?: string;
+  yearBeforeAge?: number;
   calendar: 'solar' | 'lunar';
   month: string;
   day: string;
@@ -40,6 +41,11 @@ export function birthdayAdjustment(draft: BirthDraft, today: BirthReferenceDate 
   if (month > today.month) return '月';
   if (month === today.month && Number(draft.day) > today.day) return '日';
   return undefined;
+}
+
+/** Age estimate for an entered year when an exact Gregorian birthday is not known. */
+export function approximateBirthAge(draft: BirthDraft, year: number, today: BirthReferenceDate): number {
+  return today.year - year - Number(Boolean(birthdayAdjustment(draft, today)));
 }
 
 export function birthYear(draft: BirthDraft, today: BirthReferenceDate | undefined) {
