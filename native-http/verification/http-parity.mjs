@@ -22,6 +22,7 @@ const child=spawn(resolve(program),[],{env:{...process.env,HOST:'127.0.0.1',PORT
 const exit=once(child,'exit');
 let cases=0;
 const checked=[];
+const clockChecked=[];
 try {
   const lines=createInterface({input:child.stdout});
   const [line]=await once(lines,'line',{signal:AbortSignal.timeout(10000)});
@@ -29,18 +30,30 @@ try {
   assert.ok(rustUrl,'Rust startup line');
   const post=(body, headers={'content-type':'application/json'}) => ({method:'POST',headers,body});
   const json=body=>post(JSON.stringify(body));
-  async function check(path,init) {
+  async function check(path,init,{currentInput,expectedStatus,label=path}={}) {
+    const before=Date.now();
     const native=await fetch(rustUrl+path,init).catch(error=>{throw Error('Rust HTTP '+path,{cause:error})});
+    const after=Date.now();
     const value=await native.json();
-    // The Rust production clock is real. Inject its emitted timestamp into the independently
-    // running reference server only for responses whose content depends on the present instant.
-    referenceNow=value?.data?.current?.facts?.input?.epochMilliseconds ??
-      value?.data?.facts?.input?.epochMilliseconds ?? value?.data?.input?.epochMilliseconds ?? Date.now();
+    if(currentInput) {
+      const epoch=currentInput(value.data)?.epochMilliseconds;
+      assert.ok(Number.isSafeInteger(epoch) && before <= epoch && epoch <= after,
+        path+' Rust clock '+epoch+' outside request window ['+before+', '+after+']');
+      // Pin the reference to the server's instant only after checking it against the real clock.
+      referenceNow=epoch;
+      clockChecked.push(path);
+    } else {
+      referenceNow=after;
+    }
     const old=await fetch(referenceUrl+path,init).catch(error=>{throw Error('reference HTTP '+path,{cause:error})});
-    assert.equal(native.status,old.status,path+' status');
-    assert.equal(native.headers.get('cache-control'),old.headers.get('cache-control'),path+' caching');
-    assert.deepEqual(value,await old.json(),path+' complete body');
-    checked.push(path);cases++;
+    if(expectedStatus!==undefined) {
+      assert.equal(old.status,expectedStatus,label+' Fastify status');
+      assert.equal(native.status,expectedStatus,label+' Rust status');
+    }
+    assert.equal(native.status,old.status,label+' status');
+    assert.equal(native.headers.get('cache-control'),old.headers.get('cache-control'),label+' caching');
+    assert.deepEqual(value,await old.json(),label+' complete body');
+    checked.push(label);cases++;
     return value;
   }
   const y='/api/v1/yunqi';
@@ -48,16 +61,24 @@ try {
   const scale='/api/v1/constitution';
   await check('/health');
   await check(y+'/year/2024?source=workbench');
-  await check(y+'/current');
+  await check(y+'/current',undefined,{currentInput:data=>data?.input});
   await check(y+'/calculate',json({dateTime:'1991-05-21T12:00:00.001+08:00'}));
-  await check(lesson+'/current');
+  await check(lesson+'/current',undefined,{currentInput:data=>data?.facts?.input});
   await check(lesson+'/calculate',json({dateTime:'2024-01-20T22:07:22'}));
-  await check(lesson+'/birth-comparison',json({birthDate:'2024-01-20'}));
-  await check(lesson+'/birth-year-comparison',json({year:2023}));
+  await check(lesson+'/birth-comparison',json({birthDate:'2024-01-20'}),
+    {currentInput:data=>data?.current?.facts?.input});
+  await check(lesson+'/birth-year-comparison',json({year:2023}),
+    {currentInput:data=>data?.current?.facts?.input});
   await check(lesson+'/birth-date-preview',json({year:2023,month:2,day:1,calendar:'lunar'}));
   const {data:form}=await check(scale+'/questionnaire');
   const answers=Object.fromEntries(form.questions.filter(x=>['all','male'].includes(x.sex)).map(x=>[x.id,1]));
-  await check(scale+'/assess',json({questionnaireId:form.id,sex:'male',answers}));
+  const assessment={questionnaireId:form.id,sex:'male',answers};
+  await check(scale+'/assess',json(assessment),{expectedStatus:200});
+  // Keep the decimal literal as raw JSON so both parsers receive identical bytes.
+  const firstAnswer=JSON.stringify(Object.keys(answers)[0]);
+  const raw=JSON.stringify(assessment).replace(firstAnswer+':1',firstAnswer+':1.9999999999999998');
+  assert.ok(raw.includes(firstAnswer+':1.9999999999999998'),'fractional answer fixture');
+  await check(scale+'/assess',post(raw),{expectedStatus:400,label:scale+'/assess (fractional answer)'});
   await check(y+'/calculate',post('{"dateTime":'));
   await check(lesson+'/calculate',post('abc',{'content-type':'text/plain'}));
   await check(lesson+'/calculate',post('abc',{'content-type':'text/html'}));
@@ -102,7 +123,7 @@ try {
   await sleep(1100);
   const [resumed,oldResumed]=await Promise.all([get(rustUrl),get(referenceUrl)]);
   assert.equal(resumed.status,200);assert.deepEqual(resumed,oldResumed);
-  const result={matchedRequests:cases, matchedChecks:checked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
+  const result={matchedRequests:cases, matchedChecks:checked, currentClockChecks:clockChecked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
   if(output) await writeFile(output,JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify(result));
 } finally {

@@ -200,22 +200,52 @@ pub fn parse_datetime(input: &str) -> Result<YunQiCalendarTime, String> {
     })
 }
 
+const TERM_SLOTS: usize = (LAST_PROVIDER_YEAR - FIRST_PROVIDER_YEAR + 1) as usize * TERMS.len();
+
+// Bounded for the supported years and both adjacent endpoints. Each slot
+// coordinates its own initialization without serializing unrelated lookups.
+struct SolarTermCache {
+    slots: [OnceLock<Result<YunQiCalendarTime, String>>; TERM_SLOTS],
+    #[cfg(test)]
+    calculations: std::sync::atomic::AtomicUsize,
+}
+
+impl SolarTermCache {
+    const fn new() -> Self {
+        Self {
+            slots: [const { OnceLock::new() }; TERM_SLOTS],
+            #[cfg(test)]
+            calculations: std::sync::atomic::AtomicUsize::new(0),
+        }
+    }
+
+    fn get(&self, year: i32, name: &str) -> Result<YunQiCalendarTime, String> {
+        if !(FIRST_PROVIDER_YEAR..=LAST_PROVIDER_YEAR).contains(&year) {
+            return Err(format!("节气查询年份超出范围：{year}"));
+        }
+        let term_index = TERMS
+            .iter()
+            .position(|&term| term == name)
+            .ok_or_else(|| format!("未知节气：{name}"))?;
+        let slot = &self.slots[(year - FIRST_PROVIDER_YEAR) as usize * TERMS.len() + term_index];
+        // For a valid key, even an error from the pinned provider or validation
+        // is deterministic, so cache the result of the full calculation.
+        slot.get_or_init(|| {
+            #[cfg(test)]
+            self.calculations
+                .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+            calculate_solar_term(year, name)
+        })
+        .clone()
+    }
+}
+
 pub fn solar_term(year: i32, name: &str) -> Result<YunQiCalendarTime, String> {
-    // Bounded cache for supported years and both adjacent endpoints. The lookup
-    // avoids repeated astronomical calculation across annual, learning and birth views.
-    const COUNT: usize = (LAST_PROVIDER_YEAR - FIRST_PROVIDER_YEAR + 1) as usize * TERMS.len();
-    static CACHE: [OnceLock<YunQiCalendarTime>; COUNT] = [const { OnceLock::new() }; COUNT];
-    if !(FIRST_PROVIDER_YEAR..=LAST_PROVIDER_YEAR).contains(&year) {
-        return Err(format!("节气查询年份超出范围：{year}"));
-    }
-    let term_index = TERMS
-        .iter()
-        .position(|&term| term == name)
-        .ok_or_else(|| format!("未知节气：{name}"))?;
-    let cell = &CACHE[(year - FIRST_PROVIDER_YEAR) as usize * TERMS.len() + term_index];
-    if let Some(time) = cell.get() {
-        return Ok(*time);
-    }
+    static CACHE: SolarTermCache = SolarTermCache::new();
+    CACHE.get(year, name)
+}
+
+fn calculate_solar_term(year: i32, name: &str) -> Result<YunQiCalendarTime, String> {
     let term = SolarTerm::new(year as isize, name)?;
     let time = term.get_julian_day().get_solar_time();
     if term.get_year() != year as isize
@@ -236,7 +266,7 @@ pub fn solar_term(year: i32, name: &str) -> Result<YunQiCalendarTime, String> {
     if !local.valid() {
         return Err(format!("节气时间无效：{year} {name}"));
     }
-    Ok(*cell.get_or_init(|| local))
+    Ok(local)
 }
 
 struct LunarPeriod {
@@ -318,6 +348,36 @@ pub fn resolve_lunar_birthday(year: i32, month: u32, day: u32, leap: Option<bool
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn concurrent_cold_lookups_calculate_the_same_term_once() {
+        use std::{sync::atomic::Ordering, sync::Barrier, thread};
+
+        // The process-wide cache may already be warm from another test.
+        let cache = SolarTermCache::new();
+        const CALLERS: usize = 16;
+        let start = Barrier::new(CALLERS);
+        thread::scope(|scope| {
+            let requests: Vec<_> = (0..CALLERS)
+                .map(|_| {
+                    scope.spawn(|| {
+                        start.wait();
+                        cache.get(2024, "大寒")
+                    })
+                })
+                .collect();
+            for request in requests {
+                assert_eq!(request.join().unwrap().unwrap().epoch(), 1_705_759_642_000);
+            }
+        });
+        assert_eq!(cache.calculations.load(Ordering::Relaxed), 1);
+
+        assert_eq!(cache.get(2024, "大寒").unwrap().epoch(), 1_705_759_642_000);
+        assert_eq!(cache.calculations.load(Ordering::Relaxed), 1);
+        assert_eq!(cache.get(2024, "春分").unwrap().epoch(), 1_710_903_985_000);
+        assert_eq!(cache.get(2025, "大寒").unwrap().epoch(), 1_737_316_808_000);
+        assert_eq!(cache.calculations.load(Ordering::Relaxed), 3);
+    }
 
     #[test]
     fn adapter_matches_original_pinned_observations() {

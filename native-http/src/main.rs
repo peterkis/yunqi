@@ -213,14 +213,10 @@ async fn handle(
         if path.starts_with("/docs/static/") && path != "/docs/static/swagger-initializer.js" {
             headers.insert(CACHE_CONTROL, "public, max-age=0".parse().unwrap());
         }
-        match asset.payload(accept_gzip, raw_method == Method::HEAD, &mut headers) {
-            Ok(bytes) => {
-                let mut r = response(200, asset.mime, bytes, Some(guard));
-                r.headers_mut().extend(headers);
-                r
-            }
-            Err(_) => internal(guard),
-        }
+        let bytes = asset.payload(accept_gzip, raw_method == Method::HEAD, &mut headers);
+        let mut reply = response(200, asset.mime, bytes, Some(guard));
+        reply.headers_mut().extend(headers);
+        reply
     } else {
         let payload = if method == Method::POST && has_post(&path) {
             match read_payload(req).await {

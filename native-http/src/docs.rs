@@ -1,33 +1,32 @@
 //! These assets are the offline Swagger UI and OpenAPI snapshots from the reference service.
-use flate2::read::GzDecoder;
 use hyper::{
     body::Bytes,
     header::{ACCEPT_ENCODING, CONTENT_ENCODING, CONTENT_LENGTH, CONTENT_SECURITY_POLICY, VARY},
     HeaderMap,
 };
-use std::io::Read;
 
 pub struct Asset {
-    content: &'static [u8],
+    identity: &'static [u8],
+    gzip: Option<&'static [u8]>,
     pub mime: &'static str,
-    gzip: bool,
 }
 
 macro_rules! asset {
     ($name:literal, $mime:literal) => {
         Asset {
-            content: include_bytes!(concat!("../assets/", $name)),
+            identity: include_bytes!(concat!("../assets/", $name)),
+            gzip: None,
             mime: $mime,
-            gzip: false,
         }
     };
-    ($name:literal, $mime:literal, gzip) => {
+    ($name:literal, $mime:literal, gzip) => {{
+        static IDENTITY: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/", $name));
         Asset {
-            content: include_bytes!(concat!("../assets/", $name, ".gz")),
+            identity: IDENTITY,
+            gzip: Some(include_bytes!(concat!("../assets/", $name, ".gz"))),
             mime: $mime,
-            gzip: true,
         }
-    };
+    }};
 }
 
 // The HTTP build can serve gzip or identity for its precompressed Swagger assets.
@@ -105,33 +104,20 @@ pub fn get(path: &str) -> Option<Asset> {
     })
 }
 impl Asset {
-    pub fn payload(
-        &self,
-        accept_gzip: bool,
-        head: bool,
-        headers: &mut HeaderMap,
-    ) -> std::io::Result<Bytes> {
+    pub fn payload(&self, accept_gzip: bool, head: bool, headers: &mut HeaderMap) -> Bytes {
         headers.insert(CONTENT_SECURITY_POLICY, "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; object-src 'none'; frame-ancestors 'self'".parse().unwrap());
-        if self.gzip {
+        if let Some(gzip) = self.gzip {
             headers.insert(VARY, "accept-encoding".parse().unwrap());
             if accept_gzip {
                 headers.insert(CONTENT_ENCODING, "gzip".parse().unwrap());
-            } else if head {
-                // The embedded, single-member gzip assets are smaller than 4 GiB.
-                // Their trailer supplies GET's identity length without inflating a HEAD body.
-                let size = self
-                    .content
-                    .last_chunk::<4>()
-                    .expect("embedded gzip trailer");
-                headers.insert(CONTENT_LENGTH, u32::from_le_bytes(*size).into());
-                return Ok(Bytes::new());
-            } else {
-                let mut result = Vec::new();
-                GzDecoder::new(self.content).read_to_end(&mut result)?;
-                return Ok(result.into());
+                return Bytes::from_static(gzip);
+            }
+            if head {
+                headers.insert(CONTENT_LENGTH, self.identity.len().into());
+                return Bytes::new();
             }
         }
-        Ok(Bytes::from_static(self.content))
+        Bytes::from_static(self.identity)
     }
 }
 
@@ -157,12 +143,45 @@ mod tests {
     }
 
     #[test]
-    fn identity_head_reports_the_get_length_without_inflating_the_bundle() {
-        let asset = get("/docs/static/swagger-ui-bundle.js").unwrap();
-        let full = asset.payload(false, false, &mut HeaderMap::new()).unwrap();
-        let mut headers = HeaderMap::new();
-        let head = asset.payload(false, true, &mut headers).unwrap();
-        assert!(head.is_empty());
-        assert_eq!(headers[CONTENT_LENGTH], full.len().to_string());
+    fn identity_responses_reuse_the_same_bytes_and_head_reports_the_get_length() {
+        for name in [
+            "swagger-initializer.js",
+            "swagger-ui-bundle.js",
+            "swagger-ui-standalone-preset.js",
+            "swagger-ui.js",
+            "swagger-ui.css",
+            "index.css",
+            "oauth2-redirect.js",
+        ] {
+            let path = format!("/docs/static/{name}");
+            let asset = get(&path).unwrap();
+            let mut headers = HeaderMap::new();
+            let first = asset.payload(false, false, &mut headers);
+            let second = get(&path)
+                .unwrap()
+                .payload(false, false, &mut HeaderMap::new());
+            assert!(!first.is_empty(), "{path}");
+            assert_eq!(
+                first.as_ptr(),
+                second.as_ptr(),
+                "{path} reuses identity data"
+            );
+            assert_eq!(headers[VARY], "accept-encoding");
+            assert!(!headers.contains_key(CONTENT_ENCODING));
+            assert!(headers.contains_key(CONTENT_SECURITY_POLICY));
+
+            let mut headers = HeaderMap::new();
+            let head = asset.payload(false, true, &mut headers);
+            assert!(head.is_empty());
+            assert_eq!(headers[CONTENT_LENGTH], first.len().to_string());
+
+            let mut headers = HeaderMap::new();
+            let gzip = asset.payload(true, false, &mut headers);
+            assert_eq!(headers[CONTENT_ENCODING], "gzip");
+            assert_eq!(headers[VARY], "accept-encoding");
+            // The original single-member gzip trailer independently gives the identity length.
+            let size = u32::from_le_bytes(*gzip.last_chunk::<4>().unwrap());
+            assert_eq!(first.len(), size as usize, "{path}");
+        }
     }
 }
