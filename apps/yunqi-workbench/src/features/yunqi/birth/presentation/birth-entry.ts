@@ -40,6 +40,21 @@ export function birthYear(draft: BirthDraft, today: BirthReferenceDate | undefin
   return year >= 1900 && year <= Math.min(2100, today.year) ? year : undefined;
 }
 
+/** A known attained age allows either of two adjacent Gregorian birth years. */
+export function lunarAgeBirthYears(age: string, referenceYear: number | undefined): number[] {
+  if (!age || !referenceYear || Number(age) > 120) return [];
+  const latest = referenceYear - Number(age);
+  return [latest - 1, latest].filter(year => year >= 1900 && year <= 2100);
+}
+
+export function hasAttainedAge(birthDate: string, age: number, today: BirthReferenceDate): boolean {
+  const year = Number(birthDate.slice(0, 4));
+  const month = Number(birthDate.slice(5, 7));
+  const day = Number(birthDate.slice(8, 10));
+  const birthdayAhead = month > today.month || (month === today.month && day > today.day);
+  return today.year - year - Number(birthdayAhead) === age;
+}
+
 export type BirthSlot = 'primary' | 'month' | 'day';
 
 function maxDay(draft: BirthDraft, year: number | undefined) {

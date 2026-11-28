@@ -6,7 +6,7 @@ import { Button } from '../../../../components/design/Button';
 import { NumericKeypad } from '../../../../components/design/NumericKeypad';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { useBirthPreview, useBirthReferenceDate } from '../hooks/useBirthEntry';
-import { birthdayAdjustment, birthYear, dayError, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
+import { birthdayAdjustment, birthYear, dayError, hasAttainedAge, lunarAgeBirthYears, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
 import { BirthYearSeal } from './BirthYearSeal';
 import '../../../../styles/views/birth-entry.css';
 
@@ -40,23 +40,34 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const hourField = useRef<HTMLInputElement>(null);
   const previouslyKnewTime = useRef(draft.knowsTime);
   const clock = useBirthReferenceDate();
-  const year = birthYear(draft, clock.today);
+  const ageMode = draft.mode === 'age';
+  const inferredYear = birthYear(draft, clock.today);
   const adjustment = birthdayAdjustment(draft, clock.today);
-  const yearAge = year !== undefined && clock.today ? clock.today.year - year - (adjustment ? 1 : 0) : undefined;
+  const yearAge = inferredYear !== undefined && clock.today ? clock.today.year - inferredYear - (adjustment ? 1 : 0) : undefined;
   const age = yearAge !== undefined && yearAge >= 0 ? yearAge : undefined;
-  const invalid = dayError(draft, year);
-  const complete = Boolean(year && Number(draft.month) && Number(draft.day) && !invalid);
-  const request = useMemo(() => complete && year
-    ? { year, calendar: draft.calendar, month: Number(draft.month), day: Number(draft.day) } : undefined,
-    [complete, year, draft.calendar, draft.month, draft.day]);
-  const preview = useBirthPreview(request);
-  const enterIntent = useRef<typeof request>(undefined);
-  const matches = preview.matches;
+  const invalid = dayError(draft, inferredYear);
+  const complete = Boolean(Number(draft.month) && Number(draft.day) && !invalid);
+  const exactLunarAge = ageMode && draft.calendar === 'lunar' && complete;
+  const lunarReferenceDate = exactLunarAge ? clock.localDate : undefined;
+  const requests = useMemo(() => {
+    if (!complete) return undefined;
+    const years = exactLunarAge
+      ? lunarAgeBirthYears(draft.primary, lunarReferenceDate ? Number(lunarReferenceDate.slice(0, 4)) : undefined)
+      : inferredYear === undefined ? [] : [inferredYear];
+    return years.length ? years.map(year => ({ year, calendar: draft.calendar, month: Number(draft.month), day: Number(draft.day) })) : undefined;
+  }, [complete, exactLunarAge, draft.primary, lunarReferenceDate, inferredYear, draft.calendar, draft.month, draft.day]);
+  const preview = useBirthPreview(requests);
+  const enterIntent = useRef<typeof requests>(undefined);
+  const today = clock.today;
+  const matches = exactLunarAge && today
+    ? preview.matches?.filter(item => hasAttainedAge(item.birthDate, Number(draft.primary), today))
+    : preview.matches;
   const selected = matches?.length === 1 ? matches[0] : matches?.find(item => item.birthDate === draft.selected);
+  const year = exactLunarAge ? (selected ? Number(selected.birthDate.slice(0, 4)) : undefined) : inferredYear;
   const timeAvailable = Boolean(selected?.boundaries.length);
   const annualOnly = !draft.day && rejected?.key !== 'day' && !invalid && (!draft.month || Number(draft.month) > 0);
-  const allow = Boolean(!inputBlocked && year && (annualOnly || (selected && (!timeAvailable || !draft.knowsTime || draft.time))));
-  const ageMode = draft.mode === 'age';
+  const allow = Boolean(!inputBlocked && year && (!exactLunarAge || !clock.failed) &&
+    (annualOnly || (selected && (!timeAvailable || !draft.knowsTime || draft.time))));
 
   function focus(key: BirthSlot) {
     setSlot(key);
@@ -152,10 +163,10 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     else if (selected) onConfirm({ birthDate: selected.birthDate, ...(timeAvailable && draft.knowsTime ? { birthTime: draft.time.length === 5 ? draft.time + ':00' : draft.time } : {}) });
   }
   useEffect(() => {
-    if (!request || enterIntent.current !== request || (!matches && !preview.failed)) return;
+    if (!requests || enterIntent.current !== requests || (!matches && !preview.failed)) return;
     enterIntent.current = undefined;
     if (selected && allow) confirm();
-  }, [request, matches, preview.failed, selected, allow]);
+  }, [requests, matches, preview.failed, selected, allow]);
   function onSlotKey(event: KeyboardEvent<HTMLInputElement>, key: BirthSlot) {
     if (leadingZero === key && /^\d$/.test(event.key) && !event.ctrlKey && !event.metaKey && !event.altKey) {
       event.preventDefault(); enter(key, event.key); return;
@@ -167,7 +178,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     if (event.key === 'Enter') {
       event.preventDefault();
       if (inputBlocked) return;
-      if (request && !matches && !preview.failed) enterIntent.current = request;
+      if (requests && !matches && !preview.failed) enterIntent.current = requests;
       else confirm();
     }
   }
@@ -177,25 +188,28 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary) });
     focus('primary');
   }
-  const yearPrefix = adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';
+  const yearPrefix = exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';
   const badge = year !== undefined && (ageMode || age !== undefined)
     ? (ageMode ? `${yearPrefix} ${year} 年` : `${complete && draft.calendar === 'solar' ? '周岁' : '约'} ${age} 岁`)
     : undefined;
   const inline = variant === 'inline';
   const primaryLabel = ageMode ? '当前年龄' : '公历出生年';
   const inputProblem = rejected?.message || invalid;
-  const yearProblem = draft.primary && !year && (draft.mode === 'age' || draft.primary.length === 4)
+  const yearProblem = draft.primary && (exactLunarAge ? !requests : !year) && (ageMode || draft.primary.length === 4)
     ? '请核对年龄或出生年份' : '';
   const failure = inputProblem || error || (clock.failed ? '获取当前年份失败' : '') || yearProblem
-    || (preview.failed ? '日期预览失败' : '') || (matches?.length === 0 ? '未找到可计算日期，请核对月日、历法或年份。' : '');
+    || (preview.failed ? '日期预览失败' : '') || (matches?.length === 0
+      ? exactLunarAge ? '未找到符合所填周岁的农历出生日期，请核对年龄和农历月日。'
+        : '未找到可计算日期，请核对月日、历法或年份。' : '');
   const retry = !inputProblem && !error && (clock.failed ? clock.retry : preview.failed ? preview.retry : undefined);
   const ambiguous = !!matches && matches.length > 1 && !selected;
   const tone = failure ? 'error' : retained || ambiguous || selected?.boundaries.length ? 'attention' : 'normal';
   let hint = '先填年龄或出生年份，月日可稍后补全';
   if (feedback?.kind === 'prefix') hint = feedback.message;
   else if (!clock.today) hint = '正在获取当前年份…';
-  else if (ambiguous) hint = '该农历月日在所填公历年内有多个匹配，请核对。';
-  else if (complete) hint = '正在核对出生日期…';
+  else if (ambiguous) hint = exactLunarAge ? '该农历月日有多个日期符合所填周岁，请选择。'
+    : '该农历月日在所填公历年内有多个匹配，请核对。';
+  else if (requests) hint = '正在核对出生日期…';
   else if (year) hint = `公历 ${year} 年 · 可查看年度对照`;
   if (year && ageMode && adjustment && !failure && !complete && !feedback) hint = '已按出生' + adjustment + '自动修正为 ' + year + ' 年';
   const form = <form className={'birth-entry birth-entry--' + variant} aria-label="出生运气输入" onKeyDown={onFormKey} aria-busy={pending} onSubmit={event => { event.preventDefault(); confirm(); }}>
@@ -256,7 +270,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
         {!failure && matches && matches.length > 1 && <fieldset className="birth-entry__matches"><legend>选择对应公历日期</legend>
           {matches.map(item => <label key={item.birthDate}><input type="radio" name={monthGroup} checked={draft.selected === item.birthDate}
             onChange={() => update({ selected: item.birthDate })} />{item.lunarLabel} · {item.birthDate}</label>)}
-          {!selected && <Button variant="text" disabled={inputBlocked} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
+          {!selected && !exactLunarAge && <Button variant="text" disabled={inputBlocked} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
         </fieldset>}
         {!failure && timeAvailable && draft.knowsTime && <p className="birth-entry__boundaries">{selected?.boundaries.map(item => item.label + ' ' + item.at.localTime.slice(11, 16)).join(' · ')}</p>}
         {!failure && !inputBlocked && timeAvailable && draft.knowsTime && <label className="birth-entry__time">出生时刻<input ref={hourField} type="time" step="1" value={draft.time}

@@ -16,7 +16,7 @@ export function TimeAnalysisView() {
   const mutation = useCalculateYunQiMutation();
   const navigate = useNavigate();
   const snapshot = useTimeAnchorSnapshot();
-  const [draft, setDraft] = useState(() => splitTimeInput(snapshot.cached?.now.slice(0, 16)));
+  const [draft, setDraft] = useState(() => splitTimeInput(snapshot.cached?.now));
   const inputValue = draftDate(draft) + 'T' + draftClock(draft);
   const [inputError, setInputError] = useState<string | null>(
     null,

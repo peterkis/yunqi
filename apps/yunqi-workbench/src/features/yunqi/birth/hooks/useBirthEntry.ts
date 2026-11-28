@@ -8,9 +8,9 @@ import { currentYunQiQueryOptions } from '../../api/query-options';
 export function useBirthReferenceDate() {
   const client = useYunQiClient();
   const query = useQuery({ ...currentYunQiQueryOptions(client), ...liveClockQueryOptions });
-  const local = query.data?.input.localTime;
-  const today = local ? { year: Number(local.slice(0, 4)), month: Number(local.slice(5, 7)), day: Number(local.slice(8, 10)) } : undefined;
-  return { today, failed: query.isError, retry: query.refetch };
+  const localDate = query.data?.input.localTime.slice(0, 10);
+  const today = localDate ? { year: Number(localDate.slice(0, 4)), month: Number(localDate.slice(5, 7)), day: Number(localDate.slice(8, 10)) } : undefined;
+  return { today, localDate, failed: query.isError, retry: query.refetch };
 }
 
 export function useBirthYearComparison() {
@@ -18,21 +18,22 @@ export function useBirthYearComparison() {
   return useMutation({ mutationFn: (request: BirthYearRequest) => client.compareBirthYear(request), gcTime: 0 });
 }
 
-export function useBirthPreview(request: BirthDatePreviewRequest | undefined) {
+export function useBirthPreview(requests: readonly BirthDatePreviewRequest[] | undefined) {
   const client = useYunQiClient();
-  const [result, setResult] = useState<{ request: BirthDatePreviewRequest; matches?: BirthDatePreviewDto['matches']; failed?: boolean }>();
-  const [attempt, retry] = useState(0);
+  const [result, setResult] = useState<{ client: typeof client; requests: readonly BirthDatePreviewRequest[]; attempt: number; matches?: BirthDatePreviewDto['matches']; failed?: boolean }>();
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     setResult(undefined);
-    if (!request) return;
+    if (!requests) return;
     let active = true;
     const timer = setTimeout(() => {
-      client.previewBirthDate(request).then(
-        ({ matches }) => { if (active) setResult({ request, matches }); },
-        () => { if (active) setResult({ request, failed: true }); },
+      Promise.all(requests.map(request => client.previewBirthDate(request))).then(
+        results => { if (active) setResult({ client, requests, attempt, matches: results.flatMap(({ matches }) => matches) }); },
+        () => { if (active) setResult({ client, requests, attempt, failed: true }); },
       );
     }, 180);
     return () => { active = false; clearTimeout(timer); };
-  }, [client, request, attempt]);
-  return { ...(result?.request === request ? result : undefined), retry: () => retry(value => value + 1) };
+  }, [client, requests, attempt]);
+  const active = result?.client === client && result.requests === requests && result.attempt === attempt ? result : undefined;
+  return { matches: active?.matches, failed: active?.failed, retry: () => setAttempt(value => value + 1) };
 }

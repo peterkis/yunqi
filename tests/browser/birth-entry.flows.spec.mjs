@@ -2,6 +2,34 @@ import { test, expect, scanAccessibility, waitForAnimations } from './fixtures.m
 import { expectTextContrast } from './visual-assertions.mjs';
 import { expectBirthCandidateBadges } from './birth-helpers.mjs';
 
+test('lunar birthday and age resolve to the Gregorian year that satisfies the attained age', async ({ page }) => {
+  const current = await page.request.post('/api/v1/yunqi/calculate', {
+    data: { dateTime: '2026-01-01T00:00:00+08:00' },
+  });
+  expect(current.ok()).toBe(true);
+  await page.route('**/api/v1/yunqi/current', route => route.fulfill({ response: current }));
+  const checkedYears = new Set();
+  page.on('request', request => {
+    if (request.url().endsWith('/learning/birth-date-preview')) {
+      checkedYears.add(request.postDataJSON().year);
+    }
+  });
+  await page.goto('/yunqi/birth');
+  const form = page.getByRole('form', { name: '出生运气输入' });
+  await form.getByRole('radio', { name: '农历', exact: true }).click();
+  await form.getByRole('textbox', { name: '年龄' }).fill('25');
+  await form.getByRole('textbox', { name: '月', exact: true }).fill('8');
+  await form.getByRole('textbox', { name: '日', exact: true }).fill('15');
+  await expect(form.locator('[data-preview-date]')).toHaveAttribute('data-preview-date', '2000-09-12');
+  expect([...checkedYears].sort()).toEqual([2000, 2001]);
+  const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));
+  await form.getByRole('button', { name: '确认并对照' }).click();
+  const response = await comparison;
+  expect(response.ok()).toBe(true);
+  expect(response.request().postDataJSON()).toEqual({ birthDate: '2000-09-12' });
+  await expect(page.getByRole('group', { name: '出生资料摘要' })).toContainText('2000-09-12');
+});
+
 test('rejecting an extra day digit preserves the confirmed date in inline and sheet entry', async ({ page }) => {
   await page.goto('/yunqi/birth');
   const form = page.getByRole('form', { name: '出生运气输入' });
