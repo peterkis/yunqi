@@ -4,7 +4,7 @@ import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest, Yu
 import { useYunQiClient } from '../../../../providers/YunQiClientProvider';
 import { liveClockQueryOptions } from '../../../../lib/live-clock-query';
 import { currentYunQiQueryOptions } from '../../api/query-options';
-import { beijingDate } from '../presentation/birth-entry';
+import { beijingDate, birthReferenceDate } from '../presentation/birth-entry';
 
 // Consume the backend's canonical Beijing date, without local clock conversion.
 const referenceDate = (data: YunQiCalculationDto | undefined) => data && beijingDate(data.input.localTime);
@@ -13,7 +13,7 @@ export function useBirthReferenceDate() {
   const client = useYunQiClient();
   const query = useQuery({ ...currentYunQiQueryOptions(client), ...liveClockQueryOptions });
   const localDate = referenceDate(query.data);
-  const today = localDate ? { year: Number(localDate.slice(0, 4)), month: Number(localDate.slice(5, 7)), day: Number(localDate.slice(8, 10)) } : undefined;
+  const today = localDate ? birthReferenceDate(localDate) : undefined;
   async function readFreshDate() {
     const result = await query.refetch({ throwOnError: true, cancelRefetch: true });
     return referenceDate(result.data);

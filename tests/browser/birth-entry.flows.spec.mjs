@@ -208,7 +208,7 @@ test('same-year lunar candidates preserve the year and typed age across mode cha
   await expect(submit).toBeEnabled();
 });
 
-test('returning to age mode after a birthday recalculates the age of the retained birth date', async ({ page }) => {
+test('returning to age mode just after Beijing midnight refreshes before recalculating the retained birth date', async ({ page }) => {
   await page.clock.install();
   const clock = { current: '2026-09-11T23:59:50+08:00' };
   await routeBirthClock(page, clock);
@@ -224,12 +224,17 @@ test('returning to age mode after a birthday recalculates the age of the retaine
   await expect(form.getByRole('textbox', { name: '年', exact: true })).toHaveValue('2000');
   await expect(form.locator('.birth-entry__preview-copy')).toContainText('周岁 25 岁');
   clock.current = '2026-09-12T00:00:05+08:00';
-  const refresh = page.waitForResponse(response => response.url().endsWith('/api/v1/yunqi/current'));
-  await page.clock.fastForward(60_000);
-  expect((await (await refresh).json()).data.input.localTime).toBe(clock.current);
-  await expect(form.locator('.birth-entry__preview-copy')).toContainText('周岁 26 岁');
+  await page.clock.fastForward(15_000);
+  await expect(form.locator('.birth-entry__preview-copy')).toContainText('周岁 25 岁');
+  const freshClockTimes = [];
+  page.on('response', async response => {
+    if (response.url().endsWith('/api/v1/yunqi/current') && response.ok()) {
+      freshClockTimes.push((await response.json()).data.input.localTime);
+    }
+  });
   await form.getByRole('radio', { name: '按年龄推算' }).click();
   await expect(form.getByRole('textbox', { name: '年龄' })).toHaveValue('26', { timeout: 3000 });
+  await expect.poll(() => freshClockTimes).toEqual([clock.current]);
   await expect(preview).toHaveAttribute('data-preview-date', '2000-09-12');
   await expect(form.getByRole('radio', { name: /2000-09-12/ })).toBeChecked();
   const comparison = page.waitForResponse(response => response.url().endsWith('/learning/birth-comparison'));

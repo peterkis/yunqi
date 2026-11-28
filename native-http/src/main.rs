@@ -13,17 +13,12 @@ use hyper::{
 use hyper_util::rt::{TokioIo, TokioTimer};
 use serde_json::{json, Value};
 use std::{
-    borrow::Cow,
-    convert::Infallible,
-    env,
-    error::Error,
-    net::{IpAddr, SocketAddr},
-    sync::Arc,
-    time::Instant,
+    borrow::Cow, convert::Infallible, env, error::Error, io, net::IpAddr, sync::Arc, time::Instant,
 };
 use tokio::{
-    net::TcpListener,
+    net::{lookup_host, TcpListener, TcpSocket},
     sync::{OwnedSemaphorePermit, Semaphore},
+    task::JoinSet,
 };
 use tokio_io_timeout::TimeoutStream;
 use yunqi_core::{clock_ms, dispatch, dispatch_annual_query};
@@ -319,6 +314,58 @@ async fn handle(
     Ok(reply)
 }
 
+async fn bind_listeners(host: &str, mut port: u16) -> io::Result<Vec<TcpListener>> {
+    if !host.eq_ignore_ascii_case("localhost") {
+        return Ok(vec![TcpListener::bind((host, port)).await?]);
+    }
+
+    let mut listeners = Vec::new();
+    let mut seen = Vec::new();
+    for mut addr in lookup_host((host, port)).await? {
+        // Never expand localhost to an externally reachable address.
+        if !addr.ip().is_loopback() || seen.contains(&addr.ip()) {
+            continue;
+        }
+        seen.push(addr.ip());
+        addr.set_port(port);
+        match TcpListener::bind(addr).await {
+            Ok(listener) => {
+                // With PORT=0 the first bind chooses the port for every family.
+                port = listener.local_addr()?.port();
+                listeners.push(listener);
+            }
+            Err(error)
+                if matches!(
+                    error.kind(),
+                    io::ErrorKind::AddrNotAvailable | io::ErrorKind::Unsupported
+                ) => {}
+            Err(error) => {
+                // Rust does not always classify a disabled address family as Unsupported.
+                // Only skip the address if creating a fresh socket fails the same way;
+                // a busy port (or other bind failure on an available family) is fatal.
+                let socket = if addr.is_ipv4() {
+                    TcpSocket::new_v4()
+                } else {
+                    TcpSocket::new_v6()
+                };
+                if !socket.is_err_and(|creation| {
+                    creation.raw_os_error().is_some()
+                        && creation.raw_os_error() == error.raw_os_error()
+                }) {
+                    return Err(error);
+                }
+            }
+        }
+    }
+    if listeners.is_empty() {
+        return Err(io::Error::new(
+            io::ErrorKind::AddrNotAvailable,
+            "no available localhost address",
+        ));
+    }
+    Ok(listeners)
+}
+
 #[tokio::main(worker_threads = 2)]
 async fn main() -> Result<(), Box<dyn Error>> {
     let host = env::var("HOST").unwrap_or_default();
@@ -332,11 +379,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
         return Err("PORT 必须是 0 到 65535 的整数".into());
     }
     let port: u16 = port.parse().map_err(|_| "PORT 必须是 0 到 65535 的整数")?;
-    let listener = TcpListener::bind((host, port)).await?;
-    let local: SocketAddr = listener.local_addr()?;
-    println!("Server listening at http://{local}");
+    let listeners = bind_listeners(host, port).await?;
     let ingress = Arc::new(ingress::Ingress::new());
     let slots = Arc::new(Semaphore::new(ingress::CONNECTIONS));
+    let mut tasks = JoinSet::new();
+    for listener in listeners {
+        println!("Server listening at http://{}", listener.local_addr()?);
+        tasks.spawn(serve(listener, ingress.clone(), slots.clone()));
+    }
+    // A listener task should never exit while the service is up.
+    if let Some(result) = tasks.join_next().await {
+        result?;
+    }
+    Ok(())
+}
+
+async fn serve(listener: TcpListener, ingress: Arc<ingress::Ingress>, slots: Arc<Semaphore>) {
     loop {
         let (tcp, peer) = match listener.accept().await {
             Ok(connection) => connection,

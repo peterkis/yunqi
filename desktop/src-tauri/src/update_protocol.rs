@@ -1,4 +1,4 @@
-use std::{io, time::Duration};
+use std::{fs, io, path::Path, time::Duration};
 
 use base64::{engine::general_purpose::STANDARD, Engine};
 use ed25519_dalek::{Signature, VerifyingKey};
@@ -93,6 +93,23 @@ fn digest_string(value: &str) -> bool {
             .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
 }
 
+pub fn remove(file: &Path) -> io::Result<()> {
+    match fs::remove_file(file) {
+        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
+        result => result,
+    }
+}
+
+pub fn clear_authorization(root: &Path) -> io::Result<()> {
+    remove(&root.join("next.txt"))?;
+    remove(&root.join("ready.json"))
+}
+
+pub struct ManifestCheck {
+    pub installable: Option<(Envelope, Release)>,
+    pub revoked: bool,
+}
+
 pub struct Source {
     url: Url,
     client: Client,
@@ -132,7 +149,7 @@ impl Source {
         })
     }
 
-    pub fn release(&self, envelope: &Envelope) -> io::Result<Option<Release>> {
+    fn verified_release(&self, envelope: &Envelope) -> io::Result<(Release, Version)> {
         let payload = verified_payload(envelope, &self.release_key)?;
         let mut manifest: Release = serde_json::from_slice(&payload).map_err(|_| invalid())?;
         manifest.manifest_digest = hash(&payload);
@@ -149,16 +166,44 @@ impl Source {
         {
             return Err(invalid());
         }
-        Ok((version > self.running).then_some(manifest))
+        Ok((manifest, version))
     }
 
-    pub async fn manifest(&self) -> io::Result<Option<(Envelope, Release)>> {
+    pub fn release(&self, envelope: &Envelope) -> io::Result<Option<Release>> {
+        let (release, version) = self.verified_release(envelope)?;
+        Ok((version > self.running).then_some(release))
+    }
+
+    pub async fn check_manifest(
+        &self,
+        root: &Path,
+        ready: Option<&Release>,
+    ) -> io::Result<ManifestCheck> {
         let response = self.get("release", CHECK_TIME).await?;
         if response.status() == StatusCode::NO_CONTENT {
-            return Ok(None);
+            return Ok(ManifestCheck {
+                installable: None,
+                revoked: false,
+            });
         }
         let envelope = decode(response).await?;
-        Ok(self.release(&envelope)?.map(|release| (envelope, release)))
+        let (release, version) = self.verified_release(&envelope)?;
+
+        let next_replaced = match fs::read_to_string(root.join("next.txt")) {
+            Ok(digest) => !release.matches_manifest(&digest),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => false,
+            Err(error) => return Err(error),
+        };
+        let revoked = next_replaced
+            || ready.is_some_and(|old| !release.matches_manifest(&old.manifest_digest));
+        if revoked {
+            // A trusted replacement withdraws consent even if it cannot be installed.
+            clear_authorization(root)?;
+        }
+        Ok(ManifestCheck {
+            installable: (version > self.running).then_some((envelope, release)),
+            revoked,
+        })
     }
 
     pub async fn approve(&self, release: &Release) -> io::Result<bool> {
@@ -315,10 +360,24 @@ mod tests {
             }),
             &release_key,
         );
+        let installed_manifest = signed(
+            serde_json::json!({
+                "version": "0.1.10", "platform": "windows-x64", "webview_min": 145,
+                "length": package.len(), "chunk_size": CHUNK, "digest": digest, "chunks": [digest]
+            }),
+            &release_key,
+        );
+        let untrusted_manifest = signed(
+            serde_json::json!({
+                "version": "0.1.10", "platform": "windows-x64", "webview_min": 145,
+                "length": package.len(), "chunk_size": CHUNK, "digest": digest, "chunks": [digest]
+            }),
+            &approval_key,
+        );
         let manifest_envelope: Envelope = serde_json::from_slice(&manifest).unwrap();
         let manifest_digest = hash(&STANDARD.decode(&manifest_envelope.payload).unwrap());
         let server = thread::spawn(move || {
-            for index in 0..8 {
+            for index in 0..11 {
                 let (mut connection, _) = listener.accept().unwrap();
                 let mut input = BufReader::new(&mut connection);
                 let mut request = String::new();
@@ -332,12 +391,20 @@ mod tests {
                 }
                 let path = request.split_whitespace().nth(1).unwrap();
                 let bytes = match index {
-                    0 => {
+                    0 | 10 => {
                         assert_eq!(path, "/release");
                         manifest.clone()
                     }
                     1 => b"MZ altered".to_vec(),
                     2 => package.to_vec(),
+                    8 | 9 => {
+                        assert_eq!(path, "/release");
+                        if index == 8 {
+                            untrusted_manifest.clone()
+                        } else {
+                            installed_manifest.clone()
+                        }
+                    }
                     _ => {
                         let fields: Vec<_> = path.split('/').collect();
                         assert_eq!(fields[1], "approve");
@@ -364,7 +431,13 @@ mod tests {
                 connection.write_all(&bytes).unwrap();
             }
         });
-        let (envelope, release) = source.manifest().await.unwrap().unwrap();
+        let mut nonce = [0; 16];
+        getrandom::fill(&mut nonce).unwrap();
+        let root = std::env::temp_dir().join(format!("yunqi-manifest-{}", hex::encode(nonce)));
+        fs::create_dir(&root).unwrap();
+        let check = source.check_manifest(&root, None).await.unwrap();
+        assert!(!check.revoked);
+        let (envelope, release) = check.installable.unwrap();
         let payload = STANDARD.decode(&envelope.payload).unwrap();
         assert_eq!(release.manifest_digest, hash(&payload));
         let raised_envelope = serde_json::from_slice(&raised_manifest).unwrap();
@@ -394,6 +467,42 @@ mod tests {
         );
         assert!(source.approve(&release).await.is_err(), "legacy approval");
         assert!(source.approve(&release).await.unwrap());
+
+        let ready = root.join("ready.json");
+        let next = root.join("next.txt");
+        let cached = root.join("package.exe");
+        fs::write(&ready, serde_json::to_vec(&envelope).unwrap()).unwrap();
+        fs::write(&next, &release.manifest_digest).unwrap();
+        fs::write(&cached, package).unwrap();
+        assert!(
+            source.check_manifest(&root, Some(&release)).await.is_err(),
+            "untrusted replacement"
+        );
+        assert!(ready.exists());
+        assert!(next.exists());
+
+        let check = source.check_manifest(&root, Some(&release)).await.unwrap();
+        assert!(
+            check.revoked,
+            "a verified replacement withdraws consent even at the installed version"
+        );
+        assert!(check.installable.is_none());
+        assert!(!ready.exists());
+        assert!(!next.exists());
+        assert_eq!(fs::read(&cached).unwrap(), package);
+
+        let restored = source.check_manifest(&root, None).await.unwrap();
+        assert!(!restored.revoked);
+        assert!(restored
+            .installable
+            .unwrap()
+            .1
+            .matches_manifest(&release.manifest_digest));
+        assert!(
+            !next.exists(),
+            "re-publishing the original release cannot restore consent"
+        );
+        fs::remove_dir_all(root).unwrap();
         server.join().unwrap();
     }
 }

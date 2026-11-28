@@ -8,6 +8,7 @@ import {createInterface} from 'node:readline';
 import {pathToFileURL} from 'node:url';
 import {setTimeout as sleep} from 'node:timers/promises';
 import {writeFile} from 'node:fs/promises';
+import {verifyLocalhostHttp} from './localhost-http.mjs';
 import {verifySwaggerHttp} from './swagger-http.mjs';
 
 const [original, program, output] = process.argv.slice(2);
@@ -151,7 +152,8 @@ try {
   const [resumed,oldResumed]=await Promise.all([get(rustUrl),get(referenceUrl)]);
   assert.equal(resumed.status,200);assert.deepEqual(resumed,oldResumed);
   const swaggerStaticChecks=await verifySwaggerHttp(rustUrl);
-  const result={swaggerStaticChecks, matchedRequests:cases, matchedChecks:checked, currentClockChecks:clockChecked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
+  const localhostHttp=await verifyLocalhostHttp(program);
+  const result={localhostHttp,swaggerStaticChecks, matchedRequests:cases, matchedChecks:checked, currentClockChecks:clockChecked, headEncodingsChecked:['identity','gzip'],weightedEncodingsChecked:2,rateWindowAccepted:20,rateWindowRejected:1,recovered:resumed.status};
   if(output) await writeFile(output,JSON.stringify(result,null,2)+'\n');
   console.log(JSON.stringify(result));
 } finally {

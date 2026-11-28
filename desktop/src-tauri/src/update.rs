@@ -12,7 +12,10 @@ use tauri::{Emitter, Manager, WebviewWindow};
 use tokio::sync::{watch, Mutex};
 
 use crate::{
-    update_protocol::{invalid, verify_file, Envelope, Release, Source, CHUNK, METADATA_LIMIT},
+    update_protocol::{
+        clear_authorization, invalid, remove, verify_file, Envelope, Release, Source, CHUNK,
+        METADATA_LIMIT,
+    },
     update_windows::{cpu_times, open_parent, resources_available, wait_parent, watch_lock},
 };
 
@@ -32,13 +35,6 @@ pub struct Status {
     digest: Option<String>,
     scheduled: bool,
     failed: bool,
-}
-
-fn remove(file: &Path) -> io::Result<()> {
-    match fs::remove_file(file) {
-        Err(error) if error.kind() == io::ErrorKind::NotFound => Ok(()),
-        result => result,
-    }
 }
 
 fn record(file: &Path, bytes: &[u8]) -> io::Result<()> {
@@ -121,10 +117,18 @@ impl Updater {
         locked: &watch::Receiver<bool>,
     ) -> io::Result<()> {
         let _operation = self.operation.lock().await;
-        let Some((envelope, release)) = self.source.manifest().await? else {
+        let mut ready = self.ready().ok();
+        let check = self
+            .source
+            .check_manifest(&self.root, ready.as_ref())
+            .await?;
+        if check.revoked {
+            ready = None;
+            let _ = window.emit(CHANGE, ());
+        }
+        let Some((envelope, release)) = check.installable else {
             return Ok(());
         };
-        let ready = self.ready().ok();
         if !webview_satisfies(&release) {
             if ready.is_some() {
                 self.clear_authorization(window)?;
@@ -307,8 +311,7 @@ impl Updater {
     }
 
     fn clear_authorization(&self, window: &WebviewWindow) -> io::Result<()> {
-        remove(&self.root.join("next.txt"))?;
-        remove(&self.root.join("ready.json"))?;
+        clear_authorization(&self.root)?;
         let _ = window.emit(CHANGE, ());
         Ok(())
     }

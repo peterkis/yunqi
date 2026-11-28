@@ -6,7 +6,7 @@ import { Button } from '../../../../components/design/Button';
 import { NumericKeypad } from '../../../../components/design/NumericKeypad';
 import { SegmentedControl } from '../../../../components/design/SegmentedControl';
 import { useBirthPreview, useBirthReferenceDate } from '../hooks/useBirthEntry';
-import { attainedAge, birthdayAdjustment, birthYear, dayError, lunarAgeBirthYears, sharedBirthYear, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
+import { attainedAge, birthdayAdjustment, birthReferenceDate, birthYear, dayError, lunarAgeBirthYears, sharedBirthYear, slotError, type BirthSlot, type BirthDraft, type BirthSubmission } from '../presentation/birth-entry';
 import { BirthYearSeal } from './BirthYearSeal';
 import '../../../../styles/views/birth-entry.css';
 
@@ -36,6 +36,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const dialog = useRef<HTMLDialogElement>(null);
   const mounted = useRef(false);
   const checkingRef = useRef(false);
+  const focusAfterSwitch = useRef(false);
   const [checkingDate, setCheckingDate] = useState(false);
   const [preflightDateChanged, setDateChanged] = useState(false);
   const dateChanged = preflightDateChanged || comparisonDateChanged;
@@ -109,6 +110,12 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     previouslyKnewTime.current = draft.knowsTime;
   }, [draft.knowsTime]);
   useEffect(() => { if (error) inputs.current[slot]?.focus(); }, [error]);
+  useEffect(() => {
+    if (!pending && focusAfterSwitch.current) {
+      focusAfterSwitch.current = false;
+      focus('primary');
+    }
+  }, [pending, draft.mode]);
 
   function update(patch: Partial<BirthDraft>) {
     enterIntent.current = undefined;
@@ -232,18 +239,36 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
       else void confirm();
     }
   }
-  function switchMode(mode: BirthDraft['mode']) {
-    // The settled lunar selection survives a pure mode toggle even while its new preview is pending.
-    // Editing any date field clears it, so a changed birthday can never revive an old year.
-    const retainedDate = draft.calendar === 'lunar' ? selected?.birthDate ?? draft.selected : draft.selected;
+  async function switchMode(mode: BirthDraft['mode']) {
+    if (mode === draft.mode || pending || checkingRef.current) return;
+    // A pure mode switch keeps the settled date even while the new preview is pending.
+    const retainedDate = selected?.birthDate ?? draft.selected;
     const restoredYear = exactLunarAge && retainedDate ? Number(retainedDate.slice(0, 4)) : year;
-    const primary = mode === 'year' ? restoredYear : retainedAge ?? age;
+    let primary = mode === 'year' ? restoredYear : retainedAge ?? age;
     const lunarAgeBeforeYear = mode === 'year' && exactLunarAge ? draft.primary || undefined : undefined;
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
+    if (mode === 'age' && retainedDate) {
+      // The minute poll may still be showing yesterday. Do not switch on a stale age.
+      checkingRef.current = true;
+      setCheckingDate(true);
+      try {
+        const freshDate = await clock.readFreshDate();
+        if (!mounted.current || !freshDate) return;
+        primary = attainedAge(retainedDate, birthReferenceDate(freshDate));
+        if (primary < 0 || primary > 120) return;
+        focusAfterSwitch.current = true;
+      } catch {
+        // Stay in year mode; the clock query exposes a retry.
+        return;
+      } finally {
+        checkingRef.current = false;
+        if (mounted.current) setCheckingDate(false);
+      }
+    }
     onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate, lunarAgeBeforeYear });
-    focus('primary');
+    if (!focusAfterSwitch.current) focus('primary');
   }
   const yearPrefix = exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';
   const badge = year !== undefined && (ageMode || (age !== undefined && age >= 0))

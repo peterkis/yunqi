@@ -14,6 +14,8 @@
 | 重跑完整对照 | `pnpm verify:native --exhaustive`，自动在项目内检出固定提交并构建参考实现 |
 | Windows 证据目录 | `.artifacts\native-verification\` |
 
+显式设置 `HOST=localhost` 时，独立 HTTP 服务监听解析所得的可用 IPv4 / IPv6 回环地址，两个地址共用端口（包括 `PORT=0`）和全局资源预算。未设置 `HOST` 时仍仅绑定 `127.0.0.1`。
+
 桌面直接调用 Rust 计算，无需单独启动 HTTP 服务。Tauri 继续负责窗口、置顶、贴顶、托盘和院内更新客户端。React 工作台、浏览器 DTO 和客户端继续使用既有展示代码。TypeScript 业务包保留供工程对照和 OpenAPI 生成；独立的院内更新分发工具也保留原实现。生产桌面安装包使用编译好的静态工作台资源。
 
 ## 迁移范围

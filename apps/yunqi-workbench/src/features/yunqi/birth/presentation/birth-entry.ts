@@ -28,6 +28,11 @@ export interface BirthReferenceDate {
   day: number;
 }
 
+/** Parse the date fields of a canonical Beijing date returned by the service. */
+export function birthReferenceDate(localDate: string): BirthReferenceDate {
+  return { year: Number(localDate.slice(0, 4)), month: Number(localDate.slice(5, 7)), day: Number(localDate.slice(8, 10)) };
+}
+
 /** A later month alone is conclusive; this month's day must be known. */
 export function birthdayAdjustment(draft: BirthDraft, today: BirthReferenceDate | undefined): '月' | '日' | undefined {
   if (!today || draft.calendar !== 'solar') return undefined;
