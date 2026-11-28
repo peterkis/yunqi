@@ -36,7 +36,7 @@ describe('inline birth entry', () => {
     await waitFor(() => expect(key('仅按年份对照')).toBeEnabled());
     const inferred = Number(screen.getByText(/推算 \d{4} 年/).textContent?.match(/\d{4}/)?.[0]);
     await user.keyboard('{Enter}');
-    expect(confirm).toHaveBeenCalledWith({ year: inferred });
+    expect(confirm).toHaveBeenCalledWith({ year: inferred }, '2026-06-19');
     await user.click(key('3'));
     expect(slot('月')).toHaveValue('03'); expect(slot('日')).toHaveFocus();
     await user.keyboard('{Backspace}');
@@ -46,11 +46,11 @@ describe('inline birth entry', () => {
     await user.click(screen.getByRole('radio', { name: '按年龄推算' }));
     expect(slot('年龄')).toHaveValue('46');
     fireEvent.change(slot('月'), { target: { value: '12' } });
-    await user.click(key('仅按年份对照')); expect(confirm).toHaveBeenLastCalledWith({ year: inferred - 1 });
+    await user.click(key('仅按年份对照')); expect(confirm).toHaveBeenLastCalledWith({ year: inferred - 1 }, '2026-06-19');
     await user.type(slot('日'), '15');
     await waitFor(() => expect(key('确认并对照')).toBeEnabled());
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenLastCalledWith({ birthDate: (inferred - 1) + '-12-15' });
+    expect(confirm).toHaveBeenLastCalledWith({ birthDate: (inferred - 1) + '-12-15' }, '2026-06-19');
     await user.click(screen.getByRole('radio', { name: '农历' }));
     expect(screen.queryByText(`推算公历 ${inferred} 年`)).not.toBeInTheDocument();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
@@ -140,7 +140,7 @@ describe('inline birth entry', () => {
     expect(screen.getByText('公历 1974-02-03')).toBeVisible();
     expect(confirm).not.toHaveBeenCalled();
     await user.click(submit);
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1974-02-03' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '1974-02-03' }, '2026-06-19');
   });
 
   it('discards late previews, requires a selection for multiple dates and can fall back to year only', async () => {
@@ -178,7 +178,7 @@ describe('inline birth entry', () => {
     await user.keyboard('{Enter}');
     expect(confirm).not.toHaveBeenCalled();
     await act(async () => finishLatest({ matches: [match('2001-10-01', '八月十五')] }));
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' }, '2026-01-01');
     expect(screen.getByText(/八月十五 · 2000-09-12/)).toBeVisible();
     expect(screen.queryByText(/2001-10-01/)).not.toBeInTheDocument();
   });
@@ -197,7 +197,7 @@ describe('inline birth entry', () => {
     expect(confirm).not.toHaveBeenCalled();
     await user.click(earlier);
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2001-10-01' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2001-10-01' }, '2026-09-21');
   });
   it('keeps both regular and leap month matches that fit the entered age', async () => {
     const client = createClientStub({
@@ -212,7 +212,7 @@ describe('inline birth entry', () => {
     expect(screen.queryByRole('radio', { name: /2022-03-03/ })).not.toBeInTheDocument();
     await user.click(leap);
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-03-22' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-03-22' }, '2026-06-19');
   });
   it('retains an explicitly selected lunar date when switching modes creates a new ambiguity', async () => {
     const client = createClientStub({
@@ -232,7 +232,7 @@ describe('inline birth entry', () => {
     expect(screen.getByRole('radio', { name: /^二月初一 · 2023-02-20$/ })).toBeChecked();
     expect(screen.queryByRole('radio', { name: /2023-03-22/ })).not.toBeInTheDocument();
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-02-20' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-02-20' }, '2026-02-25');
   });
   it('requires another confirmation after a day change even if the original birthday still qualifies', async () => {
     const getCurrent = dateReference('2026-09-11')
@@ -249,7 +249,7 @@ describe('inline birth entry', () => {
     expect(confirm).not.toHaveBeenCalled();
     await waitFor(() => expect(key('确认并对照')).toBeEnabled());
     await user.click(key('确认并对照'));
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2000-09-12' }, '2026-09-11');
     expect(getCurrent).toHaveBeenCalledTimes(3);
   });
   it('does not submit an age-derived year when the fresh service clock fails', async () => {
@@ -267,7 +267,7 @@ describe('inline birth entry', () => {
     await user.click(retry);
     await waitFor(() => expect(submit).toBeEnabled());
     await user.click(submit);
-    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2001 });
+    expect(confirm).toHaveBeenCalledExactlyOnceWith({ year: 2001 }, '2026-09-11');
   });
   it('never submits from a partial result when either year fails and explains no exact-age matches after retry', async () => {
     const client = createClientStub({

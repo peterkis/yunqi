@@ -4,9 +4,10 @@ import type { BirthDatePreviewDto, BirthDatePreviewRequest, BirthYearRequest, Yu
 import { useYunQiClient } from '../../../../providers/YunQiClientProvider';
 import { liveClockQueryOptions } from '../../../../lib/live-clock-query';
 import { currentYunQiQueryOptions } from '../../api/query-options';
+import { beijingDate } from '../presentation/birth-entry';
 
 // Consume the backend's canonical Beijing date, without local clock conversion.
-const referenceDate = (data: YunQiCalculationDto | undefined) => data?.input.localTime.slice(0, 10);
+const referenceDate = (data: YunQiCalculationDto | undefined) => data && beijingDate(data.input.localTime);
 
 export function useBirthReferenceDate() {
   const client = useYunQiClient();

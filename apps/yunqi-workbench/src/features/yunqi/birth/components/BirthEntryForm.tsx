@@ -19,12 +19,13 @@ interface Props {
   cleared: boolean;
   variant?: 'inline' | 'sheet';
   initialFocus?: BirthSlot;
-  onConfirm: (request: BirthSubmission) => void;
+  onConfirm: (request: BirthSubmission, ageReferenceDate?: string) => void;
+  comparisonDateChanged?: boolean;
   error?: string;
   pending: boolean;
 }
 
-export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cleared, variant = 'inline', initialFocus = 'primary', pending: comparing, error }: Props) {
+export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cleared, variant = 'inline', initialFocus = 'primary', pending: comparing, comparisonDateChanged, error }: Props) {
   const inputs = useRef<Partial<Record<BirthSlot, HTMLInputElement>>>({});
   const [slot, setSlot] = useState<BirthSlot>(initialFocus);
   const [feedback, setFeedback] = useState<{ key: BirthSlot; message: string; kind: 'prefix' | 'error' | 'retained' }>();
@@ -36,7 +37,8 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
   const mounted = useRef(false);
   const checkingRef = useRef(false);
   const [checkingDate, setCheckingDate] = useState(false);
-  const [dateChanged, setDateChanged] = useState(false);
+  const [preflightDateChanged, setDateChanged] = useState(false);
+  const dateChanged = preflightDateChanged || comparisonDateChanged;
   const pending = comparing || checkingDate;
   const motion = useMotionLevel();
   const shake = useRef<Animation | undefined>(undefined);
@@ -181,15 +183,15 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
       : undefined;
     if (!request) return;
     if (ageMode) {
+      let freshDate: string | undefined;
       checkingRef.current = true;
       setCheckingDate(true);
       setDateChanged(false);
       try {
-        const freshDate = await clock.readFreshDate();
+        freshDate = await clock.readFreshDate();
         if (!mounted.current || !freshDate) return;
         if (freshDate !== clock.localDate) {
           // The refreshed query drives a new preview; never submit on behalf of the previous click.
-          onEdit({ ...draft, selected: '', knowsTime: false, time: '' });
           setDateChanged(true);
           return;
         }
@@ -200,6 +202,8 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
         checkingRef.current = false;
         if (mounted.current) setCheckingDate(false);
       }
+      onConfirm(request, freshDate);
+      return;
     }
     onConfirm(request);
   }
@@ -224,11 +228,14 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
     }
   }
   function switchMode(mode: BirthDraft['mode']) {
-    const primary = mode === 'year' ? year : age;
+    // The settled lunar selection survives a pure mode toggle even while its new preview is pending.
+    // Editing any date field clears it, so a changed birthday can never revive an old year.
+    const retainedDate = draft.calendar === 'lunar' ? selected?.birthDate ?? draft.selected : draft.selected;
+    const restoredYear = exactLunarAge && retainedDate ? Number(retainedDate.slice(0, 4)) : year;
+    const primary = mode === 'year' ? restoredYear : age;
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    const retainedDate = draft.calendar === 'lunar' ? selected?.birthDate ?? '' : draft.selected;
     onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate });
     focus('primary');
   }
@@ -318,7 +325,7 @@ export function BirthEntryForm({ draft, onEdit, onReturn, onConfirm, onClear, cl
         {!failure && hasChoices && matches && <fieldset className="birth-entry__matches"><legend>选择对应公历日期</legend>
           {matches.map(item => <label key={item.birthDate}><input type="radio" name={monthGroup} checked={draft.selected === item.birthDate}
             onChange={() => update({ selected: item.birthDate })} />{item.lunarLabel} · {item.birthDate}</label>)}
-          {!selected && !exactLunarAge && <Button variant="text" disabled={inputBlocked} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
+          {!selected && !ageMode && <Button variant="text" disabled={inputBlocked} onClick={() => year && onConfirm({ year })}>仅按年份对照</Button>}
         </fieldset>}
         {!failure && timeAvailable && draft.knowsTime && <p className="birth-entry__boundaries">{selected?.boundaries.map(item => item.label + ' ' + item.at.localTime.slice(11, 19)).join(' · ')}</p>}
         {!failure && !inputBlocked && timeAvailable && draft.knowsTime && <label className="birth-entry__time">出生时刻<input ref={hourField} type="time" step="1" value={draft.time}

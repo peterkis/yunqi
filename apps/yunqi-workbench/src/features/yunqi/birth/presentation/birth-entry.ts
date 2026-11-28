@@ -16,6 +16,11 @@ export const emptyBirthDraft: BirthDraft = {
   mode: 'age', primary: '', calendar: 'solar', month: '', day: '', selected: '', knowsTime: false, time: '',
 };
 
+/** Business date from a canonical API Beijing timestamp, never the device clock. */
+export function beijingDate(localTime: string): string {
+  return localTime.slice(0, 10);
+}
+
 export interface BirthReferenceDate {
   year: number;
   month: number;
