@@ -2,13 +2,13 @@
 use hyper::{
     body::Bytes,
     header::{
-        ACCEPT_ENCODING, ACCEPT_RANGES, CACHE_CONTROL, CONTENT_ENCODING, CONTENT_LENGTH,
-        CONTENT_RANGE, CONTENT_SECURITY_POLICY, ETAG, IF_MATCH, IF_NONE_MATCH, IF_RANGE, RANGE,
-        VARY,
+        HeaderName, ACCEPT_ENCODING, ACCEPT_RANGES, CACHE_CONTROL, CONTENT_ENCODING,
+        CONTENT_LENGTH, CONTENT_RANGE, CONTENT_SECURITY_POLICY, ETAG, IF_MATCH, IF_MODIFIED_SINCE,
+        IF_NONE_MATCH, IF_RANGE, IF_UNMODIFIED_SINCE, LAST_MODIFIED, RANGE, VARY,
     },
     HeaderMap,
 };
-use std::{cmp::Ordering, ops::Range};
+use std::{cmp::Ordering, ops::Range, time::SystemTime};
 
 #[derive(Clone, Copy)]
 struct Representation {
@@ -19,6 +19,7 @@ struct Representation {
 pub struct Asset {
     identity: Representation,
     gzip: Option<Representation>,
+    modified: &'static str,
     pub mime: &'static str,
 }
 
@@ -30,6 +31,7 @@ macro_rules! asset {
                 tag: include_str!(concat!(env!("OUT_DIR"), "/etag-", $name)),
             },
             gzip: None,
+            modified: include_str!(concat!(env!("OUT_DIR"), "/last-modified-", $name)),
             mime: $mime,
         }
     };
@@ -44,6 +46,7 @@ macro_rules! asset {
                 bytes: include_bytes!(concat!("../assets/", $name, ".gz")),
                 tag: include_str!(concat!(env!("OUT_DIR"), "/etag-", $name, ".gz")),
             }),
+            modified: include_str!(concat!(env!("OUT_DIR"), "/last-modified-", $name)),
             mime: $mime,
         }
     }};
@@ -232,6 +235,16 @@ fn byte_range(raw: &str, len: usize) -> RequestedRange {
     }
 }
 
+fn request_date(request: &HeaderMap, name: HeaderName) -> Option<SystemTime> {
+    let values = request.get_all(name);
+    let mut fields = values.iter();
+    let date = fields.next()?.to_str().ok()?;
+    if fields.next().is_some() {
+        return None;
+    }
+    httpdate::parse_http_date(date.trim()).ok()
+}
+
 impl Asset {
     pub fn respond(&self, request: &HeaderMap, head: bool, cacheable: bool) -> AssetReply {
         let gzip = self.gzip.filter(|_| prefers_gzip(request));
@@ -249,6 +262,7 @@ impl Asset {
             let len = bytes.len();
             headers.insert(CACHE_CONTROL, "public, max-age=0".parse().unwrap());
             headers.insert(ETAG, tag.parse().unwrap());
+            headers.insert(LAST_MODIFIED, self.modified.parse().unwrap());
             headers.insert(ACCEPT_RANGES, "bytes".parse().unwrap());
 
             let any_tag = |name, weak_match| {
@@ -257,14 +271,26 @@ impl Asset {
                     .iter()
                     .any(|value| matches_tag_list(value.as_bytes(), tag.as_bytes(), weak_match))
             };
-            if request.contains_key(IF_MATCH) && !any_tag(IF_MATCH, false) {
+            let revision =
+                || httpdate::parse_http_date(self.modified).expect("validated asset date");
+            let failed = if request.contains_key(IF_MATCH) {
+                !any_tag(IF_MATCH, false)
+            } else {
+                request_date(request, IF_UNMODIFIED_SINCE).is_some_and(|date| date < revision())
+            };
+            if failed {
                 return AssetReply {
                     status: 412,
                     body: Bytes::new(),
                     headers,
                 };
             }
-            if any_tag(IF_NONE_MATCH, true) {
+            let not_modified = if request.contains_key(IF_NONE_MATCH) {
+                any_tag(IF_NONE_MATCH, true)
+            } else {
+                request_date(request, IF_MODIFIED_SINCE).is_some_and(|date| date >= revision())
+            };
+            if not_modified {
                 return AssetReply {
                     status: 304,
                     body: Bytes::new(),
@@ -273,13 +299,18 @@ impl Asset {
             }
 
             // RFC 9110 defines the Range request header for GET only.
-            // Dates are not validators here: the embedded bytes have no stable mtime.
+            // Date If-Range requires an exact match, unlike If-Unmodified-Since.
             let values = request.get_all(IF_RANGE);
             let mut if_range = values.iter();
             if !head
-                && if_range
-                    .next()
-                    .is_none_or(|value| value.as_bytes().trim_ascii() == tag.as_bytes())
+                && if_range.next().is_none_or(|value| {
+                    value.as_bytes().trim_ascii() == tag.as_bytes()
+                        || value
+                            .to_str()
+                            .ok()
+                            .and_then(|raw| httpdate::parse_http_date(raw.trim()).ok())
+                            .is_some_and(|date| date == revision())
+                })
                 && if_range.next().is_none()
             {
                 let values = request.get_all(RANGE);

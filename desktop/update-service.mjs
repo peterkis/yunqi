@@ -2,7 +2,7 @@ import {
   createHash, createPrivateKey, createPublicKey, generateKeyPairSync, randomUUID, sign, verify,
 } from 'node:crypto';
 import { constants, createReadStream } from 'node:fs';
-import { copyFile, link, mkdir, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
+import { copyFile, link, lstat, mkdir, open, readFile, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { join, resolve } from 'node:path';
 import { once } from 'node:events';
@@ -49,6 +49,32 @@ async function activeRelease(root, key) {
   }
 }
 
+async function matchesPackage(path, length, digest) {
+  // Reuse only a regular file and hash the same opened file whose size we checked.
+  // Close before replacing so Windows can rename a damaged directory entry.
+  try {
+    if (!(await lstat(path)).isFile()) return false;
+    const file = await open(path, 'r');
+    try {
+      const info = await file.stat();
+      if (!info.isFile() || info.size !== length) return false;
+      const hash = createHash('sha256');
+      let read = 0;
+      for await (const bytes of file.createReadStream({ autoClose: false, end: length })) {
+        read += bytes.length;
+        if (read > length) return false;
+        hash.update(bytes);
+      }
+      return read === length && hash.digest('hex') === digest;
+    } finally {
+      await file.close();
+    }
+  } catch (error) {
+    if (error.code === 'ENOENT') return false;
+    throw error;
+  }
+}
+
 export async function publish(root, installer, version, webviewMin, key) {
   if (!buildVersion.test(version) || !Number.isSafeInteger(webviewMin) || webviewMin < 1
     || key.asymmetricKeyType !== 'ed25519') throw new Error('invalid release arguments');
@@ -77,6 +103,11 @@ export async function publish(root, installer, version, webviewMin, key) {
       await link(staged, artifact);
     } catch (error) {
       if (error.code !== 'EEXIST') throw error;
+      if (!(await matchesPackage(artifact, length, digest))) {
+        // The staged file is complete and verified. Replace in one same-directory
+        // rename, never unlink the active path; if blocked, don't publish metadata.
+        await rename(staged, artifact);
+      }
     }
     const release = { version, platform: 'windows-x64', webview_min: webviewMin,
       length, digest, chunk_size: chunkSize, chunks };

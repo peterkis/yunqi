@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createHash, generateKeyPairSync, verify } from 'node:crypto';
 import { once } from 'node:events';
-import { mkdtemp, rmdir, unlink, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, rm, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { test } from 'node:test';
@@ -90,4 +90,66 @@ test('signed release, bounded concurrent transfer, resume, and signed withdrawal
   const revoked = verifyResponse(await (await get(approvePath)).json(), approvalKeys.publicKey);
   assert.deepEqual(revoked, { ...approved, allowed: false });
   assert.equal((await get('/chunks/' + manifest.digest + '/1')).status, 404);
+});
+
+
+for (const corruption of ['wrong-size', 'same-size']) {
+  test('republishing repairs a ' + corruption + ' stored package before activation', async t => {
+    const root = await mkdtemp(join(tmpdir(), 'yunqi-republish-'));
+    const installer = join(root, 'fixture.exe');
+    const bytes = Buffer.from('MZ verified installer in the test fixture');
+    const releaseKeys = generateKeyPairSync('ed25519');
+    const approvalKeys = generateKeyPairSync('ed25519');
+    const service = updateService({ root, releaseKey: releaseKeys.publicKey,
+      approvalKey: approvalKeys.privateKey });
+    t.after(async () => {
+      service.closeAllConnections();
+      await new Promise(resolve => service.close(resolve));
+      await rm(root, { recursive: true, force: true });
+    });
+    await writeFile(installer, bytes);
+    const initial = await publish(root, installer, '0.1.11', 145, releaseKeys.privateKey);
+    const artifact = join(root, 'packages', initial.digest + '.exe');
+    const damaged = Buffer.from(bytes);
+    damaged[damaged.length - 1] ^= 1;
+    await writeFile(artifact, corruption === 'wrong-size' ? damaged.subarray(0, -1) : damaged);
+    service.listen(0, '127.0.0.1');
+    await once(service, 'listening');
+    const url = 'http://127.0.0.1:' + service.address().port;
+    const get = path => fetch(url + path, { signal: AbortSignal.timeout(10000) });
+    const publishRepair = () => publish(root, installer, '0.1.12', 145, releaseKeys.privateKey);
+    const [repaired] = corruption === 'same-size'
+      ? await Promise.all([publishRepair(), publishRepair()])
+      : [await publishRepair()];
+    assert.equal(repaired.digest, initial.digest);
+    const latest = await (await get('/release')).json();
+    const payload = Buffer.from(latest.payload, 'base64');
+    assert.equal(verify(null, payload, releaseKeys.publicKey, Buffer.from(latest.signature, 'base64')), true);
+    assert.deepEqual(JSON.parse(payload), repaired);
+    const chunk = await get('/chunks/' + repaired.digest + '/0');
+    assert.equal(chunk.status, 200);
+    assert.deepEqual(Buffer.from(await chunk.arrayBuffer()), bytes);
+    assert.deepEqual(await readFile(artifact), bytes);
+    assert.deepEqual(await readdir(join(root, 'packages')), [initial.digest + '.exe']);
+  });
+}
+
+test('failed artifact replacement leaves the previous manifest active', async t => {
+  const root = await mkdtemp(join(tmpdir(), 'yunqi-republish-blocked-'));
+  t.after(() => rm(root, { recursive: true, force: true }));
+  const installer = join(root, 'fixture.exe');
+  const { privateKey } = generateKeyPairSync('ed25519');
+  await writeFile(installer, Buffer.from('MZ first test fixture'));
+  await publish(root, installer, '0.1.11', 145, privateKey);
+  const active = join(root, 'active.json');
+  const previous = await readFile(active);
+  const bytes = Buffer.from('MZ new test fixture');
+  await writeFile(installer, bytes);
+  const digest = createHash('sha256').update(bytes).digest('hex');
+  const blocked = join(root, 'packages', digest + '.exe');
+  await mkdir(blocked);
+  await writeFile(join(blocked, 'keep'), 'cannot overwrite this directory as a package');
+  await assert.rejects(publish(root, installer, '0.1.12', 145, privateKey));
+  assert.deepEqual(await readFile(active), previous);
+  assert.equal((await readdir(join(root, 'packages'))).some(name => name.endsWith('.part')), false);
 });

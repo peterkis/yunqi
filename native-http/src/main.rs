@@ -26,7 +26,7 @@ use tokio::{
     sync::{OwnedSemaphorePermit, Semaphore},
 };
 use tokio_io_timeout::TimeoutStream;
-use yunqi_core::{clock_ms, dispatch, dispatch_annual_query, Reply};
+use yunqi_core::{clock_ms, dispatch, dispatch_annual_query};
 
 type HttpReply = Response<Full<Bytes>>;
 type Guard = Arc<OwnedSemaphorePermit>;
@@ -189,19 +189,40 @@ fn decode_segment(segment: &str) -> Result<Cow<'_, str>, ()> {
         .map_err(|_| ())
 }
 
-fn annual_parameter(path: &str) -> Option<Result<Cow<'_, str>, ()>> {
-    // Match exact raw segment boundaries before decoding any URI components.
-    let mut segments = path.strip_prefix('/')?.split('/');
-    for expected in ["api", "v1", "yunqi", "year"] {
-        if decode_segment(segments.next()?).ok()? != expected {
-            return None;
+const ANNUAL_PREFIX: &str = "/api/v1/yunqi/year/";
+
+enum RoutePath<'a> {
+    Static(Cow<'a, str>),
+    Annual(Cow<'a, str>),
+}
+
+fn route_path(path: &str, annual: bool) -> Result<RoutePath<'_>, ()> {
+    if !path.contains('%') {
+        if let Some(year) = path.strip_prefix(ANNUAL_PREFIX) {
+            if annual && !year.contains('/') {
+                return Ok(RoutePath::Annual(Cow::Borrowed(year)));
+            }
+        }
+        return Ok(RoutePath::Static(Cow::Borrowed(path)));
+    }
+    let mut canonical = String::with_capacity(path.len());
+    let mut segments = path.split('/').peekable();
+    while let Some(segment) = segments.next() {
+        let decoded = decode_segment(segment)?;
+        if annual && canonical == ANNUAL_PREFIX && segments.peek().is_none() {
+            return Ok(RoutePath::Annual(decoded));
+        }
+        // An encoded slash is a character in this segment, not a route separator.
+        canonical.push_str(if decoded.contains('/') {
+            segment
+        } else {
+            &decoded
+        });
+        if segments.peek().is_some() {
+            canonical.push('/');
         }
     }
-    let year = segments.next()?;
-    if segments.next().is_some() {
-        return None;
-    }
-    Some(decode_segment(year))
+    Ok(RoutePath::Static(Cow::Owned(canonical)))
 }
 
 async fn handle(
@@ -220,14 +241,27 @@ async fn handle(
         raw_method.clone()
     };
     let uri = req.uri().clone();
-    let path = uri.path();
+    let (path, annual) = match route_path(uri.path(), method == Method::GET) {
+        Ok(RoutePath::Static(path)) => (path, None),
+        Ok(RoutePath::Annual(year)) => (Cow::Borrowed(""), Some(year)),
+        Err(()) => {
+            return Ok(json_reply(
+                400,
+                json!({
+                    "error":"Bad Request","code":"FST_ERR_BAD_URL",
+                    "message":format!("'{uri}' is not a valid url component"),"statusCode":400
+                }),
+                Some(guard),
+            ));
+        }
+    };
     let mut reply = if method == Method::GET && path == "/docs/static/index.html" {
         let mut redirect = response(302, "text/plain", Bytes::new(), Some(guard));
         redirect
             .headers_mut()
             .insert(LOCATION, "/docs/".parse().unwrap());
         redirect
-    } else if let Some(asset) = docs::get(path).filter(|_| method == Method::GET) {
+    } else if let Some(asset) = docs::get(&path).filter(|_| method == Method::GET) {
         // Fastify's static middleware revalidates bundled files, not its generated initializer.
         let cacheable =
             path.starts_with("/docs/static/") && path != "/docs/static/swagger-initializer.js";
@@ -239,27 +273,23 @@ async fn handle(
         reply.headers_mut().extend(result.headers);
         reply
     } else {
-        let payload = if method == Method::POST && has_post(path) {
+        let payload = if method == Method::POST && has_post(&path) {
             match read_payload(req).await {
                 Ok(body) => body,
-                Err(()) => return Ok(invalid(guard, no_store(path))),
+                Err(()) => return Ok(invalid(guard, no_store(&path))),
             }
         } else {
             Value::Null
         };
-        let path = path.to_owned();
+        let path = path.into_owned();
+        let annual = annual.map(Cow::into_owned);
         let task_guard = guard.clone();
         let outcome=tokio::task::spawn_blocking(move ||{
             let _permit=task_guard; // stays active even if the caller disconnects during CPU work
-            let mut reply = match (method == Method::GET).then(|| annual_parameter(&path)).flatten() {
-                Some(Ok(year)) => dispatch_annual_query(&year),
-                Some(Err(())) => Reply {
-                    status: 400,
-                    body: json!({"error":"Bad Request","code":"FST_ERR_BAD_URL",
-                        "message":format!("'{path}' is not a valid url component"),"statusCode":400}),
-                    headers: json!({}),
-                },
-                None => dispatch(method.as_str(), &path, &payload, clock_ms()),
+            let mut reply = if let Some(year) = annual {
+                dispatch_annual_query(&year)
+            } else {
+                dispatch(method.as_str(), &path, &payload, clock_ms())
             };
             if reply.status==404 {
                 reply.body=json!({"message":format!("Route {}:{} not found",raw_method,uri),"error":"Not Found","statusCode":404});

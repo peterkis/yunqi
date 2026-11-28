@@ -44,7 +44,7 @@ export async function verifySwaggerHttp(base) {
     assert.equal(tag(result),tag(variant));
     assert.equal(result.headers['content-length'],undefined);
     assert.equal(result.headers['content-range'],undefined);
-    for(const header of ['vary','cache-control','accept-ranges','content-security-policy']) {
+    for(const header of ['vary','cache-control','accept-ranges','content-security-policy','last-modified']) {
       assert.equal(result.headers[header],variant.headers[header],header);
     }
   };
@@ -65,6 +65,7 @@ export async function verifySwaggerHttp(base) {
     assert.equal(Number(result.headers['content-length']),last-first+1);
     assert.equal(result.headers['content-encoding'],variant.headers['content-encoding']);
     assert.equal(result.headers['cache-control'],variant.headers['cache-control']);
+    assert.equal(result.headers['last-modified'],variant.headers['last-modified']);
     assert.deepEqual(result.body,variant.body.subarray(first,last+1));
   }
   const huge='1234567890123456789012345678901234567890';
@@ -103,6 +104,37 @@ export async function verifySwaggerHttp(base) {
     const current=await get({'if-none-match':'*',range:'bytes=0-7'},200,'GET',target);
     assert.equal(tag(current),undefined,target);
     assert.equal(current.headers['accept-ranges'],undefined,target);
+    assert.equal(current.headers['last-modified'],undefined,target);
+  }
+  await sleep(1100);
+  const modified=identity.headers['last-modified'];
+  assert.equal(new Date(modified).toUTCString(),modified,'canonical Last-Modified');
+  assert.equal(compressed.headers['last-modified'],modified);
+  assert.equal(head.headers['last-modified'],modified);
+  const stale=new Date(Date.parse(modified)-1000).toUTCString();
+  const newer=new Date(Date.parse(modified)+1000).toUTCString();
+  await unchanged({'if-modified-since':modified},identity);
+  await unchanged({'if-modified-since':newer,'accept-encoding':'gzip'},compressed,'HEAD');
+  await unchanged({'if-none-match':tag(identity),'if-modified-since':stale},identity);
+  for(const headers of [
+    {'if-modified-since':stale},
+    {'if-modified-since':'invalid date'},
+    {'if-none-match':'"other"','if-modified-since':newer},
+    {'if-match':tag(identity),'if-unmodified-since':stale},
+  ]) {
+    const full=await get(headers);
+    assert.equal(full.headers['last-modified'],modified);
+    assert.deepEqual(full.body,identity.body);
+  }
+  const precondition=await get({'if-unmodified-since':stale,'if-none-match':tag(identity)},412);
+  assert.equal(precondition.headers['last-modified'],modified);
+  assert.equal(length(precondition),0);
+  await partial('bytes=0-15',identity,0,15,{'if-range':modified});
+  await partial('bytes=0-15',compressed,0,15,{'if-range':modified,'accept-encoding':'gzip'});
+  for(const date of [stale,newer,'invalid date']) {
+    const full=await get({range:'bytes=0-15','if-range':date});
+    assert.equal(full.headers['content-range'],undefined);
+    assert.deepEqual(full.body,identity.body);
   }
   return checks;
 }

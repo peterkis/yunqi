@@ -103,6 +103,16 @@ try {
   await check(y+'/year/20%252F24',undefined,{expectedStatus:400});
   await check(y+'/year/%E9',undefined,{expectedStatus:400});
   await check(y+'/year/',undefined,{expectedStatus:400});
+  // Decode once before routing and before applying the matched POST body's parser.
+  await check('/he%61lth',undefined,{expectedStatus:200});
+  await check(y+'/%63urrent',undefined,{currentInput:data=>data?.input,expectedStatus:200});
+  await check(y+'/%63alculate',post(validJson),{expectedStatus:200});
+  await check(y+'/%63alculate',post('{"dateTime":'),{expectedStatus:400});
+  await check(lesson+'/%63alculate',post(validJson),{expectedStatus:200});
+  await check(scale+'/%61ssess',json(assessment),{expectedStatus:200});
+  await check('/he%2561lth',undefined,{expectedStatus:404});
+  await check('/api%2Fv1/yunqi/current',undefined,{expectedStatus:404});
+  await check(y+'/%E9urrent?foo=bar',undefined,{expectedStatus:400});
   await sleep(1100);
   for(const p of ['/docs','/docs/','/docs/json','/docs/yaml','/docs/static/swagger-ui-bundle.js','/docs/static/index.css']){
     const [n,o]=await Promise.all([fetch(rustUrl+p),fetch(referenceUrl+p)]);

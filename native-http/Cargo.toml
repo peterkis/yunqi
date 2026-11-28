@@ -8,6 +8,7 @@ publish = false
 yunqi-core = { path = "../native" }
 serde_json = "1"
 hyper = { version = "1", features = ["http1", "server"] }
+httpdate = "1"
 hyper-util = { version = "0.1", features = ["tokio"] }
 http-body-util = "0.1"
 tokio = { version = "1", features = ["rt-multi-thread", "net", "time", "sync", "macros"] }
@@ -15,5 +16,6 @@ tokio-io-timeout = "1.2"
 percent-encoding = "2"
 
 [build-dependencies]
+httpdate = "1"
 flate2 = "1"
 sha2 = "0.10"
