@@ -84,7 +84,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
     }
     wasShowingForm.current = showForm;
   }, [showForm, visible, reading]);
-  function submit(request: BirthSubmission, ageReferenceDate?: string) {
+  function submit(request: BirthSubmission, confirmationReferenceDate?: string) {
     if (submitting.current) return;
     submitting.current = true;
     setCleared(false);
@@ -97,7 +97,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
       setEditor(undefined);
     };
     const callbacks = {
-      onSuccess, ageReferenceDate, onDateChanged: () => setComparisonDateChanged(true),
+      onSuccess, confirmationReferenceDate, onDateChanged: () => setComparisonDateChanged(true),
       onSettled: () => { submitting.current = false; },
     };
     comparison.submit(request, callbacks);

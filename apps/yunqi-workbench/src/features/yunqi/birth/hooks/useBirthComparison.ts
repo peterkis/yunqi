@@ -11,7 +11,7 @@ import { beijingDate, type BirthSubmission } from '../presentation/birth-entry';
 interface SubmissionCallbacks {
   onSuccess(): void;
   onSettled(): void;
-  ageReferenceDate?: string;
+  confirmationReferenceDate?: string;
   onDateChanged?(): void;
 }
 
@@ -25,7 +25,7 @@ export function useBirthComparison() {
   function resetStatus() { exact.reset(); annual.reset(); }
   function submit(request: BirthSubmission, callbacks?: SubmissionCallbacks) {
     function accept(facts: YunQiCalculationDto, project: () => BirthPageViewModel) {
-      const reference = callbacks?.ageReferenceDate;
+      const reference = callbacks?.confirmationReferenceDate;
       if (reference && reference !== beijingDate(facts.input.localTime)) {
         const { queryKey } = currentYunQiQueryOptions(client);
         const observed = queryClient.getQueryData(queryKey);

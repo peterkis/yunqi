@@ -19,7 +19,7 @@ interface Props {
   cleared: boolean;
   variant?: 'inline' | 'sheet';
   initialFocus?: BirthSlot;
-  onConfirm: (request: BirthSubmission, ageReferenceDate?: string) => void;
+  onConfirm: (request: BirthSubmission, confirmationReferenceDate?: string) => void;
   comparisonDateChanged?: boolean;
   error?: string;
   pending: boolean;
@@ -58,14 +58,17 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
   const complete = Boolean(Number(month) && Number(day) && !invalid);
   // An entered year remains authoritative even when lunar month/day are added later.
   const exactLunarAge = ageMode && pinnedYear === undefined && calendar === 'lunar' && complete;
-  const lunarReferenceDate = exactLunarAge ? clock.localDate : undefined;
+  // Current-year previews hide future dates, even when the year is fixed.
+  const currentYearPreview = complete && inferredYear !== undefined && inferredYear === clock.today?.year;
+  const previewReferenceDate = exactLunarAge || currentYearPreview ? clock.localDate : undefined;
+  const confirmWithFreshDate = ageMode || currentYearPreview;
   const requests = useMemo(() => {
     if (!complete) return undefined;
     const years = exactLunarAge
-      ? lunarAgeBirthYears(enteredPrimary, lunarReferenceDate ? Number(lunarReferenceDate.slice(0, 4)) : undefined)
+      ? lunarAgeBirthYears(enteredPrimary, previewReferenceDate ? Number(previewReferenceDate.slice(0, 4)) : undefined)
       : inferredYear === undefined ? [] : [inferredYear];
     return years.length ? years.map(year => ({ year, calendar, month: Number(month), day: Number(day) })) : undefined;
-  }, [complete, exactLunarAge, enteredPrimary, lunarReferenceDate, inferredYear, calendar, month, day]);
+  }, [complete, exactLunarAge, enteredPrimary, previewReferenceDate, inferredYear, calendar, month, day]);
   const preview = useBirthPreview(requests);
   const enterIntent = useRef<typeof requests>(undefined);
   const today = clock.today;
@@ -93,7 +96,7 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
   const year = exactLunarAge ? (selected ? Number(selected.birthDate.slice(0, 4)) : sharedBirthYear(matches)) : inferredYear;
   const timeAvailable = Boolean(selected?.boundaries.length);
   const annualOnly = !draft.day && rejected?.key !== 'day' && !invalid && (!draft.month || Number(draft.month) > 0);
-  const allow = Boolean(!inputBlocked && year && (!ageMode || !clock.failed) &&
+  const allow = Boolean(!inputBlocked && year && (!confirmWithFreshDate || !clock.failed) &&
     (annualOnly || (selected && (!timeAvailable || !draft.knowsTime || draft.time))));
 
   function focus(key: BirthSlot) {
@@ -202,7 +205,7 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
       ? { birthDate: selected.birthDate, ...(timeAvailable && draft.knowsTime ? { birthTime: draft.time.length === 5 ? draft.time + ':00' : draft.time } : {}) }
       : undefined;
     if (!request) return;
-    if (ageMode) {
+    if (confirmWithFreshDate) {
       let freshDate: string | undefined;
       checkingRef.current = true;
       setCheckingDate(true);

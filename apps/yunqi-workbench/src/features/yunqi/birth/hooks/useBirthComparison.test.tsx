@@ -35,7 +35,7 @@ describe('birth response lifetime', () => {
     const { queryKey } = currentYunQiQueryOptions(client);
     const before = { ...current.facts, input: { ...current.facts.input, localTime: '2026-06-18T23:59:59+08:00' } };
     act(() => { result.current.queryClient.setQueryData(queryKey, before); });
-    const callbacks = { ageReferenceDate: '2026-06-18', onDateChanged: vi.fn(), onSuccess: vi.fn(), onSettled: vi.fn() };
+    const callbacks = { confirmationReferenceDate: '2026-06-18', onDateChanged: vi.fn(), onSuccess: vi.fn(), onSettled: vi.fn() };
     act(() => result.current.birth.submit({ year: 2001 }, callbacks));
     await waitFor(() => expect(callbacks.onSettled).toHaveBeenCalledOnce());
     expect(client.compareBirthYear).toHaveBeenCalledWith({ year: 2001 });
