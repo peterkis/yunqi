@@ -219,7 +219,7 @@ describe('inline birth entry', () => {
     await user.click(key('确认并对照'));
     expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-03-22' }, '2026-06-19');
   });
-  it('retains an explicitly selected lunar date when switching modes creates a new ambiguity', async () => {
+  it('retains the selected lunar date and limits alternatives to the entered year when switching modes', async () => {
     const client = createClientStub({
       getCurrent: dateReference('2026-02-25'),
       previewBirthDate: vi.fn(async ({ year }) => ({ matches: year === 2023
@@ -233,9 +233,10 @@ describe('inline birth entry', () => {
     await user.click(regular);
     await user.click(ageMode);
     expect(slot('年龄')).toHaveValue('3');
-    expect(await screen.findByRole('radio', { name: /2022-03-03/ })).not.toBeChecked();
+    expect(await screen.findByRole('radio', { name: /2023-03-22/ })).not.toBeChecked();
     expect(screen.getByRole('radio', { name: /^二月初一 · 2023-02-20$/ })).toBeChecked();
-    expect(screen.queryByRole('radio', { name: /2023-03-22/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: /2022-03-03/ })).not.toBeInTheDocument();
+    expect(client.previewBirthDate).not.toHaveBeenCalledWith(expect.objectContaining({ year: 2022 }));
     await user.click(key('确认并对照'));
     expect(confirm).toHaveBeenCalledExactlyOnceWith({ birthDate: '2023-02-20' }, '2026-02-25');
   });

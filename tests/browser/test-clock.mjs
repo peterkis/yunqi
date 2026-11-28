@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 const clockHeader = 'x-yunqi-browser-fixture-epoch';
 const clockedRoutes = new Set([
   'GET /api/v1/yunqi/current',
+  'POST /api/v1/yunqi/learning/birth-date-preview',
   'POST /api/v1/yunqi/learning/birth-comparison',
   'POST /api/v1/yunqi/learning/birth-year-comparison',
 ]);
@@ -33,6 +34,7 @@ export async function routeBirthClock(page, clock) {
     return route.continue({ headers: { ...route.request().headers(), [clockHeader]: String(epoch) } });
   };
   await page.route('**/api/v1/yunqi/current', route => routeWithTime(route, clock.current));
+  await page.route('**/learning/birth-date-preview', route => routeWithTime(route, clock.current));
   for (const action of ['birth-comparison', 'birth-year-comparison']) {
     await page.route('**/learning/' + action, route => routeWithTime(route, clock.comparison ?? clock.current));
   }

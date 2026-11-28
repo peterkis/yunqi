@@ -67,7 +67,7 @@ export function BirthComparisonPage({ comparison, onAssess, onDiscardAssessment 
     if (intent === 'modify') {
       const year = 'year' in submitted ? String(submitted.year) : submitted.birthDate.slice(0, 4);
       setDraft({ ...draft, mode: 'year', primary: year,
-        selected: 'birthDate' in submitted ? submitted.birthDate : '', lunarAgeBeforeYear: undefined, yearBeforeAge: undefined });
+        selected: 'birthDate' in submitted ? submitted.birthDate : '', ageBeforeYear: undefined, yearBeforeAge: undefined });
     }
     setCleared(false); setComparisonDateChanged(false);
   }

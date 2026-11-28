@@ -5,7 +5,9 @@ export type BirthSubmission = BirthYearRequest | BirthComparisonRequest;
 export interface BirthDraft {
   mode: 'age' | 'year';
   primary: string;
-  lunarAgeBeforeYear?: string;
+  /** Typed age behind an unedited year-mode round trip. */
+  ageBeforeYear?: string;
+  /** Entered Gregorian year behind a derived age. */
   yearBeforeAge?: number;
   calendar: 'solar' | 'lunar';
   month: string;
@@ -53,7 +55,9 @@ export function birthYear(draft: BirthDraft, today: BirthReferenceDate | undefin
   const value = Number(draft.primary);
   if (draft.mode === 'age' && value > 120) return undefined;
   if (draft.mode === 'year' && draft.primary.length !== 4) return undefined;
-  const year = draft.mode === 'age' ? today.year - value - (birthdayAdjustment(draft, today) ? 1 : 0) : value;
+  const year = draft.mode === 'age'
+    ? draft.yearBeforeAge ?? (today.year - value - Number(Boolean(birthdayAdjustment(draft, today))))
+    : value;
   return year >= 1900 && year <= Math.min(2100, today.year) ? year : undefined;
 }
 

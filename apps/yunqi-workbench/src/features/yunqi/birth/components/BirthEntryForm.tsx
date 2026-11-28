@@ -50,41 +50,42 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
   const clock = useBirthReferenceDate();
   const ageMode = storedDraft.mode === 'age';
   const pinnedYear = ageMode ? storedDraft.yearBeforeAge : undefined;
-  // A converted age still represents the entered year or selected birthday.
-  // Clock refreshes update its displayed age rather than changing that origin.
-  const draft = pinnedYear !== undefined && clock.today
-    ? { ...storedDraft, primary: String(storedDraft.selected ? attainedAge(storedDraft.selected, clock.today)
-      : approximateBirthAge(storedDraft, pinnedYear, clock.today)) }
-    : storedDraft;
-  const inferredYear = birthYear(draft, clock.today);
-  const adjustment = birthdayAdjustment(draft, clock.today);
-  const yearAge = inferredYear !== undefined && clock.today ? approximateBirthAge(draft, inferredYear, clock.today) : undefined;
-  const invalid = dayError(draft, inferredYear);
-  const complete = Boolean(Number(draft.month) && Number(draft.day) && !invalid);
-  const exactLunarAge = ageMode && draft.calendar === 'lunar' && complete;
+  const inferredYear = birthYear(storedDraft, clock.today);
+  const adjustment = pinnedYear === undefined ? birthdayAdjustment(storedDraft, clock.today) : undefined;
+  const yearAge = inferredYear !== undefined && clock.today ? approximateBirthAge(storedDraft, inferredYear, clock.today) : undefined;
+  const invalid = dayError(storedDraft, inferredYear);
+  const { primary: enteredPrimary, calendar, month, day, selected: pinnedDate } = storedDraft;
+  const complete = Boolean(Number(month) && Number(day) && !invalid);
+  // An entered year remains authoritative even when lunar month/day are added later.
+  const exactLunarAge = ageMode && pinnedYear === undefined && calendar === 'lunar' && complete;
   const lunarReferenceDate = exactLunarAge ? clock.localDate : undefined;
   const requests = useMemo(() => {
     if (!complete) return undefined;
     const years = exactLunarAge
-      ? lunarAgeBirthYears(draft.primary, lunarReferenceDate ? Number(lunarReferenceDate.slice(0, 4)) : undefined)
+      ? lunarAgeBirthYears(enteredPrimary, lunarReferenceDate ? Number(lunarReferenceDate.slice(0, 4)) : undefined)
       : inferredYear === undefined ? [] : [inferredYear];
-    return years.length ? years.map(year => ({ year, calendar: draft.calendar, month: Number(draft.month), day: Number(draft.day) })) : undefined;
-  }, [complete, exactLunarAge, draft.primary, lunarReferenceDate, inferredYear, draft.calendar, draft.month, draft.day]);
+    return years.length ? years.map(year => ({ year, calendar, month: Number(month), day: Number(day) })) : undefined;
+  }, [complete, exactLunarAge, enteredPrimary, lunarReferenceDate, inferredYear, calendar, month, day]);
   const preview = useBirthPreview(requests);
   const enterIntent = useRef<typeof requests>(undefined);
   const today = clock.today;
   const matches = exactLunarAge && today
-    ? preview.matches?.filter(item => attainedAge(item.birthDate, today) === Number(draft.primary))
+    ? preview.matches?.filter(item => attainedAge(item.birthDate, today) === Number(enteredPrimary))
     : preview.matches;
   // If a confirmed candidate no longer fits after a clock refresh, never substitute another date.
-  const selected = draft.selected
-    ? matches?.find(item => item.birthDate === draft.selected)
+  const selected = pinnedDate
+    ? matches?.find(item => item.birthDate === pinnedDate)
     : matches?.length === 1 ? matches[0] : undefined;
-  const knownBirthDate = selected?.birthDate || (!ageMode ? draft.selected : '');
+  const knownBirthDate = selected?.birthDate || (!ageMode || pinnedYear !== undefined ? pinnedDate : '');
   const confirmedAge = knownBirthDate && today ? attainedAge(knownBirthDate, today) : undefined;
   const age = confirmedAge ?? yearAge;
+  // When age is derived, editing the date or a clock refresh recalculates the
+  // displayed age, not the explicitly entered Gregorian year.
+  const draft = pinnedYear !== undefined && age !== undefined
+    ? { ...storedDraft, primary: String(age) }
+    : storedDraft;
   // A previously typed age is only a round-trip aid while the exact date remains unresolved.
-  const retainedAge = knownBirthDate ? undefined : draft.lunarAgeBeforeYear;
+  const retainedAge = knownBirthDate ? undefined : draft.ageBeforeYear;
   const unresolvedLunarYear = draft.calendar === 'lunar' && complete && inferredYear !== undefined && (!selected || clock.failed);
   const ageInRange = age === undefined || (age >= 0 && age <= 120);
   const canSwitchToAge = knownBirthDate ? confirmedAge !== undefined && !clock.failed && ageInRange
@@ -128,7 +129,7 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
-    onEdit({ ...draft, selected: '', knowsTime: false, time: '', lunarAgeBeforeYear: undefined, yearBeforeAge: undefined, ...patch });
+    onEdit({ ...draft, selected: '', knowsTime: false, time: '', ageBeforeYear: undefined, yearBeforeAge: patch.primary === undefined ? pinnedYear : undefined, ...patch });
   }
   function reject(key: BirthSlot, message: string, kind: 'error' | 'retained' = 'error') {
     enterIntent.current = undefined;
@@ -252,7 +253,7 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
     const retainedDate = selected?.birthDate ?? draft.selected;
     const restoredYear = exactLunarAge && retainedDate ? Number(retainedDate.slice(0, 4)) : year;
     let primary = mode === 'year' ? restoredYear : retainedAge ?? age;
-    const lunarAgeBeforeYear = mode === 'year' && exactLunarAge ? draft.primary || undefined : undefined;
+    const ageBeforeYear = mode === 'year' && pinnedYear === undefined ? draft.primary || undefined : undefined;
     enterIntent.current = undefined;
     setFeedback(undefined);
     setDateChanged(false);
@@ -279,10 +280,10 @@ export function BirthEntryForm({ draft: storedDraft, onEdit, onReturn, onConfirm
       }
     }
     onEdit({ ...draft, mode, primary: primary === undefined ? '' : String(primary), selected: retainedDate,
-      lunarAgeBeforeYear, yearBeforeAge: mode === 'age' && retainedAge === undefined ? enteredYear : undefined });
+      ageBeforeYear, yearBeforeAge: mode === 'age' && draft.ageBeforeYear === undefined ? enteredYear : undefined });
     if (!focusAfterSwitch.current) focus('primary');
   }
-  const yearPrefix = exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';
+  const yearPrefix = pinnedYear !== undefined ? '公历' : exactLunarAge ? '对应公历' : adjustment ? '按' + adjustment + '修正' : draft.calendar === 'lunar' ? '推算公历' : '推算';
   const badge = year !== undefined && (ageMode || (age !== undefined && age >= 0))
     ? (ageMode ? `${yearPrefix} ${year} 年` : `${selected || (complete && draft.calendar === 'solar') ? '周岁' : '约'} ${age} 岁`)
     : undefined;
